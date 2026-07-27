@@ -40,7 +40,6 @@ You were chosen for this because the prior agent has 5 hours of accumulated cont
   - `_archive/Phase_Progression_Framework_v3.0_baseline.md` — the pre-audit baseline; v3.1 is canonical and v3.0 has anchor clauses that have been corrected.
   - `_archive/v2_stage_gated_2026-06-05/` — the OLD 11-stage system (`Stage_Gated_Data_Collection.md`, `Validation_Layer_Fathom_HelpScout.md`, `Output_Format.md`, old `RUN_PROMPT.md`, old `README.md`). Different framework entirely. Do not read.
   - `_archive/baseline_pre-bq-migration_2026-06-03/`, `_archive/superseded_versions/` — older snapshots, ignore.
-- **`SuperCat 4.0/.cursor/skills/ecat-onboarding-orchestrator/`** — misguided per the audit; do not invoke.
 - **`~/Downloads/index (1).html`** (admin training HTML) — referenced in the framework's Phase 6 rationale; you do not need to read it to run the framework.
 
 If anything in `_archive/` tempts you (e.g. the old SQL queries look more detailed), resist. v3.1's queries are the corrected ones; the old ones have known bugs (LIMIT-trap on batched IN-clauses, `external_rep` contamination, etc.).
@@ -110,23 +109,39 @@ SELECT o.shortname,
 FROM organizations o WHERE o.shortname IN (...);
 ```
 
-**Import events (most-recent-per-file-type — v3.5 change):**
+**Import events (most-recent-per-file-type):**
+
+> **Schema note:** `import_events` has exactly four columns: `id`, `created_at`,
+> `organization_id`, `data` (text). There are **no** `file_type`, `num_warnings`,
+> `num_errors`, `warning_message`, or `error_message` columns — queries using those
+> names error out. Match on the `data` text using `ILIKE` patterns (e.g.
+> `'%- - Products%'`); parse `:fatal` / `:error` / `:warning` tokens the same way.
 
 Run **one query per file type** (Products, Customers, Options, Option Groups, Inventory, Product Stories). Each returns the single most-recent import event for that file type and org:
 
 ```sql
-SELECT ie.file_type, ie.created_at, ie.num_warnings, ie.num_errors,
-       ie.warning_message, ie.error_message
-FROM import_events ie
-WHERE ie.organization_id = (SELECT id FROM organizations WHERE shortname = $SHORTNAME)
-  AND ie.file_type = 'Products'
-ORDER BY ie.created_at DESC
-LIMIT 1
+-- Products — repeat with the ILIKE pattern for each file type (see variants below)
+SELECT id, created_at,
+  data ILIKE '%:fatal%'   AS has_fatal,
+  data ILIKE '%:error%'   AS has_error,
+  data ILIKE '%:warning%' AS has_warning,
+  left(data, 2000)        AS data_excerpt
+FROM import_events
+WHERE organization_id = (SELECT id FROM organizations WHERE shortname = $SHORTNAME)
+  AND data ILIKE '%- - Products%'
+ORDER BY created_at DESC
+LIMIT 1;
+-- Customers:      AND data ILIKE '%- - Customers%'
+-- Options:        AND data ILIKE '%- - Options%'
+-- Option Groups:  AND data ILIKE '%- - Option Groups%'
+-- Inventory:      AND data ILIKE '%- - Inventory%'
+-- Product Stories: AND data ILIKE '%- - Product Stories%'
 ```
 
-Repeat for each file type, substituting `'Customers'`, `'Options'`, `'Option Groups'`, `'Inventory'`, `'Product Stories'` in the `ie.file_type =` clause. This is the primary documented approach — it avoids the MCP tool validation failures that both the `CROSS JOIN LATERAL` (v3.2) and `CTE + CROSS JOIN` (v3.4) patterns hit in practice.
-
-> **Known-broken (preserved for reference):** The v3.4 CTE + `CROSS JOIN` query and the earlier v3.2 `CROSS JOIN LATERAL (VALUES ...)` form both failed MCP tool validation on every run that attempted them (2026-06-09, 2026-07-01). The per-file-type correlated subquery pattern above is the one that actually executes cleanly.
+> **Known-broken (preserved for reference):** The v3.4 CTE + `CROSS JOIN` query and the
+> earlier v3.2 `CROSS JOIN LATERAL (VALUES ...)` form both failed MCP tool validation on
+> every run that attempted them (2026-06-09, 2026-07-01). The per-file-type pattern above
+> (matching on `data ILIKE`) is the one that executes cleanly.
 
 **Why per-file-type matters:** in the 2026-06-08 run, DRF's Customers import (04-27) and all non-Products events fell outside the 30 most-recent rows because image-import events dominate the recent history. A naive recency window would report "Products only" and fail the Phase 3 "≥2 core files in 60d" clause → wrong anchor. One query per file type guarantees one row per file type, matching the block-level rule in `Phase_Anchors.md § Phase 3`.
 
