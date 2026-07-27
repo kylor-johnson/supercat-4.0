@@ -1,0 +1,115 @@
+# eCat Onboarding Client Registry
+# Generated: 2026-07-27
+#
+# Purpose (Open Decision 5, IMPLEMENTATION_PLAN.md §11):
+#   Enumeration layer — one record per client for machine-readable archetype /
+#   flag / cutover lookups (automation, fingerprint_scan.py, profile reconciler).
+#   Per-client CLIENT_PROFILE.md remains the source for nuance; this file
+#   summarises only what a scheduled check or scan needs.
+#
+# Schema:
+#   shortname     — Postgres `organizations.shortname`
+#   archetype     — standard | snowflake  (IMPLEMENTATION_PLAN §2.4 Axis 1)
+#   product_line  — list; ecat-ipad | eol | sales-portal  (Axis 2)
+#   flags         — list; applicability flags that suppress specific gates  (Axis 3)
+#                   A check that is suppressed must emit SKIP (flag: <name>), never silence.
+#   cutover_date  — ISO date; rows before this date are POC residue and excluded
+#                   from ground truth.  "unknown" = Open Decision 4 still open.
+#   lifecycle     — onboarding | active | fully_suspended
+#                   Sourced from `properties->>'status'` — NOT `organizations.state`
+#                   (which is geographic: TX, CA, Ontario).  Verified Appendix A.
+#   note          — one-line summary; full nuance in CLIENT_PROFILE.md
+#
+# Flag vocabulary (Axis 3):
+#   pricing_na      skip pricing gates entirely (org confirmed no pricing in app)
+#   inventory_na    skip inventory gates entirely
+#   options_none    skip options/group/mapping gates (zero active product references)
+#   sample_catalog  free-sample commerce model, not priced SKUs
+#   sub_brands      org contains >1 brand separated by user group; one-brand assumptions invalid
+#   churned         engagement ended; retained for pattern learnings only
+#   manual_review   skip automation by default; requires human checkpoint
+#
+# Open decisions still pending (IMPLEMENTATION_PLAN §11):
+#   OD3: mali archetype — standard vs snowflake.  Registry holds "standard"
+#        pending resolution; sub_brands flag captures the functional nuance.
+#   OD4: cutover_date unknown for 5 of 7 clients.  Do not use pre-2026 rows as
+#        ground truth until each date is declared.
+
+clients:
+
+  - shortname: drf
+    archetype: standard
+    product_line: [ecat-ipad]
+    flags: [pricing_na, inventory_na, options_none, sample_catalog]
+    cutover_date: unknown          # OD4 — declare before using historical import data
+    lifecycle: active
+    note: >
+      Free sample-catalog model; confirmed no pricing or inventory in app (call 2026-04-29).
+      All pricing and inventory gates emit SKIP (flag: pricing_na / inventory_na).
+      Previously mis-listed as snowflake — corrected 2026-07-27 (IMPLEMENTATION_PLAN §2.4).
+
+  - shortname: leg
+    archetype: standard
+    product_line: [ecat-ipad]
+    flags: [options_none]
+    cutover_date: "2025-07-08"     # load-bearing — everything before is POC residue
+    lifecycle: onboarding
+    note: >
+      29 options / 11 groups exist but are pre-cutover (all written 2025-06-16 in 0.15 s)
+      and zero of 1,020 active products reference any — orphaned demo data, not active options.
+      Awaiting real customer file as of 2026-07-23 (HelpScout, not a validation failure).
+
+  - shortname: libco
+    archetype: standard
+    product_line: [ecat-ipad, eol]
+    flags: [options_none]
+    cutover_date: unknown          # OD4
+    lifecycle: onboarding
+    note: >
+      Dual product line (iPad + eOL).  eOL suppresses imageless products from search —
+      image_exists check is higher-stakes than for iPad-only orgs.
+      83 orphan inventory rows as of 2026-07-27.
+
+  - shortname: mali
+    archetype: standard            # OD3: standard pending resolution; sub_brands captures nuance
+    product_line: [ecat-ipad, eol]
+    flags: [sub_brands]
+    sub_brands: [ML, NSL]          # Magic Lite (Canada) + NSL (US) separated by user group
+    cutover_date: unknown          # OD4
+    lifecycle: active
+    note: >
+      Two brands in one org — checks that assume one brand per org must read the
+      user-group layer (collections, price levels, email templates, branding diverge per group).
+      Standard archetype pending OD3; move to snowflake only if OD3 resolves that way.
+
+  - shortname: pebl
+    archetype: standard
+    product_line: [ecat-ipad]
+    flags: []
+    cutover_date: unknown          # OD4
+    lifecycle: active
+    note: >
+      Full options build (151 options / 382 groups).  All gates apply.
+      91 orders, 171 customers, 8 price levels — most complete active build in the cohort.
+
+  - shortname: tcd
+    archetype: standard
+    product_line: [ecat-ipad]
+    flags: [options_none]
+    cutover_date: unknown          # OD4
+    lifecycle: active
+    note: >
+      222 options / 98 groups with 0 product references (orphaned POC residue — permanent
+      until options.csv re-sent).  346 customers live.  Canonical DefaultPriceCode=0
+      rejection case: gate would have caught it before upload (IMPLEMENTATION_PLAN §2.1).
+
+  - shortname: tcs
+    archetype: snowflake
+    product_line: [ecat-ipad]
+    flags: [churned, manual_review]
+    cutover_date: "2026-04-21"     # Catsy migration; prior Google Drive data was demo-only
+    lifecycle: fully_suspended
+    note: >
+      Buildable SKUs, nested options, PIM as upstream source, live builder script in
+      org properties.  Excluded from go-live success metrics; retained for options/mapping
+      and configured-SKU pattern learnings (IMPLEMENTATION_PLAN §2.4, §8).
