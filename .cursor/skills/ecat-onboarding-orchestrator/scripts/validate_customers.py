@@ -28,10 +28,32 @@ import sys
 
 REQUIRED = ["BillToCode", "BillToName", "BillToAddress1", "BillToCity",
             "BillToState", "BillToPostCode", "DefaultPriceCode"]
+# Field lengths generated from Customer::ATTR_LENGTHS in
+# supercat_server/app/models/customer.rb — do not transcribe; update from source.
 MAX_LEN = {
-    "BillToCode": 15, "BillToName": 60, "BillToAddress1": 60, "BillToCity": 60,
-    "BillToState": 60, "BillToPostCode": 20, "DefaultPriceCode": 30,
-    "ShipToAddress1": 60, "ShipToCity": 60,
+    # Bill-to identity
+    "BillToCode":        20,   # :code
+    "BillToName":        60,   # :name
+    # Bill-to address
+    "BillToAddress1":    60,   # :billing_address1
+    "BillToAddress2":    60,   # :billing_address2
+    "BillToAddress3":    60,   # :billing_address3
+    "BillToCity":        60,   # :billing_city
+    "BillToState":       60,   # :billing_state
+    "BillToPostCode":    20,   # :billing_post_code
+    "BillToCountry":     60,   # :billing_country
+    # Ship-to continuation rows (share billing limits for the same attributes)
+    "ShipToAddress1":    60,   # :billing_address1
+    "ShipToCity":        60,   # :billing_city
+    # Pricing and terms
+    "DefaultPriceCode":  30,   # :default_price_code
+    "Terms":             30,   # :terms  (real Pebl rejection: 62-char trade terms string)
+    # Buyer contact
+    "BuyerEmail":        100,  # :buyer_email
+    "BuyerPhone":        25,   # :buyer_phone
+    "BuyerFax":          25,   # :buyer_fax
+    "BuyerFirstName":    25,   # :buyer_first_name
+    "BuyerLastName":     25,   # :buyer_last_name
 }
 # DefaultPriceCode values that are not real price levels (ERP placeholders / statuses).
 BAD_PRICE_CODES = {"", "0", "pending", "closed", "inactive", "hold", "n/a", "na", "none"}

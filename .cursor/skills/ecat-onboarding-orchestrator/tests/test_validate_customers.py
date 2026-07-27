@@ -52,6 +52,8 @@ def test_without_price_levels_warns(run_script, fixtures):
 
 
 def test_billtocode_length_overflow_fails(run_script, write_csv):
+    # "THIS-CODE-IS-WAY-TOO-LONG" is 24 chars, which exceeds the real limit of 20
+    # (Customer::ATTR_LENGTHS :code => 20).  Old docs said 15 — that was wrong.
     csv = write_csv(
         "BillToCode,BillToName,BillToAddress1,BillToCity,BillToState,BillToPostCode,DefaultPriceCode\n"
         "THIS-CODE-IS-WAY-TOO-LONG,Acme,1 Main St,Austin,TX,78701,dn\n",
@@ -59,4 +61,4 @@ def test_billtocode_length_overflow_fails(run_script, write_csv):
     )
     rc, out = run_script("validate_customers.py", str(csv))
     assert rc == 1
-    assert "BillToCode" in out and ">15" in out
+    assert "BillToCode" in out and ">20" in out
