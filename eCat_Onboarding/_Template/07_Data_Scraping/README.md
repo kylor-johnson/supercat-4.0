@@ -66,7 +66,7 @@ For each product:
 ### Golden Rules
 
 1. **Image 1 = product photo on white/transparent background. ALWAYS.**
-2. **Max 5 images per product** (eCat importer limit)
+2. **Max 6 images per product** (eCat default; 12 only if `enable_twelve_product_images` flag is on)
 3. **All images must be JPG** (convert PNG with `sips` on macOS)
 4. **Naming:** `{BaseItemCode}.jpg`, `{BaseItemCode}-2.jpg`, etc.
 
@@ -78,7 +78,7 @@ For each product:
 - Color temperature charts or spec drawings
 - Marketing banners
 
-These are fine as images 2-5, just never image 1.
+These are fine as images 2-6, just never image 1.
 
 ### How to Detect Application Photos
 

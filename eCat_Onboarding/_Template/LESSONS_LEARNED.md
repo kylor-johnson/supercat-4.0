@@ -96,7 +96,7 @@ Only core products (CategoryCodes starting with `LIGHT,`) should have RelatedIte
 
 **Rules:**
 1. Image 1 MUST be the product cutout on a white/transparent background
-2. Application photos (kitchens, rooms, installations) are OK as images 2-5, NEVER image 1
+2. Application photos (kitchens, rooms, installations) are OK as images 2-6, NEVER image 1
 3. After downloading, ALWAYS verify the hero image is actually a product photo
 4. When in doubt, check file size — application photos are typically much larger (4x+) than product cutouts
 
@@ -322,7 +322,7 @@ The CSV can look perfect and still have issues visible only in the catalog:
 | Missing `price_net_price` on priced products | $0 in Net Price mode | Backfill from price source |
 | Duplicate BaseItemCode rows | Import confusion | One row per product, update CategoryCodes |
 | BaseItemCode > 20 chars | Import rejection | Shorten the code |
-| > 5 images per product | Import truncation/error | Limit to 5, choose best ones |
+| > 6 images per product | Import truncation/warning | Limit to 6 (or 12 with `enable_twelve_product_images`), choose best ones |
 | Hideable = N on accessories | Cluttered browse | Set to Y for all accessories/drivers/controllers |
 | Using website Accessories tab for RelatedItems | Wrong associations | Use manufacturer brochure PDF |
 | Shell scraping (grep/awk) | Silent failures | Python urllib + re |

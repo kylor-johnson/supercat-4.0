@@ -18,14 +18,41 @@ All CSV files ready for SuperCat eCat import live in `Ready_For_Import/`.
 
 ## Import Order (STRICT)
 
+Images are uploaded to Admin Console separately (not part of the CSV sequence below).
+
 ```
-1. Images          Upload ALL JPGs to Admin Console FIRST
-2. products.csv    Requires images to exist
-3. stories.csv     Requires products to exist
-4. customers.csv   Independent
-5. inventory.csv   Requires products to exist
-6. pricing.csv     Requires products to exist
+1. options.csv         Hard-deletes all options on re-import; nulls group membership
+2. option_groups.csv   Must always follow options.csv to restore membership
+3. products.csv        Omitted products soft-deleted on a clean import
+4. stories.csv         Requires products to exist; omitted rows set story=null
+5. inventory.csv       Hard-deletes all inventory on re-import
+6. customers.csv       Hard-deletes ALL customers on re-import
+7. matrix_options.csv  Hard-deletes all matrix pricing on re-import (if used)
 ```
+
+Skip `options.csv` / `option_groups.csv` only if the org genuinely has no options
+(declare in `CLIENT_PROFILE.md`). `matrix_options.csv` only if org uses matrix pricing.
+
+Additional files (import independently as needed):
+
+| File | Behavior | Notes |
+|------|----------|-------|
+| `contract_prices.csv` | Hard-deletes all contract prices | Org-specific pricing overrides |
+| `riser_prices.csv` | Hard-deletes all riser prices | Regional surcharge pricing |
+| `products_N.csv` + `sentinel.csv` | Multi-file merge (see below) | Supplement columns for large catalogs |
+
+**Multi-file product merge:** Upload `products.csv` + `products_1.csv`, `products_2.csv`…
+then `sentinel.csv` to trigger merge. Supplemental files add columns to existing rows
+by `BaseItemCode`; they do NOT trigger soft-deletes.
+
+**Sales Portal files** (`order_data.csv`, `invoice_data.csv`) — import via
+Tools → Import Data (separate from the iPad file set). Four hard rules:
+1. Date fields must be date-only — `4-16-2026 12:00:00 AM` is rejected; use `4-16-2026`.
+2. No extra columns — a stray `fiscal month` column fails the entire file.
+3. Line items must be contiguous by order number — the importer reads top-to-bottom and
+   treats any order-number gap as end-of-order; re-appearing order numbers = error.
+   Sort by order number before exporting.
+4. Exact filenames — `Order_Data.csv` and `Invoice_Data.csv`; a `TBL_` prefix fails.
 
 ---
 
