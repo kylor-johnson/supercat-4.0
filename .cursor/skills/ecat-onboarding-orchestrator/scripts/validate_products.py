@@ -3,44 +3,63 @@
 
 Headers are matched case-insensitively because the importer downcases them.
 Exits non-zero only on hard FAILs (duplicates, blank required fields, invalid
-Hideable, missing columns) so a phase gate can branch on the result. Advisory
-WARNINGS (e.g. long BaseItemCode) print but do not fail.
+Hideable, missing columns, a UTF-8 BOM, a field over a hard length limit) so a phase
+gate can branch on the result. Advisory WARNINGS (truncation-tier overflow, long
+BaseItemCode, unconfirmed live state) print but do not fail.
+
+Field limits are NOT written down here. They come from `preflight/limits_generated.py`,
+which `tools/gen_limits.py` derives from `Product::ATTR_LENGTHS` in supercat_server. Two
+tiers, because the importer has two: the six fields in `ATTRS_TO_TRUNCATE` warn and
+silently truncate, everything else rejects the row.
+
+This checks the LOCAL file only. Pass the optional live-state lists to turn the
+"could not confirm" warnings into real assertions:
+
+    python validate_products.py products.csv \\
+        --custom-fields rohscompliant,Color,voltage \\
+        --admin-taxonomy ML,LL,LIGHT,SL \\
+        --admin-groups MAIN
 
 Usage:
     python validate_products.py path/to/products.csv
 """
 import argparse
-import csv
 import sys
 
+from preflight.checks import bom, custom_fields, dupes, enums, refs, taxonomy
+from preflight.core import FAIL, WARNING, get, load_rows, split_codes
+from preflight.limits import PROVENANCE, check_lengths
+
+CSV_FILE = "products.csv"
 REQUIRED = ["BaseItemCode", "TradeNameCode", "CollectionCodes", "CategoryCodes", "LongDesc"]
-# Advisory only. The importer accepts longer codes (mali org has live 21-char
-# item_numbers; the DB column is unbounded varchar). Keep codes short for image
-# filenames / grid display, but a long code is NOT an import failure.
+# Advisory only, and deliberately NOT the importer's limit. The real cap is 40
+# (Product::ATTR_LENGTHS[:item_number]) and it IS enforced; mali's live 21-char codes
+# pass because 21 < 40, not because the limit is advisory. Keep codes short for image
+# filenames and grid display — that is a preference, not a rule.
 BIC_ADVISORY_LEN = 20
 
 
-def load_rows(path):
-    with open(path, "r", encoding="utf-8-sig", newline="") as f:
-        reader = csv.DictReader(f)
-        if reader.fieldnames is None:
-            return [], {}
-        lookup = {name.strip().lower(): name for name in reader.fieldnames}
-        return list(reader), lookup
+def _split_arg(value):
+    """None means "not supplied"; an empty string means "supplied, and it is empty".
 
-
-def get(row, lookup, field):
-    actual = lookup.get(field.lower())
-    return (row.get(actual) or "").strip() if actual else ""
-
-
-def split_codes(value):
-    return [c.strip() for c in value.split(",") if c.strip()]
+    The difference is load-bearing: `--admin-groups ""` states that Admin has zero groups,
+    which is a FAIL because categories live under groups and groups never auto-create.
+    Collapsing it to None would turn that into "unverified" and let the import through.
+    """
+    if value is None:
+        return None
+    return [v.strip() for v in value.split(",") if v.strip()]
 
 
 def main():
     ap = argparse.ArgumentParser(description="Validate eCat products.csv")
     ap.add_argument("csv_path", help="path to products.csv")
+    ap.add_argument("--custom-fields", default=None,
+                    help="comma-separated custom field names registered in Admin")
+    ap.add_argument("--admin-taxonomy", default=None,
+                    help="comma-separated taxonomy codes that exist in Admin")
+    ap.add_argument("--admin-groups", default=None,
+                    help="comma-separated group codes that exist in Admin")
     args = ap.parse_args()
 
     rows, lookup = load_rows(args.csv_path)
@@ -53,6 +72,9 @@ def main():
     warnings = []
     if missing_headers:
         issues.append(f"MISSING REQUIRED COLUMNS: {missing_headers}")
+
+    for finding in bom.run([args.csv_path]):
+        issues.append(finding.render())
 
     seen = {}
     collections, categories = set(), set()
@@ -77,8 +99,8 @@ def main():
                 issues.append(f"row {i} ({bic or '?'}): blank {field}")
 
         hideable = get(r, lookup, "Hideable")
-        if hideable and hideable not in ("Y", "N"):
-            issues.append(f"row {i} ({bic or '?'}): invalid Hideable '{hideable}' (want Y/N)")
+        for finding in enums.check_hideable(i, bic, hideable):
+            issues.append(finding.render())
         if hideable == "N":
             visible += 1
 
@@ -90,9 +112,30 @@ def main():
         for c in split_codes(get(r, lookup, "CategoryCodes")):
             categories.add(c)
 
-    dupes = {b: lines for b, lines in seen.items() if len(lines) > 1}
-    for b, lines in dupes.items():
+    dupes_found = {b: lines for b, lines in seen.items() if len(lines) > 1}
+    for b, lines in dupes_found.items():
         issues.append(f"DUPLICATE BaseItemCode '{b}' on rows {lines}")
+
+    # UPC is not unique-constrained, so a repeat imports fine but is almost always a
+    # source copy-paste error.
+    for finding in dupes.run(CSV_FILE, rows, lookup, key_field=None,
+                             warn_fields=("UPCValue",)):
+        warnings.append(finding.render())
+
+    for finding in check_lengths(CSV_FILE, rows, lookup, label_field="BaseItemCode"):
+        (issues if finding.severity == FAIL else warnings).append(finding.render())
+
+    for finding in custom_fields.run(CSV_FILE, lookup, _split_arg(args.custom_fields)):
+        (issues if finding.severity == FAIL else warnings).append(finding.render())
+
+    for finding in taxonomy.run(rows, lookup, _split_arg(args.admin_taxonomy),
+                                _split_arg(args.admin_groups)):
+        (issues if finding.severity == FAIL else warnings).append(finding.render())
+
+    # RelatedItems targets are checked within this file: the importer warns and drops
+    # just the dead link, keeping the product, so this is advisory.
+    for finding in refs.check_related_items(rows, lookup, set(seen)):
+        (issues if finding.severity == FAIL else warnings).append(finding.render())
 
     has_hideable = "hideable" in lookup
     all_codes = collections | categories
@@ -102,6 +145,7 @@ def main():
     auto_create = any(" " in c for c in all_codes)
 
     print(f"File: {args.csv_path}")
+    print(f"Field limits from {PROVENANCE} (generated, never transcribed)")
     if has_hideable:
         print(f"Rows: {len(rows)} | Visible (Hideable=N): {visible} | With images: {with_images}")
     else:

@@ -10,6 +10,30 @@
 - **Domain / vertical:** Designer electrical devices (switches, outlets, dimmers)
 - **Status / stage:** onboarding — build complete, awaiting client confirmations + Admin custom-field registration
 
+## Archetype & applicability
+- **Archetype:** standard
+- **Product line:** ecat-ipad
+- **Flags:** `options: none`
+- **File owner mode:** generator
+- **Image mode:** ftp
+- **Source cutover date:** 2025-07-08
+- **Sub-brands:** none
+
+- **`options: none` despite 29 options and 11 option groups existing in the org.** All of
+  them were written inside a single 0.15-second import on 2025-06-16 — POC residue from
+  before the cutover — and **zero of 1,020 active products reference any option**. This is
+  cleanup hygiene, not an options architecture, and it must not be read as evidence that
+  Legrand needs one. The dead config never clears on its own, because option cleanup only
+  happens when you *send* `options.csv`, and this build emits none.
+- **Generator-owned (Mode A), and this is the healthy reference case.** Corrections live
+  inside `Build/build_ecat_files.py` as named tables (`CATEGORY_FIXES`, `FINISH_FIXES`,
+  `PRODUCT_NAME_FIXES`), so regeneration is reproducible and loses nothing. Do not
+  hand-edit the output CSVs.
+- **The cutover date is load-bearing here.** Everything before 2025-07-08 is demo data: the
+  four 2025-06-19 customer-import failures ran against POC data, and the only recent
+  customer import (2026-06-18) was **clean**. The single live customer is an org *waiting on
+  the client's real file*, not an unfixed validation failure.
+
 ## Contacts
 - **Client:** Legrand North America (adorne + radiant product lines)
 - **SuperCat:** Kylor Johnson

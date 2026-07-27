@@ -9,6 +9,36 @@
 - **Status / stage:** build/review — catalog + options near-ready; transactional stack empty
 - **Event:** SPOGA (June)
 
+## Archetype & applicability
+- **Archetype:** standard
+- **Product line:** ecat-ipad
+- **Flags:** none
+- **File owner mode:** csv
+- **Image mode:** ftp
+- **Source cutover date:** unknown
+- **Sub-brands:** none
+
+- **No flags set — every gate applies.** Options are the primary complexity here (151
+  options / 382 groups live), pricing is live (8 levels), and there are 171 customers with
+  91 orders. Inventory shows **0 rows live**, but that is *not* declared `inventory: n/a`
+  because nothing confirms it is intentional. An undeclared subsystem stays checked; only
+  declare a flag you can cite.
+- **This client is why the two-tier length check exists.** 16 of 24 option groups were
+  rejected in one shot at the 15-char `Code` limit, and **all 171 customer rows** were
+  rejected on lengths — `Terms` over 30 (*"30% T/T Advance, Balance Against Copy of Bill of
+  Lading"*, **55** characters, not the 62 `IMPLEMENTATION_PLAN.md` 6.4 asserts), plus
+  `BillToAddress1` over 60 on ~45 rows, `BillToCity` on ~8, and `BillToName` on 3. None of
+  these were missing required fields, which is why a required-field check alone would have
+  missed the whole event. `Terms` in particular is a structural mismatch needing a client
+  decision, not a truncation — it was resolved by hand as `30% TT Adv, Bal on B/L` (22).
+- **That import is also the cleanest confirmation of the delete rule:** because it landed
+  at `Error` tier, **no customers loaded and nothing was deleted** — the org stayed at 0.
+  Deletes run only on an error-free import.
+- **Option groups were once imported before options**, which nulls membership. The order
+  check refuses that sequence and appends the mandatory second `option_groups.csv` pass.
+- **Precedent worth reusing:** this org's populated `option_mappings` is the working
+  reference when another client needs a cascade.
+
 ## Contacts
 - **Client:** Mandy Mai (sales04@peblfurniture.com); CC vincent@, sales07@
 - **Help Scout:** thread #13879

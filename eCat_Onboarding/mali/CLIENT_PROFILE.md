@@ -9,6 +9,32 @@
 - **Vertical:** lighting (linear, strip, undercabinet, downlight, landscape, industrial, drivers/controllers)
 - **Status / stage:** live / dual-brand maintenance
 
+## Archetype & applicability
+- **Archetype:** standard
+- **Product line:** ecat-ipad, eol
+- **Flags:** none
+- **File owner mode:** csv
+- **Image mode:** ftp
+- **Source cutover date:** unknown
+- **Sub-brands:** ML,NSL
+
+- **Standard with a sub-brand flag** — Open Decision 3 in `IMPLEMENTATION_PLAN.md` asks
+  whether this org is snowflake instead. The data path is ordinary; what is unusual is that
+  two brands (Magic Lite / NSL) live in one org, separated by user group, described on the
+  2026-05-13 call as *"a workaround for the platform's current lack of native sub-brand
+  support."* Collections, price levels, email templates, and branding all diverge per
+  group, so **any check that assumes one brand per org must read the user-group layer
+  here.** Either way this annotates; it never blocks.
+- **No flags set.** Options are live (2 options / 2 groups), inventory is live (694 rows
+  matching all 683 active products), pricing is live (4 levels) — every gate applies.
+- **The org fingerprint check exists because of this client.** On 2026-07-23 Legrand's
+  1,194-row inventory file was imported here; inventory hard-deletes then reloads, so
+  mali's real inventory was replaced with rows matching zero mali products. Resolved the
+  same day. Never upload an inventory file without confirming the key overlap first.
+- **Rep-view vs Admin-view is a go-live gate for this client**, not a nicety: six of nine
+  escalated items were not defects, just Admin-view artifacts. The client needs a non-Admin
+  rep profile **per brand**.
+
 ## Catalog
 - **Working products:** `00_Import_Files/Ready_For_Import/products.csv` (~694 rows)
 - **Collection codes:** `LL`, `UCL`, `DL`, `LAND`, `IL`

@@ -5,7 +5,30 @@
 ## Identity
 - **Org shortname:** `TCD`
 - **Vertical:** furniture / home
-- **Status / stage:** go-live blocked (customer import failed)
+- **Status / stage:** live — 346 customers imported (the header below is stale; see the
+  blocker section)
+
+## Archetype & applicability
+- **Archetype:** standard
+- **Product line:** ecat-ipad
+- **Flags:** `options: none`
+- **File owner mode:** csv
+- **Image mode:** ftp
+- **Source cutover date:** unknown
+- **Sub-brands:** none
+
+- **This profile's own status line is wrong and stays visible as a lesson.** "0 customers
+  imported / go-live blocked" was true when written; the org is `active` with **346
+  customers** and 7 orders. Counts belong in query results with a timestamp, never in prose.
+- **`options: none` despite 222 options and 98 groups live** — the same shape as `leg` at
+  larger scale: **zero of 396 products reference any of them**. Cleanup hygiene, not an
+  options architecture, and not evidence this client needs one.
+- **The `DefaultPriceCode` gate is named after this client.** Every customer row carried
+  `DefaultPriceCode = 0`, an ERP placeholder rather than a price level, and 100% of rows were
+  rejected. It is the canonical case in `validate_customers.py`'s docstring and it is
+  reproducible today — which is exactly why the check ships enabled here.
+- **30 orphan inventory rows** are live (inventory 425 rows / 395 matched), so the cross-file
+  referential check has real work to do on this org.
 
 ## Contacts
 - **Client:** Scott; Bill; Angie (invoicing)
@@ -15,7 +38,7 @@
 - `dn` (Dealer Net), `imap` (IMAP), `ns` (Designer Price), `show50` (Showroom 50%).
 - `DefaultPriceCode` must equal one of these exactly.
 
-## The blocker (customer import)
+## The blocker (customer import) — RESOLVED
 - Customer upload failed: every row had **`DefaultPriceCode = 0`** →
   `Default price code '0' must be a valid price level code`. 0 customers imported.
 - Fix: set each row's `DefaultPriceCode` to a valid code; remove `ShipToFax` (unknown

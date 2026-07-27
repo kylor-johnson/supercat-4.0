@@ -2,7 +2,32 @@
 
 > Backfilled from prior Cursor sessions. Verify against latest source before acting.
 
+## Archetype & applicability
+- **Archetype:** standard
+- **Product line:** ecat-ipad, eol
+- **Flags:** `options: none`
+- **File owner mode:** csv
+- **Image mode:** ftp
+- **Source cutover date:** unknown
+- **Sub-brands:** none
+
+- **eOL matters for image checks specifically.** eOL suppresses imageless products from
+  search, so a missing *primary* image takes a product off the portal while the same
+  product still browses fine on the iPad. That is exactly the shape of this client's
+  "products aren't showing up" incident — 9 of 832 products with `image_exists = false`.
+  `image_exists` tracks only the FIRST filename; an alternate does not satisfy it.
+- **`options: none` confirmed live:** 0 options, 0 option groups.
+- **CSV-owned:** `rebuild_lib_co_files.py` exists but the CSV is the deliverable. Do not
+  let the script reclaim ownership — that is how hand-applied fixes get silently reverted.
+- **Correction to this profile's own Catalog note:** the `LongDesc` 50-char limit recorded
+  below is **wrong**. The real limit is **255**, and it warn-and-truncates rather than
+  failing (`Product::ATTR_LENGTHS[:long_description]`). The "587 source rows over" figure
+  was measured against a limit that does not exist.
+- **Feed posture:** hourly Business Central sync. A pre-*upload* gate does not protect a
+  scheduled feed — recurring feeds need post-import assertions instead (Open Decision 2).
+
 ## Identity
+- **Org shortname:** `libco`
 - **TradeNameCode:** `LC` (Lib & Co / Liberty)
 - **Vertical:** lighting
 - **ERP:** Microsoft Business Central

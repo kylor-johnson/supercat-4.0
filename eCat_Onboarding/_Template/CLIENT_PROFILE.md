@@ -11,6 +11,33 @@
 - **Status / stage:** {kickoff | build | import | review | go-live | maintenance}
 - **Go-live / event:** {date, e.g. market/trade fair}
 
+## Archetype & applicability
+
+> Read by `scripts/preflight_gate.py`. Keep the field names exactly as written — the
+> parser matches on them. These are **policy declarations**, never counts: counts come
+> from the live DB, not from this file.
+
+- **Archetype:** standard | snowflake | churned
+- **Product line:** ecat-ipad | eol | sales-portal (comma-separate if more than one)
+- **Flags:** {`pricing: n/a`, `inventory: n/a`, `options: none`, `customers: n/a`, `stories: none`, `sample-catalog`, or "none"}
+- **File owner mode:** generator | csv | mixed
+- **Image mode:** ftp | cdn-url | both
+- **Source cutover date:** {YYYY-MM-DD — everything before this is POC/demo data and excluded from ground truth}
+- **Sub-brands:** {e.g. ML,NSL — or "none"}
+
+Rules that make these load-bearing rather than decorative:
+
+- A flag makes a check print `SKIP (flag: ...)`. It never makes a check pass silently,
+  because an unexplained absence is how "we don't do X for this client" gets forgotten.
+- **Only declare a flag you can cite** — a call, a client email, or an explicit statement
+  in this profile. An undeclared subsystem stays *checked*, which is the safe default.
+- `snowflake` **annotates, it never blocks.** Unusual clients are still automated; the
+  archetype just attaches a human checkpoint.
+- **File owner mode is per deliverable, and never two owners for one file.** `generator`
+  means the script owns it and every correction is codified in its config; `csv` means the
+  CSV is the deliverable and the generator is retired with a tombstone. Dual ownership is
+  what silently reverted hand-applied fixes at The CopperSmith.
+
 ## Contacts
 - **Client:** {name, email, role}
 - **SuperCat:** Kylor Johnson{, AE/CTO}

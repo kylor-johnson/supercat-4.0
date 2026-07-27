@@ -1,14 +1,22 @@
 #!/usr/bin/env python3
 """Validate an eCat customers.csv before import.
 
-Hard FAILs (exit 1): missing required columns; blank required bill-to fields on a
-bill-to row; DefaultPriceCode blank / '0' / known status text; field-length overflow;
-a ship-to continuation row missing address or city. Advisory items print as WARNINGS.
+Hard FAILs (exit 1): missing required columns; a UTF-8 BOM; blank required bill-to
+fields on a bill-to row; DefaultPriceCode blank / '0' / known status text; a field over
+a hard length limit; a duplicate BillToCode across bill-to rows; a ship-to continuation
+row missing address or city. Advisory items print as WARNINGS.
 
 The #1 real-world customer-import failure (verified on org `tcd`): DefaultPriceCode = 0
 or a status string like PENDING/CLOSED -> every row rejected -> 0 customers imported.
 Pass --price-levels (from the live DB / Admin Price Levels) to confirm each code is a
 real level.
+
+Field limits come from `Customer::ATTR_LENGTHS` and `ShippingLocation::ATTR_LENGTHS` via
+`preflight/limits_generated.py` — never transcribed here. That matters for two fields in
+particular: `Terms` is 30, which is the real Pebl rejection (their true trade terms run
+62 characters, so it needs a client decision rather than a truncation), and `BillToCode`
+is 20, not the 15 the old docs claimed. 15 is real but advisory: the importer logs a
+warning above 15 and the model rejects above 20, so both tiers are reported.
 
 This checks the LOCAL file only. It does NOT confirm what actually imported — the client
 may have run a newer FTP/Admin import. Pair it with the DB recency check via
@@ -23,55 +31,19 @@ Usage:
     python validate_customers.py customers.csv [--price-levels dn,imap,ns,show50]
 """
 import argparse
-import csv
 import sys
 
+from preflight.checks import bom, enums
+from preflight.core import FAIL, get, load_rows
+from preflight.limits import PROVENANCE, check_row_lengths
+
+CSV_FILE = "customers.csv"
 REQUIRED = ["BillToCode", "BillToName", "BillToAddress1", "BillToCity",
             "BillToState", "BillToPostCode", "DefaultPriceCode"]
-# Field lengths generated from Customer::ATTR_LENGTHS in
-# supercat_server/app/models/customer.rb — do not transcribe; update from source.
-MAX_LEN = {
-    # Bill-to identity
-    "BillToCode":        20,   # :code
-    "BillToName":        60,   # :name
-    # Bill-to address
-    "BillToAddress1":    60,   # :billing_address1
-    "BillToAddress2":    60,   # :billing_address2
-    "BillToAddress3":    60,   # :billing_address3
-    "BillToCity":        60,   # :billing_city
-    "BillToState":       60,   # :billing_state
-    "BillToPostCode":    20,   # :billing_post_code
-    "BillToCountry":     60,   # :billing_country
-    # Ship-to continuation rows (share billing limits for the same attributes)
-    "ShipToAddress1":    60,   # :billing_address1
-    "ShipToCity":        60,   # :billing_city
-    # Pricing and terms
-    "DefaultPriceCode":  30,   # :default_price_code
-    "Terms":             30,   # :terms  (real Pebl rejection: 62-char trade terms string)
-    # Buyer contact
-    "BuyerEmail":        100,  # :buyer_email
-    "BuyerPhone":        25,   # :buyer_phone
-    "BuyerFax":          25,   # :buyer_fax
-    "BuyerFirstName":    25,   # :buyer_first_name
-    "BuyerLastName":     25,   # :buyer_last_name
-}
-# DefaultPriceCode values that are not real price levels (ERP placeholders / statuses).
-BAD_PRICE_CODES = {"", "0", "pending", "closed", "inactive", "hold", "n/a", "na", "none"}
+# Kept as a module-level name because callers and tests reference it; the values live in
+# preflight/checks/enums.py so the gate and this script cannot drift.
+BAD_PRICE_CODES = enums.BAD_PRICE_CODES
 PLACEHOLDER = "-"  # eCat convention: ship-to fields = "-" means "same as bill-to"
-
-
-def load_rows(path):
-    with open(path, "r", encoding="utf-8-sig", newline="") as f:
-        reader = csv.DictReader(f)
-        if reader.fieldnames is None:
-            return [], {}
-        lookup = {name.strip().lower(): name for name in reader.fieldnames}
-        return list(reader), lookup
-
-
-def get(row, lookup, field):
-    actual = lookup.get(field.lower())
-    return (row.get(actual) or "").strip() if actual else ""
 
 
 def main():
@@ -98,9 +70,13 @@ def main():
             print(f"  - {m}")
         return 1
 
+    for finding in bom.run([args.csv_path]):
+        issues.append(finding.render())
+
     bill_to_rows = ship_to_rows = 0
     prev_code = None
     bad_price_seen = set()
+    billto_lines = {}
 
     for i, r in enumerate(rows, start=2):  # row 1 is the header
         code = get(r, lookup, "BillToCode")
@@ -109,27 +85,20 @@ def main():
         # bill-to row; a repeat BillToCode with no name is a ship-to continuation row.
         is_billto = bool(name) or (code and code != prev_code)
 
-        for field, limit in MAX_LEN.items():
-            val = get(r, lookup, field)
-            if val and val != PLACEHOLDER and len(val) > limit:
-                issues.append(f"row {i} ({code or name or '?'}): {field} {len(val)}>{limit} chars")
+        for finding in check_row_lengths(CSV_FILE, r, lookup, i, code or name):
+            (issues if finding.severity == FAIL else warnings).append(finding.render())
 
         if is_billto:
             bill_to_rows += 1
-            for field in REQUIRED:
-                if not get(r, lookup, field):
-                    issues.append(f"row {i} ({code or '?'}): blank required {field}")
+            if code:
+                billto_lines.setdefault(code, []).append(i)
+            for finding in enums.check_required(i, code, r, lookup, REQUIRED):
+                issues.append(finding.render())
             dpc = get(r, lookup, "DefaultPriceCode")
-            if dpc:
+            for finding in enums.check_price_code(i, code, dpc, valid_levels):
+                issues.append(finding.render())
                 if dpc.lower() in BAD_PRICE_CODES:
-                    issues.append(
-                        f"row {i} ({code or '?'}): DefaultPriceCode '{dpc}' is a placeholder/"
-                        f"status, not a price level -> import will reject the row")
                     bad_price_seen.add(dpc)
-                elif valid_levels and dpc.lower() not in valid_levels:
-                    issues.append(
-                        f"row {i} ({code or '?'}): DefaultPriceCode '{dpc}' not in price levels "
-                        f"{sorted(valid_levels)}")
         else:
             ship_to_rows += 1
             if not get(r, lookup, "ShipToAddress1") or not get(r, lookup, "ShipToCity"):
@@ -139,11 +108,19 @@ def main():
         if code:
             prev_code = code
 
+    # Ship-to continuation rows legitimately repeat BillToCode, so only bill-to rows
+    # count toward the uniqueness constraint (validates_uniqueness_of :code per org).
+    for code, lines in sorted(billto_lines.items()):
+        if len(lines) > 1:
+            issues.append(f"DUPLICATE BillToCode '{code}' on bill-to rows {lines} — "
+                          f"unique per org, so the later row(s) are rejected")
+
     if not valid_levels:
         warnings.append("No --price-levels given: checked for placeholder/status codes only, "
                         "could not confirm DefaultPriceCode membership. Pull codes from the DB.")
 
     print(f"File: {args.csv_path}")
+    print(f"Field limits from {PROVENANCE} (generated, never transcribed)")
     print(f"Rows: {len(rows)} | bill-to: {bill_to_rows} | ship-to continuation: {ship_to_rows}")
     if valid_levels:
         print(f"Validated DefaultPriceCode against: {sorted(valid_levels)}")

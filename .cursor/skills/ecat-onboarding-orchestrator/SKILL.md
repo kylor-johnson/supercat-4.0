@@ -63,9 +63,15 @@ Two different "sources of truth" — don't conflate them:
 
 Bootstrap before routing:
 1. Copy `eCat_Onboarding/_Template/` → `eCat_Onboarding/<Client>/`.
-2. Fill `CLIENT_PROFILE.md` (identity, systems, taxonomy method, pricing, images).
+2. Fill `CLIENT_PROFILE.md` (identity, systems, taxonomy method, pricing, images) — including
+   the **Archetype & applicability** section, which the pre-import gate reads. Leaving it as
+   template text means every check applies, which is the safe default but hides intentional
+   exclusions.
 3. Read `<Client>/LESSONS_LEARNED.md` before building — it prevents repeat mistakes.
-4. Start at Phase 1.
+4. Declare the **source-data cutover date**. Everything before it is POC/demo data and is
+   excluded from ground truth. Without one, POC residue keeps re-entering analysis as if it
+   were real — `leg`'s 29 pre-cutover options were twice mistaken for a live requirement.
+5. Start at Phase 1.
 
 ## Phase → skill routing
 
@@ -102,22 +108,115 @@ Re-send `option_groups.csv` after `options.csv` (importing options nulls group m
 Deletes only run on a clean (warnings-only) import; an `Error` row skips all deletes. Send
 full files — customers/inventory/options HARD-delete omitted records.
 
-## Verification tools (run before each gate; details in PHASE_GATES.md)
+## The pre-import gate (run before every upload)
+
+One read-only command over the whole upload set. Nothing in `scripts/` ever writes to a
+deliverable or touches the DB.
+
+```bash
+python scripts/preflight_gate.py \
+    --client-dir eCat_Onboarding/<Client> \
+    --dir eCat_Onboarding/<Client>/00_Import_Files/Ready_For_Import \
+    --live-state live_<shortname>.json \
+    --check-urls --ack-deletes
+```
+
+| Exit | Meaning |
+|---|---|
+| 0 | pass (WARNINGs are advisory) |
+| 1 | **blocked** — do not upload |
+| 2 | a check could not run (unreadable file, missing input) |
+
+**Live state is passed in, never queried by the script.** A validator is only worth
+running if it asserts against an external authority — the client's source file,
+code-derived limits, or the live DB — so keeping the DB out makes the gate runnable
+anywhere and honest about what it could not confirm. Build the JSON from
+`ecat-postgres-audit`:
+
+```json
+{
+  "shortname": "mali",
+  "queried_at": "2026-07-27T20:00:00Z",
+  "price_levels": ["dn", "imap"],
+  "custom_fields": {"products": ["Color"], "customers": ["BillTo_Region"]},
+  "taxonomy": {"codes": ["ML", "LIGHT"], "groups": ["MAIN"]},
+  "keys": {"products.csv": ["ML-001"], "customers.csv": ["0099"]},
+  "counts": {"products.csv": 683, "customers.csv": 3418},
+  "uploaded_images": ["ML-001.jpg"]
+}
+```
+
+Anything absent degrades to a WARNING naming what went unconfirmed — never to a silent
+pass. Without `--live-state` the org-fingerprint, omission, taxonomy, custom-field, and
+primary-image checks can only warn, so **supply it before any hard-delete upload**
+(`customers.csv`, `inventory.csv`, `options.csv`, `option_groups.csv`, and the pricing
+files replace everything and reload).
+
+### What it checks, and why each one is there
+
+| Check | The incident behind it |
+|---|---|
+| BOM | a fatal "column missing" on a column that is plainly present |
+| Org fingerprint | `leg`'s inventory file imported into `mali`, wiping that org's inventory |
+| Import-order manifest | groups imported before options at `tcs` and `pebl`, nulling membership |
+| Omission preview | "always include ALL products" — an invariant nothing enforced |
+| Two-tier lengths | 16 of `pebl`'s 24 option groups rejected at 15 chars |
+| Enum + required fields | `tcd`'s 100% customer rejection on `DefaultPriceCode = 0` |
+| Cross-file refs | 247 orphan `leg` inventory rows; dangling `RelatedItems` |
+| Header ↔ custom-field diff | `leg`'s unregistered fields, live for three months |
+| Taxonomy pre-registration | groups never auto-create — real fatals in `mali`'s log |
+| Duplicate scan | `pebl`'s `MT_FAROEXT_GR` shipped twice |
+| Image URL census | 23 PNG URLs at `tcs`, live for eight weeks |
+| Primary-image set diff | `libco`'s catalog off the eOL portal while the iPad looked fine |
+| Blank-stays-blank | sibling images invented against an explicit client rule |
+
+### Applicability — a skipped check always says why
+
+Checks are switched off only by a **declared flag** in the client's
+`CLIENT_PROFILE.md` "Archetype & applicability" section, and a skipped check prints
+`SKIP (flag: options none)`. An **undeclared subsystem stays checked** — that is the safe
+default, and it means a half-filled profile can never turn into a silent pass. Only
+declare a flag you can cite from a call, an email, or the profile itself.
+
+`snowflake` **annotates; it never blocks.** Nothing in the corpus supports treating an
+unusual client as un-automatable.
+
+### Field limits are generated, never typed
+
+Every limit comes from `preflight/limits_generated.py`, derived from `ATTR_LENGTHS` in
+`supercat_server` by `scripts/tools/gen_limits.py`. Two tiers, because the importer has
+two: `ATTRS_TO_TRUNCATE` fields warn and silently truncate (WARNING), everything else
+rejects the row (FAIL).
+
+Do not transcribe a limit from a KB article or from these skills — several documented
+numbers are wrong (`LongDesc` is 255 and truncates, not 50; `BaseItemCode` is 40 and is
+enforced). `python scripts/preflight_gate.py --claims` prints the documented limits that
+are deliberately **not** enforced, with the evidence for each.
+
+## Single-file validators (same checks, one file at a time)
 
 ```bash
 # Data quality + code inventory (Phase 3 → G3)
-python scripts/validate_products.py <Ready_For_Import/products.csv>
+python scripts/validate_products.py <Ready_For_Import/products.csv> \
+    --custom-fields <registered-fields> --admin-taxonomy <codes> --admin-groups <groups>
 
-# Image integrity (Phase 3/5 → G3/G5) — only if images staged locally
-python scripts/audit_images.py <Ready_For_Import/products.csv> <image_dir> [--max 12]
+# Image integrity (Phase 3/5 → G3/G5)
+python scripts/audit_images.py <Ready_For_Import/products.csv> <image_dir> \
+    [--max 12] [--live-images uploaded.txt] [--check-urls] [--source client_export.csv]
 
 # Customer file: required fields + the DefaultPriceCode blocker (Phase 3 → G3)
 python scripts/validate_customers.py <Ready_For_Import/customers.csv> --price-levels <codes-from-DB>
 ```
 
-Both exit non-zero when issues exist, so the gate can branch on the result. The validator
-also prints every unique `CollectionCodes`/`CategoryCodes` value — under the Standard
-taxonomy method, create each one in Admin before import (Auto-Create orgs skip this).
+All exit non-zero when there are hard issues, so a gate can branch on the result. The
+product validator also prints every unique `CollectionCodes`/`CategoryCodes` value — under
+the Standard taxonomy method, create each one in Admin before import (Auto-Create orgs
+skip this).
+
+`audit_images.py` reads local disk, which is the **narrowest** of the three image delivery
+paths: most clients upload straight to FTP/Admin and never stage images in the repo
+(`mali` had 691 live against 17 staged), so a clean local audit proves very little on its
+own. Pass `--live-images` for the authoritative check.
 
 ## End every session
 

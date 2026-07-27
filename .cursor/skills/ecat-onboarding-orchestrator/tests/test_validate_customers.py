@@ -62,3 +62,103 @@ def test_billtocode_length_overflow_fails(run_script, write_csv):
     rc, out = run_script("validate_customers.py", str(csv))
     assert rc == 1
     assert "BillToCode" in out and ">20" in out
+
+
+# --- Phase 1 additions ----------------------------------------------------------
+
+HEADER = ("BillToCode,BillToName,BillToAddress1,BillToCity,BillToState,"
+          "BillToPostCode,DefaultPriceCode")
+ROW = "C-1,Acme,1 Main St,Austin,TX,78701,dn"
+
+
+def test_bom_is_caught_here_too(run_script, tmp_path):
+    path = tmp_path / "customers.csv"
+    path.write_bytes(b"\xef\xbb\xbf" + f"{HEADER}\n{ROW}\n".encode("utf-8"))
+    rc, out = run_script("validate_customers.py", str(path))
+    assert rc == 1
+    assert "UTF-8 BOM" in out
+    assert "billtocode is missing" in out.lower()
+
+
+def test_billtocode_between_15_and_20_warns_without_blocking(run_script, write_csv):
+    """The importer logs a warning above 15; only the model's 20 rejects the row.
+
+    Reporting the 16-char case as blocking is what the old transcribed table did, and it
+    is how an operator learns to ignore the validator.
+    """
+    csv = write_csv(
+        f"{HEADER}\n{'C' * 18},Acme,1 Main St,Austin,TX,78701,dn\n", name="customers.csv")
+    rc, out = run_script("validate_customers.py", str(csv))
+    assert rc == 0
+    assert "18>15" in out
+    assert "WARNINGS" in out
+
+
+def test_terms_over_30_blocks(run_script, write_csv):
+    """Pebl: all 171 rows rejected on lengths, and Terms was absent from the old table.
+
+    55 characters against a 30-char field is a structural mismatch needing a client
+    decision, not something to truncate.
+    """
+    terms = "30% T/T Advance, Balance Against Copy of Bill of Lading"
+    csv = write_csv(
+        f"{HEADER},Terms\n{ROW},\"{terms}\"\n", name="customers.csv")
+    rc, out = run_script("validate_customers.py", str(csv))
+    assert rc == 1
+    assert "Terms 55>30" in out
+
+
+def test_long_address_blocks(run_script, write_csv):
+    """~45 of Pebl's rows failed here, not on a missing required field."""
+    csv = write_csv(
+        f"{HEADER}\nC-1,Acme,{'x' * 61},Austin,TX,78701,dn\n", name="customers.csv")
+    rc, out = run_script("validate_customers.py", str(csv))
+    assert rc == 1
+    assert "BillToAddress1 61>60" in out
+
+
+def test_length_findings_cite_the_model_attribute(run_script, write_csv):
+    csv = write_csv(
+        f"{HEADER}\nC-1,{'x' * 61},1 Main St,Austin,TX,78701,dn\n", name="customers.csv")
+    _, out = run_script("validate_customers.py", str(csv))
+    assert "Customer::ATTR_LENGTHS[:name]" in out
+    assert "supercat_server @" in out
+
+
+def test_duplicate_billtocode_blocks(run_script, write_csv):
+    """BillToCode is unique per org, so the later row is rejected rather than merged."""
+    csv = write_csv(f"{HEADER}\n{ROW}\n{ROW}\n", name="customers.csv")
+    rc, out = run_script("validate_customers.py", str(csv))
+    assert rc == 1
+    assert "DUPLICATE BillToCode 'C-1'" in out
+
+
+def test_a_shipto_continuation_row_is_not_a_duplicate(run_script, write_csv):
+    """Ship-to rows repeat the bill-to code by design — that is the file's shape."""
+    csv = write_csv(
+        f"{HEADER},ShipToAddress1,ShipToCity\n"
+        f"{ROW},1 Main St,Austin\n"
+        "C-1,,,,,,,2 Side St,Dallas\n",
+        name="customers.csv")
+    rc, out = run_script("validate_customers.py", str(csv))
+    assert rc == 0
+    assert "DUPLICATE" not in out
+
+
+def test_shipto_row_missing_its_address_fails(run_script, write_csv):
+    csv = write_csv(
+        f"{HEADER},ShipToAddress1,ShipToCity\n"
+        f"{ROW},1 Main St,Austin\n"
+        "C-1,,,,,,,,\n",
+        name="customers.csv")
+    rc, out = run_script("validate_customers.py", str(csv))
+    assert rc == 1
+    assert "ShipToAddress1" in out
+
+
+def test_dash_placeholder_is_not_a_length(run_script, write_csv):
+    """"-" in a ship-to cell means "same as bill-to", not a one-character value."""
+    csv = write_csv(
+        f"{HEADER},ShipToAddress1,ShipToCity\n{ROW},-,-\n", name="customers.csv")
+    rc, _ = run_script("validate_customers.py", str(csv))
+    assert rc == 0

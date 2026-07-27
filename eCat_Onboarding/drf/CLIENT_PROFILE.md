@@ -10,6 +10,28 @@
 - **Vertical:** fabric / textiles (showroom, market / Showtime)
 - **Status / stage:** **go-live / training** — catalog complete; Support (Kyla) owns Admin + rep training. Org flag still `onboarding`.
 
+## Archetype & applicability
+- **Archetype:** standard
+- **Product line:** ecat-ipad
+- **Flags:** `inventory: n/a`, `options: none`, `sample-catalog`
+- **File owner mode:** mixed
+- **Image mode:** ftp
+- **Source cutover date:** unknown
+- **Sub-brands:** none
+
+- **`inventory: n/a` and `options: none` are confirmed both ways:** the 2026-04-29 call
+  (*"The app will not include pricing or inventory data"*) and live state — 0 inventory
+  rows, 0 options, 0 option groups.
+- **`pricing: n/a` is deliberately NOT set**, though `IMPLEMENTATION_PLAN.md` 2.4 lists it
+  for this client. The April call is superseded: the org has **11 live price levels**, and
+  this profile (reconciled 2026-07-21) documents 10 imported levels plus `net` and
+  `Price_<Code>` columns in the products file. Skipping the pricing gates here would hide
+  real defects. Flag the plan, not the client.
+- **File owner is mixed by deliverable, never by file:** `stories.csv` is generator-owned
+  (`build_stories_with_pricing.py`); `products.csv` is CSV-owned. Neither has two owners.
+- **Cutover date is open** (Open Decision 4) — until it is set, treat any pre-2026 row
+  count as possibly containing POC residue.
+
 ## Contacts
 - **Client:** Suzanne Fukunaga (PM), Christine Soh (Ops/IT — Admin lead), Brian Frankel (TX / loomcraft), Gina / Heather / Kate (iPad users)
 - **SuperCat:** Kyla Bosch (Support primary), Jon Vanderberg (rep training), Kylor Johnson (onboarding — handed off)

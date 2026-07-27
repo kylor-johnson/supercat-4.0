@@ -569,11 +569,21 @@ one file and 6 in another. **The template cannot be the contract until it agrees
 
 ### 6.4 Correct `validate_customers.MAX_LEN` against the model
 
-Add `Terms: 30` — a real Pebl rejection, where the client's true trade terms *"30% T/T Advance,
-Balance Against Copy of Bill of Lading"* is 62 characters against a 30-char field, i.e. a
+Add `Terms: 30` — a real Pebl rejection, where the client's true payment terms *"30% T/T Advance,
+Balance Against Copy of Bill of Lading"* is **55** characters (corrected 2026-07-27; this section
+said 62, and a count typed into prose is exactly what §2.3 forbids) against a 30-char field, i.e. a
 structural mismatch needing a client decision rather than a truncation. In the same pass, raise
 `BillToCode` from 15 to its real limit of 20 and add the six omitted buyer/address fields (§4.1).
 Generate the whole table from `Customer::ATTR_LENGTHS` instead of transcribing it.
+
+`Terms` was not the only length class in that event: all 171 rows failed, also on
+`BillToAddress1` > 60 (~45 rows), `BillToCity` > 60 (~8), `BillToName` > 60 (3), plus
+`BuyerFirstName` and `BuyerPhone`. A required-field check would have caught none of it. The same
+import confirms the delete rule from the other direction — landing at `Error` tier, it loaded
+nothing and deleted nothing, leaving the org at 0 customers.
+
+**Status: done.** Generated from `ATTR_LENGTHS` into `preflight/limits_generated.py`; the two-tier
+split and this exact 55-char case are pinned in `tests/test_preflight_limits.py`.
 
 ### 6.5 Complete the file inventory
 
