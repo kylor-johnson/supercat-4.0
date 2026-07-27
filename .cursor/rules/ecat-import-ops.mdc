@@ -39,6 +39,42 @@ So if expected deletes didn't happen, look for an `Error` row.
 to trigger the merge. Supplemental rows keyed by `BaseItemCode`; their columns
 must be valid standard or pre-registered custom fields.
 
+## Additional files (full file list)
+
+| File | Delete behavior | When to use |
+|------|-----------------|-------------|
+| `options.csv` | **Hard-delete all options** (nulls group membership) | Any org with options; always re-send `option_groups.csv` immediately after |
+| `option_groups.csv` | **Hard-delete all groups** | Immediately after `options.csv` |
+| `products.csv` | Soft-delete omitted rows (on clean import only) | Every build |
+| `stories.csv` | Sets `story=null` for omitted rows (no product delete) | When product descriptions exist |
+| `inventory.csv` | **Hard-delete all inventory** | Every inventory update |
+| `customers.csv` | **Hard-delete ALL customers** | Every customer update |
+| `matrix_options.csv` | **Hard-delete all matrix pricing** | Orgs using matrix option pricing |
+| `contract_prices.csv` | **Hard-delete all contract prices** | Org-specific pricing overrides |
+| `riser_prices.csv` | **Hard-delete all riser prices** | Regional surcharge pricing |
+
+**Mandatory import order:** `options.csv` → `option_groups.csv` → `products.csv`
+→ `stories.csv` → `inventory.csv` → `customers.csv` → `matrix_options.csv`
+
+Always re-send `option_groups.csv` after `options.csv` — importing options
+**nulls group membership**. Skip files for subsystems the org doesn't use
+(declare in `CLIENT_PROFILE.md`).
+
+## Sales Portal files
+
+`order_data.csv` and `invoice_data.csv` are imported via Tools → Import Data
+(separate from the iPad file family). Four deterministic rules:
+
+1. **Date fields must be date-only.** `4-16-2026 12:00:00 AM` is rejected;
+   use `4-16-2026`. Applies to Order Date, Ship Date, Invoice Date.
+2. **No extra columns.** A stray `fiscal month` column fails the entire file.
+3. **Line items must be contiguous by order number.** The importer reads
+   top-to-bottom and treats any order-number change as end-of-order; a reappearing
+   order number is a new (broken) order. ERPs that log changes as new transactions
+   scatter lines by default — **sort by order number before exporting**.
+4. **Exact filenames.** `Order_Data.csv` and `Invoice_Data.csv`; a `TBL_`
+   prefix or any variation fails.
+
 ## Custom fields
 
 Must be pre-registered in Admin (Products → Custom Fields, "Send to iPad") before
