@@ -1,0 +1,68 @@
+---
+description: eCat iPad import ground-truth — corrections to the KB and the delete/import-order rules that bite during onboarding
+alwaysApply: true
+---
+
+# eCat iPad — Import Ground Truth
+
+Scope: **eCat iPad app only** (not eCat Online/eOL or Sales Portal). When a KB
+article describes per-browser "My Account" markup pricing, that is **eOL**, not
+iPad — ignore it for iPad work.
+
+## Omitted-record behavior (the #1 trap)
+
+A "full file" replaces that file's data. What happens to records you leave OUT
+differs per file — verified in `supercat_server` importer code:
+
+| File | Omitted record |
+|------|----------------|
+| `products.csv` | **Soft-delete** (`deleted=true`) — only on an error-free import |
+| `products_1.csv` (supplement) | No delete; updates existing by BaseItemCode |
+| `stories.csv` | Sets `story=null` (does NOT delete the product) |
+| `customers.csv` | **HARD-deletes ALL customers + ship-tos**, then reloads |
+| `inventory.csv` | **HARD-deletes ALL inventory**, then reloads |
+| `options.csv` | **HARD-deletes ALL options** + nulls group membership |
+| `option_groups.csv` | **HARD-deletes ALL groups**, then reloads |
+| `matrix_options.csv` / `contract_prices.csv` | **HARD-deletes ALL**, then reloads |
+
+**Deletes only happen on a clean import.** If the file has any `Error` rows,
+obsolete records are left in place (file imports the good rows but skips deletes).
+Only `Warning`-only imports remove omitted records.
+
+## Mandatory import order
+
+`options.csv` → `option_groups.csv` → `products.csv` → `stories.csv` →
+`inventory.csv` → `customers.csv`
+
+Always re-send `option_groups.csv` after `options.csv` — importing options
+**nulls group membership**.
+
+## KB-vs-reality corrections (code-verified)
+
+- **`TerritoryCodes`** (customers): KB marks required; importer does NOT make it
+  fatal. Needed for rep↔customer filtering, not for a successful import.
+- **`QtyAvailable`** (inventory): KB marks required; importer only requires
+  `BaseItemCode`.
+- **Option / option-group `Code`**: KB says max 8 / name 25; DB actually allows
+  **15 / 50**.
+- **`BaseItemCode` length**: KB/lessons say max 20; the **20-char limit is advisory,
+  not importer-fatal**. The DB column (`products.item_number`) is unbounded varchar and
+  the importer accepts longer — verified live: org `mali` has 4 active 21-char codes
+  (e.g. `LV-HS-PD20-24V-100-WW`). Keep codes short for image filenames / grid display,
+  but don't reject a row for length.
+- **Product images**: **6 by default, 12** only with the paid
+  `enable_twelve_product_images` flag.
+- **SmartList item-list**: KB says comma-separated; the app/importer expects
+  **newline-separated**. Commas = one giant invalid item number.
+- **Auto-Create taxonomy**: whatever string you put in `CollectionCodes`/
+  `CategoryCodes`/`TradeNameCode` becomes the **iPad label** — never ship cryptic
+  internal codes (`COL126`, `TN1`). **Groups never auto-create** from a product
+  import; create them first.
+- **Missing a standard text column** (e.g. `Materials`, `Features`) does NOT
+  clear it — send the column with empty values to clear.
+
+## iPad pricing in one line
+
+Rep selects customer → customer `DefaultPriceCode` sets the price level → the
+**User Group** controls which levels the rep can see. Hide list/net by not
+authorizing `net_price` for the group.

@@ -1,0 +1,153 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://supercat.internal/onboarding/phase-assessment.schema.json",
+  "title": "Onboarding Phase Assessment",
+  "description": "Structured data for one weekly Onboarding Phase Assessment. The run agent EMITS this; render_phase_assessment.py turns it into HTML with phase-assessment.template.html. Plain-text fields are HTML-escaped by the generator (author them with raw &, <, >). Fields ending in `_html` are TRUSTED inline HTML inserted verbatim — that is where verbatim quotes live, wrapped in <blockquote class=\"oa-quote\">. No styling/color decisions belong in this data.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["report", "agenda", "clients"],
+  "properties": {
+    "report": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["title", "source_md", "run_metadata"],
+      "properties": {
+        "title": { "type": "string", "description": "H1, matches the md: \"{Month D, YYYY} — Onboarding Phase Assessment\"." },
+        "source_md": { "type": "string", "description": "Path of the source markdown, shown in the footer, e.g. output/2026-06-09-phase-assessment.md." },
+        "run_metadata": { "type": "string", "description": "One italic appendix line: framework version, run date, data-source note." }
+      }
+    },
+
+    "agenda": {
+      "type": "object",
+      "description": "The standup's three fixed buckets. Any bucket may be empty (renders \"None this week\").",
+      "additionalProperties": false,
+      "required": ["resolve", "discuss", "on_track"],
+      "properties": {
+        "resolve": { "type": "array", "description": "Blocking items to resolve this week.", "items": { "$ref": "#/definitions/agendaItem" } },
+        "discuss": { "type": "array", "description": "Judgment calls to discuss/decide.", "items": { "$ref": "#/definitions/agendaItem" } },
+        "on_track": { "type": "array", "description": "Clients with no blocking issues.", "items": { "$ref": "#/definitions/agendaItem" } }
+      }
+    },
+
+    "clients": {
+      "type": "array",
+      "description": "One object per client. Order doesn't matter for correctness, but the report convention is phase ascending; sort before emitting if you want the artifact pre-sorted.",
+      "items": { "$ref": "#/definitions/client" }
+    },
+
+    "appendix": {
+      "type": "object",
+      "description": "Maintainer notes, de-emphasized/collapsible in the artifact. Optional.",
+      "additionalProperties": false,
+      "properties": {
+        "overrides": { "type": "array", "description": "Override / resolution notes. Each item is trusted inline HTML (wrap identifiers in <code>).", "items": { "type": "string" } },
+        "feedback": { "type": "array", "description": "Framework-feedback items. Each item is trusted inline HTML.", "items": { "type": "string" } }
+      }
+    }
+  },
+
+  "definitions": {
+    "agendaItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["lead", "detail_html"],
+      "properties": {
+        "lead": { "type": "string", "description": "Bold lead text INCLUDING its own terminal punctuation, e.g. \"Lib and Co. — fix the customer import.\" For on-track items this is usually just the client name (\"Dorell Fabrics\")." },
+        "detail_html": { "type": "string", "description": "Rest of the line. Trusted inline HTML (may contain <span class=\"oa-code\">)." },
+        "urgent": { "type": "boolean", "description": "At most ONE agenda item across the whole report may set this. It renders the single crimson .oa-urgent highlight (chip + rule). Resolve-bucket only, by convention." }
+      }
+    },
+
+    "integration": {
+      "type": "object",
+      "description": "Exactly one mode. managed → shows an 8th \"Integration\" row in the Where-they-are table (needs status + what_we_see). certified → shows a one-line italic note (needs note). none → neither.",
+      "required": ["mode"],
+      "properties": {
+        "mode": { "enum": ["managed", "certified", "none"] },
+        "status": { "$ref": "#/definitions/statusEnum", "description": "Integration build status. Required when mode = managed." },
+        "what_we_see": { "type": "string", "description": "Integration-row detail. Required when mode = managed." },
+        "note": { "type": "string", "description": "One informational sentence. Required when mode = certified." }
+      },
+      "allOf": [
+        { "if": { "properties": { "mode": { "const": "managed" } } }, "then": { "required": ["status", "what_we_see"] } },
+        { "if": { "properties": { "mode": { "const": "certified" } } }, "then": { "required": ["note"] } }
+      ]
+    },
+
+    "statusEnum": { "enum": ["done", "in_progress", "not_started"] },
+
+    "step": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["no", "label", "status", "what_we_see"],
+      "properties": {
+        "no": { "type": "integer", "minimum": 1, "maximum": 7 },
+        "label": { "type": "string", "description": "Fixed label for this step number (Kickoff / First import / Building the catalog / Catalog ready / Reps using the iPad / Admin trained / Live)." },
+        "status": { "$ref": "#/definitions/statusEnum", "description": "Step 7 (Live) is only done or not_started." },
+        "what_we_see": { "type": "string", "description": "One plain sentence (text; auto-escaped)." }
+      }
+    },
+
+    "flag": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["step", "issue", "source", "said_html"],
+      "properties": {
+        "step": { "type": "string", "description": "Step number as a string (\"1\"–\"7\"), a composite span like \"3/4\", or \"Integration\"." },
+        "issue": { "type": "string", "description": "Plain-English title (text)." },
+        "code": { "type": ["string", "null"], "description": "Optional internal flag code; rendered as a muted (CODE) suffix. Use null/omit when there is no code — never use a raw code as the title. Also use null for confirmed/by-design/suppressed informational rows, AND for any flag whose code name would contradict its confirmed state (e.g. a confirmed item must not show a *_UNCONFIRMED code)." },
+        "source": { "type": "string", "description": "Where it's from (Fathom date / Help Scout #N / Database). Text." },
+        "said_html": { "type": "string", "description": "EITHER a plain metric (text) OR verbatim quote(s) wrapped in <blockquote class=\"oa-quote\">. Trusted inline HTML; may mix a quote then a trailing <span>." }
+      }
+    },
+
+    "activity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["meetings", "support", "imports"],
+      "properties": {
+        "meetings": { "type": "string" },
+        "support": { "type": "string" },
+        "imports": { "type": "string" }
+      }
+    },
+
+    "client": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["short", "name", "phase_n", "phase_name", "next_phase_name", "product", "days", "engagement", "one_thing", "current_step", "integration", "steps", "next_step", "activity", "bottom_line"],
+      "properties": {
+        "short": { "type": "string", "description": "Lowercase shortname; also the #client-{short} anchor." },
+        "name": { "type": "string", "description": "Display name (text; auto-escaped)." },
+        "phase_n": { "type": "integer", "minimum": 1, "maximum": 7, "description": "Anchor phase number." },
+        "phase_name": { "type": "string", "description": "Anchor phase name (matches the step label for phase_n)." },
+        "next_phase_name": { "type": "string", "description": "What they're working on next (label of phase_n+1, or \"Live\"). Also the cohort \"Working on\" cell." },
+        "product": { "type": "string", "description": "e.g. \"eCat iPad\"." },
+        "days": { "type": "string", "description": "Days in onboarding shown in the cohort and the subline, e.g. \"78\" or \"~320\"." },
+        "days_qualifier": { "type": "string", "description": "Optional non-bold qualifier rendered right after \"In onboarding {days} days\" and BEFORE the \" · \" separator (e.g. \" since the account was created (...)\"). Default empty." },
+        "project_start_date": { "type": ["string", "null"], "format": "date", "description": "ISO date of the real project kickoff, if different from account creation. Used instead of created_at for days_in_onboarding when present." },
+        "engagement": { "type": "string", "description": "Short engagement note shown after the day count (no leading separator)." },
+        "one_thing": { "type": "string", "description": "Cohort table: the single most important plain-English item (text)." },
+        "current_step": { "type": "integer", "minimum": 1, "maximum": 7, "description": "The \"working on\" step (usually phase_n+1). Gets the gold is-current ring on the rail." },
+        "integration": { "$ref": "#/definitions/integration" },
+        "steps": {
+          "type": "array",
+          "description": "Exactly 7 steps, no=1..7 in order.",
+          "minItems": 7,
+          "maxItems": 7,
+          "items": { "$ref": "#/definitions/step" }
+        },
+        "next_step": { "type": "string", "description": "The card's most important line — one plain sentence (text)." },
+        "flags": {
+          "type": "array",
+          "description": "0+ flags. When empty, the \"Things to flag\" block is omitted entirely.",
+          "items": { "$ref": "#/definitions/flag" }
+        },
+        "activity": { "$ref": "#/definitions/activity" },
+        "bottom_line": { "type": "string", "description": "2–3 plain sentences (text)." },
+        "note_html": { "type": "string", "description": "Optional post-flags read/caveat — the md's free paragraph after the flags table (e.g. a 'likely routine but worth confirming' note, or an out-of-order observation). Trusted inline HTML; rendered muted between the flags table and Recent activity. Omit when absent. Use this rather than burying such commentary in a flag's said_html or bloating bottom_line." }
+      }
+    }
+  }
+}

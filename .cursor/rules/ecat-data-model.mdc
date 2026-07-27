@@ -1,0 +1,51 @@
+---
+description: eCat/SuperCat data model facts and Admin Console navigation corrections
+alwaysApply: true
+---
+
+# eCat Data Model Reference
+
+## Admin Console Navigation
+
+- **Products:** `Products > Products` (view only - cannot edit individual items in Admin Console)
+- **Customers:** `Customers > Customers` (can edit directly in Admin Console OR via CSV import)
+- **Inventory:** `Tools > Import Data > Inventory` (upload only, no manual editing)
+  - Custom inventory fields can be configured (Qty On Hand, Next Ship Date, Next Available Qty)
+
+## File Distinctions
+
+### LongDesc vs ShortDesc vs ProductStory (IMPORTANT)
+- **LongDesc** (in products.csv) = Primary product name shown in eCat catalog, detail views, and orders
+- **ShortDesc** (in products.csv) = Compact product name for admin views and order forms (optional, falls back to LongDesc if blank)
+- **ProductStory** (in stories.csv) = Extended marketing description / product romance copy
+- These are THREE DIFFERENT fields across TWO DIFFERENT files
+
+### Order/Invoice Files (IMPORTANT)
+- **order_data.csv** = Imported order history for Portal reporting (from ERP/accounting)
+- **invoice_data.csv** = Imported invoice history for Portal reporting (from ERP)
+- These are IMPORT files for Sales Portal reporting, NOT iPad-submitted orders
+- eCat can also EXPORT orders.csv/invoices.csv - that's different from these imports
+
+### Options Files
+- **options.csv** = Individual option values (e.g., 100=Black, 101=White)
+- **option_groups.csv** = Groups containing option codes (e.g., FIN=Finishes contains 100,101,102)
+- Products reference groups via OptionSet1..OptionSet5 fields
+- Matrixed options use matrix_options.csv for combination pricing
+
+## Key Links
+- **BaseItemCode** = Master key linking products to inventory, stories, orders, options
+- **TerritoryCodes** = Links customers to sales reps (KB says required; importer does NOT make it fatal — see `ecat-ground-truth`)
+- **DefaultPriceCode** = Links customers to pricing levels (truly required by importer; must match an Admin price level code)
+
+## Customer File Required Fields (importer-fatal)
+- BillToCode, BillToName, BillToAddress1, BillToCity, BillToState, BillToPostCode, DefaultPriceCode
+- ShipToAddress1, ShipToCity (required on ship-to rows)
+- TerritoryCodes is KB-required but NOT importer-fatal (see `ecat-ground-truth`)
+
+## Inventory File Required Fields
+- **BaseItemCode** is the only importer-required field (KB lists QtyAvailable as required, but the importer does not enforce it — see `ecat-ground-truth`)
+- Optional columns: QtyAvailable, QtyOnHand, QtyReserved, QtyInShowroom, QtyInTransit, QtyOnBackorder, QtyOnPOrder, QtyOverseas, NextReceiptDate (real date), NextReceiptQty, Option1-Option20, plus org-configured custom fields
+
+## Product Importer Field Names
+- CSV headers are case-insensitive (downcased before matching)
+- Promotional price header: `promotionprice` (PromoPrice and PromotionPrice both work)

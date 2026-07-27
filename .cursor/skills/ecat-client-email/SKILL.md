@@ -1,0 +1,56 @@
+---
+name: ecat-client-email
+description: Draft eCat onboarding and support emails to clients in Kylor's voice — numbered point-by-point replies, demo-vs-final scoping, "what we have vs what we need", FTP/Admin next steps. Use when drafting or replying to an onboarding client email, support follow-up, or status update. NOT for pricing-migration notices (those follow Pricing Migration/_root/04).
+---
+
+# eCat Client Email (onboarding & support)
+
+Scope: onboarding/implementation/support emails. For pricing-migration notices use
+the rules in `Pricing Migration/_root/04_communication_posture.md` instead.
+
+## Voice
+
+- Warm, professional, declarative. Peer-to-principal, not service-rep cheerful.
+- **Mirror the client's structure** — if they sent 6 numbered questions, answer
+  `**1.**`–`**6.**` in order.
+- **Own genuine mistakes briefly and specifically**, then state the fix. ("My
+  apologies for the confusion — I had prepared the updated file but hadn't uploaded
+  it yet. It's live now.") Do not over-apologize and never apologize for the product.
+- **Scope demos honestly**: "this is an initial demo to confirm layout and mapping
+  direction — not the final approved setup."
+- **Concrete next steps**: exact FTP folders, Admin Console paths, upload order,
+  "please sync your iPad on Wi-Fi and let me know."
+- Be honest about limits ("grid view always shows the item code — that's fixed; we
+  can surface the name in Quick View instead. Would that work?").
+- Match the client's technical level (non-technical principal vs file-savvy ops
+  contact). Avoid eCat jargon for non-technical readers.
+- Sign off: **"Best, Kylor"**.
+
+## Reusable structures
+
+**Point-by-point reply** — acknowledge → answer each numbered item with fix +
+one-line why → next steps → offer a call.
+
+**"What we have vs what we need"** (e.g. missing current price list, missing
+addresses): two short lists + the one concrete ask to unblock.
+
+**Source-of-truth / correction** (client pushed back on data lineage): acknowledge,
+adopt their correction as the decision, summarize the rebuild plan, confirm the load.
+
+**Self-service handoff with guardrails**: what they can safely manage (NetPrice edits,
+Admin Option Mappings) vs what breaks things (re-uploading an old option_groups.csv).
+Always include: **download the current file from FTP `/data` before editing.**
+
+## Pre-send checklist
+
+```
+- [ ] Files actually uploaded (not "Done!" before upload confirmed)
+- [ ] Anything I claimed "configured" is verified on the device
+- [ ] Stated UI limits honestly (grid item code, etc.)
+- [ ] /images vs /option_images vs /data stated where relevant
+- [ ] Clear next action + who does it
+- [ ] Internal-only context (China CDN, support tickets, health scores) NOT in client copy
+```
+
+The High Point Market follow-up email skill (`hpmkt-follow-up-email`) covers
+post-market recaps in the same voice family.

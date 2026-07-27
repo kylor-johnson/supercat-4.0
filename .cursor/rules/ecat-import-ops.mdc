@@ -1,0 +1,45 @@
+---
+description: eCat iPad import operations — FTP folders, upload tools, File Import Status, error tiers, image processing
+alwaysApply: true
+---
+
+# eCat iPad — Import Operations
+
+## Where files go
+
+| Asset | FTP folder | Admin Console tool |
+|-------|------------|--------------------|
+| CSV data files | `/data` | Tools → Upload Data / Import Data |
+| Product images | `/images` (**flat root only — subfolders are ignored**) | Tools → Import Images → Product Photos |
+| Option images | `/option_images` | Tools → Import Images → Option Photo |
+
+- FTP processed files are **deleted on success** — not data loss.
+- Product images: `.jpg` lowercase, sRGB, up to 6 (or 12), primary first, names
+  match `ImageFileName` exactly (no spaces/punctuation except `-` `_`), ≤15 MB,
+  ≤500/batch, **30–45 min** processing.
+- Option images: square **300×300**, default filename `{code}.jpg`.
+
+## Verify every import
+
+Tools → Admin Reports → **File Import Status**. If the timestamp is a **blue
+link**, there were problems — click it for line numbers.
+
+| Tier | Effect |
+|------|--------|
+| **Fatal** | Whole file rejected, nothing changes |
+| **Error** | File imports good rows, skips error rows, AND skips all deletes of omitted records |
+| **Warning** | Imports including warning rows; omitted records ARE removed |
+
+So if expected deletes didn't happen, look for an `Error` row.
+
+## Multi-file product import
+
+`products.csv` (must include `BaseItemCode`, `TradeNameCode`, `CollectionCodes`,
+`CategoryCodes`) + `products_1.csv`, `products_2.csv`… + a final `sentinel.csv`
+to trigger the merge. Supplemental rows keyed by `BaseItemCode`; their columns
+must be valid standard or pre-registered custom fields.
+
+## Custom fields
+
+Must be pre-registered in Admin (Products → Custom Fields, "Send to iPad") before
+import; matched case-insensitively. Same for inventory and customer custom fields.
