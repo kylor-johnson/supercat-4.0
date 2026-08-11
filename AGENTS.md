@@ -23,7 +23,8 @@ spaces and `~` characters — always quote paths in shell commands.
 ### Agent infrastructure
 | Path | Purpose |
 |---|---|
-| `.cursor/skills/` | 22 agent skills (in-repo, git-tracked). See skill index below. |
+| `.claude/skills/` | Claude Code project skills (in-repo). Loaded automatically by Claude Code. See skill index below. |
+| `.cursor/skills/` | 22 Cursor agent skills (in-repo, git-tracked). See skill index below. |
 | `.cursor/rules/` | 8 always-on rules (`.mdc`) — import ground truth, data model, Jira read-only, canvas ban, legacy freeze. |
 | `CLAUDE.md` | The `alwaysApply` rules ported for Claude Code. Generated from `.cursor/rules/`. |
 | `.cursorignore` | Excludes frozen Insightful folders from indexing. |
@@ -34,6 +35,8 @@ spaces and `~` characters — always quote paths in shell commands.
 | Path | Purpose |
 |---|---|
 | `foundation/` | The socializable company context. `00`–`06` strategic pillar; `07` epistemic (how we establish truth); `08`–`09` operating pillar (how we build, agent factory); plus `CEO_SYSTEM_CONTEXT.md` and `PLATFORM_ANATOMY_CURRENT_STATE.md`. |
+| `foundation/sources/` | The **stamped sources** `foundation/` cites and summarizes — pricing constitution, monetization/competitive/install-base research, CEO-system artifact catalog, FY26 plan, BCF reference instance, segmentation README + buyer-type reads. **On conflict, the stamped source wins over `foundation/`.** Imported from the 2026-08-05 foundation pack. |
+| `Supercat_CEO_system_README.md`, `QBO_Invoice_BigQuery_Dedup_Guide_README.md` | Root-level companions — operating-cadence overview, and the mandatory dedup pattern for `quickbooks__invoice` in BigQuery (read before any AR/balance/overdue query). |
 | `PM/` | Program material — Admin console, Sales Portal docs, eCat web rewrite estimates, agent starters. |
 
 ### Client onboarding
@@ -112,10 +115,18 @@ and any `* 2.md` / `* 2.py` duplicate — these are copies, not sources of truth
 - Secrets — `.env`, `bigquery/service-account/`, `*service-account*.json`
 - Transcript archives (`*transcript*.zip`)
 
-**Skills live in two places.** `.cursor/skills/` (in-repo, tracked) and
-`~/.claude/skills/` (home, untracked) hold independent copies of the same 22
-skills. They are not symlinks. As of 2026-08-11 all 22 `SKILL.md` files are
-byte-identical — **when you edit a skill, update both copies** or they drift.
+**Skills live in three places.**
+
+| Location | Holds | Read by |
+|---|---|---|
+| `.cursor/skills/` | the 22 eCat/Insightful/Rails skills, in-repo, tracked | Cursor |
+| `~/.claude/skills/` | independent copies of those same 22, outside the repo | Claude Code (user scope) |
+| `.claude/skills/` | `supercat-foundation`, `truth-discipline` — in-repo, tracked | Claude Code (project scope) |
+
+The first two are **copies, not symlinks**. As of 2026-08-11 all 22 `SKILL.md`
+files are byte-identical — **when you edit one of those 22, update both copies**
+or they drift. `.claude/skills/` is the in-repo home for new Claude Code skills;
+add there rather than deepening the two-copy split.
 
 ---
 
@@ -135,7 +146,14 @@ restated here.
 
 ## Skill index
 
-22 skills, identical in `.cursor/skills/` and `~/.claude/skills/`.
+24 skills — 22 in `.cursor/skills/` + `~/.claude/skills/`, and 2 in
+`.claude/skills/`.
+
+### Company context (`.claude/skills/`)
+| Skill | Use it for |
+|---|---|
+| `supercat-foundation` | **Before** answering anything about what SuperCat is, who we serve, pricing/ACV/tiers, competitors, strategic bets, or FY26 targets — including in customer-, investor-, or board-facing drafts. A router: it holds no figures, it points at `foundation/` and `foundation/sources/`. Never answer these from memory; the figures move quarterly. |
+| `truth-discipline` | **Whenever an output will state a figure** about customers, revenue, GMV, orders, reps, adoption, health, or market size — reports, charts, decks, a Slack answer, a number dropped mid-sentence. Confidence tiers, capture vs. attribution, billed ≠ collected, suppress-rather-than-guess, and the QuickBooks invoice dedup trap. Binds on the output, not the question. |
 
 ### Onboarding orchestration
 | Skill | Use it for |
