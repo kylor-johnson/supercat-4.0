@@ -20,21 +20,66 @@ depends_on: [TAX-A, TAX-B, TAX-MAP]
 
 ---
 
+## 0. Sampling frame
+
+The frame is the **public High Point Market exhibitor directory**
+(`highpointmarket.org/ExhibitorDirectory`), not a general web search. This makes "High Point-native"
+true by construction rather than inferred, and it is the population the field kit will actually walk.
+
+Harvested 2026-08-25 `[MEASURED]`: server-side category filters at
+`/exhibitordirectory?pageindex=N&filters={"Type":"Categories","Values":[...]}`. Two category frames
+pulled — **Lamp & Lighting** (28 pages, 273 rows) and **Upholstered Furniture** (57 pages, 563 rows)
+— giving **693 unique exhibitors**, each with company name, building, showroom/space number, floor
+and neighborhood. The directory also exposes `PricePoint`, `Options` (incl. "Designer Friendly"),
+`Style`, `Buildings` and `Areas` filters; those were harvested as declared attributes.
+
+**This upgrades HPMKT footprint from MANUAL to MEASURED** for anything in the frame — building and
+space number come from the directory itself. Tenure and square footage remain manual.
+
+---
+
 ## 1. The screen is not a classifier
 
 Phase 4 does not route through archetype → segment prediction, and never needed to. That path
 predicts at 33.3% against a 34.5% majority baseline (n=87) and would poison the candidate list.
 
-The screen has three components, applied in this order:
+The screen has four components, applied in this order:
 
 | Order | Component | What it does | Strength |
 |---|---|---|---|
+| **0** | **Gate 0 — is this a SuperCat prospect at all?** | Lane-independent, pass/fail, runs first. A Gate-0 failure never receives a lane | Hard gate |
 | **a** | **Category filter** — furniture / lighting / décor | Does most of the work. Publicly observable at near-100% | Strong, cheap |
 | **b** | **Lookalike match** — resemblance to the lane's named exemplar | Characterises the anchor on the open web; does not ask "which segment is this?" | Moderate, manual |
 | **c** | **ARCH-01 exclusion** — trade-gated access | Disqualifies only. **Never assigns** | Strong as a negative: 0 of 20 trade-gated roster orgs are SEG-03, 1 of 20 SEG-04 `[MEASURED]` |
 
 Category is the load-bearing component because it is the one thing the public web reports
 reliably. Everything after it narrows a category list; nothing after it is trusted to label.
+
+---
+
+## 1a. Gate 0 — qualification, lane-independent
+
+All four criteria are pass/fail and run **before** any lane logic. A company that fails Gate 0 is
+recorded in the disqualified list under `failed Gate 0` and never receives a lane, however well it
+matches one.
+
+| # | Criterion | Pass condition | Where observable | Collection |
+|---|---|---|---|---|
+| G0.1 | **Manufacturer or brand owner** | Designs/produces and owns the line. **Not** a retailer, rep agency, buying group, importer-for-others, antiques/consignment dealer, marketplace, or pure D2C brand | Site "about", how-to-buy, whether products carry their own brand | Manual (auto assists) |
+| G0.2 | **Indirect channel exists** | Sells through reps and/or dealers — some non-direct route to market | Dealer/rep pages, "where to buy", trade/dealer login | Auto |
+| G0.3 | **Catalog complexity plausible** | Multiple collections, finishes, options or programs — not a 20-SKU line | Category/collection nav depth, finish/fabric pages | Auto |
+| G0.4 | **Size band** | Roughly the band our install base occupies | Site scale, facility/showroom footprint, headcount if findable | Manual |
+
+**G0.4 is bounded from `foundation/02_who_we_serve.md`, not invented** `[OBSERVED]`. Lens 1's three
+Digital Selling Maturity segments report est. median employee count **~37 / ~44 / ~40** and est.
+median company revenue **~$10M** across all three; the externally used marketing niche is
+**"$10–250M"**. Use that as a **loose bound to exclude micro-brands and global giants**, nothing
+more. Lens 1 is explicit that scale is *not* the ICP — *"Catalog-Focused is **not** 'small
+companies'... the segment is defined by what they use SuperCat for, not by their scale"* — so G0.4
+excludes at the extremes and never ranks.
+
+Gate-0 failures are a **useful bucket, not waste**: "right profile, wrong company" is exactly what
+the field kit has to triage on a market floor.
 
 ---
 
@@ -76,6 +121,13 @@ is manually verifiable, and the anchor itself needs a manual pass before the fie
 
 ## 3. Cohort evidence behind the criteria
 
+**Read this before reading the table.** These rates are **cohort-derived, not validating**. Each
+cohort is the set of roster orgs already in that segment×category, and the rates are computed with
+the very same binary features that back-tested at 33.3% against a 34.5% majority baseline. They
+describe **what the neighborhood looks like**; they are **not accuracy figures** and no criterion is
+justified by its rate alone. The three named exemplars are the anchors — cohorts are supporting
+context only, and lane 2's cohort (n=6) is too small to support any inclusion criterion.
+
 Marker rates within each lane's roster cohort `[MEASURED 2026-08-25]`, automated observation only:
 
 | Marker | Lane 1 cohort — SEG-01 × Furniture (n=17) | Lane 2 cohort — SEG-02 × Furniture (n=6) | Lane 3 cohort — SEG-03 × Lighting (n=11) |
@@ -104,8 +156,10 @@ Specify-into-a-project, High Point-native.
 | 1.2 | **Designer-facing account gate** | Account required to see pricing or order; the audience named is designer / trade / to-the-trade. Vocabulary varies — "Designer Resources", "Trade Program", "Create an Account" all count | Homepage nav, account/registration page | **Manual** (auto assists) | **INCLUDE** |
 | 1.3 | **No consumer prices and no consumer cart** | A retail shopper cannot see a price or buy | Any product page | **Auto** | **EXCLUDE if present** — 0/17 of the lane-1 cohort show prices |
 | 1.4 | **Project/contract vocabulary** | Hospitality, contract, A&D, specification, COM, tearsheets, custom upholstery | Nav, dedicated contract page, product copy | **Auto** | **INCLUDE** (supporting — 10/17 cohort) |
-| 1.5 | **HPMKT permanent showroom** | Named building + space, not a temporary or shared booth; multi-market tenure | HPMKT exhibitor directory; company "Showrooms" page | **MANUAL** | **INCLUDE** (supporting) |
-| 1.6 | **No consumer-facing store locator** | Absence of "find a store near you" aimed at end consumers | Homepage nav / footer | **Auto** | **EXCLUDE if present** (weak — 5/17 cohort do have one) |
+| 1.5 | **HPMKT permanent showroom** | Named building + space number, not a temporary or shared booth; multi-market tenure | **Exhibitor directory** (building/space now MEASURED); tenure still manual | Auto + **MANUAL** for tenure | **INCLUDE** (supporting) |
+
+*Dropped: former criterion 1.6 (no consumer store locator). It was marked weak on its own evidence
+(5/17 cohort) and is not carried.*
 
 **Disqualifiers:** visible consumer pricing (1.3). Dealer-application vocabulary dominant over
 designer vocabulary → this is lane 2, not lane 1.
@@ -121,9 +175,9 @@ Dealer seating and casual. **Explicitly not décor accessories.**
 | 2.1 | **Seating or casual furniture is the assortment core** | Chairs, sofas, sectionals, recliners, slipcovered, outdoor/casual — not accessories, art, mirrors, or tabletop | Category nav depth | **Auto** | **INCLUDE** |
 | 2.2 | **Décor-accessory house** | Assortment led by mirrors, art, tabletop, giftware, textiles | Category nav | **Auto** | **EXCLUDE — hard.** This is the lane's stated boundary |
 | 2.3 | **Dealer-facing recruitment and access** | "Become a dealer" / "Apply to become a dealer" / dealer portal / dealer login. The company is openly recruiting stockists | Homepage nav, footer, dealer page | **Auto** | **INCLUDE** |
-| 2.4 | **Consumer-facing dealer locator** | "Find a store" / "Where to buy" aimed at end consumers | Homepage nav | **Auto** | **INCLUDE** (supporting — 4/6 cohort, low confidence) |
+| 2.4 | **Consumer-facing dealer locator** | "Find a store" / "Where to buy" aimed at end consumers | Homepage nav | **Auto** | **Supporting evidence only — not a criterion.** Demoted: 4/6 on n=6 cannot carry inclusion |
 | 2.5 | **Named collection/program structure** | Assortment organised into named collections carried as a line (e.g. Bedford, Bridgeport, Gramercy Park), not one-off SKUs | Collections nav | **Auto** | **INCLUDE** (supporting) |
-| 2.6 | **HPMKT presence** | Showroom or established temporary space | HPMKT exhibitor directory | **MANUAL** | **INCLUDE** (supporting) |
+| 2.6 | **HPMKT presence** | Showroom or established space | **Exhibitor directory** (MEASURED) | Auto | **INCLUDE** (supporting) |
 
 **Disqualifiers:** décor-accessory assortment (2.2, hard). Designer-gated with no dealer
 recruitment → lane 1. Visible consumer pricing with full DTC checkout → neither lane.

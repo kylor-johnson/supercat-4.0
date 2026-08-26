@@ -89,3 +89,45 @@ depends_on: []
 
 ### Next
 - Review gate on lane criteria, then Phase 2 personas (including the buyer persona, F-14).
+
+---
+
+## 2026-08-25 — revision 3 (Phase 4 sourcing + Phase 5)
+
+### Changed
+- `prospects/hpmkt-lane-criteria.md` — **four amendments applied.**
+  - New **§0 Sampling frame**: the HPMKT exhibitor directory, not general web search. 693 unique
+    exhibitors harvested with building/space/floor/neighborhood. **Upgrades HPMKT footprint from
+    MANUAL to MEASURED.**
+  - New **§1a Gate 0**: lane-independent pass/fail qualification (manufacturer/brand owner ·
+    indirect channel · catalog complexity · size band). Size band bounded from Lens 1 in
+    `02_who_we_serve.md` (~37–44 median employees, ~$10M median revenue, $10–250M niche), used to
+    exclude at the extremes only — Lens 1 is explicit that scale is not the ICP.
+  - Criterion **1.6 dropped** (weak on its own evidence, 5/17). Criterion **2.4 demoted** to
+    supporting evidence (4/6 on n=6 cannot carry inclusion).
+  - Cohort rates now labelled **cohort-derived, not validating** — same features that back-tested
+    at 33.3%; they describe the neighborhood, they are not accuracy.
+- `ASSUMPTIONS.md` — F-18..F-22 added (frame already worked; lane 3 anchor absent; competitor
+  platforms; dedupe insufficiency; directory attributes do not separate lanes).
+
+### Added
+- `prospects/hpmkt-luxury-spec-furniture.md` — 8 ranked candidates, per-criterion observations.
+- `prospects/hpmkt-premium-trade-furniture.md` — 9 ranked candidates.
+- `prospects/hpmkt-mid-market-lighting.md` — **4 candidates, status `draft-blocked`.**
+- `prospects/disqualified.md` — 60+ entries across three distinct reasons.
+- `field-kit/test-design.md` — H1–H5, each with its kill condition.
+- `field-kit/worked-example-the-manual-read.md` — the Interlude Home `TRADE_GATE=0` case as
+  field-kit training material.
+
+### Headline findings
+| Finding | Evidence |
+|---|---|
+| **Lane 3 is blocked** — Savoy House is not an HPMKT exhibitor and the HPMKT lighting category is décor houses | S listing Saatva→Sauder, 60 names, no Savoy; 3/42 lighting candidates publish a where-to-buy |
+| **The frame is already worked** — ~17% fresh | 26 of 30 checked exist in HubSpot; 3 open deals |
+| **Competitor platforms are the strongest signal found** | 7 AmpTab, 3 WizCommerce, 0 RepZio/Pepperi/MarketTime |
+| **Dedupe needs hand-adjudication** | Sauder reached a lane ranking before manual catch |
+| 72 exhibitors excluded as existing customers | 51 exact + 21 hand-adjudicated brand families |
+
+### Next
+- Review gate on candidates, then **Phase 2 personas** including the buyer persona (F-14).
+
