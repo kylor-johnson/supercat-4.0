@@ -1,6 +1,12 @@
 # Customer Segmentation — canonical home
 
-> **Last updated**: 2026-07-10 · **Owner**: CEO · **Status**: v4.0 stamped (2026-07-09), imported here 2026-07-10.
+> **Last updated**: 2026-08-25 · **Owner**: CEO · **Status**: v4.0 stamped (2026-07-09), imported here 2026-07-10.
+>
+> **2026-08-25 — link repair.** This README previously named three files as living in this folder;
+> only `account_buyer_type_reads.csv` ever did. The stamped narrative and the MASTER roster live at
+> `Customer Segmentation/current/` — the path `build_v4.py` writes — and are **not** duplicated here.
+> One answer key, one location. Links below now point there. The `agent_research/` tree referenced
+> below was never imported into this repo and its links are marked accordingly.
 
 This folder is the canonical workspace home for SuperCat's **selling-motion** segmentation
 (Client Segmentation v4.0). It exists so that `foundation/` can cite it and the
@@ -9,9 +15,9 @@ external build project.
 
 ## Files
 
-- [`SuperCat_Client_Segmentation_v4.0.md`](SuperCat_Client_Segmentation_v4.0.md) — the stamped
+- [`SuperCat_Client_Segmentation_v4.0.md`](../../../Customer Segmentation/current/SuperCat_Client_Segmentation_v4.0.md) — the stamped
   narrative + methodology (preserved verbatim; see its import banner about non-resolving legacy links).
-- [`SuperCat_Customer_Segmentation_v4.0_MASTER.csv`](SuperCat_Customer_Segmentation_v4.0_MASTER.csv) —
+- [`SuperCat_Customer_Segmentation_v4.0_MASTER.csv`](../../../Customer Segmentation/current/SuperCat_Customer_Segmentation_v4.0_MASTER.csv) —
   the **109-row roster**. One row per org with the three classification axes plus catalog / price /
   customer-structure / order-activity / invoiced-revenue / iPad-activity columns.
 - [`account_buyer_type_reads.csv`](account_buyer_type_reads.csv) — the append-only index of
@@ -19,9 +25,31 @@ external build project.
   2026-07-22). Seed triad (Anna Hislop / Viva / Cartwright) plus Phase A dual-socialize
   website verifies — including first **trade-led showroom** (A. Hoke, CAI Designs, Gorrod Gallery)
   and **designer / trade** (Michelle Gerson) goldens.
-- **Design-partner dual-package queue** (moved 2026-07-23): lives under agent research —
-  [`../agent_research/design_partners/DESIGN_PARTNER_COHORT.md`](../agent_research/design_partners/DESIGN_PARTNER_COHORT.md).
+- **Design-partner dual-package queue** (moved 2026-07-23): `agent_research/design_partners/DESIGN_PARTNER_COHORT.md`
+  — **not imported into this repo**; link dead as of 2026-08-25.
   Org packs + Batch tracker are production ops for copilot + B2C, not part of the v4 model home.
+
+## The two-layer taxonomy (added 2026-08-25, draft)
+
+The selling-motion model is now split into two explicitly separate layers, because the v4.0
+segments are **post-sale only** and cannot be assigned to a prospect.
+
+| Path | What it is |
+|---|---|
+| [`taxonomy/account-segments.md`](taxonomy/account-segments.md) | **Layer A** — SEG-01..04, the v4.0 segments. Post-sale only. Authority is the stamped roster as a lookup |
+| [`taxonomy/prospect-archetypes.md`](taxonomy/prospect-archetypes.md) | **Layer B** — ARCH-01..04, built only from pre-sale observable features |
+| [`taxonomy/segment-archetype-mapping.md`](taxonomy/segment-archetype-mapping.md) | Measured A↔B correspondence and the back-test. **Read this before using any archetype** |
+| [`ASSUMPTIONS.md`](ASSUMPTIONS.md) | Assumptions register and open findings |
+| [`FOUNDATION-CORRECTIONS.md`](FOUNDATION-CORRECTIONS.md) | Proposed corrections to `CEO_SYSTEM_CONTEXT.md` / `02_who_we_serve.md`. **Held, not applied** |
+| [`CHANGELOG.md`](CHANGELOG.md) | Change history for this subtree |
+
+No Layer B archetype inherits a Layer A segment name — per `07_how_we_establish_truth.md`
+principle 7, enrichment is validated *against* a first-party segment, never seeded *from* one.
+
+**Ignore list:** `Customer Segmentation 2/` is a byte-identical duplicate of `Customer Segmentation/`.
+Do not read, cite, or write to it.
+
+---
 
 ## Two complementary lenses (this is the important part)
 
@@ -69,7 +97,7 @@ matching your data window and say which. See the count caveat in
 - [`../../foundation/CEO_SYSTEM_CONTEXT.md`](../../foundation/CEO_SYSTEM_CONTEXT.md) — carries a
   condensed version of both lenses into the 10 CEO System prompts that read foundation context at runtime.
   This runtime file (not `02`) is the customer ontology the prompts actually see.
-- [`../agent_research/brand_to_customer/PROFILE_SYNTHESIS.md`](../agent_research/brand_to_customer/PROFILE_SYNTHESIS.md)
+- `agent_research/brand_to_customer/PROFILE_SYNTHESIS.md` (**not imported into this repo**; link dead as of 2026-08-25)
   Step 0a — looks up the brand's `v4_segment` + how/what/who here to set catalog vocabulary.
 
 ## Feedback loop (how this sharpens over time)
