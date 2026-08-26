@@ -1,9 +1,10 @@
 ---
 id: FOUNDATION-CORRECTIONS
-title: Proposed corrections to stamped foundation context — HELD, not applied
+title: Corrections to stamped foundation context — APPLIED 2026-08-26
 version: 0.1
-status: held-for-approval
+status: applied
 date: 2026-08-25
+applied: 2026-08-26
 owner: Kylor Johnson
 applies_to:
   - foundation/CEO_SYSTEM_CONTEXT.md
@@ -12,27 +13,36 @@ applies_to:
 depends_on: [TAX-A, TAX-B, TAX-MAP]
 ---
 
-# Proposed corrections — HELD
+# Corrections — APPLIED 2026-08-26
 
-**Nothing in this file has been applied.** Correcting stamped context to point at a taxonomy that is
-still in draft is worse than the current wrong claim. Apply after Layer A/B is hardened.
+**Status: applied.** Authorised by Kylor 2026-08-26 after the Layer A/B taxonomy was flipped to
+`status: hardened`. The hold condition (*"apply after Layer A/B is hardened"*) is satisfied and
+discharged.
 
-Sequencing is deliberate: `CEO_SYSTEM_CONTEXT.md` is the file the 10 CEO System prompts actually
-read at runtime (it says so itself), so it is corrected **first**. `02_who_we_serve.md` is the
-human-facing synthesis and is downstream.
+This file is now the **record of what was changed and why**, not a proposal. The text below is the
+correction as applied.
 
-Correction notes, not rewrites. **Do not touch Lens 1 or T1/T2/T3 pricing.**
+## What was applied
 
----
+| File | Change | Prior version |
+|---|---|---|
+| `foundation/CEO_SYSTEM_CONTEXT.md` | Lens 2 section: post-sale-only rule, roster-lookup-not-computation, precise pre-sale limit. Source pointer fixed from the non-existent `skills/customer_segmentation/` | `_archive/CEO_SYSTEM_CONTEXT_2026-08-26_pre-segmentation-lineage-correction.md` |
+| `foundation/02_who_we_serve.md` | E1 lineage paragraph added after the segment table; E2 "knowable at first-touch" bullet replaced | `_archive/02_who_we_serve_2026-08-26_pre-segmentation-lineage-correction.md` |
+| `foundation/00_README.md` | Date bumped, one-line note pointing at both corrections | — |
+| `taxonomy/*.md` (×3) | `status: draft` → `status: hardened`, `hardened: 2026-08-26` added | — |
 
-## Procedure when applying — from `foundation/00_README.md` § Maintenance
+**Not touched, deliberately:** Lens 1 / D-001a, T1/T2/T3 pricing, the segment names and counts
+(33/38/24/14), the orthogonality-to-Lens-1 argument, the stamped v4.0 narrative, `build_v4.py`, the
+MASTER CSV, and the "Brand-Building" alias in Insightful profiles.
 
-1. Create `foundation/_archive/` (**does not exist yet** `[MEASURED]`).
-2. Copy the prior version of each edited file into it before editing.
-3. Bump each edited file's `Last updated`.
-4. Bump `foundation/00_README.md`'s date too.
-5. `AGENTS.md` warns that several foundation docs already carry edits made without bumping the
-   stamp — do not add to that.
+## Procedure followed — `foundation/00_README.md` § Maintenance
+
+1. ✅ Created `foundation/_archive/` — it did not exist before this change.
+2. ✅ Copied the prior version of each edited file into it before editing.
+3. ✅ Bumped each edited file's `Last updated`, naming the change and the archived predecessor.
+4. ✅ Bumped `foundation/00_README.md`'s date.
+5. ✅ `AGENTS.md` warns that several foundation docs carry edits made without bumping the stamp —
+   this change did not add to that.
 
 ---
 

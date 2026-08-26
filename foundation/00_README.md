@@ -2,7 +2,9 @@
 
 > **What this is**: The shared, socializable foundational context for SuperCat. Seven Markdown files at the root of `foundation/` that every team member, advisor, partner, and incoming hire can read in under an hour to ground themselves in what we do, who we serve, how we make money, what market we're in, where we're going, and how we operate.
 >
-> **Last updated**: 2026-05-12 · **Owner**: CEO · **Review cadence**: Quarterly (or when a foundational fact changes)
+> **Last updated**: 2026-08-26 · **Owner**: CEO · **Review cadence**: Quarterly (or when a foundational fact changes)
+>
+> *2026-08-26: Lens 2 (Selling Motion) lineage corrected in [`02_who_we_serve.md`](02_who_we_serve.md) and [`CEO_SYSTEM_CONTEXT.md`](CEO_SYSTEM_CONTEXT.md) — the v4.0 segments are stamped judgment corroborated by Postgres, not derived from it, and cannot be assigned to a prospect. Prior versions preserved in [`_archive/`](_archive/). Lens 1, D-001a and T1/T2/T3 unchanged.*
 
 ---
 

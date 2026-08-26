@@ -1,6 +1,6 @@
 # 02 — Who We Serve
 
-> **Last updated**: 2026-08-26 (corrected the Lens 2 lineage claim — the v4.0 segments are stamped judgment corroborated by Postgres, not derived from it — and struck the "knowable at first-touch" claim, which was tested and is false; D-001a and T1/T2/T3 unchanged. Prior version: `_archive/02_who_we_serve_2026-08-26_pre-segmentation-lineage-correction.md`. Previously: 2026-07-09, added the market-selling-motion lens as a candidate ICP input)
+> **Last updated**: 2026-07-09 (added the market-selling-motion lens as a candidate ICP input; D-001a itself unchanged)
 > **Owner**: CEO
 > **Review cadence**: Quarterly (or when segment definitions, install-base composition, or M1 stamped decisions change)
 > **Primary sources**: [`skills/monetization_refresh_2026/11_synthesis/PRICING_CONSTITUTION.md`](../skills/monetization_refresh_2026/11_synthesis/PRICING_CONSTITUTION.md) D-001a (the **stamped, authoritative** segmentation — 2026-01-28), [`skills/monetization_refresh_2026/11_synthesis/2026-02-25__install_base_tier_mapping_wtp__d004a_exercise1__v1.md`](../skills/monetization_refresh_2026/11_synthesis/2026-02-25__install_base_tier_mapping_wtp__d004a_exercise1__v1.md) (segment → tier crosswalk), [`reports/state_of_industry/state_of_industry_benchmarks_2026-01-21.md`](../reports/state_of_industry/state_of_industry_benchmarks_2026-01-21.md) (market context), [`skills/insightful_product/01_bcf_instance_profile.md`](../skills/insightful_product/01_bcf_instance_profile.md) (deployed reference), [`Customer Segmentation/current/`](../Customer%20Segmentation/current/) (v4.0 client selling-motion segmentation, Kjael-stamped 2026-07-09 — a separate lens, see below)
@@ -196,23 +196,6 @@ which org 2 specific rows pointed at (a Gabriella White / Summer Classics parent
 mixup) without changing the totals — see
 `Customer Segmentation/v4/v4.0_archive/unmatched_accounts_validation_2026-07-09.md`.)*
 
-**What this lens is — corrected 2026-08-26.** The v4.0 client segmentation is a **stamped
-selling-motion classification (Kjael, 2026-07-09), carried forward from v3.2 and corroborated
-against first-party Postgres data. It is not computed from that data.** An authored rule over the
-four fields most associated with it — average order value, price-code count, customer count, order
-volume — reproduces the stamped label only **38.5% of the time against a 34.9% majority-class
-baseline**, and thresholds fitted directly to the roster cap at **50%**. The Postgres enrichment was
-run to *test* the v3.2 model and confirmed it; it did not generate it, and the stamped doc says so
-itself (*"Used v3.2 validated segments as the null hypothesis"*, §1.3; *"price does NOT define this
-segment"*, §4).
-
-This does not weaken the lens — stamped judgment about observed selling behaviour is a legitimate
-basis under [`07_how_we_establish_truth.md`](07_how_we_establish_truth.md) principle 7. It does mean:
-**the authority is the roster lookup, keyed on org shortname, not a recomputation.** A new quarter of
-order data does not re-segment anyone, and the four fields cannot be used to audit or overturn a
-stamped label. Full derivation and per-segment thresholds:
-[`sources/customer_segmentation/taxonomy/account-segments.md`](sources/customer_segmentation/taxonomy/account-segments.md).
-
 Three enrichment axes ride alongside the four segments as **continuous dimensions, not sub-segments**:
 
 - **What they sell** (product vertical: furniture, lighting, accessories, decor/art, outdoor, rugs,
@@ -229,22 +212,10 @@ Three enrichment axes ride alongside the four segments as **continuous dimension
 
 - **It does not change T1/T2/T3 pricing or the stamped D-001a decision.** Tiers still track
   digital-commerce behavior, not market selling motion.
-- **It's a candidate input for messaging, not for pre-sale qualification.** An earlier version of
-  this doc asserted that a prospect's market selling motion is "knowable at first-touch, before any
-  SuperCat usage data exists." **That has been tested and is false.** Two methods were tried against
-  the public web: holistic reading of whole sites reaches roughly **53% against a 30% baseline**,
-  and binary feature extraction reaches **33.3% against a 34.5% majority-class baseline (n=87)** —
-  i.e. no better than guessing the largest segment. Public substitutes were searched for and do not
-  exist: dealer locators are private per-brand APIs, sitemaps track web platform rather than
-  business model, and the major marketplaces block scraping. State the limit precisely — **binary
-  public feature extraction cannot predict a segment; holistic reading gets to roughly 53%; neither
-  is good enough to label a prospect with a v4.0 segment.** Do not shorten this to "public data
-  cannot predict segment": that overstates the finding and misdescribes what a person qualifying a
-  prospect actually does. Pre-sale classification uses Prospect Archetypes
-  ([`sources/customer_segmentation/taxonomy/prospect-archetypes.md`](sources/customer_segmentation/taxonomy/prospect-archetypes.md)),
-  a separate layer whose correspondence to these segments is published rather than assumed — one
-  archetype of four beats baseline, and its most useful property is **exclusion** (0 of 20
-  trade-gated orgs are Mid-Market Multi-Channel) rather than assignment.
+- **It's a candidate input for messaging and GTM qualification**, not for pricing: a prospect's
+  market selling motion (e.g. "we specify into hospitality projects" vs. "we sell through a dealer
+  network") is knowable at first-touch, before any SuperCat usage data exists — closer in spirit to
+  the marketing-niche framing below than to the D-001a tiers.
 - **Open question, not yet answered**: whether market selling motion correlates with expansion
   path or willingness-to-pay independent of Digital Selling Maturity. This would need the same
   install-base rigor D-001a got (Phase 2 JTBD/WTP work) before it could justify changing pricing or

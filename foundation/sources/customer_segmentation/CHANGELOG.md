@@ -206,3 +206,33 @@ depends_on: []
 Phases 0–5 complete. Six open decisions carried to `00-SYNTHESIS.md` §5.
 No foundation file was ever edited; corrections remain held.
 
+---
+
+## 2026-08-26 — foundation corrections APPLIED
+
+Authorised by Kylor. The hold condition — *apply after Layer A/B is hardened* — was discharged by
+flipping the three taxonomy files to `status: hardened`.
+
+### Changed in `foundation/`
+- **`CEO_SYSTEM_CONTEXT.md`** (the runtime file the 10 CEO System prompts read) — Lens 2 now states
+  that selling-motion segments are **post-sale only** and are **a stamped roster lookup, not a
+  computation** (38.5% vs a 34.9% baseline, n=109; 50% fitted ceiling). Carries the precise pre-sale
+  limit and forbids compressing it to "public data cannot predict segment". Dead source pointer
+  `skills/customer_segmentation/` replaced with `foundation/sources/customer_segmentation/`.
+- **`02_who_we_serve.md`** — both errors fixed. **E1**: new lineage paragraph after the v4.0 segment
+  table. **E2**: the "knowable at first-touch" bullet replaced with the measured result.
+- **`00_README.md`** — date bumped, one-line pointer to both corrections.
+- **`foundation/_archive/`** — created; prior versions of both edited files preserved.
+
+### Changed here
+- `taxonomy/account-segments.md`, `prospect-archetypes.md`, `segment-archetype-mapping.md` →
+  `status: hardened`, `hardened: 2026-08-26`.
+- `FOUNDATION-CORRECTIONS.md` → `status: applied`; now the record of what changed, not a proposal.
+
+### Untouched, deliberately
+Lens 1 / D-001a · T1/T2/T3 pricing · segment names and counts (33/38/24/14) · the
+orthogonality-to-Lens-1 argument · the stamped v4.0 narrative · `build_v4.py` · the MASTER CSV ·
+the "Brand-Building" alias in Insightful profiles.
+
+**Open decision #1 in `00-SYNTHESIS.md` §5 is now closed.** Five remain.
+

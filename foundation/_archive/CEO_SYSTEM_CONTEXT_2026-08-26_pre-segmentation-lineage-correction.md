@@ -6,14 +6,10 @@ This is the **agent-optimized condensation** of the full foundation set
 (`foundation/01`–`07`). When you need depth, read the source doc named at the end
 of each section.
 
-**Last updated:** 2026-08-26 (Lens 2 corrected — selling-motion segments are a **stamped roster
-lookup, not a computation**, and are **post-sale only**; never label a prospect. Source pointer
-fixed from the non-existent `skills/customer_segmentation/` to
-`foundation/sources/customer_segmentation/`. Lens 1 and T1/T2/T3 unchanged. Prior version:
-`_archive/CEO_SYSTEM_CONTEXT_2026-08-26_pre-segmentation-lineage-correction.md`.
-Prior: 2026-07-22 buyer-type index expanded via 20-org dual-socialize preflight — trade-showroom +
-designer goldens; coverage note 19 reads / 8 orgs. 2026-07-14 redesigned Who-We-Serve as runtime
-judgment contract; 2026-07-10 added Selling Motion lens + account buyer-type resolver).
+**Last updated:** 2026-07-22 (buyer-type index expanded via 20-org dual-socialize
+preflight — trade-showroom + designer goldens; coverage note 19 reads / 8 orgs.
+Prior: 2026-07-14 redesigned Who-We-Serve as runtime judgment contract; 2026-07-10
+added Selling Motion lens + account buyer-type resolver).
 
 ---
 
@@ -208,9 +204,8 @@ upgrade cohort). Both lenses reject revenue band, vertical, and org scale as cla
 **Coverage & what is still unvalidated (do not overclaim certainty):**
 
 - **Buyer-type census is still a seed, not a census** — the evidence index
-  (`foundation/sources/customer_segmentation/account_buyer_type_reads.csv`) holds **31 reads across
-  15 of ~109 orgs** (recounted 2026-08-26; the prior note said 19 reads / 8 orgs as of 2026-07-22).
-  Includes website-verified **trade-led showroom** (A. Hoke, CAI Designs, Gorrod
+  (`skills/customer_segmentation/account_buyer_type_reads.csv`) holds **19 reads across 8 of ~109 orgs**
+  (2026-07-22). Now includes website-verified **trade-led showroom** (A. Hoke, CAI Designs, Gorrod
   Gallery) and **designer / trade** (Michelle Gerson) goldens — not only omnichannel retailers.
   Still use as illustration, not distribution. Name alone is unreliable ("Kathy Kuo Designs" is a
   luxury e-comm retailer).
@@ -291,29 +286,7 @@ furniture/lighting/outdoor/decor/accessories/rugs/textiles) is a tag, not a cut 
 it sets the product's attribute vocabulary; *who they sell to* (buyer type) is
 predicted by motion at the brand level but resolved per-account from evidence (see
 "Account-level buyer type" above). Price is a continuous correlate, not a boundary.
-
-**Lens 2 is post-sale only.** Every field that defines a selling-motion segment — average order
-value, price-code count, customer count, order volume — exists only in SuperCat's Postgres and only
-after an instance is loaded. **Never assign a selling-motion segment to a prospect**, in a CRM field
-or otherwise. For pre-sale classification use the Prospect Archetypes
-(`foundation/sources/customer_segmentation/taxonomy/prospect-archetypes.md`), which are named for
-what is observable and never inherit a segment name — per `07_how_we_establish_truth.md`
-principle 7, enrichment is validated *against* a first-party segment, never seeded *from* one.
-
-**The segment assignment is a stamped roster lookup, not a computation.** v4.0 is Kjael's
-selling-motion judgment (2026-07-09) carried forward from v3.2 and *corroborated* by Postgres, not
-produced by it: an authored rule over the four defining fields reproduces the stamped label only
-**38.5% of the time against a 34.9% majority baseline (n=109)**, with a 50.0% ceiling even when
-thresholds are fitted to the answer key. Look the org up in the MASTER roster; do not re-derive it,
-and do not treat a refresh of the underlying numbers as a re-segmentation.
-
-State the pre-sale limit precisely: **binary public feature extraction cannot predict a segment
-(33.3% vs a 34.5% majority baseline, n=87); holistic site reading reaches roughly 53% vs a 30%
-baseline; neither is good enough to label a prospect.** Do not compress this to "public data cannot
-predict segment" — that overstates it.
-
-*Source: `foundation/sources/customer_segmentation/` (README + `taxonomy/`);
-`Customer Segmentation/current/` (stamped v4.0 md + MASTER csv);
+*Source: `skills/customer_segmentation/` (README + v4.0 md + MASTER csv);
 `foundation/02_who_we_serve.md`.*
 
 ---

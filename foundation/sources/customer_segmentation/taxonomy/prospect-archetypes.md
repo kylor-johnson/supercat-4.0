@@ -2,8 +2,9 @@
 id: TAX-B
 title: Layer B — Prospect Archetypes
 version: 0.1
-status: draft
+status: hardened
 date: 2026-08-25
+hardened: 2026-08-26
 owner: Kylor Johnson
 layer: B
 availability: pre-sale

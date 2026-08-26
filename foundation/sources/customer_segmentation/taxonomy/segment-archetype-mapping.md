@@ -2,8 +2,9 @@
 id: TAX-MAP
 title: Layer A ↔ Layer B correspondence and back-test
 version: 0.1
-status: draft
+status: hardened
 date: 2026-08-25
+hardened: 2026-08-26
 owner: Kylor Johnson
 source_lineage:
   - taxonomy/account-segments.md
