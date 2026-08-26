@@ -52,6 +52,40 @@ depends_on: []
 | Layer B collection coverage | 87 of 109 automated; 94 of 109 with manual observation |
 
 ### Open
-- Phase 4 lane criteria are next, ahead of Phase 2 (HPMKT ~6 weeks out).
-- Volume Distribution's 89% predictability did not reproduce (F-04) — unresolved.
+- Volume Distribution's 89% predictability did not reproduce (F-04) — unresolved, not blocking.
 - HPMKT footprint and LinkedIn headcount remain uncollected (F-07).
+
+---
+
+## 2026-08-25 — revision 2 (review corrections + Phase 4 criteria)
+
+### Changed
+- `taxonomy/account-segments.md` — **reframed.** New §0 makes the headline finding explicit:
+  Layer A is **stamped human judgment** (Kjael 2026-07-09, carried from v3.2), corroborated by
+  Postgres rather than computed from it. Frontmatter gains `authority` and `derivation` keys.
+  §2 reframed as corroborating fields. §4.3 reduced to consequences.
+- `taxonomy/prospect-archetypes.md` — new §5 **"The method gap"**. The 33.3% vs 53% difference is
+  method (binary feature extraction vs holistic LLM reading), not data. Worked failure case:
+  Interlude Home scores `TRADE_GATE=0` while gating by "DESIGNER RESOURCES".
+- `taxonomy/segment-archetype-mapping.md` — all three baselines now labelled with their n
+  (34.9% n=109 / 34.5% n=87 / 30.0% prior run). New §5.1 narrows the claim and forbids the
+  overstatement "public data cannot predict segment".
+- `FOUNDATION-CORRECTIONS.md` — Correction 2 **upgraded**. The error in `02_who_we_serve.md` is not
+  one sentence: the whole section describes the segments as data-derived. Two compounding errors
+  (E1 lineage, E2 first-touch knowability) with replacement text for both. **Still held.**
+- `ASSUMPTIONS.md` — F-02 promoted to HEADLINE; F-04 marked not-blocking (no lane is SEG-04);
+  F-15 (method gap), F-16 (baseline labelling), F-17 (Phase 4 needs no classifier) added.
+
+### Added
+- `prospects/hpmkt-lane-criteria.md` — **Phase 4 lane criteria, pre-sourcing.** Screen reframed as
+  category filter → lookalike match → ARCH-01 exclusion. 6 criteria per lane, each tagged
+  observable-where / auto-or-manual / include-or-exclude. Exemplar reference vectors for Interlude
+  Home, Braxton Culler and Savoy House. Recording contract mandating that every predicted segment
+  is labelled a prediction with its accuracy caveat. **No company sourced.**
+
+### Not changed
+- Layer B was **not** re-run with more features. The negative result stands as the finding.
+- No foundation file edited. Corrections remain held.
+
+### Next
+- Review gate on lane criteria, then Phase 2 personas (including the buyer persona, F-14).

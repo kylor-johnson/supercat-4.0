@@ -7,6 +7,8 @@ date: 2026-08-25
 owner: Kylor Johnson
 layer: A
 availability: post-sale-only
+authority: stamped by Kjael 2026-07-09 (human selling-motion judgment carried from v3.2)
+derivation: NOT computed from Postgres — the four fields corroborate, they do not define
 source_lineage:
   - Customer Segmentation/current/SuperCat_Customer_Segmentation_v4.0_MASTER.csv  # ROSTER_ANSWER_KEY, 109 rows, stamped Kjael 2026-07-09
   - Customer Segmentation/current/SuperCat_Client_Segmentation_v4.0.md            # stamped narrative, §4 signatures
@@ -19,7 +21,40 @@ consumed_by: [TAX-MAP]
 # Layer A — Account Segments
 
 **What this layer is.** The v4.0 selling-motion classification of SuperCat's own client
-organizations, computed from first-party commercial data in Postgres.
+organizations. **Stamped by Kjael on 2026-07-09**, carried forward from v3.2 selling-motion
+judgment, with first-party Postgres data as corroboration.
+
+---
+
+## 0. Headline finding — Layer A is stamped judgment, not a derived computation
+
+**The v4.0 segments are not derived from the four defining fields.** An authored rule over average
+order value, price-code count, customer count and order volume reproduces the stamped label
+**38.5%** of the time against a **34.9% majority-class baseline (n=109)**. Thresholds fitted
+directly to the answer key cap at **50.0%**. The largest segment, SEG-02, has 21% recall. Measured
+detail in §3 and §4.
+
+This corrects a lineage claim that has been carried in several places: that the segments are
+*computed from* Postgres. They are not. The stamped v4.0 document says so itself — it *"Used v3.2
+validated segments as the null hypothesis"* (§1.3) and states plainly that price *"does NOT define
+this segment"* (§4). The Postgres enrichment was run to **test** the v3.2 model, and it confirmed
+it; it did not generate it.
+
+**This does not weaken Layer A's authority.** Stamped human judgment about observed selling
+behaviour is a legitimate basis under `07_how_we_establish_truth.md` principle 7 — segments
+*"derived from what customers actually do"*, which is precisely what a selling-motion read of a
+live account is. What is wrong is only the **lineage claim**, and the operational consequences that
+follow from it:
+
+| Because Layer A is stamped judgment, not a computation… | …this follows |
+|---|---|
+| The authority is the roster, keyed on org shortname | Look the org up. Do not recompute it |
+| The four fields are correlates, not the definition | They cannot be used to audit, re-derive, or overturn a stamped label |
+| A rule can only ever approximate it | §4.1 is FLAGGED provisional, for orgs not on the roster only |
+| Refreshing the numbers does not refresh the segments | A new quarter of order data does not re-segment anyone |
+
+The correction to the foundation docs that carry the wrong lineage claim is drafted and **held** in
+[`../FOUNDATION-CORRECTIONS.md`](../FOUNDATION-CORRECTIONS.md).
 
 **Availability: POST-SALE ONLY.** Every field below requires a live SuperCat instance with
 loaded catalog, customer file, and order history. **No Account Segment can be assigned to a
@@ -52,7 +87,9 @@ Existing files are not swept — new writes bind to the canonical name.
 
 ## 2. Field-level data lineage
 
-The four defining fields, as established:
+The four fields the brief names as defining. Per §0 they **corroborate** the stamped label rather
+than generate it; lineage is recorded here so the correlates are auditable, not so they can be used
+to re-derive a segment.
 
 | Field | MASTER CSV column | Postgres origin | Coverage on roster |
 |---|---|---|---|
@@ -133,7 +170,7 @@ than a residual so that misclassification lands in SEG-02 rather than in the pre
 |---|---|
 | Reproduces stamped label | **42 / 109 = 38.5%** |
 | On scored subset (excluding the 9 abstentions) | 42 / 100 = 42.0% |
-| Majority-class baseline (call everything SEG-02) | 38 / 109 = **34.9%** |
+| Majority-class baseline, n=109 (call everything SEG-02) | 38 / 109 = **34.9%** |
 | Best-fit ceiling — 1,800 threshold combinations optimised **on the answer key itself** | **50.0%** |
 
 All `[MEASURED]` 2026-08-25.
@@ -147,19 +184,9 @@ Per-segment recall of the authored rule:
 | SEG-03 | 1 | 6 | 3 | **13** | 1 | 54.2% |
 | SEG-04 | 0 | 1 | 2 | 4 | **7** | 50.0% |
 
-### 4.3 What this means — the governing conclusion of Layer A
+### 4.3 Consequences
 
-**The v4.0 segment assignment is not a computable function of the four defining fields.** An
-authored rule reaches 38.5% against a 34.9% majority baseline, and even thresholds fitted directly
-to the answer key cap at 50%. SEG-02 — the largest segment — has 21% recall.
-
-The v4.0 labels were assigned from **selling-motion judgment inherited from v3.2**, with the
-quantitative fields used as corroboration. The stamped doc is explicit that this was the method
-(*"Used v3.2 validated segments as the null hypothesis"*, §1.3) and that price *"does NOT define
-this segment"* (§4). The four fields are **correlates of a human classification, not its
-definition.**
-
-Therefore:
+This is the evidence behind the headline finding in §0. Restating the operational rules:
 
 - **The authority for an Account Segment is the stamped roster — a lookup, not a computation.**
   `SuperCat_Customer_Segmentation_v4.0_MASTER.csv` keyed on org shortname is the answer.

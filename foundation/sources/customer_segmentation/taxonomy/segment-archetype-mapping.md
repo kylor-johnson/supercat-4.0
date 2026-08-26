@@ -28,11 +28,15 @@ orgs with the Layer B rules and comparing against their stamped Layer A labels.
 | Roster | 109 |
 | Automatically observable (the back-test set) | **87** |
 | Excluded: manual-only, dead domain, no domain | 22 |
-| Majority-class baseline on the back-test set (call everything SEG-02) | **34.5%** (30/87) |
-| Established prior baseline carried in the brief | 30.0% |
+| Majority-class baseline **on this n=87 set** (call everything SEG-02) | **34.5%** (30/87) |
+| Majority-class baseline on the **full n=109 roster**, for reference | 34.9% (38/109) |
+| Baseline used by the prior 53% run (different set, different method) | 30.0% |
 
-Both baselines are shown because they differ. A result must clear **34.5%** to be worth anything on
-this set; clearing only 30% means it is beaten by guessing the largest segment.
+**Baseline discipline.** Three numbers circulate and they are not interchangeable:
+**34.5% is the majority baseline on this n=87 back-test set** and is the bar every number in §3
+must clear. **34.9%** is the same statistic on the full n=109 roster and is the bar for the Layer A
+rule in `account-segments.md`. **30.0%** belongs to the prior run on a different set with a
+different method — quoting it here would flatter these results.
 
 ---
 
@@ -117,10 +121,30 @@ Layer B, built from every web feature that could actually be collected, predicts
 One archetype out of four carries real signal, and its most valuable property is exclusion rather
 than prediction.
 
-This is consistent with the established finding the brief instructed me not to re-test, and it
-sharpens it: the failure is not that public data is noisy, it is that **the features that
-discriminate selling motion (AOV, order volume, price-code structure, catalog scale) are exactly
-the ones that only exist after a company is a customer.**
+### 5.1 This is a method result, not a data result
+
+The prior run scored 53% against a 30% baseline by having an **LLM read whole sites and infer
+holistically**. This layer scores 33.3% by **extracting binary features and applying a rule**. Same
+public web, different method — the gap between them is the method, not the data. See
+`prospect-archetypes.md` §5 for the worked failure case: Interlude Home is plainly trade-oriented
+and scores `TRADE_GATE = 0`, because it gates by "DESIGNER RESOURCES" rather than "to the trade".
+
+The defensible claim is therefore narrow:
+
+> **Binary public feature extraction cannot predict a v4.0 segment. Holistic reading reaches
+> roughly 53%. Neither is good enough to put a v4.0 segment label on a prospect.**
+
+Do **not** state this as "public data cannot predict segment." That overstates it, and it would
+mislead the field kit — which runs the holistic method, not the checklist. The gap is deliberately
+not closed with another experiment here; **Phase 4 tests it for free**, because a person reading a
+candidate's site *is* the holistic method.
+
+What both methods share is the real constraint. The features that most sharply discriminate selling
+motion — AOV, order volume, price-code structure, catalog scale — exist only after a company is a
+customer. And per `account-segments.md` §0, even those four reproduce the stamped label only 38.5%
+of the time, because **the segments are stamped human judgment rather than a computation.** Layer B
+is being asked to predict something that is not a function of measurable inputs at all — which
+bounds how well *any* pre-sale method can ever do.
 
 Operationally:
 

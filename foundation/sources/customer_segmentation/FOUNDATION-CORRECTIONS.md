@@ -43,6 +43,9 @@ positioning, buyer mix, per-account taste" with no statement that Lens 2 is unav
 prospects. An agent reading it will apply a selling-motion segment to a company that has no
 SuperCat data.
 
+**Second problem, same section.** The Lens 2 preamble implies the segments come from the data. They
+come from a stamp. Both corrections go in together.
+
 **Proposed addition** — new paragraph after the Lens 2 segment table:
 
 > **Lens 2 is post-sale only.** Every field that defines a selling-motion segment — average order
@@ -55,10 +58,17 @@ SuperCat data.
 > `07_how_we_establish_truth.md` principle 7, enrichment is validated *against* a first-party
 > segment, never seeded *from* one.
 >
-> Note also that the segment assignment is **a stamped roster lookup, not a computation**: an
-> authored rule over the four defining fields reproduces the stamped label only 38.5% of the time
-> against a 34.9% majority baseline (ceiling 50.0% even when fitted to the answer key). Look the
-> org up in the MASTER roster; do not re-derive it.
+> **The segment assignment is a stamped roster lookup, not a computation.** v4.0 is Kjael's
+> selling-motion judgment (2026-07-09) carried from v3.2 and *corroborated* by Postgres, not
+> produced by it: an authored rule over the four defining fields reproduces the stamped label only
+> 38.5% of the time against a 34.9% majority baseline (n=109), with a 50.0% ceiling even when
+> fitted to the answer key. Look the org up in the MASTER roster; do not re-derive it, and do not
+> treat a refresh of the underlying numbers as a re-segmentation.
+>
+> State the pre-sale limit precisely: **binary public feature extraction cannot predict a segment
+> (33.3% vs a 34.5% majority baseline, n=87); holistic site reading reaches roughly 53% vs a 30%
+> baseline; neither is good enough to label a prospect.** Do not compress this to "public data
+> cannot predict segment" — that overstates it.
 
 **Also correct** the source pointer at the end of that section. It currently reads
 `skills/customer_segmentation/` — that path does not exist `[MEASURED]`. Should read
@@ -67,31 +77,64 @@ SuperCat data.
 
 ---
 
-## Correction 2 — `02_who_we_serve.md` § "Why this matters here, and what it doesn't change"
+## Correction 2 — `02_who_we_serve.md` § "A third lens" (whole section)
 
-**Problem.** The document states the opposite of the established finding. Current text:
+**This is a bigger correction than first scoped.** The problem is not one sentence. The section
+describes the v4.0 segmentation as **data-derived** throughout, and that lineage claim is wrong —
+see `taxonomy/account-segments.md` §0. Two distinct errors compound:
 
-> **It's a candidate input for messaging and GTM qualification**, not for pricing: a prospect's
-> market selling motion (e.g. "we specify into hospitality projects" vs. "we sell through a dealer
-> network") is **knowable at first-touch, before any SuperCat usage data exists** — closer in
-> spirit to the marketing-niche framing below than to the D-001a tiers.
+| # | Error in the current text | Measured reality |
+|---|---|---|
+| E1 | Presents v4.0 as derived from first-party data (*"tested … against every available first-party data dimension"*, three axes framed as data-produced) | The segments are **stamped human judgment** carried from v3.2. An authored rule over the four defining fields reproduces the stamped label **38.5%** vs a **34.9% majority baseline (n=109)**; fitted ceiling **50.0%** |
+| E2 | States selling motion is *"knowable at first-touch, before any SuperCat usage data exists"* | Tested and false. Holistic public-web reading reaches ~53% vs a 30% baseline; binary feature extraction reaches **33.3% vs a 34.5% majority baseline (n=87)** |
 
-**Proposed replacement** for that bullet:
+E1 matters more than E2, because E1 is what makes E2 sound reasonable. If the segments were
+computed from data, you would expect to find proxies for that data in public sources. They are not,
+so there is nothing to proxy.
 
-> **It's a candidate input for messaging, not for pre-sale qualification.** An earlier version of
+### Proposed replacement for the section's framing paragraph
+
+> **What this lens is.** The v4.0 client segmentation is a **stamped selling-motion classification —
+> Kjael, 2026-07-09 — carried forward from v3.2 and corroborated against first-party Postgres data.**
+> It is not computed from that data. An authored rule over the four fields most associated with it
+> (average order value, price-code count, customer count, order volume) reproduces the stamped label
+> only 38.5% of the time against a 34.9% majority-class baseline, and thresholds fitted directly to
+> the roster cap at 50%. The Postgres enrichment was run to **test** the v3.2 model and confirmed
+> it; it did not generate it.
+>
+> This does not weaken the lens. Stamped judgment about observed selling behaviour is a legitimate
+> basis under `07_how_we_establish_truth.md` principle 7. It does mean: **the authority is the
+> roster lookup, keyed on org shortname — not a recomputation.** New order data does not re-segment
+> anyone, and the four fields cannot be used to audit or overturn a stamped label.
+
+### Proposed replacement for the "knowable at first-touch" bullet
+
+> **It is a candidate input for messaging, not for pre-sale qualification.** An earlier version of
 > this doc asserted that a prospect's selling motion is "knowable at first-touch, before any
-> SuperCat usage data exists." **That has been tested and is false.** Predicting the v4.0 segment
-> from public data alone reaches 53% against a 30% baseline; Premium Trade Brand, the largest
-> segment, predicts at 30%. Public substitutes were searched for and do not exist — dealer locators
-> are private per-brand APIs, sitemaps track web platform rather than business model, and the major
-> marketplaces block scraping. Selling-motion segmentation works on **customers**, not prospects.
+> SuperCat usage data exists." **That has been tested and is false.** Two methods were tried on the
+> public web: holistic reading of whole sites reaches roughly 53% against a 30% baseline, and binary
+> feature extraction reaches 33.3% against a 34.5% majority-class baseline — i.e. no better than
+> guessing the largest segment. Public substitutes were searched for and do not exist: dealer
+> locators are private per-brand APIs, sitemaps track web platform rather than business model, and
+> the major marketplaces block scraping.
+>
+> State the limit precisely: **binary public feature extraction cannot predict a segment; holistic
+> reading gets to roughly 53%; neither is good enough to label a prospect with a v4.0 segment.** Do
+> not shorten this to "public data cannot predict segment" — that overstates the finding and
+> misdescribes what a human qualifying a prospect actually does.
+>
 > Pre-sale classification uses Prospect Archetypes
 > (`sources/customer_segmentation/taxonomy/prospect-archetypes.md`), a separate layer whose
-> measured correspondence to the segments is published rather than assumed — and is weak: 33.3%
-> against a 34.5% majority baseline, with one archetype of four beating baseline.
+> correspondence to the segments is published rather than assumed. One archetype of four beats
+> baseline, and its most useful property is **exclusion** (0 of 20 trade-gated orgs are Mid-Market
+> Multi-Channel) rather than assignment.
 
-**Leave untouched** in the same section: the "does not change T1/T2/T3 pricing" bullet and the
-"open question on expansion path / WTP" bullet. Both remain correct.
+### Also scan and correct in the same file
+
+Any other phrasing that implies the segments were produced by the data rather than confirmed by it,
+including the §"v4.0 client segmentation" table preamble and the three-axes description. **Do not
+change the segment names, counts (33/38/24/14), or the orthogonality-to-Lens-1 argument** — all
+three remain correct.
 
 ---
 

@@ -134,6 +134,38 @@ question and belongs to the mapping document, where it is measured rather than a
 4. **The absence of a marker is weak evidence.** Not finding "to the trade" means the crawler did
    not find it, not that the company sells openly — especially for the 7 manual-only orgs.
 
+---
+
+## 5. The method gap — what this layer's failure does and does not prove
+
+This layer scores **33.3%** against a **34.5% majority-class baseline (n=87)**. The established
+prior run scored **53%** against a **30% baseline**. Those two numbers are not in conflict, and the
+difference is **method, not data**:
+
+| | This layer | The prior 53% run |
+|---|---|---|
+| Method | Binary feature extraction — regex over fetched pages, boolean markers, rule over markers | An LLM reading whole sites and inferring holistically |
+| What it can see | Presence/absence of specific vocabulary | Tone, assortment, price positioning, who the copy is written for |
+| Fails when | The company uses different words for the same thing | — |
+
+**A worked example of the failure mode, from the lane-1 exemplar.** Interlude Home is SEG-01 and is
+plainly trade-oriented, but scores `TRADE_GATE = 0`. Its site gates by **"DESIGNER RESOURCES"** and
+**"CREATE AN ACCOUNT"**, with no public prices `[OBSERVED: interludehome.com nav, 2026-08-25]` —
+real gating in vocabulary my markers did not match. A person reading that homepage identifies the
+gating in seconds. A regex for "to the trade" does not.
+
+So the correct claim is narrow:
+
+> **Binary public feature extraction cannot predict a v4.0 segment. Holistic reading gets to
+> roughly 53%. Neither is good enough to put a v4.0 segment label on a prospect.**
+
+It is **not** "public data cannot predict segment." That overstates the finding, and it would be
+the wrong lesson to carry into the field kit — **because the field kit is the holistic method**: a
+person with a browser forming a judgment, not a checklist. The gap is not closed here by design;
+Phase 4 tests it for free, since the field kit runs the holistic method on fresh companies.
+
+---
+
 Per-archetype accuracy against the answer key is in
 [`segment-archetype-mapping.md`](segment-archetype-mapping.md). Read it before using any archetype
 for a decision — **three of the four fail to beat baseline.**
