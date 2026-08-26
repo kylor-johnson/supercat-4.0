@@ -209,7 +209,9 @@ upgrade cohort). Both lenses reject revenue band, vertical, and org scale as cla
 
 - **Buyer-type census is still a seed, not a census** — the evidence index
   (`foundation/sources/customer_segmentation/account_buyer_type_reads.csv`) holds **31 reads across
-  15 of ~109 orgs** (recounted 2026-08-26; the prior note said 19 reads / 8 orgs as of 2026-07-22).
+  15 of ~109 orgs** (recounted 2026-08-26 on the same basis as the original — all rows, any
+  confidence. The prior note said 19 reads / 8 orgs as of 2026-07-22, which the file reproduces
+  exactly at that cutoff; it grew by 12 rows on 7/23–7/24).
   Includes website-verified **trade-led showroom** (A. Hoke, CAI Designs, Gorrod
   Gallery) and **designer / trade** (Michelle Gerson) goldens — not only omnichannel retailers.
   Still use as illustration, not distribution. Name alone is unreliable ("Kathy Kuo Designs" is a
