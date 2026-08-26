@@ -92,18 +92,29 @@ manufacturer — likely a G0.1 failure on closer reading. **HubSpot:** `lead` �
 
 ---
 
-## 3. Recommendation
+## 3. Decision — run it thin at High Point
 
-**Do not run lane 3 at High Point as specified.** Three options, in order of preference:
+**Decided 2026-08-25 (Kylor): run lane 3 thin at HPMKT. Do not re-frame to Dallas.** The test is
+whether the field kit works at High Point in six weeks; a Dallas frame would test a different market
+and answer a different question. **Coast Lamp Mfg is the single genuine test.** Closed — do not
+revisit.
 
-1. **Re-frame lane 3 to a Dallas/Lightovation sampling frame** where the anchor and its peers
-   actually exhibit. This keeps the lane definition intact and changes only the frame.
-2. **Re-anchor lane 3 to an HPMKT-present mid-market lighting company** — but the frame evidence says
-   few exist, so this likely reduces to option 1.
-3. **Run lane 3 at High Point anyway with Coast Lamp Mfg as the single genuine test**, and treat the
-   thin yield as the measurement. Cheapest, and consistent with "over-selection is fine, record it."
+### The thin yield is a result, not a shortfall
 
-**Not recommended:** padding to 8–12 from the décor-accessory pool. That would make the list look
+Record it as a finding in its own right:
+
+> **Mid-market decorative lighting is not a High Point population.** The HPMKT Lamp & Lighting
+> category contains 273 listings / ~109 unique non-customer companies, and they are décor-accessory
+> houses, artisan lantern makers and importers. The lane-3 anchor (Savoy House) does not exhibit at
+> High Point at all. Of 42 lighting candidates observed, 3 publish a consumer where-to-buy, 2 a rep
+> network, 4 a downloadable catalog `[MEASURED 2026-08-25]`.
+
+This is a durable fact about the market, not a defect in the screen. It tells the field kit where
+mid-market lighting *is not*, which is worth knowing before anyone spends a market week looking for
+it. It also predicts, before the walk, that lane 3 will produce the fewest conversations of the
+three — and that prediction is itself testable at market.
+
+**Not done:** padding to 8–12 from the décor-accessory pool. That would have made the list look
 complete while measuring nothing.
 
 **Every row is NEEDS-FIELD-VERIFICATION on 3.5 (multi-channel evidence)** — none of the four

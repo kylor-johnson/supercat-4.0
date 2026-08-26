@@ -131,3 +131,41 @@ depends_on: []
 ### Next
 - Review gate on candidates, then **Phase 2 personas** including the buyer persona (F-14).
 
+---
+
+## 2026-08-25 — revision 4 (decisions 1–3 + Phase 2)
+
+### Decisions applied
+- **Lane 3: run thin at High Point, not Dallas** (Kylor). Coast Lamp Mfg is the single genuine test.
+  The thin yield is recorded in the lane file **as a result** — *mid-market decorative lighting is
+  not a High Point population* — not as a shortfall. Closed.
+- **H5 answered at the desk and marked KILLED** in `field-kit/test-design.md`, with the consequence
+  spelled out: the kit's script is displacement and re-engagement, not discovery.
+- Sauder / dedupe insufficiency and the 26-of-30 HubSpot result: logged, not fixed.
+
+### Added
+- `prospects/competitor-platform-signal.md` — scoped promotion of the competitor-tech finding.
+  Explicitly a **qualification** signal (Gate 0 + willingness to pay), **not** a segment signal; not
+  folded into the archetypes. Detection method, and a **measured** false-positive rate: strict
+  hostname matching vs loose tokens caught **7 fictional NuOrder installs** (`"menuOrder":3` in Wix
+  JSON). Positive control: scanning for SuperCat's own domain returned exactly one hit — Furniture
+  Classics, a known customer. **Full 693-exhibitor frame, 437 homepages scanned: 11 AmpTab,
+  3 WizCommerce, 0 RepZio/Pepperi/MarketTime.** One pass, complete.
+- **Phase 2 — the persona × analytics JTBD layer:**
+  - `personas/PER-00-persona-set.md` — the set, with every keep and drop justified.
+  - `personas/PER-01`…`PER-06`, `PER-08` — 7 persona files.
+  - `analytics/jtbd-register.md` — **31 jobs, flat**, plus 20 cut candidates with reasons.
+
+### Phase 2 headline results
+| Result | Detail |
+|---|---|
+| **7 personas kept, 4 dropped or folded** | IT/integrations dropped as an analytics persona (consumes job status, not analytics; its one analytics job is JTBD-034 under sales ops). Manager folds into PER-03. Buyer sub-types fold into PER-08. SuperCat-internal staff out of frame |
+| **31 jobs, 3–6 per persona, one primary metric each** | 20 candidate jobs cut — 6 for schema-absent data, 4 for no decision changing, 5 wrong system, 3 cross-client governance, 1 against our client's interest, 1 false precision |
+| **Segment variation: 4 of 31** | And the variation is driven by **catalog scale, territory count, price-code count** — an org's own structure — **not by selling motion**. Build once, parameterise on org structure, do not condition on segment |
+| **Reps and buyers are near-disjoint** | Only **593 users** active on both iPad and eOL `[MEASURED]` |
+| **Biggest single blocker: the invoice feed** | Present for 38 of 109 roster orgs; degrades **13 of 31 jobs** |
+| **PER-02 cannot be served at all today** | No agency entity in the schema — only a boolean on a user type and 11,873 free-text `company_name` values |
+
+### Next
+- **Phase 3** — surface mapping, offline constraints for iPad-embedded components, `data-gaps.md`.
+

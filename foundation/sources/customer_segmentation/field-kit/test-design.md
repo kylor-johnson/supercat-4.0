@@ -25,7 +25,24 @@ checklist can** — and whether the lane definitions survive contact with real c
 | **H2** | **Holistic reading beats binary extraction.** A human read of the same public site predicts the eventual segment better than the ARCH rules did (33.3% vs a 34.5% majority baseline, n=87). | **Killed if** human predictions, checked against Layer A labels once any candidate becomes a customer, land **≤40%** — i.e. no better than the checklist. | For every candidate, the reader records a predicted SEG **before** seeing the ARCH output. Resolve later against the stamped roster. Long-dated; log now, settle on conversion. |
 | **H3** | **Category filtering over-selects, and Gate 0 is what actually does the work.** Most HPMKT exhibitors clear the category criterion; qualification is carried by Gate 0. | **Killed if** Gate-0 rejects **<25%** of category-passing candidates walked — that would mean category was already doing the qualifying and Gate 0 is redundant. | Record Gate-0 pass/fail per booth walked, with the failing criterion. Desk baseline to beat: of the ~110 lighting companies reaching observation, roughly a third were décor/accessory or antiques houses. |
 | **H4** | **The manual-only criteria carry real discriminating power.** HPMKT footprint (building, space, tenure) and headcount separate qualified from disqualified, justifying their collection cost. | **Killed if** building/neighborhood/tenure distributes **the same** across qualified and disqualified candidates — no separation. | Record building, space number, floor, approximate square footage and stated years at market for every booth walked, qualified or not. **This has never been collected for any roster org** — the discriminating power is unknown, not merely uncertain. |
-| **H5** | **The HPMKT frame contains enough net-new prospects to justify working it for discovery.** | **Killed if** the fresh-prospect rate stays **≤25%** once the walk list is checked against HubSpot at scale. **Desk evidence already points at killed: 5 of 30 checked = ~17%.** | Check every walked booth against HubSpot before the conversation. Record fresh / lead / SQL / open-deal / customer. If H5 falls, market week's purpose is displacement and re-engagement, not discovery — which changes the kit's script, not just its list. |
+| **H5** | ~~The HPMKT frame contains enough net-new prospects to justify working it for discovery.~~ **ANSWERED AT THE DESK — KILLED.** | Kill condition was ≤25% fresh. **Measured: 5 of 30 checked are fresh = ~17%**, plus 72 of 693 frame exhibitors are already customers `[MEASURED 2026-08-25]`. No market-week data required. | Nothing to collect. Confirm opportunistically: record fresh / lead / SQL / open-deal / customer per booth walked, to check the desk figure holds at scale. |
+
+### H5 is settled, and it changes what the kit is for
+
+The frame is already worked. **The field kit's script is displacement and re-engagement, not
+discovery.** That is a change to the kit's job, not just its list:
+
+- **Most booths will be a known name.** The opener is "where did we leave this" or "what changed",
+  not an introduction. Every walk-list row must carry its HubSpot state *before* the conversation,
+  and the three open deals (Jensen Outdoor, Lexington, JDouglas) must not be approached as new.
+- **Displacement needs a different question set** than discovery. For the 14 companies running a
+  competitor platform (see [`../prospects/competitor-platform-signal.md`](../prospects/competitor-platform-signal.md)),
+  the useful questions are about what their current platform does badly — not whether they have one.
+- **Net-new discovery, where it happens, is more likely to come from the competitor-platform signal
+  than from category screening.** Five of 14 competitor installs are absent from HubSpot — a better
+  fresh yield from a cheaper signal than the whole lane screen produced.
+
+H1–H4 remain live and are what market week actually tests.
 
 ---
 
