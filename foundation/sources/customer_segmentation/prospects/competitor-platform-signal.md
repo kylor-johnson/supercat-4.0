@@ -96,19 +96,45 @@ guess, were bot-blocked, or returned a shell — recorded as UNKNOWN, not as abs
 
 ### AmpTab installs (11)
 
-| Company | Domain | Frame category | Status |
-|---|---|---|---|
-| Albany Industries | albanyindustries.com | Upholstered | HubSpot MQL |
-| **Barcalounger** | barcalounger.com | Upholstered | **not in HubSpot** |
-| Bellona USA | bellonausa.com | Upholstered | HubSpot lead |
-| **Coast Lamp Mfg** | coastlampmfg.com | Lamp & Lighting | HubSpot lead · **the only genuine lane-3 candidate** |
-| Delta Furniture Mfg | deltafurnituremfg.com | Upholstered | HubSpot lead |
-| La Vida Abode | lavidaabode.com | Upholstered | HubSpot lead |
-| **Legends Home** | legendshome.com | Upholstered | **not in HubSpot** |
-| **Nest Home Collections** | nesthomecollections.com | Upholstered | **not in HubSpot** |
-| **Parker House Furniture** | parkerhousefurniture.com | Upholstered | **not in HubSpot** · lane-2 candidate |
-| Steve Silver Company | stevesilver.com | Upholstered | HubSpot SQL |
-| **Titanic Furniture** | titanicfurniture.com | Upholstered | **not in HubSpot** |
+All 11 verified by manual pass, 2026-08-25 — see §3.1. **All 11 are CONFIRMED PLATFORM.**
+
+| Company | Domain | Frame category | Verdict | Status |
+|---|---|---|---|---|
+| Albany Industries | albanyindustries.com | Upholstered | **CONFIRMED PLATFORM** | HubSpot MQL |
+| **Barcalounger** | barcalounger.com | Upholstered | **CONFIRMED PLATFORM** | **not in HubSpot** |
+| Bellona USA | bellonausa.com | Upholstered | **CONFIRMED PLATFORM** | HubSpot lead |
+| **Coast Lamp Mfg** | coastlampmfg.com | Lamp & Lighting | **CONFIRMED PLATFORM** (tenant id 170782) | HubSpot lead · **the only genuine lane-3 candidate** |
+| Delta Furniture Mfg | deltafurnituremfg.com | Upholstered | **CONFIRMED PLATFORM** | HubSpot lead |
+| La Vida Abode | lavidaabode.com | Upholstered | **CONFIRMED PLATFORM** | HubSpot lead |
+| **Legends Home** | legendshome.com | Upholstered | **CONFIRMED PLATFORM** | **not in HubSpot** |
+| **Nest Home Collections** | nesthomecollections.com | Upholstered | **CONFIRMED PLATFORM** (tenant id 174882) | **not in HubSpot** |
+| **Parker House Furniture** | parkerhousefurniture.com | Upholstered | **CONFIRMED PLATFORM** | **not in HubSpot** · lane-2 candidate |
+| Steve Silver Company | stevesilver.com | Upholstered | **CONFIRMED PLATFORM** | HubSpot SQL |
+| **Titanic Furniture** | titanicfurniture.com | Upholstered | **CONFIRMED PLATFORM** | **not in HubSpot** |
+
+### 3.1 Disambiguation pass — build attribution vs deployed platform
+
+An earlier draft of this file cautioned that 5 of the 11 were detected only via
+`<meta name="author" content="Website built by amptab.com">`, and that AmpTab might merely have
+built the marketing site. **That caution was wrong, and the manual pass settles it.**
+
+All five — Albany Industries, Coast Lamp Mfg, La Vida Abode, Legends Home, Nest Home Collections —
+carry **both** the build-attribution meta tag **and** a dealer/B2B login pointing at the AmpTab
+host `[OBSERVED 2026-08-25]`:
+
+| Company | Dealer login target |
+|---|---|
+| Albany Industries | `https://cms.amptab.com` (anchor "Log In") |
+| Coast Lamp Mfg | `https://cms.amptab.com/Manufacturer/170782/Shop2` |
+| La Vida Abode | `https://cms.amptab.com` (anchor "Log In") |
+| Legends Home | `https://cms.amptab.com` (anchor "Log In") |
+| Nest Home Collections | `https://cms.amptab.com/Manufacturer/174882/shop` |
+
+Two carry a **per-tenant manufacturer ID in the path** (170782, 174882) — a provisioned instance,
+not a template. **Build attribution and deployment co-occur in every case observed**, which makes
+sense: AmpTab appears to build the marketing site *and* host the dealer portal as one engagement.
+
+**Net: 11 of 11 confirmed, 0 build-attribution-only.** File closed — no further sourcing.
 
 ### WizCommerce installs (3)
 
@@ -132,11 +158,10 @@ absence, but it is a meaningfully different competitive picture from the five-co
 Parker House, Titanic Furniture. Against a ~17% fresh rate for the frame overall, that is a better
 yield from a cheaper signal than the entire lane-criteria screen produced.
 
-**AmpTab's build attribution is a byproduct, not a deployment.** Five of the 11 were detected via
-`<meta name="author" content="Website built by amptab.com">` — AmpTab built the marketing site,
-which may or may not mean the B2B ordering platform is theirs. **The dealer-login-link hits
-(Barcalounger, Parker House, Titanic, Bellona) are the stronger evidence.** Distinguish the two
-before treating any of these as a competitive displacement.
+**All 11 AmpTab hits are confirmed deployments** (§3.1). The build-attribution caveat raised in an
+earlier draft did not survive checking: every one of the five attribution-only hits also carries a
+dealer login on the AmpTab host, two with per-tenant manufacturer IDs. There is no
+build-attribution-only tier in this data.
 
 ---
 

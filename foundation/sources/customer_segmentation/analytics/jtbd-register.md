@@ -58,7 +58,7 @@ Current state: **Not served** · **Partial** · **Served** · **Served badly** (
 
 | Reason | Count | Examples |
 |---|---:|---|
-| **Schema-absent data** — suppress, never estimate | 6 | margin/COGS (×3 personas), AR/cash, commission, CSAT |
+| **Schema-absent data** — suppress, never estimate | 6 | margin/COGS (×3 personas), AR/cash, commission, CSAT. **Not deleted** — carried in [`../product/data-gaps.md`](../product/data-gaps.md) §C as *job exists, data doesn't* |
 | **No decision changes** | 4 | rep leaderboard, recruit sub-reps, CS ticket volume |
 | **Wrong system** — ERP, helpdesk, or the dealer's own | 5 | shipment tracking, pricing strategy, retail inventory |
 | **Cross-client / governance** | 3 | assortment benchmarking, cross-manufacturer comparison, competitor comparison |

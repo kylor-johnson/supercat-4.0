@@ -169,3 +169,40 @@ depends_on: []
 ### Next
 - **Phase 3** — surface mapping, offline constraints for iPad-embedded components, `data-gaps.md`.
 
+---
+
+## 2026-08-25 — revision 5 (Phase 3 + synthesis) — FINAL
+
+### Added
+- `product/surface-mapping.md` — **all 31 jobs mapped.** Surface, data dependencies, missing fields,
+  build size, offline risk. Includes the buyer-history **config track** (separated from the build
+  ranking), the no-incumbent-rep-surface finding as a first-class result, the PER-02 agency-entity
+  spec, offline constraints for the 5 iPad-embedded components, and the anatomy-vs-spec conflict
+  scoped with its cost asymmetry.
+- `product/data-gaps.md` — backlog **split by owner**: WE BUILD IT (14 items) vs CLIENT MUST SEND IT
+  (3 items). Plus §C *job exists, data doesn't* retaining the 6 schema-absent cuts.
+- `00-SYNTHESIS.md` — exec-readable, 2 pages, no new analysis.
+
+### Changed
+- `prospects/competitor-platform-signal.md` — **disambiguation pass done, file closed.** All 5
+  build-attribution hits also carry a dealer login on `cms.amptab.com`, two with per-tenant
+  manufacturer IDs. **11 of 11 CONFIRMED PLATFORM, 0 build-attribution-only.** The caveat in the
+  earlier draft was wrong and is corrected in place.
+- `prospects/hpmkt-mid-market-lighting.md` — lane 3 decision recorded: run thin at HPMKT.
+- `field-kit/test-design.md` — H5 marked killed at the desk.
+- `analytics/jtbd-register.md` — schema-absent cuts now point at `data-gaps.md` §C.
+
+### Phase 3 headline results
+| Result | Detail |
+|---|---|
+| **Mapping** | iPad-EC 5 · Portal 14 · Admin 5 · eOL 5 · Insightful 1 · existing 6. Sizes: **S 12 · M 8 · L 6** |
+| **Invoice feed: 7 of 13 jobs ship, 6 do not** | Jobs asking *"what is the trend"* degrade to a labelled order-based proxy. Jobs asking *"what really happened commercially"* fail outright — both toplines, both agency-value jobs, both order-status jobs |
+| **PER-02 is not servable** | Stated plainly. The agency entity is an **L** whose cost is a migration over 11,873 free-text `company_name` values, not a schema change |
+| **Offline components are read-only by design** | Which removes write-conflict handling entirely. Extract ≈6–8 MB typical, budget 15 MB. Permission scope baked in at sync — so revocation is not real-time, and the product must not claim it is |
+| **Conflict cost is asymmetric** | Getting the surface question wrong toward the Portal costs the wrapper *and* leaves the field case unsolved; the other way costs only the wrapper. Argues for resolving before committing to JTBD-011 |
+| **Four of the first six build items need no new data** | An aggregation, a config flip, a defect fix, a surfaced timestamp |
+
+### Scope closed
+Phases 0–5 complete. Six open decisions carried to `00-SYNTHESIS.md` §5.
+No foundation file was ever edited; corrections remain held.
+
