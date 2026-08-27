@@ -101,8 +101,12 @@ facts that are not acted on in Phase 1.
 
 - Established inputs 1–4 from the brief were **not** re-litigated or re-tested.
 - The stamped v4.0 document, `build_v4.py`, and the MASTER CSV were **read only**.
-- `foundation/CEO_SYSTEM_CONTEXT.md` and `foundation/02_who_we_serve.md` were **not edited**;
-  corrections are held in `FOUNDATION-CORRECTIONS.md`.
+- `foundation/CEO_SYSTEM_CONTEXT.md` and `foundation/02_who_we_serve.md` were **not edited during
+  Phase 1** — corrections were held in `FOUNDATION-CORRECTIONS.md` pending approval. **That hold is
+  discharged.** Both files were corrected **2026-08-26** (authorised by Kylor once Layer A/B flipped
+  to `hardened`), and the persona axis was added to both on **2026-08-27**. Prior versions are in
+  `foundation/_archive/`. `FOUNDATION-CORRECTIONS.md` is now the **record** of what changed, not a
+  proposal.
 - Insightful profiles (`kal.md`, `da.md`, `hfg.md`, `bsc.md`) and `industry_context.md` were **not
   touched**; the "Brand-Building" alias was not swept.
 - Postgres was **read-only** throughout. No writes, including the DQ-01 malformed values.
