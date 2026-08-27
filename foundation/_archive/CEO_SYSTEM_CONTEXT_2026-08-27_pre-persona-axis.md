@@ -6,16 +6,10 @@ This is the **agent-optimized condensation** of the full foundation set
 (`foundation/01`–`07`). When you need depth, read the source doc named at the end
 of each section.
 
-**Last updated:** 2026-08-27 (**persona added as a third axis** — 7 personas / 31 jobs, orthogonal
-to Account Segment and Prospect Archetype; PER-08 dealer buyer flagged as *our customer's customer*
-and the largest population on any surface. Added the load-bearing product conclusion: **build once,
-parameterise on org structure — only 4 of 31 jobs vary, and not by segment.** Lens 1, Lens 2,
-D-001a and T1/T2/T3 unchanged. Prior version:
-`_archive/CEO_SYSTEM_CONTEXT_2026-08-27_pre-persona-axis.md`.
-Prior: 2026-08-26 Lens 2 corrected — selling-motion segments are a **stamped roster
+**Last updated:** 2026-08-26 (Lens 2 corrected — selling-motion segments are a **stamped roster
 lookup, not a computation**, and are **post-sale only**; never label a prospect. Source pointer
 fixed from the non-existent `skills/customer_segmentation/` to
-`foundation/sources/customer_segmentation/`. Prior version:
+`foundation/sources/customer_segmentation/`. Lens 1 and T1/T2/T3 unchanged. Prior version:
 `_archive/CEO_SYSTEM_CONTEXT_2026-08-26_pre-segmentation-lineage-correction.md`.
 Prior: 2026-07-22 buyer-type index expanded via 20-org dual-socialize preflight — trade-showroom +
 designer goldens; coverage note 19 reads / 8 orgs. 2026-07-14 redesigned Who-We-Serve as runtime
@@ -168,16 +162,11 @@ a summary. Detail follows in the two lens sections; this is how to *use* them.
 | Pricing, WTP, tier fit, expansion path | **Lens 1 — Digital Selling Maturity** | reading tier off selling motion |
 | GTM, messaging, positioning, buyer mix, per-account taste | **Lens 2 — Selling Motion** | reading vocabulary off maturity |
 | Portfolio / an account's full posture (e.g. an upgrade play with the right message) | **Both** (cross-tab) | assuming one predicts the other |
-| **Who *uses* the product, what job they're doing, what to build for them** | **Persona — the third axis** (see below) | reading a persona off a segment, or a segment off a persona |
 
 The two lenses are **orthogonal** — a Luxury Specification brand can be Catalog-Focused
 or Platform-Embedded; a Platform-Embedded account can be any selling motion. **Segment
 is not tier**: ~19 accounts are behaviorally Commerce-Active but modularly T1 (the top
 upgrade cohort). Both lenses reject revenue band, vertical, and org scale as classifiers.
-
-**Persona is a third axis orthogonal to both**, and to Prospect Archetype: a segment is a property
-of the client *organisation*, a persona is a *behavioural role with jobs*. **Never collapse the
-three.** See § Persona — the third axis.
 
 **Channel honesty — binds every customer-of-customer figure (inherits the Provenance Spine):**
 
@@ -227,15 +216,9 @@ three.** See § Persona — the third axis.
   Gallery) and **designer / trade** (Michelle Gerson) goldens — not only omnichannel retailers.
   Still use as illustration, not distribution. Name alone is unreliable ("Kathy Kuo Designs" is a
   luxury e-comm retailer).
-- **JTBD is no longer hypothesized — it is registered *by persona*, not by segment** (2026-08-25;
-  7 personas, 31 jobs, one primary metric each). The per-*segment* JTBD question is now **answered
-  in the negative**: only 4 of 31 jobs vary, and on org structure rather than selling motion. See
-  § Persona and § Build once below. **Still outstanding**: customer-interview validation of those
-  jobs (M1 Phase 2) — the register is built from platform evidence and prior persona work, not from
-  interviews.
-- **Still hypothesized**: WTP/value-driver ranking, NRR/churn/expansion by segment, install-base
-  geography, the full Lens 1 × Lens 2 count matrix, and a single as-of customer count
-  (104/109/110/118/132 all valid under different rules).
+- **Still hypothesized**: per-segment JTBD, WTP/value-driver ranking, NRR/churn/expansion by
+  segment, install-base geography, the full Lens 1 × Lens 2 count matrix, and a single as-of
+  customer count (104/109/110/118/132 all valid under different rules).
 
 *Source: `foundation/02_who_we_serve.md`; channel doctrine `skills/insightful_product/00_provenance_spine.md` + `skills/agent_research/brand_to_customer/CHANNEL_PROVENANCE.md`.*
 
@@ -334,72 +317,6 @@ predict segment" — that overstates it.
 *Source: `foundation/sources/customer_segmentation/` (README + `taxonomy/`);
 `Customer Segmentation/current/` (stamped v4.0 md + MASTER csv);
 `foundation/02_who_we_serve.md`.*
-
----
-
-## Persona — the third axis (who *uses* the product)
-
-**Persona is a THIRD axis, orthogonal to both Account Segment (Lens 2, post-sale) and
-Prospect Archetype (pre-sale).** A persona is a **behavioural role with jobs**; a segment is a
-property of the **client organisation**. They cross-tabulate, and **neither predicts the other**.
-Do not infer a persona from a segment, or a segment from a persona.
-
-**Seven personas, 31 jobs**, each with one primary metric `[MEASURED 2026-08-25, Postgres]`:
-
-| ID | Persona | Primary surface | Population |
-|---|---|---|---|
-| **PER-01** | Independent sales rep | eCat iPad (offline) | 4,058 iPad-active / 146 orgs |
-| **PER-02** | Rep agency principal | Sales Portal — **does not exist today** | 617 iPad-active in flagged rep groups |
-| **PER-03** | VP Sales / sales ops *(manager folds here)* | Sales Portal + Admin | 2,365 admin records |
-| **PER-04** | Customer service / order entry | Sales Portal + Admin | within the 2,365; not separately keyed |
-| **PER-05** | Product / merchandising | Admin (action) + Portal (evidence) | **not keyed — weakest-evidenced persona kept** |
-| **PER-06** | Owner / exec | Insightful (deep) + thin Portal subset | small; overlaps PER-03 |
-| **PER-08** | **Dealer buyer** ⚠️ | eCat Online + buyer half of Portal | **87,927 enabled / 17,532 active** |
-
-**PER-08 is on a different axis again — it is OUR CUSTOMER'S CUSTOMER, not a SuperCat client
-user.** Every buyer job is written from the buyer's side but **justified by what our client gains**
-(orders captured, calls deflected, share of wallet held). A job good for the buyer and neutral for
-our client is cut. It is the **largest user population SuperCat has on any surface** — 7.7:1 over
-reps on active logins — and it must never be collapsed into the internal-user personas.
-
-**Reps and buyers are near-disjoint.** Only **593 users** are active on both iPad and eOL, and
-`should_show_customers_tab` requires `customer_number.blank?` — **a buyer cannot reach the rep views
-by any configuration.** They share no session and no mental model. Do not design or narrate as if
-one surface serves both.
-
-**Two personas were dropped, deliberately:** IT / integrations (consumes job status and error logs,
-**not analytics** — retained as a stakeholder, not a persona with jobs) and Manager (**folds into
-PER-03** as a permission tier, not a new bounded context).
-
-*Depth: `foundation/sources/customer_segmentation/personas/PER-00-persona-set.md` (the set, with
-keep/drop reasoning) + 7 persona files; all 31 jobs flat in
-`foundation/sources/customer_segmentation/analytics/jtbd-register.md`.*
-
----
-
-## Build once, parameterise on org structure (the load-bearing product conclusion)
-
-**Only 4 of 31 jobs vary by Account Segment. 27 do not.** And the four that vary track **catalog
-scale, territory count and price-code count** — structural facts any org can read off its own data —
-**not selling motion.**
-
-**A job does not need to know an org is Luxury Specification; it needs to know how many price codes
-it has.** So: **build the surface once, parameterise on the org's own structure, and do not
-condition on segment.** No segment-conditional variants.
-
-That is the simpler and cheaper build, and it is far better supported than the alternative given
-Lens 2 reproduces at 38.5% against a 34.9% baseline. **Anyone proposing a per-segment build of an
-analytics surface is proposing to encode a distinction the data cannot carry** — the default answer
-for any new job is **DOES NOT DIFFER BY SEGMENT**, and variation is claimed only where it can be
-pointed at a measured structural difference.
-
-The four that do vary, and on what: JTBD-012 rep territory scoping (**SEG-02**, median 41
-territories); JTBD-013 offline cache and sync (**SEG-04**, median 4,498 products / 5,759 orders);
-JTBD-053 catalog completeness (**SEG-04**, largest catalogs, median 30 collections); JTBD-083 buyer
-price entitlement (**SEG-03**, price-code spread median 2 with a tail to 35).
-
-*Source: `foundation/sources/customer_segmentation/analytics/jtbd-register.md` § Segment variation;
-`foundation/sources/customer_segmentation/product/surface-mapping.md`.*
 
 ---
 
