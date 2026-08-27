@@ -3,7 +3,7 @@ id: ASSUMPTIONS
 title: Assumptions register and open findings
 version: 0.1
 status: draft
-date: 2026-08-25
+date: 2026-08-27
 owner: Kylor Johnson
 source_lineage: [taxonomy/account-segments.md, taxonomy/prospect-archetypes.md, taxonomy/segment-archetype-mapping.md]
 depends_on: [TAX-A, TAX-B, TAX-MAP]
@@ -79,6 +79,21 @@ facts that are not acted on in Phase 1.
 - **A stamped figure was changed outside the brief** (DQ-05). The change survived review on its
   merits, but the basis should have been shown *before* editing a stamped file, not after being
   challenged.
+- **The `supercat-foundation` skill exists in two copies, and the one that loads is unversioned**
+  (recorded 2026-08-27). `~/.claude/skills/supercat-foundation/SKILL.md` is **user-level, outside
+  any git repo, and is the copy Claude Code actually loads** — editing it changed the live skill
+  description mid-session, confirming which one is authoritative at runtime. The workspace copy at
+  `.claude/skills/supercat-foundation/SKILL.md` **is** git-tracked but does not load, and it had
+  silently drifted **63 lines behind** between 2026-08-11 and 2026-08-27 — including a stale
+  description that would never have routed an agent to the persona or JTBD files.
+  **The two were resynced on 2026-08-27** (workspace overwritten from user-level; nothing unique was
+  lost — the only lines unique to the workspace copy were older versions of two lines that had been
+  updated).
+  **Standing hazard: any future edit to the user-level file must be mirrored into the workspace copy
+  and committed, or the versioned routing goes stale again without a `git log` entry to catch it.**
+  The same applies to `truth-discipline`, which is tracked at `.claude/skills/truth-discipline/`
+  under the identical arrangement. This is the failure mode `foundation/00_README.md` already names
+  for facts — "a copy that no `git log` catches" — applied to the router itself.
 
 ---
 
