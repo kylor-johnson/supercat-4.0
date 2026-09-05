@@ -1,1 +1,0 @@
-Client_Template/04_Training folder inside 02_Implementation.
