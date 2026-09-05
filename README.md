@@ -1,4 +1,4 @@
-# eCat Onboarding Automation
+# Supercat-4.0
 
 Personal staging repo for SuperCat's eCat iPad onboarding automation IP —
 Cursor agent skills, import rules, onboarding models, and orchestration tooling.
