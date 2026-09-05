@@ -51,9 +51,35 @@ docs can lag. Capture: subject, body, customer email/company, and the thread so 
 | Rep can't see catalog / wrong customers / login | users, groups, territories | `ecat-go-live` |
 | "Why is the item code showing instead of the name" | known UI limit | answer honestly (see `ecat-client-email`) |
 | Anything needing live counts/state to answer | live DB audit | `ecat-postgres-audit` |
+| **Sales Portal** issue (ERP-fed reporting, order/invoice history, scorecards, portal login) | Sales Portal (ERP data surface) | `ecat-sales-portal-onboarding` for build/import issues (`Order_Data.csv` / `Invoice_Data.csv`, access, territories); ground with `ecat-postgres-audit`; only a genuine ERP-integration/data-flow bug is engineering (Jira, read-only) |
+| **eCat Online (eOL)** issue (web catalog, Cart, buyer login, "My Account" markup pricing) | eCat Online — **NOT the iPad** | `ecat-online`; note `ecat-ground-truth` scope (eOL ≠ iPad); ground with `ecat-postgres-audit`, route engineering bugs to Jira (read-only) |
+| Trade name / brand on iPad but missing from the eOL left nav | user-group `trade_names_auth` (new trade names are not auto-added to custom lists) | `ecat-online` |
+| **iPad runtime** behavior (won't sync, stale catalog, rep sees wrong things, order-pad behavior) | iPad app runtime | `ecat-ipad-app`; check org status gating sync before chasing the data |
+| Selected a "no promo" / excluded price level and the line went **$0.00** | `promo_factor` is `0` (iPad multiplies promo by zero) | `ecat-pricing-levels` |
 
 When in doubt between two domains, GROUND with `ecat-postgres-audit` first — the real
 state usually disambiguates.
+
+## Prove identity before causal claims (hard)
+
+The record the client **named** and the record an **error log** named are different
+until you prove they are the same code/name in the **file that actually imported**.
+
+This is the miss that sends a confident wrong email (cci ANTMAR vs line-24999 `'o'`):
+
+1. Look up the named record in Postgres (name **and** code).
+2. Look up the error record separately (that run's line, or `Customer # =` from an
+   older event). Historical line numbers and customer numbers **drift**.
+3. If the codes do not match, they are two problems. Say so. One `Error` row skips
+   **that** row; other rows still load (`ecat-ground-truth`).
+4. A client who regenerates the CSV and jumps to line N is on a different file.
+   Match by `BillToCode` / `BaseItemCode`, never by line number in a new export.
+5. Neighbors are evidence: if `0008616` and `0008618` imported and `0008617` did
+   not, `0008617` was omitted or that specific row failed. It is not "the file's
+   one error at line 24999."
+
+Do not write "that error is exactly why X is missing" unless step 1 and step 2
+return the same record.
 
 ## Reply posture
 
@@ -65,6 +91,27 @@ Carry its discipline:
 - Keep internal context (health scores, support history, CDN) out of client copy.
 
 Drafts only. This skill never sends; you paste/approve.
+
+Before presenting the draft: re-read it for broken/truncated sentences. If the
+draft says a config or file change is already done, **re-query that field now**.
+If it is still the old value, do not claim it is done — tell Kylor the Admin/FTP
+step and keep the email in "I will / I have not yet" form.
+
+**Before drafting a "logged with engineering" reply:** check for an existing Jira ticket
+bucket for this issue first (read-only — see the `jira-read-only` rule). Don't promise a
+new ticket if one already tracks it; reference the existing work instead of implying fresh
+engineering effort. Never create/transition/comment on Jira — read only, then draft text.
+
+## Login / URL shapes (stop the flip-flopping)
+
+When a login or "which surface is this" question comes in, match against the
+**confirmed** pattern before diagnosing:
+
+| Surface | URL / path shape | Confirmed source |
+|---|---|---|
+| **Admin Console** | Host is **`supercat.supercatsolutions.com`** (a subdomain, NOT bare `supercatsolutions.com`). Login form: `https://supercat.supercatsolutions.com/supercat/sessions/new`. A client org: `https://supercat.supercatsolutions.com/<shortname>` (e.g. `.../sccon`). | Verified ground truth (Kylor) |
+| **eCat Online (eOL)** | `https://supercat.supercatsolutions.com/<shortname>/e/<url_key>/products` — buyer **login** is `/login` on the same scope, plus `/my-account`, `/checkout`. `<url_key>` is the Mobile Site's `url_key` (Admin → Mobile Sites); an org can have several. Legacy `/<shortname>/m/<url_key>/` redirects to the eOL home. Orgs may also use a custom CNAME. | Code-verified in `config/routes.rb` |
+| **Sales Portal** | `https://supercat.supercatsolutions.com/<shortname>/e/<url_key>/portal` — same eOL scope, gated by the mobile site's `enable_sales_portal` | Code-verified in `config/routes.rb` |
 
 ## Existing vs net-new client
 

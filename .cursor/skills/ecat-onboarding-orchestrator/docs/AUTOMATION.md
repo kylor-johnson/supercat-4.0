@@ -35,7 +35,7 @@ before the automation will succeed.**
 | `RUN_PROMPT.md` is committed | Required | `git ls-files onboarding-models/RUN_PROMPT.md` |
 | `REGISTRY.yaml` is committed | Required | `git ls-files eCat_Onboarding/REGISTRY.yaml` |
 | `render_phase_assessment.py` is committed | Required | `git ls-files onboarding-models/render_phase_assessment.py` |
-| VPN active during the run | Required | The automation queries `user-supercat-postgres-vpn` (Postgres) and `user-bigquery-admin` (Fathom/HelpScout).  Both require VPN. |
+| VPN active during the run | Required | The automation queries `supercat-postgres-vpn` (Postgres) and `bigquery-admin` (Fathom/HelpScout).  Both require VPN. |
 | `overrides.yml` committed (if any overrides exist) | Conditional | `git ls-files onboarding-models/overrides.yml` |
 
 > **Rule from `IMPLEMENTATION_PLAN.md §6.1`:**
@@ -72,8 +72,8 @@ Enable the following tools for the automation agent:
 
 | Tool | Purpose |
 |---|---|
-| `user-supercat-postgres-vpn` | Per-client product / customer / import-event counts |
-| `user-bigquery-admin` | Fathom meeting notes + HelpScout tickets |
+| `supercat-postgres-vpn` | Per-client product / customer / import-event counts |
+| `bigquery-admin` | Fathom meeting notes + HelpScout tickets |
 | File system (read + write) | Read framework files; write assessment output |
 | Terminal | Run `render_phase_assessment.py` to produce the HTML |
 
@@ -91,9 +91,9 @@ Do not skip the sanity check (Step 5) or the JSON + HTML render (Step 4b).
 After the assessment is complete and the output files are written, run the
 fingerprint scan for any check that had a new hit in last week's session:
 
-  python .cursor/skills/ecat-onboarding-orchestrator/scripts/reconcile/fingerprint_scan.py \
+  python ${CLAUDE_SKILL_DIR}/scripts/reconcile/fingerprint_scan.py \
     --check orphan_inventory
-  python .cursor/skills/ecat-onboarding-orchestrator/scripts/reconcile/fingerprint_scan.py \
+  python ${CLAUDE_SKILL_DIR}/scripts/reconcile/fingerprint_scan.py \
     --check missing_images
 
 Append a brief scan summary to the bottom of the markdown output under an
@@ -144,7 +144,7 @@ python onboarding-models/render_phase_assessment.py \
 ## Adding a new fingerprint check to the post-assessment scan
 
 1. Add a `check_<name>` function to
-   `.cursor/skills/ecat-onboarding-orchestrator/scripts/reconcile/fingerprint_scan.py`
+   `${CLAUDE_SKILL_DIR}/scripts/reconcile/fingerprint_scan.py`
    that takes `(executor, org_id)` and returns a `ScanResult`.
 
 2. Register it in the `CHECKS` dict at the bottom of the built-in checks section.
@@ -157,7 +157,7 @@ python onboarding-models/render_phase_assessment.py \
 
 Available built-in checks (run `--list-checks` to see current set):
 ```bash
-python .cursor/skills/ecat-onboarding-orchestrator/scripts/reconcile/fingerprint_scan.py \
+python ${CLAUDE_SKILL_DIR}/scripts/reconcile/fingerprint_scan.py \
     --list-checks
 ```
 
@@ -179,10 +179,10 @@ python onboarding-models/render_phase_assessment.py \
 # → writes onboarding-models/output/{YYYY-MM-DD}-phase-assessment.html
 
 # 4. Run the fingerprint scan:
-python .cursor/skills/ecat-onboarding-orchestrator/scripts/reconcile/fingerprint_scan.py \
+python ${CLAUDE_SKILL_DIR}/scripts/reconcile/fingerprint_scan.py \
     --check orphan_inventory
 
-python .cursor/skills/ecat-onboarding-orchestrator/scripts/reconcile/fingerprint_scan.py \
+python ${CLAUDE_SKILL_DIR}/scripts/reconcile/fingerprint_scan.py \
     --check missing_images
 
 # 5. Verify the golden file is still intact:

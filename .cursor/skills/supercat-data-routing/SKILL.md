@@ -41,6 +41,7 @@ would pollute routing. Use exactly this mapping:
 | Question domain | Data source | Location |
 |---|---|---|
 | Org config, users, groups, sites, products, imports, inventory | **supercat-postgres-vpn** | Postgres (VPN) |
+| **Changing** org config/content (not reading it) | **`ecat-admin-write`** | Admin Console Rails endpoints |
 | Support tickets & customer conversations | **bigquery-admin** | `helpscout.conversations` / `helpscout.conversation_threads` |
 | eOL / portal web analytics | **bigquery-admin** | `google_analytics_ecat_online` |
 | iPad app analytics | **bigquery-admin** | `google_analytics_ecat` |

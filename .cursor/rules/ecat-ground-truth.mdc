@@ -45,11 +45,12 @@ Always re-send `option_groups.csv` after `options.csv` — importing options
   `BaseItemCode`.
 - **Option / option-group `Code`**: KB says max 8 / name 25; DB actually allows
   **15 / 50**.
-- **`BaseItemCode` length**: KB/lessons say max 20; the **20-char limit is advisory,
-  not importer-fatal**. The DB column (`products.item_number`) is unbounded varchar and
-  the importer accepts longer — verified live: org `mali` has 4 active 21-char codes
-  (e.g. `LV-HS-PD20-24V-100-WW`). Keep codes short for image filenames / grid display,
-  but don't reject a row for length.
+- **`BaseItemCode` length**: KB/lessons say max 20, but the **20-char limit is advisory,
+  not importer-fatal** — the real importer cap is **40 chars** (`Product::ATTR_LENGTHS`);
+  a row whose `BaseItemCode` exceeds 40 chars gets a **validation error** and is rejected.
+  So 21-char codes are fine (under 40) — verified live: org `mali` has 4 active 21-char
+  codes (e.g. `LV-HS-PD20-24V-100-WW`). Keep codes short for image filenames / grid
+  display, but only reject a row for length once it passes 40 chars.
 - **Product images**: **6 by default, 12** only with the paid
   `enable_twelve_product_images` flag.
 - **SmartList item-list**: KB says comma-separated; the app/importer expects

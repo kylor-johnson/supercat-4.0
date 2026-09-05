@@ -15,6 +15,10 @@ This skill orchestrates; those rules constrain.
 ## The loop (run this every session)
 
 ```
+0. SURFACE      → this orchestrator owns the **iPad build** only. Browser catalog / Cart /
+                  enrollment / My Account pricing → `ecat-online`. ERP order/invoice
+                  reporting → `ecat-sales-portal-onboarding`. iPad runtime behavior →
+                  `ecat-ipad-app`. Otherwise continue.
 1. LOAD STATE   → read eCat_Onboarding/<Client>/CLIENT_PROFILE.md + HANDOFF.md
 2. RECONCILE    → for any client past kickoff, ground the profile against the LIVE DB
                   via ecat-postgres-audit (counts + most-recent import_events). Trust the
@@ -98,6 +102,9 @@ Sub-task overrides (use even mid-phase when the user asks for one thing):
 | users / reps / territories / go-live | `ecat-go-live` |
 | client email / reply | `ecat-client-email` |
 | live DB audit | `ecat-postgres-audit` |
+| browser catalog / Cart / buyer enrollment / My Account pricing | `ecat-online` |
+| Sales Portal build (ERP order/invoice history, portal access) | `ecat-sales-portal-onboarding` |
+| iPad runtime behavior / rep-facing diagnosis | `ecat-ipad-app` |
 | end of session | `ecat-session-handoff` |
 
 ## Import order (Phase 4 — enforce, don't reorder)

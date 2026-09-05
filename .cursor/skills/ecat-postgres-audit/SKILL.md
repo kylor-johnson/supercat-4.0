@@ -5,19 +5,32 @@ description: Run read-only Postgres audits of a SuperCat org during eCat onboard
 
 # eCat Postgres Org Audit (consultant-only)
 
-Use the `user-supercat-postgres-vpn` MCP (read-only). Always scope by the org
+Use the `supercat-postgres-vpn` MCP (read-only). Always scope by the org
 shortname; read the tool descriptor before the first call. These are starting
 templates — confirm exact columns against the schema if a query errors.
 
 First resolve the org id:
 
 ```sql
-select id, shortname, name, state, import_active from organizations where shortname = '<shortname>';
+select id, shortname, name, state, properties ->> 'status' as status, import_active from organizations where shortname = '<shortname>';
 ```
 
-`organizations` has **no lifecycle/status column** — `state` is the geographic state and
-`import_active` is the feed toggle. There is no DB field that says "go-live blocked"; derive
-stage from actual counts + recent imports below (and the health API), never from a stored flag.
+`organizations.state` is the **geographic** state (TX, CA) and `import_active` is the feed
+toggle — neither is a lifecycle field. Lifecycle status lives in the `properties` JSONB,
+not a column:
+
+```sql
+select shortname, properties ->> 'status' as status, import_active
+from organizations where shortname = '<shortname>';
+```
+
+Values (`Organization::Status`): `onboarding`, `inactive` (the default), `demo`, `test`,
+`active`, `sync_suspended`, `fully_suspended`. The two suspended values are the ones with
+teeth — `sync_allowed?` is false for both, so a suspended org will not sync no matter how
+clean the import. This is the field `eCat_Onboarding/REGISTRY.yaml` means by `lifecycle`.
+
+There is still no field that says "go-live blocked" — derive that from actual counts +
+recent imports below (and the health API), never from `status` alone.
 
 ## Catalog & images
 
@@ -72,12 +85,10 @@ select name, distribution_centers_auth from user_types where organization_id = :
 ```
 
 DC user-group restriction governs the order ship-from selector, not catalog inventory
-counts (unless the org's `tcgcd` flag is on). Reps still in `DefaultUserGroup` bypass
-restrictions. A `product_nav` fragment with an older `dv` than the last import means
-no one in that group has synced since the import.
+counts. Reps still in `DefaultUserGroup` bypass restrictions.
 
 ## Onboarding health
 
-`GET /api/v1/mcp/organizations/:shortname/health` returns the six-category onboarding
+`GET /api/v1/<shortname>/mcp/organizations/health` returns the six-category onboarding
 scorecard (foundational, catalog, customer/pricing, inventory, orders, engagement).
 Use it to turn a catalog-strong/transaction-empty org into an ordered import backlog.

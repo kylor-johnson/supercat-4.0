@@ -33,6 +33,15 @@ customer_number`.
 - Leave `customer_number` blank for reps — a customer number on a profile overrides
   rep-level price access (the rep gets treated like that customer).
 
+## Order email subject
+
+Set at **Admin Console → Company Settings → Email Templates → "Order email subject."**
+Accepts tokens like `%OrderNumber%` — token matching is **case-insensitive** and
+**dashes/underscores are stripped before matching** (`%order_number%`, `%Order-Number%`,
+and `%OrderNumber%` all resolve the same). A **user group can override** the subject:
+a group-level override **shadows the org-level setting** for reps in that group, so if
+one rep's order emails look different, check the group override before the company setting.
+
 ## Go-live checklist
 
 ```
@@ -51,6 +60,6 @@ customer_number`.
 ## Common go-live blockers
 
 - Every real user still in `DefaultUserGroup` → permissions/territory filters never apply.
-- DC user-group restriction controls order ship-from, not catalog inventory counts
-  (unless `tcgcd` is on) — test at order creation, not catalog view.
+- DC user-group restriction controls order ship-from, not catalog inventory counts —
+  test at order creation, not catalog view.
 - A user group with no member synced since the last import shows a stale catalog.

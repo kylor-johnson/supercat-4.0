@@ -1,0 +1,67 @@
+# Insightful 4.0 — Running Reports
+
+Pipeline root: `SuperCat 4.0/Insightful Product 4.0/`
+
+## Running a report (two scenarios)
+
+### A. Org already has cached CSVs
+
+Check: `ls pipeline/cache/{org}/{date}/` — if `.csv` files exist, go straight
+to step 3 below.
+
+### B. Org needs a fresh cache (new client, new date, or DA)
+
+**There is no direct DB connection.** The prod database is only reachable
+through the `user-supercat-postgres-vpn` MCP server. Do NOT set `DATABASE_URL`,
+`PGHOST`, or any Postgres env vars — they do not exist and will not work.
+
+Follow this exact sequence:
+
+**Step 1 — Generate parameterized SQL files:**
+```bash
+cd "/Users/kylorjohnson/Library/Mobile Documents/com~apple~CloudDocs/SuperCat 4.0/Insightful Product 4.0"
+.venv-renderer/bin/python -m pipeline.populate_cache --org {org}
+```
+This will detect the missing DB and write `.sql` files to
+`pipeline/cache/{org}/{date}/` — one per query (up to 20).
+
+**Step 2 — Run each `.sql` file through MCP and write the CSV:**
+
+For **each** `.sql` file in the cache directory:
+
+1. Read the file contents (it is ready-to-run parameterized SQL)
+2. Execute it via `user-supercat-postgres-vpn` → `execute_sql` tool
+3. Write the result to a CSV using this Python one-liner:
+
+```bash
+.venv-renderer/bin/python -c "
+import sys, json; sys.path.insert(0,'.')
+from pipeline.cache import import_from_dicts
+rows = json.loads(sys.stdin.read())
+import_from_dicts('{QUERY_ID}', '{ORG}', '{DATE}', rows)
+" <<< '{MCP_RESULT_ROWS_AS_JSON}'
+```
+
+Or call `import_from_dicts()` directly in Python with the list-of-dicts
+from the MCP result.
+
+**Step 3 — Run the report:**
+```bash
+./run.sh {org} --date {date}
+```
+
+## Key facts
+
+- Profiles are **auto-derived** — no manual profile setup needed
+- All reports produce **SHIP** output unless `--preview` is explicitly passed
+- `run.sh` runs `smoke_check` and `step10_check` automatically
+- Org IDs for known clients are in `pipeline/cache.py` `_KNOWN_ORG_IDS`
+- The `--date` on `run.sh` must match the cache directory name
+
+## Do NOT
+
+- Try to configure `DATABASE_URL`, `PGHOST`, or other Postgres env vars
+- Try to connect to localhost Postgres (it has no SuperCat data)
+- Try to extract connection strings from the MCP server config
+- Skip `populate_cache.py` and try to construct SQL manually
+- Modify files in `foundation/`, `knowledge/`, `operators/`, `report_product/`

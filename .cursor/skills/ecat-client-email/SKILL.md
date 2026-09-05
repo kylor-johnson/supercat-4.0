@@ -26,6 +26,16 @@ the rules in `Pricing Migration/_root/04_communication_posture.md` instead.
   contact). Avoid eCat jargon for non-technical readers.
 - Sign off: **"Best, Kylor"**.
 
+**Tone rules (hard):**
+- **No em-dashes.** Use a comma, period, or parentheses instead.
+- **Do not force in irrelevant numbered points.** Mirror the client's structure only
+  where it's genuinely responsive — don't manufacture a point just to match their count.
+- **Do not re-explain something already fixed.** If it's done, say it's done and move on;
+  don't re-narrate the whole diagnosis.
+- **Avoid generic "AI slop" phrasing** (e.g. "I hope this email finds you well,"
+  "please don't hesitate to reach out," "as per our discussion," "leverage," "seamless").
+  Write plainly and specifically.
+
 ## Reusable structures
 
 **Point-by-point reply** — acknowledge → answer each numbered item with fix +
@@ -45,11 +55,14 @@ Always include: **download the current file from FTP `/data` before editing.**
 
 ```
 - [ ] Files actually uploaded (not "Done!" before upload confirmed)
-- [ ] Anything I claimed "configured" is verified on the device
+- [ ] If the draft says "I've already changed X", re-query X live. Old value → do not send that sentence
+- [ ] Anything I claimed "configured" is verified on the device (or Admin field, for price-level / group auth)
+- [ ] Named record and import-error record are the same code, or the email treats them as two problems
+- [ ] Draft has no truncated/garbled sentences and no duplicated paragraphs
 - [ ] Stated UI limits honestly (grid item code, etc.)
 - [ ] /images vs /option_images vs /data stated where relevant
 - [ ] Clear next action + who does it
-- [ ] Internal-only context (China CDN, support tickets, health scores) NOT in client copy
+- [ ] Internal-only context (China CDN, support tickets, health scores, `*.html.erb` paths) NOT in client copy
 ```
 
 The High Point Market follow-up email skill (`hpmkt-follow-up-email`) covers

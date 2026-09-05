@@ -54,3 +54,19 @@ Country validation: if "Enable country validation?" is on, `BillToCountry`/
 
 Tools → Upload Data → Customers (or FTP `/data`). Check File Import Status; a blue
 timestamp link lists line-level problems. Errors leave old records in place.
+
+## Missing customer vs import Error (do not fuse)
+
+A ticket that names customer A and pastes an Error on line N is **two lookups**,
+not one story.
+
+- Line numbers are physical lines in **that morning's** `customers.csv`. They move
+  as rows above shift. A regenerated file's row N is a different customer.
+- Older events sometimes include `Customer # = 0021270`. That number is the failing
+  row **that day**, not whoever the client is asking about today.
+- An `Error` skips that row. Other rows still import. If A is missing, look A up
+  by code **and** name. If neighbors on either side of the code exist in Postgres
+  and A does not, A was omitted from the imported file or failed on **its** row —
+  not blocked by a different row's `DefaultPriceCode`.
+- Excel filters on `DefaultPriceCode` showing only `0`–`5` do not disprove a letter
+  in the file that actually imported (quoting / column shift / a different export).

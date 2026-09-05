@@ -24,7 +24,7 @@ Design
 
 Connection
   export DATABASE_URL="postgresql://user:pass@host:5432/supercat_production"
-  (Same credentials as the user-supercat-postgres-vpn MCP server.)
+  (Same credentials as the supercat-postgres-vpn MCP server.)
 
 Available checks (run --list-checks for full table):
   orphan_inventory     Inventory rows whose BaseItemCode has no matching active product.

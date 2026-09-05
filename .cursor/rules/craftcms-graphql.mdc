@@ -1,0 +1,91 @@
+---
+description: CraftCMS GraphQL query patterns to prevent timeouts and context overflow
+globs: integrations/craft-cms/**/*
+alwaysApply: true
+---
+
+# CraftCMS GraphQL Best Practices
+
+**CRITICAL**: When working with CraftCMS GraphQL, NEVER introspect the full schema - it causes timeouts and context overflow.
+
+## ❌ NEVER DO THIS
+
+```graphql
+# This will timeout and overflow context
+{
+  __schema {
+    types {
+      name
+      fields {
+        name
+      }
+    }
+  }
+}
+```
+
+## ✅ ALWAYS USE TARGETED INTROSPECTION
+
+### 1. Test Connection First
+
+```graphql
+{
+  ping
+}
+```
+
+### 2. Introspect ONE Type at a Time
+
+```graphql
+{
+  __type(name: "knowledgeBase_knowledgeBase_Entry") {
+    fields {
+      name
+      type {
+        name
+        kind
+      }
+    }
+  }
+}
+```
+
+### 3. List Mutation Names Only
+
+```graphql
+{
+  __type(name: "Mutation") {
+    fields {
+      name
+    }
+  }
+}
+```
+
+### 4. Sample Real Entries to Discover Structure
+
+```graphql
+{
+  entries(section: "knowledgeBase", limit: 1) {
+    id
+    title
+    ... on knowledgeBase_knowledgeBase_Entry {
+      articleSections {
+        __typename
+        ... on text_Entry {
+          id
+          body
+        }
+      }
+    }
+  }
+}
+```
+
+## Key Principles
+
+- **Query ONE type at a time** using `__type(name: "TypeName")`
+- **Never request all fields from all types**
+- **Use inline fragments** for union types
+- **Request only fields you actually need**
+- **Test incrementally** - start small, expand as needed

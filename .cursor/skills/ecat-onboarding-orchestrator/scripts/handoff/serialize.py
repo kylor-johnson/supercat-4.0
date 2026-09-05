@@ -290,7 +290,7 @@ def _validation_commands(
         "# Expected: exit 0; all checks PASS or SKIP (no FAIL, no unexplained WARNING)",
         "```",
         "",
-        "**Named queries for manual verification via MCP `user-supercat-postgres-vpn`:**",
+        "**Named queries for manual verification via MCP `supercat-postgres-vpn`:**",
         "",
     ]
 
@@ -433,7 +433,7 @@ _SKILLS = [
     ("ecat-images-ftp", "FTP upload, ImageFileName, missing image diagnosis"),
     ("ecat-go-live", "User groups, reps, territories, go-live readiness"),
     ("ecat-smartlists", "SmartList queries and hand-picked item lists"),
-    ("ecat-postgres-audit", "Live DB audits via user-supercat-postgres-vpn MCP"),
+    ("ecat-postgres-audit", "Live DB audits via supercat-postgres-vpn MCP"),
     ("ecat-support-triage", "Ad-hoc support outside a full onboarding build"),
     ("ecat-client-email", "Client-facing emails in Kylor's voice"),
     ("ecat-session-handoff", "End-of-session handoff generation (invokes this serializer)"),
@@ -625,7 +625,7 @@ class HandoffSerializer:
         out = [
             "| Rank | Source | What it proves | Beats |",
             "|---|---|---|---|",
-            "| 1 | Live DB (user-supercat-postgres-vpn MCP) | What is actually live for reps | Everything |",
+            "| 1 | Live DB (supercat-postgres-vpn MCP) | What is actually live for reps | Everything |",
             "| 2 | `import_events.data` (Admin → File Import Status) | What actually imported, with tier | Local CSV files |",
             f"| 3 | `{import_dir}/` | What we built and sent | Older drafts, email attachments |",
             "| 4 | Client's source export (most recent) | Field names and row structure | Older revisions |",
@@ -946,7 +946,7 @@ class HandoffSerializer:
             out.append(f"| `{skill}` | {use} |")
         out += [
             "",
-            "_Load: `Read /path/to/.cursor/skills/<skill>/SKILL.md`_",
+            "_Load: invoke the `<skill>` skill_",
         ]
         return out
 

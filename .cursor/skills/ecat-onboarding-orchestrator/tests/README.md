@@ -8,7 +8,7 @@ answer.
 ## Run
 
 ```bash
-cd ".cursor/skills/ecat-onboarding-orchestrator"
+cd "${CLAUDE_SKILL_DIR}"
 python3 -m pytest tests -q
 ```
 

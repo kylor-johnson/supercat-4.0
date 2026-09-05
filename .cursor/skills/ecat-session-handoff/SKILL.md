@@ -7,7 +7,7 @@ description: Generate an end-of-session handoff prompt for an eCat client so the
 
 At the end of a working session, generate a single self-contained markdown block the
 next chat can be started from. Save it to the client's
-`02_Implementation/<Client>/` folder (e.g. `HANDOFF.md`) and update `CLIENT_PROFILE.md`.
+`eCat_Onboarding/<Client>/` folder (e.g. `HANDOFF.md`) and update `CLIENT_PROFILE.md`.
 
 A good handoff lets a fresh agent (no prior chat) resume correctly. Include:
 
@@ -19,7 +19,7 @@ One paragraph: who the client is, what stage, what we're doing now.
 
 ## Source of truth
 - Current source file: <path> (everything else is reference only)
-- Working files: 02_Implementation/<Client>/00_Import_Files/Ready_For_Import/
+- Working files: eCat_Onboarding/<Client>/00_Import_Files/Ready_For_Import/
 
 ## Field mapping decisions
 | Source column | eCat field | Notes |
@@ -37,7 +37,7 @@ One paragraph: who the client is, what stage, what we're doing now.
 ## Validation checklist (must pass before import)
 - [ ] 0 duplicate BaseItemCode
 - [ ] 0 blank required fields
-- [ ] lengths OK (BaseItemCode<=20, option codes<=15)
+- [ ] lengths OK (BaseItemCode<=40 enforced, 20 advisory; option codes/groups<=15)
 - [ ] image/RelatedItems policy applied
 - [ ] File Import Status error-free
 

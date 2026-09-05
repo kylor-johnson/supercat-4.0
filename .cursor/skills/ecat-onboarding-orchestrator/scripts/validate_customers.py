@@ -20,7 +20,7 @@ warning above 15 and the model rejects above 20, so both tiers are reported.
 
 This checks the LOCAL file only. It does NOT confirm what actually imported — the client
 may have run a newer FTP/Admin import. Pair it with the DB recency check via
-ecat-postgres-audit (user-supercat-postgres-vpn):
+ecat-postgres-audit (supercat-postgres-vpn):
 
     select created_at, left(data, 4000) as data from import_events
     where organization_id = :org_id and data like '%Customers%'

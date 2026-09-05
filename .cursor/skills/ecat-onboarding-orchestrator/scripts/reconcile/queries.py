@@ -31,7 +31,7 @@ Schema archaeology encoded here once so it is never rediscovered in a session:
 
 Usage patterns:
 
-  Via MCP (user-supercat-postgres-vpn) — copy-paste the .sql attribute of any named
+  Via MCP (supercat-postgres-vpn) — copy-paste the .sql attribute of any named
   query, replacing %(param)s with the literal value:
       PRODUCT_COUNTS → paste sql, replace %(org_id)s with the integer org id
 
@@ -574,14 +574,14 @@ def connect(url: Optional[str] = None):
     To connect to the SuperCat Postgres (requires VPN):
         export DATABASE_URL="postgresql://user:pass@host:5432/supercat_production"
 
-    The MCP server name is user-supercat-postgres-vpn; use the same credentials.
+    The MCP server name is supercat-postgres-vpn; use the same credentials.
     """
     db_url = url or os.environ.get("DATABASE_URL")
     if not db_url:
         raise EnvironmentError(
             "Set DATABASE_URL to your SuperCat Postgres connection string.\n"
             "  export DATABASE_URL='postgresql://user:pass@host:5432/dbname'\n"
-            "The MCP server is user-supercat-postgres-vpn — same credentials."
+            "The MCP server is supercat-postgres-vpn — same credentials."
         )
     try:
         import psycopg2
@@ -594,7 +594,7 @@ def connect(url: Optional[str] = None):
             "psycopg2 is required for direct DB access.\n"
             "  pip install psycopg2-binary\n"
             "Alternatively, copy queries from this module and run them via the "
-            "user-supercat-postgres-vpn MCP."
+            "supercat-postgres-vpn MCP."
         )
 
 
