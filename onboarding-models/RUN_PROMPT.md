@@ -70,7 +70,7 @@ Both require VPN active. The Sources table in `Phase_Anchors.md` lists the exact
 3. For each cohort member, resolve `client_domains[]` per `Phase_Anchors.md § Resolving \`client_domains[]\``. The resolution order is:
    1. Manual override in `onboarding-models/overrides.yml` under `client_domains:` (a committed map of shortname → domain list). If the shortname is listed there, use that list verbatim and stop — it is authoritative and overrides every step below.
    2. `organizations.order_email_recipient` domain (when set and not a placeholder)
-   3. HubSpot company primary domain (if integrated — may be empty)
+   3. ~~HubSpot company primary domain~~ — **REMOVED 2026-08-18** (resolves only 3 of 7 clients; Postgres alone resolves 7 of 7). Skip to step 4.
    4. **Fallback:** admin `org_users.users.email` domains, EXCLUDING the personal-email-providers list in `Phase_Anchors.md § Resolving \`client_domains[]\``
 
    **Within a single chosen source, include all of that source's distinct non-personal domains; do NOT merge across sources.** The first non-empty source wins outright. When the chosen source is the step-4 admin-email fallback and it yields ≥2 distinct domains, raise `MULTI_DOMAIN_FALLBACK_UNVERIFIED` (and, if a second legit parent/DBA domain is real, fold it into `overrides.yml § client_domains` so it stops needing verification). Record each client's resolved `client_domains[]` — every Fathom / HelpScout / rep query downstream matches on these.

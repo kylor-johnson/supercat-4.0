@@ -1,0 +1,488 @@
+
+==============================================================================
+FILE: /Users/kylorjohnson/Library/Mobile Documents/com~apple~CloudDocs/SuperCat_Simple_Final/02_Implementation/Legrand/Source Data/Canadian Price Lists/adorne Collection Price List Update_06.04.26_CA.csv
+==============================================================================
+
+1. WHAT IS THIS
+   67.9 KB on disk
+   !! FORMAT MISMATCH: named .csv, content is xlsx. Parsed as xlsx.
+   encoding    : n/a (xlsx)
+   delimiter   : 'n/a (xlsx)'
+   sheet       : LSR
+   NOTE: workbook has 2 sheets; profiled 'LSR' as the most populated. NOT profiled: 'Discontinued' (200 rows) - each may be a separate source file
+   header row  : 7 (8 non-empty cells, 8 distinct)
+     row 1 before it: (blank)
+     row 2 before it: (blank)
+     row 3 before it: effective June 4, 2026
+     row 4 before it: (blank)
+     row 5 before it: Adorne  -  Lighting Showroom Cost Sheet - Canada
+     row 6 before it: (blank)
+   462 data rows x 9 columns
+   input class : raw - no header matches an eCat field name - needs mapping
+   trying to be: products.csv [low - inference] - client-domain keyword families only (4), NOT eCat header evidence
+
+2. WHAT'S POPULATED
+   9 columns: 9 populated >=5%, 0 sparse (<5%), 0 entirely empty
+   column                               fill distinct  sample
+   Category                              97%       18  Paddle, Whisper, sofTap
+   Part Number                           97%      448  ADPD4FBL3P2G4, ADPD4FBL3P2M4, ADPD4FBL3P2W4
+   Product Name                          97%      332  Paddle Dimmer, 0-1, PADDLE LED DIMMER , Padd
+   UPC                                   97%      447  785007233865, 785007052671, 785007052688
+   Showroom Net CDN                      97%      235  96.95400000000001, 82.434, 52.01900000000000
+   MSRP CDN                              97%      235  176.28, 149.88, 94.58
+   IMAP CDN                              97%      235  176.28, 149.88, 94.58
+   Finish                                94%       33  Graphite, Magnesium, White
+   (blank header)                        16%        2  NEW, New
+
+3. WHAT LOOKS LIKE A KEY
+   'Part Number' - 448 values, 448 distinct, 97% filled, max length 15
+   also unique: 'UPC' (447 distinct, e.g. 785007233865, 785007052671)
+   -> more than one column is unique. Which one the CLIENT calls the
+      item/customer code is not decidable from the file; ask.
+
+4. WHAT MAPS TO eCAT
+   Category                         -> CategoryCodes              [high]
+       taxonomy: value becomes the iPad label
+   Part Number                      -> BaseItemCode               [high]
+       SKU/part number is the item key
+   Product Name                     -> LongDesc                   [high]
+       primary catalog name
+   UPC                              -> UPCValue                   [high]
+       UPC
+   Showroom Net CDN                 -> NetPrice or Price_<code>   [moderate]
+       MULTIPLE price columns usually mean multiple price LEVELS, not one NetPrice - decide the level codes before mapping
+   Finish                           -> Finish                     [low]
+       client-domain attribute - eCat has no Finish field; becomes a custom field or an option set, decide which
+   MSRP CDN                         -> NetPrice or Price_<code>   [low]
+       keyword in the header only - confirm with the client before mapping
+
+   UNMAPPED SOURCE COLUMNS (1) - client-domain data with no eCat home:
+     IMAP CDN                           97% populated, e.g. 176.28, 149.88, 94.58
+     -> these become custom fields, option sets, or are dropped. That is a
+        decision for the client, not a default.
+
+5. WHAT'S MISSING
+   Every importer-required field for products.csv has a source column.
+
+6. WHAT DOESN'T ADD UP
+   - 1 column(s) have an empty header - they cannot be imported and an unrecognised column is a FATAL import error
+   - columns 'MSRP CDN' and 'IMAP CDN' hold identical values (448 rows, 235 distinct) - one field under two names, not two fields
+   - column 'Showroom Net CDN' -> NetPrice or Price_<code> has 143 value(s) with 5+ decimal places (e.g. 14.564000000000002) - spreadsheet float artifacts; round before import
+   - column 'MSRP CDN' -> NetPrice or Price_<code> has 59 value(s) with 5+ decimal places (e.g. 45.379999999999995) - spreadsheet float artifacts; round before import
+
+
+==============================================================================
+FILE: /Users/kylorjohnson/Library/Mobile Documents/com~apple~CloudDocs/SuperCat_Simple_Final/02_Implementation/111Mercer/Source Data/111Mercer-ItemExport .csv
+==============================================================================
+
+1. WHAT IS THIS
+   39.2 KB on disk
+   format      : .csv (content agrees with the extension)
+   encoding    : utf-8-sig
+   delimiter   : ','
+   header row  : 1 (55 non-empty cells, 55 distinct, 1 recognised eCat field names)
+   102 data rows x 56 columns
+   input class : raw (with incidental eCat-shaped names) - 1 of 55 headers match eCat names (2%) - too few to be a mapping
+   trying to be: products.csv [low - inference] - client-domain keyword families only (5), NOT eCat header evidence
+
+2. WHAT'S POPULATED
+   56 columns: 38 populated >=5%, 1 sparse (<5%), 17 entirely empty
+   column                               fill distinct  sample
+   Internal ID                          100%      102  6796, 6795, 6794
+   Name                                 100%      102  GL9190-S, GK9196-S, GK9195-S
+   Description                          100%      102  AUTHENTIC GRASSCLO, AUTHENTIC GRASSCLO, AUTH
+   (blank header)                       100%       42  102, 87, 90
+   Display in Web Site                  100%        1  No
+   Base Price                           100%        6  6.95, 25, 700
+   2. Trade                             100%        5  0, 15, 420
+   4. Wholesale/Casepack                100%        5  6, 10, 280
+   Complimentary Customer               100%        1  0
+   3. Drop Ship                         100%        5  6, 12.5, 350
+   Income Account                       100%        1  Sales
+   Asset Account                        100%        1  Inventory - Finish
+   Expense/COGS Account                 100%        1  Cost of Sales
+   Costing Method                       100%        1  Average
+   Tax Schedule                         100%        1  Taxable
+   Drop Ship Item                       100%        1  No
+   Special Order Item                   100%        1  No
+   Weight                               100%        5  0.01, 0.08, 6.5
+   Weight Units                         100%        1  lb
+   Class                                100%        4  111 Mercer : Sampl, 111 Mercer : Authe, 111 
+   Date Created                         100%       73  4/27/26 10:39, 4/27/26 9:32, 4/27/26 9:31
+   Last Modified                        100%       20  4/29/26 15:09, 5/12/26 15:08, 6/3/26 15:07
+   Collection                           100%        8  2026 - GRASSCLOTH , 2026 - GRASSCLOTH , 2026
+   Active on Tempaper.com               100%        2  Yes, No
+   7. Distributor                        93%        5  6, 8, 225
+   1. Tempaper.com Price                 90%        5  6.95, 700, 270
+   5. All Pro Stock                      83%        4  6, 239.4, 68.4
+   Reorder Point                         80%       27  16, 0, 3
+   Preferred Stock Level                 71%       26  16, 3, 15
+   Planner                               70%        1  Ryan Weber
+   WALLPAPER BOOK - DROPSHIP             63%        6  12, 308, 6
+   WALLPAPER BOOK - TRADE                63%        5  12, 448, 0
+   WALLPAPER BOOK - WHOLESALE/CASEPAC    62%        5  12, 280, 6
+   On Hand                               56%       22  5, 4, 3
+   Available                             56%       22  5, 4, 3
+   Decorator's Best                      46%        3  336, 96, 102
+   Ontario Wallcovering                  32%        1  210
+   Amazon                                 7%        1  6.95
+   SPARSE (<5%, not fields): Back Ordered 1.0%
+   EMPTY (0 values): Display Name, Purchase Description, Vendor Name, Primary Units Type, Primary Stock Unit, Primary Purchase Unit, Primary Sale Unit, Purchase Price, Preferred Vendor, Kohl's DVS, On Special, On Order
+
+3. WHAT LOOKS LIKE A KEY
+   'Name' - 102 values, 102 distinct, 100% filled, max length 8
+   also unique: 'Description' (102 distinct, e.g. AUTHENTIC GRASSCLOTH MURAL - WATER LILY CHINOISERIE MURAL - MIDNIGHT ON CREAM SISAL - SAMPLE - 8" x 8", AUTHENTIC GRASSCLOTH MURAL - DEEP SEA - ONYX ON CREAM & SILVER SISAL - SAMPLE - 8" x 8")
+   also unique: 'Internal ID' (102 distinct, e.g. 6796, 6795)
+   -> more than one column is unique. Which one the CLIENT calls the
+      item/customer code is not decidable from the file; ask.
+
+4. WHAT MAPS TO eCAT
+   Display Name                     -> LongDesc                   [high]
+       primary catalog name
+   Description                      -> LongDesc                   [high]
+       primary catalog name
+   On Hand                          -> QtyOnHand                  [high]
+   Available                        -> QtyAvailable               [high]
+   On Order                         -> QtyOnPOrder                [high]
+   Back Ordered                     -> QtyOnBackorder             [high]
+   Weight                           -> ShipWeight                 [high]
+       shipping weight
+   Collection                       -> CollectionCodes            [high]
+       taxonomy: whatever string is here becomes the iPad label
+   Name                             -> Name                       [moderate]
+       is an eCat field name, but for another file - not for products.csv. In this file it may hold something else entirely; check the values before trusting the name
+   Base Price                       -> NetPrice or Price_<code>   [moderate]
+       MULTIPLE price columns usually mean multiple price LEVELS, not one NetPrice - decide the level codes before mapping; matched after dropping the 'base' prefix
+   Internal ID                      -> BaseItemCode               [low]
+       ERP surrogate id - usually NOT the code reps search by; confirm against the client-facing item number before using
+   Purchase Description             -> MediumDesc                 [low]
+       a purchasing-side description; may not be customer-facing
+   Vendor Name                      -> LongDesc                   [low]
+       keyword in the header only - confirm with the client before mapping
+   Purchase Price                   -> NetPrice or Price_<code>   [low]
+       keyword in the header only - confirm with the client before mapping
+   1. Tempaper.com Price            -> NetPrice or Price_<code>   [low]
+       keyword in the header only - confirm with the client before mapping
+   Copy SO Descr.                   -> LongDesc                   [low]
+       keyword in the header only - confirm with the client before mapping
+   Weight Units                     -> ShipWeight                 [low]
+       keyword in the header only - confirm with the client before mapping
+   Class                            -> CategoryCodes              [low]
+       keyword in the header only - confirm with the client before mapping
+
+   UNMAPPED SOURCE COLUMNS (37) - client-domain data with no eCat home:
+     Primary Units Type                 0% populated, e.g. 
+     Primary Stock Unit                 0% populated, e.g. 
+     Primary Purchase Unit              0% populated, e.g. 
+     Primary Sale Unit                  0% populated, e.g. 
+     Display in Web Site                100% populated, e.g. No
+     Preferred Vendor                   0% populated, e.g. 
+     2. Trade                           100% populated, e.g. 0, 15, 420
+     4. Wholesale/Casepack              100% populated, e.g. 6, 10, 280
+     5. All Pro Stock                   83% populated, e.g. 6, 239.4, 68.4
+     7. Distributor                     93% populated, e.g. 6, 8, 225
+     Amazon                             7% populated, e.g. 6.95
+     Complimentary Customer             100% populated, e.g. 0
+     Decorator's Best                   46% populated, e.g. 336, 96, 102
+     Kohl's DVS                         0% populated, e.g. 
+     Ontario Wallcovering               32% populated, e.g. 210
+     WALLPAPER BOOK - DROPSHIP          63% populated, e.g. 12, 308, 6
+     WALLPAPER BOOK - TRADE             63% populated, e.g. 12, 448, 0
+     WALLPAPER BOOK - WHOLESALE/CASEPAC 62% populated, e.g. 12, 280, 6
+     3. Drop Ship                       100% populated, e.g. 6, 12.5, 350
+     Income Account                     100% populated, e.g. Sales
+     Asset Account                      100% populated, e.g. Inventory - Fini
+     Expense/COGS Account               100% populated, e.g. Cost of Sales
+     Costing Method                     100% populated, e.g. Average
+     On Special                         0% populated, e.g. 
+     Tax Schedule                       100% populated, e.g. Taxable
+     ... 12 more
+     -> these become custom fields, option sets, or are dropped. That is a
+        decision for the client, not a default.
+
+5. WHAT'S MISSING
+   Every importer-required field for products.csv has a source column.
+
+6. WHAT DOESN'T ADD UP
+   - column 'Display Name' is present but has no values in any row - it is a header, not a field
+   - column 'Purchase Description' is present but has no values in any row - it is a header, not a field
+   - column 'Vendor Name' is present but has no values in any row - it is a header, not a field
+   - column 'Primary Units Type' is present but has no values in any row - it is a header, not a field
+   - column 'Primary Stock Unit' is present but has no values in any row - it is a header, not a field
+   - column 'Primary Purchase Unit' is present but has no values in any row - it is a header, not a field
+   - column 'Primary Sale Unit' is present but has no values in any row - it is a header, not a field
+   - column 'Purchase Price' is present but has no values in any row - it is a header, not a field
+   - column 'Preferred Vendor' is present but has no values in any row - it is a header, not a field
+   - column "Kohl's DVS" is present but has no values in any row - it is a header, not a field
+   - column 'On Special' is present but has no values in any row - it is a header, not a field
+   - column 'On Order' is present but has no values in any row - it is a header, not a field
+   - column 'Committed' is present but has no values in any row - it is a header, not a field
+   - column 'Back Ordered' is 1.0% populated (1 of 102) - too sparse to treat as a field
+   - column 'Reorder Multiple' is present but has no values in any row - it is a header, not a field
+   - column 'Copy SO Descr.' is present but has no values in any row - it is a header, not a field
+   - column 'Department' is present but has no values in any row - it is a header, not a field
+   - column 'SPS Item Synch' is present but has no values in any row - it is a header, not a field
+   - 1 column(s) have an empty header - they cannot be imported and an unrecognised column is a FATAL import error
+   - columns 'On Hand' and 'Available' hold identical values (57 rows, 22 distinct) - one field under two names, not two fields
+   - columns 'Display in Web Site' and 'Drop Ship Item' hold identical values (102 rows, 1 distinct) - one field under two names, not two fields
+   - columns 'Display in Web Site' and 'Special Order Item' hold identical values (102 rows, 1 distinct) - one field under two names, not two fields
+
+
+==============================================================================
+FILE: /Users/kylorjohnson/Library/Mobile Documents/com~apple~CloudDocs/SuperCat_Simple_Final/02_Implementation/The CopperSmith/Source Data/Master Sheet E+G-Table 1.csv
+==============================================================================
+
+1. WHAT IS THIS
+   919.1 KB on disk
+   format      : .csv (content agrees with the extension)
+   encoding    : utf-8-sig
+   delimiter   : ','
+   header row  : 2 (159 non-empty cells, 157 distinct)
+     row 1 before it: Identity | Taxonomy | Visual / Material | Pricing | Dimensions & Packaging | Electrical / Gas | Comp
+   283 data rows x 162 columns
+   input class : raw - no header matches an eCat field name - needs mapping
+   trying to be: products.csv [low - inference] - client-domain keyword families only (11), NOT eCat header evidence
+
+2. WHAT'S POPULATED
+   162 columns: 131 populated >=5%, 3 sparse (<5%), 28 entirely empty
+   column                               fill distinct  sample
+   SKU                                  100%      283  9WST, 9WSTH, 16WST
+   Parent SKU                           100%       91  WST, WSTH, AC-E
+   Brand Name                           100%        2  The CopperSmith, The CopperSmith Bi
+   Retailer Product Name                100%      272  The CopperSmith 9", The CopperSmith 9", The 
+   UPC                                  100%      263  843411103652, 843411103669, 843411103713
+   Category                             100%        1  Outdoor Lighting
+   Fixture Type                         100%        2  Wall Light, Ceiling Mount
+   Fixture Sub-Type (Additional Filte   100%        9  Sconce, Wildlife F, Flush Mount, Elect, Flus
+   Collection                           100%       48  Turtle Friendly Wa, Arcadia, Biltmore® Antle
+   Power Source                         100%        2  Electric, Gas
+   Material                             100%        2  Copper, Brass
+   Finish Name                          100%        2  Antique Copper, Antique Brass
+   Default Finish                       100%        2  Antique Copper, Antique Brass
+   MSRP/ List Price                     100%      120  216, 306, 359
+   MAP/ IMAP                            100%      120  196, 278, 326
+   Dealer Net                           100%      120  98, 139, 163
+   Distributor Net Pricing              100%      118  #, 184, 222
+   Height (inches)                      100%       89  9, 16, 15.25
+   Width (inches)                       100%       41  5, 8, 10.5
+   Title 20                             100%        1  This product is co
+   Title 24                             100%        1  This decorative fi
+   Prop 65                              100%        1  WARNING: This prod
+   Main Image File Name                 100%      283  9WST, 9WSTH, 16WST
+   Main Image File Link                 100%      280  https://s3.us-west, https://s3.us-west, http
+   Spec Sheet SKU                       100%      283  9WST_Spec, 9WSTH_Spec, 16WST_Spec
+   Spec Sheet URL                       100%      262  https://drive.goog, https://drive.goog, http
+   Short Description                    100%       13  Handcrafted solid , Handcrafted solid , Hand
+   Long Description                     100%       46  These fixtures ele, Arcadia is a lovel, Arca
+   Marketing Copy                       100%      131  Our Turtle Friendl, Our Arcadia lanter, Our 
+   Feature 1                            100%        4  Certified wildlife, Handcrafted from h, Hand
+   Feature 2                            100%        6  Fully shielded, do, Available with ele, Offe
+   Feature 4                            100%        5  Engineered to meet, Mounts and accesso, Mari
+   Feature 5                            100%        8  Electric illuminat, Compatible with st, Soli
+   Feature 6                            100%        5  Ideal for waterfro, Designed to withst, A mo
+   SEO Title                            100%      280  Turtle Friendly Wi, Arcadia 15 Inch El, Arca
+   SEO Description                      100%      130  Handcrafted solid , Handcrafted solid , Hand
+   Search Terms                         100%      264  Turtle Friendly Wi, Arcadia lantern, A, Arca
+   Product Tags                         100%      184  Copper Lanterns, Copper Lanterns, E, Copper 
+   Warranty                             100%        1  https://thecoppers
+   Country of Origin                    100%        1  China
+   ... 91 more populated columns (see --all)
+   SPARSE (<5%, not fields): Heavy Chain Mount 4.9%, Biltmore® Stem Mount 4.2%, Moneo Top Hook 2.1%
+   EMPTY (0 values): Shade Material, Shade Color, MPN, Weight, Package Length, Package Width, Package Height, Hardwired/ Plug-in, Gas Tip / NG Tip, Turtle Friendly, Detailed Product View 3, Detailed Product View 4
+
+3. WHAT LOOKS LIKE A KEY
+   'SKU' - 283 values, 283 distinct, 100% filled, max length 10
+   also unique: 'Spec Sheet SKU' (283 distinct, e.g. 9WST_Spec, 9WSTH_Spec)
+   also unique: 'Main Image File Name' (283 distinct, e.g. 9WST, 9WSTH)
+   also unique: 'Retailer Product Name' (272 distinct, e.g. The CopperSmith 9" Wildlife Friendly Copper Wall Sconce, The CopperSmith 9" Wildlife Friendly Hammered Copper Wall Sconce)
+   -> more than one column is unique. Which one the CLIENT calls the
+      item/customer code is not decidable from the file; ask.
+
+4. WHAT MAPS TO eCAT
+   SKU                              -> BaseItemCode               [high]
+       SKU/part number is the item key
+   UPC                              -> UPCValue                   [high]
+       UPC
+   Category                         -> CategoryCodes              [high]
+       taxonomy: value becomes the iPad label
+   Collection                       -> CollectionCodes            [high]
+       taxonomy: whatever string is here becomes the iPad label
+   Material                         -> Materials                  [high]
+       materials list
+   Weight                           -> ShipWeight                 [high]
+       shipping weight
+   Marketing Copy                   -> ProductStory               [high]
+       stories.csv, not products.csv
+   Main Image File Name             -> ImageFileName              [moderate]
+       must match FTP filenames exactly; no slashes or parentheses; matched after dropping the 'main' prefix
+   Parent SKU                       -> BaseItemCode               [low]
+       keyword in the header only - confirm with the client before mapping
+   Brand Name                       -> LongDesc                   [low]
+       keyword in the header only - confirm with the client before mapping
+   Retailer Product Name            -> LongDesc                   [low]
+       keyword in the header only - confirm with the client before mapping
+   Finish Name                      -> LongDesc                   [low]
+       keyword in the header only - confirm with the client before mapping
+   Default Finish                   -> Finish                     [low]
+       client-domain attribute - eCat has no Finish field; becomes a custom field or an option set, decide which; matched after dropping the 'default' prefix
+   MSRP/ List Price                 -> NetPrice or Price_<code>   [low]
+       keyword in the header only - confirm with the client before mapping
+   MAP/ IMAP                        -> NetPrice or Price_<code>   [low]
+       keyword in the header only - confirm with the client before mapping
+   Dealer Net                       -> NetPrice or Price_<code>   [low]
+       keyword in the header only - confirm with the client before mapping
+   Distributor Net Pricing          -> NetPrice or Price_<code>   [low]
+       keyword in the header only - confirm with the client before mapping
+   Shipping Weight (lbs)            -> ShipWeight                 [low]
+       keyword in the header only - confirm with the client before mapping
+   Main Image File Link             -> ImageFileName              [low]
+       keyword in the header only - confirm with the client before mapping
+   Matte Black Image - BLK          -> ImageFileName              [low]
+       keyword in the header only - confirm with the client before mapping
+   Oil Rubbed Bronze Image -  BRZ   -> ImageFileName              [low]
+       keyword in the header only - confirm with the client before mapping
+   Graphite Image - GRAY            -> ImageFileName              [low]
+       keyword in the header only - confirm with the client before mapping
+   Spec Sheet SKU                   -> BaseItemCode               [low]
+       keyword in the header only - confirm with the client before mapping
+   Short Description                -> LongDesc                   [low]
+       keyword in the header only - confirm with the client before mapping
+   Long Description                 -> LongDesc                   [low]
+       keyword in the header only - confirm with the client before mapping
+   SEO Description                  -> LongDesc                   [low]
+       keyword in the header only - confirm with the client before mapping
+   Replacement SKU                  -> BaseItemCode               [low]
+       keyword in the header only - confirm with the client before mapping
+
+   UNMAPPED SOURCE COLUMNS (132) - client-domain data with no eCat home:
+     Fixture Type                       100% populated, e.g. Wall Light, Ceiling Mount
+     Fixture Sub-Type (Additional Filte 100% populated, e.g. Sconce, Wildlife, Flush Mount, Ele, Fl
+     Primary Genre/ Style               100% populated, e.g. Wildlife Friendl, Traditional, Contemp
+     Power Source                       100% populated, e.g. Electric, Gas
+     Secondary Finish                   90% populated, e.g. Brass
+     Glass Features                     90% populated, e.g. Tempered Glass, N/A
+     Shade Material                     0% populated, e.g. 
+     Shade Color                        0% populated, e.g. 
+     MPN                                0% populated, e.g. 
+     Height (inches)                    100% populated, e.g. 9, 16, 15.25
+     Width (inches)                     100% populated, e.g. 5, 8, 10.5
+     Depth (inches)                     99% populated, e.g. 5, 6, 7.25
+     Extension (inches)                 95% populated, e.g. 5, 6, 7.25
+     Backplate Width  (inches)          74% populated, e.g. 5, 6, 7
+     Backplate Height  (inches)         74% populated, e.g. 9, 16, 12
+     Canopy Width  (inches)             42% populated, e.g. 6, 5.125, 5
+     Canopy Height                      42% populated, e.g. 2, 2.25
+     Package Length                     0% populated, e.g. 
+     Package Width                      0% populated, e.g. 
+     Package Height                     0% populated, e.g. 
+     Bulb Base                          54% populated, e.g. E26, E12
+     Bulb Count                         54% populated, e.g. 1, 2, 3
+     Watts Per Bulb                     54% populated, e.g. 60, 40
+     Total Wattage                      54% populated, e.g. 60, 120, 180
+     Voltage                            54% populated, e.g. 120
+     ... 107 more
+     -> these become custom fields, option sets, or are dropped. That is a
+        decision for the client, not a default.
+
+5. WHAT'S MISSING
+   Every importer-required field for products.csv has a source column.
+
+6. WHAT DOESN'T ADD UP
+   - column 'Shade Material' is present but has no values in any row - it is a header, not a field
+   - column 'Shade Color' is present but has no values in any row - it is a header, not a field
+   - column 'MPN' is present but has no values in any row - it is a header, not a field
+   - column 'Weight' is present but has no values in any row - it is a header, not a field
+   - column 'Package Length' is present but has no values in any row - it is a header, not a field
+   - column 'Package Width' is present but has no values in any row - it is a header, not a field
+   - column 'Package Height' is present but has no values in any row - it is a header, not a field
+   - column 'Hardwired/ Plug-in' is present but has no values in any row - it is a header, not a field
+   - column 'Gas Tip / NG Tip' is present but has no values in any row - it is a header, not a field
+   - column 'Turtle Friendly' is present but has no values in any row - it is a header, not a field
+   - column 'Detailed Product View 3' is present but has no values in any row - it is a header, not a field
+   - column 'Detailed Product View 4' is present but has no values in any row - it is a header, not a field
+   - column 'Detailed Product View 5' is present but has no values in any row - it is a header, not a field
+   - column 'Detailed Product View 6' is present but has no values in any row - it is a header, not a field
+   - column 'Detailed Product View 7' is present but has no values in any row - it is a header, not a field
+   - column 'Installation' is present but has no values in any row - it is a header, not a field
+   - column 'Parts List' is present but has no values in any row - it is a header, not a field
+   - column 'Lifecycle Status' is present but has no values in any row - it is a header, not a field
+   - column 'Replacement SKU' is present but has no values in any row - it is a header, not a field
+   - column 'Weiyan' is present but has no values in any row - it is a header, not a field
+   - column 'Single 12-V Base' is present but has no values in any row - it is a header, not a field
+   - column 'Moneo Top Hook' is 2.1% populated (6 of 283) - too sparse to treat as a field
+   - column 'Heavy Chain Mount' is 4.9% populated (14 of 283) - too sparse to treat as a field
+   - column 'Biltmore® Stem Mount' is 4.2% populated (12 of 283) - too sparse to treat as a field
+   - column 'Pier Mount' is present but has no values in any row - it is a header, not a field
+   - column 'Replacement Glass - RG' is present but has no values in any row - it is a header, not a field
+   - column 'Hammered Replacement Glass - HRG' is present but has no values in any row - it is a header, not a field
+   - column 'Seeded Replacement Glass - SRG' is present but has no values in any row - it is a header, not a field
+   - 3 column(s) have an empty header - they cannot be imported and an unrecognised column is a FATAL import error
+   - columns 'Finish Name' and 'Default Finish' hold identical values (283 rows, 2 distinct) - one field under two names, not two fields
+
+
+==============================================================================
+FILE: /Users/kylorjohnson/Library/Mobile Documents/com~apple~CloudDocs/SuperCat_Simple_Final/02_Implementation/The CopperSmith/Source Data/Parts-Table 1.csv
+==============================================================================
+
+1. WHAT IS THIS
+   18.3 KB on disk
+   format      : .csv (content agrees with the extension)
+   encoding    : utf-8-sig
+   delimiter   : ','
+   header row  : 2 (11 non-empty cells, 11 distinct)
+     row 1 before it: Master Accessory Index 2026 | **DO NOT CHANGE COLUMN HEADERS! DO NOT EDIT CATEGORY NAMES OR PARENT S
+   234 data rows x 28 columns
+   input class : raw - no header matches an eCat field name - needs mapping
+   trying to be: UNDETERMINED [undetermined] - no eCat headers and too few domain keywords
+
+2. WHAT'S POPULATED
+   28 columns: 8 populated >=5%, 0 sparse (<5%), 20 entirely empty
+   column                               fill distinct  sample
+   Accessory SKU                        100%      234  HRG41, HRG42, HRG43
+   Accessory Parent SKU                 100%        1  RG
+   Accessory Name/Desciption            100%       43  Replacement Hammer, Replacement Hammer, Repl
+   Accessory Category                   100%        1  PARTS
+   Accessory Dealer Net                  95%        4  25, 35, 20
+   Accessory MAP                         95%        4  50, 70, 40
+   Accessory MSRP                        95%        4  55, 77, 44
+   NOTES                                  5%        1  Price not listed i
+   EMPTY (0 values): Accessory GTIN, Accessory Image Link, Accessory Application Li, (blank header), (blank header), (blank header), (blank header), (blank header), (blank header), (blank header), (blank header), (blank header)
+
+3. WHAT LOOKS LIKE A KEY
+   'Accessory SKU' - 234 values, 234 distinct, 100% filled, max length 13
+
+4. WHAT MAPS TO eCAT
+   Accessory SKU                    -> BaseItemCode               [moderate]
+       SKU/part number is the item key; matched after dropping the 'accessory' prefix
+   Accessory Category               -> CategoryCodes              [moderate]
+       taxonomy: value becomes the iPad label; matched after dropping the 'accessory' prefix
+   Accessory MAP                    -> Price_<code>               [moderate]
+       IMAP/MAP is a distinct price level, not NetPrice; matched after dropping the 'accessory' prefix
+   Accessory MSRP                   -> NetPrice or Price_<code>   [moderate]
+       MULTIPLE price columns usually mean multiple price LEVELS, not one NetPrice - decide the level codes before mapping; matched after dropping the 'accessory' prefix
+   Accessory Parent SKU             -> BaseItemCode               [low]
+       keyword in the header only - confirm with the client before mapping
+   Accessory Name/Desciption        -> LongDesc                   [low]
+       keyword in the header only - confirm with the client before mapping
+   Accessory GTIN                   -> UPCValue                   [low]
+       keyword in the header only - confirm with the client before mapping
+   Accessory Dealer Net             -> NetPrice or Price_<code>   [low]
+       keyword in the header only - confirm with the client before mapping
+   Accessory Image Link             -> ImageFileName              [low]
+       keyword in the header only - confirm with the client before mapping
+
+   UNMAPPED SOURCE COLUMNS (2) - client-domain data with no eCat home:
+     NOTES                              5% populated, e.g. Price not listed
+     Accessory Application Link         0% populated, e.g. 
+     -> these become custom fields, option sets, or are dropped. That is a
+        decision for the client, not a default.
+
+5. WHAT'S MISSING
+   Cannot list required fields: the target eCat file is undetermined.
+
+6. WHAT DOESN'T ADD UP
+   - column 'Accessory GTIN' is present but has no values in any row - it is a header, not a field
+   - column 'Accessory Image Link' is present but has no values in any row - it is a header, not a field
+   - column 'Accessory Application Link' is present but has no values in any row - it is a header, not a field
+   - 17 column(s) have an empty header - they cannot be imported and an unrecognised column is a FATAL import error
+

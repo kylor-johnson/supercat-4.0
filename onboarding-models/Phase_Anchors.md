@@ -33,7 +33,7 @@ Resolution order — **the first non-empty SOURCE wins outright; within that one
 
 1. Explicit per-client override in `onboarding-models/overrides.yml § client_domains` (a committed map of shortname → domain list). If listed, use that list verbatim and stop — it is authoritative.
 2. `organizations.order_email_recipient` domain, if set and not a placeholder.
-3. HubSpot company primary domain for this shortname (when integrated).
+3. ~~HubSpot company primary domain~~ — **REMOVED 2026-08-18.** HubSpot resolves 3 of 7 clients (`drf`/`libco`/`tcs` have no `hubspot_company_id` in `insightful_product.org_master`; `leg`'s points at a company row that no longer exists). Postgres alone resolves 7 of 7 via steps 2 and 4. Do not reintroduce it.
 4. **Fallback only:** admin `org_users.users.email` domains, EXCLUDING the personal-email providers below. If the fallback returns ≥2 distinct non-personal domains, emit `MULTI_DOMAIN_FALLBACK_UNVERIFIED` (`Flags_and_Signals.md § B`) to surface the second domain for standup verification; do not silently absorb it. Once a second domain is confirmed a real parent/DBA, add it to `overrides.yml § client_domains` so source 1 short-circuits the fallback on future runs and the flag stops recurring.
 
 **Personal-email providers — never treated as client_domains, regardless of source:**
@@ -62,6 +62,58 @@ gmail.com, yahoo.com, outlook.com, icloud.com, hotmail.com, me.com, aol.com, fus
 | 5 | Reps Signed In | Are reps (in custom user_types) actually logging into the iPad? |
 | 6 | Admin Training | Has the admin been trained, with ongoing-ops covered? |
 | 7 | Go-Live (terminal) | Has the formal handoff to support happened, with ongoing client activity? |
+
+## Counting HelpScout threads (v3.6, 2026-08-18)
+
+Every rule that counts threads must apply both of these first. They were added because
+TCD's Phase 7 clause 4 fired at **100% non-Kylor on a denominator of 2** — a single Kyla
+reply satisfying a rule meant to detect a support handoff.
+
+**1. Deduplicate tickets.** The same conversation is captured under several ticket
+numbers. For TCD, **21 of 31 tickets collapse to 9 distinct conversations** — worst case
+"terracotta onboarding kickoff follow ups" exists as 13421, 13448 and 14280 across 69
+threads. Collapse on the subject with a leading `re:` / `fwd:` / `fw:` stripped and
+lowercased, before counting anything.
+
+This matters beyond arithmetic: one of TCD's duplicated subjects is
+`"welcome to supercat support, next steps: admin training"` — the Phase 6 qualitative
+trigger regex, counted twice from one email.
+
+**2. Apply a volume floor.** A ratio over fewer than 5 deduplicated threads is not a
+signal. Emit `INSUFFICIENT_THREAD_VOLUME` naming the actual count rather than firing or
+silently failing the clause.
+
+## Phase regression — the at-risk state (v3.6, 2026-08-18)
+
+**A phase is not a ratchet.** Anchors are evaluated against a rolling window, so a
+client that stops sending files can stop satisfying a clause it previously satisfied.
+The framework must say so rather than silently holding the old phase or quietly
+reporting a lower one.
+
+Rule:
+
+- Record the highest phase ever reached (`phase_high_water`) alongside the phase whose
+  anchor passes today (`phase_current`).
+- If `phase_current < phase_high_water`, report
+  **`Phase <high_water> — AT RISK (regressed to <current>)`** and raise
+  `PHASE_REGRESSED` naming the clause that stopped passing and the date it last passed.
+- Never report a bare lower phase. "TCD moved from 3 to 2" reads as a data error;
+  "TCD is at risk, Phase 3 clause 1 has failed since 2026-02-20" reads as the escalation
+  it actually is.
+
+**Why this exists — the verified case.** TCD's `core_types_60d` (Phase 3 clause 1,
+which needs >=2) ran: 3 on 2026-01-15, 2 on 2026-02-01, **1 through all of March 2026**,
+back to 2 on 2026-04-01. That is a real failure of a real clause for roughly six weeks.
+
+Independently, a blind read of the same client's Fathom + HelpScout record — with no
+access to these metrics — placed a near-churn at 2025-12-27 to 2026-04-19, evidenced by
+the client writing that eCat "feels less like a mature commercial product and more like
+an early-stage amateur implementation." **Two methods with no shared evidence converged
+on the same window.** The signal was present in the data the whole time and v3.5 had no
+way to express it. See `ground-truth/SCORECARD.md` § D1.
+
+An at-risk client is the single most actionable output this framework can produce.
+Do not let it be the one thing it cannot say.
 
 ## Phase 1 — Discovery / Kickoff
 
@@ -193,7 +245,7 @@ All three subtypes count toward the Phase 5 anchor. The breakdown is reported in
 - HelpScout thread where Kylor's reply CCs `kyla@supercatsolutions.com` or `support@supercatsolutions.com` AND thread body matches `(?i)admin training|handoff|primary point of contact|now that your reps`.
 - Fathom meeting in last 60d with title matching `(?i)admin training|handoff` AND `external_domains` intersects `client_domains[]`.
 - HelpScout thread containing a URL matching `supercat\.supercatsolutions\.com/.*onboarding/|knowledgebase/admin-console` sent FROM a SuperCat author TO a client domain (admin training HTML / llms.txt being shared = handoff signal).
-- **Trigger #4 — Support handoff signal:** ≥40% of SuperCat-authored HelpScout threads in the last 30 days are by non-Kylor authors (i.e. non-`kylor@` `@supercatsolutions.com` addresses such as `kyla@`, `support@`). This is the load-bearing post-handoff author-shift signal and is robust to Kylor PTO (it's Kyla-presence-based, not Kylor-absence-based). (Replaces the previous "most recent author is non-Kylor" test, which was too sensitive to a single late reply resetting the signal.)
+- **Trigger #4 — Support handoff signal:** ≥40% of SuperCat-authored HelpScout threads in the last 30 days are by non-Kylor authors, **and at least 5 such threads exist after deduplication** (see § Counting HelpScout threads). Below the floor, emit `INSUFFICIENT_THREAD_VOLUME` and do not fire the trigger (i.e. non-`kylor@` `@supercatsolutions.com` addresses such as `kyla@`, `support@`). This is the load-bearing post-handoff author-shift signal and is robust to Kylor PTO (it's Kyla-presence-based, not Kylor-absence-based). (Replaces the previous "most recent author is non-Kylor" test, which was too sensitive to a single late reply resetting the signal.)
 
 > **Email-engagement fallback for meeting-dependent signals:** If 0 Fathom meetings exist in the last 90 days but ≥5 HelpScout threads from the client exist in the last 30 days, treat email engagement as equivalent to call engagement for Phase 6 qualitative evaluation. Some clients (e.g., PEBL) interact exclusively via email.
 
@@ -220,8 +272,8 @@ All three subtypes count toward the Phase 5 anchor. The breakdown is reported in
 
 1. **Phase 6 done** (both qual and quant readiness pass).
 2. **≥3 reps active in last 30d** (per the Phase 5 rep definition, any subtype).
-3. **≥1 real customer order in last 90d** — a submitted order in `orders` whose `lower(trim(bill_to_company_name))` matches an existing `customers` row for this org (`lower(trim(customers.company_name))`) AND does NOT match the self-name set (`[organizations.name]` ∪ brand/order-email root ∪ `client_self_names[]`). Requiring a positive match to a real customer is the load-bearing signal; mere mismatch against `organizations.name` is NOT sufficient (it fails unsafe when brand ≠ legal name — see PEBL precedent). Submitter admin or non-admin both fine. **Failure mode is recoverable:** an unmatched order under-advances the client (recoverable next run) rather than false-advancing them to terminal Go-Live.
-4. **Kyla-presence author dominance in last 30d** — ≥40% of SuperCat-authored HelpScout threads in the last 30 days are by non-Kylor authors (non-`kylor@` `@supercatsolutions.com` addresses). (Same rule as the Phase 6 4th qualitative trigger; reused here because Phase 7 also wants to see ongoing non-Kylor SuperCat correspondence. Replaces the previous "most recent author is non-Kylor" test.)
+3. **≥1 real customer order in last 90d** — a submitted order in `orders` whose `lower(trim(bill_to_company_name))` matches an existing `customers` row for this org (`lower(trim(customers.name))` — **the column is `name`; there is no `company_name` on `customers`. Verified against information_schema 2026-08-18; the previous wording threw UndefinedColumn on every Phase 7 evaluation**) AND does NOT match the self-name set (`[organizations.name]` ∪ brand/order-email root ∪ `client_self_names[]`). Requiring a positive match to a real customer is the load-bearing signal; mere mismatch against `organizations.name` is NOT sufficient (it fails unsafe when brand ≠ legal name — see PEBL precedent). Submitter admin or non-admin both fine. **Failure mode is recoverable:** an unmatched order under-advances the client (recoverable next run) rather than false-advancing them to terminal Go-Live.
+4. **Kyla-presence author dominance in last 30d** — ≥40% of SuperCat-authored HelpScout threads in the last 30 days are by non-Kylor authors, **with a minimum of 5 deduplicated threads** (see § Counting HelpScout threads); below that, the clause does not fire (non-`kylor@` `@supercatsolutions.com` addresses). (Same rule as the Phase 6 4th qualitative trigger; reused here because Phase 7 also wants to see ongoing non-Kylor SuperCat correspondence. Replaces the previous "most recent author is non-Kylor" test.)
 
 `organizations.properties->>'status' = 'active'` is **not** a Phase 7 anchor clause. It is the cohort-exclusion mechanism (a status flip removes the org from auto-cohort and from further weekly assessment) — but it is operator-set and noisy. Verified live: MALI has `status='active'` while being stalled at Phase 6 (`order_email_recipient` empty, 0 reps migrated). If status were a clause, MALI would falsely advance to Phase 7 on {Kyla-presence + status} = 2-of-5. Status is treated as a routing signal only.
 

@@ -1,0 +1,269 @@
+#!/usr/bin/env python3
+"""
+Emit RAWSTATE_<sn>.json — layer L1 of the ground-truth method.
+
+STRICTLY RAW. Counts and rows from the live database, nothing derived, no phase
+opinion, no interpretation. This is the anchor every other layer is checked
+against, so anything that looks like a judgement does not belong in it.
+
+Five consolidated statements instead of the collector's thirteen, because L1 is
+usually run by hand through the MCP (no direct DB credentials exist — see
+RECONCILIATION.md § 10).
+
+The import-history statement parses the YAML blocks **in Postgres**. tcd alone
+holds 1.1M characters of import_events; pulling that through an MCP round trip
+to parse client-side is not viable. `regexp_split_to_table(data, E'\\n- - ')`
+splits on the top-level block marker only — nested entries are indented
+(`\\n    - - :warning`) and so never match. Verified against
+collector.py::split_import_blocks, same results.
+
+Usage:
+    ./rawstate.py --org tcd --emit-sql              # 5 statements to run via MCP
+    ./rawstate.py --org tcd --from-results r.json --out RAWSTATE_tcd.json
+    DATABASE_URL=... ./rawstate.py --org tcd --out RAWSTATE_tcd.json
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import re
+import sys
+from datetime import datetime, timezone, date
+
+# Org ids are NOT hardcoded. The previous map carried libco = 279, an id that
+# exists in no organisation, so every libco statement returned 0 rows and read as
+# "libco has no products, no custom fields" rather than as a lookup failure. That
+# is the "never print a zero you have not verified" failure, in the instrument
+# built to catch it. (libco is 288; verified 2026-09-04.)
+#
+# The fix is structural rather than a corrected constant: every statement now
+# resolves the org by SHORTNAME at runtime, so there is no id to drift. A wrong
+# shortname yields no rows from the identity statement, which is visible - unlike
+# a wrong id, which yields zeros everywhere.
+
+SHORTNAME_RE = re.compile(r"^[a-z0-9_-]{1,32}$")
+
+
+def org_ref(shortname: str) -> str:
+    """SQL expression resolving a shortname to an organization id.
+
+    Substituted where an org id literal used to be. Postgres folds this to a
+    single lookup; correctness matters more than the microsecond.
+    """
+    if not SHORTNAME_RE.match(shortname):
+        raise SystemExit("refusing unsafe shortname: %r" % shortname)
+    return "(SELECT id FROM organizations WHERE shortname = '%s')" % shortname
+
+# --------------------------------------------------------------- 1. identity
+
+SQL_ORG = """
+SELECT id, shortname, name, created_at, properties->>'status' AS status,
+       order_email_recipient,
+       COALESCE(send_order_email_on_submit,false)  AS send_order_email_on_submit,
+       COALESCE(product_synch_requires_photo,false) AS product_synch_requires_photo,
+       -- import_active omitted: true for 0 of 257 orgs (SCORECARD.md D6)
+       (properties->>'configured_item_number_builder') IS NOT NULL AS has_sku_builder,
+       COALESCE(imports_options,false)             AS imports_options
+FROM organizations WHERE id = {org_id}
+"""
+
+# ---------------------------------------------------------------- 2. counts
+
+SQL_COUNTS = """
+SELECT
+  (SELECT count(*) FILTER (WHERE NOT deleted) FROM products WHERE organization_id={o})                      AS active_products,
+  (SELECT count(*) FILTER (WHERE NOT deleted AND image_exists) FROM products WHERE organization_id={o})     AS products_with_images,
+  (SELECT count(*) FILTER (WHERE NOT deleted AND NOT COALESCE(hideable,false))
+     FROM products WHERE organization_id={o})                                                               AS visible_products,
+  (SELECT count(*) FILTER (WHERE NOT deleted AND NOT COALESCE(hideable,false)
+     AND (image_exists OR NOT (SELECT COALESCE(product_synch_requires_photo,false)
+                               FROM organizations WHERE id={o})))
+     FROM products WHERE organization_id={o})                                                               AS ipad_visible_products,
+  (SELECT count(*) FROM customers WHERE organization_id={o})                                                AS customers,
+  (SELECT count(*) FROM customers c WHERE c.organization_id={o}
+     AND c.default_price_code IS NOT NULL AND btrim(c.default_price_code) <> ''
+     AND NOT EXISTS (SELECT 1 FROM price_levels pl WHERE pl.organization_id=c.organization_id
+                     AND lower(btrim(pl.code))=lower(btrim(c.default_price_code))))                         AS customers_unresolved_dpc,
+  -- D11: '[]' is the empty value, not '' -- see queries.py
+  (SELECT count(*) FROM customers WHERE organization_id={o}
+     AND (territory_codes IS NULL OR btrim(territory_codes) IN ('','[]','{{}}')))                           AS customers_no_territory,
+  (SELECT count(*) FROM options WHERE organization_id={o})                                                  AS options,
+  (SELECT count(*) FROM option_groups WHERE organization_id={o})                                            AS option_groups,
+  (SELECT count(*) FROM inventories WHERE organization_id={o})                                              AS inventory_rows,
+  (SELECT max(updated_at) FROM inventories WHERE organization_id={o})                                       AS inventory_last_updated,
+  (SELECT count(*) FROM price_levels WHERE organization_id={o})                                             AS price_levels,
+  (SELECT count(*) FROM user_types WHERE organization_id={o})                                               AS user_types,
+  (SELECT count(*) FROM user_types WHERE organization_id={o} AND name <> 'DefaultUserGroup')                AS user_types_beyond_default,
+  (SELECT count(*) FROM ipad_reports WHERE organization_id={o})                                             AS ipad_reports,
+  -- D15: is_submitted is NULLABLE; a bare `AND is_submitted` drops NULL rows.
+  -- mali's only order row has is_submitted NULL, so it reported 0 orders.
+  (SELECT count(*) FROM orders WHERE organization_id={o})                                                   AS order_rows_total,
+  (SELECT count(*) FROM orders WHERE organization_id={o} AND is_submitted IS NULL)                          AS order_rows_unsubmitted_null,
+  (SELECT count(*) FROM orders WHERE organization_id={o} AND COALESCE(is_submitted,false))                  AS submitted_orders,
+  (SELECT count(DISTINCT org_user_id) FROM orders WHERE organization_id={o}
+     AND COALESCE(is_submitted,false))                                                                      AS distinct_ordering_reps,
+  (SELECT count(*) FROM smart_stacks WHERE organization_id={o})                                             AS smart_stacks
+"""
+
+# ------------------------------------------------------- 3. price levels + reps
+
+SQL_PRICE_LEVELS = """
+SELECT code, name, pl_type, factor, COALESCE(hidden,false) AS hidden
+FROM price_levels WHERE organization_id = {o} ORDER BY position NULLS LAST, code
+"""
+
+SQL_REPS = """
+SELECT u.email, lower(split_part(u.email,'@',2)) AS domain, ut.name AS user_type,
+       ou.last_ipad_login_at, ou.last_ecat_online_login_at, ou.territory_codes
+FROM org_users ou
+JOIN users u ON u.id = ou.user_id
+LEFT JOIN user_types ut ON ut.id = ou.user_type_id
+WHERE ou.organization_id = {o}
+  AND NOT COALESCE(ou.is_admin,false)
+  AND COALESCE(ut.name,'') <> 'DefaultUserGroup'
+  AND u.email NOT LIKE '%@supercatsolutions.com'
+  AND NOT COALESCE(ou.disabled,false)
+ORDER BY ou.last_ipad_login_at DESC NULLS LAST
+"""
+
+# ----------------------------------------------- 4. import history, parsed in SQL
+
+SQL_IMPORT_HISTORY = """
+WITH blocks AS (
+  SELECT e.id, e.created_at,
+         (regexp_match(chunk, '^([A-Za-z][A-Za-z ]*)'))[1] AS block_type,
+         CASE WHEN chunk ILIKE '%:fatal%'   THEN 'fatal'
+              WHEN chunk ILIKE '%:error%'   THEN 'error'
+              WHEN chunk ILIKE '%:warning%' THEN 'warning'
+              ELSE 'clean' END AS tier
+  FROM (SELECT id, created_at, data FROM import_events WHERE organization_id = {o}) e,
+       regexp_split_to_table(e.data, E'\\n- - ') AS chunk
+  WHERE chunk NOT LIKE '---%'
+)
+SELECT block_type, created_at, tier
+FROM blocks
+WHERE block_type IS NOT NULL
+  AND block_type NOT IN ('Images','Option Images')   -- 47% of events; drown the rest
+ORDER BY created_at
+"""
+
+# ---------------------------------------------------- 5. orders vs real customers
+
+SQL_ORDERS = """
+SELECT o.order_number, o.submit_date, o.bill_to_company_name, o.total,
+       EXISTS (SELECT 1 FROM customers c
+               WHERE c.organization_id = o.organization_id
+                 AND lower(btrim(c.name)) = lower(btrim(o.bill_to_company_name))
+              ) AS matches_real_customer
+FROM orders o
+WHERE o.organization_id = {o} AND COALESCE(o.is_submitted,false)
+ORDER BY o.submit_date
+"""
+
+STATEMENTS = (
+    ("org",            SQL_ORG),
+    ("counts",         SQL_COUNTS),
+    ("price_levels",   SQL_PRICE_LEVELS),
+    ("reps",           SQL_REPS),
+    ("import_history", SQL_IMPORT_HISTORY),
+    ("orders",         SQL_ORDERS),
+)
+
+
+def _jsonable(o):
+    if isinstance(o, (datetime, date)):
+        return o.isoformat()
+    if isinstance(o, dict):
+        return {k: _jsonable(v) for k, v in o.items()}
+    if isinstance(o, (list, tuple)):
+        return [_jsonable(v) for v in o]
+    return o
+
+
+def render(sql: str, org_id: str) -> str:
+    return sql.format(o=org_id, org_id=org_id).strip()
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser(description=__doc__,
+                                 formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--org", required=True,
+                    help="org shortname, e.g. leg / libco / mer")
+    ap.add_argument("--emit-sql", action="store_true")
+    ap.add_argument("--from-results", help='JSON {"<key>": [rows...]}')
+    ap.add_argument("--out")
+    args = ap.parse_args()
+
+    org_id = org_ref(args.org)
+
+    if args.emit_sql:
+        print(json.dumps({
+            "org": args.org, "org_ref": org_id,
+            "instructions": ("Run each read-only through the supercat-postgres-vpn MCP. "
+                             "Save {\"<key>\": <rows>} to results.json. A statement you "
+                             "cannot run must be recorded as "
+                             "{\"status\":\"NOT_CAPTURED\",\"reason\":\"...\"} — never "
+                             "omitted, never zeroed."),
+            "statements": [{"key": k, "sql": render(s, org_id)} for k, s in STATEMENTS],
+        }, indent=2))
+        return 0
+
+    if args.from_results:
+        with open(args.from_results) as f:
+            res = json.load(f)
+    elif os.environ.get("DATABASE_URL"):
+        import psycopg2, psycopg2.extras
+        conn = psycopg2.connect(os.environ["DATABASE_URL"])
+        conn.set_session(readonly=True, autocommit=True)
+        res = {}
+        for k, s in STATEMENTS:
+            with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+                cur.execute(render(s, org_id))
+                res[k] = [dict(r) for r in cur.fetchall()]
+        conn.close()
+    else:
+        sys.exit("Need --emit-sql, --from-results, or DATABASE_URL.")
+
+    missing = [k for k, _ in STATEMENTS if k not in res]
+    not_captured = [
+        {"key": k, "reason": res[k].get("reason", "unspecified")}
+        for k, _ in STATEMENTS
+        if isinstance(res.get(k), dict) and res[k].get("status") == "NOT_CAPTURED"
+    ]
+
+    out = {
+        "layer": "L1_RAW_CURRENT_STATE",
+        "warning": ("Raw counts only. No interpretation, no phase assignment. "
+                    "Reflects captured_at, not any historical date."),
+        "captured_at": datetime.now(timezone.utc).isoformat(),
+        "org": args.org,
+        "org_id": org_id,
+        "data": _jsonable({k: res.get(k) for k, _ in STATEMENTS}),
+        "completeness": {
+            "statements_expected": len(STATEMENTS),
+            "statements_captured": len(STATEMENTS) - len(missing) - len(not_captured),
+            "missing": missing,
+            "not_captured": not_captured,
+        },
+    }
+
+    payload = json.dumps(out, indent=2, default=str)
+    if args.out:
+        with open(args.out, "w") as f:
+            f.write(payload)
+        print(f"  -> {args.out}", file=sys.stderr)
+    else:
+        print(payload)
+
+    c = out["completeness"]
+    print(f"  {args.org}: {c['statements_captured']}/{c['statements_expected']} statements",
+          file=sys.stderr)
+    for m in missing:
+        print(f"      MISSING {m}", file=sys.stderr)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
