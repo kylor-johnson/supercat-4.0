@@ -1,0 +1,952 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>SuperCat DS — Data table (.kdt) validation</title>
+
+<link rel="stylesheet" href="../tokens/index.css?v=12" />
+<link rel="stylesheet" href="../../nav/marketing-nav.css?v=15"/>
+<script src="../../nav/marketing-nav.js?v=13" defer></script>
+<link rel="stylesheet" href="./button.css?v=68" />
+<link rel="stylesheet" href="./check.css?v=14" />
+<link rel="stylesheet" href="./input.css?v=15" />
+<link rel="stylesheet" href="./table.css?v=6" />
+
+<style>
+  html, body { margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--surface-page);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Editorial wrap, matching button.html / forms.html / icon.html */
+  .wrap {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: clamp(56px, 9vw, 120px) clamp(20px, 4vw, 56px);
+  }
+
+  /* Eyebrow ribbon */
+  .lede {
+    display: flex; align-items: center; gap: var(--space-3);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-widest);
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin: 0 0 var(--space-6);
+  }
+  .lede .dot {
+    width: 7px; height: 7px;
+    border-radius: var(--radius-full);
+    background: var(--color-crimson);
+    animation: lede-dot-pulse 2200ms cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  }
+  @keyframes lede-dot-pulse {
+    0%   { box-shadow: 0 0 0 0 color-mix(in oklch, var(--color-crimson) 45%, transparent); }
+    70%  { box-shadow: 0 0 0 8px color-mix(in oklch, var(--color-crimson) 0%, transparent); }
+    100% { box-shadow: 0 0 0 8px color-mix(in oklch, var(--color-crimson) 0%, transparent); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .lede .dot { animation: none; }
+  }
+
+  /* H1 — big editorial title with mono chip */
+  h1 {
+    margin: 0 0 var(--space-3);
+    font-size: clamp(34px, 5vw, 56px);
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-tightest);
+    font-weight: var(--weight-medium);
+  }
+  h1 code {
+    font-family: var(--font-mono);
+    font-size: 0.34em;
+    color: var(--text-muted);
+    letter-spacing: 0.06em;
+    margin-left: var(--space-3);
+    vertical-align: middle;
+    font-weight: var(--weight-regular);
+  }
+
+  .subhead {
+    font-family: var(--font-sans);
+    font-size: var(--text-lg);
+    line-height: var(--leading-relaxed);
+    color: var(--text-body);
+    max-width: 68ch;
+    margin: 0 0 var(--space-16);
+  }
+  .subhead em {
+    font-style: normal;
+    color: var(--text-muted);
+  }
+
+  /* Section index — dashed horizontal rules between sections */
+  section {
+    padding-top: var(--space-20);
+    margin-top: var(--space-12);
+    border-top: 1px dashed var(--border-subtle);
+  }
+  section:first-of-type {
+    padding-top: 0;
+    margin-top: 0;
+    border-top: 0;
+  }
+
+  /* Section heads — chapter index pattern */
+  .chap {
+    display: grid;
+    grid-template-columns: 56px 1fr;
+    gap: var(--space-4);
+    align-items: baseline;
+    margin: 0 0 var(--space-3);
+  }
+  .chap .ix {
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-widest);
+    text-transform: uppercase;
+    color: var(--text-faint);
+  }
+  .chap h2 {
+    margin: 0;
+    font-family: var(--font-sans);
+    font-size: var(--text-2xl);
+    line-height: var(--leading-snug);
+    letter-spacing: var(--tracking-tighter);
+    font-weight: var(--weight-medium);
+    color: var(--text-primary);
+  }
+  .chap h2 em {
+    font-style: normal;
+    color: var(--text-muted);
+  }
+
+  .note {
+    margin: 0 0 var(--space-8) 60px;
+    max-width: 70ch;
+    font-size: var(--text-sm);
+    line-height: var(--leading-relaxed);
+    color: var(--text-body);
+  }
+  .note + .note { margin-top: calc(var(--space-4) * -1); }
+  code.tk {
+    font-family: var(--font-mono);
+    font-size: 0.92em;
+    color: var(--text-strong);
+    letter-spacing: -0.005em;
+  }
+
+  /* Demo plate — quiet eyebrow + a single hairline above the table.
+     The TABLE is the visible frame. No boxes-within-boxes. */
+  .plate {
+    margin-left: 60px;
+  }
+  .plate-head {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    padding-bottom: var(--space-3);
+    border-bottom: 1px solid var(--border-default);
+    margin-bottom: var(--space-3);
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    letter-spacing: var(--tracking-widest);
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .plate-head .crumb { color: var(--text-strong); font-weight: var(--weight-semibold); }
+  .plate-head .meta { margin-left: auto; color: var(--text-faint); }
+  .plate + .plate { margin-top: var(--space-10); }
+
+  /* TOC chips */
+  .toc {
+    display: flex; flex-wrap: wrap; gap: var(--space-2);
+    margin-bottom: var(--space-20);
+  }
+  .toc a {
+    display: inline-flex; align-items: center;
+    height: 30px;
+    padding: 0 var(--space-4);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-pill);
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    letter-spacing: var(--tracking-wider);
+    text-transform: uppercase;
+    color: var(--text-body);
+    text-decoration: none;
+    transition: color .15s var(--ease-out), border-color .15s var(--ease-out);
+  }
+  .toc a:hover { color: var(--text-primary); border-color: var(--border-strong); }
+
+  .toolbar {
+    position: fixed; top: var(--space-4); right: var(--space-4); z-index: 100;
+    display: flex; gap: var(--space-2);
+  }
+
+  /* When a table sits directly on the page (no card wrap), still
+     give it a hairline top so the head doesn't float orphaned. */
+  .plate > .kdt-wrap:not(.kdt-card) {
+    border-top: 1px solid var(--border-default);
+  }
+
+</style>
+</head>
+<body>
+<sc-marketing-nav></sc-marketing-nav>
+
+<div class="toolbar">
+  <button class="kb kb-sm kb-secondary"
+          onclick="document.documentElement.dataset.theme = document.documentElement.dataset.theme === 'dark' ? '' : 'dark'">
+    Toggle theme
+  </button>
+</div>
+
+<!-- ─ inline icon snippets (defined as JS const for terseness in markup) ─ -->
+<!--  kebab  — three filled dots (vertical), used for row-actions
+       chev-l — chevron left,  used for pager Prev
+       chev-r — chevron right, used for pager Next
+       The kebab uses fill:currentColor + stroke:none to override .kb svg
+       defaults (which would otherwise outline the circles). -->
+<style>
+  /* Kebab: override .kb svg defaults (stroke:currentColor; fill:none) */
+  .kb .kebab,
+  .kb .kebab circle { stroke: none; fill: currentColor; }
+  .kb .kebab { width: 14px; height: 14px; }
+</style>
+
+
+<div class="wrap">
+
+  <p class="lede">
+    <span class="dot" aria-hidden="true"></span>
+    SuperCat Design System · Primitives · iPad-grade
+  </p>
+
+  <h1>Data table <code>.kdt</code></h1>
+
+  <p class="subhead">
+    A framework-agnostic data table that reads like editorial typography.
+    Hairlines, tabular numerals, restraint. Default density sits at 52&nbsp;px
+    — premium and iPad-friendly. <em>Hover and selected both lift the row
+    a half-step toward paper. Selection is signaled by the checked chip in
+    the first column. No row ever turns pink, no crimson chrome anywhere.</em>
+  </p>
+
+  <div class="toc">
+    <a href="#default">01 · Default</a>
+    <a href="#densities">02 · Densities</a>
+    <a href="#surfaces">03 · Surfaces</a>
+    <a href="#status">04 · Status pills</a>
+    <a href="#sticky">05 · Sticky head &amp; first column</a>
+    <a href="#sort">06 · Sortable</a>
+    <a href="#selection">07 · Selection &amp; bulk</a>
+    <a href="#empty">08 · Empty state</a>
+    <a href="#loading">09 · Loading</a>
+    <a href="#stack">10 · Responsive stack</a>
+  </div>
+
+
+  <!-- ─────────────────────────────────────────────────────────── DEFAULT -->
+  <section id="default">
+    <div class="chap">
+      <span class="ix">01</span>
+      <h2>Orders table — <em>the new shape</em></h2>
+    </div>
+    <p class="note">
+      Direct replacement for the current Orders screen. Order&nbsp;# is body
+      text, not a link — that's an in-cell affordance, not a brand moment.
+      Customer names hold a single line; addresses fall back to a whispered
+      em-dash when empty (no orphan commas). Timestamps are tabular mono so
+      the column scans without jitter.
+    </p>
+
+    <div class="plate">
+      <div class="plate-head">
+        <span class="crumb">Opame Collective · Orders</span>
+        <span class="meta">10 of 1,287 · iPad-grade 52&nbsp;px</span>
+      </div>
+
+      <div class="kdt-wrap kdt-card kdt-sticky-head">
+        <table class="kdt">
+          <thead>
+            <tr>
+              <th class="kdt-check">
+                <label class="kf-check kf-sm">
+                  <input type="checkbox" aria-label="Select all rows"/>
+                  <span class="kf-check-box"></span>
+                </label>
+              </th>
+              <th>Order&nbsp;#</th>
+              <th>Source</th>
+              <th>Internal ID</th>
+              <th>Submitted</th>
+              <th>Customer</th>
+              <th>Address</th>
+              <th>Status</th>
+              <th class="kdt-num">Total</th>
+              <th class="kdt-actions" aria-label="Row actions"></th>
+            </tr>
+          </thead>
+          <tbody>
+
+            <tr>
+              <td class="kdt-check"><label class="kf-check kf-sm"><input type="checkbox" aria-label="Select row"/><span class="kf-check-box"></span></label></td>
+              <td class="kdt-mono">136131-112625-10</td>
+              <td class="kdt-soft">iPad</td>
+              <td class="kdt-mono kdt-soft">1586036</td>
+              <td class="kdt-mono">2025-11-26 · 14:39</td>
+              <td>Brent Sanders</td>
+              <td class="kdt-soft">Greensboro, NC</td>
+              <td class="kdt-status">
+                <span class="kdt-pill kdt-pill-success">
+                  <span class="kdt-pill-dot" aria-hidden="true"></span> Confirmed
+                </span>
+              </td>
+              <td class="kdt-num">$12,480.00</td>
+              <td class="kdt-actions">
+                <button class="kb kb-sm kb-ghost kb-icon kdt-act" aria-label="Row actions" aria-haspopup="menu">
+                  <svg class="kebab" viewBox="0 0 14 14"><circle cx="7" cy="2" r="1.5"/><circle cx="7" cy="7" r="1.5"/><circle cx="7" cy="12" r="1.5"/></svg>
+                </button>
+              </td>
+            </tr>
+
+            <tr>
+              <td class="kdt-check"><label class="kf-check kf-sm"><input type="checkbox" aria-label="Select row"/><span class="kf-check-box"></span></label></td>
+              <td class="kdt-mono">136131-112625-9</td>
+              <td class="kdt-soft">iPad</td>
+              <td class="kdt-mono kdt-soft">1586021</td>
+              <td class="kdt-mono">2025-11-26 · 14:30</td>
+              <td>Lina Park</td>
+              <td class="kdt-soft">High&nbsp;Point, NC</td>
+              <td class="kdt-status"><span class="kdt-pill kdt-pill-success"><span class="kdt-pill-dot"></span> Confirmed</span></td>
+              <td class="kdt-num">$8,940.50</td>
+              <td class="kdt-actions"><button class="kb kb-sm kb-ghost kb-icon kdt-act" aria-label="Row actions"><svg class="kebab" viewBox="0 0 14 14"><circle cx="7" cy="2" r="1.5"/><circle cx="7" cy="7" r="1.5"/><circle cx="7" cy="12" r="1.5"/></svg></button></td>
+            </tr>
+
+            <tr>
+              <td class="kdt-check"><label class="kf-check kf-sm"><input type="checkbox" aria-label="Select row"/><span class="kf-check-box"></span></label></td>
+              <td class="kdt-mono">136131-112625-8</td>
+              <td class="kdt-soft">Web</td>
+              <td class="kdt-mono kdt-soft">1586016</td>
+              <td class="kdt-mono">2025-11-26 · 14:22</td>
+              <td>Howard &amp; Co.</td>
+              <td class="kdt-soft"><span class="kdt-empty">—</span></td>
+              <td class="kdt-status"><span class="kdt-pill kdt-pill-warning"><span class="kdt-pill-dot"></span> Pending</span></td>
+              <td class="kdt-num">$3,612.00</td>
+              <td class="kdt-actions"><button class="kb kb-sm kb-ghost kb-icon kdt-act" aria-label="Row actions"><svg class="kebab" viewBox="0 0 14 14"><circle cx="7" cy="2" r="1.5"/><circle cx="7" cy="7" r="1.5"/><circle cx="7" cy="12" r="1.5"/></svg></button></td>
+            </tr>
+
+            <tr>
+              <td class="kdt-check"><label class="kf-check kf-sm"><input type="checkbox" aria-label="Select row"/><span class="kf-check-box"></span></label></td>
+              <td class="kdt-mono">136131-112625-7</td>
+              <td class="kdt-soft">iPad</td>
+              <td class="kdt-mono kdt-soft">1586015</td>
+              <td class="kdt-mono">2025-11-26 · 14:22</td>
+              <td>Marigold Living</td>
+              <td class="kdt-soft">Asheville, NC</td>
+              <td class="kdt-status"><span class="kdt-pill kdt-pill-info"><span class="kdt-pill-dot"></span> Shipped</span></td>
+              <td class="kdt-num">$21,005.75</td>
+              <td class="kdt-actions"><button class="kb kb-sm kb-ghost kb-icon kdt-act" aria-label="Row actions"><svg class="kebab" viewBox="0 0 14 14"><circle cx="7" cy="2" r="1.5"/><circle cx="7" cy="7" r="1.5"/><circle cx="7" cy="12" r="1.5"/></svg></button></td>
+            </tr>
+
+            <tr aria-selected="true">
+              <td class="kdt-check"><label class="kf-check kf-sm"><input type="checkbox" aria-label="Select row" checked/><span class="kf-check-box"></span></label></td>
+              <td class="kdt-mono">136131-112625-6</td>
+              <td class="kdt-soft">iPad</td>
+              <td class="kdt-mono kdt-soft">1586012</td>
+              <td class="kdt-mono">2025-11-26 · 14:17</td>
+              <td>Ferro Furniture</td>
+              <td class="kdt-soft">Hickory, NC</td>
+              <td class="kdt-status"><span class="kdt-pill kdt-pill-success"><span class="kdt-pill-dot"></span> Confirmed</span></td>
+              <td class="kdt-num">$6,180.00</td>
+              <td class="kdt-actions"><button class="kb kb-sm kb-ghost kb-icon kdt-act" aria-label="Row actions"><svg class="kebab" viewBox="0 0 14 14"><circle cx="7" cy="2" r="1.5"/><circle cx="7" cy="7" r="1.5"/><circle cx="7" cy="12" r="1.5"/></svg></button></td>
+            </tr>
+
+            <tr>
+              <td class="kdt-check"><label class="kf-check kf-sm"><input type="checkbox" aria-label="Select row"/><span class="kf-check-box"></span></label></td>
+              <td class="kdt-mono">136131-112625-5</td>
+              <td class="kdt-soft">iPad</td>
+              <td class="kdt-mono kdt-soft">1586005</td>
+              <td class="kdt-mono">2025-11-26 · 14:04</td>
+              <td>Bennett &amp; Hall</td>
+              <td class="kdt-soft">Raleigh, NC</td>
+              <td class="kdt-status"><span class="kdt-pill kdt-pill-success"><span class="kdt-pill-dot"></span> Confirmed</span></td>
+              <td class="kdt-num">$9,440.00</td>
+              <td class="kdt-actions"><button class="kb kb-sm kb-ghost kb-icon kdt-act" aria-label="Row actions"><svg class="kebab" viewBox="0 0 14 14"><circle cx="7" cy="2" r="1.5"/><circle cx="7" cy="7" r="1.5"/><circle cx="7" cy="12" r="1.5"/></svg></button></td>
+            </tr>
+
+            <tr data-row-state="muted">
+              <td class="kdt-check"><label class="kf-check kf-sm"><input type="checkbox" aria-label="Select row"/><span class="kf-check-box"></span></label></td>
+              <td class="kdt-mono">136131-112625-4</td>
+              <td class="kdt-soft">iPad</td>
+              <td class="kdt-mono kdt-soft">1586003</td>
+              <td class="kdt-mono">2025-11-26 · 13:59</td>
+              <td>Saltbox Studio</td>
+              <td class="kdt-soft">Charlotte, NC</td>
+              <td class="kdt-status"><span class="kdt-pill kdt-pill-neutral"><span class="kdt-pill-dot"></span> Draft</span></td>
+              <td class="kdt-num">$2,180.00</td>
+              <td class="kdt-actions"><button class="kb kb-sm kb-ghost kb-icon kdt-act" aria-label="Row actions"><svg class="kebab" viewBox="0 0 14 14"><circle cx="7" cy="2" r="1.5"/><circle cx="7" cy="7" r="1.5"/><circle cx="7" cy="12" r="1.5"/></svg></button></td>
+            </tr>
+
+            <tr>
+              <td class="kdt-check"><label class="kf-check kf-sm"><input type="checkbox" aria-label="Select row"/><span class="kf-check-box"></span></label></td>
+              <td class="kdt-mono">136131-112625-3</td>
+              <td class="kdt-soft">iPad</td>
+              <td class="kdt-mono kdt-soft">1586002</td>
+              <td class="kdt-mono">2025-11-26 · 13:50</td>
+              <td>Northcoast Trading</td>
+              <td class="kdt-soft">Wilmington, NC</td>
+              <td class="kdt-status"><span class="kdt-pill kdt-pill-danger"><span class="kdt-pill-dot"></span> Returned</span></td>
+              <td class="kdt-num">$540.00</td>
+              <td class="kdt-actions"><button class="kb kb-sm kb-ghost kb-icon kdt-act" aria-label="Row actions"><svg class="kebab" viewBox="0 0 14 14"><circle cx="7" cy="2" r="1.5"/><circle cx="7" cy="7" r="1.5"/><circle cx="7" cy="12" r="1.5"/></svg></button></td>
+            </tr>
+
+            <tr>
+              <td class="kdt-check"><label class="kf-check kf-sm"><input type="checkbox" aria-label="Select row"/><span class="kf-check-box"></span></label></td>
+              <td class="kdt-mono">136131-112625-2</td>
+              <td class="kdt-soft">iPad</td>
+              <td class="kdt-mono kdt-soft">1585995</td>
+              <td class="kdt-mono">2025-11-26 · 13:46</td>
+              <td>Hawthorn House</td>
+              <td class="kdt-soft">Charlotte, NC</td>
+              <td class="kdt-status"><span class="kdt-pill kdt-pill-info"><span class="kdt-pill-dot"></span> Shipped</span></td>
+              <td class="kdt-num">$18,720.00</td>
+              <td class="kdt-actions"><button class="kb kb-sm kb-ghost kb-icon kdt-act" aria-label="Row actions"><svg class="kebab" viewBox="0 0 14 14"><circle cx="7" cy="2" r="1.5"/><circle cx="7" cy="7" r="1.5"/><circle cx="7" cy="12" r="1.5"/></svg></button></td>
+            </tr>
+
+            <tr>
+              <td class="kdt-check"><label class="kf-check kf-sm"><input type="checkbox" aria-label="Select row"/><span class="kf-check-box"></span></label></td>
+              <td class="kdt-mono">136131-112625-1</td>
+              <td class="kdt-soft">Web</td>
+              <td class="kdt-mono kdt-soft">1585983</td>
+              <td class="kdt-mono">2025-11-26 · 13:31</td>
+              <td>Brent Sanders</td>
+              <td class="kdt-soft">Greensboro, NC</td>
+              <td class="kdt-status"><span class="kdt-pill kdt-pill-success"><span class="kdt-pill-dot"></span> Confirmed</span></td>
+              <td class="kdt-num">$4,250.00</td>
+              <td class="kdt-actions"><button class="kb kb-sm kb-ghost kb-icon kdt-act" aria-label="Row actions"><svg class="kebab" viewBox="0 0 14 14"><circle cx="7" cy="2" r="1.5"/><circle cx="7" cy="7" r="1.5"/><circle cx="7" cy="12" r="1.5"/></svg></button></td>
+            </tr>
+
+          </tbody>
+        </table>
+
+        <div class="kdt-pager">
+          <span class="kdt-pager-info">Showing 1–10 · 1,287 orders</span>
+          <button class="kb kb-sm kb-secondary" disabled><svg viewBox="0 0 16 16"><path d="M10 4l-4 4 4 4"/></svg> Prev</button>
+          <button class="kb kb-sm kb-secondary">Next <svg class="arr-svg" viewBox="0 0 16 16"><path d="M6 4l4 4-4 4"/></svg></button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ─────────────────────────────────────────────────────────── DENSITIES -->
+  <section id="densities">
+    <div class="chap">
+      <span class="ix">02</span>
+      <h2>Densities — <em>compact 36 · default 52 · cozy 64</em></h2>
+    </div>
+    <p class="note">
+      Default is iPad-grade-plus (52&nbsp;px rows). Compact is power-user dense.
+      Cozy is for tablets in landscape and forms-adjacent contexts.
+    </p>
+
+    <div class="plate">
+      <div class="plate-head"><span class="crumb">.kdt.kdt-compact</span><span class="meta">36&nbsp;px rows</span></div>
+      <div class="kdt-wrap kdt-card">
+        <table class="kdt kdt-compact">
+          <thead>
+            <tr>
+              <th>Product</th><th>SKU</th><th>Vendor</th>
+              <th class="kdt-num">Qty</th><th class="kdt-num">Price</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Ridgeline armchair</td><td class="kdt-mono">RD-1042</td><td class="kdt-soft">Caldera Mills</td><td class="kdt-num">12</td><td class="kdt-num">$1,240.00</td></tr>
+            <tr><td>Mantle dining table</td><td class="kdt-mono">MN-2210</td><td class="kdt-soft">Caldera Mills</td><td class="kdt-num">3</td><td class="kdt-num">$3,180.00</td></tr>
+            <tr><td>Linen runner · oat</td><td class="kdt-mono">LR-0418</td><td class="kdt-soft">Atlas Linens</td><td class="kdt-num">48</td><td class="kdt-num">$96.00</td></tr>
+            <tr><td>Cane side table</td><td class="kdt-mono">CS-7732</td><td class="kdt-soft">Wovenway Co.</td><td class="kdt-num">7</td><td class="kdt-num">$420.00</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="plate">
+      <div class="plate-head"><span class="crumb">.kdt</span><span class="meta">52&nbsp;px rows · iPad-grade default</span></div>
+      <div class="kdt-wrap kdt-card">
+        <table class="kdt">
+          <thead>
+            <tr>
+              <th>Product</th><th>SKU</th><th>Vendor</th>
+              <th class="kdt-num">Qty</th><th class="kdt-num">Price</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Ridgeline armchair</td><td class="kdt-mono">RD-1042</td><td class="kdt-soft">Caldera Mills</td><td class="kdt-num">12</td><td class="kdt-num">$1,240.00</td></tr>
+            <tr><td>Mantle dining table</td><td class="kdt-mono">MN-2210</td><td class="kdt-soft">Caldera Mills</td><td class="kdt-num">3</td><td class="kdt-num">$3,180.00</td></tr>
+            <tr><td>Linen runner · oat</td><td class="kdt-mono">LR-0418</td><td class="kdt-soft">Atlas Linens</td><td class="kdt-num">48</td><td class="kdt-num">$96.00</td></tr>
+            <tr><td>Cane side table</td><td class="kdt-mono">CS-7732</td><td class="kdt-soft">Wovenway Co.</td><td class="kdt-num">7</td><td class="kdt-num">$420.00</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="plate">
+      <div class="plate-head"><span class="crumb">.kdt.kdt-cozy</span><span class="meta">64&nbsp;px rows</span></div>
+      <div class="kdt-wrap kdt-card">
+        <table class="kdt kdt-cozy">
+          <thead>
+            <tr>
+              <th>Product</th><th>SKU</th><th>Vendor</th>
+              <th class="kdt-num">Qty</th><th class="kdt-num">Price</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Ridgeline armchair</td><td class="kdt-mono">RD-1042</td><td class="kdt-soft">Caldera Mills</td><td class="kdt-num">12</td><td class="kdt-num">$1,240.00</td></tr>
+            <tr><td>Mantle dining table</td><td class="kdt-mono">MN-2210</td><td class="kdt-soft">Caldera Mills</td><td class="kdt-num">3</td><td class="kdt-num">$3,180.00</td></tr>
+            <tr><td>Linen runner · oat</td><td class="kdt-mono">LR-0418</td><td class="kdt-soft">Atlas Linens</td><td class="kdt-num">48</td><td class="kdt-num">$96.00</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ─────────────────────────────────────────────────────────── SURFACES -->
+  <section id="surfaces">
+    <div class="chap">
+      <span class="ix">03</span>
+      <h2>Surfaces — <em>flat · zebra · card</em></h2>
+    </div>
+    <p class="note">
+      <code class="tk">.kdt-flat</code> is the default — hairline row dividers,
+      transparent rows. <code class="tk">.kdt-zebra</code> alternates a faint
+      cream tint, good for scanning long columns of numbers.
+      <code class="tk">.kdt-card</code> lives on the wrapper and frames the
+      whole grid in a rounded, hairline-bordered container.
+    </p>
+
+    <div class="plate">
+      <div class="plate-head"><span class="crumb">.kdt-zebra</span><span class="meta">alternating · no row dividers</span></div>
+      <div class="kdt-wrap kdt-card">
+        <table class="kdt kdt-zebra">
+          <thead>
+            <tr>
+              <th>Item</th><th>SKU</th>
+              <th class="kdt-num">Q1</th><th class="kdt-num">Q2</th>
+              <th class="kdt-num">Q3</th><th class="kdt-num">Q4</th>
+              <th class="kdt-num">YTD</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Ridgeline armchair</td><td class="kdt-mono">RD-1042</td><td class="kdt-num">142</td><td class="kdt-num">218</td><td class="kdt-num">181</td><td class="kdt-num">240</td><td class="kdt-num">781</td></tr>
+            <tr><td>Mantle dining table</td><td class="kdt-mono">MN-2210</td><td class="kdt-num">38</td><td class="kdt-num">52</td><td class="kdt-num">47</td><td class="kdt-num">61</td><td class="kdt-num">198</td></tr>
+            <tr><td>Linen runner</td><td class="kdt-mono">LR-0418</td><td class="kdt-num">412</td><td class="kdt-num">605</td><td class="kdt-num">588</td><td class="kdt-num">730</td><td class="kdt-num">2,335</td></tr>
+            <tr><td>Cane side table</td><td class="kdt-mono">CS-7732</td><td class="kdt-num">71</td><td class="kdt-num">88</td><td class="kdt-num">102</td><td class="kdt-num">95</td><td class="kdt-num">356</td></tr>
+            <tr><td>Field bench</td><td class="kdt-mono">FB-3304</td><td class="kdt-num">14</td><td class="kdt-num">22</td><td class="kdt-num">31</td><td class="kdt-num">28</td><td class="kdt-num">95</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="plate">
+      <div class="plate-head"><span class="crumb">.kdt-flat (default)</span><span class="meta">hairline row dividers</span></div>
+      <div class="kdt-wrap kdt-card">
+        <table class="kdt">
+          <thead>
+            <tr>
+              <th>Vendor</th><th>Region</th>
+              <th class="kdt-num">Orders</th>
+              <th class="kdt-num">Returns</th>
+              <th class="kdt-num">Net</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Caldera Mills</td><td class="kdt-soft">Southeast</td><td class="kdt-num">312</td><td class="kdt-num">4</td><td class="kdt-num">308</td></tr>
+            <tr><td>Atlas Linens</td><td class="kdt-soft">National</td><td class="kdt-num">1,204</td><td class="kdt-num">12</td><td class="kdt-num">1,192</td></tr>
+            <tr><td>Wovenway Co.</td><td class="kdt-soft">West</td><td class="kdt-num">88</td><td class="kdt-num">1</td><td class="kdt-num">87</td></tr>
+            <tr><td>Birch &amp; Boucle</td><td class="kdt-soft">Northeast</td><td class="kdt-num">540</td><td class="kdt-num">7</td><td class="kdt-num">533</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ─────────────────────────────────────────────────────────── STATUS -->
+  <section id="status">
+    <div class="chap">
+      <span class="ix">04</span>
+      <h2>Status pills</h2>
+    </div>
+    <p class="note">
+      Built into <code class="tk">table.css</code> so the primitive ships
+      zero-dependency. When the standalone Tag primitive
+      <code class="tk">.kt-*</code> lands, these will alias to it — same markup,
+      no migration in pages.
+    </p>
+
+    <div class="plate">
+      <div class="kdt-wrap kdt-card">
+        <table class="kdt">
+          <thead>
+            <tr><th>Status</th><th>Token mapping</th><th>Use when</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><span class="kdt-pill kdt-pill-success"><span class="kdt-pill-dot"></span> Confirmed</span></td><td class="kdt-mono kdt-soft">--status-success</td><td class="kdt-soft">Order placed, payment cleared, ready to fulfill.</td></tr>
+            <tr><td><span class="kdt-pill kdt-pill-warning"><span class="kdt-pill-dot"></span> Pending</span></td><td class="kdt-mono kdt-soft">--color-gold</td><td class="kdt-soft">Awaiting action — review, approval, payment.</td></tr>
+            <tr><td><span class="kdt-pill kdt-pill-info"><span class="kdt-pill-dot"></span> Shipped</span></td><td class="kdt-mono kdt-soft">--status-info</td><td class="kdt-soft">Neutral progression state — in motion, not blocking.</td></tr>
+            <tr><td><span class="kdt-pill kdt-pill-danger"><span class="kdt-pill-dot"></span> Returned</span></td><td class="kdt-mono kdt-soft">--status-danger</td><td class="kdt-soft">Destructive / regression. Use sparingly.</td></tr>
+            <tr><td><span class="kdt-pill kdt-pill-neutral"><span class="kdt-pill-dot"></span> Draft</span></td><td class="kdt-mono kdt-soft">--text-muted</td><td class="kdt-soft">Default / not-yet-classified. Quiet.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ─────────────────────────────────────────────────────────── STICKY -->
+  <section id="sticky">
+    <div class="chap">
+      <span class="ix">05</span>
+      <h2>Sticky head &amp; first column</h2>
+    </div>
+    <p class="note">
+      Add <code class="tk">.kdt-sticky-head</code> to the wrapper for a sticky
+      thead during vertical scroll. Add <code class="tk">.kdt-sticky-first</code>
+      to keep the first column anchored during horizontal scroll. Scroll the
+      box below to see both.
+    </p>
+
+    <div class="plate">
+      <div class="plate-head"><span class="crumb">12-month vendor sales</span><span class="meta">320 px tall · scroll both axes</span></div>
+      <div class="kdt-wrap kdt-card kdt-sticky-head kdt-sticky-first" style="height: 320px; overflow: auto;">
+        <table class="kdt kdt-compact">
+          <thead>
+            <tr>
+              <th>Vendor</th>
+              <th class="kdt-num">Jan</th><th class="kdt-num">Feb</th><th class="kdt-num">Mar</th>
+              <th class="kdt-num">Apr</th><th class="kdt-num">May</th><th class="kdt-num">Jun</th>
+              <th class="kdt-num">Jul</th><th class="kdt-num">Aug</th><th class="kdt-num">Sep</th>
+              <th class="kdt-num">Oct</th><th class="kdt-num">Nov</th><th class="kdt-num">Dec</th>
+              <th class="kdt-num">YTD</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Caldera Mills</td><td class="kdt-num">42</td><td class="kdt-num">61</td><td class="kdt-num">58</td><td class="kdt-num">71</td><td class="kdt-num">88</td><td class="kdt-num">94</td><td class="kdt-num">62</td><td class="kdt-num">58</td><td class="kdt-num">71</td><td class="kdt-num">85</td><td class="kdt-num">102</td><td class="kdt-num">112</td><td class="kdt-num">904</td></tr>
+            <tr><td>Atlas Linens</td><td class="kdt-num">181</td><td class="kdt-num">204</td><td class="kdt-num">221</td><td class="kdt-num">198</td><td class="kdt-num">240</td><td class="kdt-num">260</td><td class="kdt-num">252</td><td class="kdt-num">268</td><td class="kdt-num">280</td><td class="kdt-num">295</td><td class="kdt-num">310</td><td class="kdt-num">322</td><td class="kdt-num">3,031</td></tr>
+            <tr><td>Wovenway Co.</td><td class="kdt-num">14</td><td class="kdt-num">18</td><td class="kdt-num">21</td><td class="kdt-num">24</td><td class="kdt-num">29</td><td class="kdt-num">32</td><td class="kdt-num">31</td><td class="kdt-num">28</td><td class="kdt-num">26</td><td class="kdt-num">24</td><td class="kdt-num">22</td><td class="kdt-num">21</td><td class="kdt-num">290</td></tr>
+            <tr><td>Birch &amp; Boucle</td><td class="kdt-num">82</td><td class="kdt-num">94</td><td class="kdt-num">88</td><td class="kdt-num">101</td><td class="kdt-num">112</td><td class="kdt-num">120</td><td class="kdt-num">118</td><td class="kdt-num">124</td><td class="kdt-num">130</td><td class="kdt-num">128</td><td class="kdt-num">132</td><td class="kdt-num">142</td><td class="kdt-num">1,371</td></tr>
+            <tr><td>Field &amp; Frame</td><td class="kdt-num">12</td><td class="kdt-num">14</td><td class="kdt-num">18</td><td class="kdt-num">21</td><td class="kdt-num">28</td><td class="kdt-num">34</td><td class="kdt-num">38</td><td class="kdt-num">42</td><td class="kdt-num">45</td><td class="kdt-num">48</td><td class="kdt-num">52</td><td class="kdt-num">56</td><td class="kdt-num">408</td></tr>
+            <tr><td>Northcoast</td><td class="kdt-num">28</td><td class="kdt-num">32</td><td class="kdt-num">34</td><td class="kdt-num">38</td><td class="kdt-num">44</td><td class="kdt-num">48</td><td class="kdt-num">52</td><td class="kdt-num">58</td><td class="kdt-num">62</td><td class="kdt-num">66</td><td class="kdt-num">71</td><td class="kdt-num">74</td><td class="kdt-num">607</td></tr>
+            <tr><td>Marigold</td><td class="kdt-num">94</td><td class="kdt-num">102</td><td class="kdt-num">112</td><td class="kdt-num">118</td><td class="kdt-num">124</td><td class="kdt-num">128</td><td class="kdt-num">130</td><td class="kdt-num">135</td><td class="kdt-num">140</td><td class="kdt-num">144</td><td class="kdt-num">150</td><td class="kdt-num">158</td><td class="kdt-num">1,535</td></tr>
+            <tr><td>Saltbox</td><td class="kdt-num">8</td><td class="kdt-num">11</td><td class="kdt-num">14</td><td class="kdt-num">18</td><td class="kdt-num">22</td><td class="kdt-num">26</td><td class="kdt-num">28</td><td class="kdt-num">31</td><td class="kdt-num">34</td><td class="kdt-num">36</td><td class="kdt-num">38</td><td class="kdt-num">42</td><td class="kdt-num">308</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ─────────────────────────────────────────────────────────── SORT -->
+  <section id="sort">
+    <div class="chap">
+      <span class="ix">06</span>
+      <h2>Sortable columns</h2>
+    </div>
+    <p class="note">
+      The sortable header is a <code class="tk">&lt;button class="kdt-sort"&gt;</code>
+      inside the <code class="tk">&lt;th&gt;</code> — proper keyboard target,
+      proper screen-reader semantics via <code class="tk">aria-sort</code>.
+      Active sort tints the indicator crimson; the chevron flips for descending.
+    </p>
+
+    <div class="plate">
+      <div class="kdt-wrap kdt-card">
+        <table class="kdt">
+          <thead>
+            <tr>
+              <th aria-sort="ascending">
+                <button class="kdt-sort" type="button">Product <span class="kdt-sort-ind" aria-hidden="true"></span></button>
+              </th>
+              <th aria-sort="none">
+                <button class="kdt-sort" type="button">SKU <span class="kdt-sort-ind" aria-hidden="true"></span></button>
+              </th>
+              <th class="kdt-num" aria-sort="descending">
+                <button class="kdt-sort" type="button">Units sold <span class="kdt-sort-ind" aria-hidden="true"></span></button>
+              </th>
+              <th class="kdt-num" aria-sort="none">
+                <button class="kdt-sort" type="button">Revenue <span class="kdt-sort-ind" aria-hidden="true"></span></button>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Cane side table</td><td class="kdt-mono">CS-7732</td><td class="kdt-num">412</td><td class="kdt-num">$24,720.00</td></tr>
+            <tr><td>Field bench</td><td class="kdt-mono">FB-3304</td><td class="kdt-num">298</td><td class="kdt-num">$17,880.00</td></tr>
+            <tr><td>Linen runner</td><td class="kdt-mono">LR-0418</td><td class="kdt-num">181</td><td class="kdt-num">$362.00</td></tr>
+            <tr><td>Mantle dining table</td><td class="kdt-mono">MN-2210</td><td class="kdt-num">142</td><td class="kdt-num">$150,520.00</td></tr>
+            <tr><td>Ridgeline armchair</td><td class="kdt-mono">RD-1042</td><td class="kdt-num">88</td><td class="kdt-num">$109,120.00</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ─────────────────────────────────────────────────────────── SELECTION -->
+  <section id="selection">
+    <div class="chap">
+      <span class="ix">07</span>
+      <h2>Selection &amp; bulk actions</h2>
+    </div>
+    <p class="note">
+      Selected rows get a single 3&nbsp;px crimson left edge and a one-step
+      paper lift — no pink, no tint. The bulk-actions strip is ink-dark with
+      <code class="tk">.kb kb-sm</code> buttons inverted to read on near-black.
+      Toggle the master checkbox or any row to see it slide in.
+    </p>
+
+    <div class="plate">
+      <div class="kdt-wrap kdt-card">
+        <div id="bulk-strip" class="kdt-bulk" hidden>
+          <span class="kdt-bulk-count"><strong id="bulk-n">2</strong>selected</span>
+          <span class="kdt-bulk-spacer"></span>
+          <button class="kb kb-sm kb-secondary">Export</button>
+          <button class="kb kb-sm kb-secondary">Mark shipped</button>
+          <button class="kb kb-sm kb-ghost">Archive</button>
+        </div>
+        <table class="kdt" id="sel-tbl">
+          <thead>
+            <tr>
+              <th class="kdt-check"><label class="kf-check kf-sm"><input type="checkbox" id="sel-all" aria-label="Select all rows"/><span class="kf-check-box"></span></label></th>
+              <th>Order&nbsp;#</th>
+              <th>Customer</th>
+              <th>Status</th>
+              <th class="kdt-num">Total</th>
+              <th class="kdt-actions" aria-label="Row actions"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr aria-selected="true"><td class="kdt-check"><label class="kf-check kf-sm"><input type="checkbox" class="sel-row" aria-label="Select row" checked/><span class="kf-check-box"></span></label></td><td class="kdt-mono">112625-10</td><td>Brent Sanders</td><td><span class="kdt-pill kdt-pill-success"><span class="kdt-pill-dot"></span> Confirmed</span></td><td class="kdt-num">$12,480.00</td><td class="kdt-actions"><button class="kb kb-sm kb-ghost kb-icon kdt-act" aria-label="Row actions"><svg class="kebab" viewBox="0 0 14 14"><circle cx="7" cy="2" r="1.5"/><circle cx="7" cy="7" r="1.5"/><circle cx="7" cy="12" r="1.5"/></svg></button></td></tr>
+            <tr aria-selected="true"><td class="kdt-check"><label class="kf-check kf-sm"><input type="checkbox" class="sel-row" aria-label="Select row" checked/><span class="kf-check-box"></span></label></td><td class="kdt-mono">112625-9</td><td>Lina Park</td><td><span class="kdt-pill kdt-pill-success"><span class="kdt-pill-dot"></span> Confirmed</span></td><td class="kdt-num">$8,940.50</td><td class="kdt-actions"><button class="kb kb-sm kb-ghost kb-icon kdt-act" aria-label="Row actions"><svg class="kebab" viewBox="0 0 14 14"><circle cx="7" cy="2" r="1.5"/><circle cx="7" cy="7" r="1.5"/><circle cx="7" cy="12" r="1.5"/></svg></button></td></tr>
+            <tr><td class="kdt-check"><label class="kf-check kf-sm"><input type="checkbox" class="sel-row" aria-label="Select row"/><span class="kf-check-box"></span></label></td><td class="kdt-mono">112625-8</td><td>Howard &amp; Co.</td><td><span class="kdt-pill kdt-pill-warning"><span class="kdt-pill-dot"></span> Pending</span></td><td class="kdt-num">$3,612.00</td><td class="kdt-actions"><button class="kb kb-sm kb-ghost kb-icon kdt-act" aria-label="Row actions"><svg class="kebab" viewBox="0 0 14 14"><circle cx="7" cy="2" r="1.5"/><circle cx="7" cy="7" r="1.5"/><circle cx="7" cy="12" r="1.5"/></svg></button></td></tr>
+            <tr><td class="kdt-check"><label class="kf-check kf-sm"><input type="checkbox" class="sel-row" aria-label="Select row"/><span class="kf-check-box"></span></label></td><td class="kdt-mono">112625-7</td><td>Marigold Living</td><td><span class="kdt-pill kdt-pill-info"><span class="kdt-pill-dot"></span> Shipped</span></td><td class="kdt-num">$21,005.75</td><td class="kdt-actions"><button class="kb kb-sm kb-ghost kb-icon kdt-act" aria-label="Row actions"><svg class="kebab" viewBox="0 0 14 14"><circle cx="7" cy="2" r="1.5"/><circle cx="7" cy="7" r="1.5"/><circle cx="7" cy="12" r="1.5"/></svg></button></td></tr>
+            <tr><td class="kdt-check"><label class="kf-check kf-sm"><input type="checkbox" class="sel-row" aria-label="Select row"/><span class="kf-check-box"></span></label></td><td class="kdt-mono">112625-6</td><td>Ferro Furniture</td><td><span class="kdt-pill kdt-pill-success"><span class="kdt-pill-dot"></span> Confirmed</span></td><td class="kdt-num">$6,180.00</td><td class="kdt-actions"><button class="kb kb-sm kb-ghost kb-icon kdt-act" aria-label="Row actions"><svg class="kebab" viewBox="0 0 14 14"><circle cx="7" cy="2" r="1.5"/><circle cx="7" cy="7" r="1.5"/><circle cx="7" cy="12" r="1.5"/></svg></button></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <script>
+      (function () {
+        var tbl = document.getElementById('sel-tbl');
+        var rows = Array.from(tbl.querySelectorAll('tbody tr'));
+        var checks = rows.map(function (r) { return r.querySelector('.sel-row'); });
+        var all = document.getElementById('sel-all');
+        var strip = document.getElementById('bulk-strip');
+        var n = document.getElementById('bulk-n');
+
+        function sync() {
+          var selected = 0;
+          checks.forEach(function (cb, i) {
+            if (cb.checked) {
+              rows[i].setAttribute('aria-selected', 'true');
+              selected++;
+            } else {
+              rows[i].removeAttribute('aria-selected');
+            }
+          });
+          if (selected === 0) {
+            strip.setAttribute('hidden', '');
+            all.checked = false;
+            all.indeterminate = false;
+          } else if (selected === checks.length) {
+            strip.removeAttribute('hidden');
+            n.textContent = selected;
+            all.checked = true;
+            all.indeterminate = false;
+          } else {
+            strip.removeAttribute('hidden');
+            n.textContent = selected;
+            all.checked = false;
+            all.indeterminate = true;
+          }
+        }
+        checks.forEach(function (cb) { cb.addEventListener('change', sync); });
+        all.addEventListener('change', function () {
+          checks.forEach(function (cb) { cb.checked = all.checked; });
+          sync();
+        });
+        sync();
+      })();
+    </script>
+  </section>
+
+
+  <!-- ─────────────────────────────────────────────────────────── EMPTY -->
+  <section id="empty">
+    <div class="chap">
+      <span class="ix">08</span>
+      <h2>Empty state</h2>
+    </div>
+    <p class="note">
+      Two flavors: an inline empty row (a single mono caption) for filtered
+      results, and a full empty board for first-run / never-had-any moments.
+      Both consume only semantic tokens — neutral, never accusatory.
+    </p>
+
+    <div class="plate">
+      <div class="plate-head"><span class="crumb">No results — inline</span><span class="meta">filtered to nothing</span></div>
+      <div class="kdt-wrap kdt-card">
+        <table class="kdt">
+          <thead><tr><th>Order&nbsp;#</th><th>Customer</th><th>Status</th><th class="kdt-num">Total</th></tr></thead>
+          <tbody>
+            <tr class="kdt-empty-row">
+              <td colspan="4" style="text-align:center; padding: var(--space-12) var(--space-4); color: var(--text-muted); font-family: var(--font-mono); font-size: var(--text-xs); letter-spacing: var(--tracking-wider); text-transform: uppercase;">
+                <span class="kdt-empty">—</span>&nbsp;&nbsp;No orders match the current filters
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="plate">
+      <div class="plate-head"><span class="crumb">No orders yet — full board</span><span class="meta">first-run</span></div>
+      <div class="kdt-wrap kdt-card">
+        <table class="kdt">
+          <thead><tr><th>Order&nbsp;#</th><th>Customer</th><th>Status</th><th class="kdt-num">Total</th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <div class="kdt-empty-board">
+          <div class="kdt-empty-mark" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h10"/></svg>
+          </div>
+          <h3>No orders yet</h3>
+          <p>When sales reps submit orders from iPad or the web portal, they'll appear here. You can also import historical orders from a CSV.</p>
+          <div style="display: flex; gap: var(--space-3); margin-top: var(--space-3)">
+            <button class="kb kb-md kb-primary">Import CSV</button>
+            <button class="kb kb-md kb-secondary">Browse demo data</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ─────────────────────────────────────────────────────────── LOADING -->
+  <section id="loading">
+    <div class="chap">
+      <span class="ix">09</span>
+      <h2>Loading — skeleton rows</h2>
+    </div>
+    <p class="note">
+      Set <code class="tk">aria-busy="true"</code> on the
+      <code class="tk">&lt;tbody&gt;</code> and render N
+      <code class="tk">.kdt-skel</code> rows. Bar widths vary per column via
+      <code class="tk">style="--w: 60%"</code> so the skeleton reads as
+      plausible content rather than a uniform stripe.
+    </p>
+
+    <div class="plate">
+      <div class="kdt-wrap kdt-card">
+        <table class="kdt">
+          <thead>
+            <tr>
+              <th class="kdt-check"></th>
+              <th>Order&nbsp;#</th><th>Customer</th>
+              <th>Submitted</th><th>Status</th>
+              <th class="kdt-num">Total</th>
+            </tr>
+          </thead>
+          <tbody aria-busy="true">
+            <tr class="kdt-skel"><td class="kdt-check"><span class="kdt-skel-bar" style="--w: 18px; height: 18px; border-radius: 2px;"></span></td><td><span class="kdt-skel-bar" style="--w: 80%"></span></td><td><span class="kdt-skel-bar" style="--w: 60%"></span></td><td><span class="kdt-skel-bar" style="--w: 70%"></span></td><td><span class="kdt-skel-bar" style="--w: 45%"></span></td><td class="kdt-num"><span class="kdt-skel-bar" style="--w: 50%"></span></td></tr>
+            <tr class="kdt-skel"><td class="kdt-check"><span class="kdt-skel-bar" style="--w: 18px; height: 18px; border-radius: 2px;"></span></td><td><span class="kdt-skel-bar" style="--w: 72%"></span></td><td><span class="kdt-skel-bar" style="--w: 50%"></span></td><td><span class="kdt-skel-bar" style="--w: 68%"></span></td><td><span class="kdt-skel-bar" style="--w: 40%"></span></td><td class="kdt-num"><span class="kdt-skel-bar" style="--w: 60%"></span></td></tr>
+            <tr class="kdt-skel"><td class="kdt-check"><span class="kdt-skel-bar" style="--w: 18px; height: 18px; border-radius: 2px;"></span></td><td><span class="kdt-skel-bar" style="--w: 78%"></span></td><td><span class="kdt-skel-bar" style="--w: 65%"></span></td><td><span class="kdt-skel-bar" style="--w: 70%"></span></td><td><span class="kdt-skel-bar" style="--w: 38%"></span></td><td class="kdt-num"><span class="kdt-skel-bar" style="--w: 55%"></span></td></tr>
+            <tr class="kdt-skel"><td class="kdt-check"><span class="kdt-skel-bar" style="--w: 18px; height: 18px; border-radius: 2px;"></span></td><td><span class="kdt-skel-bar" style="--w: 70%"></span></td><td><span class="kdt-skel-bar" style="--w: 55%"></span></td><td><span class="kdt-skel-bar" style="--w: 68%"></span></td><td><span class="kdt-skel-bar" style="--w: 42%"></span></td><td class="kdt-num"><span class="kdt-skel-bar" style="--w: 48%"></span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ─────────────────────────────────────────────────────────── STACK -->
+  <section id="stack">
+    <div class="chap">
+      <span class="ix">10</span>
+      <h2>Responsive collapse — <em>stack to cards</em></h2>
+    </div>
+    <p class="note">
+      Below 640&nbsp;px the same markup re-flows into per-row cards with
+      label-value pairs. Add <code class="tk">.kdt-stack</code> to the wrapper
+      and <code class="tk">data-label</code> to each
+      <code class="tk">&lt;td&gt;</code>. Resize this window narrower than
+      640&nbsp;px to see it. iPad-split-view friendly.
+    </p>
+
+    <div class="plate">
+      <div class="kdt-wrap kdt-card kdt-stack">
+        <table class="kdt">
+          <thead>
+            <tr>
+              <th>Order&nbsp;#</th>
+              <th>Customer</th>
+              <th>Submitted</th>
+              <th>Status</th>
+              <th class="kdt-num">Total</th>
+              <th class="kdt-actions"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td data-label="Order #" class="kdt-mono">136131-112625-10</td>
+              <td data-label="Customer">Brent Sanders</td>
+              <td data-label="Submitted" class="kdt-mono">2025-11-26 · 14:39</td>
+              <td data-label="Status"><span class="kdt-pill kdt-pill-success"><span class="kdt-pill-dot"></span> Confirmed</span></td>
+              <td data-label="Total" class="kdt-num">$12,480.00</td>
+              <td class="kdt-actions"><button class="kb kb-sm kb-ghost kb-icon kdt-act" aria-label="Row actions"><svg class="kebab" viewBox="0 0 14 14"><circle cx="7" cy="2" r="1.5"/><circle cx="7" cy="7" r="1.5"/><circle cx="7" cy="12" r="1.5"/></svg></button></td>
+            </tr>
+            <tr>
+              <td data-label="Order #" class="kdt-mono">136131-112625-9</td>
+              <td data-label="Customer">Lina Park</td>
+              <td data-label="Submitted" class="kdt-mono">2025-11-26 · 14:30</td>
+              <td data-label="Status"><span class="kdt-pill kdt-pill-success"><span class="kdt-pill-dot"></span> Confirmed</span></td>
+              <td data-label="Total" class="kdt-num">$8,940.50</td>
+              <td class="kdt-actions"><button class="kb kb-sm kb-ghost kb-icon kdt-act" aria-label="Row actions"><svg class="kebab" viewBox="0 0 14 14"><circle cx="7" cy="2" r="1.5"/><circle cx="7" cy="7" r="1.5"/><circle cx="7" cy="12" r="1.5"/></svg></button></td>
+            </tr>
+            <tr>
+              <td data-label="Order #" class="kdt-mono">136131-112625-8</td>
+              <td data-label="Customer">Howard &amp; Co.</td>
+              <td data-label="Submitted" class="kdt-mono">2025-11-26 · 14:22</td>
+              <td data-label="Status"><span class="kdt-pill kdt-pill-warning"><span class="kdt-pill-dot"></span> Pending</span></td>
+              <td data-label="Total" class="kdt-num">$3,612.00</td>
+              <td class="kdt-actions"><button class="kb kb-sm kb-ghost kb-icon kdt-act" aria-label="Row actions"><svg class="kebab" viewBox="0 0 14 14"><circle cx="7" cy="2" r="1.5"/><circle cx="7" cy="7" r="1.5"/><circle cx="7" cy="12" r="1.5"/></svg></button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+
+  <p class="lede" style="margin-top: var(--space-20); padding-top: var(--space-6); border-top: 1px solid var(--border-default)">
+    <span class="dot" aria-hidden="true"></span>
+    Next ·
+    <a href="./button.html" style="color:inherit; text-decoration: underline">.kb button</a>
+    · <a href="./forms.html" style="color:inherit; text-decoration: underline">.kf forms</a>
+    · <a href="./icon.html" style="color:inherit; text-decoration: underline">.ki icon</a>
+    · Card (next)
+  </p>
+
+</div>
+</body>
+</html>

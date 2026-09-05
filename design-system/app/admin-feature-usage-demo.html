@@ -1,0 +1,1658 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Admin Console — Feature Usage · demoorg</title>
+
+<link rel="stylesheet" href="../ds/tokens/index.css?v=12" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js" defer></script>
+
+<style>
+  html, body { margin: 0; padding: 0; min-height: 100%; }
+  body {
+    background: var(--surface-page);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .admin-shell {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    min-height: 100dvh;
+  }
+  .admin-nav {
+    background: color-mix(in oklch, var(--surface-1) 92%, var(--text-primary));
+    border-right: 1px solid var(--border-subtle);
+    padding: 20px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .admin-brand {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 0 8px 8px;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .admin-brand .mark {
+    font-size: 15px;
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-tight);
+  }
+  .admin-brand .sub {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: var(--tracking-widest);
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .org-chip {
+    margin: 0 4px;
+    padding: 10px 12px;
+    border-radius: var(--radius-md);
+    background: var(--surface-2);
+    border: 1px solid var(--border-subtle);
+  }
+  .org-chip .label {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: var(--tracking-widest);
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .org-chip .name {
+    font-size: 14px;
+    font-weight: var(--weight-medium);
+    margin-top: 2px;
+  }
+  .org-chip .short {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+  .nav-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .nav-list a {
+    display: block;
+    padding: 8px 12px;
+    border-radius: var(--radius-sm);
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 13px;
+  }
+  .nav-list a:hover { background: var(--surface-2); color: var(--text-primary); }
+  .nav-list a.is-active {
+    background: color-mix(in oklch, var(--color-crimson) 12%, var(--surface-1));
+    color: var(--text-primary);
+    font-weight: var(--weight-medium);
+  }
+  .nav-list a.is-inert {
+    opacity: 0.55;
+    cursor: default;
+    pointer-events: none;
+  }
+  .nav-footnote {
+    margin-top: auto;
+    padding: 10px 8px 0;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.04em;
+    color: var(--text-faint);
+    line-height: 1.45;
+  }
+
+  .admin-main {
+    min-width: 0;
+    padding: 20px clamp(20px, 3vw, 40px) 48px;
+  }
+
+  .illus-banner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 16px;
+    padding: 10px 14px;
+    margin-bottom: 18px;
+    border-radius: var(--radius-md);
+    border: 1px dashed color-mix(in oklch, var(--color-clay) 45%, var(--border-subtle));
+    background: color-mix(in oklch, var(--color-clay) 8%, var(--surface-1));
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+  .illus-banner strong {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: var(--tracking-widest);
+    text-transform: uppercase;
+    color: var(--text-primary);
+  }
+
+  .crumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-widest);
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+  }
+  .crumb .sep { color: var(--text-faint); }
+  .crumb .here { color: var(--text-primary); }
+
+  .page-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 12px 20px;
+    margin-bottom: 14px;
+  }
+  .page-head h1 {
+    margin: 0;
+    font-size: clamp(26px, 2.8vw, 36px);
+    font-weight: var(--weight-medium);
+    letter-spacing: var(--tracking-tighter);
+    line-height: 1.15;
+  }
+  .page-head .job {
+    margin-top: 6px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    max-width: 42ch;
+    line-height: 1.4;
+  }
+  .head-actions {
+    margin-left: auto;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .synced {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    border: 1px solid var(--border-subtle);
+    background: var(--surface-1);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.03em;
+    color: var(--text-secondary);
+  }
+  .synced .dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: color-mix(in oklch, var(--color-clay) 70%, #2d6a4f);
+  }
+
+  .date-range {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 12px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-subtle);
+    background: var(--surface-1);
+    font-size: 13px;
+  }
+  .date-range select {
+    border: 0;
+    background: transparent;
+    font: inherit;
+    color: var(--text-primary);
+    cursor: pointer;
+  }
+  .date-range .hint {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+  }
+
+  .filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    min-height: 36px;
+    margin-bottom: 16px;
+    padding: 8px 0;
+  }
+  .filter-bar .label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 10px;
+    border-radius: 999px;
+    border: 1px solid var(--border-subtle);
+    background: var(--surface-1);
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+  .chip.is-active {
+    border-color: color-mix(in oklch, var(--color-crimson) 40%, var(--border-subtle));
+    background: color-mix(in oklch, var(--color-crimson) 8%, var(--surface-1));
+    color: var(--text-primary);
+  }
+  .chip button {
+    border: 0;
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1;
+    padding: 0 0 0 2px;
+  }
+  .chip button:hover { color: var(--text-primary); }
+  .btn-clear {
+    border: 1px solid var(--border-subtle);
+    background: var(--surface-1);
+    border-radius: var(--radius-sm);
+    padding: 5px 10px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    cursor: pointer;
+  }
+  .btn-clear:hover { color: var(--text-primary); border-color: var(--text-muted); }
+  .btn-clear:disabled { opacity: 0.4; cursor: default; }
+
+  .ops-callout {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 10px 14px;
+    align-items: start;
+    padding: 12px 14px;
+    margin-bottom: 18px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-subtle);
+    background: var(--surface-1);
+  }
+  .ops-callout .tag {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    padding-top: 3px;
+  }
+  .ops-lines {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .ops-lines li {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.4;
+    padding-left: 14px;
+    position: relative;
+  }
+  .ops-lines li::before {
+    content: "·";
+    position: absolute;
+    left: 2px;
+    color: var(--text-muted);
+  }
+  .ops-lines strong { color: var(--text-primary); font-weight: var(--weight-medium); }
+
+  .kpi-strip {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .kpi {
+    padding: 14px 16px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-subtle);
+    background: var(--surface-1);
+    cursor: pointer;
+    text-align: left;
+    font: inherit;
+    color: inherit;
+    transition: border-color 140ms ease, background 140ms ease, transform 140ms ease;
+  }
+  .kpi:hover {
+    border-color: color-mix(in oklch, var(--color-crimson) 35%, var(--border-subtle));
+  }
+  .kpi:focus-visible {
+    outline: 2px solid color-mix(in oklch, var(--color-crimson) 50%, transparent);
+    outline-offset: 2px;
+  }
+  .kpi.is-active {
+    border-color: color-mix(in oklch, var(--color-crimson) 50%, var(--border-subtle));
+    background: color-mix(in oklch, var(--color-crimson) 7%, var(--surface-1));
+  }
+  .kpi.is-flash {
+    animation: kpi-flash 700ms ease;
+  }
+  @keyframes kpi-flash {
+    0% { transform: scale(1); }
+    35% { transform: scale(1.02); }
+    100% { transform: scale(1); }
+  }
+  .kpi .label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: var(--tracking-widest);
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .kpi .value {
+    margin-top: 6px;
+    font-size: 28px;
+    font-weight: var(--weight-medium);
+    letter-spacing: var(--tracking-tight);
+    font-variant-numeric: tabular-nums;
+    line-height: 1.1;
+  }
+  .kpi .note {
+    margin-top: 4px;
+    font-size: 11px;
+    color: var(--text-faint);
+  }
+
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+  .grid-stack {
+    display: grid;
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+
+  .panel {
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    background: var(--surface-1);
+    padding: 16px 18px 18px;
+    min-width: 0;
+    transition: box-shadow 180ms ease, border-color 180ms ease;
+  }
+  .panel.is-highlight {
+    border-color: color-mix(in oklch, var(--color-crimson) 40%, var(--border-subtle));
+    box-shadow: 0 0 0 3px color-mix(in oklch, var(--color-crimson) 12%, transparent);
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .panel-head h2 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: var(--weight-medium);
+  }
+  .panel-head .ac {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+  }
+  .chart-box { position: relative; height: 260px; }
+  .chart-box.tall { height: 300px; }
+  .chart-hint {
+    margin: 0 0 8px;
+    font-size: 11px;
+    color: var(--text-faint);
+  }
+
+  .leader-wrap { overflow-x: auto; }
+  table.leader {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  table.leader th,
+  table.leader td {
+    text-align: left;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border-subtle);
+    white-space: nowrap;
+  }
+  table.leader th {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    font-weight: var(--weight-semibold);
+    cursor: pointer;
+    user-select: none;
+  }
+  table.leader th:hover { color: var(--text-primary); }
+  table.leader th[data-sort]::after {
+    content: " ↕";
+    opacity: 0.35;
+  }
+  table.leader th[data-dir="asc"]::after { content: " ↑"; opacity: 0.7; }
+  table.leader th[data-dir="desc"]::after { content: " ↓"; opacity: 0.7; }
+  table.leader tbody tr {
+    cursor: pointer;
+    transition: background 120ms ease;
+  }
+  table.leader tbody tr:hover,
+  table.leader tbody tr.is-selected {
+    background: color-mix(in oklch, var(--color-crimson) 6%, var(--surface-1));
+  }
+  table.leader tbody tr.is-cold td:first-child::before {
+    content: "";
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--text-muted);
+    margin-right: 6px;
+    vertical-align: middle;
+  }
+  table.leader td.num { font-variant-numeric: tabular-nums; font-family: var(--font-mono); font-size: 12px; }
+  .leader-empty {
+    padding: 18px 12px;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  .tier {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .tier.high { background: color-mix(in oklch, #2d6a4f 16%, var(--surface-1)); color: #1b4332; }
+  .tier.medium { background: color-mix(in oklch, var(--color-clay) 22%, var(--surface-1)); color: var(--text-primary); }
+  .tier.low { background: var(--surface-2); color: var(--text-muted); }
+  .tier.cold { background: color-mix(in oklch, var(--text-muted) 18%, var(--surface-1)); color: var(--text-muted); }
+
+  .status-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 3px;
+  }
+  .status {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    font-weight: var(--weight-medium);
+  }
+  .status.excelling { background: color-mix(in oklch, #2d6a4f 18%, var(--surface-1)); color: #1b4332; }
+  .status.steady { background: color-mix(in oklch, var(--color-clay) 20%, var(--surface-1)); color: var(--text-primary); }
+  .status.declining { background: color-mix(in oklch, var(--color-crimson) 14%, var(--surface-1)); color: color-mix(in oklch, var(--color-crimson) 70%, #3a1a1a); }
+  .status.cold { background: color-mix(in oklch, var(--text-muted) 20%, var(--surface-1)); color: var(--text-muted); }
+  .tier-sub {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+  }
+
+  .nonseller-hint {
+    margin: 12px 0 0;
+    padding: 8px 10px;
+    border-radius: var(--radius-sm);
+    border: 1px solid color-mix(in oklch, var(--color-clay) 35%, var(--border-subtle));
+    background: color-mix(in oklch, var(--color-clay) 8%, var(--surface-1));
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.35;
+  }
+
+  .drill {
+    display: grid;
+    grid-template-columns: 1fr 1.4fr;
+    gap: 18px;
+  }
+  .drill-meta { display: grid; gap: 10px; }
+  .meta-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 13px;
+  }
+  .meta-row .k { color: var(--text-muted); }
+  .meta-row .v { font-weight: var(--weight-medium); text-align: right; }
+  .feat-list { display: grid; gap: 8px; }
+  .feat-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 6px 10px;
+    align-items: center;
+    font-size: 12px;
+    padding: 6px 8px;
+    margin: 0 -8px;
+    border-radius: var(--radius-sm);
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    width: 100%;
+  }
+  .feat-row:hover { background: var(--surface-2); }
+  .feat-row .plain { font-weight: var(--weight-medium); }
+  .feat-row .mono {
+    grid-column: 1 / -1;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-faint);
+  }
+  .feat-row .bar-track {
+    grid-column: 1 / -1;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--surface-2);
+    overflow: hidden;
+  }
+  .feat-row .bar-fill {
+    height: 100%;
+    background: color-mix(in oklch, var(--color-crimson) 55%, var(--color-clay));
+  }
+  .feat-row .count {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    color: var(--text-muted);
+  }
+
+  .empty-hint {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin: 0;
+  }
+
+  .toast {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    z-index: 40;
+    max-width: min(360px, calc(100vw - 40px));
+    padding: 12px 14px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-subtle);
+    background: var(--surface-1);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+    font-size: 13px;
+    color: var(--text-primary);
+    opacity: 0;
+    transform: translateY(8px);
+    pointer-events: none;
+    transition: opacity 160ms ease, transform 160ms ease;
+  }
+  .toast.is-on {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .toast .mono {
+    display: block;
+    margin-top: 4px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  @media (max-width: 1100px) {
+    .kpi-strip { grid-template-columns: repeat(3, 1fr); }
+    .grid-2, .drill { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 760px) {
+    .admin-shell { grid-template-columns: 1fr; }
+    .admin-nav { border-right: 0; border-bottom: 1px solid var(--border-subtle); }
+    .kpi-strip { grid-template-columns: repeat(2, 1fr); }
+    .toast { left: 16px; right: 16px; max-width: none; }
+  }
+</style>
+</head>
+<body>
+  <div class="admin-shell">
+    <aside class="admin-nav" aria-label="Admin Console">
+      <div class="admin-brand">
+        <span class="mark">SuperCat Admin</span>
+        <span class="sub">Admin Console</span>
+      </div>
+      <div class="org-chip">
+        <div class="label">Organization</div>
+        <div class="name">Northwind Demo Co.</div>
+        <div class="short">shortname · demoorg</div>
+      </div>
+      <ul class="nav-list">
+        <li><a href="#" class="is-inert" tabindex="-1">Organizations</a></li>
+        <li><a href="#" class="is-inert" tabindex="-1">Users</a></li>
+        <li><a href="#" class="is-active" aria-current="page">Feature Usage</a></li>
+        <li><a href="#" class="is-inert" tabindex="-1" title="Sibling Admin tool — not this surface">Import Status</a></li>
+        <li><a href="#" class="is-inert" tabindex="-1" title="Bet E Settings — out of scope">Settings</a></li>
+      </ul>
+      <p class="nav-footnote">
+        SuperCat-admin only · replaces CSV export · not Sales Portal · not client self-serve
+      </p>
+    </aside>
+
+    <main class="admin-main">
+      <div class="illus-banner" role="note">
+        <strong>Illustration only</strong>
+        <span>In-page fact store · fictional anonymized users · Admin Feature Usage (ST-4 visual + interaction target)</span>
+      </div>
+
+      <div class="crumb">
+        <span>Admin Console</span>
+        <span class="sep">/</span>
+        <span>demoorg</span>
+        <span class="sep">/</span>
+        <span class="here">Feature Usage</span>
+      </div>
+
+      <header class="page-head">
+        <div>
+          <h1>Feature Usage</h1>
+          <p class="job">Org adoption for CS / GTM — replaces spreadsheet exports</p>
+        </div>
+        <div class="head-actions">
+          <span class="synced" title="From analytics_sync_logs (illustration)">
+            <span class="dot" aria-hidden="true"></span>
+            Last synced · Jul 24, 2026 06:12 UTC
+          </span>
+          <label class="date-range">
+            <span class="hint">Range</span>
+            <select id="dateRange" aria-label="Date range">
+              <option value="q3" selected>Q3 2026 · Jul 1 – Jul 24</option>
+              <option value="q2">Q2 2026 · Apr 1 – Jun 30</option>
+              <option value="30d">Last 30 days</option>
+            </select>
+          </label>
+        </div>
+      </header>
+
+      <div class="filter-bar" id="filterBar" aria-live="polite">
+        <span class="label">Filters</span>
+        <span class="chip" id="chipOrg">Org · demoorg</span>
+        <span class="chip is-active" id="chipRange">Range · Q3 2026</span>
+        <span class="chip is-active" id="chipCat" hidden></span>
+        <span class="chip is-active" id="chipSignal" hidden></span>
+        <button type="button" class="btn-clear" id="btnClear" disabled>Clear</button>
+      </div>
+
+      <div class="ops-callout" id="opsCallout">
+        <span class="tag">So what</span>
+        <ul class="ops-lines" id="opsLines" aria-live="polite">
+          <li>Loading…</li>
+        </ul>
+      </div>
+
+      <!-- AC-2 -->
+      <section class="kpi-strip" aria-label="Summary KPIs">
+        <button type="button" class="kpi" data-kpi="logins" data-signal="">
+          <div class="label">Total logins</div>
+          <div class="value" data-kpi-value="logins">—</div>
+          <div class="note">Active days (not sessions)</div>
+        </button>
+        <button type="button" class="kpi" data-kpi="users" data-signal="users">
+          <div class="label">Active users</div>
+          <div class="value" data-kpi-value="users">—</div>
+          <div class="note">≥1 active day in range</div>
+        </button>
+        <button type="button" class="kpi" data-kpi="search" data-signal="search">
+          <div class="label">Search actions</div>
+          <div class="value" data-kpi-value="search">—</div>
+          <div class="note">Search / Find</div>
+        </button>
+        <button type="button" class="kpi" data-kpi="orders" data-signal="orders">
+          <div class="label">Orders submitted</div>
+          <div class="value" data-kpi-value="orders">—</div>
+          <div class="note">order_submitted</div>
+        </button>
+        <button type="button" class="kpi" data-kpi="scans" data-signal="scans">
+          <div class="label">Items scanned</div>
+          <div class="value" data-kpi-value="scans">—</div>
+          <div class="note">item_scanned</div>
+        </button>
+      </section>
+
+      <div class="grid-2">
+        <!-- AC-3 -->
+        <section class="panel" id="panelCategory">
+          <div class="panel-head">
+            <h2>Feature usage by category</h2>
+            <span class="ac">AC-3 · bar · click to filter</span>
+          </div>
+          <p class="chart-hint">Click a category to focus contributors in the leaderboard + logins chart</p>
+          <div class="chart-box">
+            <canvas id="categoryBar" aria-label="Category bar chart"></canvas>
+          </div>
+        </section>
+
+        <!-- AC-3a -->
+        <section class="panel" id="panelPct">
+          <div class="panel-head">
+            <h2>Category breakdown</h2>
+            <span class="ac">AC-3a · % · click segment</span>
+          </div>
+          <p class="chart-hint">Same taxonomy totals as the bar — % of categorized actions</p>
+          <div class="chart-box">
+            <canvas id="categoryPct" aria-label="Category percent doughnut"></canvas>
+          </div>
+        </section>
+      </div>
+
+      <!-- AC-4a -->
+      <section class="panel grid-stack" id="panelLogins">
+        <div class="panel-head">
+          <h2>Logins by user</h2>
+          <span class="ac">AC-4a · active days · click bar → drill</span>
+        </div>
+        <div class="chart-box tall">
+          <canvas id="loginsByUser" aria-label="Logins by user bar chart"></canvas>
+        </div>
+      </section>
+
+      <div class="grid-2">
+        <!-- AC-4 -->
+        <section class="panel" id="panelLeader">
+          <div class="panel-head">
+            <h2>User activity leaderboard</h2>
+            <span class="ac">AC-4 · sortable · click row</span>
+          </div>
+          <div class="leader-wrap">
+            <table class="leader" id="leaderboard">
+              <thead>
+                <tr>
+                  <th data-sort="rank">Rank</th>
+                  <th data-sort="name">Name</th>
+                  <th data-sort="logins">Logins</th>
+                  <th data-sort="actions" data-dir="desc">Actions</th>
+                  <th data-sort="last">Last active</th>
+                  <th data-sort="status">Status</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+            <p class="leader-empty" id="leaderEmpty" hidden>No users match the current filters.</p>
+          </div>
+        </section>
+
+        <!-- AC-6 -->
+        <section class="panel" id="drillPanel">
+          <div class="panel-head">
+            <h2>User drill-down</h2>
+            <span class="ac">AC-6 · support diagnosis</span>
+          </div>
+          <p class="empty-hint" id="drillEmpty">Select a user from the leaderboard or logins chart.</p>
+          <div class="drill" id="drillBody" hidden>
+            <div class="drill-meta">
+              <div class="meta-row"><span class="k">User</span><span class="v" id="dName">—</span></div>
+              <div class="meta-row"><span class="k">Device</span><span class="v" id="dDevice">—</span></div>
+              <div class="meta-row"><span class="k">App version</span><span class="v" id="dVersion">—</span></div>
+              <div class="meta-row"><span class="k">Last active</span><span class="v" id="dLast">—</span></div>
+              <div class="meta-row"><span class="k">Logins (active days)</span><span class="v" id="dLogins">—</span></div>
+              <div class="meta-row"><span class="k">Status</span><span class="v" id="dStatus">—</span></div>
+              <p class="nonseller-hint" id="dNonseller" hidden>Busy in catalog · not submitting orders</p>
+            </div>
+            <div>
+              <div class="panel-head" style="margin-bottom:10px">
+                <h2 style="font-size:13px">Per-feature counts</h2>
+              </div>
+              <div class="feat-list" id="dFeatures"></div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const CAT_KEYS = ['search_find', 'share', 'serve', 'sell', 'scan', 'save'];
+  const CAT_LABELS = {
+    search_find: 'Search / Find',
+    share: 'Share',
+    serve: 'Serve',
+    sell: 'Sell',
+    scan: 'Scan',
+    save: 'Save'
+  };
+  const CAT_COLORS = [
+    'oklch(0.55 0.14 25)',
+    'oklch(0.62 0.08 55)',
+    'oklch(0.50 0.06 240)',
+    'oklch(0.48 0.10 150)',
+    'oklch(0.58 0.12 320)',
+    'oklch(0.45 0.04 80)'
+  ];
+  const RANGE_LABELS = {
+    q3: 'Q3 2026',
+    q2: 'Q2 2026',
+    '30d': 'Last 30 days'
+  };
+  const FEATURE_LABELS = {
+    product_search: 'Product search',
+    filter_button_pressed: 'Filter products',
+    product_sort_changed: 'Product sort',
+    collection_search: 'Collection search',
+    view_stack: 'View stack',
+    view_smart_stack: 'View smart stack',
+    view_kit: 'View kit',
+    view_flipbook: 'View flipbook',
+    item_email_drafted: 'Email item',
+    document_email_drafted: 'Email document',
+    email_stack: 'Email stack',
+    pdf_catalog_started: 'PDF catalog started',
+    pdf_catalog_generated: 'PDF catalog generated',
+    generate_xlsx_catalog: 'XLSX catalog',
+    csv_report_generated: 'CSV report',
+    customer_search: 'Customer search',
+    customer_selection: 'Select customer',
+    view_customer_orders: 'Customer orders',
+    view_favorites: 'Favorites',
+    view_customer_placements: 'Placements',
+    view_commitments: 'Commitments',
+    view_customer_smart_picks: 'Smart picks',
+    view_customer_on_order_items: 'On-order items',
+    order_submitted: 'Order submitted',
+    add_configured_item_to_order: 'Add configured item',
+    add_kit_to_order: 'Add kit to order',
+    item_added_via_magic_button: 'Magic-button add',
+    add_to_order_from_maybe_list: 'Add from maybe list',
+    copy_order: 'Copy order',
+    copy_order_items: 'Copy order items',
+    flipbook_add_to_order: 'Flipbook → order',
+    item_scanned: 'Item scanned',
+    create_stack: 'Create stack',
+    edit_stack: 'Edit stack',
+    flipbook_add_to_list: 'Flipbook → list'
+  };
+
+  /** In-browser fact store — fictional / anonymized · org demoorg */
+  const FACTS = {
+    org: 'demoorg',
+    ranges: {
+      q3: {
+        kpis: { logins: 342, users: 18, search: 4280, orders: 156, scans: 89 },
+        categories: { search_find: 4280, share: 890, serve: 2100, sell: 980, scan: 89, save: 420 },
+        users: [
+          { id: 'arivera', name: 'A. Rivera', logins: 22, actions: 1840, last: '2026-07-24', tier: 'High', status: 'excelling', device: 'iPad Pro 12.9', version: '4.12.1',
+            signals: { search: 580, orders: 38, scans: 0 },
+            catShare: { search_find: 580, share: 55, serve: 210, sell: 228, scan: 0, save: 160 },
+            features: [['product_search', 420], ['customer_selection', 210], ['order_submitted', 38], ['add_configured_item_to_order', 190], ['view_stack', 160], ['item_email_drafted', 55]] },
+          { id: 'jchen', name: 'J. Chen', logins: 20, actions: 1520, last: '2026-07-23', tier: 'High', status: 'excelling', device: 'iPad Air', version: '4.12.1',
+            signals: { search: 520, orders: 29, scans: 0 },
+            catShare: { search_find: 520, share: 40, serve: 95, sell: 29, scan: 0, save: 22 },
+            features: [['product_search', 380], ['filter_button_pressed', 140], ['view_customer_orders', 95], ['order_submitted', 29], ['pdf_catalog_generated', 40], ['create_stack', 22]] },
+          { id: 'mokonkwo', name: 'M. Okonkwo', logins: 19, actions: 980, last: '2026-07-24', tier: 'High', status: 'excelling', device: 'iPad Pro 11', version: '4.11.8',
+            signals: { search: 220, orders: 24, scans: 18 },
+            catShare: { search_find: 220, share: 0, serve: 230, sell: 24, scan: 18, save: 12 },
+            features: [['customer_search', 160], ['product_search', 220], ['order_submitted', 24], ['view_favorites', 70], ['item_scanned', 18], ['edit_stack', 12]] },
+          { id: 'spatel', name: 'S. Patel', logins: 17, actions: 720, last: '2026-07-22', tier: 'Medium', status: 'steady', device: 'iPad (10th gen)', version: '4.12.0',
+            signals: { search: 270, orders: 14, scans: 0 },
+            catShare: { search_find: 270, share: 30, serve: 0, sell: 59, scan: 0, save: 8 },
+            features: [['product_search', 180], ['view_smart_stack', 90], ['add_kit_to_order', 45], ['document_email_drafted', 30], ['order_submitted', 14], ['flipbook_add_to_list', 8]] },
+          { id: 'lbrooks', name: 'L. Brooks', logins: 16, actions: 610, last: '2026-07-21', tier: 'Medium', status: 'steady', device: 'iPad Air', version: '4.12.1',
+            signals: { search: 135, orders: 11, scans: 0 },
+            catShare: { search_find: 135, share: 6, serve: 115, sell: 11, scan: 0, save: 0 },
+            features: [['collection_search', 95], ['product_sort_changed', 40], ['customer_selection', 80], ['view_commitments', 35], ['order_submitted', 11], ['csv_report_generated', 6]] },
+          { id: 'rnguyen', name: 'R. Nguyen', logins: 15, actions: 440, last: '2026-07-20', tier: 'Medium', status: 'declining', device: 'iPad mini', version: '4.11.8',
+            signals: { search: 160, orders: 9, scans: 12 },
+            catShare: { search_find: 160, share: 0, serve: 28, sell: 9, scan: 12, save: 5 },
+            features: [['product_search', 120], ['view_kit', 40], ['view_customer_smart_picks', 28], ['order_submitted', 9], ['item_scanned', 12], ['create_stack', 5]] },
+          { id: 'talvarez', name: 'T. Alvarez', logins: 14, actions: 310, last: '2026-07-18', tier: 'Medium', status: 'declining', device: 'iPad Pro 12.9', version: '4.10.2',
+            signals: { search: 108, orders: 7, scans: 0 },
+            catShare: { search_find: 108, share: 22, serve: 40, sell: 7, scan: 0, save: 4 },
+            features: [['product_search', 90], ['email_stack', 22], ['customer_search', 40], ['order_submitted', 7], ['view_flipbook', 18], ['edit_stack', 4]] },
+          { id: 'ksingh', name: 'K. Singh', logins: 12, actions: 180, last: '2026-07-15', tier: 'Low', status: 'steady', device: 'iPad Air', version: '4.12.1',
+            signals: { search: 75, orders: 3, scans: 4 },
+            catShare: { search_find: 75, share: 0, serve: 15, sell: 3, scan: 4, save: 2 },
+            features: [['product_search', 55], ['filter_button_pressed', 20], ['view_favorites', 15], ['order_submitted', 3], ['item_scanned', 4], ['create_stack', 2]] },
+          { id: 'ewalsh', name: 'E. Walsh', logins: 9, actions: 95, last: '2026-07-10', tier: 'Low', status: 'declining', device: 'iPad (9th gen)', version: '4.09.4',
+            signals: { search: 40, orders: 1, scans: 1 },
+            catShare: { search_find: 40, share: 2, serve: 12, sell: 1, scan: 1, save: 10 },
+            features: [['product_search', 30], ['customer_selection', 12], ['view_stack', 10], ['order_submitted', 1], ['pdf_catalog_started', 2], ['item_scanned', 1]] },
+          { id: 'cmorin', name: 'C. Morin', logins: 6, actions: 42, last: '2026-07-05', tier: 'Low', status: 'declining', device: 'iPad Air', version: '4.11.0',
+            signals: { search: 14, orders: 0, scans: 0 },
+            catShare: { search_find: 14, share: 0, serve: 11, sell: 0, scan: 0, save: 1 },
+            features: [['product_search', 14], ['view_customer_orders', 6], ['customer_search', 5], ['order_submitted', 0], ['create_stack', 1], ['item_scanned', 0]] },
+          { id: 'dhughes', name: 'D. Hughes', logins: 1, actions: 4, last: '2026-07-02', tier: 'Low', status: 'cold', device: 'iPad Air', version: '4.08.1',
+            signals: { search: 3, orders: 0, scans: 0 },
+            catShare: { search_find: 3, share: 0, serve: 1, sell: 0, scan: 0, save: 0 },
+            features: [['product_search', 3], ['customer_selection', 1]] },
+          { id: 'npark', name: 'N. Park', logins: 0, actions: 0, last: '2026-04-11', tier: 'Cold', status: 'cold', device: 'iPad (9th gen)', version: '4.07.2',
+            signals: { search: 0, orders: 0, scans: 0 },
+            catShare: { search_find: 0, share: 0, serve: 0, sell: 0, scan: 0, save: 0 },
+            features: [] }
+        ]
+      },
+      q2: {
+        kpis: { logins: 410, users: 21, search: 5120, orders: 198, scans: 124 },
+        categories: { search_find: 5120, share: 1100, serve: 2460, sell: 1240, scan: 124, save: 510 },
+        users: [
+          { id: 'arivera', name: 'A. Rivera', logins: 28, actions: 2100, last: '2026-06-30', tier: 'High', status: 'excelling', device: 'iPad Pro 12.9', version: '4.11.8',
+            signals: { search: 640, orders: 44, scans: 2 },
+            catShare: { search_find: 640, share: 70, serve: 240, sell: 280, scan: 2, save: 180 },
+            features: [['product_search', 480], ['customer_selection', 240], ['order_submitted', 44], ['add_configured_item_to_order', 220], ['view_stack', 180], ['item_email_drafted', 70]] },
+          { id: 'jchen', name: 'J. Chen', logins: 26, actions: 1780, last: '2026-06-29', tier: 'High', status: 'excelling', device: 'iPad Air', version: '4.11.8',
+            signals: { search: 610, orders: 36, scans: 0 },
+            catShare: { search_find: 610, share: 55, serve: 110, sell: 36, scan: 0, save: 30 },
+            features: [['product_search', 420], ['filter_button_pressed', 190], ['view_customer_orders', 110], ['order_submitted', 36], ['pdf_catalog_generated', 55], ['create_stack', 30]] },
+          { id: 'mokonkwo', name: 'M. Okonkwo', logins: 24, actions: 1180, last: '2026-06-30', tier: 'High', status: 'excelling', device: 'iPad Pro 11', version: '4.11.8',
+            signals: { search: 280, orders: 31, scans: 28 },
+            catShare: { search_find: 280, share: 0, serve: 260, sell: 31, scan: 28, save: 18 },
+            features: [['customer_search', 190], ['product_search', 280], ['order_submitted', 31], ['view_favorites', 70], ['item_scanned', 28], ['edit_stack', 18]] },
+          { id: 'spatel', name: 'S. Patel', logins: 22, actions: 860, last: '2026-06-28', tier: 'Medium', status: 'steady', device: 'iPad (10th gen)', version: '4.11.5',
+            signals: { search: 320, orders: 18, scans: 0 },
+            catShare: { search_find: 320, share: 40, serve: 0, sell: 70, scan: 0, save: 12 },
+            features: [['product_search', 210], ['view_smart_stack', 110], ['add_kit_to_order', 52], ['document_email_drafted', 40], ['order_submitted', 18], ['flipbook_add_to_list', 12]] },
+          { id: 'lbrooks', name: 'L. Brooks', logins: 20, actions: 740, last: '2026-06-27', tier: 'Medium', status: 'steady', device: 'iPad Air', version: '4.11.8',
+            signals: { search: 170, orders: 15, scans: 0 },
+            catShare: { search_find: 170, share: 10, serve: 140, sell: 15, scan: 0, save: 0 },
+            features: [['collection_search', 110], ['product_sort_changed', 60], ['customer_selection', 100], ['view_commitments', 40], ['order_submitted', 15], ['csv_report_generated', 10]] },
+          { id: 'rnguyen', name: 'R. Nguyen', logins: 19, actions: 560, last: '2026-06-26', tier: 'Medium', status: 'steady', device: 'iPad mini', version: '4.11.0',
+            signals: { search: 190, orders: 12, scans: 20 },
+            catShare: { search_find: 190, share: 0, serve: 40, sell: 12, scan: 20, save: 8 },
+            features: [['product_search', 140], ['view_kit', 50], ['view_customer_smart_picks', 40], ['order_submitted', 12], ['item_scanned', 20], ['create_stack', 8]] },
+          { id: 'talvarez', name: 'T. Alvarez', logins: 18, actions: 420, last: '2026-06-24', tier: 'Medium', status: 'steady', device: 'iPad Pro 12.9', version: '4.10.2',
+            signals: { search: 140, orders: 10, scans: 0 },
+            catShare: { search_find: 140, share: 30, serve: 50, sell: 10, scan: 0, save: 6 },
+            features: [['product_search', 110], ['email_stack', 30], ['customer_search', 50], ['order_submitted', 10], ['view_flipbook', 30], ['edit_stack', 6]] },
+          { id: 'ksingh', name: 'K. Singh', logins: 16, actions: 260, last: '2026-06-20', tier: 'Low', status: 'steady', device: 'iPad Air', version: '4.11.8',
+            signals: { search: 95, orders: 5, scans: 8 },
+            catShare: { search_find: 95, share: 0, serve: 25, sell: 5, scan: 8, save: 4 },
+            features: [['product_search', 70], ['filter_button_pressed', 25], ['view_favorites', 25], ['order_submitted', 5], ['item_scanned', 8], ['create_stack', 4]] },
+          { id: 'ewalsh', name: 'E. Walsh', logins: 14, actions: 160, last: '2026-06-18', tier: 'Low', status: 'declining', device: 'iPad (9th gen)', version: '4.09.4',
+            signals: { search: 60, orders: 3, scans: 4 },
+            catShare: { search_find: 60, share: 8, serve: 20, sell: 3, scan: 4, save: 14 },
+            features: [['product_search', 45], ['customer_selection', 20], ['view_stack', 14], ['order_submitted', 3], ['pdf_catalog_started', 8], ['item_scanned', 4]] },
+          { id: 'cmorin', name: 'C. Morin', logins: 11, actions: 90, last: '2026-06-12', tier: 'Low', status: 'declining', device: 'iPad Air', version: '4.11.0',
+            signals: { search: 30, orders: 1, scans: 0 },
+            catShare: { search_find: 30, share: 0, serve: 22, sell: 1, scan: 0, save: 4 },
+            features: [['product_search', 30], ['view_customer_orders', 12], ['customer_search', 10], ['order_submitted', 1], ['create_stack', 4]] },
+          { id: 'dhughes', name: 'D. Hughes', logins: 8, actions: 48, last: '2026-06-08', tier: 'Low', status: 'declining', device: 'iPad Air', version: '4.08.1',
+            signals: { search: 22, orders: 0, scans: 0 },
+            catShare: { search_find: 22, share: 0, serve: 10, sell: 0, scan: 0, save: 2 },
+            features: [['product_search', 22], ['customer_selection', 10], ['create_stack', 2]] },
+          { id: 'npark', name: 'N. Park', logins: 2, actions: 12, last: '2026-04-11', tier: 'Low', status: 'declining', device: 'iPad (9th gen)', version: '4.07.2',
+            signals: { search: 8, orders: 0, scans: 0 },
+            catShare: { search_find: 8, share: 0, serve: 4, sell: 0, scan: 0, save: 0 },
+            features: [['product_search', 8], ['customer_selection', 4]] }
+        ]
+      },
+      '30d': {
+        kpis: { logins: 148, users: 14, search: 1860, orders: 62, scans: 34 },
+        categories: { search_find: 1860, share: 310, serve: 820, sell: 390, scan: 34, save: 150 },
+        users: [
+          { id: 'arivera', name: 'A. Rivera', logins: 18, actions: 920, last: '2026-07-24', tier: 'High', status: 'excelling', device: 'iPad Pro 12.9', version: '4.12.1',
+            signals: { search: 300, orders: 18, scans: 0 },
+            catShare: { search_find: 300, share: 28, serve: 110, sell: 120, scan: 0, save: 70 },
+            features: [['product_search', 220], ['customer_selection', 110], ['order_submitted', 18], ['add_configured_item_to_order', 100], ['view_stack', 70], ['item_email_drafted', 28]] },
+          { id: 'jchen', name: 'J. Chen', logins: 16, actions: 780, last: '2026-07-23', tier: 'High', status: 'excelling', device: 'iPad Air', version: '4.12.1',
+            signals: { search: 260, orders: 14, scans: 0 },
+            catShare: { search_find: 260, share: 20, serve: 50, sell: 14, scan: 0, save: 12 },
+            features: [['product_search', 190], ['filter_button_pressed', 70], ['view_customer_orders', 50], ['order_submitted', 14], ['pdf_catalog_generated', 20], ['create_stack', 12]] },
+          { id: 'mokonkwo', name: 'M. Okonkwo', logins: 15, actions: 510, last: '2026-07-24', tier: 'High', status: 'steady', device: 'iPad Pro 11', version: '4.11.8',
+            signals: { search: 110, orders: 12, scans: 10 },
+            catShare: { search_find: 110, share: 0, serve: 120, sell: 12, scan: 10, save: 6 },
+            features: [['customer_search', 80], ['product_search', 110], ['order_submitted', 12], ['view_favorites', 40], ['item_scanned', 10], ['edit_stack', 6]] },
+          { id: 'spatel', name: 'S. Patel', logins: 13, actions: 360, last: '2026-07-22', tier: 'Medium', status: 'steady', device: 'iPad (10th gen)', version: '4.12.0',
+            signals: { search: 140, orders: 7, scans: 0 },
+            catShare: { search_find: 140, share: 15, serve: 0, sell: 28, scan: 0, save: 4 },
+            features: [['product_search', 90], ['view_smart_stack', 50], ['add_kit_to_order', 21], ['document_email_drafted', 15], ['order_submitted', 7], ['flipbook_add_to_list', 4]] },
+          { id: 'lbrooks', name: 'L. Brooks', logins: 12, actions: 290, last: '2026-07-21', tier: 'Medium', status: 'steady', device: 'iPad Air', version: '4.12.1',
+            signals: { search: 70, orders: 5, scans: 0 },
+            catShare: { search_find: 70, share: 3, serve: 60, sell: 5, scan: 0, save: 0 },
+            features: [['collection_search', 50], ['product_sort_changed', 20], ['customer_selection', 40], ['view_commitments', 20], ['order_submitted', 5], ['csv_report_generated', 3]] },
+          { id: 'rnguyen', name: 'R. Nguyen', logins: 11, actions: 210, last: '2026-07-20', tier: 'Medium', status: 'steady', device: 'iPad mini', version: '4.11.8',
+            signals: { search: 80, orders: 4, scans: 6 },
+            catShare: { search_find: 80, share: 0, serve: 14, sell: 4, scan: 6, save: 3 },
+            features: [['product_search', 60], ['view_kit', 20], ['view_customer_smart_picks', 14], ['order_submitted', 4], ['item_scanned', 6], ['create_stack', 3]] },
+          { id: 'talvarez', name: 'T. Alvarez', logins: 10, actions: 150, last: '2026-07-18', tier: 'Low', status: 'declining', device: 'iPad Pro 12.9', version: '4.10.2',
+            signals: { search: 50, orders: 3, scans: 0 },
+            catShare: { search_find: 50, share: 10, serve: 20, sell: 3, scan: 0, save: 2 },
+            features: [['product_search', 40], ['email_stack', 10], ['customer_search', 20], ['order_submitted', 3], ['view_flipbook', 10], ['edit_stack', 2]] },
+          { id: 'ksingh', name: 'K. Singh', logins: 8, actions: 90, last: '2026-07-15', tier: 'Low', status: 'declining', device: 'iPad Air', version: '4.12.1',
+            signals: { search: 40, orders: 1, scans: 2 },
+            catShare: { search_find: 40, share: 0, serve: 8, sell: 1, scan: 2, save: 1 },
+            features: [['product_search', 30], ['filter_button_pressed', 10], ['view_favorites', 8], ['order_submitted', 1], ['item_scanned', 2], ['create_stack', 1]] },
+          { id: 'ewalsh', name: 'E. Walsh', logins: 5, actions: 40, last: '2026-07-10', tier: 'Low', status: 'declining', device: 'iPad (9th gen)', version: '4.09.4',
+            signals: { search: 18, orders: 0, scans: 0 },
+            catShare: { search_find: 18, share: 1, serve: 6, sell: 0, scan: 0, save: 5 },
+            features: [['product_search', 14], ['customer_selection', 6], ['view_stack', 5], ['pdf_catalog_started', 1]] },
+          { id: 'cmorin', name: 'C. Morin', logins: 3, actions: 18, last: '2026-07-05', tier: 'Low', status: 'declining', device: 'iPad Air', version: '4.11.0',
+            signals: { search: 8, orders: 0, scans: 0 },
+            catShare: { search_find: 8, share: 0, serve: 6, sell: 0, scan: 0, save: 1 },
+            features: [['product_search', 8], ['view_customer_orders', 3], ['customer_search', 3], ['create_stack', 1]] },
+          { id: 'dhughes', name: 'D. Hughes', logins: 1, actions: 3, last: '2026-07-02', tier: 'Low', status: 'cold', device: 'iPad Air', version: '4.08.1',
+            signals: { search: 2, orders: 0, scans: 0 },
+            catShare: { search_find: 2, share: 0, serve: 1, sell: 0, scan: 0, save: 0 },
+            features: [['product_search', 2], ['customer_selection', 1]] },
+          { id: 'npark', name: 'N. Park', logins: 0, actions: 0, last: '2026-04-11', tier: 'Cold', status: 'cold', device: 'iPad (9th gen)', version: '4.07.2',
+            signals: { search: 0, orders: 0, scans: 0 },
+            catShare: { search_find: 0, share: 0, serve: 0, sell: 0, scan: 0, save: 0 },
+            features: [] }
+        ]
+      }
+    }
+  };
+
+  const state = {
+    range: 'q3',
+    category: null,   // search_find | …
+    signal: null,     // users | search | orders | scans
+    selectedUserId: null,
+    sortKey: 'actions',
+    sortDir: 'desc'
+  };
+
+  const els = {
+    range: document.getElementById('dateRange'),
+    chipRange: document.getElementById('chipRange'),
+    chipCat: document.getElementById('chipCat'),
+    chipSignal: document.getElementById('chipSignal'),
+    btnClear: document.getElementById('btnClear'),
+    opsLines: document.getElementById('opsLines'),
+    tbody: document.querySelector('#leaderboard tbody'),
+    leaderEmpty: document.getElementById('leaderEmpty'),
+    drillEmpty: document.getElementById('drillEmpty'),
+    drillBody: document.getElementById('drillBody'),
+    toast: document.getElementById('toast'),
+    panelLeader: document.getElementById('panelLeader'),
+    drillPanel: document.getElementById('drillPanel'),
+    dNonseller: document.getElementById('dNonseller')
+  };
+
+  const STATUS_LABELS = {
+    excelling: 'Excelling',
+    steady: 'Steady',
+    declining: 'Declining',
+    cold: 'Quiet/Cold'
+  };
+  const STATUS_ORDER = { excelling: 4, steady: 3, declining: 2, cold: 1 };
+  const OLD_VERSION_FLOOR = '4.10.0'; // demo threshold for “older than”
+
+  function fact() { return FACTS.ranges[state.range]; }
+
+  function tierClass(t) {
+    if (t === 'High') return 'high';
+    if (t === 'Medium') return 'medium';
+    if (t === 'Cold') return 'cold';
+    return 'low';
+  }
+
+  function statusOf(u) {
+    return u.status || (u.logins <= 1 ? 'cold' : 'steady');
+  }
+
+  function statusLabel(s) {
+    return STATUS_LABELS[s] || s;
+  }
+
+  function tierShort(t) {
+    if (t === 'High') return 'High';
+    if (t === 'Medium') return 'Med';
+    if (t === 'Cold') return 'Cold';
+    return 'Low';
+  }
+
+  function parseVersion(v) {
+    return String(v || '0').split('.').map(n => parseInt(n, 10) || 0);
+  }
+
+  function versionOlderThan(v, floor) {
+    const a = parseVersion(v);
+    const b = parseVersion(floor);
+    for (let i = 0; i < Math.max(a.length, b.length); i++) {
+      const x = a[i] || 0, y = b[i] || 0;
+      if (x < y) return true;
+      if (x > y) return false;
+    }
+    return false;
+  }
+
+  function plainFeature(event) {
+    return FEATURE_LABELS[event] || event.replace(/_/g, ' ');
+  }
+
+  function isNonseller(u) {
+    const catalog =
+      (u.catShare?.search_find || 0) +
+      (u.catShare?.share || 0) +
+      (u.catShare?.serve || 0);
+    const orders = u.signals?.orders || 0;
+    return catalog >= 20 && orders === 0;
+  }
+
+  function filteredUsers() {
+    let rows = fact().users.slice();
+    if (state.category) {
+      rows = rows.filter(u => (u.catShare?.[state.category] || 0) > 0);
+    }
+    if (state.signal === 'search') rows = rows.filter(u => (u.signals?.search || 0) > 0);
+    if (state.signal === 'orders') rows = rows.filter(u => (u.signals?.orders || 0) > 0);
+    if (state.signal === 'scans') rows = rows.filter(u => (u.signals?.scans || 0) > 0);
+    // signal=users → focus leaderboard, no row filter
+    return rows;
+  }
+
+  function sortedUsers(rows) {
+    const list = rows.map((u, i) => ({ ...u, _i: i }));
+    list.sort((a, b) => {
+      let av = a[state.sortKey], bv = b[state.sortKey];
+      if (state.sortKey === 'status') {
+        av = STATUS_ORDER[statusOf(a)] || 0;
+        bv = STATUS_ORDER[statusOf(b)] || 0;
+      }
+      if (state.sortKey === 'name' || state.sortKey === 'last') {
+        return state.sortDir === 'asc' ? String(av).localeCompare(String(bv)) : String(bv).localeCompare(String(av));
+      }
+      if (state.sortKey === 'rank') {
+        return state.sortDir === 'asc' ? a.actions - b.actions : b.actions - a.actions;
+      }
+      return state.sortDir === 'asc' ? av - bv : bv - av;
+    });
+    return list.map((r, idx) => ({ ...r, rank: idx + 1 }));
+  }
+
+  function updateOpsCopy() {
+    const f = fact();
+    const users = f.users;
+    const cold = users.filter(u => statusOf(u) === 'cold').length;
+    const declining = users.filter(u => statusOf(u) === 'declining').length;
+    const cats = f.categories;
+    const search = cats.search_find || 0;
+    const sell = cats.sell || 0;
+    const sellShare = search > 0 ? Math.round((sell / search) * 100) : 0;
+    const sellThin = search > 0 && sell < search * 0.35;
+    const oldApps = users.filter(u => versionOlderThan(u.version, OLD_VERSION_FLOOR)).length;
+
+    const lines = [];
+    lines.push(
+      cold > 0
+        ? `<strong>${cold} quiet/cold seat${cold === 1 ? '' : 's'}</strong> · ${declining} declining vs prior window`
+        : `<strong>${declining} declining</strong> vs prior window · no quiet/cold seats`
+    );
+    if (sellThin) {
+      lines.push(
+        `<strong>Sell thin vs Search</strong> — Sell actions are ${sellShare}% of Search volume`
+      );
+    } else {
+      lines.push(
+        `Sell vs Search mix looks healthier — Sell at ${sellShare}% of Search volume`
+      );
+    }
+    lines.push(
+      oldApps > 0
+        ? `<strong>${oldApps} user${oldApps === 1 ? '' : 's'}</strong> on app version older than ${OLD_VERSION_FLOOR}`
+        : `All listed seats on app ≥ ${OLD_VERSION_FLOOR}`
+    );
+    if (state.category) {
+      lines[0] = lines[0] + ` <span style="color:var(--text-faint)">(range ${RANGE_LABELS[state.range]} · filter ${CAT_LABELS[state.category]})</span>`;
+    }
+
+    els.opsLines.innerHTML = lines.map(l => `<li>${l}</li>`).join('');
+  }
+
+  function updateFilterChips() {
+    els.chipRange.textContent = `Range · ${RANGE_LABELS[state.range]}`;
+    if (state.category) {
+      els.chipCat.hidden = false;
+      els.chipCat.innerHTML = `Category: ${CAT_LABELS[state.category]} <button type="button" data-clear="category" aria-label="Clear category">×</button>`;
+    } else {
+      els.chipCat.hidden = true;
+      els.chipCat.innerHTML = '';
+    }
+    if (state.signal && state.signal !== 'users') {
+      const labels = { search: 'Signal: Search', orders: 'Signal: Orders', scans: 'Signal: Scans' };
+      els.chipSignal.hidden = false;
+      els.chipSignal.innerHTML = `${labels[state.signal]} <button type="button" data-clear="signal" aria-label="Clear signal">×</button>`;
+    } else if (state.signal === 'users') {
+      els.chipSignal.hidden = false;
+      els.chipSignal.innerHTML = `Focus: Active users <button type="button" data-clear="signal" aria-label="Clear focus">×</button>`;
+    } else {
+      els.chipSignal.hidden = true;
+      els.chipSignal.innerHTML = '';
+    }
+    const dirty = !!(state.category || state.signal || state.selectedUserId);
+    els.btnClear.disabled = !dirty;
+  }
+
+  function updateKpiActive() {
+    document.querySelectorAll('.kpi').forEach((btn) => {
+      const sig = btn.dataset.signal;
+      const active = (sig && state.signal === sig) || (!sig && state.signal === null && btn.dataset.kpi === 'logins' && false);
+      btn.classList.toggle('is-active', !!(sig && state.signal === sig));
+    });
+  }
+
+  function renderKpis() {
+    const k = fact().kpis;
+    Object.entries(k).forEach(([key, val]) => {
+      const el = document.querySelector(`[data-kpi-value="${key}"]`);
+      if (el) el.textContent = Number(val).toLocaleString();
+    });
+    updateKpiActive();
+  }
+
+  function categoryCounts() {
+    return CAT_KEYS.map(k => fact().categories[k]);
+  }
+
+  function setCategoryHighlight(chart, selectedKey) {
+    const idx = selectedKey ? CAT_KEYS.indexOf(selectedKey) : -1;
+    chart.data.datasets[0].backgroundColor = CAT_COLORS.map((c, i) => {
+      if (idx < 0 || i === idx) return c;
+      return c.replace(/\)$/, ' / 0.28)');
+    });
+    chart.update('none');
+  }
+
+  const chartDefaults = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: { mode: 'nearest', intersect: true }
+    }
+  };
+
+  const categoryBar = new Chart(document.getElementById('categoryBar'), {
+    type: 'bar',
+    data: {
+      labels: CAT_KEYS.map(k => CAT_LABELS[k]),
+      datasets: [{ data: categoryCounts(), backgroundColor: CAT_COLORS.slice(), borderRadius: 4, maxBarThickness: 42 }]
+    },
+    options: {
+      ...chartDefaults,
+      onClick(_evt, elements) {
+        if (!elements.length) return;
+        const key = CAT_KEYS[elements[0].index];
+        state.category = state.category === key ? null : key;
+        state.signal = null;
+        renderAll({ scrollLeader: true });
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 11 } } },
+        y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.06)' }, ticks: { font: { size: 11 } } }
+      }
+    }
+  });
+
+  const categoryPct = new Chart(document.getElementById('categoryPct'), {
+    type: 'doughnut',
+    data: {
+      labels: CAT_KEYS.map(k => CAT_LABELS[k]),
+      datasets: [{ data: categoryCounts(), backgroundColor: CAT_COLORS.slice(), borderWidth: 0 }]
+    },
+    options: {
+      ...chartDefaults,
+      cutout: '62%',
+      onClick(_evt, elements) {
+        if (!elements.length) return;
+        const key = CAT_KEYS[elements[0].index];
+        state.category = state.category === key ? null : key;
+        state.signal = null;
+        renderAll({ scrollLeader: true });
+      },
+      plugins: {
+        legend: {
+          display: true,
+          position: 'right',
+          labels: {
+            boxWidth: 10,
+            font: { size: 11 },
+            generateLabels(chart) {
+              const data = chart.data;
+              const total = data.datasets[0].data.reduce((a, b) => a + b, 0) || 1;
+              return data.labels.map((label, i) => {
+                const v = data.datasets[0].data[i];
+                const pct = ((v / total) * 100).toFixed(1);
+                return {
+                  text: `${label}  ${pct}%`,
+                  fillStyle: data.datasets[0].backgroundColor[i],
+                  strokeStyle: data.datasets[0].backgroundColor[i],
+                  index: i
+                };
+              });
+            }
+          }
+        },
+        tooltip: {
+          callbacks: {
+            label(ctx) {
+              const total = ctx.dataset.data.reduce((a, b) => a + b, 0) || 1;
+              const pct = ((ctx.raw / total) * 100).toFixed(1);
+              return `${ctx.label}: ${ctx.raw.toLocaleString()} (${pct}%)`;
+            }
+          }
+        }
+      }
+    }
+  });
+
+  const loginsByUser = new Chart(document.getElementById('loginsByUser'), {
+    type: 'bar',
+    data: {
+      labels: [],
+      datasets: [{
+        label: 'Active days',
+        data: [],
+        backgroundColor: [],
+        borderRadius: 4,
+        maxBarThickness: 28
+      }]
+    },
+    options: {
+      ...chartDefaults,
+      indexAxis: 'y',
+      onClick(_evt, elements) {
+        if (!elements.length) return;
+        const users = filteredUsers();
+        const sorted = sortedUsers(users);
+        const u = sorted[elements[0].index];
+        if (u) openDrill(u.id, { scroll: true });
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label(ctx) { return `${ctx.raw} active days`; }
+          }
+        }
+      },
+      scales: {
+        x: {
+          beginAtZero: true,
+          title: { display: true, text: 'Logins (active days)', font: { size: 11 } },
+          grid: { color: 'rgba(0,0,0,0.06)' }
+        },
+        y: { grid: { display: false }, ticks: { font: { size: 11 } } }
+      }
+    }
+  });
+
+  function renderCharts() {
+    const counts = categoryCounts();
+    categoryBar.data.datasets[0].data = counts;
+    categoryPct.data.datasets[0].data = counts;
+    setCategoryHighlight(categoryBar, state.category);
+    setCategoryHighlight(categoryPct, state.category);
+
+    const sorted = sortedUsers(filteredUsers());
+    loginsByUser.data.labels = sorted.map(u => u.name);
+    loginsByUser.data.datasets[0].data = sorted.map(u => u.logins);
+    loginsByUser.data.datasets[0].backgroundColor = sorted.map(u =>
+      u.id === state.selectedUserId
+        ? 'oklch(0.48 0.14 25)'
+        : (u.logins <= 1 ? 'oklch(0.62 0.02 25 / 0.55)' : 'oklch(0.52 0.10 25 / 0.85)')
+    );
+    loginsByUser.update();
+  }
+
+  function renderLeaderboard() {
+    const sorted = sortedUsers(filteredUsers());
+    if (!sorted.length) {
+      els.tbody.innerHTML = '';
+      els.leaderEmpty.hidden = false;
+      return;
+    }
+    els.leaderEmpty.hidden = true;
+    els.tbody.innerHTML = sorted.map((u) => {
+      const st = statusOf(u);
+      return `
+      <tr data-id="${u.id}" class="${u.id === state.selectedUserId ? 'is-selected' : ''} ${st === 'cold' ? 'is-cold' : ''}">
+        <td class="num">${u.rank}</td>
+        <td>${u.name}</td>
+        <td class="num">${u.logins}</td>
+        <td class="num">${u.actions.toLocaleString()}</td>
+        <td class="num">${u.last}</td>
+        <td>
+          <div class="status-cell">
+            <span class="status ${st}">${statusLabel(st)}</span>
+            <span class="tier-sub">${tierShort(u.tier)} eng.</span>
+          </div>
+        </td>
+      </tr>`;
+    }).join('');
+  }
+
+  function openDrill(userId, opts = {}) {
+    const u = fact().users.find(x => x.id === userId);
+    if (!u) return;
+    state.selectedUserId = userId;
+    els.drillEmpty.hidden = true;
+    els.drillBody.hidden = false;
+    document.getElementById('dName').textContent = u.name;
+    document.getElementById('dDevice').textContent = u.device;
+    document.getElementById('dVersion').textContent = u.version;
+    document.getElementById('dLast').textContent = u.last;
+    document.getElementById('dLogins').textContent = String(u.logins);
+    const st = statusOf(u);
+    document.getElementById('dStatus').innerHTML =
+      `<span class="status ${st}">${statusLabel(st)}</span>` +
+      ` <span class="tier-sub">${tierShort(u.tier)} eng.</span>`;
+    els.dNonseller.hidden = !isNonseller(u);
+
+    if (!u.features.length) {
+      document.getElementById('dFeatures').innerHTML =
+        `<p class="empty-hint">No categorized feature events in this range — quiet/cold seat for coaching.</p>`;
+    } else {
+      const max = Math.max(...u.features.map(f => f[1]), 1);
+      document.getElementById('dFeatures').innerHTML = u.features.map(([event, count]) => `
+        <button type="button" class="feat-row" data-event="${event}" data-count="${count}">
+          <span class="plain">${plainFeature(event)}</span>
+          <span class="count">${count}</span>
+          <span class="mono">${event}</span>
+          <div class="bar-track"><div class="bar-fill" style="width:${(count / max) * 100}%"></div></div>
+        </button>
+      `).join('');
+    }
+
+    renderLeaderboard();
+    renderCharts();
+    updateFilterChips();
+    writeHash();
+
+    if (opts.scroll) {
+      flashPanel(els.drillPanel);
+      els.drillPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  }
+
+  function clearDrill() {
+    state.selectedUserId = null;
+    els.drillEmpty.hidden = false;
+    els.drillBody.hidden = true;
+  }
+
+  function flashPanel(el) {
+    el.classList.remove('is-highlight');
+    void el.offsetWidth;
+    el.classList.add('is-highlight');
+    setTimeout(() => el.classList.remove('is-highlight'), 900);
+  }
+
+  let toastTimer;
+  function showToast(html) {
+    els.toast.innerHTML = html;
+    els.toast.classList.add('is-on');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => els.toast.classList.remove('is-on'), 2800);
+  }
+
+  function writeHash() {
+    const parts = [`range=${state.range}`];
+    if (state.category) parts.push(`cat=${state.category}`);
+    if (state.signal) parts.push(`signal=${state.signal}`);
+    if (state.selectedUserId) parts.push(`user=${state.selectedUserId}`);
+    history.replaceState(null, '', `#${parts.join('&')}`);
+  }
+
+  function readHash() {
+    const raw = location.hash.replace(/^#/, '');
+    if (!raw) return;
+    const params = Object.fromEntries(raw.split('&').map(p => {
+      const [k, v] = p.split('=');
+      return [k, decodeURIComponent(v || '')];
+    }));
+    if (params.range && FACTS.ranges[params.range]) state.range = params.range;
+    if (params.cat && CAT_KEYS.includes(params.cat)) state.category = params.cat;
+    if (params.signal && ['users', 'search', 'orders', 'scans'].includes(params.signal)) state.signal = params.signal;
+    if (params.user) state.selectedUserId = params.user;
+  }
+
+  function renderAll(opts = {}) {
+    els.range.value = state.range;
+    renderKpis();
+    updateOpsCopy();
+    updateFilterChips();
+    renderCharts();
+    renderLeaderboard();
+
+    if (state.selectedUserId && fact().users.some(u => u.id === state.selectedUserId)) {
+      openDrill(state.selectedUserId, { scroll: false });
+    } else if (state.selectedUserId) {
+      clearDrill();
+    }
+
+    if (opts.scrollLeader) {
+      flashPanel(els.panelLeader);
+      els.panelLeader.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+    if (opts.flashUsers) {
+      const btn = document.querySelector('.kpi[data-signal="users"]');
+      if (btn) {
+        btn.classList.add('is-flash');
+        setTimeout(() => btn.classList.remove('is-flash'), 700);
+      }
+      flashPanel(els.panelLeader);
+      els.panelLeader.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+    writeHash();
+  }
+
+  // Events
+  els.range.addEventListener('change', (e) => {
+    state.range = e.target.value;
+    state.category = null;
+    state.signal = null;
+    // keep selected user if present in new range
+    if (state.selectedUserId && !fact().users.some(u => u.id === state.selectedUserId)) {
+      clearDrill();
+    }
+    renderAll();
+  });
+
+  document.querySelectorAll('.kpi').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const sig = btn.dataset.signal;
+      if (!sig) {
+        // Total logins — soft focus leaderboard, no filter
+        state.signal = null;
+        renderAll({ scrollLeader: true });
+        return;
+      }
+      if (sig === 'users') {
+        state.signal = 'users';
+        state.category = null;
+        renderAll({ flashUsers: true });
+        return;
+      }
+      state.signal = state.signal === sig ? null : sig;
+      state.category = null;
+      renderAll({ scrollLeader: true });
+    });
+  });
+
+  els.tbody.addEventListener('click', (e) => {
+    const tr = e.target.closest('tr[data-id]');
+    if (!tr) return;
+    openDrill(tr.dataset.id, { scroll: true });
+  });
+
+  document.getElementById('dFeatures').addEventListener('click', (e) => {
+    const row = e.target.closest('.feat-row[data-event]');
+    if (!row) return;
+    const event = row.dataset.event;
+    const count = row.dataset.count;
+    showToast(`<strong>${plainFeature(event)}</strong><span class="mono">${event} · ${count} in ${RANGE_LABELS[state.range]}</span>`);
+  });
+
+  document.querySelectorAll('#leaderboard th[data-sort]').forEach((th) => {
+    th.addEventListener('click', () => {
+      const key = th.dataset.sort;
+      if (state.sortKey === key) state.sortDir = state.sortDir === 'asc' ? 'desc' : 'asc';
+      else {
+        state.sortKey = key;
+        state.sortDir = (key === 'name' || key === 'last' || key === 'rank') ? 'asc' : 'desc';
+      }
+      document.querySelectorAll('#leaderboard th').forEach((h) => h.removeAttribute('data-dir'));
+      th.dataset.dir = state.sortDir;
+      renderLeaderboard();
+      renderCharts();
+    });
+  });
+
+  els.btnClear.addEventListener('click', () => {
+    state.category = null;
+    state.signal = null;
+    clearDrill();
+    renderAll();
+  });
+
+  document.getElementById('filterBar').addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-clear]');
+    if (!btn) return;
+    const which = btn.dataset.clear;
+    if (which === 'category') state.category = null;
+    if (which === 'signal') state.signal = null;
+    renderAll();
+  });
+
+  readHash();
+  els.range.value = state.range;
+  renderAll();
+  if (state.selectedUserId) openDrill(state.selectedUserId, { scroll: false });
+  else openDrill(fact().users[0].id, { scroll: false });
+
+  window.__afuDemo = { FACTS, state, renderAll };
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,148 @@
+/* ════════════════════════════════════════════════════════════════
+   SuperCat DS — Skeleton primitive  ·  .kskel
+   ────────────────────────────────────────────────────────────────
+   ▸ Class prefix: `.kskel` = "kit skeleton" — content-shape
+     placeholder shown while data is loading.
+   ▸ Framework-agnostic. Pure CSS for visuals; consumers wire the
+     load lifecycle by toggling `aria-busy="true|false"` on a
+     wrapping element. The companion `skeleton.js` ships a small
+     simulated-fetch helper for demos, but in production you set
+     `aria-busy` from your fetch/loading state directly.
+
+   API — three shapes + a content swap pattern
+   ──────────────────────────────────────────────
+     <.kskel .kskel-line>        single line of text width
+     <.kskel .kskel-text>        block of 3 stacked text lines
+     <.kskel .kskel-circle>      avatar / icon placeholder
+     <.kskel .kskel-block>       arbitrary rectangle (set --w / --h)
+     <.kskel .kskel-cover>       4:3 panel — matches product cover
+
+   Content swap (the canonical loading pattern)
+   ──────────────────────────────────────────────
+     Wrap the loading region in [data-loadable aria-busy="true"].
+     Put skeleton placeholders in [data-skel]; real content in
+     [data-real]. The rule below toggles visibility from aria-busy.
+
+     <div data-loadable aria-busy="true">
+       <div data-skel>
+         <span class="kskel kskel-line" style="--w: 60%"></span>
+         <span class="kskel kskel-line" style="--w: 80%"></span>
+       </div>
+       <div data-real>{ real content }</div>
+     </div>
+
+   Tokens consumed (semantic + primitive — no legacy --k-*):
+     --surface-2  --surface-3  --border-subtle
+     --duration-slow  --ease-out
+     prefers-reduced-motion handled
+   ════════════════════════════════════════════════════════════════ */
+
+
+:where(.kskel) {
+  --kskel-bg:        var(--surface-2);
+  --kskel-highlight: color-mix(in oklch, var(--text-primary) 6%, var(--surface-2));
+  --kskel-dur:       1400ms;
+  --w:               100%;
+  --h:               12px;
+  --radius:          var(--radius-sm);
+
+  display: inline-block;
+  width: var(--w);
+  height: var(--h);
+  border-radius: var(--radius);
+  background:
+    linear-gradient(
+      90deg,
+      var(--kskel-bg) 0%,
+      var(--kskel-highlight) 50%,
+      var(--kskel-bg) 100%
+    ) 0 0 / 200% 100%;
+  animation: kskel-shimmer var(--kskel-dur) linear infinite;
+  vertical-align: middle;
+}
+
+@keyframes kskel-shimmer {
+  0%   { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
+}
+
+/* ── Shape variants ────────────────────────────────────────────── */
+
+.kskel-line {
+  display: block;
+  height: 12px;
+  margin-bottom: var(--space-2);
+}
+.kskel-line:last-child { margin-bottom: 0; }
+
+.kskel-text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: 100%;
+}
+.kskel-text > .kskel { height: 12px; }
+.kskel-text > .kskel:nth-child(1) { --w: 70%; }
+.kskel-text > .kskel:nth-child(2) { --w: 95%; }
+.kskel-text > .kskel:nth-child(3) { --w: 60%; }
+
+.kskel-circle {
+  --w: 36px;
+  --h: 36px;
+  border-radius: 50%;
+}
+
+.kskel-block { display: block; }
+
+.kskel-cover {
+  display: block;
+  width: 100%;
+  aspect-ratio: 5 / 4;
+  border-radius: 0;
+  height: auto;
+  --h: auto;
+}
+
+
+/* ── Sizing helpers (compose with shapes) ─────────────────────── */
+
+.kskel-h-text  { height: 12px; }
+.kskel-h-md    { height: 16px; }
+.kskel-h-title { height: 22px; }
+.kskel-h-xl    { height: 36px; }
+
+
+/* ── Content swap — driven by aria-busy on a wrapper ──────────────
+   The wrapping element gets [data-loadable]. While aria-busy="true"
+   the [data-skel] children are visible, [data-real] hidden. When
+   the load completes (consumer toggles aria-busy → "false") the
+   roles flip — no JS required on the CSS side, just the attribute.
+   ─────────────────────────────────────────────────────────────── */
+
+[data-loadable] > [data-skel] { display: block; }
+[data-loadable] > [data-real] { display: block; }
+
+[data-loadable][aria-busy="true"]  > [data-skel] { display: block; }
+[data-loadable][aria-busy="true"]  > [data-real] { display: none; }
+[data-loadable][aria-busy="false"] > [data-skel] { display: none; }
+[data-loadable][aria-busy="false"] > [data-real] { display: block; }
+
+/* Reveal real content with a gentle fade when load completes. */
+[data-loadable][aria-busy="false"] > [data-real] {
+  animation: kskel-fade-in var(--duration-base) var(--ease-out);
+}
+@keyframes kskel-fade-in {
+  from { opacity: 0; transform: translateY(2px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+
+/* ── Reduced motion ──────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .kskel {
+    animation: none;
+    background: var(--kskel-bg);
+  }
+  [data-loadable][aria-busy="false"] > [data-real] { animation: none; }
+}

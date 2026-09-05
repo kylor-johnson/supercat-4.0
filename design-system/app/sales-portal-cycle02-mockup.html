@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Sales Portal — Intelligence in shell (Cycle 02 wireframe)</title>
+
+<!-- Real App kit tokens + primitives (same as app/dashboard.html) -->
+<link rel="stylesheet" href="../ds/tokens/index.css?v=12" />
+<link rel="stylesheet" href="../ds/primitives/button.css?v=68" />
+<link rel="stylesheet" href="../ds/primitives/card.css?v=10" />
+<link rel="stylesheet" href="../ds/primitives/table.css?v=6" />
+<link rel="stylesheet" href="../ds/primitives/tabs.css?v=13" />
+
+<style>
+  html, body { margin: 0; padding: 0; min-height: 100%; }
+  body {
+    background: var(--surface-page);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Floating App shell — same grammar as app/dashboard.html, but this
+     is the SALES PORTAL reporting surface, not the catalog. The point
+     of cycle02: prove the answer-first heroes live INSIDE the real
+     portal chrome (Destination C, in context) — not a floating essay. */
+  .kshell { display: grid; grid-template-columns: auto 1fr; min-height: 100dvh;
+            padding: clamp(12px,1.4vw,20px); gap: clamp(12px,1.4vw,20px); }
+  .kshell-main { display: flex; flex-direction: column; min-width: 0; gap: clamp(8px,1vw,16px); }
+
+  /* Static portal rail (mockup-only; real build uses .knav / sc-app-sidebar) */
+  .rail { width: 232px; flex-shrink: 0; background: var(--surface-card);
+          border: 1px solid var(--border-subtle); border-radius: var(--radius-lg);
+          padding: var(--space-4) var(--space-3); display: flex; flex-direction: column; gap: var(--space-1); }
+  .rail-brand { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-2) var(--space-3) var(--space-4); }
+  .rail-brand svg { width: 30px; height: 21px; color: var(--color-gold); }
+  .rail-brand .bt { font-family: var(--font-mono); font-size: var(--text-2xs); letter-spacing: var(--tracking-widest); text-transform: uppercase; color: var(--text-muted); }
+  .rail-sec { font-family: var(--font-mono); font-size: 10px; letter-spacing: var(--tracking-widest); text-transform: uppercase; color: var(--text-faint); padding: var(--space-4) var(--space-3) var(--space-2); }
+  .rail a { display: flex; align-items: center; gap: var(--space-3); padding: 8px var(--space-3); border-radius: var(--radius-sm);
+            color: var(--text-body); text-decoration: none; font-size: var(--text-sm); }
+  .rail a svg { width: 16px; height: 16px; opacity: .7; }
+  .rail a:hover { background: var(--surface-2); }
+  .rail a.is-active { background: var(--surface-2); color: var(--text-primary); font-weight: var(--weight-medium); }
+  .rail a.is-active svg { opacity: 1; color: var(--color-gold); }
+  .rail a .tag { margin-left: auto; font-family: var(--font-mono); font-size: 9px; letter-spacing: var(--tracking-wider); text-transform: uppercase; color: var(--color-gold); border: 1px solid color-mix(in oklch, var(--color-gold) 40%, transparent); padding: 1px 5px; border-radius: var(--radius-pill); }
+
+  .kshell-top { display: flex; align-items: center; gap: var(--space-3); height: 52px; padding: 0 var(--space-2); flex-shrink: 0; }
+  .crumb-row { display: flex; align-items: center; gap: var(--space-2); font-family: var(--font-mono); font-size: var(--text-2xs); font-weight: var(--weight-semibold); letter-spacing: var(--tracking-widest); text-transform: uppercase; color: var(--text-muted); }
+  .crumb-row .crumb-sep { color: var(--text-faint); }
+  .crumb-row .crumb-here { color: var(--text-primary); }
+  .topbar-actions { display: flex; gap: var(--space-2); margin-left: auto; align-items: center; }
+  .mock-flag { padding: 2px 8px; border-radius: var(--radius-pill); background: var(--color-gold-l); color: var(--color-gold); font-family: var(--font-mono); font-size: 10px; letter-spacing: var(--tracking-wider); text-transform: uppercase; }
+
+  .kshell-content { padding: 0 var(--space-2) clamp(24px,3vw,56px); }
+  .page-head { display: flex; align-items: flex-end; gap: var(--space-4); flex-wrap: wrap; margin: var(--space-2) 0 var(--space-5); }
+  .page-head h1 { margin: 0; font-size: clamp(26px,3vw,38px); letter-spacing: var(--tracking-tighter); font-weight: var(--weight-medium); }
+  .page-head .meta { font-family: var(--font-mono); font-size: var(--text-2xs); letter-spacing: var(--tracking-widest); text-transform: uppercase; color: var(--text-muted); }
+  .page-head .actions { margin-left: auto; display: flex; gap: var(--space-2); align-items: center; }
+
+  .ctx-bar { display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap; padding: var(--space-3) var(--space-4); background: var(--surface-2); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); font-size: var(--text-sm); color: var(--text-body); margin-bottom: var(--space-4); }
+  .ctx-bar .ctx-k { font-family: var(--font-mono); font-size: var(--text-2xs); letter-spacing: var(--tracking-widest); text-transform: uppercase; color: var(--text-muted); }
+  .ctx-bar select { font: inherit; color: var(--text-primary); background: var(--surface-card); border: 1px solid var(--border-default); border-radius: var(--radius-sm); padding: 4px 8px; }
+
+  .section-head { display: flex; align-items: baseline; gap: var(--space-3); margin: var(--space-7) 0 var(--space-4); padding-bottom: var(--space-3); border-bottom: 1px dashed var(--border-subtle); }
+  .section-head h2 { margin: 0; font-size: var(--text-xl); font-weight: var(--weight-medium); letter-spacing: var(--tracking-tighter); }
+  .section-head .meta { font-family: var(--font-mono); font-size: var(--text-2xs); letter-spacing: var(--tracking-widest); text-transform: uppercase; color: var(--text-muted); margin-left: auto; }
+
+  .hero-grid { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(16px,1.6vw,24px); align-items: stretch; }
+  .hero-grid > * { min-width: 0; }
+  @media (max-width: 900px) { .hero-grid { grid-template-columns: 1fr; } }
+
+  .answer-eyebrow { font-family: var(--font-mono); font-size: var(--text-2xs); letter-spacing: var(--tracking-widest); text-transform: uppercase; color: var(--text-muted); }
+  .answer-q { font-size: var(--text-md); font-weight: var(--weight-medium); letter-spacing: var(--tracking-tighter); margin: 2px 0 var(--space-4); }
+  .answer-num { font-size: clamp(36px,4.4vw,52px); line-height: 1; font-weight: var(--weight-medium); letter-spacing: -0.03em; font-variant-numeric: tabular-nums lining-nums; }
+  .answer-sub { margin-top: var(--space-3); font-size: var(--text-sm); color: var(--text-body); line-height: var(--leading-relaxed); }
+  .prov { display: inline-flex; align-items: center; gap: 8px; margin-top: var(--space-4); padding: 5px 10px; border-radius: var(--radius-pill); background: var(--color-moss-soft); color: var(--color-moss); font-family: var(--font-mono); font-size: var(--text-2xs); letter-spacing: var(--tracking-wider); text-transform: uppercase; }
+
+  .spark { display: flex; align-items: flex-end; gap: 4px; height: 72px; margin-top: var(--space-4); }
+  .spark .bar { flex: 1; border-radius: var(--radius-sm) var(--radius-sm) 0 0; background: linear-gradient(180deg, color-mix(in oklch, var(--color-clay) 34%, transparent), color-mix(in oklch, var(--color-clay) 8%, transparent)); }
+  .spark .bar.is-peak { background: linear-gradient(180deg, var(--color-gold), color-mix(in oklch, var(--color-gold) 30%, transparent)); }
+  .spark-x { display: flex; justify-content: space-between; margin-top: 6px; font-family: var(--font-mono); font-size: 10px; letter-spacing: var(--tracking-wider); text-transform: uppercase; color: var(--text-muted); }
+
+  /* Big single-account number on the concentration hero */
+  .conc-big { display: flex; align-items: baseline; gap: var(--space-3); margin-top: var(--space-2); }
+  .conc-big .pct { font-size: clamp(36px,4.4vw,52px); line-height: 1; font-weight: var(--weight-medium); letter-spacing: -0.03em; font-variant-numeric: tabular-nums; color: var(--text-crimson); }
+  .conc-big .of { font-size: var(--text-sm); color: var(--text-body); }
+  .risk-callout { margin-top: var(--space-4); padding: var(--space-3) var(--space-4); border-left: 3px solid var(--action-primary); background: var(--action-primary-tint); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; }
+  .risk-callout .rc-head { font-weight: var(--weight-semibold); color: var(--text-crimson); font-size: var(--text-sm); }
+  .risk-callout .rc-body { font-size: var(--text-sm); color: var(--text-body); margin-top: 2px; line-height: var(--leading-relaxed); }
+
+  /* Ranked share-bar list — the "where the risk lives" density cuts */
+  .rank { display: flex; flex-direction: column; gap: var(--space-3); }
+  .rank-row { display: grid; grid-template-columns: 1fr auto; gap: 2px var(--space-3); align-items: center; }
+  .rank-row .nm { font-size: var(--text-sm); color: var(--text-body); }
+  .rank-row .nm .lead { color: var(--text-primary); font-weight: var(--weight-medium); }
+  .rank-row .vl { font-family: var(--font-mono); font-size: var(--text-sm); font-variant-numeric: tabular-nums; color: var(--text-primary); text-align: right; }
+  .rank-row .track { grid-column: 1 / -1; height: 6px; background: var(--surface-2); border-radius: var(--radius-pill); overflow: hidden; }
+  .rank-row .fill { height: 100%; border-radius: var(--radius-pill); background: linear-gradient(90deg, color-mix(in oklch, var(--color-clay) 28%, transparent), color-mix(in oklch, var(--color-clay) 55%, transparent)); }
+  .rank-row.is-top .fill { background: linear-gradient(90deg, color-mix(in oklch, var(--color-gold) 55%, transparent), var(--color-gold)); }
+  .rank-row .sub { font-family: var(--font-mono); font-size: 10px; letter-spacing: var(--tracking-wider); text-transform: uppercase; color: var(--text-muted); }
+
+  .synth { margin-top: var(--space-5); padding: var(--space-4) var(--space-5); border: 1px solid var(--border-default); border-radius: var(--radius-md); background: var(--surface-card); }
+  .synth .st { font-family: var(--font-mono); font-size: var(--text-2xs); letter-spacing: var(--tracking-widest); text-transform: uppercase; color: var(--text-muted); }
+  .synth .sb { font-size: var(--text-md); line-height: var(--leading-relaxed); margin-top: var(--space-2); }
+  .synth .sb em { font-style: normal; color: var(--text-crimson); font-weight: var(--weight-medium); }
+
+  .footnote { font-family: var(--font-mono); font-size: var(--text-2xs); letter-spacing: var(--tracking-wider); color: var(--text-muted); line-height: var(--leading-relaxed); margin-top: var(--space-6); padding-top: var(--space-3); border-top: 1px dashed var(--border-subtle); }
+
+  .theme-toggle .icon-dark { display: none; }
+  [data-theme="dark"] .theme-toggle .icon-light { display: none; }
+  [data-theme="dark"] .theme-toggle .icon-dark { display: block; }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <symbol id="i-dash" viewBox="0 0 24 24"><path d="M3 3h7v9H3zM14 3h7v5h-7zM14 12h7v9h-7zM3 16h7v5H3z"/></symbol>
+  <symbol id="i-orders" viewBox="0 0 24 24"><path d="M3 6h2l2 11h11l2-8H6"/><circle cx="9" cy="20" r="1.5"/><circle cx="17" cy="20" r="1.5"/></symbol>
+  <symbol id="i-file" viewBox="0 0 24 24"><path d="M5 4h10l4 4v12H5z"/><path d="M15 4v4h4"/></symbol>
+  <symbol id="i-customers" viewBox="0 0 24 24"><path d="M4 21v-1a5 5 0 0 1 5-5h6a5 5 0 0 1 5 5v1"/><circle cx="12" cy="8" r="4"/></symbol>
+  <symbol id="i-report" viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/><path d="M8 16v-4M12 16V8M16 16v-6"/></symbol>
+  <symbol id="i-sparkle" viewBox="0 0 24 24"><path d="M12 3l1.8 4.9L18 9.5l-4.2 1.6L12 16l-1.8-4.9L6 9.5l4.2-1.6L12 3z" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 16 16"><path d="M13 9.5a5.5 5.5 0 0 1-7-7 6 6 0 1 0 7 7z"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 16 16"><circle cx="8" cy="8" r="3"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3 3l1.5 1.5M11.5 11.5L13 13M3 13l1.5-1.5M11.5 4.5L13 3"/></symbol>
+  <symbol id="i-mark" viewBox="0 0 41 28">
+    <path d="M20.4773 17.6424C16.8375 10.6856 13.5207 10.6117 10.2067 10.5378C8.69685 10.5042 7.18762 10.4706 5.64872 9.78608L0 0H2.43148C5.09633 3.25885 7.65432 3.51236 10.2129 3.76594C13.5561 4.09728 16.9003 4.42872 20.4853 11.4648C24.0761 4.39466 27.4109 4.0844 30.7463 3.77408C33.2971 3.53675 35.8483 3.29939 38.5148 0.0385625H41L35.3692 9.78883C33.8047 10.503 32.2722 10.5331 30.7392 10.5634C27.4294 10.6286 24.1175 10.6937 20.4773 17.6424Z" fill="currentColor" stroke="none"/>
+    <path d="M20.4773 27.9975L20.4771 27.9972L20.4756 28L20.4756 27.9944C17.538 22.3699 14.7931 21.2243 12.1087 20.9635L7.9752 13.8017C8.72235 13.9462 9.4664 14.0158 10.2103 14.0855C13.5487 14.398 16.8835 14.7102 20.4773 21.7843C24.0589 14.7274 27.3849 14.4269 30.7115 14.1261C31.4831 14.0563 32.2548 13.9866 33.0298 13.8324L28.8886 20.9942C26.1863 21.25 23.4405 22.3367 20.4773 27.9969V27.9975Z" fill="currentColor" stroke="none"/>
+  </symbol>
+</defs></svg>
+
+<div class="kshell">
+
+  <!-- ─── STATIC PORTAL RAIL (mockup-only) ─── -->
+  <aside class="rail">
+    <div class="rail-brand">
+      <svg viewBox="0 0 41 28"><use href="#i-mark"/></svg>
+      <span class="bt">Sales Portal</span>
+    </div>
+    <a href="#"><svg viewBox="0 0 24 24"><use href="#i-dash"/></svg>Dashboard</a>
+    <a href="#"><svg viewBox="0 0 24 24"><use href="#i-orders"/></svg>Orders</a>
+    <a href="#"><svg viewBox="0 0 24 24"><use href="#i-file"/></svg>Invoices</a>
+    <a href="#"><svg viewBox="0 0 24 24"><use href="#i-customers"/></svg>Customers</a>
+    <a href="#"><svg viewBox="0 0 24 24"><use href="#i-report"/></svg>Reports</a>
+    <div class="rail-sec">Lane 2</div>
+    <a href="#" class="is-active"><svg viewBox="0 0 24 24"><use href="#i-sparkle"/></svg>Intelligence <span class="tag">New</span></a>
+  </aside>
+
+  <!-- ─── MAIN ─── -->
+  <div class="kshell-main">
+
+    <header class="kshell-top">
+      <div class="crumb-row">
+        <span>Sarreid, Ltd.</span><span class="crumb-sep">/</span><span>Sales Portal</span><span class="crumb-sep">/</span><span class="crumb-here">Intelligence</span>
+      </div>
+      <div class="topbar-actions">
+        <span class="mock-flag">Wireframe · mockup-only</span>
+        <button class="kb kb-sm kb-secondary">
+          <svg viewBox="0 0 16 16" style="color:var(--color-gold)" width="14" height="14"><use href="#i-sparkle"/></svg>
+          Give feedback
+        </button>
+        <button class="kb kb-sm kb-secondary kb-icon theme-toggle" aria-label="Toggle theme"
+                onclick="document.documentElement.dataset.theme = document.documentElement.dataset.theme === 'dark' ? '' : 'dark'">
+          <svg class="icon-light" viewBox="0 0 16 16"><use href="#i-moon"/></svg>
+          <svg class="icon-dark" viewBox="0 0 16 16"><use href="#i-sun"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <main class="kshell-content">
+
+      <div class="page-head">
+        <h1>Intelligence</h1>
+        <span class="meta">Answer-first · invoiced ledger</span>
+        <div class="actions">
+          <button class="kb kb-md kb-secondary">Export</button>
+          <button class="kb kb-md kb-primary">Open full report</button>
+        </div>
+      </div>
+
+      <!-- One range drives every number on the page (the SERV-2395 lesson). -->
+      <div class="ctx-bar">
+        <span class="ctx-k">Org</span>
+        <select><option>Sarreid, Ltd. (sarreid)</option><option>Currey &amp; Company (cci)</option></select>
+        <span class="ctx-k">Range</span>
+        <select><option>Trailing 12 months</option><option>Current YTD</option><option>Previous YTD</option><option>Custom…</option></select>
+        <span class="ctx-k" style="margin-left:auto;">Jul 17 2025 → Jul 16 2026 · invoiced net</span>
+      </div>
+
+      <!-- ─── TWO HEROES ─── -->
+      <div class="hero-grid">
+
+        <!-- HERO 1 — True Topline -->
+        <article class="kc">
+          <div class="kc-body" style="padding: var(--space-5);">
+            <div class="answer-eyebrow">Hero 1 · True Topline</div>
+            <div class="answer-q">What is our real business, invoiced?</div>
+            <div class="answer-num">$15.98M</div>
+            <div class="answer-sub">Trailing 12 months. 11,702 invoices · 1,413 active customers. Reconciles to the ledger — not the warehouse dashboard rollup.</div>
+            <div class="spark" role="img" aria-label="Monthly invoiced sales, trailing 12 months">
+              <span class="bar" style="height:71%" title="2025-08 · $1.03M"></span>
+              <span class="bar" style="height:89%" title="2025-09 · $1.29M"></span>
+              <span class="bar" style="height:99%" title="2025-10 · $1.43M"></span>
+              <span class="bar" style="height:90%" title="2025-11 · $1.30M"></span>
+              <span class="bar" style="height:96%" title="2025-12 · $1.38M"></span>
+              <span class="bar" style="height:93%" title="2026-01 · $1.34M"></span>
+              <span class="bar" style="height:96%" title="2026-02 · $1.39M"></span>
+              <span class="bar" style="height:99%" title="2026-03 · $1.43M"></span>
+              <span class="bar" style="height:99%" title="2026-04 · $1.43M"></span>
+              <span class="bar" style="height:88%" title="2026-05 · $1.28M"></span>
+              <span class="bar is-peak" style="height:100%" title="2026-06 · $1.44M · peak"></span>
+              <span class="bar" style="height:42%; opacity:.5" title="2026-07 · $0.61M · month-to-date"></span>
+            </div>
+            <div class="spark-x"><span>Aug '25</span><span>Jan '26</span><span>Jul '26 MTD</span></div>
+            <div class="prov">Invoiced net_amount · reconciles to ledger</div>
+          </div>
+        </article>
+
+        <!-- HERO 2 — Concentration -->
+        <article class="kc">
+          <div class="kc-body" style="padding: var(--space-5);">
+            <div class="answer-eyebrow">Hero 2 · Concentration</div>
+            <div class="answer-q">How exposed are we to one account?</div>
+            <div class="conc-big"><span class="pct">30.0%</span><span class="of">of invoiced sales is one customer — $4.79M</span></div>
+            <div class="answer-sub">Then a cliff: the #2 account is 3.4%. The top 10 together are 46.4%. Half the book rides on ten relationships; a third rides on one.</div>
+            <div class="risk-callout">
+              <div class="rc-head">Single-account risk</div>
+              <div class="rc-body">Losing the top account would erase ~$4.8M — nearly a third of the invoiced book — and there is no #2 to absorb it.</div>
+            </div>
+            <div class="prov">Share of invoiced net · trailing 12 months</div>
+          </div>
+        </article>
+      </div>
+
+      <!-- ─── WHERE THE RISK LIVES — three real concentration cuts ─── -->
+      <div class="section-head">
+        <h2>Where the risk lives</h2>
+        <span class="meta">Customer · rep · geography</span>
+      </div>
+
+      <div class="hero-grid" style="grid-template-columns: 1fr 1fr 1fr;">
+
+        <!-- CUT 1 — Customer -->
+        <article class="kc">
+          <header class="kc-head">
+            <div class="kc-head-lead">
+              <span class="kc-eyebrow">By customer</span>
+              <h3 class="kc-title" style="margin:0;font-size:var(--text-md);font-weight:var(--weight-medium);letter-spacing:var(--tracking-tighter);">Top accounts</h3>
+            </div>
+          </header>
+          <div class="kc-body">
+            <div class="rank">
+              <div class="rank-row is-top">
+                <span class="nm"><span class="lead">Account 01</span> <span class="sub">masked</span></span>
+                <span class="vl">30.0%</span>
+                <div class="track"><div class="fill" style="width:100%"></div></div>
+              </div>
+              <div class="rank-row"><span class="nm">Account 02</span><span class="vl">3.4%</span><div class="track"><div class="fill" style="width:11%"></div></div></div>
+              <div class="rank-row"><span class="nm">Account 03</span><span class="vl">2.5%</span><div class="track"><div class="fill" style="width:8%"></div></div></div>
+              <div class="rank-row"><span class="nm">Account 04</span><span class="vl">2.1%</span><div class="track"><div class="fill" style="width:7%"></div></div></div>
+              <div class="rank-row"><span class="nm">Account 05</span><span class="vl">1.8%</span><div class="track"><div class="fill" style="width:6%"></div></div></div>
+            </div>
+            <div class="answer-sub" style="margin-top:var(--space-4);">Top 10 = <strong>46.4%</strong> · 1,413 customers total.</div>
+          </div>
+        </article>
+
+        <!-- CUT 2 — Rep -->
+        <article class="kc">
+          <header class="kc-head">
+            <div class="kc-head-lead">
+              <span class="kc-eyebrow">By rep</span>
+              <h3 class="kc-title" style="margin:0;font-size:var(--text-md);font-weight:var(--weight-medium);letter-spacing:var(--tracking-tighter);">Top reps</h3>
+            </div>
+          </header>
+          <div class="kc-body">
+            <div class="rank">
+              <div class="rank-row is-top">
+                <span class="nm"><span class="lead">Rep 099</span> <span class="sub">72 accts</span></span>
+                <span class="vl">39.4%</span>
+                <div class="track"><div class="fill" style="width:100%"></div></div>
+              </div>
+              <div class="rank-row"><span class="nm">Rep 022 <span class="sub">87 accts</span></span><span class="vl">9.8%</span><div class="track"><div class="fill" style="width:25%"></div></div></div>
+              <div class="rank-row"><span class="nm">Rep 198 <span class="sub">152 accts</span></span><span class="vl">9.1%</span><div class="track"><div class="fill" style="width:23%"></div></div></div>
+              <div class="rank-row"><span class="nm">Rep 032 <span class="sub">90 accts</span></span><span class="vl">6.0%</span><div class="track"><div class="fill" style="width:15%"></div></div></div>
+              <div class="rank-row"><span class="nm">Rep 056 <span class="sub">137 accts</span></span><span class="vl">5.6%</span><div class="track"><div class="fill" style="width:14%"></div></div></div>
+            </div>
+            <div class="answer-sub" style="margin-top:var(--space-4);">One rep books <strong>39.4%</strong> ($6.29M) across 89 reps.</div>
+          </div>
+        </article>
+
+        <!-- CUT 3 — Geography -->
+        <article class="kc">
+          <header class="kc-head">
+            <div class="kc-head-lead">
+              <span class="kc-eyebrow">By geography</span>
+              <h3 class="kc-title" style="margin:0;font-size:var(--text-md);font-weight:var(--weight-medium);letter-spacing:var(--tracking-tighter);">Top states</h3>
+            </div>
+          </header>
+          <div class="kc-body">
+            <div class="rank">
+              <div class="rank-row is-top">
+                <span class="nm"><span class="lead">Massachusetts</span></span>
+                <span class="vl">31.1%</span>
+                <div class="track"><div class="fill" style="width:100%"></div></div>
+              </div>
+              <div class="rank-row"><span class="nm">Texas</span><span class="vl">6.8%</span><div class="track"><div class="fill" style="width:22%"></div></div></div>
+              <div class="rank-row"><span class="nm">North Carolina</span><span class="vl">6.7%</span><div class="track"><div class="fill" style="width:22%"></div></div></div>
+              <div class="rank-row"><span class="nm">New York</span><span class="vl">6.2%</span><div class="track"><div class="fill" style="width:20%"></div></div></div>
+              <div class="rank-row"><span class="nm">New Jersey</span><span class="vl">5.5%</span><div class="track"><div class="fill" style="width:18%"></div></div></div>
+            </div>
+            <div class="answer-sub" style="margin-top:var(--space-4);">One state (MA) = <strong>31.1%</strong> ($4.96M) across 56 states.</div>
+          </div>
+        </article>
+      </div>
+
+      <!-- SYNTHESIS — the three cuts point at the same relationship -->
+      <div class="synth">
+        <div class="st">What the three cuts say together</div>
+        <div class="sb">The <em>same relationship</em> shows up in all three views: one account is 30% of the book, one rep (099) books 39%, one state (Massachusetts) is 31%. Sarreid's risk isn't diffuse — it's a single customer-rep-territory concentration. The report's job is to name it, not bury it in a filter.</div>
+      </div>
+
+      <div class="footnote">
+        Source · portal_invoices.net_amount (invoiced spine) · org sarreid=1 · trailing 12 months Jul 17 2025 → Jul 16 2026 · 11,702 invoices · figures rounded, customer names masked, rep/state codes shown as stored · warehouse dashboard rollup may disagree — this surface states the invoiced ledger number. Mockup-only; not production Rails.
+      </div>
+    </main>
+  </div>
+</div>
+</body>
+</html>

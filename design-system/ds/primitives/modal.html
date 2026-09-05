@@ -1,0 +1,405 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>SuperCat DS — Modal (.kmd) validation</title>
+
+<link rel="stylesheet" href="../tokens/index.css?v=12" />
+<link rel="stylesheet" href="../../nav/marketing-nav.css?v=15"/>
+<script src="../../nav/marketing-nav.js?v=13" defer></script>
+<link rel="stylesheet" href="./button.css?v=68" />
+<link rel="stylesheet" href="./input.css?v=15" />
+<link rel="stylesheet" href="./field.css?v=13" />
+<link rel="stylesheet" href="./card.css?v=10" />
+<link rel="stylesheet" href="./modal.css?v=3" />
+<script src="./modal.js?v=1" defer></script>
+
+<style>
+  html, body { margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--surface-page);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: clamp(56px, 9vw, 120px) clamp(20px, 4vw, 56px);
+  }
+  .lede {
+    display: flex; align-items: center; gap: var(--space-3);
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-widest);
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: var(--space-4);
+  }
+  .lede .ix { color: var(--color-crimson); }
+  h1 {
+    margin: 0 0 var(--space-3);
+    font-size: clamp(40px, 5vw, 64px);
+    line-height: 1.04;
+    letter-spacing: var(--tracking-tightest, -0.02em);
+    font-weight: var(--weight-medium);
+  }
+  h1 .mono {
+    font-family: var(--font-mono);
+    font-size: 0.5em;
+    color: var(--text-muted);
+    margin-left: var(--space-3);
+    letter-spacing: 0;
+  }
+  p.intro {
+    margin: 0 0 var(--space-7);
+    font-size: var(--text-lg);
+    line-height: 1.55;
+    color: var(--text-body);
+    max-width: 64ch;
+  }
+  .row {
+    margin-top: clamp(40px, 5vw, 64px);
+    padding-top: clamp(20px, 2vw, 32px);
+    border-top: 1px dashed var(--border-subtle);
+  }
+  .row-head {
+    display: flex; align-items: baseline; justify-content: space-between;
+    flex-wrap: wrap; gap: var(--space-3);
+    margin-bottom: var(--space-5);
+  }
+  .row-head h2 {
+    margin: 0;
+    font-size: clamp(24px, 2.4vw, 32px);
+    font-weight: var(--weight-medium);
+    letter-spacing: var(--tracking-tighter);
+  }
+  .row-head .spec {
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    letter-spacing: var(--tracking-widest);
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .row p.desc {
+    margin: 0 0 var(--space-5);
+    color: var(--text-body);
+    font-size: var(--text-base);
+    line-height: 1.55;
+    max-width: 60ch;
+  }
+  .stage {
+    padding: clamp(28px, 3vw, 44px);
+    background: var(--surface-2);
+    border-radius: var(--radius-lg);
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+    /* No min-height — the stage hugs the dialog content tightly so
+       there's no awkward empty space below small components. */
+  }
+  .triggers {
+    display: flex; gap: var(--space-3); flex-wrap: wrap;
+    margin-top: var(--space-4);
+  }
+  .toolbar {
+    position: absolute; top: 24px; right: 24px;
+    display: flex; gap: var(--space-2);
+  }
+  .toolbar .kb { background: var(--surface-card); border-color: var(--border-default); }
+  .theme-toggle .icon-dark  { display: none; }
+  [data-theme="dark"] .theme-toggle .icon-light { display: none; }
+  [data-theme="dark"] .theme-toggle .icon-dark  { display: block; }
+</style>
+</head>
+<body>
+
+<sc-marketing-nav></sc-marketing-nav>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-moon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M13 9.5a5.5 5.5 0 0 1-7-7 6 6 0 1 0 7 7z"/></symbol>
+    <symbol id="i-sun"  viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="8" cy="8" r="3"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3 3l1.5 1.5M11.5 11.5L13 13M3 13l1.5-1.5M11.5 4.5L13 3"/></symbol>
+    <symbol id="i-mark" viewBox="0 0 41 28">
+      <path d="M20.4773 17.6424C16.8375 10.6856 13.5207 10.6117 10.2067 10.5378C8.69685 10.5042 7.18762 10.4706 5.64872 9.78608L0 0H2.43148C5.09633 3.25885 7.65432 3.51236 10.2129 3.76594C13.5561 4.09728 16.9003 4.42872 20.4853 11.4648C24.0761 4.39466 27.4109 4.0844 30.7463 3.77408C33.2971 3.53675 35.8483 3.29939 38.5148 0.0385625H41L35.3692 9.78883C33.8047 10.503 32.2722 10.5331 30.7392 10.5634C27.4294 10.6286 24.1175 10.6937 20.4773 17.6424Z" fill="currentColor"/>
+      <path d="M20.4773 27.9975L20.4771 27.9972L20.4756 28L20.4756 27.9944C17.538 22.3699 14.7931 21.2243 12.1087 20.9635L7.9752 13.8017C8.72235 13.9462 9.4664 14.0158 10.2103 14.0855C13.5487 14.398 16.8835 14.7102 20.4773 21.7843C24.0589 14.7274 27.3849 14.4269 30.7115 14.1261C31.4831 14.0563 32.2548 13.9866 33.0298 13.8324L28.8886 20.9942C26.1863 21.25 23.4405 22.3367 20.4773 27.9969V27.9975Z" fill="currentColor"/>
+    </symbol>
+  </defs>
+</svg>
+
+<main class="wrap">
+  <button class="kb kb-sm kb-secondary kb-icon theme-toggle" style="position:fixed;top:88px;right:24px;z-index:5;"
+          aria-label="Toggle theme"
+          onclick="document.documentElement.dataset.theme = document.documentElement.dataset.theme === 'dark' ? '' : 'dark'">
+    <svg class="icon-light" viewBox="0 0 16 16"><use href="#i-moon"/></svg>
+    <svg class="icon-dark"  viewBox="0 0 16 16"><use href="#i-sun"/></svg>
+  </button>
+
+  <p class="lede"><span class="ix">02.14</span><span>Modal · App + Marketing · 4 variants</span></p>
+  <h1>Modal <span class="mono">.kmd</span></h1>
+  <p class="intro">One shell, four placements. Confirmation dialogs and three-dots menus stay tight and Apple-feel — for the app. Preview dialogs open large for contact / product / order detail. Marketing modal carries an editorial hero for lead magnets and announcements. Backdrop blur + ESC + scroll-lock come from the native <code style="font-family:var(--font-mono);font-size:.92em;color:var(--text-strong);">&lt;dialog&gt;</code> element.</p>
+
+
+  <!-- ─── 1. CONFIRM ─── -->
+  <section class="row">
+    <div class="row-head">
+      <h2>Confirm</h2>
+      <span class="spec">.kmd-confirm · 400 px</span>
+    </div>
+    <p class="desc">Compact destructive / yes-no decisions. Tight Apple-feel padding. Title, body, two-button row. Use <code style="font-family:var(--font-mono);font-size:.9em;">.kb-danger</code> on the destructive option — never primary.</p>
+
+    <div class="stage">
+      <!-- Static preview (always visible) -->
+      <div class="kmd kmd-confirm" style="display:flex;flex-direction:column;position:static;max-width:100%;">
+        <header class="kmd-head">
+          <h2 class="kmd-title">Delete this order?</h2>
+          <p class="kmd-body-copy">Order #136131-112625-10 will be permanently removed. Vendor and audit log entries stay. You can't undo this.</p>
+        </header>
+        <div class="kmd-actions">
+          <button class="kb kb-md kb-secondary" type="button">Cancel</button>
+          <button class="kb kb-md kb-danger" type="button">Delete order</button>
+        </div>
+      </div>
+    </div>
+    <div class="triggers">
+      <button class="kb kb-md kb-primary" type="button" onclick="document.getElementById('demo-confirm').showModal();">Open live dialog</button>
+      <button class="kb kb-md kb-secondary" type="button" onclick="document.getElementById('demo-confirm-archive').showModal();">Archive variant</button>
+    </div>
+  </section>
+
+
+  <!-- ─── 2. MENU ─── -->
+  <section class="row">
+    <div class="row-head">
+      <h2>Menu</h2>
+      <span class="spec">.kmd-menu · 240 px · three-dots popover</span>
+    </div>
+    <p class="desc">Compact contextual menu. Icon · label · keyboard shortcut grid. Supports <code style="font-family:var(--font-mono);font-size:.9em;">.is-danger</code> items (crimson hover) and <code style="font-family:var(--font-mono);font-size:.9em;">.kmd-menu-sep</code> dividers. Auto-positions below trigger, flips up near viewport bottom.</p>
+
+    <div class="stage">
+      <!-- Static menu (always visible) -->
+      <div class="kmd kmd-menu" role="menu" style="position:static;">
+        <button class="kmd-menu-item" role="menuitem" type="button">
+          <svg class="kmd-menu-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 8s2.5-4 6-4 6 4 6 4-2.5 4-6 4-6-4-6-4z"/><circle cx="8" cy="8" r="2"/></svg>
+          <span class="kmd-menu-label">View details</span>
+          <span class="kmd-menu-key">⌘E</span>
+        </button>
+        <button class="kmd-menu-item" role="menuitem" type="button">
+          <svg class="kmd-menu-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="9" height="9" rx="1"/><path d="M3 11V3a1 1 0 0 1 1-1h8"/></svg>
+          <span class="kmd-menu-label">Duplicate</span>
+          <span class="kmd-menu-key">⌘D</span>
+        </button>
+        <button class="kmd-menu-item" role="menuitem" type="button">
+          <svg class="kmd-menu-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 11v2a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-2M8 2v8M5 7l3 3 3-3"/></svg>
+          <span class="kmd-menu-label">Export CSV</span>
+        </button>
+        <hr class="kmd-menu-sep"/>
+        <button class="kmd-menu-item is-danger" role="menuitem" type="button">
+          <svg class="kmd-menu-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h10M6 5V3h4v2M5 5l1 9h4l1-9"/></svg>
+          <span class="kmd-menu-label">Delete</span>
+          <span class="kmd-menu-key">⌫</span>
+        </button>
+      </div>
+    </div>
+    <div class="triggers" style="position:relative;">
+      <button class="kb kb-md kb-secondary kb-icon" type="button" aria-label="Order options"
+              data-kmd-menu-trigger aria-controls="demo-menu" aria-haspopup="true" aria-expanded="false">
+        <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><circle cx="3" cy="8" r="1.4"/><circle cx="8" cy="8" r="1.4"/><circle cx="13" cy="8" r="1.4"/></svg>
+      </button>
+      <span style="font-family:var(--font-mono);font-size:var(--text-2xs);letter-spacing:var(--tracking-wider);text-transform:uppercase;color:var(--text-muted);align-self:center;">Click ⋯ to open the live menu</span>
+      <div class="kmd kmd-menu" role="menu" id="demo-menu" hidden>
+        <button class="kmd-menu-item" role="menuitem" type="button">
+          <svg class="kmd-menu-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 8s2.5-4 6-4 6 4 6 4-2.5 4-6 4-6-4-6-4z"/><circle cx="8" cy="8" r="2"/></svg>
+          <span class="kmd-menu-label">View details</span>
+          <span class="kmd-menu-key">⌘E</span>
+        </button>
+        <button class="kmd-menu-item" role="menuitem" type="button">
+          <svg class="kmd-menu-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="9" height="9" rx="1"/><path d="M3 11V3a1 1 0 0 1 1-1h8"/></svg>
+          <span class="kmd-menu-label">Duplicate</span>
+          <span class="kmd-menu-key">⌘D</span>
+        </button>
+        <button class="kmd-menu-item" role="menuitem" type="button">
+          <svg class="kmd-menu-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 11v2a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-2M8 2v8M5 7l3 3 3-3"/></svg>
+          <span class="kmd-menu-label">Export CSV</span>
+        </button>
+        <hr class="kmd-menu-sep"/>
+        <button class="kmd-menu-item is-danger" role="menuitem" type="button">
+          <svg class="kmd-menu-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h10M6 5V3h4v2M5 5l1 9h4l1-9"/></svg>
+          <span class="kmd-menu-label">Delete</span>
+          <span class="kmd-menu-key">⌫</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ─── 3. PREVIEW ─── -->
+  <section class="row">
+    <div class="row-head">
+      <h2>Preview</h2>
+      <span class="spec">.kmd-preview · 720 px · big detail dialog</span>
+    </div>
+    <p class="desc">Large dialog for contact / product / order detail. Title bar with close, scrollable body, sticky footer with secondary + primary action.</p>
+
+    <div class="stage">
+      <!-- Static preview shell -->
+      <div class="kmd kmd-preview" style="display:flex;flex-direction:column;position:static;max-width:100%;max-height:none;">
+        <header class="kmd-head kmd-head-bar">
+          <div class="kmd-head-lead">
+            <span class="kmd-eyebrow">Customer · 12 years</span>
+            <h2 class="kmd-title">Caldera Mills</h2>
+          </div>
+          <button class="kmd-close" type="button" aria-label="Close preview">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3.5 3.5l9 9M12.5 3.5l-9 9"/></svg>
+          </button>
+        </header>
+        <div class="kmd-body">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;padding-bottom:12px;">
+            <div>
+              <p style="font-family:var(--font-mono);font-size:var(--text-2xs);letter-spacing:var(--tracking-widest);text-transform:uppercase;color:var(--text-muted);margin:0 0 6px;">Contact</p>
+              <p style="margin:0;font-size:var(--text-base);color:var(--text-primary);line-height:1.45;">Marta Lin<br/>VP of Operations<br/><span style="color:var(--text-muted);">marta@calderamills.com</span></p>
+            </div>
+            <div>
+              <p style="font-family:var(--font-mono);font-size:var(--text-2xs);letter-spacing:var(--tracking-widest);text-transform:uppercase;color:var(--text-muted);margin:0 0 6px;">Account</p>
+              <p style="margin:0;font-size:var(--text-base);color:var(--text-primary);line-height:1.45;">Active · NET 30<br/>Greensboro, NC<br/><span style="color:var(--text-muted);">Acct #C-4471</span></p>
+            </div>
+          </div>
+          <hr style="border:0;border-top:1px dashed var(--border-subtle);margin:12px 0 16px;"/>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
+            <div><span style="display:block;font-family:var(--font-mono);font-size:10.5px;letter-spacing:var(--tracking-widest);text-transform:uppercase;color:var(--text-muted);">YTD revenue</span><strong style="font-size:var(--text-xl);font-weight:var(--weight-medium);letter-spacing:var(--tracking-tighter);color:var(--text-primary);font-variant-numeric:tabular-nums;">$284,500</strong></div>
+            <div><span style="display:block;font-family:var(--font-mono);font-size:10.5px;letter-spacing:var(--tracking-widest);text-transform:uppercase;color:var(--text-muted);">Orders · 12 mo</span><strong style="font-size:var(--text-xl);font-weight:var(--weight-medium);letter-spacing:var(--tracking-tighter);color:var(--text-primary);font-variant-numeric:tabular-nums;">142</strong></div>
+            <div><span style="display:block;font-family:var(--font-mono);font-size:10.5px;letter-spacing:var(--tracking-widest);text-transform:uppercase;color:var(--text-muted);">Avg order</span><strong style="font-size:var(--text-xl);font-weight:var(--weight-medium);letter-spacing:var(--tracking-tighter);color:var(--text-primary);font-variant-numeric:tabular-nums;">$2,003</strong></div>
+          </div>
+          <p style="margin:18px 0 0;color:var(--text-body);font-size:var(--text-sm);line-height:1.55;">Long-tail customer — orders run heavy in Q3/Q4 (holiday inventory) and lighter in Q1. Pays on time. Caldera owns three retail showrooms across the Carolinas plus a small online channel.</p>
+        </div>
+        <footer class="kmd-foot">
+          <button class="kb kb-md kb-secondary" type="button">Close</button>
+          <button class="kb kb-md kb-primary" type="button">Open in app</button>
+        </footer>
+      </div>
+    </div>
+    <div class="triggers">
+      <button class="kb kb-md kb-primary" type="button" onclick="document.getElementById('demo-preview').showModal();">Open live preview</button>
+    </div>
+  </section>
+
+
+  <!-- ─── 4. MARKETING ─── -->
+  <section class="row">
+    <div class="row-head">
+      <h2>Marketing</h2>
+      <span class="spec">.kmd-marketing · 520 px · editorial</span>
+    </div>
+    <p class="desc">Lead magnet, newsletter, announcement. Crimson hero panel with brand wave, eyebrow + headline + lede, primary CTA row.</p>
+
+    <div class="stage">
+      <!-- Static preview -->
+      <div class="kmd kmd-marketing" style="display:flex;flex-direction:column;position:static;max-width:100%;">
+        <div class="kmd-hero" aria-hidden="true">
+          <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M8 32l8 8 16-16 16 16 8-8"/>
+            <path d="M8 18l8 8 16-16 16 16 8-8" opacity="0.45"/>
+          </svg>
+        </div>
+        <header class="kmd-head">
+          <span class="kmd-eyebrow">New · v3.0</span>
+          <h2 class="kmd-title">See your real ROI in 25 minutes.</h2>
+          <p class="kmd-body-copy">Book a working session with onboarding — we plug your live data into the calculator and walk through the projection. No slides, no sales call.</p>
+        </header>
+        <div class="kmd-actions">
+          <button class="kb kb-md kb-secondary" type="button">Maybe later</button>
+          <button class="kb kb-md kb-primary" type="button">Book session</button>
+        </div>
+      </div>
+    </div>
+    <div class="triggers">
+      <button class="kb kb-md kb-primary" type="button" onclick="document.getElementById('demo-marketing').showModal();">Open live marketing modal</button>
+    </div>
+  </section>
+
+</main>
+
+
+<!-- ════════════════════════════════════════════════════════════
+     LIVE DIALOGS (rendered once, opened on demand)
+     ════════════════════════════════════════════════════════════ -->
+
+<dialog class="kmd kmd-confirm" id="demo-confirm">
+  <header class="kmd-head">
+    <h2 class="kmd-title">Delete this order?</h2>
+    <p class="kmd-body-copy">Order #136131-112625-10 will be permanently removed. Vendor and audit log entries stay. You can't undo this.</p>
+  </header>
+  <div class="kmd-actions">
+    <button class="kb kb-md kb-secondary" type="button" data-kmd-close>Cancel</button>
+    <button class="kb kb-md kb-danger" type="button" data-kmd-close>Delete order</button>
+  </div>
+</dialog>
+
+<dialog class="kmd kmd-confirm" id="demo-confirm-archive">
+  <header class="kmd-head">
+    <h2 class="kmd-title">Archive this customer?</h2>
+    <p class="kmd-body-copy">Caldera Mills will move to the Archive list. Their order history is preserved and the account can be restored anytime.</p>
+  </header>
+  <div class="kmd-actions">
+    <button class="kb kb-md kb-secondary" type="button" data-kmd-close>Cancel</button>
+    <button class="kb kb-md kb-primary" type="button" data-kmd-close>Archive</button>
+  </div>
+</dialog>
+
+<dialog class="kmd kmd-preview" id="demo-preview">
+  <header class="kmd-head kmd-head-bar">
+    <div class="kmd-head-lead">
+      <span class="kmd-eyebrow">Customer · 12 years</span>
+      <h2 class="kmd-title">Caldera Mills</h2>
+    </div>
+    <button class="kmd-close" type="button" data-kmd-close aria-label="Close preview">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3.5 3.5l9 9M12.5 3.5l-9 9"/></svg>
+    </button>
+  </header>
+  <div class="kmd-body kmd-body-scroll">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;padding-bottom:12px;">
+      <div>
+        <p style="font-family:var(--font-mono);font-size:var(--text-2xs);letter-spacing:var(--tracking-widest);text-transform:uppercase;color:var(--text-muted);margin:0 0 6px;">Contact</p>
+        <p style="margin:0;font-size:var(--text-base);color:var(--text-primary);line-height:1.45;">Marta Lin<br/>VP of Operations<br/><span style="color:var(--text-muted);">marta@calderamills.com</span></p>
+      </div>
+      <div>
+        <p style="font-family:var(--font-mono);font-size:var(--text-2xs);letter-spacing:var(--tracking-widest);text-transform:uppercase;color:var(--text-muted);margin:0 0 6px;">Account</p>
+        <p style="margin:0;font-size:var(--text-base);color:var(--text-primary);line-height:1.45;">Active · NET 30<br/>Greensboro, NC<br/><span style="color:var(--text-muted);">Acct #C-4471</span></p>
+      </div>
+    </div>
+    <hr style="border:0;border-top:1px dashed var(--border-subtle);margin:12px 0 16px;"/>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
+      <div><span style="display:block;font-family:var(--font-mono);font-size:10.5px;letter-spacing:var(--tracking-widest);text-transform:uppercase;color:var(--text-muted);">YTD revenue</span><strong style="font-size:var(--text-xl);font-weight:var(--weight-medium);letter-spacing:var(--tracking-tighter);color:var(--text-primary);font-variant-numeric:tabular-nums;">$284,500</strong></div>
+      <div><span style="display:block;font-family:var(--font-mono);font-size:10.5px;letter-spacing:var(--tracking-widest);text-transform:uppercase;color:var(--text-muted);">Orders · 12 mo</span><strong style="font-size:var(--text-xl);font-weight:var(--weight-medium);letter-spacing:var(--tracking-tighter);color:var(--text-primary);font-variant-numeric:tabular-nums;">142</strong></div>
+      <div><span style="display:block;font-family:var(--font-mono);font-size:10.5px;letter-spacing:var(--tracking-widest);text-transform:uppercase;color:var(--text-muted);">Avg order</span><strong style="font-size:var(--text-xl);font-weight:var(--weight-medium);letter-spacing:var(--tracking-tighter);color:var(--text-primary);font-variant-numeric:tabular-nums;">$2,003</strong></div>
+    </div>
+    <p style="margin:18px 0 0;color:var(--text-body);font-size:var(--text-sm);line-height:1.55;">Long-tail customer — orders run heavy in Q3/Q4 (holiday inventory) and lighter in Q1. Pays on time. Caldera owns three retail showrooms across the Carolinas plus a small online channel.</p>
+  </div>
+  <footer class="kmd-foot">
+    <button class="kb kb-md kb-secondary" type="button" data-kmd-close>Close</button>
+    <button class="kb kb-md kb-primary" type="button" data-kmd-close>Open in app</button>
+  </footer>
+</dialog>
+
+<dialog class="kmd kmd-marketing" id="demo-marketing">
+  <div class="kmd-hero" aria-hidden="true">
+    <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M8 32l8 8 16-16 16 16 8-8"/>
+      <path d="M8 18l8 8 16-16 16 16 8-8" opacity="0.45"/>
+    </svg>
+  </div>
+  <header class="kmd-head">
+    <span class="kmd-eyebrow">New · v3.0</span>
+    <h2 class="kmd-title">See your real ROI in 25 minutes.</h2>
+    <p class="kmd-body-copy">Book a working session with onboarding — we plug your live data into the calculator and walk through the projection. No slides, no sales call.</p>
+  </header>
+  <div class="kmd-actions">
+    <button class="kb kb-md kb-secondary" type="button" data-kmd-close>Maybe later</button>
+    <button class="kb kb-md kb-primary" type="button" data-kmd-close>Book session</button>
+  </div>
+</dialog>
+
+</body>
+</html>

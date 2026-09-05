@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Sales Portal — Answer-First (Cycle 01 wireframe)</title>
+
+<!-- Real App kit tokens + primitives (same as app/dashboard.html) -->
+<link rel="stylesheet" href="../ds/tokens/index.css?v=12" />
+<link rel="stylesheet" href="../ds/primitives/button.css?v=68" />
+<link rel="stylesheet" href="../ds/primitives/card.css?v=10" />
+<link rel="stylesheet" href="../ds/primitives/table.css?v=6" />
+<link rel="stylesheet" href="../ds/primitives/tabs.css?v=13" />
+
+<style>
+  html, body { margin: 0; padding: 0; min-height: 100%; }
+  body {
+    background: var(--surface-page);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Answer-first shell — single calm column, no catalog chrome.
+     Mockup-only: this is a Sales Portal reporting surface, NOT the
+     catalog. Deliberately restrained: one hero answer per panel. */
+  .kshell { padding: clamp(16px, 2vw, 32px); max-width: 1080px; margin: 0 auto; }
+  .kshell-main { display: flex; flex-direction: column; gap: clamp(12px,1.4vw,20px); }
+
+  .crumb-row {
+    display: flex; align-items: center; gap: var(--space-2);
+    font-family: var(--font-mono); font-size: var(--text-2xs);
+    font-weight: var(--weight-semibold); letter-spacing: var(--tracking-widest);
+    text-transform: uppercase; color: var(--text-muted);
+  }
+  .crumb-row .crumb-sep { color: var(--text-faint); }
+  .crumb-row .crumb-here { color: var(--text-primary); }
+  .crumb-row .spacer { margin-left: auto; }
+
+  .page-head { display: flex; align-items: flex-end; gap: var(--space-4); flex-wrap: wrap; margin: var(--space-3) 0 var(--space-2); }
+  .page-head h1 { margin: 0; font-size: clamp(26px,3vw,38px); letter-spacing: var(--tracking-tighter); font-weight: var(--weight-medium); }
+  .page-head .meta { font-family: var(--font-mono); font-size: var(--text-2xs); letter-spacing: var(--tracking-widest); text-transform: uppercase; color: var(--text-muted); }
+  .page-head .actions { margin-left: auto; display: flex; gap: var(--space-2); align-items: center; }
+
+  /* Org / range context selector (mockup-only, static) */
+  .ctx-bar {
+    display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap;
+    padding: var(--space-3) var(--space-4);
+    background: var(--surface-2); border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md); font-size: var(--text-sm); color: var(--text-body);
+  }
+  .ctx-bar .ctx-k { font-family: var(--font-mono); font-size: var(--text-2xs); letter-spacing: var(--tracking-widest); text-transform: uppercase; color: var(--text-muted); }
+  .ctx-bar select {
+    font: inherit; color: var(--text-primary); background: var(--surface-card);
+    border: 1px solid var(--border-default); border-radius: var(--radius-sm);
+    padding: 4px 8px;
+  }
+
+  .hero-grid { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(16px,1.6vw,24px); align-items: stretch; }
+  .hero-grid > * { min-width: 0; }
+  @media (max-width: 860px) { .hero-grid { grid-template-columns: 1fr; } }
+
+  /* Hero answer block — one big number, one supporting line. */
+  .answer-eyebrow { font-family: var(--font-mono); font-size: var(--text-2xs); letter-spacing: var(--tracking-widest); text-transform: uppercase; color: var(--text-muted); }
+  .answer-q { font-size: var(--text-lg); font-weight: var(--weight-medium); letter-spacing: var(--tracking-tighter); margin: 2px 0 var(--space-4); }
+  .answer-num { font-size: clamp(40px,5vw,60px); line-height: 1; font-weight: var(--weight-medium); letter-spacing: -0.03em; font-variant-numeric: tabular-nums lining-nums; }
+  .answer-sub { margin-top: var(--space-3); font-size: var(--text-sm); color: var(--text-body); line-height: var(--leading-relaxed); }
+
+  /* Provenance chip — the ACL / metric-law statement */
+  .prov { display: inline-flex; align-items: center; gap: 8px; margin-top: var(--space-4); padding: 5px 10px; border-radius: var(--radius-pill); background: var(--color-moss-soft); color: var(--color-moss); font-family: var(--font-mono); font-size: var(--text-2xs); letter-spacing: var(--tracking-wider); text-transform: uppercase; }
+
+  /* Risk callout — crimson, reserved for the single-account-risk moment */
+  .risk-callout { margin-top: var(--space-4); padding: var(--space-3) var(--space-4); border-left: 3px solid var(--action-primary); background: var(--action-primary-tint); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; }
+  .risk-callout .rc-head { font-weight: var(--weight-semibold); color: var(--text-crimson); font-size: var(--text-sm); }
+  .risk-callout .rc-body { font-size: var(--text-sm); color: var(--text-body); margin-top: 2px; line-height: var(--leading-relaxed); }
+
+  /* Mini bar sparkline for topline (12 months) */
+  .spark { display: flex; align-items: flex-end; gap: 4px; height: 88px; margin-top: var(--space-5); }
+  .spark .bar { flex: 1; border-radius: var(--radius-sm) var(--radius-sm) 0 0; background: linear-gradient(180deg, color-mix(in oklch, var(--color-clay) 34%, transparent), color-mix(in oklch, var(--color-clay) 8%, transparent)); }
+  .spark .bar.is-peak { background: linear-gradient(180deg, var(--color-gold), color-mix(in oklch, var(--color-gold) 30%, transparent)); }
+  .spark-x { display: flex; justify-content: space-between; margin-top: 6px; font-family: var(--font-mono); font-size: 10px; letter-spacing: var(--tracking-wider); text-transform: uppercase; color: var(--text-muted); }
+
+  /* Donut (concentration) — reuse dashboard donut language */
+  .donut-wrap { position: relative; width: 200px; height: 200px; margin: 0 auto var(--space-4); }
+  .donut { width: 100%; height: 100%; overflow: visible; }
+  .donut-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+  .donut-pct { font-size: 34px; font-weight: var(--weight-medium); letter-spacing: -0.025em; font-variant-numeric: tabular-nums; color: var(--text-primary); line-height: 1; }
+  .donut-label { font-family: var(--font-mono); font-size: 10px; letter-spacing: var(--tracking-widest); text-transform: uppercase; color: var(--text-muted); margin-top: 6px; max-width: 130px; }
+
+  .cum-table { width: 100%; border-collapse: collapse; margin-top: var(--space-2); font-size: var(--text-sm); }
+  .cum-table th, .cum-table td { text-align: right; padding: 6px var(--space-2); border-bottom: 1px solid var(--border-subtle); font-variant-numeric: tabular-nums; }
+  .cum-table th { font-family: var(--font-mono); font-size: 10px; letter-spacing: var(--tracking-wider); text-transform: uppercase; color: var(--text-muted); font-weight: var(--weight-semibold); }
+  .cum-table td.name, .cum-table th.name { text-align: left; }
+  .cum-table td .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 8px; }
+  .cum-table tr.is-risk td { background: var(--action-primary-tint); }
+
+  /* Cross-org comparison strip */
+  .cmp { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-3); }
+  @media (max-width: 720px) { .cmp { grid-template-columns: repeat(2,1fr); } }
+  .cmp .cell { padding: var(--space-3) var(--space-4); background: var(--surface-2); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); }
+  .cmp .cell .k { font-family: var(--font-mono); font-size: 10px; letter-spacing: var(--tracking-widest); text-transform: uppercase; color: var(--text-muted); }
+  .cmp .cell .v { font-size: var(--text-xl); font-weight: var(--weight-medium); letter-spacing: var(--tracking-tighter); margin-top: 4px; font-variant-numeric: tabular-nums; }
+  .cmp .cell .v small { font-size: var(--text-xs); color: var(--text-muted); font-weight: var(--weight-regular); }
+
+  .footnote { font-family: var(--font-mono); font-size: var(--text-2xs); letter-spacing: var(--tracking-wider); color: var(--text-muted); line-height: var(--leading-relaxed); margin-top: var(--space-4); padding-top: var(--space-3); border-top: 1px dashed var(--border-subtle); }
+  .mock-flag { display:inline-block; margin-left: 8px; padding: 2px 8px; border-radius: var(--radius-pill); background: var(--color-gold-l); color: var(--color-gold); font-family: var(--font-mono); font-size: 10px; letter-spacing: var(--tracking-wider); text-transform: uppercase; }
+</style>
+</head>
+<body>
+<div class="kshell">
+  <div class="kshell-main">
+
+    <div class="crumb-row">
+      <span>Sales Portal</span><span class="crumb-sep">/</span><span class="crumb-here">Intelligence</span>
+      <span class="mock-flag">Wireframe · mockup-only</span>
+      <span class="spacer"></span>
+      <span>Answer-first · Destination C</span>
+    </div>
+
+    <div class="page-head">
+      <h1>Intelligence</h1>
+      <span class="meta">Two questions, answered first</span>
+      <div class="actions">
+        <button class="kb kb-md kb-secondary">Export</button>
+        <button class="kb kb-md kb-primary">Open full report</button>
+      </div>
+    </div>
+
+    <!-- Context selector: org + date range drive BOTH heroes (this is the
+         SERV-2395 lesson made visible — one range, all numbers move). -->
+    <div class="ctx-bar">
+      <span class="ctx-k">Org</span>
+      <select><option>Sarreid, Ltd. (sarreid)</option><option>Currey &amp; Company (cci)</option></select>
+      <span class="ctx-k">Range</span>
+      <select><option>Trailing 12 months</option><option>Current YTD</option><option>Previous YTD</option><option>Custom…</option></select>
+      <span class="ctx-k" style="margin-left:auto;">2025-07-16 → 2026-07-15 · invoiced</span>
+    </div>
+
+    <!-- ─── HERO ROW: True Topline + Concentration ─── -->
+    <div class="hero-grid">
+
+      <!-- HERO 1 — True Topline (invoiced) -->
+      <article class="kc">
+        <div class="kc-body" style="padding: var(--space-6);">
+          <div class="answer-eyebrow">Hero 1 · True Topline</div>
+          <div class="answer-q">What is our real business, invoiced?</div>
+          <div class="answer-num">$15.98M</div>
+          <div class="answer-sub">Total invoiced sales, trailing 12 months (Jul 17 2025 → Jul 16 2026). 11,702 invoices across 1,413 active customers. This is the number that reconciles to the ledger — not the dashboard's warehouse rollup.</div>
+
+          <div class="spark" role="img" aria-label="Monthly invoiced sales, trailing 12 months">
+            <span class="bar" style="height:71%" title="2025-08 · $1.03M"></span>
+            <span class="bar" style="height:89%" title="2025-09 · $1.29M"></span>
+            <span class="bar" style="height:99%" title="2025-10 · $1.43M"></span>
+            <span class="bar" style="height:90%" title="2025-11 · $1.30M"></span>
+            <span class="bar" style="height:96%" title="2025-12 · $1.38M"></span>
+            <span class="bar" style="height:93%" title="2026-01 · $1.34M"></span>
+            <span class="bar" style="height:96%" title="2026-02 · $1.39M"></span>
+            <span class="bar" style="height:99%" title="2026-03 · $1.43M"></span>
+            <span class="bar" style="height:99%" title="2026-04 · $1.43M"></span>
+            <span class="bar" style="height:88%" title="2026-05 · $1.28M"></span>
+            <span class="bar is-peak" style="height:100%" title="2026-06 · $1.44M · peak"></span>
+            <span class="bar" style="height:42%; opacity:.5" title="2026-07 · $0.61M · month-to-date"></span>
+          </div>
+          <div class="spark-x"><span>Aug '25</span><span>Jan '26</span><span>Jul '26 MTD</span></div>
+
+          <div class="prov" title="Metric law from the program spine">Invoiced net_amount · reconciles to ledger</div>
+        </div>
+      </article>
+
+      <!-- HERO 2 — Concentration / single-account risk -->
+      <article class="kc">
+        <div class="kc-body" style="padding: var(--space-6);">
+          <div class="answer-eyebrow">Hero 2 · Concentration</div>
+          <div class="answer-q">How exposed are we to one account?</div>
+
+          <div class="donut-wrap" role="img" aria-label="Customer concentration, trailing 12 months"
+               data-donut
+               data-segments='[
+                 {"name":"Top account","pct":30.0,"color":"var(--color-gold)"},
+                 {"name":"Accounts 2-5","pct":9.8,"color":"var(--color-clay)"},
+                 {"name":"Accounts 6-10","pct":6.5,"color":"color-mix(in oklch, var(--color-clay) 55%, var(--surface-2))"},
+                 {"name":"All other customers","pct":53.7,"color":"var(--surface-3)"}
+               ]'>
+            <svg class="donut" viewBox="0 0 120 120">
+              <circle r="46" cx="60" cy="60" fill="none" stroke="var(--surface-2)" stroke-width="12"/>
+              <g class="donut-segs" transform="rotate(-90 60 60)"></g>
+            </svg>
+            <div class="donut-center">
+              <span class="donut-pct">30.0%</span>
+              <span class="donut-label">of invoiced sales is one account</span>
+            </div>
+          </div>
+
+          <table class="cum-table">
+            <thead>
+              <tr><th class="name">Account (masked)</th><th>Invoiced</th><th>Share</th><th>Cumulative</th></tr>
+            </thead>
+            <tbody>
+              <tr class="is-risk"><td class="name"><span class="dot" style="background:var(--color-gold)"></span>Account 01</td><td>$4.79M</td><td>30.0%</td><td>30.0%</td></tr>
+              <tr><td class="name"><span class="dot" style="background:var(--color-clay)"></span>Account 02</td><td>$0.55M</td><td>3.4%</td><td>33.4%</td></tr>
+              <tr><td class="name"><span class="dot" style="background:var(--color-clay)"></span>Account 03</td><td>$0.40M</td><td>2.5%</td><td>35.9%</td></tr>
+              <tr><td class="name"><span class="dot" style="background:var(--color-clay)"></span>Account 04</td><td>$0.34M</td><td>2.1%</td><td>38.0%</td></tr>
+              <tr><td class="name"><span class="dot" style="background:var(--color-clay)"></span>Account 05</td><td>$0.28M</td><td>1.8%</td><td>39.8%</td></tr>
+            </tbody>
+          </table>
+
+          <div class="risk-callout">
+            <div class="rc-head">Single-account risk</div>
+            <div class="rc-body">One customer is 30% of invoiced sales; the top 10 are 46%. Losing the top account would erase ~$4.8M — nearly a third of the book. There is a steep cliff after #1 (next account is 3.4%).</div>
+          </div>
+        </div>
+      </article>
+    </div>
+
+    <!-- ─── CROSS-ORG STRIP: proves the metric matters + generalizes ─── -->
+    <div class="kc"><div class="kc-body" style="padding: var(--space-5);">
+      <div class="answer-eyebrow" style="margin-bottom: var(--space-3);">Same two heroes · Sarreid vs Currey &amp; Company</div>
+      <div class="cmp">
+        <div class="cell"><div class="k">Sarreid · topline</div><div class="v">$15.98M <small>1,413 cust.</small></div></div>
+        <div class="cell"><div class="k">Sarreid · top-1 share</div><div class="v" style="color:var(--text-crimson)">30.0% <small>top-10 46.4%</small></div></div>
+        <div class="cell"><div class="k">CCI · topline</div><div class="v">$71.14M <small>7,790 cust.</small></div></div>
+        <div class="cell"><div class="k">CCI · top-1 share</div><div class="v">6.1% <small>top-10 16.8%</small></div></div>
+      </div>
+      <div class="answer-sub" style="margin-top: var(--space-3);">Same computation, opposite risk profile: Sarreid is dangerously concentrated on one account; CCI is broadly diversified. The report must read the org's real shape, not a template.</div>
+    </div></div>
+
+    <div class="footnote">
+      Source · portal_invoices.net_amount (invoiced spine) · org sarreid=1 / cci=161 · trailing 12 months 2025-07-16 → 2026-07-15 · figures rounded, customer names masked · warehouse dashboard rollup may disagree — this surface states the invoiced ledger number. Mockup-only; not production Rails.
+    </div>
+  </div>
+</div>
+
+<!-- Donut segment renderer (adapted from app/dashboard.html) -->
+<script>
+(function () {
+  'use strict';
+  var R = 46, C = 2 * Math.PI * R, GAP = 2;
+  document.querySelectorAll('[data-donut]').forEach(function (wrap) {
+    var segs; try { segs = JSON.parse(wrap.dataset.segments); } catch (e) { return; }
+    var g = wrap.querySelector('.donut-segs'); if (!g) return;
+    var offset = 0;
+    segs.forEach(function (s) {
+      var len = (s.pct / 100) * C - GAP; if (len < 0) len = 0;
+      var seg = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      seg.setAttribute('r', R); seg.setAttribute('cx', 60); seg.setAttribute('cy', 60);
+      seg.setAttribute('fill', 'none'); seg.setAttribute('stroke', s.color); seg.setAttribute('stroke-width', 12);
+      seg.setAttribute('stroke-dasharray', len + ' ' + (C - len));
+      seg.setAttribute('stroke-dashoffset', -offset);
+      var title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+      title.textContent = s.name + ' · ' + s.pct + '%'; seg.appendChild(title);
+      g.appendChild(seg); offset += len + GAP;
+    });
+  });
+})();
+</script>
+</body>
+</html>

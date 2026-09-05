@@ -1,0 +1,684 @@
+/* ════════════════════════════════════════════════════════════════
+   SuperCat DS — Card primitive  ·  .kc
+   ────────────────────────────────────────────────────────────────
+   ▸ Class prefix: `.kc` = "kit card"
+   ▸ A framework-agnostic surface for grouping content. Slots own
+     their own padding (.kc-head / .kc-body / .kc-foot), so cards
+     compose cleanly with edge-to-edge tables, lists, and media.
+   ▸ Iconic editorial chrome — hairlines, generous space, restraint.
+     Hover never adds a hard border. Selection lives elsewhere; cards
+     are containers, not list-row stand-ins.
+   ────────────────────────────────────────────────────────────────
+   API
+
+     <article class="kc">
+       <header class="kc-head">
+         <h3 class="kc-title">Best selling products</h3>
+         <a class="kb kb-link" href="#">Full report</a>
+       </header>
+       <div class="kc-body">
+         …
+       </div>
+       <footer class="kc-foot">
+         <span class="kc-foot-meta">Updated 14:39</span>
+         <span class="kc-foot-spacer"></span>
+         <button class="kb kb-sm kb-secondary">Export</button>
+       </footer>
+     </article>
+
+   Sizes      : kc-sm (16px pad)  kc-md (24px, default)  kc-lg (32px)
+   Surfaces   : kc (default · flat hairline) · kc-feature
+                kc-inverse  ·  kc-dashed  ·  kc-interactive
+   Compound   : kc-metric            stat-tile shape (eyebrow · big number · foot)
+   Slots      : kc-head · kc-body · kc-foot · kc-eyebrow
+                kc-body-flush        body has 0 padding (for tables)
+   States     : :hover :focus-visible (on .kc-interactive only)
+
+   Tokens consumed (semantic layer only):
+     --surface-{card,page,2,3}   --color-{ink-1,paper-1,crimson}
+     --text-{primary,strong,body,muted,faint,on-crimson}
+     --border-{subtle,default,strong}
+     --font-{sans,mono}           --text-* (size ramp)
+     --space-N                    --radius-{md,lg,xl}
+     --shadow-{1,2}               --duration-{fast,base}  --ease-out
+   No legacy --k-* tokens are referenced here.
+   ════════════════════════════════════════════════════════════════ */
+
+
+:where(.kc) {
+  /* ── Component-local custom properties ──
+     Override per-instance with style="--kc-pad-x: 32px" if needed. */
+  --kc-bg:           var(--surface-card);
+  --kc-fg:           var(--text-primary);
+  --kc-border:       var(--border-default);
+  --kc-radius:       var(--radius-lg);
+  --kc-pad-x:        var(--space-6);   /* 24px */
+  --kc-pad-y:        var(--space-5);   /* 20px */
+  --kc-divider:      var(--border-default);
+
+  --kc-head-fg:      var(--text-primary);
+  --kc-eyebrow-fg:   var(--text-muted);
+  --kc-meta-fg:      var(--text-muted);
+
+  --kc-hover-edge:   var(--color-crimson);
+  --kc-hover-shadow: var(--shadow-2);
+
+  --kc-ease:         var(--ease-out);
+  /* Split timing — lift effects (transform, shadow) feel premium at
+     200 ms; color/border shifts stay snappy at 120 ms. The transition
+     declaration below uses --kc-dur-lift for the slower lift and
+     --kc-dur for the quicker color reactions. */
+  --kc-dur:          var(--duration-fast);
+  --kc-dur-lift:     var(--duration-base);
+}
+
+
+/* ── Base block ──────────────────────────────────────────────── */
+
+.kc {
+  display: flex;
+  flex-direction: column;
+  background: var(--kc-bg);
+  color: var(--kc-fg);
+  border: 1px solid var(--kc-border);
+  border-radius: var(--kc-radius);
+  position: relative;
+  overflow: hidden;                   /* clip slots to the rounded frame */
+  isolation: isolate;                 /* contain pseudo-element layering */
+  font-family: var(--font-sans);
+  text-decoration: none;
+  transition:
+    transform        var(--kc-dur-lift) var(--kc-ease),
+    box-shadow       var(--kc-dur-lift) var(--kc-ease),
+    background-color var(--kc-dur)      var(--kc-ease),
+    border-color     var(--kc-dur)      var(--kc-ease);
+}
+
+/* Hover is opt-in by surface family — the design rule is:
+   • Marketing surfaces lift on hover (editorial, inviting).
+   • App surfaces stay still (workspace, no decorative motion).
+
+   The .kc primitive has NO default hover. Marketing pages opt in by
+   adding `.kc-lift` to a card or wrapping a group with the modifier.
+   App pages (anything inside `.kshell`) never lift, even on linked
+   cards — explicit override below kills any inherited transform. */
+
+a.kc,
+button.kc { cursor: pointer; }
+
+/* ── Marketing modifier — stronger lift + shadow on hover ────────── */
+.kc-lift {
+  transition:
+    transform        var(--kc-dur-lift, 220ms) var(--kc-ease, cubic-bezier(0.22, 1, 0.36, 1)),
+    box-shadow       var(--kc-dur-lift, 220ms) var(--kc-ease, cubic-bezier(0.22, 1, 0.36, 1)),
+    border-color     var(--kc-dur, 160ms)      var(--kc-ease, cubic-bezier(0.22, 1, 0.36, 1));
+}
+.kc-lift:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px -10px rgba(26, 22, 20, 0.18),
+              0 4px 10px -4px rgba(26, 22, 20, 0.10);
+  border-color: var(--border-default);
+}
+[data-theme="dark"] .kc-lift:hover {
+  box-shadow: 0 12px 28px -10px rgba(0, 0, 0, 0.55),
+              0 4px 10px -4px rgba(0, 0, 0, 0.35);
+}
+
+/* ── App scope — explicit "no hover lift" inside .kshell ─────────── */
+.kshell .kc:hover,
+.kshell .kc-lift:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+
+/* ── Slots ───────────────────────────────────────────────────────
+   Each slot owns its padding. Hairline dividers appear automatically
+   between adjacent slots (head→content, content→foot). */
+
+.kc-head,
+.kc-body,
+.kc-foot {
+  padding: var(--kc-pad-y) var(--kc-pad-x);
+}
+.kc > .kc-head:not(:last-child) {
+  border-bottom: 1px solid var(--kc-divider);
+}
+.kc > .kc-foot:not(:first-child) {
+  border-top: 1px solid var(--kc-divider);
+}
+
+/* Head row — title + optional eyebrow on the left, actions on the right */
+.kc-head {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-4);
+  min-height: 56px;
+}
+.kc-head-lead { display: flex; flex-direction: column; gap: var(--space-1); flex: 1 1 auto; min-width: 0; }
+.kc-head-actions { display: flex; align-items: center; gap: var(--space-2); flex: 0 0 auto; }
+
+.kc-title {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--text-lg);
+  line-height: var(--leading-snug);
+  letter-spacing: var(--tracking-tighter);
+  font-weight: var(--weight-medium);
+  color: var(--kc-head-fg);
+}
+.kc-title-meta {
+  margin-left: var(--space-2);
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  color: var(--kc-meta-fg);
+  vertical-align: 0.18em;
+}
+
+.kc-eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  color: var(--kc-eyebrow-fg);
+}
+
+/* Body — fills space; pad already handled above */
+.kc-body { flex: 1 1 auto; }
+
+/* Flush body — for cards that embed a table or list edge-to-edge.
+   The inner element provides its own padding/borders. */
+.kc-body.kc-body-flush { padding: 0; }
+
+/* Foot — left slot for meta, right slot for actions */
+.kc-foot {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 48px;
+}
+.kc-foot-meta {
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  color: var(--kc-meta-fg);
+}
+.kc-foot-spacer { flex: 1; }
+
+
+/* ── Inner divider (optional, for body subsections) ─────────── */
+
+.kc-rule {
+  border: 0;
+  height: 1px;
+  background: var(--kc-divider);
+  margin: var(--space-5) calc(var(--kc-pad-x) * -1);
+}
+.kc-rule-dash {
+  background: transparent;
+  border-top: 1px dashed var(--kc-divider);
+  margin: var(--space-5) calc(var(--kc-pad-x) * -1);
+}
+
+
+/* ── Sizes ─────────────────────────────────────────────────────── */
+
+.kc.kc-sm {
+  --kc-pad-x: var(--space-4);   /* 16 */
+  --kc-pad-y: var(--space-4);
+  --kc-radius: var(--radius-md);
+}
+.kc.kc-md {
+  /* default — pad-x/y inherited from :where(.kc) */
+}
+.kc.kc-lg {
+  --kc-pad-x: var(--space-8);   /* 32 */
+  --kc-pad-y: var(--space-7);   /* 28 */
+  --kc-radius: var(--radius-xl);
+}
+
+
+/* ── Surface variants ─────────────────────────────────────────── */
+
+/* Feature: a slightly heavier emphasis, no border — the surface tint
+   carries the chrome. Good for "this section matters" callouts. */
+.kc.kc-feature {
+  --kc-bg:     var(--surface-2);
+  --kc-border: transparent;
+  --kc-divider: color-mix(in oklch, var(--text-primary) 8%, transparent);
+}
+
+/* Inverse: ink-dark tile with cream text. Theme-AGNOSTIC by design —
+   the values stay fixed across both themes (matches the master-page
+   .ds-bstage[data-tone="ink"] precedent). Use for stamped/hero
+   moments and feature highlights inside a paper context.
+
+   Note on hex literals: `--color-ink-1` flips with theme (in dark
+   it resolves to cream), which would invert the surface. We pin
+   the inverse-card bg with a stable hex to keep "inverse" meaning
+   ink-dark always — light or dark. The cream foreground uses
+   `--text-on-crimson`, which is already theme-stable. */
+.kc.kc-inverse {
+  --kc-bg:           #1A1614;                       /* ink — never flips */
+  --kc-fg:           var(--text-on-crimson);        /* cream — stable */
+  --kc-border:       color-mix(in oklch, var(--text-on-crimson) 14%, transparent);
+  --kc-divider:      color-mix(in oklch, var(--text-on-crimson) 14%, transparent);
+  --kc-head-fg:      var(--text-on-crimson);
+  --kc-eyebrow-fg:   color-mix(in oklch, var(--text-on-crimson) 60%, transparent);
+  --kc-meta-fg:      color-mix(in oklch, var(--text-on-crimson) 55%, transparent);
+}
+
+/* Dashed: empty-state / "drop here" slot. No fill, dashed hairline.
+   Hover adds a faint paper tint so the slot feels actionable without
+   committing to a strong "interactive" treatment. */
+.kc.kc-dashed {
+  --kc-bg:     transparent;
+  --kc-border: transparent;
+  border: 1px dashed color-mix(in oklch, var(--text-primary) 20%, transparent);
+  background: transparent;
+}
+.kc.kc-dashed:hover {
+  background: color-mix(in oklch, var(--surface-card) 50%, var(--surface-page));
+  border-color: color-mix(in oklch, var(--text-primary) 32%, transparent);
+}
+
+
+/* ── Interactive ──────────────────────────────────────────────
+   <a class="kc kc-interactive" href="…">  or
+   <button class="kc kc-interactive">…</button>
+
+   Interactive cards inherit the universal :hover lift defined on
+   .kc above, but with a slightly stronger shadow so the affordance
+   reads as "clickable" rather than "just alive." No crimson edge,
+   no border-color shift — restraint per the brand rules. The
+   :focus-visible ring still uses crimson at low opacity (it's the
+   keyboard-only affordance, the one allowed crimson moment here). */
+
+.kc.kc-interactive {
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.kc.kc-interactive:hover {
+  box-shadow: var(--kc-hover-shadow);
+}
+
+.kc.kc-interactive:focus-visible {
+  outline: 0;
+  box-shadow:
+    0 0 0 2px var(--surface-card),
+    0 0 0 4px color-mix(in oklch, var(--color-crimson) 35%, transparent);
+}
+
+.kc.kc-interactive:active {
+  transform: translateY(0);
+}
+
+
+/* ── Selectable card · radio pattern ──────────────────────────
+   <button class="kc kc-pick" role="radio" aria-checked="true|false">
+     <span class="kc-pick-head">
+       <span class="kc-pick-title">Mid-market</span>
+       <span class="kc-pick-tag">Selected</span>   ← only on active
+     </span>
+     <p class="kc-pick-copy">Buyers can place orders online, but reps still drive volume.</p>
+     <span class="kc-pick-meta">~$15M · Commerce Pro</span>
+   </button>
+
+   For "pick one of N" choices with richer content than .ktab-seg
+   can hold (title + 1-3 line description + meta). Selected state
+   uses a crimson border + lifted shadow; the title goes crimson.
+   Group with role="radiogroup" on the wrapper. Markup is the
+   developer's job (3-up grid, etc) — primitive only owns chrome. */
+
+.kc.kc-pick {
+  appearance: none;
+  cursor: pointer;
+  user-select: none;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-5);
+  min-height: 140px;
+  background: var(--surface-card);
+  border: 1.5px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  color: var(--text-body);
+  box-shadow: none;
+  transition:
+    border-color var(--duration-base) var(--ease-out),
+    background var(--duration-base) var(--ease-out),
+    box-shadow var(--duration-base) var(--ease-out),
+    transform var(--duration-base) var(--ease-out);
+}
+.kc.kc-pick:hover {
+  border-color: var(--text-muted);
+  transform: translateY(-1px);
+}
+.kc.kc-pick:focus-visible {
+  outline: 0;
+  border-color: var(--color-crimson);
+  box-shadow: 0 0 0 3px color-mix(in oklch, var(--color-crimson) 22%, transparent);
+}
+.kc.kc-pick[aria-checked="true"],
+.kc.kc-pick[aria-pressed="true"] {
+  border-color: var(--color-crimson);
+  background: color-mix(in oklch, var(--color-crimson) 4%, var(--surface-card));
+  box-shadow: var(--shadow-1);
+}
+[data-theme="dark"] .kc.kc-pick[aria-checked="true"],
+[data-theme="dark"] .kc.kc-pick[aria-pressed="true"] {
+  background: color-mix(in oklch, var(--color-crimson) 10%, var(--surface-card));
+}
+
+.kc-pick-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+.kc-pick-title {
+  font-family: var(--font-sans);
+  font-size: var(--text-lg);
+  font-weight: var(--weight-medium);
+  letter-spacing: -0.015em;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+/* Selection indicators on .kc-pick are border + bg tint + "SELECTED"
+   tag. The title itself ALWAYS stays var(--text-primary) — readable on
+   both paper (light) and near-black (dark) surfaces. Tinting the title
+   crimson on dark made the active card title hard to read; we keep the
+   accent in the corner tag instead. */
+.kc-pick-tag {
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: var(--color-crimson);
+  opacity: 0;
+  transition: opacity var(--duration-base) var(--ease-out);
+}
+.kc.kc-pick[aria-checked="true"] .kc-pick-tag,
+.kc.kc-pick[aria-pressed="true"] .kc-pick-tag {
+  opacity: 1;
+}
+.kc-pick-copy {
+  margin: 0;
+  font-size: var(--text-sm);
+  line-height: 1.5;
+  color: var(--text-body);
+  flex: 1;
+}
+.kc-pick-meta {
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding-top: var(--space-2);
+  border-top: 1px dashed var(--border-subtle);
+}
+
+
+/* ── Metric compound ──────────────────────────────────────────
+   A stat tile for dashboards. Different content shape than the
+   head/body/foot model — uses its own internal layout instead.
+
+     <article class="kc kc-metric">
+       <span class="kc-eyebrow">Total products</span>
+       <div class="kc-metric-row">
+         <span class="kc-metric-val">50</span>
+         <span class="kc-metric-icon"><svg>…</svg></span>
+       </div>
+       <span class="kc-metric-trend kc-trend-up">+ 4 this month</span>
+     </article>
+   ──────────────────────────────────────────────────────────── */
+
+.kc.kc-metric {
+  padding: var(--kc-pad-y) var(--kc-pad-x);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  /* Min-height grows on wider viewports so the tile doesn't look
+     squat on 27"+ displays. Restrained scale — never a wall-poster. */
+  min-height: clamp(116px, 10vw, 148px);
+  /* Make the tile a CONTAINER for query-relative sizing. The value's
+     font-size below uses `cqw` (1% of container width), so the number
+     auto-shrinks when the tile is narrow or the metric grid gets
+     denser. The tile's own width is set by the parent grid (kc-grid). */
+  container-type: inline-size;
+}
+
+.kc-metric-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex: 1;
+  min-width: 0;                    /* let big numbers shrink in flex */
+}
+
+/* The big number — Geist Mono, tabular numerals. Mono numbers scan
+   like data, sans numbers read like prose; on stat tiles we want the
+   former.
+
+   Font size is CONTAINER-relative (not viewport-relative) via `cqw`.
+   The tile is its own container, so the number scales with the
+   tile's actual rendered width:
+
+     Tile 240 px wide → 8 cqw = 19.2 → clamp floor (22 px)
+     Tile 300 px      → 8 cqw = 24 px
+     Tile 400 px      → 8 cqw = 32 px
+     Tile 500 px      → 8 cqw = 40 px
+     Tile 600 px+     → clamp ceiling (48 px)
+
+   Result: 4 tiles in a row at 300 px each get 24 px numbers; 2 tiles
+   at 600 px each get 48 px; a single full-width tile gets 48 px.
+   A long number ("1,287,432") in a narrow tile auto-shrinks to fit
+   instead of overflowing or breaking the layout. */
+.kc-metric-val {
+  font-family: var(--font-mono);
+  font-size: clamp(40px, 14cqw, 72px);
+  line-height: 1;
+  letter-spacing: -0.025em;        /* mono tightens nicely at display size */
+  font-weight: var(--weight-medium);
+  color: var(--kc-fg);
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: "tnum" 1, "lnum" 1, "ss01" 1;
+  white-space: nowrap;
+  min-width: 0;                    /* let flex compress if absolutely needed */
+  /* If a pathologically long value still can't fit at the floor
+     (>14 chars in a 240 px tile), the parent .kc has overflow:hidden
+     so the tile never breaks the surrounding grid. For values that
+     long, consumers should use a wider card or format to "1.3M". */
+}
+
+.kc-metric-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /* Icon also scales with the tile's container width so it stays
+     proportional to the value at every density. */
+  width: clamp(28px, 7cqw, 40px);
+  height: clamp(28px, 7cqw, 40px);
+  color: var(--kc-meta-fg);
+  flex: 0 0 auto;
+  align-self: flex-start;
+}
+.kc-metric-icon svg {
+  width: 70%;
+  height: 70%;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.kc-metric-trend {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: var(--kc-meta-fg);
+  font-weight: var(--weight-semibold);
+}
+.kc-metric-trend::before {
+  content: "";
+  display: inline-block;
+  width: 0; height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+}
+.kc-metric-trend.kc-trend-up::before {
+  border-bottom: 5px solid var(--status-success);
+  margin-bottom: 1px;
+}
+.kc-metric-trend.kc-trend-down::before {
+  border-top: 5px solid var(--status-danger);
+  margin-top: 1px;
+}
+.kc-metric-trend.kc-trend-flat::before {
+  width: 8px; height: 2px;
+  background: var(--text-muted);
+  border: 0;
+  margin-bottom: 2px;
+}
+.kc-metric-trend.kc-trend-up   { color: var(--status-success); }
+.kc-metric-trend.kc-trend-down { color: var(--status-danger); }
+
+
+/* ── Lists inside cards (lightweight pattern for activity feeds) ─
+   When a card body holds a vertical list (e.g. "Most active users",
+   "Recent orders"), wrap items in .kc-list. Each item is a
+   .kc-list-item with optional left avatar + center label + right meta.
+   ──────────────────────────────────────────────────────────── */
+
+.kc-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+.kc-list-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) 0;
+  min-height: 48px;
+}
+.kc-list-item + .kc-list-item {
+  border-top: 1px solid var(--border-subtle);
+}
+.kc-list-avatar {
+  flex: 0 0 32px;
+  width: 32px; height: 32px;
+  border-radius: var(--radius-full);
+  background: var(--surface-2);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.04em;
+  color: var(--text-strong);
+  text-transform: uppercase;
+}
+.kc-list-main { flex: 1 1 auto; min-width: 0; }
+.kc-list-name {
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--text-primary);
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.kc-list-meta {
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  letter-spacing: var(--tracking-wider);
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+.kc-list-trail {
+  flex: 0 0 auto;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums lining-nums;
+  color: var(--text-body);
+}
+
+
+/* ── Grid helper (for laying out cards in rows) ─────────────────
+   Not strictly required — most app layouts will own their own grid.
+   This is a convenience for demos and quick dashboards. */
+
+.kc-grid {
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+.kc-grid.kc-grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.kc-grid.kc-grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.kc-grid.kc-grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (max-width: 880px) {
+  .kc-grid.kc-grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .kc-grid.kc-grid-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 540px) {
+  .kc-grid.kc-grid-4,
+  .kc-grid.kc-grid-3,
+  .kc-grid.kc-grid-2 { grid-template-columns: 1fr; }
+}
+
+
+/* ── Dark theme tweaks ───────────────────────────────────────
+   Most tokens flip on their own. The shadow in dark needs to use
+   the dark-theme shadow tokens (already token-driven via --shadow-2),
+   and the inverse card stays ink-dark by design. */
+
+[data-theme="dark"] .kc.kc-feature {
+  --kc-divider: color-mix(in oklch, var(--text-on-crimson) 12%, transparent);
+}
+
+
+/* ── Reduced motion ──────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .kc { transition: none; }
+  .kc:hover,
+  .kc.kc-interactive:hover { transform: none; }
+}
+
+
+/* ── App-shell context — no hover lift ────────────────────────
+   Inside the App shell (`.kshell`), cards do NOT lift on hover.
+   Hover stays as a pure color/bg signal — workspaces aren't
+   promotional surfaces. The lift is reserved for marketing pages
+   (`ds/master.html`, `ds/reference.html`, etc.) which use the
+   default hover behavior. Interactive cards inside the shell
+   still respond on click + focus-visible. */
+.kshell .kc:hover,
+.kshell .kc.kc-interactive:hover {
+  transform: none;
+  box-shadow: none;
+}
+.kshell .kc.kc-dashed:hover {
+  /* keep the faint bg fill on dashed empty-state cards as a
+     subtle "this slot is interactive" hint */
+  transform: none;
+}

@@ -1,0 +1,533 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>SuperCat Design System — v3.0</title>
+<meta name="description" content="Portal for the SuperCat Design System v3.0. Web Marketing + Web/iPad App surfaces, one shared token foundation."/>
+
+<link rel="stylesheet" href="ds/tokens/index.css?v=12"/>
+<link rel="stylesheet" href="ds/primitives/button.css?v=70"/>
+<link rel="stylesheet" href="nav/marketing-nav.css?v=22"/>
+<script src="nav/marketing-nav.js?v=17" defer></script>
+<style>
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--k-paper);
+    color: var(--k-ink);
+    font-family: var(--k-sans);
+    min-height: 100vh;
+  }
+  [data-theme="dark"] body { background: #0F0D0C; color: #EDE4D6; }
+
+  .portal {
+    /* Content area is 1480px, matching .vn-shell exactly. max-width is
+       computed from padding so it works under content-box (browser default)
+       AND border-box (Tailwind/shadcn reset). Same contract as .mx-shell. */
+    --shell-pad-x: clamp(12px, 2.4vw, 28px);
+    box-sizing: border-box;
+    max-width: calc(1480px + 2 * var(--shell-pad-x));
+    margin: 0 auto;
+    padding: clamp(56px, 9vw, 120px) var(--shell-pad-x);
+    display: grid;
+    gap: clamp(48px, 6vw, 80px);
+  }
+
+  /* ─── HEAD ─── */
+  .portal-head {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 28px;
+    padding-bottom: clamp(32px, 4vw, 56px);
+    border-bottom: 1px solid var(--k-line);
+  }
+  .ribbon {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 22px;
+    font-family: var(--k-mono); font-size: 10.5px; font-weight: 600;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--k-ink-4);
+  }
+  .ribbon .live-dot {
+    width: 7px; height: 7px; border-radius: 999px;
+    background: var(--k-crimson);
+    box-shadow: 0 0 0 3px rgba(122,18,24,0.12);
+    animation: pulse 2.4s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .55; } }
+
+  h1.portal-title {
+    margin: 0;
+    font-family: var(--k-sans);
+    font-weight: 500;
+    font-size: clamp(44px, 7vw, 92px);
+    line-height: 0.96; letter-spacing: -0.045em;
+    color: var(--k-ink);
+    max-width: 14ch; text-wrap: balance;
+  }
+  h1.portal-title em {
+    font-style: normal;
+    color: var(--k-ink-4);
+    font-weight: 400;
+  }
+
+  .portal-lede {
+    font-size: clamp(16px, 1.4vw, 19px);
+    line-height: 1.55; color: var(--k-ink-3);
+    max-width: 58ch; text-wrap: pretty;
+    margin: 8px 0 0;
+  }
+
+  /* ─── META STRIP ─── */
+  .portal-meta {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    border-top: 1px solid var(--k-line);
+    border-bottom: 1px solid var(--k-line);
+  }
+  .portal-meta .cell {
+    padding: 22px 22px;
+    display: flex; flex-direction: column; gap: 8px;
+    border-right: 1px dashed var(--k-line);
+  }
+  .portal-meta .cell:last-child  { border-right: none; }
+  .portal-meta .k {
+    font-family: var(--k-mono); font-size: 10px; font-weight: 600;
+    letter-spacing: 0.18em; text-transform: uppercase; color: var(--k-ink-4);
+  }
+  .portal-meta .v {
+    font-family: var(--k-mono); font-size: 13px; color: var(--k-ink); letter-spacing: 0.02em;
+  }
+  @media (max-width: 760px) {
+    .portal-meta { grid-template-columns: repeat(2, 1fr); }
+    .portal-meta .cell:nth-child(odd) { border-right: 1px dashed var(--k-line); }
+    .portal-meta .cell:nth-child(-n+2) { border-bottom: 1px dashed var(--k-line); }
+    .portal-meta .cell:nth-child(2n) { border-right: none; }
+  }
+
+  /* ─── PAGES INDEX ─── */
+  .pages-head {
+    display: flex; align-items: center; gap: 14px;
+    font-family: var(--k-mono); font-size: 11px; font-weight: 600;
+    letter-spacing: 0.20em; text-transform: uppercase;
+    color: var(--k-ink-4);
+    padding-bottom: 16px;
+    border-bottom: 1px dashed var(--k-line);
+    margin-bottom: 0;
+  }
+  .pages-head .num {
+    color: var(--k-ink);
+    border-top: 2px solid var(--k-ink);
+    padding-top: 6px; margin-top: -8px;
+  }
+  .pages-head .ttl { color: var(--k-ink); }
+  .pages-head .count { margin-left: auto; }
+
+  .pages {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .page-row {
+    display: grid;
+    grid-template-columns: 80px 1fr auto;
+    align-items: center;
+    gap: clamp(24px, 4vw, 56px);
+    padding: clamp(28px, 4vw, 44px) 0;
+    border-bottom: 1px solid var(--k-line);
+    text-decoration: none;
+    color: var(--k-ink);
+    transition: padding-left .35s cubic-bezier(.2,.7,.2,1), background .25s;
+    position: relative;
+  }
+  .page-row:hover {
+    padding-left: 24px;
+    background: linear-gradient(90deg, rgba(122,18,24,0.025) 0%, transparent 60%);
+  }
+  .page-row:last-child { border-bottom: none; }
+
+  .page-row .ix {
+    font-family: var(--k-mono); font-size: 11px; font-weight: 600;
+    letter-spacing: 0.16em; color: var(--k-ink-4);
+  }
+
+  .page-row .body { display: grid; gap: 6px; }
+  .page-row h2 {
+    margin: 0;
+    font-family: var(--k-sans); font-weight: 500;
+    font-size: clamp(28px, 3.4vw, 44px); line-height: 1.05;
+    letter-spacing: -0.03em;
+    color: var(--k-ink);
+  }
+  .page-row .desc {
+    margin: 0;
+    color: var(--k-ink-3);
+    font-size: clamp(14px, 1.2vw, 16px);
+    line-height: 1.5;
+    max-width: 56ch;
+  }
+  .page-row .stack {
+    display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px;
+  }
+  .page-row .stack span {
+    font-family: var(--k-mono); font-size: 9.5px; font-weight: 600;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--k-ink-4);
+    padding: 4px 8px;
+    border: 1px solid var(--k-line);
+    border-radius: 3px;
+  }
+
+  .page-row .arrow {
+    width: 56px; height: 56px;
+    display: flex; align-items: center; justify-content: center;
+    border: 1px solid var(--k-line);
+    border-radius: 999px;
+    color: var(--k-ink-3);
+    transition: transform .35s cubic-bezier(.2,.7,.2,1), background .25s, color .25s, border-color .25s;
+    flex-shrink: 0;
+  }
+  .page-row:hover .arrow {
+    transform: translateX(8px);
+    background: var(--k-crimson);
+    border-color: var(--k-crimson);
+    color: var(--color-cream);
+  }
+
+  /* Status pip */
+  .pip {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: var(--k-mono); font-size: 9.5px; font-weight: 600;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--k-ink-4);
+  }
+  .pip::before {
+    content: ''; width: 6px; height: 6px; border-radius: 999px;
+    background: var(--k-ink-4);
+  }
+  .pip.live::before { background: #2D8F4E; }
+  .pip.wip::before  { background: #C28A60; }
+  .pip.draft::before { background: var(--k-ink-4); }
+
+  @media (max-width: 720px) {
+    .page-row { grid-template-columns: 1fr; gap: 12px; padding: 28px 0; }
+    .page-row .arrow { display: none; }
+    .page-row:hover { padding-left: 0; }
+  }
+
+  /* ─── FOOTER ─── */
+  .portal-foot {
+    display: flex; flex-wrap: wrap; gap: 16px; align-items: center;
+    justify-content: space-between;
+    padding-top: 32px;
+    border-top: 1px solid var(--k-line);
+    font-family: var(--k-mono); font-size: 10.5px; font-weight: 500;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--k-ink-4);
+  }
+  .portal-foot a { color: var(--k-ink-3); text-decoration: none; }
+  .portal-foot a:hover { color: var(--k-crimson); }
+</style>
+</head>
+<body class="kit">
+
+<!-- ════════════════════════════════════════════════════════════════
+     MARKETING NAV — universal two-pill design (nav/marketing-nav.css)
+     ════════════════════════════════════════════════════════════════ -->
+<sc-marketing-nav current="portal"></sc-marketing-nav>
+
+
+<main class="portal">
+
+  <!-- ─── HEAD ─── -->
+  <header class="portal-head">
+    <div class="ribbon">
+      <span><span class="live-dot"></span>System · Live</span>
+      <span>SuperCat · 2026</span>
+      <span style="margin-left:auto;">v3.0 · May 2026</span>
+    </div>
+    <h1 class="portal-title">One brand. <em>Two</em> products.<br>One <em>foundation</em>.</h1>
+    <p class="portal-lede">The SuperCat Design System ships shared tokens + primitives that power two distinct surface families. <strong>Web Marketing</strong> is editorial — confident, premium, restrained. <strong>Web / iPad App</strong> is utilitarian — data-dense, fast, workspace-grade. Same brand, same voice, same foundation underneath.</p>
+
+    <div class="portal-meta">
+      <div class="cell"><span class="k">Foundation</span><span class="v">8 color families · Geist · 4-px space</span></div>
+      <div class="cell"><span class="k">Primitives</span><span class="v">12 · framework-agnostic</span></div>
+      <div class="cell"><span class="k">Products</span><span class="v">Web Marketing · Web / iPad App</span></div>
+      <div class="cell"><span class="k">Themes</span><span class="v">Light · Dark</span></div>
+    </div>
+  </header>
+
+
+  <!-- ─── SHARED FOUNDATION ─── -->
+  <!-- Reference lives here, not under Web Marketing — it documents the
+       full system that powers BOTH product families and is the single
+       source of truth for tokens, primitives, patterns, themes. -->
+  <section>
+    <div class="pages-head">
+      <span class="num">00</span>
+      <span class="ttl">Shared Foundation</span>
+      <span class="count">Powers both products</span>
+    </div>
+
+    <div class="pages">
+
+      <a href="ds/reference.html" class="page-row">
+        <span class="ix">01</span>
+        <div class="body">
+          <h2>Reference</h2>
+          <p class="desc">The complete design system on one page — tokens, primitives, patterns, themes, framework integration. The single source of truth for both products.</p>
+          <div class="stack">
+            <span>Everything · one page</span>
+            <span>Light + dark</span>
+            <span class="pip live">Live · v3.0</span>
+          </div>
+        </div>
+        <span class="arrow" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10h12M11 5l5 5-5 5"/></svg>
+        </span>
+      </a>
+
+      <a href="ds/tokens/index.css" target="_blank" class="page-row">
+        <span class="ix">02</span>
+        <div class="body">
+          <h2>Tokens</h2>
+          <p class="desc">Primitive → semantic → component-local. 8 color families · Geist · 4-px space ladder · 8/14 radii · 6 durations · 6 easings. Light + dark via <code style="font-family:var(--k-mono);font-size:.92em;color:var(--text-strong);">[data-theme="dark"]</code>.</p>
+          <div class="stack">
+            <span>ds/tokens/</span>
+            <span>3 tiers</span>
+            <span>W3C JSON mirror</span>
+          </div>
+        </div>
+        <span class="arrow" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10h12M11 5l5 5-5 5"/></svg>
+        </span>
+      </a>
+
+      <a href="ds/primitives/" target="_blank" class="page-row">
+        <span class="ix">03</span>
+        <div class="body">
+          <h2>Primitives</h2>
+          <p class="desc">Twelve framework-agnostic components: <code style="font-family:var(--k-mono);font-size:.92em;">.kb · .kf-input · .kf-check · .kf-switch · .kf-field · .kf-date · .ki · .kc · .kdt · .ktab · .knav · .kmd · .kskel · .kfoot</code>. Pure CSS; real HTML elements; works in React, Vue, Angular, Svelte, vanilla.</p>
+          <div class="stack">
+            <span>ds/primitives/</span>
+            <span>14 classes</span>
+            <span>0 framework lock-in</span>
+          </div>
+        </div>
+        <span class="arrow" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10h12M11 5l5 5-5 5"/></svg>
+        </span>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- ─── WEB MARKETING ─── -->
+  <section>
+    <div class="pages-head">
+      <span class="num">01</span>
+      <span class="ttl">Product 1 · Web Marketing</span>
+      <span class="count">01 reference page</span>
+    </div>
+
+    <div class="pages">
+
+      <a href="marketing/maxroi.html" class="page-row">
+        <span class="ix">01</span>
+        <div class="body">
+          <h2>MaxROI · 90-Day payback</h2>
+          <p class="desc">Live calculator + lead-magnet landing page for the SuperCat ROI flow. Editorial hero with precise S-curve, real customer math (5 drivers, Base/Upside scenarios), share-link permalink, intent-aware lead modal with brand mark, contextual book-a-session.</p>
+          <div class="stack">
+            <span>.kc + .kc-pick + .ktab-seg + .kmd + .kfoot</span>
+            <span>Live calculator</span>
+            <span class="pip live">Live</span>
+          </div>
+        </div>
+        <span class="arrow" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10h12M11 5l5 5-5 5"/></svg>
+        </span>
+      </a>
+
+    </div>
+  </section>
+
+
+  <!-- ─── WEB / iPad APP ─── -->
+  <section>
+    <div class="pages-head">
+      <span class="num">02</span>
+      <span class="ttl">Product 2 · Web / iPad App</span>
+      <span class="count">07 reference screens</span>
+    </div>
+
+    <div class="pages">
+
+      <a href="app/sales-portal-phases-mockup.html" class="page-row">
+        <span class="ix">00</span>
+        <div class="body">
+          <h2>Sales Portal · phase comparison</h2>
+          <p class="desc">Legacy vs Phase 1 (token reskin) vs Phase 3 (design-system app shell). Same dashboard content — toggle in the top bar to compare floor plans.</p>
+          <div class="stack">
+            <span>Legacy · Phase 1 · Phase 3</span>
+            <span>Self-contained</span>
+            <span class="pip wip">Mockup</span>
+          </div>
+        </div>
+        <span class="arrow" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10h12M11 5l5 5-5 5"/></svg>
+        </span>
+      </a>
+
+      <a href="app/sales-portal-skin-mockup.html" class="page-row">
+        <span class="ix">00b</span>
+        <div class="body">
+          <h2>Sales Portal · proposed skin</h2>
+          <p class="desc">Before/after mockup of eCat Sales Portal chrome with design-system tokens mapped onto the existing layout (Phase 1 reskin — not a full .kshell rebuild). Toggle Legacy vs Proposed in the top bar.</p>
+          <div class="stack">
+            <span>Token bridge</span>
+            <span>Legacy ↔ Proposed</span>
+            <span class="pip wip">Mockup</span>
+          </div>
+        </div>
+        <span class="arrow" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10h12M11 5l5 5-5 5"/></svg>
+        </span>
+      </a>
+
+      <a href="app/dashboard.html" class="page-row">
+        <span class="ix">01</span>
+        <div class="body">
+          <h2>Dashboard</h2>
+          <p class="desc">Workspace home. Metric tiles, orders-per-day chart, best-selling products, most-active users, action shortcuts. Skeleton-loaded with a Refresh control.</p>
+          <div class="stack">
+            <span>.kshell + .knav-floating</span>
+            <span>.kskel loading</span>
+            <span class="pip live">Live</span>
+          </div>
+        </div>
+        <span class="arrow" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10h12M11 5l5 5-5 5"/></svg>
+        </span>
+      </a>
+
+      <a href="app/orders.html" class="page-row">
+        <span class="ix">02</span>
+        <div class="body">
+          <h2>Orders</h2>
+          <p class="desc">Data table — status tabs, search + filters toolbar, sortable headers, status pills, row selection, pagination. Skeleton-loaded.</p>
+          <div class="stack">
+            <span>.kdt data table</span>
+            <span>1,287 rows demo</span>
+            <span class="pip live">Live</span>
+          </div>
+        </div>
+        <span class="arrow" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10h12M11 5l5 5-5 5"/></svg>
+        </span>
+      </a>
+
+      <a href="app/products.html" class="page-row">
+        <span class="ix">03</span>
+        <div class="body">
+          <h2>Products</h2>
+          <p class="desc">Card-view grid — 4-up with rotating cover tones, vendor + SKU eyebrow, status pill + tabular-num price, New/Low corner flags. Skeleton-loaded.</p>
+          <div class="stack">
+            <span>.kc-grid · 16 cards</span>
+            <span>Web · iPad</span>
+            <span class="pip live">Live</span>
+          </div>
+        </div>
+        <span class="arrow" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10h12M11 5l5 5-5 5"/></svg>
+        </span>
+      </a>
+
+      <a href="app/settings.html" class="page-row">
+        <span class="ix">04</span>
+        <div class="body">
+          <h2>Company Settings</h2>
+          <p class="desc">Form-heavy admin view — horizontal .ktab section nav with panel swap. Profile, branding, address, defaults, notifications, API tokens, danger zone. Sticky save bar.</p>
+          <div class="stack">
+            <span>7 panels</span>
+            <span>.kf-* form family</span>
+            <span class="pip live">Live</span>
+          </div>
+        </div>
+        <span class="arrow" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10h12M11 5l5 5-5 5"/></svg>
+        </span>
+      </a>
+
+      <a href="app/signin.html" class="page-row">
+        <span class="ix">05</span>
+        <div class="body">
+          <h2>Sign in</h2>
+          <p class="desc">Two-panel auth flow — editorial brand panel on the left, form on the right. Email + password, eye-toggle, keep-signed-in, SSO continue. Pure system primitives (.kf-field, .kf-input, .kf-check, .kb).</p>
+          <div class="stack">
+            <span>2-column · responsive</span>
+            <span>.kf-* + .kb</span>
+            <span class="pip live">Live</span>
+          </div>
+        </div>
+        <span class="arrow" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10h12M11 5l5 5-5 5"/></svg>
+        </span>
+      </a>
+
+    </div>
+  </section>
+
+
+  <!-- ─── DOCS ─── -->
+  <section>
+    <div class="pages-head">
+      <span class="num">03</span>
+      <span class="ttl">Documentation</span>
+      <span class="count">Read these first</span>
+    </div>
+
+    <div class="pages">
+
+      <a href="docs/SURFACES.md" class="page-row">
+        <span class="ix">01</span>
+        <div class="body">
+          <h2>SURFACES.md</h2>
+          <p class="desc">Single source of truth for the Web Marketing vs Web / iPad App split. Maps every file to its surface family. Calls out the two-nav distinction.</p>
+          <div class="stack">
+            <span>Surface map</span>
+            <span>Class-prefix legend</span>
+          </div>
+        </div>
+        <span class="arrow" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10h12M11 5l5 5-5 5"/></svg>
+        </span>
+      </a>
+
+      <a href="docs/FRAMEWORK-GUIDE.md" class="page-row">
+        <span class="ix">02</span>
+        <div class="body">
+          <h2>FRAMEWORK-GUIDE.md</h2>
+          <p class="desc">React / Vue / Angular / Svelte / Tailwind integration with copy-paste snippets. Plus an LLM-friendliness quick contract.</p>
+          <div class="stack">
+            <span>5 frameworks</span>
+            <span>LLM contract</span>
+          </div>
+        </div>
+        <span class="arrow" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10h12M11 5l5 5-5 5"/></svg>
+        </span>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- ─── FOOTER ─── -->
+  <footer class="portal-foot">
+    <span>SuperCat</span>
+    <span><a href="ds/reference.html">Reference</a> · <a href="README.md">README</a></span>
+  </footer>
+
+</main>
+
+</body>
+</html>

@@ -1,0 +1,713 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>SuperCat App — Products</title>
+
+<link rel="stylesheet" href="../ds/tokens/index.css?v=12" />
+<link rel="stylesheet" href="../ds/primitives/button.css?v=68" />
+<link rel="stylesheet" href="../ds/primitives/check.css?v=14" />
+<link rel="stylesheet" href="../ds/primitives/input.css?v=15" />
+<link rel="stylesheet" href="../ds/primitives/field.css?v=13" />
+<link rel="stylesheet" href="../ds/primitives/table.css?v=6" />
+<link rel="stylesheet" href="../ds/primitives/card.css?v=10" />
+<link rel="stylesheet" href="../ds/primitives/tabs.css?v=13" />
+<link rel="stylesheet" href="../ds/primitives/nav.css?v=13" />
+<link rel="stylesheet" href="../ds/primitives/skeleton.css?v=1" />
+<script src="../ds/primitives/tabs.js?v=8" defer></script>
+<script src="../ds/primitives/skeleton.js?v=1" defer></script>
+<script src="../nav/marketing-nav.js?v=13" defer></script>
+<script src="../nav/app-sidebar.js?v=2" defer></script>
+
+<style>
+  html, body { margin: 0; padding: 0; height: 100%; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--surface-page);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    min-height: 100dvh;
+  }
+
+  /* ── App shell — floating composition ── */
+  .kshell {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    min-height: 100dvh;
+    padding: clamp(12px, 1.4vw, 20px);
+    gap: clamp(12px, 1.4vw, 20px);
+    background: var(--surface-page);
+  }
+  .kshell-main {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+    gap: clamp(8px, 1vw, 16px);
+  }
+  .kshell-top {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    height: 52px;
+    padding: 0 var(--space-2);
+    background: transparent;
+    border: 0;
+    flex-shrink: 0;
+  }
+  .kshell-content {
+    flex: 1;
+    padding: 0 var(--space-2) clamp(24px, 3vw, 56px);
+    overflow: visible;
+  }
+
+  .crumb-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-widest);
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .crumb-row a { color: var(--text-muted); text-decoration: none; transition: color .15s var(--ease-out); }
+  .crumb-row a:hover { color: var(--text-primary); }
+  .crumb-row .crumb-sep { color: var(--text-faint); font-size: 14px; }
+  .crumb-row .crumb-here { color: var(--text-primary); }
+
+  .topbar-actions { display: flex; gap: var(--space-2); margin-left: auto; }
+
+  .page-head {
+    display: flex;
+    align-items: flex-end;
+    gap: var(--space-4);
+    margin: 0 0 var(--space-6);
+    flex-wrap: wrap;
+  }
+  .page-head h1 {
+    margin: 0;
+    font-size: clamp(28px, 3vw, 36px);
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-tighter);
+    font-weight: var(--weight-medium);
+  }
+  .page-head .meta {
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    letter-spacing: var(--tracking-widest);
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .page-head .actions {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  /* Toolbar — same as orders.html, segmented control keeps native size */
+  .toolbar-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-bottom: var(--space-5);
+    flex-wrap: wrap;
+  }
+  .toolbar-row .kf-input { flex: 0 1 320px; }
+  .toolbar-row .spacer { flex: 1; }
+  .toolbar-row .kb { height: 40px; }
+
+
+  /* ── Product card ─────────────────────────────────────────────
+     Cover area is a 4:3 surface-2 panel with large tracked mono
+     initials centered (stand-in for product photography). Tones
+     rotate across the grid to keep the matrix from feeling flat.
+     Card body uses standard kc-eyebrow / kc-title / kc-foot slots.
+  ─────────────────────────────────────────────────────────────── */
+  .kc.product-card { padding: 0; overflow: hidden; }
+  .kc.product-card > .kc-head,
+  .kc.product-card > .kc-foot {
+    padding-left: var(--space-4);
+    padding-right: var(--space-4);
+  }
+  .kc.product-card > .kc-head { padding-top: var(--space-4); padding-bottom: var(--space-2); }
+  .kc.product-card > .kc-foot { padding-top: var(--space-3); padding-bottom: var(--space-4); }
+
+  .product-cover {
+    position: relative;
+    aspect-ratio: 5 / 4;
+    display: grid;
+    place-items: center;
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--border-subtle);
+    overflow: hidden;
+  }
+  /* Subtle radial light from top-left, tames the flat fill */
+  .product-cover::before {
+    content: "";
+    position: absolute; inset: 0;
+    background: radial-gradient(120% 80% at 30% 20%,
+      color-mix(in oklch, var(--surface-card) 70%, transparent),
+      transparent 60%);
+    pointer-events: none;
+  }
+  /* Tone variants — rotate across the grid for editorial variety. */
+  .product-cover[data-tone="warm"]   { background: color-mix(in oklch, var(--color-gold) 8%, var(--surface-2)); }
+  .product-cover[data-tone="cool"]   { background: color-mix(in oklch, var(--text-primary) 4%, var(--surface-2)); }
+  .product-cover[data-tone="sand"]   { background: var(--surface-2); }
+  .product-cover[data-tone="ink"]    { background: var(--surface-3, color-mix(in oklch, var(--text-primary) 8%, var(--surface-2))); }
+
+  .product-initials {
+    position: relative;
+    z-index: 1;
+    font-family: var(--font-mono);
+    font-size: clamp(32px, 4vw, 44px);
+    font-weight: var(--weight-semibold);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: color-mix(in oklch, var(--text-primary) 28%, transparent);
+    user-select: none;
+  }
+
+  /* Featured-badge top-left, NEW-style pill */
+  .product-flag {
+    position: absolute;
+    top: var(--space-3);
+    left: var(--space-3);
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px var(--space-2);
+    border-radius: var(--radius-pill);
+    background: var(--surface-card);
+    border: 1px solid var(--border-default);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-widest);
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .product-flag-new {
+    color: var(--text-on-crimson);
+    background: var(--color-crimson);
+    border-color: transparent;
+  }
+  .product-flag-low {
+    color: var(--text-primary);
+    background: color-mix(in oklch, var(--color-gold) 24%, var(--surface-card));
+    border-color: color-mix(in oklch, var(--color-gold) 40%, transparent);
+  }
+
+  /* Product head — eyebrow (vendor + SKU) + title */
+  .product-card .kc-eyebrow {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .product-card .kc-eyebrow .sep {
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--border-default);
+  }
+  .product-card .kc-title {
+    margin: 0;
+    font-size: var(--text-base);
+    font-weight: var(--weight-medium);
+    letter-spacing: var(--tracking-tighter);
+    line-height: var(--leading-snug, 1.3);
+  }
+
+  /* Foot — status pill on the left, price on the right */
+  .product-card .kc-foot {
+    align-items: center;
+  }
+  .product-price {
+    font-family: var(--font-mono);
+    font-size: var(--text-base);
+    font-weight: var(--weight-semibold);
+    color: var(--text-primary);
+    letter-spacing: -0.01em;
+    font-variant-numeric: tabular-nums lining-nums;
+  }
+  .product-price .cents {
+    color: var(--text-muted);
+    font-weight: var(--weight-medium);
+    margin-left: 1px;
+  }
+
+  /* Pager — same grammar as orders, but for a card grid */
+  .grid-pager {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-4) 0 0;
+    margin-top: var(--space-6);
+    border-top: 1px dashed var(--border-subtle);
+  }
+  .grid-pager-info {
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    letter-spacing: var(--tracking-widest);
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-right: auto;
+  }
+
+  /* Theme toggle */
+  .theme-toggle .icon-dark { display: none; }
+  [data-theme="dark"] .theme-toggle .icon-light { display: none; }
+  [data-theme="dark"] .theme-toggle .icon-dark  { display: block; }
+</style>
+</head>
+<body>
+
+<!-- shared icons -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-home"     viewBox="0 0 24 24"><path d="M3 11l9-8 9 8M5 9v12h14V9"/></symbol>
+    <symbol id="i-dash"     viewBox="0 0 24 24"><path d="M3 3h7v9H3zM14 3h7v5h-7zM14 12h7v9h-7zM3 16h7v5H3z"/></symbol>
+    <symbol id="i-users"    viewBox="0 0 24 24"><circle cx="9" cy="8" r="4"/><path d="M2 21v-1a5 5 0 0 1 5-5h4a5 5 0 0 1 5 5v1"/><circle cx="17" cy="6" r="3"/><path d="M22 19v-1a4 4 0 0 0-4-4h-1"/></symbol>
+    <symbol id="i-orders"   viewBox="0 0 24 24"><path d="M3 6h2l2 11h11l2-8H6"/><circle cx="9" cy="20" r="1.5"/><circle cx="17" cy="20" r="1.5"/></symbol>
+    <symbol id="i-products" viewBox="0 0 24 24"><path d="M3 7l9-4 9 4-9 4-9-4zM3 12l9 4 9-4M3 17l9 4 9-4"/></symbol>
+    <symbol id="i-customers" viewBox="0 0 24 24"><path d="M4 21v-1a5 5 0 0 1 5-5h6a5 5 0 0 1 5 5v1"/><circle cx="12" cy="8" r="4"/></symbol>
+    <symbol id="i-lists"    viewBox="0 0 24 24"><path d="M9 6h12M9 12h12M9 18h12"/><circle cx="4" cy="6" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="18" r="1"/></symbol>
+    <symbol id="i-library"  viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 11l5-3 4 2 6-4 3 2"/></symbol>
+    <symbol id="i-formats"  viewBox="0 0 24 24"><path d="M5 4h10l4 4v12H5z"/><path d="M15 4v4h4"/></symbol>
+    <symbol id="i-notice"   viewBox="0 0 24 24"><path d="M3 11l13-7v16L3 13z"/><path d="M16 10h4M16 14h4"/></symbol>
+    <symbol id="i-gear"     viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></symbol>
+    <symbol id="i-mobile"   viewBox="0 0 24 24"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></symbol>
+    <symbol id="i-file"     viewBox="0 0 24 24"><path d="M5 4h10l4 4v12H5z"/><path d="M15 4v4h4"/><path d="M9 14h6M9 18h4"/></symbol>
+    <symbol id="i-upload"   viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5M12 3v12"/></symbol>
+    <symbol id="i-chev"     viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></symbol>
+    <symbol id="i-chev-l"   viewBox="0 0 16 16"><path d="M10 4l-4 4 4 4"/></symbol>
+    <symbol id="i-chev-r"   viewBox="0 0 16 16"><path d="M6 4l4 4-4 4"/></symbol>
+    <symbol id="i-search"   viewBox="0 0 16 16"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></symbol>
+    <symbol id="i-filter"   viewBox="0 0 16 16"><path d="M2 4h12M4 8h8M6 12h4"/></symbol>
+    <symbol id="i-download" viewBox="0 0 16 16"><path d="M2 11v2a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-2M8 2v8M5 7l3 3 3-3"/></symbol>
+    <symbol id="i-plus"     viewBox="0 0 16 16"><path d="M8 3v10M3 8h10"/></symbol>
+    <symbol id="i-sparkle"  viewBox="0 0 16 16"><path d="M8 2l1.4 3.3L13 7l-3.6 1.7L8 12l-1.4-3.3L3 7l3.6-1.7L8 2z" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-sun"      viewBox="0 0 16 16"><circle cx="8" cy="8" r="3"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3 3l1.5 1.5M11.5 11.5L13 13M3 13l1.5-1.5M11.5 4.5L13 3"/></symbol>
+    <symbol id="i-moon"     viewBox="0 0 16 16"><path d="M13 9.5a5.5 5.5 0 0 1-7-7 6 6 0 1 0 7 7z"/></symbol>
+    <!-- SuperCat double-wave brand mark (gold) -->
+    <symbol id="i-mark" viewBox="0 0 41 28">
+      <path d="M20.4773 17.6424C16.8375 10.6856 13.5207 10.6117 10.2067 10.5378C8.69685 10.5042 7.18762 10.4706 5.64872 9.78608L0 0H2.43148C5.09633 3.25885 7.65432 3.51236 10.2129 3.76594C13.5561 4.09728 16.9003 4.42872 20.4853 11.4648C24.0761 4.39466 27.4109 4.0844 30.7463 3.77408C33.2971 3.53675 35.8483 3.29939 38.5148 0.0385625H41L35.3692 9.78883C33.8047 10.503 32.2722 10.5331 30.7392 10.5634C27.4294 10.6286 24.1175 10.6937 20.4773 17.6424Z" fill="currentColor" stroke="none"/>
+      <path d="M20.4773 27.9975L20.4771 27.9972L20.4756 28L20.4756 27.9944C17.538 22.3699 14.7931 21.2243 12.1087 20.9635L7.9752 13.8017C8.72235 13.9462 9.4664 14.0158 10.2103 14.0855C13.5487 14.398 16.8835 14.7102 20.4773 21.7843C24.0589 14.7274 27.3849 14.4269 30.7115 14.1261C31.4831 14.0563 32.2548 13.9866 33.0298 13.8324L28.8886 20.9942C26.1863 21.25 23.4405 22.3367 20.4773 27.9969V27.9975Z" fill="currentColor" stroke="none"/>
+    </symbol>
+  </defs>
+</svg>
+
+
+<div class="kshell">
+
+  <!-- ─── SIDEBAR ─── -->
+  <sc-app-sidebar active="products" orders-count="1,287"></sc-app-sidebar>
+
+
+  <!-- ─── MAIN ─── -->
+  <div class="kshell-main">
+
+    <header class="kshell-top">
+      <div class="crumb-row">
+        <a href="#">Opame Collective</a>
+        <span class="crumb-sep">/</span>
+        <span class="crumb-here">Products</span>
+      </div>
+      <div class="topbar-actions">
+        <button class="kb kb-sm kb-secondary">
+          <svg viewBox="0 0 16 16" style="color:var(--color-gold)"><use href="#i-sparkle"/></svg>
+          New look &amp; feedback
+        </button>
+        <button class="kb kb-sm kb-secondary kb-icon theme-toggle"
+                aria-label="Toggle theme"
+                onclick="document.documentElement.dataset.theme = document.documentElement.dataset.theme === 'dark' ? '' : 'dark'">
+          <svg class="icon-light" viewBox="0 0 16 16"><use href="#i-moon"/></svg>
+          <svg class="icon-dark"  viewBox="0 0 16 16"><use href="#i-sun"/></svg>
+        </button>
+      </div>
+    </header>
+
+
+    <main class="kshell-content">
+
+      <!-- Page head -->
+      <div class="page-head">
+        <h1>Products</h1>
+        <span class="meta">50 SKUs · 12 vendors · Updated 2025-11-26</span>
+        <div class="actions">
+          <button class="kb kb-md kb-secondary">
+            <svg viewBox="0 0 16 16"><use href="#i-download"/></svg>
+            Export
+          </button>
+          <button class="kb kb-md kb-primary">
+            <svg viewBox="0 0 16 16"><use href="#i-plus"/></svg>
+            New product
+          </button>
+        </div>
+      </div>
+
+
+      <!-- Status tabs -->
+      <nav class="ktab" role="tablist" aria-label="Stock status filter" style="margin-bottom: var(--space-6);">
+        <button class="ktab-item" role="tab" aria-selected="true">
+          All <span class="ktab-count">50</span>
+        </button>
+        <button class="ktab-item" role="tab">
+          In stock <span class="ktab-count">38</span>
+        </button>
+        <button class="ktab-item" role="tab">
+          Low stock <span class="ktab-count">7</span>
+        </button>
+        <button class="ktab-item" role="tab">
+          Backorder <span class="ktab-count">3</span>
+        </button>
+        <button class="ktab-item" role="tab">
+          Discontinued <span class="ktab-count">2</span>
+        </button>
+      </nav>
+
+
+      <!-- Toolbar -->
+      <div class="toolbar-row">
+        <div class="kf-input-wrap kf-md has-lead" style="flex: 0 1 320px;">
+          <span class="kf-input-lead" aria-hidden="true">
+            <svg viewBox="0 0 16 16" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;color:var(--text-muted)"><use href="#i-search"/></svg>
+          </span>
+          <input class="kf-input kf-md" type="search" placeholder="Search products, vendors, SKUs…" />
+        </div>
+
+        <button class="kb kb-md kb-secondary">
+          <svg viewBox="0 0 16 16"><use href="#i-filter"/></svg>
+          Filters
+          <span style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);padding:0 6px;border:1px solid var(--border-default);border-radius:999px;margin-left:4px">3</span>
+        </button>
+
+        <span class="spacer"></span>
+
+        <nav class="ktab ktab-seg ktab-sm" role="tablist" aria-label="View mode">
+          <button class="ktab-item" role="tab" aria-selected="true">Cards</button>
+          <button class="ktab-item" role="tab"><a href="orders.html" style="all:unset;cursor:pointer;">List</a></button>
+        </nav>
+      </div>
+
+
+      <!-- ─── PRODUCT GRID — skeleton-loaded ─── -->
+      <div data-loadable aria-busy="true" data-load="1100">
+        <div data-skel>
+          <div class="kc-grid kc-grid-4">
+            <article class="kc product-card"><div class="product-cover" style="background: var(--surface-2);"></div><header class="kc-head"><div class="kc-head-lead"><span class="kskel kskel-line" style="--w: 55%"></span><span class="kskel kskel-line kskel-h-md" style="--w: 78%; margin-top: var(--space-2)"></span></div></header><footer class="kc-foot"><span class="kskel kskel-line" style="--w: 35%"></span><span class="kc-foot-spacer"></span><span class="kskel kskel-line" style="--w: 20%"></span></footer></article>
+            <article class="kc product-card"><div class="product-cover" style="background: var(--surface-2);"></div><header class="kc-head"><div class="kc-head-lead"><span class="kskel kskel-line" style="--w: 50%"></span><span class="kskel kskel-line kskel-h-md" style="--w: 68%; margin-top: var(--space-2)"></span></div></header><footer class="kc-foot"><span class="kskel kskel-line" style="--w: 30%"></span><span class="kc-foot-spacer"></span><span class="kskel kskel-line" style="--w: 22%"></span></footer></article>
+            <article class="kc product-card"><div class="product-cover" style="background: var(--surface-2);"></div><header class="kc-head"><div class="kc-head-lead"><span class="kskel kskel-line" style="--w: 60%"></span><span class="kskel kskel-line kskel-h-md" style="--w: 80%; margin-top: var(--space-2)"></span></div></header><footer class="kc-foot"><span class="kskel kskel-line" style="--w: 40%"></span><span class="kc-foot-spacer"></span><span class="kskel kskel-line" style="--w: 18%"></span></footer></article>
+            <article class="kc product-card"><div class="product-cover" style="background: var(--surface-2);"></div><header class="kc-head"><div class="kc-head-lead"><span class="kskel kskel-line" style="--w: 48%"></span><span class="kskel kskel-line kskel-h-md" style="--w: 72%; margin-top: var(--space-2)"></span></div></header><footer class="kc-foot"><span class="kskel kskel-line" style="--w: 36%"></span><span class="kc-foot-spacer"></span><span class="kskel kskel-line" style="--w: 22%"></span></footer></article>
+            <article class="kc product-card"><div class="product-cover" style="background: var(--surface-2);"></div><header class="kc-head"><div class="kc-head-lead"><span class="kskel kskel-line" style="--w: 55%"></span><span class="kskel kskel-line kskel-h-md" style="--w: 70%; margin-top: var(--space-2)"></span></div></header><footer class="kc-foot"><span class="kskel kskel-line" style="--w: 34%"></span><span class="kc-foot-spacer"></span><span class="kskel kskel-line" style="--w: 24%"></span></footer></article>
+            <article class="kc product-card"><div class="product-cover" style="background: var(--surface-2);"></div><header class="kc-head"><div class="kc-head-lead"><span class="kskel kskel-line" style="--w: 50%"></span><span class="kskel kskel-line kskel-h-md" style="--w: 75%; margin-top: var(--space-2)"></span></div></header><footer class="kc-foot"><span class="kskel kskel-line" style="--w: 38%"></span><span class="kc-foot-spacer"></span><span class="kskel kskel-line" style="--w: 20%"></span></footer></article>
+            <article class="kc product-card"><div class="product-cover" style="background: var(--surface-2);"></div><header class="kc-head"><div class="kc-head-lead"><span class="kskel kskel-line" style="--w: 56%"></span><span class="kskel kskel-line kskel-h-md" style="--w: 65%; margin-top: var(--space-2)"></span></div></header><footer class="kc-foot"><span class="kskel kskel-line" style="--w: 30%"></span><span class="kc-foot-spacer"></span><span class="kskel kskel-line" style="--w: 22%"></span></footer></article>
+            <article class="kc product-card"><div class="product-cover" style="background: var(--surface-2);"></div><header class="kc-head"><div class="kc-head-lead"><span class="kskel kskel-line" style="--w: 52%"></span><span class="kskel kskel-line kskel-h-md" style="--w: 70%; margin-top: var(--space-2)"></span></div></header><footer class="kc-foot"><span class="kskel kskel-line" style="--w: 36%"></span><span class="kc-foot-spacer"></span><span class="kskel kskel-line" style="--w: 22%"></span></footer></article>
+          </div>
+        </div>
+        <div data-real>
+        <div class="kc-grid kc-grid-4">
+
+        <article class="kc kc-interactive product-card">
+          <div class="product-cover" data-tone="warm">
+            <span class="product-flag product-flag-new">New</span>
+            <span class="product-initials">MN</span>
+          </div>
+          <header class="kc-head">
+            <div class="kc-head-lead">
+              <span class="kc-eyebrow">Caldera Mills<span class="sep"></span>MN-2210</span>
+              <h3 class="kc-title">Mantle dining table</h3>
+            </div>
+          </header>
+          <footer class="kc-foot">
+            <span class="kdt-pill kdt-pill-success"><span class="kdt-pill-dot"></span> In stock · 24</span>
+            <span class="kc-foot-spacer"></span>
+            <span class="product-price">$1,060<span class="cents">.00</span></span>
+          </footer>
+        </article>
+
+        <article class="kc kc-interactive product-card">
+          <div class="product-cover" data-tone="cool">
+            <span class="product-initials">RD</span>
+          </div>
+          <header class="kc-head">
+            <div class="kc-head-lead">
+              <span class="kc-eyebrow">Caldera Mills<span class="sep"></span>RD-1042</span>
+              <h3 class="kc-title">Ridgeline armchair</h3>
+            </div>
+          </header>
+          <footer class="kc-foot">
+            <span class="kdt-pill kdt-pill-success"><span class="kdt-pill-dot"></span> In stock · 18</span>
+            <span class="kc-foot-spacer"></span>
+            <span class="product-price">$1,240<span class="cents">.00</span></span>
+          </footer>
+        </article>
+
+        <article class="kc kc-interactive product-card">
+          <div class="product-cover" data-tone="sand">
+            <span class="product-initials">CS</span>
+          </div>
+          <header class="kc-head">
+            <div class="kc-head-lead">
+              <span class="kc-eyebrow">Wovenway Co.<span class="sep"></span>CS-7732</span>
+              <h3 class="kc-title">Cane side table</h3>
+            </div>
+          </header>
+          <footer class="kc-foot">
+            <span class="kdt-pill kdt-pill-success"><span class="kdt-pill-dot"></span> In stock · 142</span>
+            <span class="kc-foot-spacer"></span>
+            <span class="product-price">$60<span class="cents">.00</span></span>
+          </footer>
+        </article>
+
+        <article class="kc kc-interactive product-card">
+          <div class="product-cover" data-tone="ink">
+            <span class="product-flag product-flag-low">Low</span>
+            <span class="product-initials">FB</span>
+          </div>
+          <header class="kc-head">
+            <div class="kc-head-lead">
+              <span class="kc-eyebrow">Field &amp; Frame<span class="sep"></span>FB-3304</span>
+              <h3 class="kc-title">Field bench · oak</h3>
+            </div>
+          </header>
+          <footer class="kc-foot">
+            <span class="kdt-pill kdt-pill-warning"><span class="kdt-pill-dot"></span> Low · 4 left</span>
+            <span class="kc-foot-spacer"></span>
+            <span class="product-price">$480<span class="cents">.00</span></span>
+          </footer>
+        </article>
+
+        <article class="kc kc-interactive product-card">
+          <div class="product-cover" data-tone="sand">
+            <span class="product-initials">LR</span>
+          </div>
+          <header class="kc-head">
+            <div class="kc-head-lead">
+              <span class="kc-eyebrow">Atlas Linens<span class="sep"></span>LR-0418</span>
+              <h3 class="kc-title">Linen runner · oat</h3>
+            </div>
+          </header>
+          <footer class="kc-foot">
+            <span class="kdt-pill kdt-pill-success"><span class="kdt-pill-dot"></span> In stock · 78</span>
+            <span class="kc-foot-spacer"></span>
+            <span class="product-price">$42<span class="cents">.00</span></span>
+          </footer>
+        </article>
+
+        <article class="kc kc-interactive product-card">
+          <div class="product-cover" data-tone="warm">
+            <span class="product-initials">SP</span>
+          </div>
+          <header class="kc-head">
+            <div class="kc-head-lead">
+              <span class="kc-eyebrow">Marigold Living<span class="sep"></span>SP-0901</span>
+              <h3 class="kc-title">Slate planter · small</h3>
+            </div>
+          </header>
+          <footer class="kc-foot">
+            <span class="kdt-pill kdt-pill-success"><span class="kdt-pill-dot"></span> In stock · 36</span>
+            <span class="kc-foot-spacer"></span>
+            <span class="product-price">$84<span class="cents">.00</span></span>
+          </footer>
+        </article>
+
+        <article class="kc kc-interactive product-card">
+          <div class="product-cover" data-tone="ink">
+            <span class="product-initials">BC</span>
+          </div>
+          <header class="kc-head">
+            <div class="kc-head-lead">
+              <span class="kc-eyebrow">Hawthorn House<span class="sep"></span>BC-2255</span>
+              <h3 class="kc-title">Brass candleholder · tall</h3>
+            </div>
+          </header>
+          <footer class="kc-foot">
+            <span class="kdt-pill kdt-pill-info"><span class="kdt-pill-dot"></span> Backorder · 11 Dec</span>
+            <span class="kc-foot-spacer"></span>
+            <span class="product-price">$128<span class="cents">.00</span></span>
+          </footer>
+        </article>
+
+        <article class="kc kc-interactive product-card">
+          <div class="product-cover" data-tone="cool">
+            <span class="product-initials">BT</span>
+          </div>
+          <header class="kc-head">
+            <div class="kc-head-lead">
+              <span class="kc-eyebrow">Atlas Linens<span class="sep"></span>BT-0220</span>
+              <h3 class="kc-title">Burlap throw · ecru</h3>
+            </div>
+          </header>
+          <footer class="kc-foot">
+            <span class="kdt-pill kdt-pill-success"><span class="kdt-pill-dot"></span> In stock · 52</span>
+            <span class="kc-foot-spacer"></span>
+            <span class="product-price">$96<span class="cents">.00</span></span>
+          </footer>
+        </article>
+
+        <article class="kc kc-interactive product-card">
+          <div class="product-cover" data-tone="sand">
+            <span class="product-initials">WB</span>
+          </div>
+          <header class="kc-head">
+            <div class="kc-head-lead">
+              <span class="kc-eyebrow">Caldera Mills<span class="sep"></span>WB-3344</span>
+              <h3 class="kc-title">Walnut bowl · footed</h3>
+            </div>
+          </header>
+          <footer class="kc-foot">
+            <span class="kdt-pill kdt-pill-success"><span class="kdt-pill-dot"></span> In stock · 21</span>
+            <span class="kc-foot-spacer"></span>
+            <span class="product-price">$240<span class="cents">.00</span></span>
+          </footer>
+        </article>
+
+        <article class="kc kc-interactive product-card">
+          <div class="product-cover" data-tone="warm">
+            <span class="product-flag product-flag-low">Low</span>
+            <span class="product-initials">CL</span>
+          </div>
+          <header class="kc-head">
+            <div class="kc-head-lead">
+              <span class="kc-eyebrow">Wovenway Co.<span class="sep"></span>CL-7790</span>
+              <h3 class="kc-title">Cane lounge chair</h3>
+            </div>
+          </header>
+          <footer class="kc-foot">
+            <span class="kdt-pill kdt-pill-warning"><span class="kdt-pill-dot"></span> Low · 3 left</span>
+            <span class="kc-foot-spacer"></span>
+            <span class="product-price">$1,840<span class="cents">.00</span></span>
+          </footer>
+        </article>
+
+        <article class="kc kc-interactive product-card">
+          <div class="product-cover" data-tone="ink">
+            <span class="product-initials">BO</span>
+          </div>
+          <header class="kc-head">
+            <div class="kc-head-lead">
+              <span class="kc-eyebrow">Bennett &amp; Hall<span class="sep"></span>BO-1124</span>
+              <h3 class="kc-title">Boucle ottoman</h3>
+            </div>
+          </header>
+          <footer class="kc-foot">
+            <span class="kdt-pill kdt-pill-success"><span class="kdt-pill-dot"></span> In stock · 12</span>
+            <span class="kc-foot-spacer"></span>
+            <span class="product-price">$560<span class="cents">.00</span></span>
+          </footer>
+        </article>
+
+        <article class="kc kc-interactive product-card">
+          <div class="product-cover" data-tone="warm">
+            <span class="product-initials">IS</span>
+          </div>
+          <header class="kc-head">
+            <div class="kc-head-lead">
+              <span class="kc-eyebrow">Hawthorn House<span class="sep"></span>IS-3389</span>
+              <h3 class="kc-title">Iron sconce · pair</h3>
+            </div>
+          </header>
+          <footer class="kc-foot">
+            <span class="kdt-pill kdt-pill-success"><span class="kdt-pill-dot"></span> In stock · 16</span>
+            <span class="kc-foot-spacer"></span>
+            <span class="product-price">$320<span class="cents">.00</span></span>
+          </footer>
+        </article>
+
+        <article class="kc kc-interactive product-card">
+          <div class="product-cover" data-tone="cool">
+            <span class="product-initials">FS</span>
+          </div>
+          <header class="kc-head">
+            <div class="kc-head-lead">
+              <span class="kc-eyebrow">Field &amp; Frame<span class="sep"></span>FS-3320</span>
+              <h3 class="kc-title">Field stool</h3>
+            </div>
+          </header>
+          <footer class="kc-foot">
+            <span class="kdt-pill kdt-pill-success"><span class="kdt-pill-dot"></span> In stock · 44</span>
+            <span class="kc-foot-spacer"></span>
+            <span class="product-price">$180<span class="cents">.00</span></span>
+          </footer>
+        </article>
+
+        <article class="kc kc-interactive product-card">
+          <div class="product-cover" data-tone="sand">
+            <span class="product-initials">LN</span>
+          </div>
+          <header class="kc-head">
+            <div class="kc-head-lead">
+              <span class="kc-eyebrow">Atlas Linens<span class="sep"></span>LN-0612</span>
+              <h3 class="kc-title">Linen napkin set · 6</h3>
+            </div>
+          </header>
+          <footer class="kc-foot">
+            <span class="kdt-pill kdt-pill-neutral"><span class="kdt-pill-dot"></span> Discontinued</span>
+            <span class="kc-foot-spacer"></span>
+            <span class="product-price">$48<span class="cents">.00</span></span>
+          </footer>
+        </article>
+
+        <article class="kc kc-interactive product-card">
+          <div class="product-cover" data-tone="ink">
+            <span class="product-initials">SV</span>
+          </div>
+          <header class="kc-head">
+            <div class="kc-head-lead">
+              <span class="kc-eyebrow">Marigold Living<span class="sep"></span>SV-0902</span>
+              <h3 class="kc-title">Slate vase · tall</h3>
+            </div>
+          </header>
+          <footer class="kc-foot">
+            <span class="kdt-pill kdt-pill-success"><span class="kdt-pill-dot"></span> In stock · 28</span>
+            <span class="kc-foot-spacer"></span>
+            <span class="product-price">$112<span class="cents">.00</span></span>
+          </footer>
+        </article>
+
+        <article class="kc kc-interactive product-card">
+          <div class="product-cover" data-tone="warm">
+            <span class="product-flag product-flag-new">New</span>
+            <span class="product-initials">CB</span>
+          </div>
+          <header class="kc-head">
+            <div class="kc-head-lead">
+              <span class="kc-eyebrow">Caldera Mills<span class="sep"></span>CB-3201</span>
+              <h3 class="kc-title">Cherry bookcase · tall</h3>
+            </div>
+          </header>
+          <footer class="kc-foot">
+            <span class="kdt-pill kdt-pill-success"><span class="kdt-pill-dot"></span> In stock · 8</span>
+            <span class="kc-foot-spacer"></span>
+            <span class="product-price">$2,180<span class="cents">.00</span></span>
+          </footer>
+        </article>
+
+        </div><!-- /.kc-grid -->
+        </div><!-- /data-real -->
+      </div><!-- /data-loadable -->
+
+
+      <!-- Pager -->
+      <footer class="grid-pager">
+        <span class="grid-pager-info">Showing 1–16 of 50 products</span>
+        <button class="kb kb-sm kb-secondary" disabled>
+          <svg viewBox="0 0 16 16"><use href="#i-chev-l"/></svg> Prev
+        </button>
+        <button class="kb kb-sm kb-secondary">
+          Next <svg class="arr-svg" viewBox="0 0 16 16"><use href="#i-chev-r"/></svg>
+        </button>
+      </footer>
+
+    </main>
+  </div>
+</div>
+
+</body>
+</html>

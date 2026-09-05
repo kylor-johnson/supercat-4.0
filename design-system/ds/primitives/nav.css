@@ -1,0 +1,982 @@
+/* ════════════════════════════════════════════════════════════════
+   SuperCat DS — Side-nav primitive  ·  .knav
+   ────────────────────────────────────────────────────────────────
+   ▸ Class prefix: `.knav` = "kit nav"
+   ▸ The App's left sidebar — fixed-width column with brand, primary
+     nav list, optional section groups, and an account footer.
+   ▸ NOT to be confused with `nav/nav.css` (the SuperCat marketing-
+     site mega-menu, which is a horizontal top nav). This is the
+     vertical left sidebar for app surfaces (eCat, dashboard, etc.).
+   ▸ Framework-agnostic. Pure CSS for visuals; consumers set the
+     active state via `aria-current="page"` on the chosen item.
+   ────────────────────────────────────────────────────────────────
+   API
+
+     <aside class="knav" aria-label="Primary">
+       <header class="knav-brand">
+         <a class="knav-brand-link" href="/">
+           <span class="knav-brand-mark" aria-hidden="true"><svg…></svg></span>
+           <span class="knav-brand-name">Supercat</span>
+         </a>
+       </header>
+
+       <nav class="knav-list" aria-label="Main">
+         <a class="knav-item" href="/home">
+           <span class="knav-icon" aria-hidden="true"><svg…></svg></span>
+           <span class="knav-text">Home</span>
+         </a>
+         <a class="knav-item" aria-current="page" href="/dashboard">
+           <span class="knav-icon"><svg…></svg></span>
+           <span class="knav-text">Dashboard</span>
+         </a>
+         <a class="knav-item" href="/users">
+           <span class="knav-icon"><svg…></svg></span>
+           <span class="knav-text">Users</span>
+           <span class="knav-trail" aria-hidden="true"><svg…chevron…></svg></span>
+         </a>
+       </nav>
+
+       <div class="knav-section">
+         <h3 class="knav-eyebrow">Settings &amp; Tools</h3>
+         <nav class="knav-list">
+           …more items…
+         </nav>
+       </div>
+
+       <div class="knav-spacer"></div>     <!-- push footer down -->
+
+       <footer class="knav-account">
+         <div class="knav-org">
+           <span class="knav-org-badge" aria-hidden="true">OP</span>
+           <span class="knav-org-name">Opame Collective</span>
+         </div>
+         <button class="knav-user">
+           <span class="knav-user-avatar">AM</span>
+           <span class="knav-user-info">
+             <span class="knav-user-name">Alex Malyshev</span>
+             <span class="knav-user-role">Account</span>
+           </span>
+           <span class="knav-user-trail" aria-hidden="true"><svg…></svg></span>
+         </button>
+       </footer>
+     </aside>
+
+   Sizes      : knav-sm (200 px) · (default · 240 px) · knav-lg (280 px)
+   Variants   : (default · always-visible)
+                knav-rail        collapsed to icons only (64 px)
+                knav-drawer      off-canvas drawer (mobile + iPad portrait)
+   States     : .knav-item:hover           paper lift
+                .knav-item[aria-current]   active (cream fill + ink text)
+                .knav-item[aria-disabled]  not interactive
+                .knav-item[aria-expanded]  expandable group state
+
+   Tokens consumed (semantic layer only):
+     --text-{primary,strong,body,muted,faint,on-crimson}
+     --surface-{card,page,2,3}     --color-crimson
+     --border-{subtle,default,strong}
+     --font-{sans,mono}            --text-* (size ramp)
+     --space-N                     --radius-{md,lg,pill,full}
+     --shadow-{1,2}                --duration-{fast,base}  --ease-out
+   No legacy --k-* tokens are referenced here.
+   ════════════════════════════════════════════════════════════════ */
+
+
+:where(.knav) {
+  /* ── Component-local custom properties ── */
+  --knav-w:           240px;
+  --knav-bg:          var(--surface-card);
+  --knav-border:      var(--border-default);
+
+  --knav-pad-x:       var(--space-3);   /* 12 px gutter inside the sidebar */
+  --knav-pad-y:       var(--space-5);   /* 20 px vertical padding */
+
+  --knav-item-h:      40px;
+  --knav-item-pad-x:  var(--space-3);
+  --knav-item-gap:    var(--space-3);   /* gap between icon + text */
+  --knav-item-radius: var(--radius-md);
+
+  --knav-fg:          var(--text-body);
+  --knav-fg-muted:    var(--text-muted);
+  --knav-fg-hover:    var(--text-primary);
+  --knav-fg-active:   var(--text-primary);
+  --knav-fg-disabled: var(--text-faint);
+
+  --knav-bg-hover:    var(--surface-page);
+  --knav-bg-active:   var(--surface-2);
+
+  --knav-icon-size:   18px;
+  --knav-font:        var(--font-sans);
+  --knav-size:        var(--text-sm);    /* 13 px item label */
+  --knav-weight:      var(--weight-medium);
+  --knav-weight-active: var(--weight-semibold);
+
+  --knav-ease:        var(--ease-out);
+  --knav-dur:         var(--duration-base);
+}
+
+
+/* ── Wrapper ─────────────────────────────────────────────────── */
+
+.knav {
+  display: flex;
+  flex-direction: column;
+  width: var(--knav-w);
+  height: 100%;
+  min-height: 100dvh;                 /* fill viewport when standalone */
+  background: var(--knav-bg);
+  color: var(--knav-fg);
+  border: 1px solid var(--knav-border);
+  font-family: var(--knav-font);
+  font-size: var(--knav-size);
+  flex-shrink: 0;
+  overflow: hidden;
+  position: relative;
+}
+
+/* When embedded inside a layout (.kshell), let the parent control min-height */
+.knav.knav-embedded {
+  min-height: 0;
+  height: 100%;
+}
+
+/* Floating mode — rounded corners + soft shadow. The .kshell layout
+   provides margin/gap around the sidebar so it visually detaches
+   from the page corners. Sticks to the viewport when scrolling.
+
+   `--knav-stick-top` is the gap between sidebar and viewport top —
+   the .kshell layout's padding token. Defaults match the shell. */
+.knav.knav-floating {
+  --knav-stick-top: clamp(12px, 1.4vw, 20px);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-1);
+  position: sticky;
+  top: var(--knav-stick-top);
+  height: calc(100dvh - 2 * var(--knav-stick-top));
+  min-height: 0;            /* override the default 100dvh from base .knav */
+  align-self: start;
+}
+
+
+/* ── Brand block (top) ───────────────────────────────────────── */
+
+.knav-brand {
+  display: flex;
+  align-items: center;
+  height: 64px;
+  /* align brand contents with the nav-items below — same left edge
+     (24 px = body padding + item padding) so the wordmark sits over
+     the same vertical guide as the active-item highlights. */
+  padding: 0 var(--knav-pad-x);
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--knav-border);
+}
+.knav-brand-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-1) var(--space-3);
+  margin: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text-primary);
+  text-decoration: none;
+  border-radius: var(--radius-md);
+  transition: opacity var(--knav-dur) var(--knav-ease);
+}
+.knav-brand-link:hover { opacity: 0.7; }
+.knav-brand-link:focus-visible {
+  outline: 0;
+  box-shadow: 0 0 0 3px color-mix(in oklch, var(--color-crimson) 22%, transparent);
+}
+/* Brand presentation — pick ONE pattern per app:
+
+   A) Full wordmark SVG (recommended for App + marketing):
+
+      <a class="knav-brand-link" href="/">
+        <svg class="knav-brand-logo" viewBox="0 0 237 28">
+          <path class="logo-word" d="..."/>   <!-- letters -->
+          <path class="logo-mark" d="..."/>   <!-- gold mark -->
+        </svg>
+      </a>
+
+   B) Mark + custom text (compact, for rail mode or tight sidebars):
+
+      <a class="knav-brand-link" href="/">
+        <span class="knav-brand-mark">...</span>
+        <span class="knav-brand-name">Supercat</span>
+      </a>
+*/
+
+/* ── Pattern A: full wordmark SVG ── */
+.knav-brand-logo {
+  display: block;
+  width: 100%;
+  max-width: 168px;       /* fits 240 px sidebar with padding */
+  height: auto;
+  flex-shrink: 1;
+  min-width: 0;
+}
+.knav-brand-logo .logo-word { fill: var(--text-primary); }
+.knav-brand-logo .logo-mark { fill: var(--color-gold); }
+
+/* ── Pattern B: mark + name (legacy / compact) ── */
+.knav-brand-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--knav-icon-size);
+  flex-shrink: 0;
+  color: var(--color-gold);
+}
+.knav-brand-mark svg {
+  width: 100%;
+  height: auto;
+  fill: currentColor;
+  stroke: none;
+  display: block;
+}
+.knav-brand-name {
+  font-family: var(--font-mono);
+  font-size: var(--text-base);
+  font-weight: var(--weight-bold);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+
+/* ── Scrollable middle (list + sections) ────────────────────── */
+
+.knav-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  padding: var(--space-4) var(--knav-pad-x);
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  -webkit-overflow-scrolling: touch;
+}
+.knav-body::-webkit-scrollbar { width: 6px; }
+.knav-body::-webkit-scrollbar-thumb {
+  background: var(--surface-3);
+  border-radius: var(--radius-pill);
+}
+
+.knav-spacer { flex: 1; }
+
+
+/* ── Section group ───────────────────────────────────────────── */
+
+.knav-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.knav-eyebrow {
+  margin: var(--space-3) 0 var(--space-1);
+  padding: 0 var(--knav-item-pad-x);
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+
+/* ── Nav list ────────────────────────────────────────────────── */
+
+.knav-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+
+/* ── Nav item ────────────────────────────────────────────────── */
+
+.knav-item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--knav-item-gap);
+  height: var(--knav-item-h);
+  padding: 0 var(--knav-item-pad-x);
+  border-radius: var(--knav-item-radius);
+  color: var(--knav-fg);
+  background: transparent;
+  border: 0;
+  font: inherit;
+  font-weight: var(--knav-weight);
+  text-decoration: none;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  white-space: nowrap;
+  position: relative;
+  transition:
+    background-color var(--knav-dur) var(--knav-ease),
+    color            var(--knav-dur) var(--knav-ease);
+}
+
+.knav-item:hover:not([aria-disabled="true"]):not([aria-current="page"]) {
+  background: var(--knav-bg-hover);
+  color: var(--knav-fg-hover);
+}
+
+.knav-item:focus-visible {
+  outline: 0;
+  box-shadow:
+    0 0 0 2px var(--knav-bg),
+    0 0 0 4px color-mix(in oklch, var(--color-crimson) 35%, transparent);
+}
+
+.knav-item[aria-current="page"] {
+  background: var(--knav-bg-active);
+  color: var(--knav-fg-active);
+  font-weight: var(--knav-weight-active);
+}
+
+/* Dark mode — the default `--surface-2` active bg (#2B2A27) is too
+   close to the sidebar's `--surface-card` (#1F1E1C); the active item
+   visually disappears. Override with a translucent white wash for a
+   modern subtle "lifted" highlight on near-black. */
+[data-theme="dark"] .knav-item[aria-current="page"] {
+  background: rgba(255, 255, 255, 0.07);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+}
+
+.knav-item[aria-disabled="true"] {
+  color: var(--knav-fg-disabled);
+  cursor: not-allowed;
+}
+
+
+/* ── Item sub-slots ──────────────────────────────────────────── */
+
+.knav-icon {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--knav-icon-size);
+  height: var(--knav-icon-size);
+  color: var(--knav-fg-muted);
+  transition: color var(--knav-dur) var(--knav-ease);
+}
+.knav-icon svg {
+  width: 100%; height: 100%;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.knav-item:hover .knav-icon,
+.knav-item[aria-current="page"] .knav-icon {
+  color: var(--knav-fg-active);
+}
+
+.knav-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Trailing slot — chevron, count badge, status dot */
+.knav-trail {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  color: var(--knav-fg-muted);
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.04em;
+}
+.knav-trail svg {
+  width: 14px; height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform var(--knav-dur) var(--knav-ease);
+}
+
+/* Count badge inside trail */
+.knav-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 var(--space-2);
+  min-width: 20px;
+  height: 18px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-2);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.02em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums lining-nums;
+}
+.knav-item[aria-current="page"] .knav-count {
+  background: var(--color-crimson);
+  color: var(--text-on-crimson);
+}
+
+
+/* ── Expandable item (group with sub-items) ──────────────────── */
+
+/* Chevron points RIGHT when collapsed, DOWN when expanded.
+   Smooth rotate transition on toggle. */
+.knav-item[aria-expanded] .knav-trail svg {
+  transition: transform var(--knav-dur) var(--knav-ease);
+}
+.knav-item[aria-expanded="false"] .knav-trail svg {
+  transform: rotate(0deg);    /* base chevron points right by default */
+}
+.knav-item[aria-expanded="true"] .knav-trail svg {
+  transform: rotate(90deg);   /* points down when open */
+}
+
+/* Sub-list — indented under expandable parent. Smooth max-height
+   collapse + opacity fade. Cap at 480 px is generous for ~15 items;
+   if a real consumer needs more, override with --knav-sublist-max. */
+.knav-sublist {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  list-style: none;
+  margin: 0 0 0 calc(var(--knav-icon-size) + var(--knav-item-gap));
+  padding: 0 0 0 var(--space-2);
+  border-left: 1px solid var(--border-subtle);
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition:
+    max-height    var(--duration-base) var(--ease-emph),
+    padding-block var(--duration-base) var(--ease-emph),
+    opacity       var(--duration-fast) var(--ease-out);
+}
+.knav-item[aria-expanded="true"] + .knav-sublist {
+  max-height: var(--knav-sublist-max, 480px);
+  opacity: 1;
+  padding-block: var(--space-1);
+}
+.knav-sublist .knav-item {
+  height: 32px;
+  font-size: var(--text-sm);
+  color: var(--knav-fg-muted);
+}
+.knav-sublist .knav-item:hover {
+  color: var(--knav-fg-hover);
+}
+.knav-sublist .knav-item[aria-current="page"] {
+  color: var(--knav-fg-active);
+  font-weight: var(--knav-weight-active);
+}
+
+
+/* ── Account footer ──────────────────────────────────────────── */
+
+.knav-account {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--knav-pad-x);
+  border-top: 1px solid var(--knav-border);
+  flex-shrink: 0;
+}
+
+.knav-org {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+}
+.knav-org-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px; height: 28px;
+  border-radius: var(--radius-sm);
+  background: var(--color-gold);
+  color: var(--color-ink-1);
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.04em;
+}
+.knav-org-name {
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.knav-user {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  background: transparent;
+  border: 0;
+  font: inherit;
+  text-align: left;
+  color: inherit;
+  cursor: pointer;
+  width: 100%;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color var(--knav-dur) var(--knav-ease);
+}
+.knav-user:hover { background: var(--knav-bg-hover); }
+.knav-user:focus-visible {
+  outline: 0;
+  box-shadow: 0 0 0 3px color-mix(in oklch, var(--color-crimson) 22%, transparent);
+}
+.knav-user-avatar {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px; height: 32px;
+  border-radius: var(--radius-full);
+  background: var(--color-crimson);
+  color: var(--text-on-crimson);
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.knav-user-info {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.knav-user-name {
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1.2;
+}
+.knav-user-role {
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: var(--text-muted);
+  line-height: 1.2;
+}
+.knav-user-trail {
+  flex: 0 0 auto;
+  color: var(--text-muted);
+}
+.knav-user-trail svg {
+  width: 14px; height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+
+/* ── Divider ─────────────────────────────────────────────────── */
+
+.knav-divider {
+  margin: var(--space-2) 0;
+  height: 1px;
+  background: var(--border-subtle);
+  border: 0;
+}
+
+
+/* ── Sizes ───────────────────────────────────────────────────── */
+
+.knav.knav-sm {
+  --knav-w:           200px;
+  --knav-item-h:      36px;
+  --knav-icon-size:   16px;
+}
+.knav.knav-sm .knav-brand-logo { max-width: 140px; }
+.knav.knav-lg {
+  --knav-w:           280px;
+  --knav-item-h:      44px;
+  --knav-icon-size:   20px;
+  --knav-size:        var(--text-base);
+}
+.knav.knav-lg .knav-brand-logo { max-width: 200px; }
+.knav.knav-rail .knav-brand-logo { display: none; }
+
+
+/* ── Variant: rail (collapsed, icons only) ───────────────────── */
+
+.knav.knav-rail {
+  --knav-w: 72px;
+  /* One shared local — every clickable cell (brand mark, nav items,
+     org badge, user avatar) renders at this size, so they align on a
+     single vertical center axis with consistent vertical rhythm. */
+  --knav-rail-cell: 40px;
+}
+.knav.knav-rail .knav-text,
+.knav.knav-rail .knav-trail,
+.knav.knav-rail .knav-brand-name,
+.knav.knav-rail .knav-eyebrow,
+.knav.knav-rail .knav-org-name,
+.knav.knav-rail .knav-user-info,
+.knav.knav-rail .knav-user-trail,
+.knav.knav-rail .knav-count {
+  display: none;
+}
+.knav.knav-rail .knav-item,
+.knav.knav-rail .knav-brand-link,
+.knav.knav-rail .knav-org,
+.knav.knav-rail .knav-user {
+  width: var(--knav-rail-cell);
+  height: var(--knav-rail-cell);
+  padding: 0;
+  gap: 0;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+}
+.knav.knav-rail .knav-body {
+  padding: var(--space-2) 0;
+  gap: var(--space-3);              /* tighter inter-section gap */
+}
+.knav.knav-rail .knav-sublist { display: none; }
+
+/* Brand block — drop the heavy border + tall 64px height so the mark
+   sits in the same 40px cell rhythm as the icons below it. */
+.knav.knav-rail .knav-brand {
+  padding: var(--space-2) 0;
+  height: auto;
+  border-bottom: 0;
+  justify-content: center;
+}
+.knav.knav-rail .knav-account {
+  padding: var(--space-2) 0;
+  gap: 4px;
+  border-top: 1px solid var(--knav-border);
+}
+
+/* In rail mode, swap the wordmark for the icon-only mark.
+   Each app page should include a sibling `.knav-brand-mark` next to
+   `.knav-brand-logo`; the mark is hidden in full mode and revealed
+   when the sidebar collapses to the rail.
+
+   Sizing — the mark visually matches the gold spike above the
+   wordmark in expanded mode. The wordmark renders at max-width
+   168px (viewBox 237 × 28), so the mark portion (viewBox 41 × 28)
+   inside it appears at 41/237 × 168 ≈ 29 px wide. We size the
+   rail mark to the same 28 × 19 visual envelope. The 40 × 40
+   parent cell continues to center the mark; this just enlarges
+   the glyph so it reads as confidently as the wordmark would. */
+.knav .knav-brand-mark { display: none; }
+.knav.knav-rail .knav-brand-mark {
+  display: inline-flex;
+  width: 28px;
+  height: 20px;        /* keep aspect 41:28 — height follows naturally */
+  align-items: center;
+  justify-content: center;
+  color: var(--color-gold);
+  flex-shrink: 0;
+  margin: 0 auto;      /* belt-and-suspenders centering inside the cell */
+}
+.knav.knav-rail .knav-brand-mark svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+.knav.knav-rail .knav-section-eyebrow,
+.knav.knav-rail .knav-spacer + .knav-section { display: none; }
+
+/* Section separator in rail mode — a hairline + small gap. The hairline
+   is the same weight as the account-block top border, so the two
+   horizontal seams (between main + tools, between body + account) read
+   as one consistent visual rule. */
+.knav.knav-rail .knav-section {
+  margin: 0;
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--knav-border);
+}
+.knav.knav-rail .knav-list {
+  padding: 0;
+  margin: 0;
+}
+
+/* Account block — org + user badges sit in the same 40 × 40 cell as the
+   icons above. Hover state matches the .knav-item hover. */
+.knav.knav-rail .knav-org-badge,
+.knav.knav-rail .knav-user-avatar {
+  width: 28px;
+  height: 28px;
+  font-size: 10px;
+  flex-shrink: 0;
+}
+.knav.knav-rail .knav-user {
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+.knav.knav-rail .knav-user:hover {
+  background: var(--knav-bg-hover);
+}
+
+
+/* ── Collapse toggle (chevron pill on the right edge) ─────────────
+   • vertically centered (top: 50%, translateY)
+   • lives just *outside* the sidebar's right border so it never
+     clips against the rounded corners — but the sidebar's
+     `overflow: hidden` would clip it, so we let .knav-floating
+     show overflow and rely on .knav-body's own scroll containment.
+   • hover-reveal — invisible until the user moves the cursor over
+     the sidebar; fades in. Always visible while focused/pressed for
+     keyboard accessibility.
+   • smooth chevron flip when collapsed. */
+.knav { overflow: visible; }
+.knav-body { overflow-y: auto; overflow-x: hidden; }
+
+.knav-toggle {
+  position: absolute;
+  top: 50%;
+  right: -12px;
+  transform: translateY(-50%);
+  width: 26px;
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--knav-border);
+  border-radius: 50%;
+  background: var(--surface-card);
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0;
+  z-index: 3;
+  box-shadow: var(--shadow-1);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--knav-dur) var(--knav-ease),
+              color var(--knav-dur) var(--knav-ease),
+              background var(--knav-dur) var(--knav-ease),
+              transform var(--knav-dur) var(--knav-ease);
+}
+/* Reveal on sidebar hover or when the toggle itself has focus. */
+.knav:hover .knav-toggle,
+.knav:focus-within .knav-toggle,
+.knav-toggle:focus-visible,
+.knav-toggle:hover {
+  opacity: 1;
+  pointer-events: auto;
+}
+.knav-toggle:hover {
+  color: var(--text-primary);
+  background: var(--surface-2);
+  transform: translateY(-50%) scale(1.06);
+}
+.knav-toggle:focus-visible {
+  outline: 0;
+  box-shadow: 0 0 0 3px color-mix(in oklch, var(--color-crimson) 22%, transparent);
+}
+.knav-toggle svg {
+  width: 12px;
+  height: 12px;
+  display: block;
+  transition: transform var(--knav-dur) var(--knav-ease);
+}
+/* Rail mode: chevron flips to point right (→) — click to expand. */
+.knav.knav-rail .knav-toggle svg {
+  transform: rotate(180deg);
+}
+
+
+/* ── Smooth rail collapse — width transition + content fade ─────── */
+.knav,
+.knav.knav-rail,
+.knav.knav-floating {
+  transition: width var(--duration-medium, 320ms) var(--ease-emph, cubic-bezier(0.22, 1, 0.36, 1));
+}
+/* Text + trail elements fade rather than just vanish when collapsing. */
+.knav .knav-text,
+.knav .knav-trail,
+.knav .knav-brand-name,
+.knav .knav-eyebrow,
+.knav .knav-org-name,
+.knav .knav-user-info,
+.knav .knav-user-trail,
+.knav .knav-count {
+  transition: opacity var(--duration-fast, 120ms) var(--ease-out);
+}
+.knav.knav-rail .knav-text,
+.knav.knav-rail .knav-trail,
+.knav.knav-rail .knav-brand-name,
+.knav.knav-rail .knav-eyebrow,
+.knav.knav-rail .knav-org-name,
+.knav.knav-rail .knav-user-info,
+.knav.knav-rail .knav-user-trail,
+.knav.knav-rail .knav-count {
+  opacity: 0;
+}
+
+
+/* ── Brand alignment — center the rail mark with the icons below ── */
+
+/* In rail mode the brand row collapses to just the icon mark — push
+   it to perfect horizontal center so it lines up with the nav-item
+   icons in the body below (which are also centered). */
+.knav.knav-rail .knav-brand {
+  justify-content: center;
+  padding: 0;
+  height: 64px;
+}
+.knav.knav-rail .knav-brand-link {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  margin: 0 auto;
+  justify-content: center;
+  align-items: center;
+}
+/* Brand mark sizing for rail is defined earlier (using --knav-icon-size)
+   so the gold mark renders in the same 18 px visual envelope as the
+   icon SVGs below it — keeps the brand and nav items on one optical
+   column without the brand looking oversized. */
+
+
+/* ── Expandable groups ─────────────────────────────────────────── */
+
+.knav-item.knav-expand {
+  appearance: none;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  width: 100%;
+  /* Match anchor item styling exactly */
+}
+
+/* Rail-mode override — expandable buttons collapse to the same
+   40 × 40 cell as anchor items, centered in the column. Without this
+   the `width: 100%` above wins over the rail rule and shoves the icon
+   to the left of the column. The chevron trail is hidden at higher
+   specificity than the universal `.knav-trail` rule, so we restate
+   the hide here. */
+.knav.knav-rail .knav-item.knav-expand {
+  width: var(--knav-rail-cell);
+  text-align: center;
+}
+.knav.knav-rail .knav-item.knav-expand .knav-expand-chev,
+.knav.knav-rail .knav-item.knav-expand .knav-trail {
+  display: none;
+}
+.knav-item.knav-expand .knav-expand-chev {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  transition: transform var(--knav-dur) var(--knav-ease);
+}
+.knav-item.knav-expand[aria-expanded="true"] .knav-expand-chev {
+  transform: rotate(180deg);
+  color: var(--text-primary);
+}
+.knav-item.knav-expand[aria-expanded="true"] {
+  color: var(--text-primary);
+}
+
+.knav-sublist {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 4px 0 8px 38px;
+  padding-left: var(--space-3);
+  border-left: 1px dashed var(--border-subtle);
+  overflow: hidden;
+  animation: knav-sublist-in var(--duration-base) var(--ease-out);
+}
+.knav-sublist[hidden] {
+  display: none;
+}
+@keyframes knav-sublist-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.knav-item.knav-sub {
+  height: 32px;
+  padding: 0 var(--space-3);
+  font-size: var(--text-sm);
+  color: var(--text-body);
+  border-radius: var(--radius-sm);
+}
+.knav-item.knav-sub:hover {
+  background: var(--surface-page);
+  color: var(--text-primary);
+}
+
+
+/* ── Variant: drawer (off-canvas) ────────────────────────────── */
+
+.knav.knav-drawer {
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  z-index: 50;
+  transform: translateX(-100%);
+  transition: transform var(--duration-medium) var(--ease-emph);
+  box-shadow: var(--shadow-4);
+  min-height: 0;
+  height: 100dvh;
+}
+.knav.knav-drawer[aria-expanded="true"] {
+  transform: translateX(0);
+}
+/* Backdrop sibling — render <div class="knav-backdrop"> next to drawer */
+.knav-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 49;
+  background: var(--surface-overlay);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--duration-medium) var(--ease-emph);
+}
+.knav.knav-drawer[aria-expanded="true"] ~ .knav-backdrop {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+
+/* ── Reduced motion ──────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .knav-item,
+  .knav-icon,
+  .knav-user,
+  .knav-brand-link,
+  .knav.knav-drawer,
+  .knav-backdrop {
+    transition: none;
+  }
+}

@@ -1,0 +1,1177 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Sales Portal</title>
+
+<link rel="stylesheet" href="../ds/tokens/index.css?v=12" />
+<link rel="stylesheet" href="../ds/primitives/button.css?v=68" />
+<link rel="stylesheet" href="../ds/primitives/card.css?v=10" />
+<link rel="stylesheet" href="../ds/primitives/table.css?v=6" />
+<link rel="stylesheet" href="../ds/primitives/nav.css?v=13" />
+
+<style>
+/* ══════════════════════════════════════════════════════════════
+   Base
+══════════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--surface-page);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: "tnum" 1, "cv05" 1;
+  min-height: 100dvh;
+}
+a { color: inherit; text-decoration: none; }
+button { font: inherit; }
+
+/* ══════════════════════════════════════════════════════════════
+   Shell
+══════════════════════════════════════════════════════════════ */
+.shell {
+  display: grid;
+  grid-template-columns: 232px minmax(0, 1fr);
+  min-height: 100dvh;
+}
+
+.sidebar {
+  background: var(--surface-card);
+  border-right: 1px solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100dvh;
+}
+.sb-org {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-5) var(--space-4) var(--space-4);
+  border-bottom: 1px solid var(--border-subtle);
+}
+.sb-mark {
+  width: 30px; height: 30px; flex: none;
+  border-radius: var(--radius-sm);
+  background: var(--action-primary);
+  color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: .04em;
+}
+.sb-org-name { font-weight: var(--weight-semibold); line-height: 1.15; }
+.sb-org-sub {
+  font-size: var(--text-2xs);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wider);
+  font-family: var(--font-mono);
+  margin-top: 2px;
+}
+.sb-nav { padding: var(--space-3) var(--space-2); flex: 1; }
+.sb-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px var(--space-3);
+  border-radius: var(--radius-sm);
+  color: var(--text-body);
+  cursor: pointer;
+  position: relative;
+  transition: background .12s, color .12s;
+}
+.sb-item:hover { background: var(--surface-2); color: var(--text-primary); }
+.sb-item.is-active { background: var(--surface-2); color: var(--text-primary); font-weight: var(--weight-medium); }
+.sb-item.is-active::before {
+  content: ''; position: absolute; left: 0; top: 22%; bottom: 22%;
+  width: 3px; border-radius: 0 2px 2px 0; background: var(--action-primary);
+}
+.sb-ico { width: 16px; height: 16px; flex: none; color: var(--text-muted); }
+.sb-item.is-active .sb-ico, .sb-item:hover .sb-ico { color: var(--text-primary); }
+.sb-foot {
+  padding: var(--space-3) var(--space-4);
+  border-top: 1px solid var(--border-subtle);
+  font-size: var(--text-2xs);
+  color: var(--text-faint);
+  line-height: 1.5;
+}
+
+.main { display: flex; flex-direction: column; min-width: 0; }
+
+/* ══════════════════════════════════════════════════════════════
+   Scope bar — one filter state, every surface
+══════════════════════════════════════════════════════════════ */
+.scopebar {
+  position: sticky; top: 0; z-index: 20;
+  background: color-mix(in oklch, var(--surface-page) 88%, transparent);
+  backdrop-filter: saturate(180%) blur(8px);
+  border-bottom: 1px solid var(--border-subtle);
+  padding: var(--space-3) var(--space-6);
+  display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap;
+}
+.sf { display: flex; align-items: center; gap: 7px; }
+.sf-label {
+  font-size: var(--text-2xs);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wider);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+.ctl {
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  padding: 6px 9px;
+  font-size: var(--text-xs);
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color .12s;
+}
+.ctl:hover { border-color: var(--border-strong); }
+.ctl:focus-visible { outline: none; box-shadow: var(--shadow-focus); border-color: var(--action-primary); }
+input.ctl { cursor: text; font-family: var(--font-mono); }
+.sf-sep { width: 1px; height: 20px; background: var(--border-subtle); }
+.scope-right { margin-left: auto; display: flex; align-items: center; gap: var(--space-3); }
+.scope-count { font-size: var(--text-xs); color: var(--text-muted); }
+.scope-count b { color: var(--text-primary); font-weight: var(--weight-semibold); }
+
+.content { padding: var(--space-6); max-width: 1320px; width: 100%; }
+.view { display: none; }
+.view.is-active { display: block; animation: fade .18s ease-out; }
+@keyframes fade { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: none; } }
+
+.page-head { display: flex; align-items: baseline; gap: var(--space-3); margin-bottom: var(--space-2); }
+.page-head h1 { font-size: var(--text-xl); font-weight: var(--weight-semibold); margin: 0; letter-spacing: var(--tracking-tight); }
+.page-head .ph-actions { margin-left: auto; display: flex; gap: var(--space-2); }
+.scope-line {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  margin-bottom: var(--space-5);
+}
+.scope-line b { color: var(--text-body); font-weight: var(--weight-medium); }
+
+/* ══════════════════════════════════════════════════════════════
+   Answer block — the hero is computed, never written
+══════════════════════════════════════════════════════════════ */
+.answer {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+.answer-main {
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+}
+.answer-q { font-size: var(--text-xs); color: var(--text-muted); margin-bottom: 6px; }
+.answer-num {
+  font-size: clamp(30px, 3.6vw, 42px);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-tighter);
+  line-height: 1.05;
+}
+.answer-sub { font-size: var(--text-xs); color: var(--text-muted); margin-top: 8px; }
+.answer-side { display: grid; gap: var(--space-3); align-content: start; }
+.stat {
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3);
+}
+.stat-k { font-size: var(--text-xs); color: var(--text-muted); }
+.stat-v { font-size: var(--text-lg); font-weight: var(--weight-semibold); letter-spacing: var(--tracking-tight); }
+
+.kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: var(--space-3); margin-bottom: var(--space-6); }
+.kpi {
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4) var(--space-5);
+}
+.kpi-k {
+  font-size: var(--text-2xs); text-transform: uppercase; letter-spacing: var(--tracking-wider);
+  color: var(--text-muted); font-family: var(--font-mono);
+}
+.kpi-v { font-size: var(--text-2xl); font-weight: var(--weight-semibold); letter-spacing: var(--tracking-tighter); margin-top: 6px; line-height: 1.1; }
+.kpi-d { font-size: var(--text-xs); color: var(--text-muted); margin-top: 4px; }
+
+/* ══════════════════════════════════════════════════════════════
+   Panels, tables
+══════════════════════════════════════════════════════════════ */
+.panel {
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin-bottom: var(--space-5);
+}
+.panel-head {
+  display: flex; align-items: center; gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--border-subtle);
+}
+.panel-head h3 { margin: 0; font-size: var(--text-sm); font-weight: var(--weight-semibold); }
+.panel-head .ph-meta { font-size: var(--text-xs); color: var(--text-muted); margin-left: auto; }
+.panel-body { padding: var(--space-4) var(--space-5); }
+
+.tbl-wrap { overflow-x: auto; }
+table.dt { width: 100%; border-collapse: collapse; font-size: var(--text-xs); }
+table.dt thead th {
+  position: sticky; top: 0; z-index: 2;
+  background: var(--surface-2);
+  text-align: left;
+  font-weight: var(--weight-semibold);
+  color: var(--text-muted);
+  font-size: var(--text-2xs);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  padding: 9px var(--space-4);
+  border-bottom: 1px solid var(--border-subtle);
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+}
+table.dt thead th.no-sort { cursor: default; }
+table.dt thead th:hover:not(.no-sort) { color: var(--text-primary); }
+table.dt thead th .caret { opacity: .35; margin-left: 4px; font-size: 9px; }
+table.dt thead th.is-sorted { color: var(--text-primary); }
+table.dt thead th.is-sorted .caret { opacity: 1; }
+table.dt tbody td {
+  padding: 9px var(--space-4);
+  border-bottom: 1px solid var(--border-subtle);
+  white-space: nowrap;
+}
+table.dt tbody tr:last-child td { border-bottom: none; }
+table.dt tbody tr:hover td { background: var(--surface-2); }
+table.dt .num { text-align: right; font-variant-numeric: tabular-nums; }
+table.dt .mono { font-family: var(--font-mono); font-size: var(--text-2xs); color: var(--text-muted); }
+table.dt tfoot td {
+  padding: 11px var(--space-4);
+  border-top: 1px solid var(--border-default);
+  font-weight: var(--weight-semibold);
+  background: var(--surface-2);
+}
+.trunc { max-width: 260px; overflow: hidden; text-overflow: ellipsis; }
+
+.chip {
+  display: inline-block;
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+  background: var(--surface-2);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-pill);
+  padding: 1px 7px;
+  margin-right: 4px;
+}
+.chip.is-none { color: var(--status-warning); border-color: color-mix(in oklch, var(--status-warning) 40%, transparent); }
+
+.pager {
+  display: flex; align-items: center; gap: var(--space-3);
+  padding: var(--space-3) var(--space-5);
+  border-top: 1px solid var(--border-subtle);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+.pager .spacer { margin-left: auto; }
+.pgbtn {
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
+  padding: 4px 10px;
+  cursor: pointer;
+  color: var(--text-body);
+}
+.pgbtn:hover:not(:disabled) { border-color: var(--border-strong); color: var(--text-primary); }
+.pgbtn:disabled { opacity: .4; cursor: default; }
+
+.empty { padding: var(--space-12) var(--space-5); text-align: center; }
+.empty-t { font-weight: var(--weight-semibold); margin-bottom: 6px; }
+.empty-d { font-size: var(--text-xs); color: var(--text-muted); max-width: 46ch; margin: 0 auto; line-height: 1.6; }
+
+.note {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  line-height: 1.6;
+  padding: var(--space-3) var(--space-5);
+  border-top: 1px solid var(--border-subtle);
+  background: var(--surface-2);
+}
+.note b { color: var(--text-body); font-weight: var(--weight-medium); }
+
+/* Tabs */
+.tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--border-subtle); margin-bottom: var(--space-5); }
+.tab {
+  padding: 9px var(--space-4);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: color .12s, border-color .12s;
+}
+.tab:hover { color: var(--text-primary); }
+.tab.is-active { color: var(--text-primary); border-bottom-color: var(--action-primary); font-weight: var(--weight-medium); }
+
+/* Chart */
+.chart { width: 100%; height: 240px; display: block; }
+.chart .bar { fill: var(--action-primary); opacity: .82; transition: opacity .12s; }
+.chart .bar:hover { opacity: 1; }
+.chart .grid { stroke: var(--border-subtle); stroke-width: 1; }
+.chart .axis { fill: var(--text-faint); font-size: 10px; font-family: var(--font-mono); }
+
+/* Two-up */
+.two-up { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: var(--space-4); }
+
+.provenance {
+  margin-top: var(--space-8);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border-subtle);
+  font-size: var(--text-xs);
+  color: var(--text-faint);
+  line-height: 1.7;
+}
+
+@media (max-width: 900px) {
+  .shell { grid-template-columns: 1fr; }
+  .sidebar { position: static; height: auto; flex-direction: row; align-items: center; border-right: none; border-bottom: 1px solid var(--border-subtle); }
+  .sb-nav { display: flex; gap: 2px; }
+  .sb-foot { display: none; }
+  .answer { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <symbol id="i-invoices" viewBox="0 0 16 16"><path d="M3 2h10v12l-2-1.5L9 14l-2-1.5L5 14l-2-1.5V2z" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M6 6h4M6 9h2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></symbol>
+  <symbol id="i-customers" viewBox="0 0 16 16"><circle cx="6" cy="5" r="2.5" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M1.5 13c0-2.5 2-4 4.5-4s4.5 1.5 4.5 4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="12" cy="5" r="1.8" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M14.5 12c0-1.5-1-2.5-2.5-2.5" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></symbol>
+  <symbol id="i-reports" viewBox="0 0 16 16"><path d="M2 14h12M4 14V9M7 14V5M10 14V7M13 14V3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+  <symbol id="i-dashboard" viewBox="0 0 16 16"><rect x="2" y="2" width="5" height="5" rx="1" fill="none" stroke="currentColor" stroke-width="1.4"/><rect x="9" y="2" width="5" height="5" rx="1" fill="none" stroke="currentColor" stroke-width="1.4"/><rect x="2" y="9" width="5" height="5" rx="1" fill="none" stroke="currentColor" stroke-width="1.4"/><rect x="9" y="9" width="5" height="5" rx="1" fill="none" stroke="currentColor" stroke-width="1.4"/></symbol>
+</defs></svg>
+
+<div class="shell">
+
+  <nav class="sidebar">
+    <div class="sb-org">
+      <div class="sb-mark" id="org-mark">—</div>
+      <div>
+        <div class="sb-org-name" id="org-name">—</div>
+        <div class="sb-org-sub">Sales Portal</div>
+      </div>
+    </div>
+    <div class="sb-nav">
+      <a class="sb-item is-active" data-view="invoices"><svg class="sb-ico"><use href="#i-invoices"/></svg>Invoices</a>
+      <a class="sb-item" data-view="customers"><svg class="sb-ico"><use href="#i-customers"/></svg>Customers</a>
+      <a class="sb-item" data-view="reports"><svg class="sb-ico"><use href="#i-reports"/></svg>Reports</a>
+      <a class="sb-item" data-view="dashboard"><svg class="sb-ico"><use href="#i-dashboard"/></svg>Dashboard</a>
+    </div>
+    <div class="sb-foot" id="sb-foot"></div>
+  </nav>
+
+  <div class="main">
+
+    <div class="scopebar">
+      <div class="sf">
+        <span class="sf-label">Period</span>
+        <select class="ctl" id="preset">
+          <option value="ytd">Current YTD</option>
+          <option value="ttm">Trailing 12 months</option>
+          <option value="prev_ytd">Previous YTD</option>
+          <option value="prev_year">Previous year</option>
+          <option value="all">All available</option>
+          <option value="custom">Custom…</option>
+        </select>
+        <input class="ctl" type="date" id="from" />
+        <span style="color:var(--text-faint)">→</span>
+        <input class="ctl" type="date" id="to" />
+      </div>
+      <div class="sf-sep"></div>
+      <div class="sf">
+        <span class="sf-label">Territory</span>
+        <select class="ctl" id="territory"></select>
+      </div>
+      <div class="scope-right">
+        <span class="scope-count" id="scope-count"></span>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- ═══════════════ INVOICES ═══════════════ -->
+      <section class="view is-active" id="view-invoices">
+        <div class="page-head">
+          <h1>Invoices</h1>
+          <div class="ph-actions">
+            <button class="kb kb-md kb-secondary" data-export="invoices">Export CSV</button>
+          </div>
+        </div>
+        <div class="scope-line" id="inv-scope"></div>
+
+        <div class="answer">
+          <div class="answer-main">
+            <div class="answer-q">Invoiced in the selected period</div>
+            <div class="answer-num" id="inv-hero">—</div>
+            <div class="answer-sub" id="inv-hero-sub"></div>
+          </div>
+          <div class="answer-side">
+            <div class="stat"><span class="stat-k">Invoices</span><span class="stat-v" id="inv-count">—</span></div>
+            <div class="stat"><span class="stat-k">Accounts invoiced</span><span class="stat-v" id="inv-accounts">—</span></div>
+            <div class="stat"><span class="stat-k">Average invoice</span><span class="stat-v" id="inv-avg">—</span></div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <h3>Invoice detail</h3>
+            <span class="ph-meta" id="inv-tbl-meta"></span>
+          </div>
+          <div id="inv-tbl"></div>
+        </div>
+      </section>
+
+      <!-- ═══════════════ CUSTOMERS ═══════════════ -->
+      <section class="view" id="view-customers">
+        <div class="page-head">
+          <h1>Customers</h1>
+          <div class="ph-actions">
+            <button class="kb kb-md kb-secondary" data-export="customers">Export CSV</button>
+          </div>
+        </div>
+        <div class="scope-line" id="cust-scope"></div>
+
+        <div class="answer">
+          <div class="answer-main">
+            <div class="answer-q">These accounts bought, in the selected period</div>
+            <div class="answer-num" id="cust-hero">—</div>
+            <div class="answer-sub" id="cust-hero-sub"></div>
+          </div>
+          <div class="answer-side">
+            <div class="stat"><span class="stat-k">Accounts invoiced</span><span class="stat-v" id="cust-count">—</span></div>
+            <div class="stat"><span class="stat-k">Largest account</span><span class="stat-v" id="cust-top">—</span></div>
+            <div class="stat"><span class="stat-k">Top 10 share</span><span class="stat-v" id="cust-conc">—</span></div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <h3>Accounts</h3>
+            <span class="ph-meta" id="cust-tbl-meta"></span>
+          </div>
+          <div id="cust-tbl"></div>
+        </div>
+      </section>
+
+      <!-- ═══════════════ REPORTS ═══════════════ -->
+      <section class="view" id="view-reports">
+        <div class="page-head">
+          <h1>Reports</h1>
+          <div class="ph-actions">
+            <button class="kb kb-md kb-secondary" data-export="report">Export CSV</button>
+          </div>
+        </div>
+        <div class="scope-line" id="rpt-scope"></div>
+
+        <div class="tabs">
+          <div class="tab is-active" data-tab="summary">Summary</div>
+          <div class="tab" data-tab="monthly">Monthly</div>
+        </div>
+
+        <div id="tab-summary">
+          <div class="answer">
+            <div class="answer-main">
+              <div class="answer-q">Report total for the selected period</div>
+              <div class="answer-num" id="rpt-hero">—</div>
+              <div class="answer-sub" id="rpt-hero-sub"></div>
+            </div>
+            <div class="answer-side">
+              <div class="stat"><span class="stat-k">Invoices</span><span class="stat-v" id="rpt-count">—</span></div>
+              <div class="stat"><span class="stat-k">Accounts</span><span class="stat-v" id="rpt-accounts">—</span></div>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-head">
+              <h3>Sales summary</h3>
+              <span class="ph-meta">
+                <span class="sf-label" style="margin-right:6px">Group by</span>
+                <select class="ctl" id="groupby">
+                  <option value="month">Month</option>
+                  <option value="territory">Territory</option>
+                  <option value="state">State</option>
+                </select>
+              </span>
+            </div>
+            <div id="rpt-tbl"></div>
+            <div class="note" id="rpt-note"></div>
+          </div>
+        </div>
+
+        <div id="tab-monthly" style="display:none">
+          <div class="panel">
+            <div class="panel-head">
+              <h3>Monthly</h3>
+              <span class="ph-meta" id="mo-meta"></span>
+            </div>
+            <div id="mo-tbl"></div>
+            <div class="note" id="mo-note"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════ DASHBOARD ═══════════════ -->
+      <section class="view" id="view-dashboard">
+        <div class="page-head"><h1>Dashboard</h1></div>
+        <div class="scope-line" id="dash-scope"></div>
+
+        <div class="kpi-grid">
+          <div class="kpi"><div class="kpi-k">Invoiced</div><div class="kpi-v" id="d-invoiced">—</div><div class="kpi-d" id="d-invoiced-d"></div></div>
+          <div class="kpi"><div class="kpi-k">Invoices</div><div class="kpi-v" id="d-count">—</div><div class="kpi-d" id="d-count-d"></div></div>
+          <div class="kpi"><div class="kpi-k">Accounts invoiced</div><div class="kpi-v" id="d-accounts">—</div><div class="kpi-d" id="d-accounts-d"></div></div>
+          <div class="kpi"><div class="kpi-k">Average invoice</div><div class="kpi-v" id="d-avg">—</div><div class="kpi-d">Invoiced ÷ invoices</div></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head"><h3>Invoiced by month</h3><span class="ph-meta" id="d-chart-meta"></span></div>
+          <div class="panel-body"><svg class="chart" id="d-chart" role="img" aria-label="Invoiced by month"></svg></div>
+        </div>
+
+        <div class="two-up">
+          <div class="panel">
+            <div class="panel-head"><h3>Top accounts</h3><span class="ph-meta">by invoiced</span></div>
+            <div id="d-top-cust"></div>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><h3>Top territories</h3><span class="ph-meta">by invoiced</span></div>
+            <div id="d-top-terr"></div>
+          </div>
+        </div>
+      </section>
+
+      <div class="provenance" id="provenance"></div>
+
+    </div>
+  </div>
+</div>
+
+<script src="./sales-portal-client-review-v1.data.js"></script>
+<script>
+(function () {
+"use strict";
+
+const DS = window.SP_DATASET;
+if (!DS) { document.body.innerHTML = '<p style="padding:40px">Dataset not loaded.</p>'; return; }
+
+const DAY = 86400000;
+const META = DS.meta;
+const BASE = Date.parse(META.window_start + "T00:00:00Z");
+const RTD_DAY = dayOf(META.report_through_date);
+
+const INV = DS.invoices;                 // [dayOffset, customerIndex, cents]
+const CUS = DS.customers;                // [name, key, state, [territoryIdx]]
+const TERR = DS.territories;
+const INV_NO = DS.invoice_numbers;
+
+// ── date helpers ────────────────────────────────────────────────
+function dayOf(iso) { return Math.round((Date.parse(iso + "T00:00:00Z") - BASE) / DAY); }
+function dateOf(day) { return new Date(BASE + day * DAY); }
+function iso(day) { return dateOf(day).toISOString().slice(0, 10); }
+function ymOf(day) { const d = dateOf(day); return d.getUTCFullYear() * 12 + d.getUTCMonth(); }
+function ymLabel(ym, long) {
+  const y = Math.floor(ym / 12), m = ym % 12;
+  const names = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  return long ? `${names[m]} ${y}` : `${names[m]} ’${String(y).slice(2)}`;
+}
+function pretty(day) {
+  const d = dateOf(day);
+  const names = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  return `${names[d.getUTCMonth()]} ${d.getUTCDate()}, ${d.getUTCFullYear()}`;
+}
+
+// ── formatting ──────────────────────────────────────────────────
+const nf0 = new Intl.NumberFormat("en-US");
+function money(cents) {
+  return "$" + (cents / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+function moneyShort(cents) {
+  const v = cents / 100;
+  const a = Math.abs(v);
+  if (a >= 1e6) return "$" + (v / 1e6).toFixed(2) + "M";
+  if (a >= 1e3) return "$" + (v / 1e3).toFixed(1) + "K";
+  return "$" + v.toFixed(0);
+}
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+}
+
+// ── precompute ──────────────────────────────────────────────────
+const N = INV.length;
+const invDay = new Int32Array(N), invCus = new Int32Array(N), invCents = new Float64Array(N), invYm = new Int32Array(N);
+for (let i = 0; i < N; i++) {
+  invDay[i] = INV[i][0]; invCus[i] = INV[i][1]; invCents[i] = INV[i][2];
+  invYm[i] = ymOf(INV[i][0]);
+}
+const custNoTerr = CUS.map(c => !c[3] || c[3].length === 0);
+
+// ── scope ───────────────────────────────────────────────────────
+const RTD_DATE = dateOf(RTD_DAY);
+const RTD_Y = RTD_DATE.getUTCFullYear();
+
+function presetRange(p) {
+  const firstDay = 0, lastDay = RTD_DAY;
+  switch (p) {
+    case "ytd":       return [Math.max(firstDay, dayOf(`${RTD_Y}-01-01`)), lastDay];
+    case "ttm":       return [Math.max(firstDay, RTD_DAY - 364), lastDay];
+    case "prev_ytd":  return [Math.max(firstDay, dayOf(`${RTD_Y - 1}-01-01`)),
+                              Math.max(firstDay, RTD_DAY - 365)];
+    case "prev_year": return [Math.max(firstDay, dayOf(`${RTD_Y - 1}-01-01`)),
+                              Math.min(lastDay, dayOf(`${RTD_Y - 1}-12-31`))];
+    default:          return [firstDay, lastDay];
+  }
+}
+
+const state = { view: "invoices", preset: "ytd", from: 0, to: RTD_DAY, terr: "all", tab: "summary",
+                sort: { invoices: ["date", -1], customers: ["sales", -1] },
+                page: { invoices: 0, customers: 0 } };
+
+// customer match mask for the active territory
+let custMask = null;
+function rebuildMask() {
+  const t = state.terr;
+  custMask = new Uint8Array(CUS.length);
+  for (let i = 0; i < CUS.length; i++) {
+    if (t === "all") custMask[i] = 1;
+    else if (t === "none") custMask[i] = custNoTerr[i] ? 1 : 0;
+    else custMask[i] = (CUS[i][3] || []).indexOf(+t) >= 0 ? 1 : 0;
+  }
+}
+
+// ── the one aggregation every surface reads ─────────────────────
+let AGG = null;
+function aggregate() {
+  const from = state.from, to = state.to;
+  const rows = [];
+  let cents = 0;
+  const byCust = new Map();     // custIdx -> {c, n, last}
+  const byMonth = new Map();    // ym -> {c, n, custs:Set}
+  for (let i = 0; i < N; i++) {
+    const d = invDay[i];
+    if (d < from || d > to) continue;
+    const ci = invCus[i];
+    if (!custMask[ci]) continue;
+    rows.push(i);
+    const v = invCents[i];
+    cents += v;
+    let e = byCust.get(ci);
+    if (!e) { e = { c: 0, n: 0, last: -1 }; byCust.set(ci, e); }
+    e.c += v; e.n++; if (d > e.last) e.last = d;
+    const ym = invYm[i];
+    let m = byMonth.get(ym);
+    if (!m) { m = { c: 0, n: 0, custs: new Set() }; byMonth.set(ym, m); }
+    m.c += v; m.n++; m.custs.add(ci);
+  }
+  AGG = { rows, cents, byCust, byMonth };
+  return AGG;
+}
+
+function recompute() { rebuildMask(); aggregate(); }
+
+// ── scope description ───────────────────────────────────────────
+function periodText() {
+  const label = { ytd: "Current YTD", ttm: "Trailing 12 months", prev_ytd: "Previous YTD",
+                  prev_year: "Previous year", all: "All available", custom: "Custom range" }[state.preset];
+  return `${label} (${pretty(state.from)} – ${pretty(state.to)})`;
+}
+function territoryText() {
+  if (state.terr === "all") return `All territories (${TERR.length})`;
+  if (state.terr === "none") return "Unassigned accounts";
+  return TERR[+state.terr];
+}
+function scopeHTML() {
+  return `Invoiced net · <b>${esc(periodText())}</b> · <b>${esc(territoryText())}</b>`;
+}
+
+// ── shared table renderer ───────────────────────────────────────
+const PAGE = 50;
+function renderTable(host, cfg) {
+  const el = document.getElementById(host);
+  if (!cfg.rows.length) {
+    el.innerHTML = `<div class="empty"><div class="empty-t">${esc(cfg.emptyTitle)}</div>
+      <div class="empty-d">${cfg.emptyBody}</div></div>`;
+    return;
+  }
+  const pageKey = cfg.pageKey;
+  const pages = pageKey ? Math.ceil(cfg.rows.length / PAGE) : 1;
+  let p = pageKey ? Math.min(state.page[pageKey], pages - 1) : 0;
+  if (p < 0) p = 0;
+  if (pageKey) state.page[pageKey] = p;
+  const slice = pageKey ? cfg.rows.slice(p * PAGE, p * PAGE + PAGE) : cfg.rows;
+
+  const head = cfg.cols.map(c => {
+    const sorted = cfg.sortKey && cfg.sortKey[0] === c.key;
+    const caret = sorted ? (cfg.sortKey[1] < 0 ? "▼" : "▲") : "";
+    return `<th class="${c.num ? "num" : ""} ${c.sortable === false ? "no-sort" : ""} ${sorted ? "is-sorted" : ""}"
+      ${c.sortable === false ? "" : `data-sort="${c.key}"`}>${esc(c.label)}<span class="caret">${caret}</span></th>`;
+  }).join("");
+
+  const body = slice.map(r => "<tr>" + cfg.cols.map(c => {
+    const v = c.render(r);
+    return `<td class="${c.num ? "num" : ""} ${c.cls || ""}">${v}</td>`;
+  }).join("") + "</tr>").join("");
+
+  const foot = cfg.footer ? `<tfoot><tr>${cfg.footer}</tr></tfoot>` : "";
+
+  const pager = pageKey ? `<div class="pager">
+      <span>Showing <b>${nf0.format(p * PAGE + 1)}–${nf0.format(Math.min((p + 1) * PAGE, cfg.rows.length))}</b> of ${nf0.format(cfg.rows.length)}</span>
+      <span class="spacer"></span>
+      <button class="pgbtn" data-pg="first" ${p === 0 ? "disabled" : ""}>First</button>
+      <button class="pgbtn" data-pg="prev" ${p === 0 ? "disabled" : ""}>Prev</button>
+      <span>Page ${p + 1} / ${pages}</span>
+      <button class="pgbtn" data-pg="next" ${p >= pages - 1 ? "disabled" : ""}>Next</button>
+      <button class="pgbtn" data-pg="last" ${p >= pages - 1 ? "disabled" : ""}>Last</button>
+    </div>` : "";
+
+  el.innerHTML = `<div class="tbl-wrap"><table class="dt"><thead><tr>${head}</tr></thead>
+    <tbody>${body}</tbody>${foot}</table></div>${pager}`;
+
+  el.querySelectorAll("th[data-sort]").forEach(th => th.addEventListener("click", () => {
+    const k = th.getAttribute("data-sort");
+    const cur = state.sort[pageKey || cfg.sortScope];
+    if (cur[0] === k) cur[1] = -cur[1]; else { cur[0] = k; cur[1] = -1; }
+    if (pageKey) state.page[pageKey] = 0;
+    render();
+  }));
+  el.querySelectorAll("[data-pg]").forEach(b => b.addEventListener("click", () => {
+    const act = b.getAttribute("data-pg");
+    if (act === "first") state.page[pageKey] = 0;
+    else if (act === "prev") state.page[pageKey]--;
+    else if (act === "next") state.page[pageKey]++;
+    else state.page[pageKey] = pages - 1;
+    render();
+  }));
+}
+
+function terrChips(ci) {
+  const t = CUS[ci][3] || [];
+  if (!t.length) return `<span class="chip is-none">Unassigned</span>`;
+  return t.map(i => `<span class="chip">${esc(TERR[i])}</span>`).join("");
+}
+
+// ── surfaces ────────────────────────────────────────────────────
+function renderInvoices() {
+  const { rows, cents, byCust } = AGG;
+  document.getElementById("inv-scope").innerHTML = scopeHTML();
+  document.getElementById("inv-hero").textContent = money(cents);
+  document.getElementById("inv-hero-sub").textContent =
+    `Sum of the ${nf0.format(rows.length)} invoice${rows.length === 1 ? "" : "s"} listed below. Export CSV returns exactly these rows.`;
+  document.getElementById("inv-count").textContent = nf0.format(rows.length);
+  document.getElementById("inv-accounts").textContent = nf0.format(byCust.size);
+  document.getElementById("inv-avg").textContent = rows.length ? money(cents / rows.length) : "—";
+  document.getElementById("inv-tbl-meta").textContent = rows.length ? `${nf0.format(rows.length)} rows` : "";
+
+  const [sk, dir] = state.sort.invoices;
+  const sorted = rows.slice().sort((a, b) => {
+    let x, y;
+    if (sk === "date") { x = invDay[a]; y = invDay[b]; }
+    else if (sk === "amount") { x = invCents[a]; y = invCents[b]; }
+    else if (sk === "customer") { return dir * CUS[invCus[a]][0].localeCompare(CUS[invCus[b]][0]); }
+    else if (sk === "state") { return dir * String(CUS[invCus[a]][2]).localeCompare(String(CUS[invCus[b]][2])); }
+    else { x = a; y = b; }
+    return dir * (x - y);
+  });
+
+  renderTable("inv-tbl", {
+    rows: sorted, pageKey: "invoices", sortKey: state.sort.invoices,
+    emptyTitle: "No invoices in this scope",
+    emptyBody: emptyReason(),
+    cols: [
+      { key: "invoice", label: "Invoice", sortable: false, cls: "mono", render: i => esc(INV_NO[i]) },
+      { key: "date", label: "Date", render: i => pretty(invDay[i]) },
+      { key: "customer", label: "Account", cls: "trunc", render: i => esc(CUS[invCus[i]][0]) },
+      { key: "state", label: "St", render: i => esc(CUS[invCus[i]][2] || "—") },
+      { key: "territory", label: "Territory", sortable: false, render: i => terrChips(invCus[i]) },
+      { key: "amount", label: "Invoiced", num: true, render: i => money(invCents[i]) }
+    ],
+    footer: `<td colspan="5">Total · all ${nf0.format(rows.length)} invoices in scope</td>
+             <td class="num">${money(cents)}</td>`
+  });
+}
+
+function renderCustomers() {
+  const { cents, byCust } = AGG;
+  document.getElementById("cust-scope").innerHTML = scopeHTML();
+  document.getElementById("cust-hero").textContent = money(cents);
+  document.getElementById("cust-hero-sub").textContent =
+    `Across ${nf0.format(byCust.size)} account${byCust.size === 1 ? "" : "s"}. Recomputes whenever the period or territory changes.`;
+  document.getElementById("cust-count").textContent = nf0.format(byCust.size);
+
+  const list = [...byCust.entries()].map(([ci, e]) => ({ ci, ...e }));
+  const desc = list.slice().sort((a, b) => b.c - a.c);
+  document.getElementById("cust-top").textContent = desc.length ? moneyShort(desc[0].c) : "—";
+  const top10 = desc.slice(0, 10).reduce((s, r) => s + r.c, 0);
+  document.getElementById("cust-conc").textContent = cents ? (100 * top10 / cents).toFixed(1) + "%" : "—";
+  document.getElementById("cust-tbl-meta").textContent = list.length ? `${nf0.format(list.length)} accounts` : "";
+
+  const [sk, dir] = state.sort.customers;
+  const sorted = list.sort((a, b) => {
+    if (sk === "name") return dir * CUS[a.ci][0].localeCompare(CUS[b.ci][0]);
+    if (sk === "state") return dir * String(CUS[a.ci][2]).localeCompare(String(CUS[b.ci][2]));
+    if (sk === "invoices") return dir * (a.n - b.n);
+    if (sk === "last") return dir * (a.last - b.last);
+    return dir * (a.c - b.c);
+  });
+
+  renderTable("cust-tbl", {
+    rows: sorted, pageKey: "customers", sortKey: state.sort.customers,
+    emptyTitle: "No accounts in this scope",
+    emptyBody: emptyReason(),
+    cols: [
+      { key: "name", label: "Account", cls: "trunc", render: r => esc(CUS[r.ci][0]) },
+      { key: "state", label: "St", render: r => esc(CUS[r.ci][2] || "—") },
+      { key: "territory", label: "Territory", sortable: false, render: r => terrChips(r.ci) },
+      { key: "invoices", label: "Invoices", num: true, render: r => nf0.format(r.n) },
+      { key: "last", label: "Last invoice", num: true, render: r => pretty(r.last) },
+      { key: "sales", label: "Invoiced", num: true, render: r => money(r.c) }
+    ],
+    footer: `<td colspan="5">Total · all ${nf0.format(sorted.length)} accounts in scope</td>
+             <td class="num">${money(cents)}</td>`
+  });
+}
+
+function renderReports() {
+  const { rows, cents, byCust, byMonth } = AGG;
+  document.getElementById("rpt-scope").innerHTML = scopeHTML();
+  document.getElementById("rpt-hero").textContent = money(cents);
+  document.getElementById("rpt-hero-sub").textContent =
+    "Same definition and same rows as the Invoices and Customers totals for this scope.";
+  document.getElementById("rpt-count").textContent = nf0.format(rows.length);
+  document.getElementById("rpt-accounts").textContent = nf0.format(byCust.size);
+
+  // ── Summary, grouped ──
+  const gb = state.groupby || "month";
+  let groups = [], partitions = true, note = "";
+
+  if (gb === "month") {
+    groups = [...byMonth.entries()].sort((a, b) => a[0] - b[0])
+      .map(([ym, m]) => ({ label: ymLabel(ym, true), c: m.c, n: m.n, k: m.custs.size }));
+    note = `Every invoice falls in exactly one month, so these rows add up to the report total of <b>${money(cents)}</b>.`;
+  } else if (gb === "state") {
+    const map = new Map();
+    byCust.forEach((e, ci) => {
+      const s = CUS[ci][2] || "—";
+      let g = map.get(s); if (!g) { g = { c: 0, n: 0, k: 0 }; map.set(s, g); }
+      g.c += e.c; g.n += e.n; g.k++;
+    });
+    groups = [...map.entries()].sort((a, b) => b[1].c - a[1].c).map(([s, g]) => ({ label: s, ...g }));
+    note = `Every account has one billing state, so these rows add up to the report total of <b>${money(cents)}</b>.`;
+  } else {
+    partitions = false;
+    const map = new Map();
+    let unassigned = { c: 0, n: 0, k: 0 };
+    let sharedAccounts = 0;
+    byCust.forEach((e, ci) => {
+      const ts = CUS[ci][3] || [];
+      if (!ts.length) { unassigned.c += e.c; unassigned.n += e.n; unassigned.k++; return; }
+      if (ts.length > 1) sharedAccounts++;
+      ts.forEach(t => {
+        let g = map.get(t); if (!g) { g = { c: 0, n: 0, k: 0 }; map.set(t, g); }
+        g.c += e.c; g.n += e.n; g.k++;
+      });
+    });
+    groups = [...map.entries()].sort((a, b) => b[1].c - a[1].c).map(([t, g]) => ({ label: TERR[t], ...g }));
+    if (unassigned.k) groups.push({ label: "Unassigned", ...unassigned, warn: true });
+    const rowSum = groups.reduce((s, g) => s + g.c, 0);
+    const over = rowSum - cents;
+    note = sharedAccounts
+      ? `<b>${nf0.format(sharedAccounts)}</b> account${sharedAccounts === 1 ? " is" : "s are"} assigned to more than one territory, so ${sharedAccounts === 1 ? "its" : "their"} revenue is counted under each. The rows therefore sum to <b>${money(rowSum)}</b> — <b>${money(over)}</b> more than the report total of <b>${money(cents)}</b>. Territory is a filter here, not a split of the book.`
+      : `These rows add up to the report total of <b>${money(cents)}</b>.`;
+    if (unassigned.k) {
+      note += ` <b>${nf0.format(unassigned.k)}</b> account${unassigned.k === 1 ? "" : "s"} carrying <b>${money(unassigned.c)}</b> ${unassigned.k === 1 ? "has" : "have"} no territory on file; ${unassigned.k === 1 ? "it appears" : "they appear"} under Unassigned and in no territory view.`;
+    }
+  }
+
+  renderTable("rpt-tbl", {
+    rows: groups, sortScope: "report",
+    emptyTitle: "Nothing to summarise",
+    emptyBody: emptyReason(),
+    cols: [
+      { key: "label", label: gb === "month" ? "Month" : gb === "state" ? "State" : "Territory", sortable: false,
+        render: g => (g.warn ? `<span class="chip is-none">${esc(g.label)}</span>` : esc(g.label)) },
+      { key: "k", label: "Accounts", num: true, sortable: false, render: g => nf0.format(g.k) },
+      { key: "n", label: "Invoices", num: true, sortable: false, render: g => nf0.format(g.n) },
+      { key: "c", label: "Invoiced", num: true, sortable: false, render: g => money(g.c) },
+      { key: "share", label: "Share", num: true, sortable: false,
+        render: g => cents ? (100 * g.c / cents).toFixed(1) + "%" : "—" }
+    ],
+    footer: partitions
+      ? `<td colspan="3">Report total</td><td class="num">${money(cents)}</td><td class="num">100.0%</td>`
+      : `<td colspan="3">Report total (accounts counted once)</td><td class="num">${money(cents)}</td><td class="num">100.0%</td>`
+  });
+  document.getElementById("rpt-note").innerHTML = note;
+
+  // ── Monthly ──
+  const months = [...byMonth.entries()].sort((a, b) => a[0] - b[0]);
+  let prev = null;
+  const mrows = months.map(([ym, m]) => {
+    const delta = prev === null ? null : (prev === 0 ? null : (m.c - prev) / prev);
+    prev = m.c;
+    return { ym, c: m.c, n: m.n, k: m.custs.size, delta };
+  });
+  const monthlyTotal = mrows.reduce((s, r) => s + r.c, 0);
+  document.getElementById("mo-meta").textContent = mrows.length ? `${mrows.length} months` : "";
+  renderTable("mo-tbl", {
+    rows: mrows, sortScope: "report",
+    emptyTitle: "No months in this scope",
+    emptyBody: emptyReason(),
+    cols: [
+      { key: "m", label: "Month", sortable: false, render: r => ymLabel(r.ym, true) },
+      { key: "k", label: "Accounts", num: true, sortable: false, render: r => nf0.format(r.k) },
+      { key: "n", label: "Invoices", num: true, sortable: false, render: r => nf0.format(r.n) },
+      { key: "d", label: "vs prior month", num: true, sortable: false,
+        render: r => r.delta === null ? "—" :
+          `<span style="color:${r.delta >= 0 ? "var(--status-success)" : "var(--status-danger)"}">${r.delta >= 0 ? "+" : ""}${(r.delta * 100).toFixed(1)}%</span>` },
+      { key: "c", label: "Invoiced", num: true, sortable: false, render: r => money(r.c) }
+    ],
+    footer: `<td colspan="4">Total · ${mrows.length} month${mrows.length === 1 ? "" : "s"}</td>
+             <td class="num">${money(monthlyTotal)}</td>`
+  });
+  document.getElementById("mo-note").innerHTML =
+    `Monthly adds to <b>${money(monthlyTotal)}</b>, the same figure as Summary and as the Invoices total for this scope — all four surfaces read the same rows.`;
+}
+
+function renderDashboard() {
+  const { rows, cents, byCust, byMonth } = AGG;
+  document.getElementById("dash-scope").innerHTML = scopeHTML();
+  document.getElementById("d-invoiced").textContent = moneyShort(cents);
+  document.getElementById("d-invoiced-d").textContent = money(cents);
+  document.getElementById("d-count").textContent = nf0.format(rows.length);
+  document.getElementById("d-count-d").textContent = "Invoices in scope";
+  document.getElementById("d-accounts").textContent = nf0.format(byCust.size);
+  document.getElementById("d-accounts-d").textContent = `of ${nf0.format(CUS.length)} with invoice history`;
+  document.getElementById("d-avg").textContent = rows.length ? money(cents / rows.length) : "—";
+
+  const months = [...byMonth.entries()].sort((a, b) => a[0] - b[0]);
+  document.getElementById("d-chart-meta").textContent = months.length ? `${months.length} months` : "";
+  drawChart(months);
+
+  const desc = [...byCust.entries()].map(([ci, e]) => ({ ci, ...e })).sort((a, b) => b.c - a.c).slice(0, 10);
+  renderTable("d-top-cust", {
+    rows: desc, sortScope: "report",
+    emptyTitle: "No accounts in this scope", emptyBody: emptyReason(),
+    cols: [
+      { key: "n", label: "Account", sortable: false, cls: "trunc", render: r => esc(CUS[r.ci][0]) },
+      { key: "i", label: "Invoices", num: true, sortable: false, render: r => nf0.format(r.n) },
+      { key: "c", label: "Invoiced", num: true, sortable: false, render: r => money(r.c) },
+      { key: "s", label: "Share", num: true, sortable: false, render: r => cents ? (100 * r.c / cents).toFixed(1) + "%" : "—" }
+    ]
+  });
+
+  const tmap = new Map();
+  byCust.forEach((e, ci) => {
+    const ts = CUS[ci][3] || [];
+    if (!ts.length) return;
+    ts.forEach(t => { tmap.set(t, (tmap.get(t) || 0) + e.c); });
+  });
+  const tlist = [...tmap.entries()].sort((a, b) => b[1] - a[1]).slice(0, 10).map(([t, c]) => ({ t, c }));
+  renderTable("d-top-terr", {
+    rows: tlist, sortScope: "report",
+    emptyTitle: "No territories in this scope",
+    emptyBody: "Accounts in this scope have no territory on file.",
+    cols: [
+      { key: "t", label: "Territory", sortable: false, cls: "trunc", render: r => esc(TERR[r.t]) },
+      { key: "c", label: "Invoiced", num: true, sortable: false, render: r => money(r.c) }
+    ]
+  });
+}
+
+function drawChart(months) {
+  const svg = document.getElementById("d-chart");
+  const W = svg.clientWidth || 900, H = 240, padL = 62, padB = 26, padT = 12, padR = 8;
+  if (!months.length) { svg.innerHTML = ""; return; }
+  const max = Math.max(...months.map(m => m[1].c)) || 1;
+  const plotW = W - padL - padR, plotH = H - padT - padB;
+  const bw = Math.max(4, plotW / months.length * 0.62);
+  const step = plotW / months.length;
+
+  let g = "";
+  for (let i = 0; i <= 4; i++) {
+    const y = padT + plotH * (i / 4);
+    g += `<line class="grid" x1="${padL}" y1="${y}" x2="${W - padR}" y2="${y}"/>`;
+    g += `<text class="axis" x="${padL - 8}" y="${y + 3}" text-anchor="end">${moneyShort(max * (1 - i / 4))}</text>`;
+  }
+  months.forEach((m, i) => {
+    const h = plotH * (m[1].c / max);
+    const x = padL + step * i + (step - bw) / 2;
+    const y = padT + plotH - h;
+    g += `<rect class="bar" x="${x}" y="${y}" width="${bw}" height="${Math.max(h, 1)}" rx="2">
+            <title>${ymLabel(m[0], true)} — ${money(m[1].c)} · ${nf0.format(m[1].n)} invoices</title></rect>`;
+    const every = months.length > 14 ? 3 : 1;
+    if (i % every === 0) {
+      g += `<text class="axis" x="${padL + step * i + step / 2}" y="${H - 8}" text-anchor="middle">${ymLabel(m[0])}</text>`;
+    }
+  });
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  svg.innerHTML = g;
+}
+
+function emptyReason() {
+  if (state.terr !== "all") {
+    return `No invoices fall inside <b>${esc(territoryText())}</b> for ${esc(periodText())}.
+            A territory with no accounts returns an empty book rather than falling back to the whole organisation.`;
+  }
+  return `No invoices fall inside ${esc(periodText())}.`;
+}
+
+// ── export: exactly the rows on screen ──────────────────────────
+function csvEscape(v) { const s = String(v ?? ""); return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; }
+function download(name, rows) {
+  const blob = new Blob([rows.map(r => r.map(csvEscape).join(",")).join("\r\n")], { type: "text/csv;charset=utf-8" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+function exportCSV(which) {
+  const { rows, cents, byCust, byMonth } = AGG;
+  const stamp = `${META.report_through_date}`;
+  const scope = [["Scope", periodText()], ["Territory", territoryText()],
+                 ["Measure", "Invoiced net (portal_invoices.net_amount)"], ["Report through", META.report_through_date], []];
+  if (which === "invoices") {
+    const out = [...scope, ["Invoice", "Date", "Account", "State", "Territory", "Invoiced"]];
+    rows.forEach(i => out.push([INV_NO[i], iso(invDay[i]), CUS[invCus[i]][0], CUS[invCus[i]][2],
+      (CUS[invCus[i]][3] || []).map(t => TERR[t]).join(" | ") || "Unassigned", (invCents[i] / 100).toFixed(2)]));
+    out.push([], ["Total", "", "", "", "", (cents / 100).toFixed(2)]);
+    download(`invoices_${stamp}.csv`, out);
+  } else if (which === "customers") {
+    const out = [...scope, ["Account", "State", "Territory", "Invoices", "Last invoice", "Invoiced"]];
+    [...byCust.entries()].sort((a, b) => b[1].c - a[1].c).forEach(([ci, e]) =>
+      out.push([CUS[ci][0], CUS[ci][2], (CUS[ci][3] || []).map(t => TERR[t]).join(" | ") || "Unassigned",
+        e.n, iso(e.last), (e.c / 100).toFixed(2)]));
+    out.push([], ["Total", "", "", "", "", (cents / 100).toFixed(2)]);
+    download(`customers_${stamp}.csv`, out);
+  } else {
+    const out = [...scope, ["Month", "Accounts", "Invoices", "Invoiced"]];
+    [...byMonth.entries()].sort((a, b) => a[0] - b[0]).forEach(([ym, m]) =>
+      out.push([ymLabel(ym, true), m.custs.size, m.n, (m.c / 100).toFixed(2)]));
+    out.push([], ["Total", "", "", (cents / 100).toFixed(2)]);
+    download(`report_${stamp}.csv`, out);
+  }
+}
+
+// ── render ──────────────────────────────────────────────────────
+function render() {
+  document.getElementById("scope-count").innerHTML =
+    `<b>${nf0.format(AGG.rows.length)}</b> invoices · <b>${money(AGG.cents)}</b>`;
+  if (state.view === "invoices") renderInvoices();
+  else if (state.view === "customers") renderCustomers();
+  else if (state.view === "reports") renderReports();
+  else renderDashboard();
+}
+
+function refresh() { recompute(); render(); }
+
+// ── chrome ──────────────────────────────────────────────────────
+function initChrome() {
+  const label = META.org_label || "";
+  document.getElementById("org-name").textContent = label;
+  document.getElementById("org-mark").textContent = label.replace(/[^A-Za-z]/g, "").slice(0, 2).toUpperCase() || "SP";
+  document.title = `Sales Portal — ${label}`;
+
+  const t = document.getElementById("territory");
+  t.innerHTML = `<option value="all">All territories (${TERR.length})</option>` +
+    TERR.map((n, i) => `<option value="${i}">${esc(n)}</option>`).join("") +
+    (META.unassigned_customers ? `<option value="none">Unassigned (${META.unassigned_customers})</option>` : "");
+
+  document.getElementById("sb-foot").innerHTML =
+    `Invoiced through<br>${esc(pretty(RTD_DAY))}`;
+
+  document.getElementById("provenance").innerHTML =
+    `Invoiced net, taken from your ERP invoice feed and complete through <b>${esc(pretty(RTD_DAY))}</b>.
+     ${META.feed_completeness}% of invoices in this window match an account record; the remainder appear in totals and under Unassigned.
+     Quotes and open orders are not included in any figure on this page.
+     ${nf0.format(META.row_count)} invoices · ${nf0.format(CUS.length)} accounts · ${TERR.length} territories.`;
+}
+
+function syncDateInputs() {
+  document.getElementById("from").value = iso(state.from);
+  document.getElementById("to").value = iso(state.to);
+  document.getElementById("preset").value = state.preset;
+}
+
+function applyPreset(p) {
+  state.preset = p;
+  if (p !== "custom") { const [a, b] = presetRange(p); state.from = a; state.to = b; }
+  syncDateInputs();
+  state.page.invoices = 0; state.page.customers = 0;
+  refresh();
+}
+
+function bind() {
+  document.querySelectorAll(".sb-item").forEach(el => el.addEventListener("click", () => {
+    document.querySelectorAll(".sb-item").forEach(x => x.classList.remove("is-active"));
+    el.classList.add("is-active");
+    state.view = el.getAttribute("data-view");
+    document.querySelectorAll(".view").forEach(v => v.classList.remove("is-active"));
+    document.getElementById("view-" + state.view).classList.add("is-active");
+    render();
+  }));
+
+  document.querySelectorAll(".tab").forEach(el => el.addEventListener("click", () => {
+    document.querySelectorAll(".tab").forEach(x => x.classList.remove("is-active"));
+    el.classList.add("is-active");
+    state.tab = el.getAttribute("data-tab");
+    document.getElementById("tab-summary").style.display = state.tab === "summary" ? "" : "none";
+    document.getElementById("tab-monthly").style.display = state.tab === "monthly" ? "" : "none";
+  }));
+
+  document.getElementById("preset").addEventListener("change", e => applyPreset(e.target.value));
+
+  ["from", "to"].forEach(id => document.getElementById(id).addEventListener("change", e => {
+    const d = dayOf(e.target.value);
+    if (isNaN(d)) { syncDateInputs(); return; }
+    state[id] = Math.max(0, Math.min(RTD_DAY, d));
+    if (state.from > state.to) { const s = state.from; state.from = state.to; state.to = s; }
+    state.preset = "custom";
+    syncDateInputs();
+    state.page.invoices = 0; state.page.customers = 0;
+    refresh();
+  }));
+
+  document.getElementById("territory").addEventListener("change", e => {
+    state.terr = e.target.value;
+    state.page.invoices = 0; state.page.customers = 0;
+    refresh();
+  });
+
+  document.getElementById("groupby").addEventListener("change", e => {
+    state.groupby = e.target.value;
+    render();
+  });
+
+  document.querySelectorAll("[data-export]").forEach(b =>
+    b.addEventListener("click", () => exportCSV(b.getAttribute("data-export"))));
+
+  let t = null;
+  window.addEventListener("resize", () => {
+    clearTimeout(t);
+    t = setTimeout(() => { if (state.view === "dashboard") renderDashboard(); }, 150);
+  });
+}
+
+state.groupby = "month";
+initChrome();
+bind();
+applyPreset("ytd");
+
+})();
+</script>
+</body>
+</html>

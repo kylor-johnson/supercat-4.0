@@ -1,0 +1,554 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Sales Portal · Signals — destination A (Sarreid / CCI)</title>
+
+<link rel="stylesheet" href="../ds/tokens/index.css?v=12" />
+<link rel="stylesheet" href="../ds/primitives/button.css?v=68" />
+<link rel="stylesheet" href="../ds/primitives/card.css?v=10" />
+<link rel="stylesheet" href="../ds/primitives/tabs.css?v=13" />
+<link rel="stylesheet" href="../ds/primitives/table.css?v=6" />
+<link rel="stylesheet" href="../ds/primitives/nav.css?v=13" />
+<script src="../nav/marketing-nav.js?v=13" defer></script>
+<script src="../nav/app-sidebar.js?v=2" defer></script>
+
+<style>
+  html, body { margin: 0; padding: 0; height: 100%; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--surface-page);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    font-feature-settings: "tnum" 1;
+    min-height: 100dvh;
+  }
+
+  /* ── App shell — floating composition (matches app/dashboard.html) ── */
+  .kshell {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    min-height: 100dvh;
+    padding: clamp(12px, 1.4vw, 20px);
+    gap: clamp(12px, 1.4vw, 20px);
+    background: var(--surface-page);
+  }
+  .kshell-main { display: flex; flex-direction: column; min-width: 0; min-height: 0; gap: clamp(8px, 1vw, 16px); }
+  .kshell-top { display: flex; align-items: center; gap: var(--space-4); height: 52px; padding: 0 var(--space-2); flex-shrink: 0; }
+  .kshell-content { flex: 1; padding: 0 var(--space-2) clamp(24px, 3vw, 56px); overflow: visible; }
+
+  .crumb-row { display: flex; align-items: center; gap: var(--space-2); font-family: var(--font-mono);
+    font-size: var(--text-2xs); font-weight: var(--weight-semibold); letter-spacing: var(--tracking-widest);
+    text-transform: uppercase; color: var(--text-muted); }
+  .crumb-row a { color: var(--text-muted); text-decoration: none; transition: color .15s var(--ease-out); }
+  .crumb-row a:hover { color: var(--text-primary); }
+  .crumb-row .crumb-sep { color: var(--text-faint); font-size: 14px; }
+  .crumb-row .crumb-here { color: var(--text-primary); }
+  .topbar-actions { display: flex; align-items: center; gap: var(--space-2); margin-left: auto; }
+
+  .metatag { font-family: var(--font-mono); font-size: var(--text-2xs); letter-spacing: var(--tracking-wider);
+    text-transform: uppercase; color: var(--text-muted); border: 1px solid var(--border-default);
+    border-radius: var(--radius-pill); padding: 5px 11px; display: inline-flex; gap: 7px; align-items: center; }
+  .metatag .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--status-success); }
+
+  /* ── Page head ── */
+  .page-head { display: flex; align-items: flex-end; gap: var(--space-4); margin: 0 0 var(--space-6); flex-wrap: wrap; }
+  .page-head h2 { margin: 0; font-size: clamp(26px,3vw,36px); line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-tighter); font-weight: var(--weight-medium); }
+  .page-head .meta { font-family: var(--font-mono); font-size: var(--text-2xs); letter-spacing: var(--tracking-widest);
+    text-transform: uppercase; color: var(--text-muted); padding-bottom: 4px; }
+  .page-head .actions { margin-left: auto; display: flex; align-items: center; gap: var(--space-3); }
+
+  /* ── Section head ── */
+  .section-head { display: flex; align-items: baseline; gap: var(--space-3); margin: var(--space-8) 0 var(--space-4);
+    padding-bottom: var(--space-3); border-bottom: 1px dashed var(--border-subtle); }
+  .section-head h3 { margin: 0; font-size: var(--text-xl); font-weight: var(--weight-medium); letter-spacing: var(--tracking-tighter); }
+  .section-head .meta { font-family: var(--font-mono); font-size: var(--text-2xs); letter-spacing: var(--tracking-widest);
+    text-transform: uppercase; color: var(--text-muted); margin-left: auto; }
+
+  /* ── Divergence ribbon ── */
+  .ribbon { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); margin-bottom: var(--space-4); }
+  .rib { display: flex; gap: var(--space-3); align-items: flex-start; }
+  .rib .kc-eyebrow { white-space: nowrap; padding-top: 2px; }
+  .rib p { margin: 4px 0 0; font-size: var(--text-sm); color: var(--text-body); line-height: var(--leading-relaxed); }
+  .rib b { color: var(--text-primary); font-weight: var(--weight-semibold); }
+  .kc.is-active-org { border-color: color-mix(in oklch, var(--color-crimson) 55%, transparent); box-shadow: var(--shadow-1); }
+
+  /* ── Ask (answer-first) ── */
+  .ask-field { display: flex; align-items: center; gap: var(--space-3); border: 1px solid var(--border-default);
+    border-radius: var(--radius-md); padding: 12px 14px; background: var(--surface-card); }
+  .ask-field .mag { color: var(--text-faint); display: inline-flex; }
+  .ask-field .mag svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.5; }
+  .ask-field input { border: 0; background: transparent; font-family: var(--font-sans); font-size: var(--text-base);
+    color: var(--text-primary); flex: 1; outline: none; letter-spacing: -0.01em; }
+  .ask-field .kbd { font-family: var(--font-mono); font-size: var(--text-2xs); color: var(--text-muted);
+    border: 1px solid var(--border-default); border-radius: var(--radius-sm); padding: 4px 8px; letter-spacing: var(--tracking-wide); }
+  .answer { margin-top: var(--space-5); }
+  .answer .lead { font-family: var(--font-mono); font-size: var(--text-2xs); font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-widest); text-transform: uppercase; color: color-mix(in oklch, var(--color-gold) 70%, var(--color-ink-1)); }
+  .answer .body { font-size: var(--text-md); line-height: var(--leading-relaxed); margin-top: var(--space-3);
+    color: var(--text-body); max-width: 70ch; }
+  .answer .body b { color: var(--text-primary); font-weight: var(--weight-semibold); }
+  .chips { display: flex; gap: var(--space-2); flex-wrap: wrap; margin-top: var(--space-5); }
+
+  /* ── Layout ── */
+  .split { display: grid; grid-template-columns: 1.4fr 1fr; gap: var(--space-4); align-items: start; }
+  .col { display: flex; flex-direction: column; gap: var(--space-4); }
+  @media (max-width: 960px) { .split { grid-template-columns: 1fr; } .ribbon { grid-template-columns: 1fr; } }
+
+  .newtag { font-family: var(--font-mono); font-size: var(--text-2xs); font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-wider); text-transform: uppercase; color: color-mix(in oklch, var(--color-gold) 68%, var(--color-ink-1));
+    background: var(--color-gold-l); border: 1px solid color-mix(in oklch, var(--color-gold) 40%, transparent);
+    border-radius: var(--radius-sm); padding: 2px 6px; }
+
+  /* ── Monthly bar chart (from app dashboard idiom) ── */
+  .chart-plot { display: flex; align-items: flex-end; gap: var(--space-2); height: 168px; padding-top: var(--space-2); }
+  .chart-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: var(--space-2); height: 100%; justify-content: flex-end; min-width: 0; }
+  .chart-bar { width: 100%; max-width: 40px; border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+    background: linear-gradient(180deg, color-mix(in oklch, var(--color-clay) 42%, transparent), color-mix(in oklch, var(--color-clay) 10%, transparent)); }
+  .chart-bar.is-peak { background: linear-gradient(180deg, var(--color-gold), color-mix(in oklch, var(--color-gold) 30%, transparent)); }
+  .chart-bar.is-partial { background: repeating-linear-gradient(135deg, color-mix(in oklch, var(--color-clay) 34%, transparent) 0 4px, transparent 4px 8px); }
+  [data-theme="dark"] .chart-bar { background: linear-gradient(180deg, rgba(235,230,215,0.26), rgba(235,230,215,0.06)); }
+  .chart-cap { font-family: var(--font-mono); font-size: var(--text-2xs); color: var(--text-muted); }
+  .chart-val { font-family: var(--font-mono); font-size: var(--text-2xs); color: var(--text-faint); font-variant-numeric: tabular-nums; }
+
+  /* ── Bar rows (channel / rep / account / sku) ── */
+  .rows { display: flex; flex-direction: column; gap: var(--space-4); }
+  .rowline .rl-top { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3); margin-bottom: 6px; }
+  .rowline .rl-name { font-size: var(--text-sm); color: var(--text-body); display: inline-flex; gap: var(--space-2); align-items: center; min-width: 0; }
+  .rowline .rl-name .rk { font-family: var(--font-mono); font-size: var(--text-2xs); color: var(--text-faint); width: 16px; text-align: right; }
+  .rowline .rl-name .sw { width: 9px; height: 9px; border-radius: 2px; flex: none; }
+  .rowline .rl-val { font-family: var(--font-mono); font-size: var(--text-sm); color: var(--text-primary); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .rowline .rl-val small { color: var(--text-faint); margin-left: var(--space-2); }
+  .track { height: 8px; background: var(--surface-2); border-radius: var(--radius-pill); overflow: hidden; }
+  .fill { height: 100%; border-radius: var(--radius-pill);
+    background: linear-gradient(90deg, color-mix(in oklch, var(--color-clay) 28%, transparent), color-mix(in oklch, var(--color-clay) 55%, transparent)); }
+  .fill.is-gold { background: linear-gradient(90deg, color-mix(in oklch, var(--color-gold) 45%, transparent), var(--color-gold)); }
+  [data-theme="dark"] .fill { background: linear-gradient(90deg, rgba(235,230,215,0.22), rgba(235,230,215,0.45)); }
+
+  /* ── Mini stats ── */
+  .statgrid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); }
+  .stat { border: 1px solid var(--border-default); border-radius: var(--radius-md); padding: 12px 14px; }
+  .stat .k { font-family: var(--font-mono); font-size: var(--text-2xs); letter-spacing: var(--tracking-wide); text-transform: uppercase; color: var(--text-muted); }
+  .stat .v { font-family: var(--font-mono); font-size: var(--text-xl); font-weight: var(--weight-medium); letter-spacing: -0.02em;
+    color: var(--text-primary); margin-top: 6px; font-variant-numeric: tabular-nums; }
+  .stat .h { font-size: var(--text-2xs); color: var(--text-faint); margin-top: 4px; }
+
+  /* ── Callout ── */
+  .callout { border: 1px solid color-mix(in oklch, var(--color-gold) 40%, transparent); background: var(--color-gold-l);
+    border-radius: var(--radius-md); padding: 12px 14px; font-size: var(--text-sm); line-height: var(--leading-relaxed);
+    color: color-mix(in oklch, var(--color-gold) 62%, var(--color-ink-1)); }
+  .callout b { color: var(--color-ink-1); }
+  .callout .clabel { font-family: var(--font-mono); font-size: var(--text-2xs); letter-spacing: var(--tracking-wider);
+    text-transform: uppercase; font-weight: var(--weight-semibold); }
+
+  /* ── Provenance footnote ── */
+  .prov { font-family: var(--font-mono); font-size: var(--text-2xs); color: var(--text-faint); letter-spacing: 0.02em;
+    margin-top: var(--space-4); padding-top: var(--space-3); border-top: 1px dashed var(--border-subtle); }
+
+  .kc-title .newtag { margin-left: var(--space-2); vertical-align: 1px; }
+  .theme-toggle .icon-dark { display: none; }
+  [data-theme="dark"] .theme-toggle .icon-light { display: none; }
+  [data-theme="dark"] .theme-toggle .icon-dark { display: inline; }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <symbol id="i-mark" viewBox="0 0 41 28">
+    <path d="M20.4773 17.6424C16.8375 10.6856 13.5207 10.6117 10.2067 10.5378C8.69685 10.5042 7.18762 10.4706 5.64872 9.78608L0 0H2.43148C5.09633 3.25885 7.65432 3.51236 10.2129 3.76594C13.5561 4.09728 16.9003 4.42872 20.4853 11.4648C24.0761 4.39466 27.4109 4.0844 30.7463 3.77408C33.2971 3.53675 35.8483 3.29939 38.5148 0.0385625H41L35.3692 9.78883C33.8047 10.503 32.2722 10.5331 30.7392 10.5634C27.4294 10.6286 24.1175 10.6937 20.4773 17.6424Z" fill="currentColor" stroke="none"/>
+    <path d="M20.4773 27.9975L20.4771 27.9972L20.4756 28L20.4756 27.9944C17.538 22.3699 14.7931 21.2243 12.1087 20.9635L7.9752 13.8017C8.72235 13.9462 9.4664 14.0158 10.2103 14.0855C13.5487 14.398 16.8835 14.7102 20.4773 21.7843C24.0589 14.7274 27.3849 14.4269 30.7115 14.1261C31.4831 14.0563 32.2548 13.9866 33.0298 13.8324L28.8886 20.9942C26.1863 21.25 23.4405 22.3367 20.4773 27.9969V27.9975Z" fill="currentColor" stroke="none"/>
+  </symbol>
+  <symbol id="i-search" viewBox="0 0 16 16"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 16 16"><circle cx="8" cy="8" r="3"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3 3l1.5 1.5M11.5 11.5L13 13M3 13l1.5-1.5M11.5 4.5L13 3"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 16 16"><path d="M13 9.5a5.5 5.5 0 0 1-7-7 6 6 0 1 0 7 7z"/></symbol>
+</defs></svg>
+
+<div class="kshell">
+
+  <!-- ─── SIDEBAR (shared custom element) ─── -->
+  <sc-app-sidebar active="dashboard" orders-count="1,287" org-name="Sarreid, Ltd." org-badge="SA"></sc-app-sidebar>
+
+  <!-- ─── MAIN ─── -->
+  <div class="kshell-main">
+
+    <header class="kshell-top">
+      <div class="crumb-row">
+        <a href="#">Sales Portal</a>
+        <span class="crumb-sep">/</span>
+        <span class="crumb-here">Signals</span>
+      </div>
+      <div class="topbar-actions">
+        <span class="metatag">Last 12 months</span>
+        <span class="metatag"><span class="dot"></span> Live · read-only</span>
+        <span class="metatag">Names masked</span>
+        <button class="kb kb-sm kb-secondary kb-icon theme-toggle" aria-label="Toggle theme"
+          onclick="document.documentElement.dataset.theme = document.documentElement.dataset.theme === 'dark' ? '' : 'dark'">
+          <svg class="icon-light" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><use href="#i-moon"/></svg>
+          <svg class="icon-dark" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><use href="#i-sun"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <main class="kshell-content">
+
+  <!-- page head + org switch -->
+  <div class="page-head">
+    <h2>Signals</h2>
+    <span class="meta" id="orgSpan"></span>
+    <div class="actions">
+      <nav class="ktab ktab-pills" role="tablist" aria-label="Organization" id="orgseg">
+        <button class="ktab-item" role="tab" data-org="sarreid" aria-selected="true">Sarreid</button>
+        <button class="ktab-item" role="tab" data-org="cci">Currey &amp; Co</button>
+      </nav>
+    </div>
+  </div>
+
+  <!-- divergence ribbon -->
+  <div class="ribbon">
+    <article class="kc kc-sm rib" id="ribA"></article>
+    <article class="kc kc-sm rib" id="ribB"></article>
+  </div>
+
+  <!-- answer bar -->
+  <article class="kc kc-feature" style="margin-bottom:var(--space-4)">
+    <div class="kc-body">
+      <div class="ask-field">
+        <span class="mag"><svg viewBox="0 0 16 16"><use href="#i-search"/></svg></span>
+        <input id="askinput" readonly value="" aria-label="Ask about your business" />
+        <span class="kbd">⏎ ASK</span>
+      </div>
+      <div class="answer">
+        <div class="lead">Answer</div>
+        <div class="body" id="answerBody"></div>
+        <div class="chips" id="chips"></div>
+      </div>
+    </div>
+  </article>
+
+  <!-- KPIs -->
+  <div class="kc-grid kc-grid-4" id="kpis"></div>
+
+  <div class="section-head">
+    <h3>Where the book comes from</h3>
+    <span class="meta" id="secMeta"></span>
+  </div>
+
+  <div class="split">
+    <div class="col">
+      <!-- monthly trend -->
+      <article class="kc">
+        <header class="kc-head">
+          <div class="kc-head-lead">
+            <span class="kc-eyebrow">Booked orders · 2026</span>
+            <h3 class="kc-title">By month</h3>
+          </div>
+          <div class="kc-head-actions"><span class="kc-foot-meta" id="trendPeak"></span></div>
+        </header>
+        <div class="kc-body">
+          <div class="chart-plot" id="months"></div>
+        </div>
+        <footer class="kc-foot"><span class="kc-foot-meta" id="trendProv"></span></footer>
+      </article>
+
+      <!-- channels -->
+      <article class="kc">
+        <header class="kc-head">
+          <div class="kc-head-lead">
+            <span class="kc-eyebrow" id="chanEyebrow"></span>
+            <h3 class="kc-title">Channel &amp; market attribution <span class="newtag">new</span></h3>
+          </div>
+        </header>
+        <div class="kc-body">
+          <div class="rows" id="channels"></div>
+          <div class="prov" id="chanProv"></div>
+        </div>
+      </article>
+
+      <!-- reps -->
+      <article class="kc">
+        <header class="kc-head">
+          <div class="kc-head-lead">
+            <span class="kc-eyebrow">Share of booked value · top 8</span>
+            <h3 class="kc-title">Rep leaderboard <span class="newtag">new</span></h3>
+          </div>
+          <div class="kc-head-actions"><span class="kc-foot-meta" id="repCount"></span></div>
+        </header>
+        <div class="kc-body">
+          <div class="rows" id="reps"></div>
+          <div class="prov">source · portal_orders.rep_number · masked → “Rep n”</div>
+        </div>
+      </article>
+    </div>
+
+    <div class="col">
+      <!-- status -->
+      <article class="kc">
+        <header class="kc-head">
+          <div class="kc-head-lead">
+            <span class="kc-eyebrow">sum(total_amount) by status</span>
+            <h3 class="kc-title" id="statusTitle">Order status</h3>
+          </div>
+        </header>
+        <div class="kc-body">
+          <div class="rows" id="statusRows"></div>
+          <div id="statusNote" style="margin-top:var(--space-4)"></div>
+          <div class="prov">source · portal_orders.status (enum)</div>
+        </div>
+      </article>
+
+      <!-- reorder -->
+      <article class="kc">
+        <header class="kc-head">
+          <div class="kc-head-lead">
+            <span class="kc-eyebrow" id="reoEyebrow"></span>
+            <h3 class="kc-title">Reorder intelligence <span class="newtag">new</span></h3>
+          </div>
+        </header>
+        <div class="kc-body">
+          <div class="statgrid" id="reostat"></div>
+          <ul class="kc-list" id="reo" style="margin-top:var(--space-3)"></ul>
+          <div class="prov">source · customer_product_totals_by_order/_by_invoice · rows = capability preview on live coverage</div>
+        </div>
+      </article>
+
+      <!-- accounts -->
+      <article class="kc">
+        <header class="kc-head">
+          <div class="kc-head-lead">
+            <span class="kc-eyebrow">Masked · home state · share of booked</span>
+            <h3 class="kc-title">Top accounts by geography</h3>
+          </div>
+        </header>
+        <div class="kc-body">
+          <div class="rows" id="accounts"></div>
+          <div class="prov">source · portal_orders bill-to · masked → “Account · ST-n”</div>
+        </div>
+      </article>
+
+      <!-- concentration -->
+      <article class="kc">
+        <header class="kc-head">
+          <div class="kc-head-lead">
+            <span class="kc-eyebrow">How dependent is the book?</span>
+            <h3 class="kc-title">Concentration &amp; tail</h3>
+          </div>
+        </header>
+        <div class="kc-body"><div class="statgrid" id="conc"></div></div>
+      </article>
+
+      <!-- skus -->
+      <article class="kc">
+        <header class="kc-head">
+          <div class="kc-head-lead">
+            <span class="kc-eyebrow">Masked · ordered value · % of book</span>
+            <h3 class="kc-title">Top SKUs</h3>
+          </div>
+        </header>
+        <div class="kc-body">
+          <div class="rows" id="skus"></div>
+          <div class="prov">source · portal_order_items · sum(qty×unit_price) · masked → “SKU-n”</div>
+        </div>
+      </article>
+    </div>
+  </div>
+
+  <div class="prov" id="foot" style="margin-top:var(--space-8)"></div>
+
+    </main>
+  </div>
+</div>
+
+<script>
+const num = v => Number(v).toLocaleString('en-US');
+
+const DATA = {
+  sarreid: {
+    name: 'Sarreid, Ltd.', orgBadge: 'SA', org: 1, span: 'Jan 2019 – Jul 2026 · 7+ yrs',
+    acctCount: 4353, repCount: 99, skuCount: 3605, orderLines: 65086, states: 57,
+    kpis: [
+      { eyebrow: 'Invoiced · TTM (net)', val: '$16.4M', trend: 'up', note: 'trailing 12 months' },
+      { eyebrow: 'Booked · YTD 2026', val: '$8.9M', trend: 'up', note: '6,258 orders' },
+      { eyebrow: 'Active accounts', val: '4,353', trend: 'flat', note: '57 states · 65,086 lines' },
+      { eyebrow: 'Field reps', val: '99', trend: 'flat', note: 'selling through portal' }
+    ],
+    ribbon: 'Territory-based (100 territories) · backorder feed live (680 open lines) · <b>top-heavy</b> book (top-10 accts 20.6%, top-10 reps 65%) · but <b>status field unmaintained</b> — 99.9% still “OPEN”.',
+    answerQ: 'Which reps and channels are carrying the book?',
+    answer: 'The book is <b>concentrated</b>: the top 10 of 99 reps drive <b>65% of booked value</b>, and one rep alone is <b>15%</b> ($11.8M across 11,680 orders). Demand is <b>web-led</b> — Web/eOL is <b>51%</b> of value, Road only 17%. Watch the concentration: your #1 account (MA) is <b>9%</b> of the entire book.',
+    chips: ['Why is April strong?', 'Who’s below last year?', 'Which accounts are slipping?', 'Backordered value right now'],
+    secMeta: 'org 1 · 45,426 orders · $77.8M booked all-time',
+    months: [['Jan',1.24],['Feb',1.40],['Mar',1.35],['Apr',1.49],['May',1.43],['Jun',1.35],['Jul',0.67,true]],
+    trendPeak: 'peak · Apr · $1.49M',
+    channelEyebrow: '3 origins · sum(total_amount)',
+    channels: [['Web / eOL',39.80,51,false],['Other',24.81,32,false],['Road (rep)',13.18,17,false]],
+    chanProv: 'source · portal_orders.order_origin (normalized) · raw: WEB, OTHER, ROAD',
+    reps: [[15.2,'$11.8M · 139 accts'],[10.8,'$8.4M · 479 accts'],[8.5,'$6.6M'],[6.0,'$4.7M'],[6.0,'$4.6M'],[5.8,'$4.5M'],[3.6,'$2.8M'],[3.5,'$2.7M']],
+    statusTitle: 'Order status',
+    status: [['Open','OPEN',77.61,45396,false],['Held','HELD',0.17,57,true]],
+    statusNote: '<div class="callout"><span class="clabel">Data-quality signal</span><br>45,396 of 45,426 orders are still <b>OPEN</b> — the ERP feed never closes portal orders here. Treat <b>invoiced</b> as truth for Sarreid; “open backlog” isn’t meaningful until status is fed. A semantic layer should flag this, not chart it.</div>',
+    reoEyebrow: '4,352 accounts × 3,605 products scored',
+    reostat: [['43,406','order-total rows'],['28,428','invoice-total rows']],
+    reo: [['Account · MA-01','likely due: 3 core SKUs','~28 days'],['Account · NY-04','reorder gap on 2 lines','~19 days'],['Account · FL-07','lapsed vs 90-day cadence','overdue']],
+    accounts: [['MA',7.02,9.0,7613],['NC',1.67,2.1,1641],['VA',1.58,2.0,311],['NY',1.45,1.9,1287],['NC',0.97,1.2,663],['CT',0.78,1.0,84],['FL',0.75,1.0,598],['NJ',0.66,0.9,524]],
+    conc: [['Top-10 accounts','20.6%','of booked value'],['Top-10 reps','65.4%','concentration risk'],['Top-100 SKUs','28.1%','of order value'],['On backorder','1,081 u','680 open lines']],
+    skus: [[759,0.98],[681,0.88],[487,0.63],[482,0.62],[449,0.58],[419,0.54],[383,0.49],[366,0.47]]
+  },
+  cci: {
+    name: 'Currey & Company', orgBadge: 'CC', org: 161, span: 'Oct 2023 – Jul 2026 · ~2.7 yrs',
+    acctCount: 12842, repCount: 64, skuCount: 9620, orderLines: 286254, states: 101,
+    kpis: [
+      { eyebrow: 'Invoiced · TTM (net)', val: '$73.6M', trend: 'up', note: 'trailing 12 months' },
+      { eyebrow: 'Booked · YTD 2026', val: '$51.0M', trend: 'up', note: '32,328 orders' },
+      { eyebrow: 'Active accounts', val: '12,842', trend: 'up', note: '101 states · 286,254 lines' },
+      { eyebrow: 'Field reps', val: '64', trend: 'flat', note: 'selling through portal' }
+    ],
+    ribbon: 'Rep-based (0 territories) · <b>channel-rich</b> (12 origins incl. markets &amp; showrooms) · <b>long-tail</b> book (top-10 accts 14.2%, top-10 reps 53%) · status <b>is</b> maintained → real quote→confirm→complete funnel.',
+    answerQ: 'Where is revenue coming from this year?',
+    answer: 'Revenue is <b>diversified across 12 channels</b>. Digital leads — Web/eOL <b>27%</b> + eCat iPad 10% + EDI 13% = <b>half the book is self-service</b>. But <b>markets &amp; showrooms move real money</b>: High Point Market alone booked <b>$19.5M</b> from just 2,275 orders — an <b>8.6× larger average order</b> than web. Direct is the single biggest origin at $57.2M.',
+    chips: ['How did High Point Market perform?', 'Web vs market avg order size', 'Which channel is growing fastest?', 'Show me the quote pipeline'],
+    secMeta: 'org 161 · 157,083 orders · $227.2M booked all-time',
+    months: [['Jan',7.68],['Feb',6.11],['Mar',6.77],['Apr',11.60],['May',7.00],['Jun',8.13],['Jul',3.72,true]],
+    trendPeak: 'peak · Apr · $11.6M',
+    channelEyebrow: '12 origins normalized · sum(total_amount)',
+    channels: [['Web / eOL',61.92,27,false],['Direct',57.20,25,false],['EDI',28.79,13,false],['eCat iPad',22.28,10,false],['High Point Market',19.50,9,true],['Road (rep)',15.80,7,false],['Atlanta Market',7.72,3,false],['Dallas Showroom',3.89,2,false],['Las Vegas Market',3.75,2,false],['Dallas Market',2.89,1,false],['Atlanta Showroom',2.05,1,false],['High Point Showroom',0.21,0,false]],
+    chanProv: 'source · portal_orders.order_origin (normalized) · raw: WEB, D, EDI, ECAT, HPMKT, R, AMKT, DROOM, LVMKT, DMKT, AROOM, HPROOM',
+    reps: [[12.6,'$28.7M · 187 accts'],[6.3,'$14.2M · 551 accts'],[6.2,'$14.0M'],[5.0,'$11.3M'],[4.2,'$9.6M'],[4.1,'$9.3M'],[3.9,'$9.0M'],[3.5,'$8.0M']],
+    statusTitle: 'Order status funnel',
+    status: [['Quote','Q',8.75,865,true],['Active','A',7.21,2328,true],['Complete','C',187.50,146264,false],['Cancelled','X',8.88,6144,true],['Deposit / Z','Z',14.90,1482,true]],
+    statusNote: '<div class="callout"><span class="clabel">Semantic-layer job</span><br>Statuses arrive as raw ERP codes <b>C / A / Q / X / Z</b>, mapped here to Complete / Active / Quote / Cancelled / Deposit. That mapping is exactly the value a modern surface adds over today’s portal.</div>',
+    reoEyebrow: '12,842 accounts × 9,620 products scored',
+    reostat: [['190,355','order-total rows'],['168,478','invoice-total rows']],
+    reo: [['Account · MA-01','19,354 orders — protect &amp; expand','healthy'],['Account · CA-02','mix gap vs peer accounts','~22 days'],['Account · PA-04','high freq, narrow assortment','cross-sell']],
+    accounts: [['MA',10.82,4.8,19354],['CA',3.41,1.5,4459],['VA',2.74,1.2,1667],['PA',2.60,1.1,3485],['FL',2.55,1.1,2653],['CA',2.50,1.1,2990],['CA',2.08,0.9,3443],['MS',1.38,0.6,2338]],
+    conc: [['Top-10 accounts','14.2%','long-tail book'],['Top-10 reps','52.7%','of booked value'],['Top-100 SKUs','24.4%','of order value'],['Territories','0','rep-based routing']],
+    skus: [[1995,0.94],[1630,0.77],[1134,0.54],[1080,0.51],[1064,0.50],[996,0.47],[964,0.46],[950,0.45]]
+  }
+};
+
+let current = 'sarreid';
+
+function trendClass(t){ return t==='up'?'kc-trend-up':t==='down'?'kc-trend-down':'kc-trend-flat'; }
+
+function render(key){
+  const d = DATA[key];
+
+  document.getElementById('orgSpan').textContent = d.name + ' · ' + d.span;
+
+  // keep the shared sidebar's org context in sync (sidebar upgrades via deferred script)
+  const nameEl = document.querySelector('.knav-org-name'); if (nameEl) nameEl.textContent = d.name;
+  const badgeEl = document.querySelector('.knav-org-badge'); if (badgeEl) badgeEl.textContent = d.orgBadge;
+
+  // ribbon (both, highlight active)
+  const rA = document.getElementById('ribA'), rB = document.getElementById('ribB');
+  rA.innerHTML = '<span class="kc-eyebrow">Sarreid</span><p>' + DATA.sarreid.ribbon + '</p>';
+  rB.innerHTML = '<span class="kc-eyebrow">Currey &amp; Co</span><p>' + DATA.cci.ribbon + '</p>';
+  rA.classList.toggle('is-active-org', key==='sarreid');
+  rB.classList.toggle('is-active-org', key==='cci');
+
+  // ask
+  document.getElementById('askinput').value = d.answerQ;
+  document.getElementById('answerBody').innerHTML = d.answer;
+  document.getElementById('chips').innerHTML = d.chips.map(c => '<button class="kb kb-sm kb-secondary">'+c+'</button>').join('');
+
+  // KPIs
+  document.getElementById('kpis').innerHTML = d.kpis.map(k =>
+    '<article class="kc kc-metric"><span class="kc-eyebrow">'+k.eyebrow+'</span>'+
+    '<div class="kc-metric-row"><span class="kc-metric-val">'+k.val+'</span></div>'+
+    '<span class="kc-metric-trend '+trendClass(k.trend)+'">'+k.note+'</span></article>'
+  ).join('');
+
+  document.getElementById('secMeta').textContent = d.secMeta;
+
+  // months
+  const mmx = Math.max(...d.months.map(m=>m[1]));
+  document.getElementById('months').innerHTML = d.months.map(m => {
+    const peak = m[1]===mmx ? ' is-peak' : '';
+    const partial = m[2] ? ' is-partial' : '';
+    return '<div class="chart-col"><span class="chart-val">$'+m[1].toFixed(1)+'M</span>'+
+      '<div class="chart-bar'+peak+partial+'" style="height:'+(m[1]/mmx*100)+'%"></div>'+
+      '<span class="chart-cap">'+m[0]+'</span></div>';
+  }).join('');
+  document.getElementById('trendPeak').textContent = d.trendPeak;
+  document.getElementById('trendProv').textContent = 'source · portal_orders.order_date · Jul partial';
+
+  // channels
+  document.getElementById('chanEyebrow').textContent = d.channelEyebrow;
+  const cmx = Math.max(...d.channels.map(c=>c[1]));
+  document.getElementById('channels').innerHTML = d.channels.map(c =>
+    '<div class="rowline"><div class="rl-top"><span class="rl-name">'+c[0]+'</span>'+
+    '<span class="rl-val">$'+c[1].toFixed(1)+'M<small>'+c[2]+'%</small></span></div>'+
+    '<div class="track"><div class="fill'+(c[3]?' is-gold':'')+'" style="width:'+(c[1]/cmx*100)+'%"></div></div></div>'
+  ).join('');
+  document.getElementById('chanProv').textContent = d.chanProv;
+
+  // reps
+  const rmx = Math.max(...d.reps.map(r=>r[0]));
+  document.getElementById('reps').innerHTML = d.reps.map((r,i) =>
+    '<div class="rowline"><div class="rl-top"><span class="rl-name"><span class="rk">'+(i+1)+'</span>Rep '+(i+1)+'</span>'+
+    '<span class="rl-val">'+r[0]+'%<small>'+r[1]+'</small></span></div>'+
+    '<div class="track"><div class="fill'+(i===0?' is-gold':'')+'" style="width:'+(r[0]/rmx*100)+'%"></div></div></div>'
+  ).join('');
+  document.getElementById('repCount').textContent = num(d.repCount)+' reps';
+
+  // status
+  document.getElementById('statusTitle').textContent = d.statusTitle;
+  const smx = Math.max(...d.status.map(s=>s[2]));
+  document.getElementById('statusRows').innerHTML = d.status.map(s =>
+    '<div class="rowline"><div class="rl-top"><span class="rl-name">'+s[0]+
+    ' <span class="rk" style="width:auto">'+s[1]+'</span></span>'+
+    '<span class="rl-val">$'+s[2].toFixed(1)+'M<small>'+num(s[3])+'</small></span></div>'+
+    '<div class="track"><div class="fill'+(s[4]?'':' is-gold')+'" style="width:'+(Math.max(s[2]/smx*100,3))+'%;'+(s[4]?'opacity:.6':'')+'"></div></div></div>'
+  ).join('');
+  document.getElementById('statusNote').innerHTML = d.statusNote;
+
+  // reorder
+  document.getElementById('reoEyebrow').textContent = d.reoEyebrow;
+  document.getElementById('reostat').innerHTML = d.reostat.map(s =>
+    '<div class="stat"><div class="v">'+s[0]+'</div><div class="k">'+s[1]+'</div></div>'
+  ).join('');
+  document.getElementById('reo').innerHTML = d.reo.map(r =>
+    '<li class="kc-list-item"><div class="kc-list-main"><div class="kc-list-name">'+r[0]+'</div>'+
+    '<div class="kc-list-meta">'+r[1]+'</div></div><span class="kc-list-trail">'+r[2]+'</span></li>'
+  ).join('');
+
+  // accounts
+  const amx = Math.max(...d.accounts.map(a=>a[1]));
+  document.getElementById('accounts').innerHTML = d.accounts.map((a,i) =>
+    '<div class="rowline"><div class="rl-top"><span class="rl-name"><span class="rk">'+(i+1)+'</span>Account · '+a[0]+'-'+String(i+1).padStart(2,'0')+'</span>'+
+    '<span class="rl-val">$'+a[1].toFixed(1)+'M<small>'+a[2]+'% · '+num(a[3])+' ord</small></span></div>'+
+    '<div class="track"><div class="fill'+(i===0?' is-gold':'')+'" style="width:'+(a[1]/amx*100)+'%"></div></div></div>'
+  ).join('');
+
+  // concentration
+  document.getElementById('conc').innerHTML = d.conc.map(c =>
+    '<div class="stat"><div class="k">'+c[0]+'</div><div class="v">'+c[1]+'</div><div class="h">'+c[2]+'</div></div>'
+  ).join('');
+
+  // skus
+  const kmx = Math.max(...d.skus.map(s=>s[0]));
+  document.getElementById('skus').innerHTML = d.skus.map((s,i) =>
+    '<div class="rowline"><div class="rl-top"><span class="rl-name"><span class="rk">'+(i+1)+'</span>SKU-'+String(i+1).padStart(3,'0')+'</span>'+
+    '<span class="rl-val">$'+s[0]+'K<small>'+s[1]+'%</small></span></div>'+
+    '<div class="track"><div class="fill'+(i===0?' is-gold':'')+'" style="width:'+(s[0]/kmx*100)+'%"></div></div></div>'
+  ).join('');
+
+  document.getElementById('foot').innerHTML =
+    d.name+' (org '+d.org+') · live-aggregated from portal_orders / portal_order_items / portal_invoices / customer_product_totals via read-only Postgres (2026-07-16). '+
+    'Customer, rep &amp; SKU identities masked; $ rounded. “new” = capability not surfaced in today’s Sales Portal.';
+}
+
+document.getElementById('orgseg').addEventListener('click', e => {
+  const b = e.target.closest('.ktab-item'); if(!b) return;
+  document.querySelectorAll('#orgseg .ktab-item').forEach(x => x.setAttribute('aria-selected','false'));
+  b.setAttribute('aria-selected','true');
+  current = b.dataset.org;
+  render(current);
+});
+render(current);
+// sidebar renders from a deferred script; sync its org once it exists
+window.addEventListener('load', () => render(current));
+</script>
+</body>
+</html>

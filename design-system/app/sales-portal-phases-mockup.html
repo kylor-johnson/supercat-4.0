@@ -1,0 +1,840 @@
+<!doctype html>
+<html lang="en" data-phase="phase3">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>eCat Sales Portal — Phase Comparison Mockup</title>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@500;600&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; min-height: 100%; }
+  body {
+    -webkit-font-smoothing: antialiased;
+    background: #1A1614;
+  }
+
+  /* ── Review bar ── */
+  .review-bar {
+    position: sticky; top: 0; z-index: 200;
+    display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px;
+    padding: 10px 18px;
+    background: #1A1614; color: #F5F2EC;
+    font-family: 'Geist Mono', monospace;
+    font-size: 11px; font-weight: 600;
+    letter-spacing: 0.12em; text-transform: uppercase;
+  }
+  .review-bar .brand { margin-right: auto; display: flex; align-items: center; gap: 10px; letter-spacing: 0.16em; }
+  .review-bar .brand svg { width: 26px; height: 18px; }
+  .review-bar .label { color: #8A857D; }
+  .skin-toggle {
+    display: inline-flex; border: 1px solid rgba(245,242,236,.2);
+    border-radius: 8px; overflow: hidden;
+  }
+  .skin-toggle button {
+    appearance: none; border: 0; background: transparent;
+    color: #B5B0A9; font: inherit; letter-spacing: inherit;
+    text-transform: inherit; padding: 8px 12px; cursor: pointer;
+  }
+  .skin-toggle button[aria-pressed="true"] {
+    background: #7A1218; color: #F5F2EC;
+  }
+  .review-note {
+    color: #8A857D; font-weight: 500; letter-spacing: 0.04em;
+    text-transform: none; max-width: 48ch; line-height: 1.4;
+  }
+  .review-note strong { color: #EDE4D6; font-weight: 600; }
+
+  .stage { display: none; min-height: calc(100dvh - 48px); }
+  html[data-phase="legacy"]  #stage-classic,
+  html[data-phase="phase1"]  #stage-classic,
+  html[data-phase="phase3"]  #stage-shell { display: block; }
+
+  /* ════════════════════════════════════════════════════════════
+     CLASSIC STAGES (Legacy + Phase 1) — shared markup, token swap
+     ════════════════════════════════════════════════════════════ */
+  #stage-classic {
+    font-family: var(--c-font);
+    background: var(--c-page);
+    color: var(--c-text);
+  }
+  #stage-classic a { color: var(--c-link); text-decoration: none; }
+  #stage-classic a:hover { color: var(--c-link-hover); }
+
+  html[data-phase="legacy"] {
+    --c-page: #f0f0f0; --c-surface: #fff; --c-surface-2: #e8e8e8;
+    --c-text: #303030; --c-body: #555; --c-muted: #808080; --c-faint: #aaa;
+    --c-border: #d0d0d0; --c-highlight: #e0c465; --c-highlight-hover: #d7b43b;
+    --c-tint: #fff8e2; --c-link: #a68200; --c-link-hover: #847558;
+    --c-nav-bg: #222; --c-nav-fg: #e0e0e0; --c-nav-active-bg: #303030; --c-nav-active-fg: #e0c465;
+    --c-header: rgba(0,0,0,.08); --c-btn: #e0c465; --c-btn-fg: #222; --c-btn-hover: #d7b43b;
+    --c-stat: #a68200; --c-chart-a: #638aa8; --c-chart-b: #e0c465;
+    --c-radius: 3px; --c-font: "Open Sans", Arial, sans-serif;
+    --c-mono: "Open Sans", Arial, sans-serif; --c-shadow: 0 0 5px rgba(0,0,0,.2);
+  }
+  html[data-phase="phase1"] {
+    --c-page: #F5F2EC; --c-surface: #fff; --c-surface-2: #EDE9E1;
+    --c-text: #1A1614; --c-body: #5C5450; --c-muted: #8A857D; --c-faint: #B5B0A9;
+    --c-border: rgba(26,22,20,.10); --c-highlight: #7A1218; --c-highlight-hover: #5C1215;
+    --c-tint: #F2E2E2; --c-link: #1A1614; --c-link-hover: #7A1218;
+    --c-nav-bg: #fff; --c-nav-fg: #5C5450; --c-nav-active-bg: #EDE9E1; --c-nav-active-fg: #1A1614;
+    --c-header: #EDE9E1; --c-btn: #7A1218; --c-btn-fg: #F5F2EC; --c-btn-hover: #5C1215;
+    --c-stat: #7A1218; --c-chart-a: #3D3532; --c-chart-b: #B97727;
+    --c-radius: 8px; --c-font: "Geist", system-ui, sans-serif;
+    --c-mono: "Geist Mono", monospace; --c-shadow: 0 1px 2px rgba(26,22,20,.06);
+  }
+
+  .classic {
+    display: grid; grid-template-columns: 240px 1fr; min-height: calc(100dvh - 48px);
+  }
+  .c-nav {
+    background: var(--c-nav-bg); color: var(--c-nav-fg);
+    border-right: 1px solid var(--c-border);
+    display: flex; flex-direction: column; padding: 20px 12px; gap: 2px;
+  }
+  .c-logo { display: flex; align-items: center; gap: 10px; padding: 8px 12px 22px; }
+  .c-logo .mark {
+    width: 36px; height: 36px; border-radius: var(--c-radius);
+    background: var(--c-highlight); display: grid; place-items: center;
+  }
+  html[data-phase="phase1"] .c-logo .mark {
+    background: transparent; border: 1px solid var(--c-border);
+  }
+  .c-logo .mark svg { width: 22px; height: 15px; }
+  html[data-phase="legacy"] .c-logo .mark svg path { fill: #222; }
+  html[data-phase="phase1"] .c-logo .mark svg path { fill: #B97727; }
+  .c-logo .org { font-size: 13px; font-weight: 600; line-height: 1.2; }
+  .c-logo .org small {
+    display: block; font-family: var(--c-mono); font-size: 10px;
+    font-weight: 500; letter-spacing: .08em; text-transform: uppercase;
+    opacity: .65; margin-top: 2px;
+  }
+  .c-sec {
+    font-family: var(--c-mono); font-size: 10px; font-weight: 600;
+    letter-spacing: .14em; text-transform: uppercase; opacity: .5;
+    padding: 14px 12px 6px;
+  }
+  .c-nav a.item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px; border-radius: var(--c-radius);
+    color: inherit; font-size: 14px;
+  }
+  .c-nav a.item:hover, .c-nav a.item[aria-current="page"] {
+    background: var(--c-nav-active-bg); color: var(--c-nav-active-fg);
+  }
+  .c-nav a.item[aria-current="page"] { font-weight: 600; }
+  .c-nav .dot {
+    width: 6px; height: 6px; border-radius: 99px;
+    background: currentColor; opacity: .45;
+  }
+  .c-nav a.item[aria-current="page"] .dot {
+    background: var(--c-highlight); opacity: 1;
+  }
+  .c-nav-foot {
+    margin-top: auto; padding: 16px 12px 8px;
+    border-top: 1px solid color-mix(in srgb, var(--c-nav-fg) 12%, transparent);
+    font-size: 12px; opacity: .7;
+  }
+  .c-main { min-width: 0; }
+  .c-bar {
+    display: flex; align-items: center; gap: 16px;
+    padding: 14px 24px; background: var(--c-header);
+    border-bottom: 1px solid var(--c-border);
+  }
+  .c-bar h1 { margin: 0; font-size: 18px; font-weight: 600; }
+  .c-crumbs {
+    font-family: var(--c-mono); font-size: 11px;
+    letter-spacing: .08em; text-transform: uppercase; color: var(--c-muted);
+  }
+  .c-content { padding: 20px 24px 48px; display: grid; gap: 16px; }
+  .c-filters {
+    display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px;
+    padding: 16px; background: var(--c-surface);
+    border: 1px solid var(--c-border); border-radius: var(--c-radius);
+    box-shadow: var(--c-shadow);
+  }
+  .c-field { display: grid; gap: 6px; min-width: 140px; }
+  .c-field label {
+    font-family: var(--c-mono); font-size: 10px; font-weight: 600;
+    letter-spacing: .12em; text-transform: uppercase; color: var(--c-muted);
+  }
+  .c-field select, .c-field input {
+    height: 36px; padding: 0 12px; border: 1px solid var(--c-border);
+    border-radius: var(--c-radius); background: var(--c-page);
+    color: var(--c-text); font: 14px/1 var(--c-font);
+  }
+  .c-btn {
+    height: 36px; padding: 0 16px; border: 0; border-radius: var(--c-radius);
+    background: var(--c-btn); color: var(--c-btn-fg);
+    font-family: var(--c-mono); font-size: 11px; font-weight: 600;
+    letter-spacing: .1em; text-transform: uppercase; cursor: pointer;
+  }
+  .c-btn:hover { background: var(--c-btn-hover); }
+  .c-btn.ghost {
+    background: transparent; color: var(--c-text); border: 1px solid var(--c-border);
+  }
+  .c-btn.ghost:hover { background: var(--c-surface-2); }
+  .c-panel {
+    background: var(--c-surface); border: 1px solid var(--c-border);
+    border-radius: var(--c-radius); box-shadow: var(--c-shadow); overflow: hidden;
+  }
+  .c-panel-head {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 16px; background: var(--c-surface-2);
+    border-bottom: 1px solid var(--c-border);
+  }
+  .c-panel-head h2 { margin: 0; font-size: 14px; font-weight: 600; }
+  .c-panel-head .meta {
+    margin-left: auto; font-family: var(--c-mono); font-size: 10px;
+    letter-spacing: .1em; text-transform: uppercase; color: var(--c-muted);
+  }
+  .c-panel-body { padding: 16px; }
+  .c-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .c-stat {
+    padding: 20px 16px; border-radius: var(--c-radius);
+    background: var(--c-page); border: 1px solid var(--c-border);
+  }
+  .c-stat h3 { margin: 0 0 8px; font-size: 13px; font-weight: 600; }
+  .c-stat .value {
+    font-size: 32px; font-weight: 600; letter-spacing: -.03em;
+    color: var(--c-stat); font-variant-numeric: tabular-nums;
+  }
+  .c-stat .delta { margin-top: 6px; font-size: 12px; color: var(--c-muted); }
+  .c-stat .delta.up { color: #2D6A4F; }
+  .c-bars {
+    display: flex; align-items: flex-end; gap: 8px; height: 180px;
+    padding: 0 4px; border-bottom: 1px solid var(--c-border);
+  }
+  .c-bars .col {
+    flex: 1; display: flex; flex-direction: column;
+    justify-content: flex-end; gap: 3px; height: 100%;
+  }
+  .c-bars .bar { width: 100%; border-radius: 2px 2px 0 0; }
+  .c-bars .bar.a { background: var(--c-chart-a); }
+  .c-bars .bar.b { background: var(--c-chart-b); }
+  .c-legend {
+    display: flex; gap: 16px; justify-content: center; margin-top: 12px;
+    font-family: var(--c-mono); font-size: 10px; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--c-muted);
+  }
+  .c-legend i {
+    display: inline-block; width: 10px; height: 10px; border-radius: 2px;
+    margin-right: 6px; vertical-align: -1px;
+  }
+  .c-legend .a i { background: var(--c-chart-a); }
+  .c-legend .b i { background: var(--c-chart-b); }
+  .c-widgets { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  table.c-list { width: 100%; border-collapse: collapse; font-size: 13px; }
+  table.c-list th {
+    text-align: left; font-family: var(--c-mono); font-size: 10px;
+    font-weight: 600; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--c-muted); padding: 8px 10px; border-bottom: 1px solid var(--c-border);
+  }
+  table.c-list td {
+    padding: 10px; border-bottom: 1px solid color-mix(in srgb, var(--c-border) 70%, transparent);
+    color: var(--c-body);
+  }
+  table.c-list tr:hover td { background: var(--c-tint); }
+  table.c-list td.num {
+    text-align: right; font-variant-numeric: tabular-nums;
+    color: var(--c-text); font-weight: 500;
+  }
+  table.c-list td.rank {
+    width: 28px; color: var(--c-faint); font-family: var(--c-mono); font-size: 11px;
+  }
+  @media (max-width: 800px) {
+    .classic { grid-template-columns: 1fr; }
+    .c-nav { display: none; }
+    .c-stats, .c-widgets { grid-template-columns: 1fr; }
+  }
+
+  /* ════════════════════════════════════════════════════════════
+     PHASE 3 — Design-system app shell (.kshell / .knav / .kc / .kdt)
+     ════════════════════════════════════════════════════════════ */
+  #stage-shell {
+    font-family: 'Geist', system-ui, sans-serif;
+    background: #F5F2EC;
+    color: #1A1614;
+    padding: clamp(12px, 1.4vw, 20px);
+  }
+  #stage-shell a { color: inherit; text-decoration: none; }
+
+  .kshell {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    gap: clamp(12px, 1.4vw, 20px);
+    min-height: calc(100dvh - 48px - 2 * clamp(12px, 1.4vw, 20px));
+  }
+  .knav {
+    background: #fff;
+    border: 1px solid rgba(26,22,20,.10);
+    border-radius: 14px;
+    box-shadow: 0 1px 2px rgba(26,22,20,.04);
+    display: flex; flex-direction: column;
+    padding: 0;
+    position: sticky; top: clamp(12px, 1.4vw, 20px);
+    height: calc(100dvh - 48px - 2 * clamp(12px, 1.4vw, 20px));
+    overflow: hidden;
+  }
+  .knav-brand {
+    display: flex; align-items: center; height: 64px;
+    padding: 0 12px; border-bottom: 1px solid rgba(26,22,20,.10);
+  }
+  .knav-brand-link {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 4px 12px; border-radius: 8px;
+  }
+  .knav-brand-mark { color: #B97727; width: 22px; display: flex; }
+  .knav-brand-mark svg { width: 100%; height: auto; }
+  .knav-brand-name {
+    font-family: 'Geist Mono', monospace;
+    font-size: 13px; font-weight: 700;
+    letter-spacing: .14em; text-transform: uppercase;
+  }
+  .knav-eyebrow {
+    margin: 16px 24px 6px;
+    font-family: 'Geist Mono', monospace;
+    font-size: 10px; font-weight: 600;
+    letter-spacing: .14em; text-transform: uppercase;
+    color: #8A857D;
+  }
+  .knav-list { display: flex; flex-direction: column; gap: 2px; padding: 0 12px; }
+  .knav-item {
+    display: flex; align-items: center; gap: 10px;
+    height: 40px; padding: 0 12px; border-radius: 8px;
+    font-size: 13px; font-weight: 500; color: #5C5450;
+  }
+  .knav-item:hover { background: #F5F2EC; color: #1A1614; }
+  .knav-item[aria-current="page"] {
+    background: #EDE9E1; color: #1A1614; font-weight: 600;
+  }
+  .knav-icon {
+    width: 18px; height: 18px; opacity: .55;
+    display: grid; place-items: center;
+  }
+  .knav-item[aria-current="page"] .knav-icon { opacity: 1; }
+  .knav-spacer { flex: 1; }
+  .knav-account {
+    border-top: 1px solid rgba(26,22,20,.10);
+    padding: 12px;
+  }
+  .knav-user {
+    width: 100%; display: flex; align-items: center; gap: 10px;
+    padding: 8px 10px; border: 0; background: transparent;
+    border-radius: 8px; cursor: pointer; text-align: left;
+    font: inherit; color: inherit;
+  }
+  .knav-user:hover { background: #F5F2EC; }
+  .knav-user-avatar {
+    width: 32px; height: 32px; border-radius: 99px;
+    background: #EDE9E1; display: grid; place-items: center;
+    font-family: 'Geist Mono', monospace; font-size: 11px; font-weight: 600;
+  }
+  .knav-user-name { display: block; font-size: 13px; font-weight: 600; }
+  .knav-user-role {
+    display: block; font-family: 'Geist Mono', monospace;
+    font-size: 10px; letter-spacing: .08em; text-transform: uppercase;
+    color: #8A857D; margin-top: 2px;
+  }
+
+  .kshell-main { min-width: 0; display: flex; flex-direction: column; gap: 12px; }
+  .kshell-top {
+    display: flex; align-items: center; gap: 16px;
+    height: 52px; padding: 0 8px;
+  }
+  .crumb {
+    font-family: 'Geist Mono', monospace;
+    font-size: 10px; font-weight: 600;
+    letter-spacing: .14em; text-transform: uppercase; color: #8A857D;
+  }
+  .crumb .here { color: #1A1614; }
+  .crumb .sep { color: #B5B0A9; margin: 0 6px; }
+  .top-actions { margin-left: auto; display: flex; gap: 8px; }
+
+  .kb {
+    display: inline-flex; align-items: center; justify-content: center;
+    height: 36px; padding: 0 14px; border-radius: 8px;
+    font-family: 'Geist Mono', monospace; font-size: 11px; font-weight: 500;
+    letter-spacing: .1em; text-transform: uppercase; cursor: pointer;
+    border: 1px solid transparent; text-decoration: none;
+  }
+  .kb-primary { background: #7A1218; color: #F5F2EC; }
+  .kb-primary:hover { background: #5C1215; }
+  .kb-secondary {
+    background: #fff; color: #1A1614;
+    border-color: rgba(26,22,20,.10);
+  }
+  .kb-secondary:hover { background: #EDE9E1; }
+  .kb-ghost { background: transparent; color: #5C5450; }
+  .kb-ghost:hover { color: #1A1614; background: rgba(26,22,20,.04); }
+
+  .page-head {
+    display: flex; align-items: flex-end; gap: 16px;
+    flex-wrap: wrap; margin: 4px 8px 8px;
+  }
+  .page-head h1 {
+    margin: 0; font-size: clamp(28px, 3vw, 40px);
+    font-weight: 500; letter-spacing: -.04em; line-height: 1.05;
+  }
+  .page-head .meta {
+    font-family: 'Geist Mono', monospace; font-size: 10px;
+    letter-spacing: .14em; text-transform: uppercase; color: #8A857D;
+  }
+  .page-head .actions { margin-left: auto; display: flex; gap: 8px; }
+
+  .shell-content { padding: 0 8px 40px; display: grid; gap: 16px; }
+
+  .metric-row {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;
+  }
+  .kc {
+    background: #fff;
+    border: 1px solid rgba(26,22,20,.10);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .kc-metric { padding: 20px 22px; }
+  .kc-eyebrow {
+    font-family: 'Geist Mono', monospace; font-size: 10px; font-weight: 600;
+    letter-spacing: .14em; text-transform: uppercase; color: #8A857D;
+    margin: 0 0 10px;
+  }
+  .kc-metric .num {
+    font-size: 36px; font-weight: 500; letter-spacing: -.03em;
+    font-variant-numeric: tabular-nums; line-height: 1;
+  }
+  .kc-metric .foot {
+    margin-top: 12px; font-size: 13px; color: #5C5450;
+  }
+  .kc-metric .foot .up { color: #2D6A4F; font-weight: 500; }
+
+  .kc-head {
+    display: flex; align-items: center; gap: 12px;
+    padding: 16px 20px 0;
+  }
+  .kc-title {
+    margin: 0; font-size: 16px; font-weight: 500; letter-spacing: -.02em;
+  }
+  .kc-head .trail {
+    margin-left: auto;
+    font-family: 'Geist Mono', monospace; font-size: 10px;
+    letter-spacing: .12em; text-transform: uppercase; color: #8A857D;
+  }
+  .kc-body { padding: 16px 20px 20px; }
+
+  .toolbar {
+    display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px;
+    padding: 14px 16px; background: #fff;
+    border: 1px solid rgba(26,22,20,.10); border-radius: 14px;
+  }
+  .sf { display: grid; gap: 6px; min-width: 148px; }
+  .sf label {
+    font-family: 'Geist Mono', monospace; font-size: 10px; font-weight: 600;
+    letter-spacing: .12em; text-transform: uppercase; color: #8A857D;
+  }
+  .sf select, .sf input {
+    height: 36px; padding: 0 12px; border-radius: 8px;
+    border: 1px solid rgba(26,22,20,.10); background: #F5F2EC;
+    color: #1A1614; font: 14px/1 'Geist', system-ui, sans-serif;
+  }
+
+  .chart-plot {
+    display: flex; align-items: flex-end; gap: 6px;
+    height: 200px; padding: 8px 0 0;
+    border-bottom: 1px dashed rgba(26,22,20,.06);
+  }
+  .chart-bar {
+    flex: 1; border-radius: 4px 4px 0 0; min-width: 0;
+    background: linear-gradient(180deg, rgba(155,124,96,.32), rgba(155,124,96,.08));
+  }
+  .chart-bar.is-peak {
+    background: linear-gradient(180deg, #B97727, rgba(185,119,39,.3));
+  }
+  .chart-foot {
+    display: flex; justify-content: space-between; margin-top: 12px;
+    font-family: 'Geist Mono', monospace; font-size: 10px;
+    letter-spacing: .1em; text-transform: uppercase; color: #8A857D;
+  }
+
+  .grid-2 {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+  }
+  .kdt { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .kdt th {
+    text-align: left; font-family: 'Geist Mono', monospace;
+    font-size: 10px; font-weight: 600; letter-spacing: .12em;
+    text-transform: uppercase; color: #8A857D;
+    padding: 10px 16px; border-bottom: 1px solid rgba(26,22,20,.10);
+  }
+  .kdt td {
+    padding: 12px 16px; border-bottom: 1px solid rgba(26,22,20,.06);
+    color: #5C5450;
+  }
+  .kdt tr:last-child td { border-bottom: 0; }
+  .kdt .mono {
+    font-family: 'Geist Mono', monospace; font-size: 12px; color: #8A857D;
+  }
+  .kdt .num {
+    text-align: right; font-variant-numeric: tabular-nums;
+    color: #1A1614; font-weight: 500;
+  }
+  .kdt-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 3px 8px; border-radius: 99px;
+    font-family: 'Geist Mono', monospace; font-size: 10px;
+    font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
+    background: #EBF5EB; color: #2D4F2E;
+  }
+  .kdt-pill::before {
+    content: ''; width: 6px; height: 6px; border-radius: 99px; background: currentColor;
+  }
+  .kdt-pill.warn { background: #F5EDD8; color: #B97727; }
+
+  @media (max-width: 880px) {
+    .kshell { grid-template-columns: 1fr; }
+    .knav { display: none; }
+    .metric-row, .grid-2 { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="review-bar">
+    <div class="brand">
+      <svg viewBox="0 0 41 28" fill="none" aria-hidden="true">
+        <path d="M20.4773 17.6424C16.8375 10.6856 13.5207 10.6117 10.2067 10.5378C8.69685 10.5042 7.18762 10.4706 5.64872 9.78608L0 0H2.43148C5.09633 3.25885 7.65432 3.51236 10.2129 3.76594C13.5561 4.09728 16.9003 4.42872 20.4853 11.4648C24.0761 4.39466 27.4109 4.0844 30.7463 3.77408C33.2971 3.53675 35.8483 3.29939 38.5148 0.0385625H41L35.3692 9.78883C33.8047 10.503 32.2722 10.5331 30.7392 10.5634C27.4294 10.6286 24.1175 10.6937 20.4773 17.6424Z" fill="#B97727"/>
+        <path d="M20.4773 27.9975L20.4771 27.9972L20.4756 28L20.4756 27.9944C17.538 22.3699 14.7931 21.2243 12.1087 20.9635L7.9752 13.8017C8.72235 13.9462 9.4664 14.0158 10.2103 14.0855C13.5487 14.398 16.8835 14.7102 20.4773 21.7843C24.0589 14.7274 27.3849 14.4269 30.7115 14.1261C31.4831 14.0563 32.2548 13.9866 33.0298 13.8324L28.8886 20.9942C26.1863 21.25 23.4405 22.3367 20.4773 27.9969V27.9975Z" fill="#B97727"/>
+      </svg>
+      Sales Portal · phases
+    </div>
+    <span class="label">Compare</span>
+    <div class="skin-toggle" role="group" aria-label="Phase">
+      <button type="button" data-phase="legacy" aria-pressed="false">Legacy</button>
+      <button type="button" data-phase="phase1" aria-pressed="false">Phase 1</button>
+      <button type="button" data-phase="phase3" aria-pressed="true">Phase 3</button>
+    </div>
+    <p class="review-note" id="note">
+      <strong>Phase 3:</strong> new floor plan — floating shell, kit buttons, metric tiles, editorial tables.
+    </p>
+  </div>
+
+  <!-- ════════ CLASSIC (Legacy + Phase 1) ════════ -->
+  <div class="stage" id="stage-classic">
+    <div class="classic">
+      <aside class="c-nav">
+        <div class="c-logo">
+          <div class="mark" aria-hidden="true">
+            <svg viewBox="0 0 41 28" fill="none">
+              <path d="M20.4773 17.6424C16.8375 10.6856 13.5207 10.6117 10.2067 10.5378C8.69685 10.5042 7.18762 10.4706 5.64872 9.78608L0 0H2.43148C5.09633 3.25885 7.65432 3.51236 10.2129 3.76594C13.5561 4.09728 16.9003 4.42872 20.4853 11.4648C24.0761 4.39466 27.4109 4.0844 30.7463 3.77408C33.2971 3.53675 35.8483 3.29939 38.5148 0.0385625H41L35.3692 9.78883C33.8047 10.503 32.2722 10.5331 30.7392 10.5634C27.4294 10.6286 24.1175 10.6937 20.4773 17.6424Z"/>
+              <path d="M20.4773 27.9975L20.4771 27.9972L20.4756 28L20.4756 27.9944C17.538 22.3699 14.7931 21.2243 12.1087 20.9635L7.9752 13.8017C8.72235 13.9462 9.4664 14.0158 10.2103 14.0855C13.5487 14.398 16.8835 14.7102 20.4773 21.7843C24.0589 14.7274 27.3849 14.4269 30.7115 14.1261C31.4831 14.0563 32.2548 13.9866 33.0298 13.8324L28.8886 20.9942C26.1863 21.25 23.4405 22.3367 20.4773 27.9969V27.9975Z"/>
+            </svg>
+          </div>
+          <div class="org">Acme Furnishings<small>eCat Online</small></div>
+        </div>
+        <div class="c-sec">Catalog</div>
+        <a class="item" href="#"><span class="dot"></span> Products</a>
+        <a class="item" href="#"><span class="dot"></span> Customers</a>
+        <a class="item" href="#"><span class="dot"></span> Orders</a>
+        <div class="c-sec">Sales Portal</div>
+        <a class="item" href="#" aria-current="page"><span class="dot"></span> Dashboard</a>
+        <a class="item" href="#"><span class="dot"></span> Orders</a>
+        <a class="item" href="#"><span class="dot"></span> Invoices</a>
+        <a class="item" href="#"><span class="dot"></span> Reports</a>
+        <div class="c-nav-foot">Signed in as Alex M.</div>
+      </aside>
+
+      <div class="c-main">
+        <header class="c-bar">
+          <div>
+            <div class="c-crumbs">Sales Portal / Dashboard</div>
+            <h1>Dashboard</h1>
+          </div>
+        </header>
+        <div class="c-content">
+          <form class="c-filters" onsubmit="return false;">
+            <div class="c-field">
+              <label>Date range</label>
+              <select><option>Current YTD</option><option>Previous YTD</option></select>
+            </div>
+            <div class="c-field">
+              <label>Territory</label>
+              <select><option>All territories</option><option>West</option></select>
+            </div>
+            <div class="c-field">
+              <label>Customer</label>
+              <input type="search" placeholder="Search…" />
+            </div>
+            <button class="c-btn" type="submit">Filter</button>
+            <button class="c-btn ghost" type="button">Reset</button>
+          </form>
+
+          <div class="c-panel">
+            <div class="c-panel-body">
+              <div class="c-stats">
+                <div class="c-stat">
+                  <h3><a href="#">Backlog Total</a></h3>
+                  <div class="value">$1,284,390</div>
+                  <div class="delta up">↑ 8.2% vs prior period</div>
+                </div>
+                <div class="c-stat">
+                  <h3><a href="#">Invoice Total</a></h3>
+                  <div class="value">$4,917,205</div>
+                  <div class="delta">YTD · open invoices excluded</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="c-panel">
+            <div class="c-panel-head">
+              <h2>Sales and Orders</h2>
+              <span class="meta">Current YTD</span>
+            </div>
+            <div class="c-panel-body">
+              <div class="c-bars" aria-hidden="true">
+                <div class="col"><div class="bar a" style="height:42%"></div><div class="bar b" style="height:28%"></div></div>
+                <div class="col"><div class="bar a" style="height:55%"></div><div class="bar b" style="height:36%"></div></div>
+                <div class="col"><div class="bar a" style="height:48%"></div><div class="bar b" style="height:40%"></div></div>
+                <div class="col"><div class="bar a" style="height:62%"></div><div class="bar b" style="height:44%"></div></div>
+                <div class="col"><div class="bar a" style="height:70%"></div><div class="bar b" style="height:51%"></div></div>
+                <div class="col"><div class="bar a" style="height:58%"></div><div class="bar b" style="height:47%"></div></div>
+                <div class="col"><div class="bar a" style="height:74%"></div><div class="bar b" style="height:55%"></div></div>
+                <div class="col"><div class="bar a" style="height:68%"></div><div class="bar b" style="height:60%"></div></div>
+                <div class="col"><div class="bar a" style="height:80%"></div><div class="bar b" style="height:58%"></div></div>
+                <div class="col"><div class="bar a" style="height:72%"></div><div class="bar b" style="height:64%"></div></div>
+                <div class="col"><div class="bar a" style="height:88%"></div><div class="bar b" style="height:70%"></div></div>
+                <div class="col"><div class="bar a" style="height:76%"></div><div class="bar b" style="height:66%"></div></div>
+              </div>
+              <div class="c-legend">
+                <span class="a"><i></i> Invoices</span>
+                <span class="b"><i></i> Orders</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="c-widgets">
+            <div class="c-panel">
+              <div class="c-panel-head"><h2>Top Customers</h2><span class="meta">By invoice $</span></div>
+              <div class="c-panel-body" style="padding:0">
+                <table class="c-list">
+                  <thead><tr><th></th><th>Customer</th><th style="text-align:right">Total</th></tr></thead>
+                  <tbody>
+                    <tr><td class="rank">01</td><td>Harbor Home Interiors</td><td class="num">$412,880</td></tr>
+                    <tr><td class="rank">02</td><td>Westfield Design Group</td><td class="num">$287,140</td></tr>
+                    <tr><td class="rank">03</td><td>Northline Contract</td><td class="num">$241,055</td></tr>
+                    <tr><td class="rank">04</td><td>Studio Meridian</td><td class="num">$198,620</td></tr>
+                    <tr><td class="rank">05</td><td>Palladium Furnishings</td><td class="num">$176,390</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class="c-panel">
+              <div class="c-panel-head"><h2>Top Products</h2><span class="meta">By units</span></div>
+              <div class="c-panel-body" style="padding:0">
+                <table class="c-list">
+                  <thead><tr><th></th><th>Product</th><th style="text-align:right">Units</th></tr></thead>
+                  <tbody>
+                    <tr><td class="rank">01</td><td>Oakdale Lounge Chair</td><td class="num">1,842</td></tr>
+                    <tr><td class="rank">02</td><td>Meridian Side Table</td><td class="num">1,506</td></tr>
+                    <tr><td class="rank">03</td><td>Cascade Sofa — 84"</td><td class="num">984</td></tr>
+                    <tr><td class="rank">04</td><td>Linea Dining Chair</td><td class="num">871</td></tr>
+                    <tr><td class="rank">05</td><td>Harbor Bench</td><td class="num">743</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════ PHASE 3 SHELL ════════ -->
+  <div class="stage" id="stage-shell">
+    <div class="kshell">
+      <aside class="knav" aria-label="Primary">
+        <header class="knav-brand">
+          <a class="knav-brand-link" href="#">
+            <span class="knav-brand-mark" aria-hidden="true">
+              <svg viewBox="0 0 41 28" fill="currentColor">
+                <path d="M20.4773 17.6424C16.8375 10.6856 13.5207 10.6117 10.2067 10.5378C8.69685 10.5042 7.18762 10.4706 5.64872 9.78608L0 0H2.43148C5.09633 3.25885 7.65432 3.51236 10.2129 3.76594C13.5561 4.09728 16.9003 4.42872 20.4853 11.4648C24.0761 4.39466 27.4109 4.0844 30.7463 3.77408C33.2971 3.53675 35.8483 3.29939 38.5148 0.0385625H41L35.3692 9.78883C33.8047 10.503 32.2722 10.5331 30.7392 10.5634C27.4294 10.6286 24.1175 10.6937 20.4773 17.6424Z"/>
+                <path d="M20.4773 27.9975L20.4771 27.9972L20.4756 28L20.4756 27.9944C17.538 22.3699 14.7931 21.2243 12.1087 20.9635L7.9752 13.8017C8.72235 13.9462 9.4664 14.0158 10.2103 14.0855C13.5487 14.398 16.8835 14.7102 20.4773 21.7843C24.0589 14.7274 27.3849 14.4269 30.7115 14.1261C31.4831 14.0563 32.2548 13.9866 33.0298 13.8324L28.8886 20.9942C26.1863 21.25 23.4405 22.3367 20.4773 27.9969V27.9975Z"/>
+              </svg>
+            </span>
+            <span class="knav-brand-name">Supercat</span>
+          </a>
+        </header>
+
+        <div class="knav-eyebrow">Catalog</div>
+        <nav class="knav-list">
+          <a class="knav-item" href="#"><span class="knav-icon">▣</span> Products</a>
+          <a class="knav-item" href="#"><span class="knav-icon">◎</span> Customers</a>
+          <a class="knav-item" href="#"><span class="knav-icon">≡</span> Orders</a>
+        </nav>
+
+        <div class="knav-eyebrow">Sales Portal</div>
+        <nav class="knav-list">
+          <a class="knav-item" href="#" aria-current="page"><span class="knav-icon">◫</span> Dashboard</a>
+          <a class="knav-item" href="#"><span class="knav-icon">▤</span> Orders</a>
+          <a class="knav-item" href="#"><span class="knav-icon">▦</span> Invoices</a>
+          <a class="knav-item" href="#"><span class="knav-icon">▥</span> Reports</a>
+        </nav>
+
+        <div class="knav-spacer"></div>
+        <footer class="knav-account">
+          <button class="knav-user" type="button">
+            <span class="knav-user-avatar">AM</span>
+            <span>
+              <span class="knav-user-name">Alex Malyshev</span>
+              <span class="knav-user-role">West · Rep</span>
+            </span>
+          </button>
+        </footer>
+      </aside>
+
+      <div class="kshell-main">
+        <div class="kshell-top">
+          <div class="crumb">
+            Sales Portal <span class="sep">/</span> <span class="here">Dashboard</span>
+          </div>
+          <div class="top-actions">
+            <button class="kb kb-ghost" type="button">Export</button>
+            <button class="kb kb-secondary" type="button">Refresh</button>
+          </div>
+        </div>
+
+        <div class="page-head">
+          <div>
+            <h1>Dashboard</h1>
+            <div class="meta">Territory · West · Current YTD</div>
+          </div>
+          <div class="actions">
+            <button class="kb kb-primary" type="button">New report</button>
+          </div>
+        </div>
+
+        <div class="shell-content">
+          <form class="toolbar" onsubmit="return false;">
+            <div class="sf">
+              <label>Date range</label>
+              <select><option>Current YTD</option><option>Previous YTD</option></select>
+            </div>
+            <div class="sf">
+              <label>Territory</label>
+              <select><option>All territories</option><option>West</option></select>
+            </div>
+            <div class="sf">
+              <label>Customer</label>
+              <input type="search" placeholder="Search…" />
+            </div>
+            <button class="kb kb-primary" type="submit">Filter</button>
+            <button class="kb kb-secondary" type="button">Reset</button>
+          </form>
+
+          <div class="metric-row">
+            <article class="kc kc-metric">
+              <p class="kc-eyebrow">Backlog total</p>
+              <div class="num">$1,284,390</div>
+              <div class="foot"><span class="up">↑ 8.2%</span> vs prior period</div>
+            </article>
+            <article class="kc kc-metric">
+              <p class="kc-eyebrow">Invoice total</p>
+              <div class="num">$4,917,205</div>
+              <div class="foot">YTD · open invoices excluded</div>
+            </article>
+          </div>
+
+          <article class="kc">
+            <header class="kc-head">
+              <h2 class="kc-title">Sales and orders</h2>
+              <span class="trail">Current YTD</span>
+            </header>
+            <div class="kc-body">
+              <div class="chart-plot" aria-hidden="true">
+                <div class="chart-bar" style="height:42%"></div>
+                <div class="chart-bar" style="height:55%"></div>
+                <div class="chart-bar" style="height:48%"></div>
+                <div class="chart-bar" style="height:62%"></div>
+                <div class="chart-bar" style="height:70%"></div>
+                <div class="chart-bar is-peak" style="height:88%"></div>
+                <div class="chart-bar" style="height:74%"></div>
+                <div class="chart-bar" style="height:68%"></div>
+                <div class="chart-bar" style="height:80%"></div>
+                <div class="chart-bar" style="height:72%"></div>
+                <div class="chart-bar" style="height:76%"></div>
+                <div class="chart-bar" style="height:66%"></div>
+              </div>
+              <div class="chart-foot">
+                <span>Jan → Dec</span>
+                <span>Peak · Jun · gold accent only</span>
+              </div>
+            </div>
+          </article>
+
+          <div class="grid-2">
+            <article class="kc">
+              <header class="kc-head">
+                <h2 class="kc-title">Top customers</h2>
+                <span class="trail">By invoice $</span>
+              </header>
+              <div class="kc-body" style="padding:0">
+                <table class="kdt">
+                  <thead>
+                    <tr><th class="mono">#</th><th>Customer</th><th class="num">Total</th><th>Status</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr><td class="mono">01</td><td>Harbor Home Interiors</td><td class="num">$412,880</td><td><span class="kdt-pill">Active</span></td></tr>
+                    <tr><td class="mono">02</td><td>Westfield Design Group</td><td class="num">$287,140</td><td><span class="kdt-pill">Active</span></td></tr>
+                    <tr><td class="mono">03</td><td>Northline Contract</td><td class="num">$241,055</td><td><span class="kdt-pill warn">Watch</span></td></tr>
+                    <tr><td class="mono">04</td><td>Studio Meridian</td><td class="num">$198,620</td><td><span class="kdt-pill">Active</span></td></tr>
+                    <tr><td class="mono">05</td><td>Palladium Furnishings</td><td class="num">$176,390</td><td><span class="kdt-pill">Active</span></td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </article>
+
+            <article class="kc">
+              <header class="kc-head">
+                <h2 class="kc-title">Top products</h2>
+                <span class="trail">By units</span>
+              </header>
+              <div class="kc-body" style="padding:0">
+                <table class="kdt">
+                  <thead>
+                    <tr><th class="mono">#</th><th>Product</th><th class="num">Units</th><th>Flag</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr><td class="mono">01</td><td>Oakdale Lounge Chair</td><td class="num">1,842</td><td><span class="kdt-pill">Best</span></td></tr>
+                    <tr><td class="mono">02</td><td>Meridian Side Table</td><td class="num">1,506</td><td><span class="kdt-pill">Best</span></td></tr>
+                    <tr><td class="mono">03</td><td>Cascade Sofa — 84"</td><td class="num">984</td><td><span class="kdt-pill warn">Low</span></td></tr>
+                    <tr><td class="mono">04</td><td>Linea Dining Chair</td><td class="num">871</td><td><span class="kdt-pill">Best</span></td></tr>
+                    <tr><td class="mono">05</td><td>Harbor Bench</td><td class="num">743</td><td><span class="kdt-pill">Best</span></td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </article>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  const notes = {
+    legacy: '<strong>Legacy:</strong> today’s portal — charcoal nav, gold CTAs, Open Sans, old panel chrome.',
+    phase1: '<strong>Phase 1:</strong> same floor plan — paper, crimson, Geist. New paint only.',
+    phase3: '<strong>Phase 3:</strong> new floor plan — floating shell, kit buttons, metric tiles, editorial tables.'
+  };
+  const root = document.documentElement;
+  const note = document.getElementById('note');
+  const buttons = [...document.querySelectorAll('.skin-toggle button')];
+
+  function setPhase(phase) {
+    root.setAttribute('data-phase', phase);
+    buttons.forEach(b => b.setAttribute('aria-pressed', b.dataset.phase === phase ? 'true' : 'false'));
+    note.innerHTML = notes[phase];
+  }
+
+  buttons.forEach(b => b.addEventListener('click', () => setPhase(b.dataset.phase)));
+</script>
+</body>
+</html>

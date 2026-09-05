@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Persona groups, analytics and surfaces &mdash; readout</title>
+<style>
+  :root { --ink:#111; --mid:#555; --light:#888; --rule:#c9c9c9; --faint:#ededed; }
+  * { box-sizing:border-box; }
+  html { background:#fff; }
+  body {
+    font-family: Charter, "Bitstream Charter", Georgia, "Iowan Old Style", serif;
+    color:var(--ink); background:#fff; margin:0;
+    font-size:11pt; line-height:1.4;
+    -webkit-font-smoothing:antialiased;
+  }
+  .page { max-width:7.3in; margin:0 auto; padding:0.55in 0.5in 0.7in; }
+
+  h1 { font-size:15pt; line-height:1.25; font-weight:600; margin:0 0 .3em; letter-spacing:-0.01em; }
+  .standfirst { margin:0 0 1em; font-size:10.5pt; }
+  .standfirst p { margin:0; }
+
+  h2 {
+    font-size:8.5pt; font-weight:700; text-transform:uppercase; letter-spacing:.1em;
+    margin:1.4em 0 .5em; padding-bottom:.26em; border-bottom:1px solid var(--ink);
+    font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  }
+  h3 { font-size:10.5pt; font-weight:600; margin:1em 0 .18em; }
+  h3 .pop { font-weight:400; color:var(--light); font-size:9.5pt; }
+  .who { color:var(--light); }
+  p { margin:0 0 .48em; }
+
+  table { width:100%; border-collapse:collapse; font-size:9pt; margin:0;
+    font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
+  thead th {
+    text-align:left; font-size:7.5pt; font-weight:700; text-transform:uppercase; letter-spacing:.08em;
+    color:var(--mid); border-bottom:1px solid var(--ink); padding:0 .5em .3em 0; vertical-align:bottom;
+  }
+  thead th:last-child { text-align:right; padding-right:0; }
+  tbody td { padding:.2em .5em .2em 0; vertical-align:top; line-height:1.3; border-bottom:0; }
+  tbody td:last-child { padding-right:0; }
+  tbody tr.last td { border-bottom:1px solid var(--faint); padding-bottom:.32em; }
+  tbody tr.pstart td { padding-top:.32em; }
+  tr.group td {
+    padding:.6em 0 .2em; border-bottom:1px solid var(--rule);
+    font-size:7.5pt; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--ink);
+  }
+  tr.group.first td { padding-top:.2em; }
+  .persona { width:19%; font-weight:600; }
+  .gets { width:52%; }
+  .status { width:14%; }
+  .pop-col { width:15%; text-align:right; color:var(--mid); font-variant-numeric:tabular-nums; }
+  .sub { font-weight:400; color:var(--light); font-size:8pt; display:block; }
+  .gets .id { color:var(--light); font-size:7.5pt; white-space:nowrap; }
+  .status { font-size:7.5pt; text-transform:uppercase; letter-spacing:.05em; }
+  .s-exists { color:var(--light); }
+  .s-config, .s-defect, .s-new { color:var(--ink); }
+  .s-blocked { color:var(--ink); font-weight:700; }
+
+  ul.plain { margin:.1em 0 .4em; padding-left:1.05em; }
+  ul.plain li { margin:0 0 .26em; }
+  ol.dec { margin:.1em 0 .4em; padding-left:1.3em; }
+  ol.dec li { margin:0 0 .34em; }
+  ol.dec li b, ul.plain li b { font-weight:600; }
+
+  .app { font-size:9.5pt; color:var(--mid); }
+  .app p { margin:0 0 .34em; }
+  .app b { color:var(--ink); font-weight:600; }
+  .files { font-size:8.5pt; color:var(--light); margin-top:.5em; }
+  .files code { font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:8pt; }
+
+  @media print {
+    .page { max-width:none; padding:0; }
+    body { font-size:9.6pt; line-height:1.32; }
+    h1 { font-size:13.5pt; }
+    .standfirst { font-size:9.6pt; margin-bottom:.65em; }
+    h2 { margin:.75em 0 .28em; font-size:8pt; }
+    h3 { margin:.5em 0 .08em; font-size:9.6pt; }
+    p { margin:0 0 .34em; }
+    table { font-size:8.2pt; }
+    tbody td { padding:.16em .5em .16em 0; line-height:1.26; }
+    tbody tr.last td { padding-bottom:.26em; }
+    tbody tr.pstart td { padding-top:.26em; }
+    tr.group td { padding:.44em 0 .14em; }
+    .status { font-size:7pt; }
+    .gets .id { font-size:7pt; }
+    ul.plain li { margin-bottom:.2em; }
+    ol.dec li { margin-bottom:.26em; }
+    .app { font-size:8.6pt; }
+    .app p { margin-bottom:.26em; }
+    .files { font-size:7.6pt; }
+    tr, h3, li { page-break-inside:avoid; }
+    h2 { page-break-after:avoid; }
+    h2.pgbreak { page-break-before:always; margin-top:0; }
+    @page { margin:0.5in 0.55in; }
+  }
+  .tablewrap { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+  @media (max-width:640px) {
+    .page { padding:1.1rem; }
+    body { font-size:10.5pt; }
+    table { font-size:8pt; min-width:34rem; }
+  }
+  @media print { .tablewrap { overflow:visible; } }
+</style>
+</head>
+<body>
+<div class="page">
+
+<h1>Persona groups, the analytics each one needs, and where it goes on the product</h1>
+
+<div class="standfirst">
+  <p>Seven personas, three surfaces, and the Admin Console where the same internal users act. The table below is the answer: who each persona is, what we put in front of them, and what stands in the way. The <b>dealer buyer</b> is the largest user population on anything we run &mdash; 88,042 enabled, 18,763 active &mdash; and was not in our view before this. We build <b>one analytics layer</b> parameterised on each client&rsquo;s own data shape, not one per segment. And <b>two gaps in client data</b> &mdash; invoice feeds, missing at 65 of the 113 clients who ordered in the last year, and territory files, missing at 123 of the 146 orgs with active reps &mdash; gate more value than the entire build list.</p>
+</div>
+
+<h2>The whole answer, in one table</h2>
+
+<div class="tablewrap">
+<table>
+<thead>
+  <tr><th class="persona">Persona</th><th class="gets">What they get</th><th class="status">Status</th><th class="pop-col">Population</th></tr>
+</thead>
+<tbody>
+
+  <tr class="group first"><td colspan="4">eCat iPad &mdash; offline, in the field</td></tr>
+  <tr class="pstart last">
+    <td class="persona">Independent sales rep</td>
+    <td class="gets">Full catalog, customer record and order pad, offline <span class="id">JTBD-013</span></td>
+    <td class="status s-exists">Exists</td>
+    <td class="pop-col">4,059 active</td>
+  </tr>
+  <tr class="pstart">
+    <td class="persona" rowspan="4">Independent sales rep<span class="sub">new embedded component</span></td>
+    <td class="gets">Account brief before the appointment: invoiced net against last year, open orders, stopped-buying categories <span class="id">JTBD-011</span></td>
+    <td class="status s-new">New build</td>
+    <td class="pop-col" rowspan="4">664 at launch<br>of 4,059</td>
+  </tr>
+  <tr>
+    <td class="gets">The account gone quiet, flagged against its own history <span class="id">JTBD-014</span></td>
+    <td class="status s-new">New build</td>
+  </tr>
+  <tr>
+    <td class="gets">Every number scoped to their territory &mdash; needs a territory file <span class="id">JTBD-012</span></td>
+    <td class="status s-blocked">Blocked</td>
+  </tr>
+  <tr class="last">
+    <td class="gets">Where an order actually is &mdash; the status lives in the ERP <span class="id">JTBD-015</span></td>
+    <td class="status s-blocked">Blocked</td>
+  </tr>
+  <tr class="pstart last">
+    <td class="persona">Rep agency principal</td>
+    <td class="gets">Nothing this cycle &mdash; an agency does not exist as a structure <span class="id">JTBD-021&ndash;023</span></td>
+    <td class="status s-blocked">Blocked</td>
+    <td class="pop-col">617 active<br>39 orgs</td>
+  </tr>
+
+  <tr class="group"><td colspan="4">eCat Online &mdash; catalog, cart, closed site</td></tr>
+  <tr class="pstart">
+    <td class="persona" rowspan="5">Dealer buyer</td>
+    <td class="gets">The price they are entitled to pay, on every product <span class="id">JTBD-083</span></td>
+    <td class="status s-exists">Exists</td>
+    <td class="pop-col" rowspan="5">88,042 enabled<br>18,763 active</td>
+  </tr>
+  <tr>
+    <td class="gets">Their own orders and invoices, without phoning <span class="id">JTBD-082</span></td>
+    <td class="status s-exists">Exists</td>
+  </tr>
+  <tr>
+    <td class="gets">Reorder what they know sells &mdash; on at 55 of 258 orgs <span class="id">JTBD-081</span></td>
+    <td class="status s-config">Config change</td>
+  </tr>
+  <tr>
+    <td class="gets">Stock figures with the age of the number attached <span class="id">JTBD-084</span></td>
+    <td class="status s-new">New build</td>
+  </tr>
+  <tr class="last">
+    <td class="gets">Ordering at market on their own device &mdash; a browser has no cache <span class="id">JTBD-085</span></td>
+    <td class="status s-blocked">Blocked</td>
+  </tr>
+
+  <tr class="group"><td colspan="4">Sales Portal</td></tr>
+  <tr class="pstart">
+    <td class="persona" rowspan="3">VP Sales / sales ops</td>
+    <td class="gets">An export that equals what was on the screen <span class="id">JTBD-035</span></td>
+    <td class="status s-defect">Defect fix</td>
+    <td class="pop-col" rowspan="3">2,460 admin<br>records</td>
+  </tr>
+  <tr>
+    <td class="gets">A topline labelled to what one feed can support <span class="id">JTBD-031</span></td>
+    <td class="status s-exists">Exists</td>
+  </tr>
+  <tr class="last">
+    <td class="gets">Reps active in 30 days against seats licensed <span class="id">JTBD-032</span></td>
+    <td class="status s-new">New build</td>
+  </tr>
+  <tr class="pstart">
+    <td class="persona" rowspan="2">Customer service / order entry</td>
+    <td class="gets">One account&rsquo;s whole order and invoice history <span class="id">JTBD-041</span></td>
+    <td class="status s-exists">Exists</td>
+    <td class="pop-col" rowspan="2">not counted</td>
+  </tr>
+  <tr class="last">
+    <td class="gets">A ship date they can defend &mdash; the date lives in the ERP <span class="id">JTBD-043</span></td>
+    <td class="status s-blocked">Blocked</td>
+  </tr>
+  <tr class="pstart">
+    <td class="persona" rowspan="3">Product / merchandising</td>
+    <td class="gets">What actually sold, by item, in units and dollars <span class="id">JTBD-051</span></td>
+    <td class="status s-new">New build</td>
+    <td class="pop-col" rowspan="3">not counted</td>
+  </tr>
+  <tr>
+    <td class="gets">Whether a new introduction landed, week by week <span class="id">JTBD-054</span></td>
+    <td class="status s-new">New build</td>
+  </tr>
+  <tr class="last">
+    <td class="gets">Which options and finishes get chosen &mdash; the 16 CPQ orgs <span class="id">JTBD-052</span></td>
+    <td class="status s-new">New build</td>
+  </tr>
+  <tr class="pstart">
+    <td class="persona" rowspan="3">Owner / exec</td>
+    <td class="gets">One true topline with its provenance &mdash; ships in Insightful, not the Portal <span class="id">JTBD-061</span></td>
+    <td class="status s-exists">Exists</td>
+    <td class="pop-col" rowspan="3">small; overlaps<br>VP / ops</td>
+  </tr>
+  <tr>
+    <td class="gets">Dollars at risk from accounts quietly slipping <span class="id">JTBD-062</span></td>
+    <td class="status s-new">New build</td>
+  </tr>
+  <tr class="last">
+    <td class="gets">Share of licensed reps active in the last 30 days <span class="id">JTBD-063</span></td>
+    <td class="status s-new">New build</td>
+  </tr>
+  <tr class="pstart last">
+    <td class="persona">Dealer buyer<span class="sub">buyer half</span></td>
+    <td class="gets">Their own account performance over 24 months &mdash; on at 6 orgs <span class="id">JTBD-086</span></td>
+    <td class="status s-config">Config change</td>
+    <td class="pop-col">18,763 active</td>
+  </tr>
+
+  <tr class="group"><td colspan="4">Admin Console &mdash; where the same internal users act</td></tr>
+  <tr class="pstart">
+    <td class="persona" rowspan="2">VP Sales / sales ops</td>
+    <td class="gets">Why a user cannot see their book, in one screen not 134 toggles <span class="id">JTBD-033</span></td>
+    <td class="status s-new">New build</td>
+    <td class="pop-col" rowspan="2"></td>
+  </tr>
+  <tr class="last">
+    <td class="gets">Nightly import failures pushed, not waiting to be visited <span class="id">JTBD-034</span></td>
+    <td class="status s-new">New build</td>
+  </tr>
+  <tr class="pstart">
+    <td class="persona" rowspan="2">Customer service / order entry</td>
+    <td class="gets">Keying an order at the right customer and price level <span class="id">JTBD-042</span></td>
+    <td class="status s-exists">Exists</td>
+    <td class="pop-col" rowspan="2"></td>
+  </tr>
+  <tr class="last">
+    <td class="gets">The order that will fail, caught at entry <span class="id">JTBD-044</span></td>
+    <td class="status s-new">New build</td>
+  </tr>
+  <tr class="pstart last">
+    <td class="persona">Product / merchandising</td>
+    <td class="gets">Items missing an image, price or category &mdash; 179,623 of 938,896 <span class="id">JTBD-053</span></td>
+    <td class="status s-new">New build</td>
+    <td class="pop-col"></td>
+  </tr>
+  <tr class="pstart last">
+    <td class="persona">Rep agency principal</td>
+    <td class="gets">Preview what a sub-rep will see, to fix access <span class="id">JTBD-024</span></td>
+    <td class="status s-new">New build</td>
+    <td class="pop-col"></td>
+  </tr>
+
+</tbody>
+</table>
+</div>
+
+<h2>eCat iPad</h2>
+
+<p><b>Independent sales rep</b> <span class="who">4,059 active, 146 orgs.</span> The iPad works with no signal, the strongest thing we own, so anything added there inherits that constraint. Their number is invoiced net for the account in front of them against last year, today rebuilt from memory.</p>
+
+<h2 class="pgbreak">eCat Online</h2>
+
+<p><b>Dealer buyer</b> <span class="who">88,042 enabled, 18,763 active.</span> On eCat Online, active buyers outnumber active internal users 7.5 to 1 &mdash; 18,763 against 2,487 &mdash; and only 600 users are active on both surfaces, so the buyer is not a variant of the rep. Most see a two-item portal, Orders and Invoices, which is also what they rely on most, so the first rule is protecting it.</p>
+
+<h2>Sales Portal and Admin Console</h2>
+
+<p><b>VP Sales and sales ops</b> <span class="who">2,460 admin records.</span> Fourteen of the 31 jobs land in the Portal, and the same people act in Admin. Customer service is better served by widening coverage of the account-history view than by new screens.</p>
+<p>The export does not match the screen, so numbers get rebuilt in Excel; that fix goes first because every other Portal number queues behind it. Adoption is a small build, not a switch &mdash; the flag that looks like it gates rep activity gates a different pilot &mdash; so the metric is logins against seats. And &ldquo;quietly slipping&rdquo; needs a per-account baseline, since project buyers legitimately order twice a year.</p>
+
+<h2>The rep component</h2>
+
+<p><b>What it shows.</b> One read-only panel opened from the customer record already on screen: invoiced net for the trailing 12 months against the prior 12, open orders, last order date, categories bought last year and not this, categories still moving. Tapping an item hands off to the catalog screen, which is the point of it.</p>
+
+<p><b>Why the iPad rather than a Portal screen.</b> The Portal surface a rep would use is enabled for zero organisations &mdash; the flag resolves to nine internal usernames &mdash; so nothing is displaced. And the work happens where there is no connectivity: a correct Portal screen a rep cannot open in a dealer&rsquo;s back office fails on the constraint, not the design. Embedding is established here already, at 36 WebView call sites. The panel reads only from a 6&ndash;8&nbsp;MB extract synced with the catalog, never blocks on the network, and shows nothing rather than the whole company when a territory scope is empty.</p>
+
+<p><b>It launches to 664 of 4,059 reps &mdash; 16%, in 20 orgs</b>, because 123 of the 146 orgs with active reps have no territory file and 940 reps carry no territory codes at all. Of the 664, 615 are also at clients who send invoices and so see real dollars rather than a labelled stand-in.</p>
+
+<h2>What we are not building</h2>
+<ul class="plain">
+  <li><b>Per-segment versions of anything.</b> Four of 31 jobs vary by segment, and all four on product, territory and price-code counts &mdash; not selling motion.</li>
+  <li><b>The rep agency principal, this cycle.</b> Nothing records who a principal&rsquo;s sub-reps are; the cost is normalising 11,880 typed-in names.</li>
+  <li><b>Six jobs that need the invoice feed.</b> Where a job asks what really happened commercially, order data is no substitute &mdash; eCat order value has run 0.22&ndash;3.10&times; invoiced truth. Only 48 of 113 active clients send one. Seven others ship labelled.</li>
+  <li><b>Anything we cannot compute:</b> commission, margin, cash, satisfaction. A rep is paid on what ships, and the system they use daily cannot tell them what they earned.</li>
+</ul>
+
+<h2>Decisions</h2>
+<ol class="dec">
+  <li><b>Build the rep component now at 664 reps, or sequence it behind the territory push?</b> The cap is client data, not the build, and nothing is displaced either way.</li>
+  <li><b>Turn on purchase history for dealer buyers?</b> Configuration, not build, and no engineering cost. Active buyers are concentrated &mdash; 18,763 across 37 orgs, six of which already have it &mdash; so pin those six down before quoting a reach. Held on a client-risk review.</li>
+  <li><b>Say no to the rep agency principal this cycle?</b> Recommendation on file is yes &mdash; say so rather than ship a number that merges two agencies.</li>
+  <li><b>Run a client data push on invoice feeds and territory files?</b> 65 of 113 active clients send no invoice feed, degrading 13 of the 31 jobs; 123 of 146 orgs with active reps have no territory file.</li>
+</ol>
+
+<h2>Appendix</h2>
+<div class="app">
+  <p><b>Segments are a roster lookup, not a computation.</b> A rule over the four defining fields reproduces the stamped label 38.5% of the time against a 34.9% baseline across 109 clients, capping at 50% even when fitted. They came from selling-motion judgment carried from v3.2, confirmed by our data rather than produced by it, so new orders re-segment nobody &mdash; which is why nothing above is segment-conditional.</p>
+  <p><b>Measured against production on 2026-08-31.</b> Populations, territory coverage, catalog and invoice counts are re-run queries. Three figures come from the code and config audit, not the database: that the rep dashboard is enabled for no organisation, that reports reach six clients, and that buyer history runs at six. No customer has been interviewed &mdash; the jobs come from platform evidence, not conversation &mdash; and the rep surface has never been enabled for anyone, so every assumption in the component section is untested.</p>
+  <p class="files">
+    All of it under <code>foundation/sources/customer_segmentation/</code> &mdash; personas &middot; <code>personas/</code> &nbsp;&bull;&nbsp;
+    the 31 jobs &middot; <code>analytics/jtbd-register.md</code> &nbsp;&bull;&nbsp; job to surface and the offline rules &middot; <code>product/surface-mapping.md</code> &nbsp;&bull;&nbsp;
+    what is blocked, and on whom &middot; <code>product/data-gaps.md</code> &nbsp;&bull;&nbsp; build order &middot; <code>engineering/03-ROADMAP.md</code> &nbsp;&bull;&nbsp;
+    the rep component &middot; <code>engineering/02-IPAD-ACCOUNT-BRIEF-SPEC.md</code>
+  </p>
+</div>
+
+</div>
+</body>
+</html>

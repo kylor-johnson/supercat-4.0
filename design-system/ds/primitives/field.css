@@ -1,0 +1,224 @@
+/* ═════════════════════════════════════════════════════════════════
+   SuperCat DS — Field wrapper  ·  .kf-field
+   ─────────────────────────────────────────────────────────────────
+   ▸ Class prefix: `.kf-*` = "kit form".
+   ▸ Pairs label + control + hint + validation message in one wrapper.
+   ▸ Optional but recommended — gives consistent vertical rhythm and
+     a single hook for [data-state="error|warn|success"].
+   ▸ Pieces: .kf-field-label, .kf-field-hint, .kf-field-message,
+              .kf-field-required, .kf-field-optional, .kf-field-counter
+   ▸ Framework-agnostic. Pure CSS.
+   ─────────────────────────────────────────────────────────────────
+   .kf-field — Form field wrapper
+   ─────────────────────────────────────────────────────────────────
+   Framework-agnostic. Pure CSS. Pairs with .kf-input / .kf-check /
+   .kf-switch / and any custom control. Provides:
+     - Label
+     - Required indicator
+     - Hint
+     - Validation message (error / warn / success)
+     - Optional flag
+     - Counter (e.g. character count)
+     - Inline label layout (label-on-left)
+
+   Usage (canonical pattern, framework-neutral):
+
+     <div class="kf-field">
+       <label class="kf-field-label" for="po">
+         PO number
+         <span class="kf-field-optional">Optional</span>
+       </label>
+       <input class="kf-input kf-md" id="po" type="text" />
+       <p class="kf-field-hint">Auto-generated if blank.</p>
+     </div>
+
+   Required:
+     <label class="kf-field-label" for="x">
+       Buyer email <span class="kf-field-required" aria-hidden="true">*</span>
+     </label>
+
+   Validation:
+     <div class="kf-field" data-state="error">
+       <label class="kf-field-label">…</label>
+       <input class="kf-input kf-md" data-state="error" />
+       <p class="kf-field-message">Maximum order qty is 250.</p>
+     </div>
+
+   Counter (right-aligned, paired with hint or message):
+     <div class="kf-field-meta">
+       <p class="kf-field-hint">Visible to dealer + warehouse.</p>
+       <span class="kf-field-counter">142 / 500</span>
+     </div>
+
+   Inline (label-on-left):
+     <div class="kf-field kf-field-inline">…</div>
+
+   API
+   ───
+   States       : data-state="error|warn|success" — tints message + label
+   Layout       : kf-field-inline   horizontal label + control
+                  kf-field-tight    smaller gap (for dense forms)
+   ─────────────────────────────────────────────────────────────── */
+
+.kf-field,
+:where(.kf-field) {
+  display: flex;
+  flex-direction: column;
+  gap: 6px; /* tight: label sits close to its control */
+  font-family: var(--font-sans);
+}
+.kf-field > .kf-field-hint,
+.kf-field > .kf-field-message,
+.kf-field > .kf-field-meta {
+  margin-top: 2px; /* hint/message gets a touch more breathing room from input */
+}
+
+.kf-field.kf-field-tight { gap: var(--space-1); }
+
+/* ── Label ─────────────────────────────────────────────────────── */
+.kf-field-label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-2xs);
+  font-family: var(--font-mono);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: var(--text-muted);
+  font-weight: var(--weight-semibold);
+  /* Click-through to the associated input is the browser default */
+  cursor: pointer;
+}
+
+.kf-field-required {
+  color: var(--text-crimson);
+  font-family: var(--font-sans);
+  font-weight: var(--weight-bold);
+  /* Use letter-spacing reset because parent has wider tracking */
+  letter-spacing: 0;
+  font-size: 1.1em;
+  line-height: 0;
+  margin-left: -2px; /* tighten against label text */
+}
+
+.kf-field-optional {
+  font-style: normal;
+  color: var(--text-faint);
+  font-size: var(--text-2xs);
+  letter-spacing: var(--tracking-wider);
+  font-weight: var(--weight-medium);
+  text-transform: uppercase;
+}
+
+/* ── Hint (helper text, neutral) ───────────────────────────────── */
+.kf-field-hint {
+  margin: 0;
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  line-height: var(--leading-snug);
+}
+
+/* ── Message (validation feedback, tone follows data-state) ────── */
+.kf-field-message {
+  margin: 0;
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  line-height: var(--leading-snug);
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+
+/* Tone — applied to message + parent field.
+   Error uses --status-danger (orange-red) so it stays visually distinct
+   from --text-crimson (brand primary). */
+.kf-field[data-state="error"]   .kf-field-message,
+.kf-field-message[data-state="error"]   { color: var(--status-danger); }
+.kf-field[data-state="warn"]    .kf-field-message,
+.kf-field-message[data-state="warn"]    { color: var(--color-gold); }
+.kf-field[data-state="success"] .kf-field-message,
+.kf-field-message[data-state="success"] { color: var(--status-success); }
+
+/* When the field is in an error state, also tint the label so multi-error
+   forms scan at a glance. Uses --status-danger (NOT crimson). */
+.kf-field[data-state="error"] > .kf-field-label {
+  color: var(--status-danger);
+}
+
+/* ── Error shake ───────────────────────────────────────────────────
+   Add `.kf-shake` to any error-state element to play a one-shot
+   horizontal shake. Designed to be added on submit / on first error
+   reveal — the class auto-removes via animation event in JS, OR you
+   can toggle the class yourself. The animation plays once and stops.
+   Subtle by design (4px, 320ms) — alarm-volume shakes feel angry. */
+@keyframes kf-shake {
+  0%, 100% { transform: translateX(0); }
+  20%      { transform: translateX(-4px); }
+  40%      { transform: translateX(4px); }
+  60%      { transform: translateX(-3px); }
+  80%      { transform: translateX(2px); }
+}
+.kf-shake {
+  animation: kf-shake 320ms var(--ease-out) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .kf-shake { animation: none; }
+}
+
+/* ── Meta row (hint + counter, etc.) ───────────────────────────── */
+.kf-field-meta {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.kf-field-counter {
+  flex: 0 0 auto;
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  letter-spacing: var(--tracking-wider);
+  color: var(--text-faint);
+  font-feature-settings: "tnum";
+}
+
+.kf-field-counter[data-state="warn"]  { color: var(--color-gold); }
+.kf-field-counter[data-state="error"] { color: var(--status-danger); }
+
+/* ── Inline layout (label on the left) ─────────────────────────── */
+.kf-field.kf-field-inline {
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-5);
+}
+.kf-field.kf-field-inline > .kf-field-label {
+  flex: 0 0 auto;
+  min-width: 120px;
+  margin-bottom: 0;
+}
+.kf-field.kf-field-inline > .kf-input,
+.kf-field.kf-field-inline > .kf-input-wrap {
+  flex: 1 1 auto;
+}
+
+/* ── Fieldset wrapper (for radio/checkbox groups) ──────────────── */
+/* Lets consumers use semantic <fieldset>/<legend> with our typography */
+.kf-fieldset {
+  border: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.kf-fieldset > legend {
+  /* Same look as kf-field-label */
+  font-size: var(--text-2xs);
+  font-family: var(--font-mono);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: var(--text-muted);
+  font-weight: var(--weight-semibold);
+  padding: 0;
+  margin-bottom: var(--space-2);
+}

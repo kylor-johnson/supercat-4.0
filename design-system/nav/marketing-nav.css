@@ -1,0 +1,816 @@
+/* ════════════════════════════════════════════════════════════════
+   SuperCat DS — Marketing Nav  ·  .vn
+   ────────────────────────────────────────────────────────────────
+   Class prefix: `.vn` (marketing nav). One universal nav for
+   every marketing-web surface: portal, reference, ROI tool, and any
+   downstream lead-magnet / landing page.
+
+   Visual identity is a DARK GLASS PILL — translucent ink-2 background,
+   cream foreground, gold brand mark. The same pill always; only the
+   CONTENT inside it changes. Use the same `<sc-marketing-nav>` custom
+   element across the system and pick the content shape:
+
+     1. MEGA-MENU MODE (default)
+        <sc-marketing-nav current="roi"></sc-marketing-nav>
+        Renders the universal site nav with Foundation / Web Marketing /
+        Web App / Docs as buttons that drop mega panels on hover.
+
+     2. SECTIONS MODE
+        <sc-marketing-nav
+          current="maxroi"
+          sections='[
+            {"label":"Calculator","href":"#calculator"},
+            {"label":"The math","href":"#math"}
+          ]'
+          cta-href="#calculator"
+          cta-label="Run mine">
+        </sc-marketing-nav>
+        Renders the SAME pill but with on-page anchor links instead of
+        mega menus. Useful for product/lead-magnet pages that don't
+        need to navigate the system-wide architecture. The host page
+        marks `aria-current="true"` on the active section link via
+        scrollspy — the .vn-link active styling matches the hover state.
+
+   Both modes share `.vn`, `.vn-shell`, `.vn-brand`, `.vn-cluster`,
+   `.vn-links`, `.vn-link`, theme toggle, and CTA. The only difference
+   is whether mega panels are emitted in the markup.
+   ────────────────────────────────────────────────────────────────
+   API
+
+     <header class="vn vn-floating">
+       <div class="vn-shell">
+         <!-- LEFT PILL -->
+         <a class="vn-brand" href="/">
+           <svg class="vn-brand-logo" viewBox="0 0 237 28">…</svg>
+         </a>
+
+         <!-- RIGHT PILL -->
+         <div class="vn-cluster">
+           <nav class="vn-links" aria-label="Main">
+             <button class="vn-link" data-mega="system" aria-expanded="false">System</button>
+             <button class="vn-link" data-mega="app"    aria-expanded="false">App</button>
+             <button class="vn-link" data-mega="docs"   aria-expanded="false">Docs</button>
+           </nav>
+           <span class="vn-divider" aria-hidden="true"></span>
+           <button class="vn-theme" data-vn-theme aria-label="Toggle theme">…</button>
+           <a class="vn-cta" href="/">Open DS</a>
+         </div>
+       </div>
+
+       <!-- Mega panels (one per link) -->
+       <div class="vn-mega" data-mega="system" aria-hidden="true">…</div>
+       <div class="vn-mega" data-mega="app"    aria-hidden="true">…</div>
+       <div class="vn-mega" data-mega="docs"   aria-hidden="true">…</div>
+     </header>
+
+   Tokens consumed (semantic + primitive — no legacy --k-*):
+     --color-ink-1 / cream / gold / crimson / paper-1
+     --duration-base / --ease-out
+   ════════════════════════════════════════════════════════════════ */
+
+
+:where(.vn) {
+  --vn-ink:        #14110F;                              /* near-black, slightly warm */
+  /* Tint is mostly solid (88%) — just enough transparency for the
+     backdrop-filter blur below to do its work without letting page
+     text read through. Blur is what carries the "glass" feel; tint
+     just establishes the dark surface color. */
+  --vn-tint:       color-mix(in oklch, var(--vn-ink) 80%, transparent);
+  --vn-tint-edge:  rgba(255, 255, 255, 0.08);            /* hairline border (drawn via .border) */
+  --vn-text:       var(--color-cream);                   /* warm cream text */
+  --vn-text-muted: color-mix(in oklch, var(--color-cream) 62%, transparent);
+  --vn-text-hover: var(--color-cream);
+  --vn-accent:     var(--color-gold);                    /* mark + accent */
+
+  /* CTA is the primitive `.kb.kb-md.kb-primary` button — no nav-local
+     CTA styles. The button primitive lives in ds/primitives/button.css
+     and consumes its own crimson tokens. The nav just slots it in. */
+
+  /* Shadow: external drop shadow only — no inset highlight rim. The
+     visual "glass" comes from the heavy backdrop-filter blur, not
+     from a fake inner border. */
+  --vn-shadow:     0 14px 44px -14px rgba(0, 0, 0, 0.32),
+                   0 2px 8px rgba(0, 0, 0, 0.10);
+  --vn-blur:       blur(30px) saturate(180%);
+
+  /* Branded rounded rectangles — pulled directly from the system
+     radius scale (ds/tokens/radius.css):
+       • Outer pill (panel-scale)  → --radius-lg (12px, cards)
+       • Inner controls            → --radius-md (8px, buttons/inputs benchmark)
+       • Mega panel (modal-scale)  → --radius-xl (16px, large panels)
+     No hand-rolled px values — the nav inherits the corner family from
+     the system so it matches every card and button on the page. */
+  --vn-radius:        var(--radius-lg);
+  --vn-radius-inner:  var(--radius-md);
+  --vn-gap:           var(--space-3);
+}
+
+
+/* ── Floating shell ───────────────────────────────────────────── */
+
+.vn.vn-floating {
+  position: sticky;
+  top: clamp(12px, 1.6vw, 20px);
+  z-index: 80;
+  padding: 0 clamp(12px, 2.4vw, 28px);
+  pointer-events: none;                /* let pages scroll through the gap */
+}
+.vn-shell {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--vn-gap);
+  max-width: 1480px;
+  margin: 0 auto;
+}
+
+
+/* ── Pills — shared glass treatment ───────────────────────────────
+   `.vn-pill-left-glass` (an inner wrapper that holds the brand + nav)
+   and `.vn-cluster` share the glass styling. The OUTER `.vn-pill-left`
+   is a transparent positioning wrapper only — that's because if it
+   carried its own backdrop-filter, the nested `.vn-mega` (which is its
+   child) would have its OWN backdrop-filter trapped inside the parent's
+   filter chain and the page behind would stop blurring. Splitting the
+   visible glass off into a sibling-level child fixes that. */
+
+.vn-pill-left-glass,
+.vn-cluster {
+  background: var(--vn-tint);
+  -webkit-backdrop-filter: var(--vn-blur);
+  backdrop-filter: var(--vn-blur);
+  border: 1px solid var(--vn-tint-edge);
+  border-radius: var(--vn-radius);
+  box-shadow: var(--vn-shadow);
+  color: var(--vn-text);
+}
+
+
+/* ── Left pill: logo + nav links ──────────────────────────────────
+   .vn-pill-left = bare positioning wrapper (no glass, no filter).
+   .vn-pill-left-glass = visible glass pill (brand + divider + links).
+   .vn-mega        = child of .vn-pill-left, sibling of the glass —
+                      its backdrop-filter operates on the page below
+                      without interference. */
+
+.vn-pill-left {
+  position: relative;            /* containing block for .vn-mega */
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  color: var(--vn-text);
+}
+
+.vn-pill-left-glass {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.vn-brand {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-3) var(--space-4);
+  text-decoration: none;
+  transition: opacity var(--duration-fast) var(--ease-out);
+  flex-shrink: 0;
+}
+.vn-brand:hover { opacity: 0.85; }
+
+.vn-brand .vn-brand-logo {
+  display: block;
+  width: 154px;        /* aspect-locked: 18 × (237/28) ≈ 152 */
+  height: 18px;
+  flex-shrink: 0;
+}
+.vn-brand .vn-brand-logo .logo-word { fill: var(--vn-text); }
+.vn-brand .vn-brand-logo .logo-mark { fill: var(--vn-accent); }
+
+
+/* ── Global brand-logo color rules ───────────────────────────────
+   Bare-class selectors so they reach the paths inside a <use>
+   shadow tree (descendant selectors don't pierce reliably across
+   browsers). currentColor inherits the host element's `color`;
+   --logo-mark-color is a custom property that propagates into the
+   shadow tree the same way. Together: every wordmark on the site
+   renders default colors — letters track context, mark stays gold —
+   without each page redefining the fills. */
+.logo-word { fill: currentColor; }
+.logo-mark { fill: var(--logo-mark-color, var(--color-gold)); }
+
+@media (max-width: 1024px) {
+  /* Mobile/tablet brand: keep the pill height the same as the right
+     cluster (40px), just give the wordmark a bit more horizontal room
+     inside. The pill widens to fit; height stays locked across left +
+     right. Logo aspect ratio (237/28) is preserved.
+     Breakpoint at 1024px covers all iPad portraits + most tablets so
+     the 5-section nav doesn't overflow horizontally. */
+  .vn-brand { padding: 0 var(--space-3); }
+  .vn-brand .vn-brand-logo { width: 150px; height: 17.7px; }
+}
+
+
+/* ── Right pill: theme + primary CTA + (optional secondary CTA) ── */
+
+.vn-cluster {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);                         /* 4px between cluster items */
+  padding: 6px 6px 6px 6px;                    /* tuned to wrap kb-md primitive cleanly */
+  min-height: 0;
+}
+
+
+/* ── Link buttons (mega triggers) ─────────────────────────────── */
+
+.vn-links {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;                /* tighter than --space-1 (4px); buttons sit edge-to-edge with hover slabs */
+  padding: 0 var(--space-2) 0 var(--space-1);
+}
+.vn-link {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  color: var(--vn-text-muted);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  letter-spacing: -0.005em;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--vn-radius-inner);
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    color var(--duration-fast) var(--ease-out),
+    background var(--duration-fast) var(--ease-out);
+}
+.vn-link:hover,
+.vn-link[aria-expanded="true"] {
+  color: var(--vn-text-hover);
+  background: rgba(255, 255, 255, 0.06);
+}
+.vn-link:focus-visible {
+  outline: 0;
+  box-shadow: 0 0 0 2px var(--vn-ink), 0 0 0 4px rgba(255, 255, 255, 0.45);
+}
+/* Sections mode — when the nav is rendering on-page anchors instead
+   of cross-site mega menus, the link for the currently-scrolled section
+   is marked aria-current="true" by the host page. Same color treatment
+   as :hover so the active section reads clearly without a new style. */
+.vn-link.vn-link-section,
+a.vn-link {
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+.vn-link[aria-current="true"],
+.vn-link[aria-current="page"] {
+  color: var(--vn-text-hover);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+
+/* ── Divider ──────────────────────────────────────────────────── */
+
+.vn-divider {
+  display: inline-block;
+  width: 1px;
+  height: 22px;
+  background: var(--vn-tint-edge);
+  flex-shrink: 0;
+}
+
+
+/* ── Theme toggle ─────────────────────────────────────────────── */
+
+.vn-theme {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  color: var(--vn-text-muted);
+  width: 30px;                /* matches .kb-md.kb-icon (30×30) — keeps right pill at the same height as the left */
+  height: 30px;
+  border-radius: var(--vn-radius-inner);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition:
+    color var(--duration-fast) var(--ease-out),
+    background var(--duration-fast) var(--ease-out);
+}
+.vn-theme:hover {
+  color: var(--vn-text-hover);
+  background: rgba(255, 255, 255, 0.06);
+}
+.vn-theme svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.vn-theme .vn-theme-dark { display: none; }
+[data-theme="dark"] .vn-theme .vn-theme-light { display: none; }
+[data-theme="dark"] .vn-theme .vn-theme-dark  { display: inline-block; }
+
+
+/* ── CTA — uses .kb.kb-md.kb-primary primitive directly ───────────
+   No nav-local CTA styles. The button primitive in ds/primitives/
+   button.css ships the crimson fill, hover, focus ring, and radius
+   (via --radius-md, matching every other interactive control in the
+   system). The nav just embeds <a class="kb kb-md kb-primary">. */
+
+
+/* ── Mobile-only CTA — hidden on desktop ──────────────────────────
+   The full text+arrow primary CTA lives in the right cluster on desktop;
+   a duplicate twin appears next to the burger on mobile. The compound
+   `.kb.vn-cta-mobile` selector (specificity 0,2,0) outranks the bare
+   `.kb { display: inline-flex }` rule from button.css so this hide
+   wins regardless of which stylesheet loads later. */
+.vn-cta-mobile,
+.kb.vn-cta-mobile {
+  display: none;
+}
+
+
+/* ── Mobile burger button — animated lines ↔ X ─────────────────────
+   36×36 button hosting two stacked SVGs (lines + X). The two crossfade
+   on aria-expanded toggle — no rotation gimmick, just a clean morph
+   between the two icon states. Hidden on desktop. */
+.vn-burger {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  display: none;                       /* shown on mobile only */
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--vn-radius-inner);
+  color: var(--vn-text);
+  cursor: pointer;
+  position: relative;                  /* containing block for stacked SVGs */
+  transition:
+    color var(--duration-fast) var(--ease-out),
+    background var(--duration-fast) var(--ease-out);
+}
+.vn-burger:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+.vn-burger:focus-visible {
+  outline: 0;
+  box-shadow: 0 0 0 2px var(--vn-ink), 0 0 0 4px rgba(255, 255, 255, 0.45);
+}
+.vn-burger-icon {
+  position: relative;
+  width: 18px;
+  height: 18px;
+  display: inline-block;
+  flex-shrink: 0;
+}
+.vn-burger-icon svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transition:
+    opacity var(--duration-base) var(--ease-out),
+    transform var(--duration-base) var(--ease-out);
+}
+/* Resting state: lines visible, X hidden + pre-rotated for a clean
+   pivot-in when expanded. */
+.vn-burger .vn-burger-close {
+  opacity: 0;
+  transform: rotate(-90deg) scale(0.7);
+}
+.vn-burger[aria-expanded="true"] .vn-burger-open {
+  opacity: 0;
+  transform: rotate(90deg) scale(0.7);
+}
+.vn-burger[aria-expanded="true"] .vn-burger-close {
+  opacity: 1;
+  transform: rotate(0) scale(1);
+}
+
+
+/* ── Mobile menu — opens from burger ──────────────────────────────
+   Dark-glass dropdown panel that hosts everything the desktop nav
+   has tucked away on mobile: menu links + theme toggle + primary CTA.
+   Sits below both pills, spans the same gutter width as the pills. */
+.vn-mobile-menu {
+  display: none;                        /* shown on mobile only */
+  position: absolute;
+  top: calc(100% + var(--space-2));
+  left: clamp(12px, 2.4vw, 28px);
+  right: clamp(12px, 2.4vw, 28px);
+  background: var(--vn-tint);
+  -webkit-backdrop-filter: var(--vn-blur);
+  backdrop-filter: var(--vn-blur);
+  border: 1px solid var(--vn-tint-edge);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--vn-shadow);
+  padding: var(--space-3);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-8px);
+  transition:
+    opacity var(--duration-base) var(--ease-out),
+    transform var(--duration-base) var(--ease-out);
+  z-index: 82;
+}
+.vn-mobile-menu.is-open {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+/* Mobile menu sections are ACCORDIONS: each section header is a button
+   with a + icon. Tap → expands the body of sub-links, + rotates to ×.
+   Three sections (System / App / Docs) mirror the desktop mega panels. */
+.vn-mobile-section + .vn-mobile-section {
+  margin-top: var(--space-1);
+}
+.vn-mobile-section-header {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: var(--space-3);
+  cursor: pointer;
+  text-align: left;
+  border-radius: var(--vn-radius-inner);
+  transition: background var(--duration-fast) var(--ease-out);
+}
+.vn-mobile-section-header:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+.vn-mobile-section-header:focus-visible {
+  outline: 0;
+  box-shadow: 0 0 0 2px var(--vn-ink), 0 0 0 4px rgba(255, 255, 255, 0.35);
+}
+.vn-mobile-section-title {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--text-md);
+  font-weight: var(--weight-medium);
+  letter-spacing: -0.005em;
+  color: var(--vn-text);
+}
+.vn-section-plus {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  color: var(--vn-text-muted);
+  transition: transform var(--duration-base) var(--ease-out);
+}
+.vn-mobile-section-header[aria-expanded="true"] .vn-section-plus {
+  transform: rotate(45deg);
+}
+.vn-mobile-section-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height var(--duration-base) var(--ease-out);
+}
+.vn-mobile-section-header[aria-expanded="true"] + .vn-mobile-section-body {
+  max-height: 320px;                    /* large enough for the longest section (4 items + gap) */
+}
+.vn-mobile-section-body a {
+  display: block;
+  padding: var(--space-2) var(--space-3);
+  margin-left: var(--space-3);          /* indent to suggest hierarchy */
+  color: var(--vn-text-muted);
+  text-decoration: none;
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  letter-spacing: -0.005em;
+  border-radius: var(--vn-radius-inner);
+  transition:
+    color var(--duration-fast) var(--ease-out),
+    background var(--duration-fast) var(--ease-out);
+}
+.vn-mobile-section-body a:hover {
+  color: var(--vn-text);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* Sections-mode mobile list — flat anchor list, no accordion.
+   Mirrors the cross-site `.vn-mobile-section-header` treatment so the
+   two modes feel visually consistent: same padding, same type weight,
+   same hover state, subtle space between rows (no dividing line). */
+.vn-mobile-sections-list {
+  display: flex;
+  flex-direction: column;
+}
+.vn-mobile-section-link {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: var(--space-3);
+  background: transparent;
+  color: var(--vn-text);
+  font-family: var(--font-sans);
+  font-size: var(--text-md);
+  font-weight: var(--weight-medium);
+  letter-spacing: -0.005em;
+  text-decoration: none;
+  border-radius: var(--vn-radius-inner);
+  transition: background var(--duration-fast) var(--ease-out), color var(--duration-fast) var(--ease-out);
+}
+.vn-mobile-section-link + .vn-mobile-section-link {
+  margin-top: var(--space-1);
+}
+.vn-mobile-section-link:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+.vn-mobile-section-link:focus-visible {
+  outline: 0;
+  box-shadow: 0 0 0 2px var(--vn-ink), 0 0 0 4px rgba(255, 255, 255, 0.35);
+}
+.vn-mobile-section-link[aria-current="page"] {
+  color: var(--color-crimson);
+}
+
+.vn-mobile-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--vn-tint-edge);
+}
+.vn-mobile-actions .vn-theme {
+  display: inline-flex;                /* always visible inside the mobile menu */
+}
+.vn-mobile-actions .kb {
+  flex: 1;
+  justify-content: center;
+}
+
+
+/* ── Mobile + tablet breakpoint — pills locked to IDENTICAL HEIGHT ─
+   Below 1024px the left pill shows just the logo, the right pill shows
+   a compact icon-CTA + a 2-line burger. Both pills are 40px tall —
+   slim, balanced, not chunky.
+
+   The desktop theme toggle + full primary CTA are hidden from their
+   inline positions and re-housed inside .vn-mobile-menu, which the
+   burger toggles open.
+
+   Breakpoint at 1024px (was 720px) so iPad portrait + smaller tablets
+   switch to the compact burger nav. With 5 in-page sections + theme +
+   CTA + brand, the desktop nav needs ~1080px of horizontal room to fit
+   without overflow. iPad landscape (1180px+) still gets desktop mode. */
+@media (max-width: 1024px) {
+  /* Both pills 46px tall on mobile/tablet (~15% taller than the
+     original 40px) — gives the logo + burger + CTA comfortable thumb-
+     friendly proportions without feeling chunky. */
+  .vn-pill-left-glass,
+  .vn-cluster {
+    height: 46px;
+    box-sizing: border-box;
+    align-items: center;
+  }
+
+  /* Left pill: drop the divider + links so it shrinks to logo width */
+  .vn-pill-left-glass > .vn-divider,
+  .vn-pill-left-glass > .vn-links {
+    display: none;
+  }
+  .vn-brand {
+    padding: 0 var(--space-3);
+    height: 100%;
+  }
+  .vn-brand .vn-brand-logo {
+    width: 172px;
+    height: 20.3px;          /* aspect-locked 172 × (28/237) ≈ 20.3 */
+  }
+
+  /* Right pill: drop the desktop theme + the desktop wide CTA.
+     The mobile CTA is a full `.kb.kb-md.kb-primary` (Open + arrow)
+     that sits next to the burger inside the cluster. */
+  .vn-cluster > .vn-theme,
+  .vn-cluster > .kb:not(.vn-cta-mobile) {
+    display: none;
+  }
+  .vn-cluster {
+    padding: 6px;
+    gap: 6px;
+  }
+  /* Burger sized to match the cluster button height (34px).
+     `.kb.vn-cta-mobile` mirrors the desktop-hide rule specificity so
+     the show wins on mobile regardless of stylesheet load order. */
+  .vn-burger,
+  .vn-cta-mobile,
+  .kb.vn-cta-mobile {
+    display: inline-flex;
+  }
+  .vn-burger {
+    width: 34px;
+    height: 34px;
+  }
+  .vn-burger-icon {
+    width: 18px;
+    height: 18px;
+  }
+  /* Mobile CTA is the full primitive button — text + vector arrow.
+     ~34px tall slots cleanly inside the 46px pill with 6px padding. */
+  .vn-cta-mobile {
+    padding: 6px var(--space-3);
+    font-size: var(--text-sm);
+    gap: 5px;
+  }
+  .vn-cta-mobile svg {
+    width: 13px;
+    height: 13px;
+  }
+
+  /* Surface the mobile menu */
+  .vn-mobile-menu {
+    display: block;
+  }
+}
+
+/* Narrow-mobile fit guard — at ≤480px (iPhone SE / standard phones in
+   portrait), the 46px pills + 172px logo + 34px burger + CTA combined
+   exceed the available 351px shell width, so the right pill overflows
+   past the viewport edge while the left keeps its 12px gap. Scale the
+   logo + brand padding + cluster gap down here so BOTH pills fit
+   symmetrically within the outer 12px padding. Sizes still feel
+   comfortable — only the logo + spacing shrink, the burger + CTA stay
+   tap-friendly. */
+@media (max-width: 480px) {
+  .vn-brand { padding: 0 var(--space-2); }
+  .vn-brand .vn-brand-logo {
+    width: 140px;
+    height: 16.5px;          /* aspect-locked 140 × (28/237) ≈ 16.5 */
+  }
+  .vn-cluster {
+    padding: 5px;
+    gap: 5px;
+  }
+  .vn-cta-mobile {
+    padding: 6px var(--space-2);
+    gap: 4px;
+  }
+
+  /* Mega panels are useless without their triggers on mobile —
+     the mobile menu takes their place. Hide just in case any open. */
+  .vn-mega {
+    display: none;
+  }
+}
+
+/* ── ULTRA-NARROW FIT GUARD  (≤ 360 px) ───────────────────────────
+   Foldables-closed and stress-test viewports (~270–360 px). Below
+   the iPhone-SE width, the 480 px guard's still-large logo + cluster
+   can push the right pill past the viewport edge. Shrink further so
+   the layout survives every real-device width without horizontal
+   scroll, and let the CTA label drop to icon-only space if needed. */
+@media (max-width: 360px) {
+  .vn-shell { padding: 0 8px; }
+  .vn-brand { padding: 0 var(--space-1); }
+  .vn-brand .vn-brand-logo {
+    width: 116px;
+    height: 13.7px;          /* aspect-locked 116 × (28/237) ≈ 13.7 */
+  }
+  .vn-cluster {
+    padding: 4px;
+    gap: 4px;
+  }
+  .vn-cta-mobile {
+    padding: 5px var(--space-1);
+    gap: 3px;
+    font-size: 11px;
+  }
+  .vn-cta-mobile svg { width: 11px; height: 11px; }
+  .vn-burger { width: 30px; height: 30px; }
+  .vn-burger svg { width: 16px; height: 16px; }
+}
+
+
+/* ════════════════════════════════════════════════════════════════
+   MEGA PANELS  —  hover-triggered, dark-glass card under the nav
+   ════════════════════════════════════════════════════════════════ */
+
+/* Mega panel nests inside .vn-pill-left and ANCHORS to its left edge,
+   but is allowed to grow wider than the pill so cards have breathing
+   room. Width math:
+     • min-width: 100% — never narrower than the pill (always covers
+       at least the pill's footprint)
+     • width: 560px — preferred panel width that fits 2 cards cleanly
+     • max-width: calc(100vw - 32px) — never overflow the viewport
+   Mega sits directly under the pill with a small breathing gap. */
+.vn-mega {
+  position: absolute;
+  top: calc(100% + var(--space-2));
+  left: 0;
+  min-width: 100%;
+  width: 560px;
+  max-width: calc(100vw - 32px);
+  background: var(--vn-tint);
+  -webkit-backdrop-filter: var(--vn-blur);
+  backdrop-filter: var(--vn-blur);
+  border: 1px solid var(--vn-tint-edge);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--vn-shadow);
+  padding: var(--space-4);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-8px);
+  transition:
+    opacity var(--duration-base) var(--ease-out),
+    transform var(--duration-base) var(--ease-out);
+  z-index: 81;
+}
+.vn-mega.is-open {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+/* Auto-fit grid: when mega is narrow, falls to one column (vertical
+   stack); when wide, packs flex cards across the row. The min() pegs
+   each card at 220px floor OR 100% if the panel is narrower than
+   that — so on a cramped mega we always get one full-width card per
+   row rather than a single underfed card sitting next to whitespace. */
+.vn-mega-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
+  gap: var(--space-2);
+}
+
+.vn-mega-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--vn-text);
+  text-decoration: none;
+  transition: background var(--duration-fast) var(--ease-out);
+  border: 1px solid transparent;
+}
+.vn-mega-card:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: var(--vn-tint-edge);
+}
+.vn-mega-card .ix {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--vn-accent);
+}
+.vn-mega-card .nm {
+  font-size: 14px;
+  font-weight: var(--weight-semibold);
+  color: var(--vn-text);
+  letter-spacing: -0.01em;
+}
+.vn-mega-card .ds {
+  font-size: 12px;
+  color: var(--vn-text-muted);
+  line-height: 1.4;
+}
+
+/* On tiny viewports the left pill itself contracts (links may hide
+   below 540px). The mega keeps left:0/right:0 so it still spans the
+   pill — no additional override needed. */
+
+
+/* ── Reduced motion ──────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .vn-brand, .vn-link, .vn-theme, .vn-cta, .vn-mega { transition: none; }
+}
+
+
+/* ════════════════════════════════════════════════════════════════
+   DARK THEME — pills lift toward a slightly warmer near-black
+   so they don't disappear into the page background. Cream text
+   stays cream. Gold mark stays gold.
+   ════════════════════════════════════════════════════════════════ */
+
+[data-theme="dark"] :where(.vn) {
+  --vn-ink:        #232120;
+  --vn-tint:       color-mix(in oklch, var(--vn-ink) 76%, transparent);
+  --vn-tint-edge:  rgba(255, 255, 255, 0.08);
+  --vn-cta-bg:     var(--color-cream);
+  --vn-cta-fg:     #14110F;
+}

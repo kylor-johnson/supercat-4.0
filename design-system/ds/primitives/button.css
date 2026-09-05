@@ -1,0 +1,521 @@
+/* ════════════════════════════════════════════════════════════════
+   SuperCat DS — Button primitive  ·  .kb
+   ────────────────────────────────────────────────────────────────
+   ▸ Class prefix: `.kb` = "kit button"
+   ▸ Compose: base + size + variant
+       <button class="kb kb-md kb-primary">Save</button>
+   ▸ Works in any framework or vanilla HTML — no JS required except
+     for [data-loading] / [data-success] animations.
+   ▸ All visual rules live in this file. The Master DS showcase
+     classes (.ds-btnanatomy, .ds-btnspec, .ds-stategrid) are
+     LAYOUT containers around .kb, never style it.
+   ────────────────────────────────────────────────────────────────
+   API
+     <button class="kb kb-md kb-primary">Save</button>
+     <a     class="kb kb-md kb-secondary" href="...">Cancel</a>
+     <button class="kb kb-md kb-link">Read more</button>
+     <button class="kb kb-md kb-primary" data-loading>Saving</button>
+     <button class="kb kb-md kb-primary" data-success>Saved</button>
+     <button class="kb kb-md kb-primary kb-icon" aria-label="Close">
+       <svg …>×</svg>
+     </button>
+
+   Variants : kb-primary | kb-accent | kb-secondary | kb-ghost
+              kb-danger  | kb-link   | kb-link-grow
+   Sizes    : kb-sm | kb-md | kb-lg | kb-xl       (xl = default)
+   Modifier : kb-icon          (square, icon-only)
+   States   : :hover :focus-visible :disabled .disabled
+              [data-loading]   (animates orbiting ring)
+              [data-success]   (animated check + ring)
+
+   Tokens consumed (semantic layer only):
+     --text-primary  --text-on-crimson  --text-crimson
+     --surface-card  --border-default
+     --color-ink-1   --color-paper-1   --color-crimson
+     --font-mono     --font-sans       --radius-md
+   No primitive uses the legacy --k-* names directly anymore;
+   --k-* aliases still resolve to the same values via semantic.css
+   so any page that already passes --k-* tokens keeps working.
+
+   No JS required for variants/states EXCEPT [data-loading] /
+   [data-success]; load button.js to enable those.
+   ════════════════════════════════════════════════════════════════ */
+
+:where(.kb) {
+  /* ── Component-local custom properties (themed below) ──
+     Override per-instance with style="--kb-bg: …" if you ever need to. */
+  --kb-bg:           transparent;
+  --kb-fg:           var(--text-primary);
+  --kb-border:       transparent;
+  --kb-bg-hover:     transparent;
+  --kb-fg-hover:     var(--text-primary);
+  --kb-border-hover: transparent;
+  --kb-ring-color:   var(--text-primary);   /* loading + success orbit */
+  --kb-focus-ring:   color-mix(in oklch, var(--color-crimson) 55%, transparent);
+}
+
+/* ── Base ─────────────────────────────────────────────────────── */
+.kb {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  border: 1px solid var(--kb-border);
+  background: var(--kb-bg);
+  color: var(--kb-fg);
+  white-space: nowrap;
+  position: relative;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  text-decoration: none;
+  transition:
+    background-color .2s cubic-bezier(0.25,0.1,0.25,1),
+    color           .2s cubic-bezier(0.25,0.1,0.25,1),
+    border-color    .2s cubic-bezier(0.25,0.1,0.25,1),
+    box-shadow      .2s cubic-bezier(0.25,0.1,0.25,1),
+    transform       .15s cubic-bezier(0.25,0.1,0.25,1);
+}
+.kb:hover:not(:disabled):not(.disabled):not([data-loading]):not([data-success]) {
+  background: var(--kb-bg-hover);
+  color: var(--kb-fg-hover);
+  border-color: var(--kb-border-hover);
+}
+.kb:active:not(:disabled):not(.disabled):not([data-loading]):not([data-success]) {
+  transform: scale(0.97);
+}
+/* Focus-visible — soft outer halo. A 4px ring at 35% crimson +
+   2px offset reads as a "glow" on any surface without competing
+   with the button's own fill. */
+.kb:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 4px var(--kb-focus-ring);
+}
+
+/* ── Sizes ──────────────────────────────────────────────────────
+   Four sizes share the same .kb base; size class sets padding +
+   font-size only. Heights at body line-height:
+
+     kb-sm  ~26px   compact toolbars, table actions
+     kb-md  ~32px   default forms, modal footers (legacy default)
+     kb-lg  ~36px   prominent inline CTAs
+     kb-xl  ~52px   marketing CTAs, hero, signup — DEFAULT
+
+   The DEFAULT (no size class on .kb) is xl. It uses :where() so
+   adding any explicit size class (kb-sm/md/lg/xl) overrides cleanly
+   at higher specificity.
+
+   All variants at the same size share the same content box, so a
+   row of buttons at the same size lines up to the same height. */
+
+/* Default size = xl (so <button class="kb"> just works). Zero
+   specificity via :where() so explicit size classes always win. */
+:where(.kb) { padding: 14px 28px; font-size: 13px; }
+
+.kb-sm { padding: 5px 14px;  font-size: 11px; }
+.kb-md { padding: 7px 18px;  font-size: 12px; }
+.kb-lg { padding: 9px 22px;  font-size: 13px; }
+.kb-xl { padding: 14px 28px; font-size: 13px; }
+
+/* Icon-only — square, equal padding */
+.kb-icon.kb-sm { padding: 5px;  width: 26px; height: 26px; }
+.kb-icon.kb-md { padding: 7px;  width: 30px; height: 30px; }
+.kb-icon.kb-lg { padding: 9px;  width: 36px; height: 36px; }
+.kb-icon.kb-xl { padding: 14px; width: 52px; height: 52px; }
+:where(.kb-icon) { padding: 14px; width: 52px; height: 52px; }
+.kb-icon { gap: 0; }
+
+/* ── Variants ───────────────────────────────────────────────────
+   Hover principle: same hue, brighter/more saturated — never darker.
+   Filled variants lift their bg with a small white mix; the lift
+   amount is small (8–12%) so the hover feels confident, not jumpy. */
+.kb.kb-primary {
+  --kb-bg:           var(--color-crimson);
+  --kb-fg:           var(--text-on-crimson);
+  --kb-border:       var(--color-crimson);
+  /* Lift crimson toward white in the same OKLCH lightness corridor.
+     ~10% mix gives a perceptibly brighter, slightly more saturated
+     red without going pink. Works in both themes (crimson is dark
+     in both, so mixing toward white always brightens). */
+  --kb-bg-hover:     color-mix(in oklch, var(--color-crimson) 90%, #fff);
+  --kb-fg-hover:     var(--text-on-crimson);
+  --kb-border-hover: color-mix(in oklch, var(--color-crimson) 90%, #fff);
+  --kb-ring-color:   var(--color-crimson);
+}
+
+.kb.kb-accent {
+  /* Filled with the ink primitive (dark in light theme, near-white in
+     dark theme — flips with surface so the button always reads as
+     'high-contrast filled'). Text is the page primitive so it inverts
+     in lockstep. Using primitives here, not semantic, because the
+     intent is literally 'ink on paper, both surfaces inverted'. */
+  --kb-bg:           var(--color-ink-1);
+  --kb-fg:           var(--color-paper-1);
+  --kb-border:       var(--color-ink-1);
+  /* Same logic — lift the dark ink toward white on hover so it
+     feels brighter, not muddier. The amount is tiny (5%) because
+     ink is near-black and small lifts read as a clear hover. */
+  --kb-bg-hover:     color-mix(in oklch, var(--color-ink-1) 92%, #fff);
+  --kb-fg-hover:     var(--color-paper-1);
+  --kb-border-hover: color-mix(in oklch, var(--color-ink-1) 92%, #fff);
+  --kb-ring-color:   var(--color-ink-1);
+}
+
+.kb.kb-secondary {
+  --kb-bg:           var(--surface-card);
+  --kb-fg:           var(--text-primary);
+  --kb-border:       var(--border-default);
+  --kb-bg-hover:     var(--surface-card);
+  --kb-fg-hover:     var(--text-primary);
+  --kb-border-hover: color-mix(in oklch, var(--text-primary) 28%, transparent);
+  --kb-ring-color:   var(--text-primary);
+}
+
+.kb.kb-ghost {
+  --kb-bg:           transparent;
+  --kb-fg:           var(--text-primary);
+  --kb-border:       transparent;
+  --kb-bg-hover:     color-mix(in oklch, var(--text-primary) 5%, transparent);
+  --kb-fg-hover:     var(--text-primary);
+  --kb-border-hover: transparent;
+  --kb-ring-color:   var(--text-primary);
+}
+
+.kb.kb-danger {
+  /* Uses --text-crimson (theme-aware: brand crimson on light,
+     lifted for legibility on dark). Border + text + ring all match. */
+  --kb-bg:           transparent;
+  --kb-fg:           var(--text-crimson);
+  --kb-border:       var(--text-crimson);
+  --kb-bg-hover:     color-mix(in oklch, var(--text-crimson) 10%, transparent);
+  --kb-fg-hover:     var(--text-crimson);
+  --kb-border-hover: var(--text-crimson);
+  --kb-ring-color:   var(--text-crimson);
+}
+
+/* ── Link variants ───────────────────────────────────────────────
+   Underlines drawn via ::before / ::after so each animates
+   independently. Whole text color shifts to crimson on hover.
+
+   .kb-link       — ink underline shrinks off RIGHT,
+                    crimson underline grows in from LEFT
+   .kb-link-grow  — only crimson underline grows in from LEFT */
+.kb.kb-link,
+.kb.kb-link-grow {
+  background: transparent;
+  color: var(--text-primary);
+  border: none;
+  padding: 6px 2px;
+  font-weight: 500;
+  font-size: 12px;
+  gap: 6px;
+  border-radius: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.10em;
+  text-decoration: none;
+  position: relative;
+  --kb-ring-color: var(--text-primary);
+  /* Drive the base .kb:hover rule's color via these custom props,
+     so we don't fight specificity. Background stays transparent.
+     --text-link-hover is theme-aware (lifts crimson on dark). */
+  --kb-bg-hover: transparent;
+  --kb-fg-hover: var(--text-link-hover);
+  --kb-border-hover: transparent;
+  transition: color .2s cubic-bezier(0.25,0.1,0.25,1);
+}
+
+/* Underline pseudo elements — positioned at bottom edge, full width.
+   transform-origin defines the side they grow/shrink FROM. */
+.kb.kb-link::before,
+.kb.kb-link::after,
+.kb.kb-link-grow::before {
+  content: "";
+  position: absolute;
+  left: 0; right: 0;
+  bottom: 0;
+  height: 1px;
+  pointer-events: none;
+  transition: transform .4s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+/* Crimson layer (::before) — grows in from LEFT on hover.
+   Uses --text-link-hover (theme-aware) so it stays legible on dark. */
+.kb.kb-link::before,
+.kb.kb-link-grow::before {
+  background: var(--text-link-hover);
+  transform: scaleX(0);
+  transform-origin: left center;
+}
+.kb.kb-link:hover::before,
+.kb.kb-link-grow:hover::before {
+  transform: scaleX(1);
+}
+
+/* Ink layer (::after) — only on .kb-link; full width at rest, on hover
+   anchors RIGHT and the LEFT end recedes rightward (the line shrinks
+   toward 0 on the right). Pairs with the crimson line growing in
+   from the LEFT — both move in the same direction, like a wipe. */
+.kb.kb-link::after {
+  background: currentColor;
+  transform: scaleX(1);
+  transform-origin: right center;
+}
+.kb.kb-link:hover::after {
+  transform: scaleX(0);
+}
+
+/* Whole text changes color on hover (theme-aware via --text-link-hover) */
+.kb.kb-link:hover,
+.kb.kb-link-grow:hover {
+  color: var(--text-link-hover);
+}
+
+.kb.kb-link:visited,
+.kb.kb-link-grow:visited { color: var(--text-primary); }
+
+/* Link variants need no dark-theme override — --color-crimson is already lifted */
+
+/* ── Disabled (works for <button disabled>, <a class="disabled">) ── */
+.kb:disabled,
+.kb.disabled,
+.kb[aria-disabled="true"] {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   LOADING + SUCCESS — orbiting ring, scribbled check
+   ────────────────────────────────────────────────────────────────
+   Two-tier rendering:
+     1. CSS-only fallback   — a classic spinner sits inline in the
+        button via ::before, swapping the label out. Works with
+        zero JS, zero SVG, zero animation chaining.
+     2. Enhanced (button.js) — the script stamps the button with
+        `.kb-orbit` and injects the orbiting comet ring. The CSS
+        below hides the fallback spinner once `.kb-orbit` is set,
+        so authors get the premium animation when JS runs and a
+        perfectly-fine spinner when it doesn't.
+
+   Ring color is locked to --kb-ring-color so it matches the
+   variant on both themes through every phase. Authors only need
+   to toggle [data-loading] / [data-success].
+   ════════════════════════════════════════════════════════════════ */
+.kb[data-loading],
+.kb[data-success] {
+  pointer-events: none;
+  position: relative;
+}
+
+/* ── CSS-only fallback spinner ─────────────────────────────────── */
+.kb[data-loading] {
+  color: transparent !important;
+  text-shadow: none !important;
+}
+.kb[data-loading] > * { visibility: hidden; }
+.kb[data-loading]::before {
+  content: "";
+  position: absolute;
+  left: 50%; top: 50%;
+  right: auto; bottom: auto;
+  transform: none;
+  width: 14px; height: 14px;
+  margin: -7px 0 0 -7px;
+  background: transparent;
+  border-radius: 50%;
+  border: 1.5px solid currentColor;
+  border-top-color: transparent;
+  color: var(--kb-ring-color);
+  opacity: 1;
+  animation: kb-spin .8s linear infinite;
+  transition: none;
+}
+.kb[data-loading]::after { display: none; }
+.kb-sm[data-loading]::before { width: 12px; height: 12px; margin: -6px 0 0 -6px; border-width: 1.5px; }
+.kb-lg[data-loading]::before { width: 16px; height: 16px; margin: -8px 0 0 -8px; border-width: 2px; }
+.kb-xl[data-loading]::before { width: 18px; height: 18px; margin: -9px 0 0 -9px; border-width: 2px; }
+
+/* When the JS-driven orbit is active, the comet runs OUTSIDE the
+   button — so we show the label again and hide the fallback dot. */
+.kb.kb-orbit[data-loading] {
+  color: var(--kb-fg) !important;
+}
+.kb.kb-orbit[data-loading] > * { visibility: visible; }
+.kb.kb-orbit[data-loading]::before { display: none; }
+
+@keyframes kb-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* While success: ring forms (text still visible), then on completion
+   .kb-ring-forming drops and CSS swaps text → check. */
+.kb[data-success]:not(.kb-ring-forming) {
+  color: transparent !important;
+  text-shadow: none !important;
+}
+.kb[data-success]:not(.kb-ring-forming) > *:not(.kb-loader):not(.kb-check) {
+  opacity: 0;
+  transition: opacity .22s ease;
+}
+/* Hide fallback spinner during success phases (the ring or check takes over) */
+.kb[data-success]::before { display: none; }
+
+.kb-loader {
+  position: absolute;
+  top: -6px; bottom: -6px;
+  left: -8px; right: -8px;
+  width: calc(100% + 16px) !important;
+  height: calc(100% + 12px) !important;
+  pointer-events: none;
+  overflow: visible;
+  color: var(--kb-ring-color);
+  transform: none !important;
+  stroke: none;
+}
+.kb-loader rect {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+}
+
+.kb-check {
+  position: absolute;
+  left: 50%; top: 50%;
+  width: 18px; height: 18px;
+  margin: -9px 0 0 -9px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .2s ease .08s;
+  transform: none !important;
+}
+.kb-sm .kb-check { width: 14px; height: 14px; margin: -7px 0 0 -7px; }
+.kb-lg .kb-check { width: 20px; height: 20px; margin: -10px 0 0 -10px; }
+.kb-check path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 24;
+  stroke-dashoffset: 24;
+  transition: stroke-dashoffset .55s cubic-bezier(0.65, 0, 0.35, 1) .18s;
+}
+.kb[data-success]:not(.kb-ring-forming) .kb-check { opacity: 1; }
+.kb[data-success]:not(.kb-ring-forming) .kb-check path { stroke-dashoffset: 0; }
+
+/* Check color sits ON TOP of the button's fill, so for filled variants
+   it must match the button's text color, not the ring color. */
+.kb.kb-primary .kb-check { color: var(--text-on-crimson); }
+.kb.kb-accent  .kb-check { color: var(--color-paper-1); }
+.kb.kb-secondary .kb-check,
+.kb.kb-ghost     .kb-check,
+.kb.kb-link      .kb-check,
+.kb.kb-link-grow .kb-check { color: var(--text-primary); }
+.kb.kb-danger    .kb-check { color: var(--text-crimson); }
+
+@media (prefers-reduced-motion: reduce) {
+  .kb-loader rect { display: none; }
+  .kb-check path { transition: none; stroke-dashoffset: 0; }
+  .kb { transition: none; }
+  .kb[data-loading]::before { animation: none; border-top-color: currentColor; opacity: 0.4; }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   SKELETON / RENDER-PENDING — `.ds-skel` utility
+   ────────────────────────────────────────────────────────────────
+   Soft horizontal shimmer for placeholder boxes.
+   <div class="ds-skel" style="height:24px;width:200px"></div>
+   ════════════════════════════════════════════════════════════════ */
+.ds-skel {
+  position: relative;
+  overflow: hidden;
+  background: color-mix(in oklch, var(--text-primary) 5%, transparent);
+  border-radius: var(--radius-md);
+}
+.ds-skel::after {
+  content: "";
+  position: absolute; inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in oklch, var(--text-primary) 4%, transparent) 30%,
+    color-mix(in oklch, var(--text-primary) 10%, transparent) 50%,
+    color-mix(in oklch, var(--text-primary) 4%, transparent) 70%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  background-repeat: no-repeat;
+  animation: ds-skel-shimmer 1.4s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+@keyframes ds-skel-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -100% 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ds-skel::after { animation: none; }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   ICONS inside .kb
+   ────────────────────────────────────────────────────────────────
+   Right-side icons (.arr-svg as last-child) translate-x on hover.
+   First-child icons get a tiny scale instead.
+   Icons NOT marked .arr-svg never move.
+   ════════════════════════════════════════════════════════════════ */
+.kb svg,
+.kb .arr-svg {
+  width: 14px; height: 14px;
+  flex-shrink: 0;
+  display: block;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+  transition: transform .25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.kb-sm svg, .kb-sm .arr-svg { width: 12px; height: 12px; }
+.kb-lg svg, .kb-lg .arr-svg { width: 15px; height: 15px; }
+.kb-xl svg, .kb-xl .arr-svg { width: 16px; height: 16px; }
+.kb-icon.kb-sm svg { width: 14px; height: 14px; }
+.kb-icon.kb-md svg { width: 16px; height: 16px; }
+.kb-icon.kb-lg svg { width: 18px; height: 18px; }
+.kb-icon.kb-xl svg { width: 20px; height: 20px; }
+
+/* Hover interaction rules — opt-in slide via .arr-svg class.
+
+   The system has ONE special motion: the "go" arrow slides right on
+   hover. To trigger it, mark the trailing arrow SVG with
+   `class="arr-svg"`. Everything else gets a gentle scale-up.
+
+      <button class="kb kb-primary">
+        Run mine
+        <svg class="arr-svg" …>…→…</svg>   ← slides right on hover
+      </button>
+
+   Why opt-in: the slide only reads correctly for actual go-arrows
+   pointing right. A leading icon, an envelope, a chain link, or any
+   decorative icon should NOT slide — it should subtly scale to
+   acknowledge the hover. The class is the author's explicit signal:
+   "this icon is the directional CTA affordance, animate accordingly."
+
+   Icon-only buttons (.kb-icon modifier) always scale, even if their
+   SVG has .arr-svg — the slide doesn't make sense without text to
+   slide away from. */
+
+/* .arr-svg in a text-bearing button → slide right 3px */
+.kb:not(.kb-icon):hover > .arr-svg { transform: translateX(3px); }
+
+/* Every other SVG (no .arr-svg, OR icon-only button) → scale up 1.08 */
+.kb:hover > svg:not(.arr-svg) { transform: scale(1.08); }
+.kb.kb-icon:hover > .arr-svg { transform: scale(1.08); }
+
+/* Loader and check must NOT be moved by hover transforms */
+.kb:hover > .kb-loader,
+.kb:hover > .kb-check { transform: none !important; }

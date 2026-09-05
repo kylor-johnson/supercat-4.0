@@ -1,0 +1,724 @@
+<!doctype html>
+<html lang="en" data-skin="proposed">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>eCat Sales Portal — Proposed Skin Mockup</title>
+<link rel="stylesheet" href="../ds/tokens/index.css?v=12" />
+<link rel="stylesheet" href="../ds/primitives/button.css?v=70" />
+<style>
+  /* ═══════════════════════════════════════════════════════════════
+     Mockup: Sales Portal chrome with design-system token bridge.
+     Toggle data-skin="legacy" | "proposed" on <html>.
+     This is Phase 1 (reskin existing structure), not a full .kshell rewrite.
+     ═══════════════════════════════════════════════════════════════ */
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; height: 100%; }
+  body {
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    min-height: 100dvh;
+    background: var(--mock-page);
+    color: var(--mock-text);
+  }
+  a { color: var(--mock-link); text-decoration: none; }
+  a:hover { color: var(--mock-link-hover); }
+
+  /* ── Token bridge: proposed (design system → portal vars) ── */
+  html[data-skin="proposed"] {
+    --mock-page:            var(--surface-page);
+    --mock-surface:         var(--surface-card);
+    --mock-surface-2:       var(--surface-2);
+    --mock-surface-3:       var(--surface-3);
+    --mock-text:            var(--text-primary);
+    --mock-text-body:       var(--text-body);
+    --mock-text-muted:      var(--text-muted);
+    --mock-text-faint:      var(--text-faint);
+    --mock-border:          var(--border-default);
+    --mock-border-strong:   var(--border-strong);
+    --mock-highlight:       var(--action-primary);
+    --mock-highlight-hover: var(--action-primary-hover);
+    --mock-highlight-tint:  var(--action-primary-tint);
+    --mock-link:            var(--text-link);
+    --mock-link-hover:      var(--text-link-hover);
+    --mock-nav-bg:          var(--surface-card);
+    --mock-nav-fg:          var(--text-body);
+    --mock-nav-active-bg:   var(--surface-2);
+    --mock-nav-active-fg:   var(--text-primary);
+    --mock-header-bg:       var(--surface-2);
+    --mock-btn-bg:          var(--action-primary);
+    --mock-btn-fg:          var(--text-on-crimson);
+    --mock-btn-hover:       var(--action-primary-hover);
+    --mock-stat:            var(--action-primary);
+    --mock-chart-a:         var(--color-ink-2);
+    --mock-chart-b:         var(--color-gold);
+    --mock-radius:          var(--radius-md);
+    --mock-font:            var(--font-sans);
+    --mock-font-mono:       var(--font-mono);
+    --mock-shadow:          var(--shadow-1, 0 1px 2px rgba(26,22,20,.06));
+  }
+
+  /* ── Legacy approximation: Default (dark/gold) + Open Sans feel ── */
+  html[data-skin="legacy"] {
+    --mock-page:            #f0f0f0;
+    --mock-surface:         #ffffff;
+    --mock-surface-2:       #e8e8e8;
+    --mock-surface-3:       #dcdcdc;
+    --mock-text:            #303030;
+    --mock-text-body:       #555555;
+    --mock-text-muted:      #808080;
+    --mock-text-faint:      #aaaaaa;
+    --mock-border:          #d0d0d0;
+    --mock-border-strong:   #999999;
+    --mock-highlight:       #e0c465;
+    --mock-highlight-hover: #d7b43b;
+    --mock-highlight-tint:  #fff8e2;
+    --mock-link:            #a68200;
+    --mock-link-hover:      #847558;
+    --mock-nav-bg:          #222222;
+    --mock-nav-fg:          #e0e0e0;
+    --mock-nav-active-bg:   #303030;
+    --mock-nav-active-fg:   #e0c465;
+    --mock-header-bg:       rgba(0,0,0,.08);
+    --mock-btn-bg:          #e0c465;
+    --mock-btn-fg:          #222222;
+    --mock-btn-hover:       #d7b43b;
+    --mock-stat:            #a68200;
+    --mock-chart-a:         #638aa8;
+    --mock-chart-b:         #e0c465;
+    --mock-radius:          3px;
+    --mock-font:            "Open Sans", "Helvetica Neue", Arial, sans-serif;
+    --mock-font-mono:       "Open Sans", Arial, sans-serif;
+    --mock-shadow:          0 0 5px rgba(0,0,0,.2);
+  }
+  html[data-skin="legacy"] body {
+    font-family: var(--mock-font);
+  }
+
+  /* ── Review chrome (outside the portal frame) ── */
+  .review-bar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 20px;
+    padding: 10px 18px;
+    background: #1A1614;
+    color: #F5F2EC;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .review-bar .label { color: #B5B0A9; margin-right: 4px; }
+  .review-bar .brand-mark {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-right: auto;
+    letter-spacing: 0.18em;
+  }
+  .review-bar .brand-mark svg { width: 28px; height: 19px; }
+  .skin-toggle {
+    display: inline-flex;
+    border: 1px solid rgba(245,242,236,.2);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .skin-toggle button {
+    appearance: none;
+    border: 0;
+    background: transparent;
+    color: #B5B0A9;
+    font: inherit;
+    letter-spacing: inherit;
+    text-transform: inherit;
+    padding: 8px 14px;
+    cursor: pointer;
+  }
+  .skin-toggle button[aria-pressed="true"] {
+    background: #7A1218;
+    color: #F5F2EC;
+  }
+  .review-note {
+    color: #8A857D;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: none;
+    max-width: 42ch;
+  }
+  .review-note strong { color: #EDE4D6; font-weight: 600; }
+
+  /* ── Portal shell (approximates current eOL layout) ── */
+  .portal {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    min-height: calc(100dvh - 48px);
+  }
+
+  .nav {
+    background: var(--mock-nav-bg);
+    color: var(--mock-nav-fg);
+    border-right: 1px solid var(--mock-border);
+    display: flex;
+    flex-direction: column;
+    padding: 20px 12px;
+    gap: 4px;
+  }
+  .nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px 24px;
+  }
+  .nav-logo .mark {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--mock-radius);
+    background: var(--mock-highlight);
+    display: grid;
+    place-items: center;
+  }
+  .nav-logo .mark svg { width: 22px; height: 15px; }
+  html[data-skin="legacy"] .nav-logo .mark svg path { fill: #222 !important; }
+  html[data-skin="proposed"] .nav-logo .mark {
+    background: transparent;
+    border: 1px solid var(--mock-border);
+  }
+  html[data-skin="proposed"] .nav-logo .mark svg path { fill: #B97727; }
+  .nav-logo .org {
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.2;
+    color: inherit;
+  }
+  .nav-logo .org small {
+    display: block;
+    font-family: var(--mock-font-mono);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    opacity: 0.65;
+    margin-top: 2px;
+  }
+  .nav-section {
+    font-family: var(--mock-font-mono);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    opacity: 0.5;
+    padding: 16px 12px 6px;
+  }
+  .nav a.item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: var(--mock-radius);
+    color: inherit;
+    font-size: 14px;
+  }
+  .nav a.item:hover {
+    background: var(--mock-nav-active-bg);
+    color: var(--mock-nav-active-fg);
+  }
+  .nav a.item[aria-current="page"] {
+    background: var(--mock-nav-active-bg);
+    color: var(--mock-nav-active-fg);
+    font-weight: 600;
+  }
+  .nav a.item .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 99px;
+    background: currentColor;
+    opacity: 0.45;
+  }
+  .nav a.item[aria-current="page"] .dot {
+    background: var(--mock-highlight);
+    opacity: 1;
+  }
+  .nav-foot {
+    margin-top: auto;
+    padding: 16px 12px 8px;
+    border-top: 1px solid color-mix(in srgb, var(--mock-nav-fg) 12%, transparent);
+    font-size: 12px;
+    opacity: 0.7;
+  }
+
+  .main { min-width: 0; display: flex; flex-direction: column; }
+
+  .menubar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 24px;
+    background: var(--mock-header-bg);
+    border-bottom: 1px solid var(--mock-border);
+  }
+  .menubar h1 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--mock-text);
+  }
+  .menubar .crumbs {
+    font-family: var(--mock-font-mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--mock-text-muted);
+  }
+  .menubar .spacer { flex: 1; }
+  .menubar .user {
+    font-size: 13px;
+    color: var(--mock-text-muted);
+  }
+
+  .content {
+    padding: 20px 24px 48px;
+    display: grid;
+    gap: 16px;
+  }
+
+  /* Filters — matches portal filter strip shape */
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 12px;
+    padding: 16px;
+    background: var(--mock-surface);
+    border: 1px solid var(--mock-border);
+    border-radius: var(--mock-radius);
+    box-shadow: var(--mock-shadow);
+  }
+  .field { display: grid; gap: 6px; min-width: 140px; }
+  .field label {
+    font-family: var(--mock-font-mono);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--mock-text-muted);
+  }
+  .field select, .field input {
+    appearance: none;
+    height: 36px;
+    padding: 0 12px;
+    border: 1px solid var(--mock-border);
+    border-radius: var(--mock-radius);
+    background: var(--mock-page);
+    color: var(--mock-text);
+    font: 14px/1 var(--mock-font);
+  }
+  .btn {
+    height: 36px;
+    padding: 0 16px;
+    border: 0;
+    border-radius: var(--mock-radius);
+    background: var(--mock-btn-bg);
+    color: var(--mock-btn-fg);
+    font-family: var(--mock-font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+  .btn:hover { background: var(--mock-btn-hover); }
+  .btn-ghost {
+    background: transparent;
+    color: var(--mock-text);
+    border: 1px solid var(--mock-border);
+  }
+  .btn-ghost:hover { background: var(--mock-surface-2); }
+
+  .panel {
+    background: var(--mock-surface);
+    border: 1px solid var(--mock-border);
+    border-radius: var(--mock-radius);
+    box-shadow: var(--mock-shadow);
+    overflow: hidden;
+  }
+  .panel-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: var(--mock-surface-2);
+    border-bottom: 1px solid var(--mock-border);
+  }
+  .panel-head h2 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--mock-text);
+  }
+  .panel-head .meta {
+    margin-left: auto;
+    font-family: var(--mock-font-mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--mock-text-muted);
+  }
+  .panel-body { padding: 16px; }
+
+  .stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  @media (max-width: 720px) {
+    .portal { grid-template-columns: 1fr; }
+    .nav { display: none; }
+    .stats { grid-template-columns: 1fr; }
+  }
+  .stat {
+    padding: 20px 16px;
+    border-radius: var(--mock-radius);
+    background: var(--mock-page);
+    border: 1px solid var(--mock-border);
+  }
+  .stat h3 {
+    margin: 0 0 8px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .stat h3 a { color: var(--mock-link); }
+  .stat .value {
+    font-size: 32px;
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    color: var(--mock-stat);
+    font-variant-numeric: tabular-nums;
+  }
+  .stat .delta {
+    margin-top: 6px;
+    font-size: 12px;
+    color: var(--mock-text-muted);
+  }
+  .stat .delta.up { color: #2D6A4F; }
+
+  .chart {
+    height: 220px;
+    display: grid;
+    grid-template-rows: 1fr auto;
+    gap: 12px;
+  }
+  .chart-bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    height: 180px;
+    padding: 0 4px;
+    border-bottom: 1px solid var(--mock-border);
+  }
+  .chart-bars .col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: 3px;
+    height: 100%;
+  }
+  .chart-bars .bar {
+    border-radius: 2px 2px 0 0;
+    width: 100%;
+  }
+  .chart-bars .bar.a { background: var(--mock-chart-a); }
+  .chart-bars .bar.b { background: var(--mock-chart-b); }
+  .chart-legend {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    font-family: var(--mock-font-mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--mock-text-muted);
+  }
+  .chart-legend i {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    margin-right: 6px;
+    vertical-align: -1px;
+  }
+  .chart-legend .a i { background: var(--mock-chart-a); }
+  .chart-legend .b i { background: var(--mock-chart-b); }
+
+  .widgets {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  @media (max-width: 900px) { .widgets { grid-template-columns: 1fr; } }
+
+  table.list {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  table.list th {
+    text-align: left;
+    font-family: var(--mock-font-mono);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--mock-text-muted);
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--mock-border);
+  }
+  table.list td {
+    padding: 10px;
+    border-bottom: 1px solid color-mix(in srgb, var(--mock-border) 70%, transparent);
+    color: var(--mock-text-body);
+  }
+  table.list tr:hover td { background: var(--mock-highlight-tint); }
+  table.list td.num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    color: var(--mock-text);
+    font-weight: 500;
+  }
+  table.list td.rank {
+    width: 28px;
+    color: var(--mock-text-faint);
+    font-family: var(--mock-font-mono);
+    font-size: 11px;
+  }
+
+  .callout {
+    margin: 0 24px 0;
+    padding: 12px 16px;
+    border-left: 3px solid var(--mock-highlight);
+    background: var(--mock-highlight-tint);
+    color: var(--mock-text-body);
+    font-size: 13px;
+    line-height: 1.45;
+    border-radius: 0 var(--mock-radius) var(--mock-radius) 0;
+  }
+  html[data-skin="legacy"] .callout {
+    border-left-color: #a68200;
+  }
+</style>
+</head>
+<body>
+
+  <div class="review-bar">
+    <div class="brand-mark">
+      <svg viewBox="0 0 41 28" fill="none" aria-hidden="true">
+        <path d="M20.4773 17.6424C16.8375 10.6856 13.5207 10.6117 10.2067 10.5378C8.69685 10.5042 7.18762 10.4706 5.64872 9.78608L0 0H2.43148C5.09633 3.25885 7.65432 3.51236 10.2129 3.76594C13.5561 4.09728 16.9003 4.42872 20.4853 11.4648C24.0761 4.39466 27.4109 4.0844 30.7463 3.77408C33.2971 3.53675 35.8483 3.29939 38.5148 0.0385625H41L35.3692 9.78883C33.8047 10.503 32.2722 10.5331 30.7392 10.5634C27.4294 10.6286 24.1175 10.6937 20.4773 17.6424Z" fill="#B97727"/>
+        <path d="M20.4773 27.9975L20.4771 27.9972L20.4756 28L20.4756 27.9944C17.538 22.3699 14.7931 21.2243 12.1087 20.9635L7.9752 13.8017C8.72235 13.9462 9.4664 14.0158 10.2103 14.0855C13.5487 14.398 16.8835 14.7102 20.4773 21.7843C24.0589 14.7274 27.3849 14.4269 30.7115 14.1261C31.4831 14.0563 32.2548 13.9866 33.0298 13.8324L28.8886 20.9942C26.1863 21.25 23.4405 22.3367 20.4773 27.9969V27.9975Z" fill="#B97727"/>
+      </svg>
+      Sales Portal skin mockup
+    </div>
+    <span class="label">Compare</span>
+    <div class="skin-toggle" role="group" aria-label="Skin">
+      <button type="button" id="btn-legacy" aria-pressed="false">Legacy</button>
+      <button type="button" id="btn-proposed" aria-pressed="true">Proposed</button>
+    </div>
+    <p class="review-note">
+      Phase 1 token bridge on existing portal chrome —
+      <strong>not</strong> a full .kshell rebuild.
+    </p>
+  </div>
+
+  <div class="portal">
+    <aside class="nav" aria-label="Primary">
+      <div class="nav-logo">
+        <div class="mark" aria-hidden="true">
+          <svg viewBox="0 0 41 28" fill="none">
+            <path d="M20.4773 17.6424C16.8375 10.6856 13.5207 10.6117 10.2067 10.5378C8.69685 10.5042 7.18762 10.4706 5.64872 9.78608L0 0H2.43148C5.09633 3.25885 7.65432 3.51236 10.2129 3.76594C13.5561 4.09728 16.9003 4.42872 20.4853 11.4648C24.0761 4.39466 27.4109 4.0844 30.7463 3.77408C33.2971 3.53675 35.8483 3.29939 38.5148 0.0385625H41L35.3692 9.78883C33.8047 10.503 32.2722 10.5331 30.7392 10.5634C27.4294 10.6286 24.1175 10.6937 20.4773 17.6424Z" fill="#222"/>
+            <path d="M20.4773 27.9975L20.4771 27.9972L20.4756 28L20.4756 27.9944C17.538 22.3699 14.7931 21.2243 12.1087 20.9635L7.9752 13.8017C8.72235 13.9462 9.4664 14.0158 10.2103 14.0855C13.5487 14.398 16.8835 14.7102 20.4773 21.7843C24.0589 14.7274 27.3849 14.4269 30.7115 14.1261C31.4831 14.0563 32.2548 13.9866 33.0298 13.8324L28.8886 20.9942C26.1863 21.25 23.4405 22.3367 20.4773 27.9969V27.9975Z" fill="#222"/>
+          </svg>
+        </div>
+        <div class="org">
+          Acme Furnishings
+          <small>eCat Online</small>
+        </div>
+      </div>
+
+      <div class="nav-section">Catalog</div>
+      <a class="item" href="#"><span class="dot"></span> Products</a>
+      <a class="item" href="#"><span class="dot"></span> Customers</a>
+      <a class="item" href="#"><span class="dot"></span> Orders</a>
+
+      <div class="nav-section">Sales Portal</div>
+      <a class="item" href="#" aria-current="page"><span class="dot"></span> Dashboard</a>
+      <a class="item" href="#"><span class="dot"></span> Orders</a>
+      <a class="item" href="#"><span class="dot"></span> Invoices</a>
+      <a class="item" href="#"><span class="dot"></span> Reports</a>
+
+      <div class="nav-foot">Signed in as Alex M.</div>
+    </aside>
+
+    <div class="main">
+      <header class="menubar">
+        <div>
+          <div class="crumbs">Sales Portal / Dashboard</div>
+          <h1>Dashboard</h1>
+        </div>
+        <div class="spacer"></div>
+        <span class="user">Territory · West</span>
+      </header>
+
+      <p class="callout" id="callout">
+        Proposed: paper canvas, crimson actions, Geist type, gold as chart accent only —
+        same panels/filters/widgets as today, new token values.
+      </p>
+
+      <div class="content">
+        <form class="filters" onsubmit="return false;">
+          <div class="field">
+            <label for="range">Date range</label>
+            <select id="range">
+              <option>Current YTD</option>
+              <option>Previous YTD</option>
+              <option>Previous Year</option>
+              <option>All available</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="terr">Territory</label>
+            <select id="terr">
+              <option>All territories</option>
+              <option>West</option>
+              <option>East</option>
+              <option>Midwest</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="cust">Customer</label>
+            <input id="cust" type="search" placeholder="Search…" />
+          </div>
+          <button class="btn" type="submit">Filter</button>
+          <button class="btn btn-ghost" type="button">Reset</button>
+        </form>
+
+        <div class="panel">
+          <div class="panel-body">
+            <div class="stats">
+              <div class="stat">
+                <h3><a href="#">Backlog Total</a></h3>
+                <div class="value">$1,284,390</div>
+                <div class="delta up">↑ 8.2% vs prior period</div>
+              </div>
+              <div class="stat">
+                <h3><a href="#">Invoice Total</a></h3>
+                <div class="value">$4,917,205</div>
+                <div class="delta">YTD · open invoices excluded</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <h2>Sales and Orders</h2>
+            <span class="meta">Current YTD</span>
+          </div>
+          <div class="panel-body">
+            <div class="chart" aria-hidden="true">
+              <div class="chart-bars">
+                <div class="col"><div class="bar a" style="height:42%"></div><div class="bar b" style="height:28%"></div></div>
+                <div class="col"><div class="bar a" style="height:55%"></div><div class="bar b" style="height:36%"></div></div>
+                <div class="col"><div class="bar a" style="height:48%"></div><div class="bar b" style="height:40%"></div></div>
+                <div class="col"><div class="bar a" style="height:62%"></div><div class="bar b" style="height:44%"></div></div>
+                <div class="col"><div class="bar a" style="height:70%"></div><div class="bar b" style="height:51%"></div></div>
+                <div class="col"><div class="bar a" style="height:58%"></div><div class="bar b" style="height:47%"></div></div>
+                <div class="col"><div class="bar a" style="height:74%"></div><div class="bar b" style="height:55%"></div></div>
+                <div class="col"><div class="bar a" style="height:68%"></div><div class="bar b" style="height:60%"></div></div>
+                <div class="col"><div class="bar a" style="height:80%"></div><div class="bar b" style="height:58%"></div></div>
+                <div class="col"><div class="bar a" style="height:72%"></div><div class="bar b" style="height:64%"></div></div>
+                <div class="col"><div class="bar a" style="height:88%"></div><div class="bar b" style="height:70%"></div></div>
+                <div class="col"><div class="bar a" style="height:76%"></div><div class="bar b" style="height:66%"></div></div>
+              </div>
+              <div class="chart-legend">
+                <span class="a"><i></i> Invoices</span>
+                <span class="b"><i></i> Orders</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="widgets">
+          <div class="panel">
+            <div class="panel-head">
+              <h2>Top Customers</h2>
+              <span class="meta">By invoice $</span>
+            </div>
+            <div class="panel-body" style="padding:0">
+              <table class="list">
+                <thead>
+                  <tr><th></th><th>Customer</th><th style="text-align:right">Total</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td class="rank">01</td><td>Harbor Home Interiors</td><td class="num">$412,880</td></tr>
+                  <tr><td class="rank">02</td><td>Westfield Design Group</td><td class="num">$287,140</td></tr>
+                  <tr><td class="rank">03</td><td>Northline Contract</td><td class="num">$241,055</td></tr>
+                  <tr><td class="rank">04</td><td>Studio Meridian</td><td class="num">$198,620</td></tr>
+                  <tr><td class="rank">05</td><td>Palladium Furnishings</td><td class="num">$176,390</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head">
+              <h2>Top Products</h2>
+              <span class="meta">By units</span>
+            </div>
+            <div class="panel-body" style="padding:0">
+              <table class="list">
+                <thead>
+                  <tr><th></th><th>Product</th><th style="text-align:right">Units</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td class="rank">01</td><td>Oakdale Lounge Chair</td><td class="num">1,842</td></tr>
+                  <tr><td class="rank">02</td><td>Meridian Side Table</td><td class="num">1,506</td></tr>
+                  <tr><td class="rank">03</td><td>Cascade Sofa — 84"</td><td class="num">984</td></tr>
+                  <tr><td class="rank">04</td><td>Linea Dining Chair</td><td class="num">871</td></tr>
+                  <tr><td class="rank">05</td><td>Harbor Bench</td><td class="num">743</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  const root = document.documentElement;
+  const btnLegacy = document.getElementById('btn-legacy');
+  const btnProposed = document.getElementById('btn-proposed');
+  const callout = document.getElementById('callout');
+
+  const notes = {
+    legacy: 'Legacy: Default theme approximation — charcoal nav, gold CTAs, Open Sans, cool gray page.',
+    proposed: 'Proposed: paper canvas, crimson actions, Geist type, gold as chart accent only — same panels/filters/widgets as today, new token values.'
+  };
+
+  function setSkin(skin) {
+    root.setAttribute('data-skin', skin);
+    btnLegacy.setAttribute('aria-pressed', skin === 'legacy' ? 'true' : 'false');
+    btnProposed.setAttribute('aria-pressed', skin === 'proposed' ? 'true' : 'false');
+    callout.textContent = notes[skin];
+  }
+
+  btnLegacy.addEventListener('click', () => setSkin('legacy'));
+  btnProposed.addEventListener('click', () => setSkin('proposed'));
+</script>
+</body>
+</html>

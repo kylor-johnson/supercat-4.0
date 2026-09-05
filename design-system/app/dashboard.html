@@ -1,0 +1,1368 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>SuperCat App — Dashboard</title>
+
+<link rel="stylesheet" href="../ds/tokens/index.css?v=12" />
+<link rel="stylesheet" href="../ds/primitives/button.css?v=68" />
+<link rel="stylesheet" href="../ds/primitives/check.css?v=14" />
+<link rel="stylesheet" href="../ds/primitives/input.css?v=15" />
+<link rel="stylesheet" href="../ds/primitives/field.css?v=13" />
+<link rel="stylesheet" href="../ds/primitives/table.css?v=6" />
+<link rel="stylesheet" href="../ds/primitives/card.css?v=10" />
+<link rel="stylesheet" href="../ds/primitives/tabs.css?v=13" />
+<link rel="stylesheet" href="../ds/primitives/nav.css?v=13" />
+<link rel="stylesheet" href="../ds/primitives/skeleton.css?v=1" />
+<script src="../ds/primitives/tabs.js?v=8" defer></script>
+<script src="../ds/primitives/skeleton.js?v=1" defer></script>
+<script src="../nav/marketing-nav.js?v=13" defer></script>
+<script src="../nav/app-sidebar.js?v=2" defer></script>
+
+<style>
+  html, body { margin: 0; padding: 0; height: 100%; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--surface-page);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    min-height: 100dvh;
+  }
+
+  /* ── App shell — floating composition ── */
+  .kshell {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    min-height: 100dvh;
+    padding: clamp(12px, 1.4vw, 20px);
+    gap: clamp(12px, 1.4vw, 20px);
+    background: var(--surface-page);
+  }
+  .kshell-main {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+    gap: clamp(8px, 1vw, 16px);
+  }
+  .kshell-top {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    height: 52px;
+    padding: 0 var(--space-2);
+    background: transparent;
+    border: 0;
+    flex-shrink: 0;
+  }
+  .kshell-content {
+    flex: 1;
+    padding: 0 var(--space-2) clamp(24px, 3vw, 56px);
+    overflow: visible;
+  }
+
+  .crumb-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-widest);
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .crumb-row a {
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color .15s var(--ease-out);
+  }
+  .crumb-row a:hover { color: var(--text-primary); }
+  .crumb-row .crumb-sep { color: var(--text-faint); font-size: 14px; }
+  .crumb-row .crumb-here { color: var(--text-primary); }
+
+  .topbar-actions {
+    display: flex; gap: var(--space-2); margin-left: auto;
+  }
+
+  .page-head {
+    display: flex;
+    align-items: flex-end;
+    gap: var(--space-4);
+    margin: 0 0 var(--space-7);
+    flex-wrap: wrap;
+  }
+  .page-head h1 {
+    margin: 0;
+    font-size: clamp(28px, 3vw, 40px);
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-tighter);
+    font-weight: var(--weight-medium);
+  }
+  .page-head .meta {
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    letter-spacing: var(--tracking-widest);
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .page-head .actions {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  /* Section separator between groups of cards on the dashboard */
+  .section-head {
+    display: flex; align-items: baseline; gap: var(--space-3);
+    margin: var(--space-8) 0 var(--space-4);
+    padding-bottom: var(--space-3);
+    border-bottom: 1px dashed var(--border-subtle);
+  }
+  .section-head h2 {
+    margin: 0;
+    font-size: var(--text-xl);
+    font-weight: var(--weight-medium);
+    letter-spacing: var(--tracking-tighter);
+  }
+  .section-head .meta {
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    letter-spacing: var(--tracking-widest);
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-left: auto;
+  }
+
+  /* Layout helpers — two-column dashboard grid */
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: clamp(16px, 1.6vw, 24px);
+    align-items: stretch;
+  }
+  .grid-2 > * { min-width: 0; }
+  @media (max-width: 880px) {
+    .grid-2 { grid-template-columns: 1fr; }
+  }
+
+  /* Bar plot grows to fill the card. The body of the chart card
+     becomes a flex column, the plot itself takes flex: 1 so the
+     bars rise to match the card's full height. */
+  .kc:has(> .kc-body > .chart-plot) > .kc-body { display: flex; flex-direction: column; padding: 0; }
+  .chart-plot {
+    display: flex;
+    align-items: flex-end;
+    gap: 6px;
+    flex: 1;
+    min-height: 200px;     /* never shorter than this on a tiny card */
+    padding: var(--space-4) var(--space-4) var(--space-3);
+    border-bottom: 1px dashed var(--border-subtle);
+  }
+  .chart-bar {
+    flex: 1;
+    /* Soft warm gradient — same restraint palette as Goal-progress
+       bars. Top has a touch more saturation so each bar gets a quiet
+       editorial fade to the baseline. */
+    background: linear-gradient(180deg,
+      color-mix(in oklch, var(--color-clay) 32%, transparent),
+      color-mix(in oklch, var(--color-clay) 8%, transparent));
+    border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+    min-width: 0;
+    position: relative;
+  }
+  [data-theme="dark"] .chart-bar {
+    background: linear-gradient(180deg,
+      rgba(235, 230, 215, 0.26),
+      rgba(235, 230, 215, 0.06));
+  }
+  .chart-bar.is-peak {
+    /* Peak day — the editorial "moment" of the chart. */
+    background: linear-gradient(180deg,
+      var(--color-gold),
+      color-mix(in oklch, var(--color-gold) 30%, transparent));
+  }
+
+
+  /* ── Donut chart ─────────────────────────────────────────────
+     Bigger ring (240 × 240), thinner stroke, generous inner room
+     for the center label. Five harmonic segments (clay → gold
+     spectrum), interactive hover. */
+  .donut-wrap {
+    position: relative;
+    width: 240px;
+    height: 240px;
+    margin: 0 auto var(--space-5);
+  }
+  .donut {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+  .donut-seg {
+    transition: stroke-width 200ms var(--ease-out),
+                opacity      120ms var(--ease-out);
+    cursor: pointer;
+  }
+  /* Slightly thinner stroke + dramatic lift on hover for Apple feel.
+     Inner hole grows from r=42-9=33 → ≈38 px radius free space → ~76 px
+     diameter clear for the center text. */
+  .donut-wrap[data-hover] .donut-seg:not([data-active]) {
+    opacity: 0.32;
+  }
+  .donut-seg:hover { stroke-width: 16; }
+
+  .donut-center {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    text-align: center;
+    padding: 0 28px;   /* keep text inside the inner ring */
+  }
+  .donut-pct {
+    font-size: 40px;
+    font-weight: var(--weight-medium);
+    letter-spacing: var(--tracking-tightest, -0.025em);
+    font-variant-numeric: tabular-nums lining-nums;
+    color: var(--text-primary);
+    line-height: 1;
+    transition: color 120ms var(--ease-out);
+  }
+  .donut-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: var(--tracking-widest);
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-top: 6px;
+  }
+  .donut-meta {
+    /* Hidden by default — only the hover state surfaces the count.
+       Frees the center block for the headline pct + label. */
+    display: none;
+  }
+  .donut-wrap[data-hover] .donut-meta {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: var(--tracking-wider);
+    text-transform: uppercase;
+    color: var(--text-faint);
+    margin-top: 4px;
+  }
+
+  /* Compact legend rows — small chrome, tighter rhythm. Each row has
+     a generous horizontal padding so the .is-active surface-2 tile
+     hugs the content cleanly with breathing room from the card edges. */
+  .donut-legend.kc-list {
+    padding: 0 var(--space-2);   /* outer indent — pulls active highlight off the card edge */
+  }
+  .donut-legend.kc-list .kc-list-item {
+    min-height: 36px;
+    padding: 6px var(--space-3);
+    font-size: var(--text-sm);
+    border-radius: var(--radius-sm);
+    transition: background 120ms var(--ease-out);
+  }
+  .donut-legend .dot {
+    width: 8px;
+    height: 8px;
+  }
+  .donut-legend .kc-list-trail {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums lining-nums;
+  }
+  .donut-legend [data-donut-legend].is-active {
+    background: var(--surface-2);
+  }
+  .kc-list-item > .dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-right: var(--space-2);
+  }
+
+
+  /* ── Line chart ──────────────────────────────────────────────
+     The chart card stretches its body to fill remaining card height,
+     so the chart visually anchors the bottom of the card with the
+     summary rail. The SVG uses preserveAspectRatio:none to scale
+     to whatever container height it gets. */
+  .kc:has(> .kc-body > .line-chart-wrap) > .kc-body { flex: 1; padding: 0; display: flex; flex-direction: column; }
+  .line-chart-wrap {
+    position: relative;
+    flex: 1;
+    min-height: 180px;
+    cursor: crosshair;
+  }
+  .line-chart {
+    display: block;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+  }
+  /* Warm, restrained line — clay-tinted so it sits inside the paper
+     palette rather than reading as generic chart-gray.
+
+     vector-effect: non-scaling-stroke keeps the stroke width at a
+     constant pixel size regardless of how preserveAspectRatio="none"
+     stretches the viewBox horizontally. Without it, on a wide card
+     the 1.25 px stroke gets visually inflated to several pixels. */
+  .line-chart .lc-line {
+    stroke: color-mix(in oklch, var(--color-clay) 70%, var(--text-primary));
+    stroke-width: 1.25;
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    vector-effect: non-scaling-stroke;
+  }
+  .line-chart .lc-area { fill: url(#lcArea); }
+  .line-chart .lc-grid {
+    stroke: var(--border-subtle);
+    stroke-dasharray: 2 5;
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+  }
+  .line-chart .lc-cursor {
+    stroke: color-mix(in oklch, var(--text-primary) 24%, transparent);
+    stroke-width: 1;
+    pointer-events: none;
+    opacity: 0;
+    vector-effect: non-scaling-stroke;
+    transition: opacity 140ms var(--ease-out);
+  }
+  /* Cursor + endpoint dots — rendered as HTML overlays instead of
+     SVG circles. With preserveAspectRatio="none" SVG <circle>s get
+     stretched into ellipses; HTML divs stay perfectly round. JS
+     positions them in pixel space from the polyline data. */
+  .lc-dot {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--color-gold);
+    border: 1.5px solid var(--surface-card);
+    box-shadow: 0 1px 3px rgba(26, 22, 20, 0.18);
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    transition: opacity 140ms var(--ease-out);
+    z-index: 2;
+  }
+  .lc-dot.lc-cursor-dot { opacity: 0; }
+  .line-chart-wrap.is-hovering .lc-cursor,
+  .line-chart-wrap.is-hovering .lc-cursor-dot { opacity: 1; }
+  .line-chart-wrap.is-hovering .lc-end-dot { opacity: 0; }
+  .lc-tooltip {
+    position: absolute;
+    top: 8px; left: 8px;
+    pointer-events: none;
+    display: inline-flex;
+    align-items: baseline;
+    gap: 10px;
+    padding: 6px 10px;
+    border-radius: var(--radius-sm);
+    background: var(--surface-card);
+    border: 1px solid var(--border-default);
+    box-shadow: var(--shadow-1);
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    letter-spacing: var(--tracking-wider);
+    text-transform: uppercase;
+    color: var(--text-muted);
+    opacity: 0;
+    transition: opacity 120ms var(--ease-out), transform 120ms var(--ease-out);
+    z-index: 2;
+  }
+  .lc-tooltip strong {
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-medium);
+    color: var(--text-primary);
+    letter-spacing: var(--tracking-tighter);
+    text-transform: none;
+    font-variant-numeric: tabular-nums lining-nums;
+  }
+  .line-chart-wrap.is-hovering .lc-tooltip { opacity: 1; }
+
+  .line-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-3) var(--space-4);
+    border-top: 1px dashed var(--border-subtle);
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    letter-spacing: var(--tracking-wider);
+    text-transform: uppercase;
+    color: var(--text-muted);
+    flex-shrink: 0;
+  }
+  .line-meta .trend-up { color: var(--color-moss); display: inline-flex; align-items: center; gap: 6px; }
+  .line-meta .trend-up svg { width: 10px; height: 10px; }
+
+
+  /* ── Progress bars ─────────────────────────────────────────── */
+  .progress-row + .progress-row {
+    margin-top: var(--space-5);
+  }
+  .progress-label {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-3);
+    margin-bottom: var(--space-2);
+    font-size: var(--text-sm);
+    color: var(--text-body);
+  }
+  .progress-num {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-semibold);
+    color: var(--text-primary);
+    font-variant-numeric: tabular-nums lining-nums;
+  }
+  /* Progress number colors — keep editorial restraint. moss for
+     real positive signals, gold for "moment" hits (target reached),
+     and a muted clay for "below target but not an emergency". */
+  .progress-num.is-good   { color: var(--color-moss); }
+  .progress-num.is-over   { color: var(--color-gold); }
+  .progress-num.is-danger { color: var(--text-muted); }
+  .progress-track {
+    height: 8px;
+    background: var(--surface-2);
+    border-radius: var(--radius-pill);
+    overflow: hidden;
+    position: relative;
+  }
+  .progress-fill {
+    height: 100%;
+    /* Neutral clay everyday fill — same palette as the trend bars.
+       Data viz stays calm; gold marks the "moment" (target hit). */
+    background: linear-gradient(90deg,
+      color-mix(in oklch, var(--color-clay) 28%, transparent),
+      color-mix(in oklch, var(--color-clay) 50%, transparent));
+    border-radius: var(--radius-pill);
+    transition: width var(--duration-base) var(--ease-out);
+  }
+  [data-theme="dark"] .progress-fill {
+    background: linear-gradient(90deg,
+      rgba(235, 230, 215, 0.22),
+      rgba(235, 230, 215, 0.45));
+  }
+  /* Target hit / over — a soft gold wash. No crimson in data viz. */
+  .progress-fill.is-over {
+    background: linear-gradient(90deg,
+      color-mix(in oklch, var(--color-gold) 50%, transparent),
+      var(--color-gold));
+  }
+  /* "Danger" used to mean over-target — but in this dataset
+     Fulfillment 94.2% (target 95%) is below target, not a real alert.
+     Render as a slightly darker clay so it reads as a quiet "miss",
+     not an emergency. Reserve crimson for actual interventions. */
+  .progress-fill.is-danger {
+    background: linear-gradient(90deg,
+      color-mix(in oklch, var(--color-clay) 45%, transparent),
+      color-mix(in oklch, var(--color-clay) 75%, transparent));
+  }
+  .chart-x {
+    display: flex;
+    justify-content: space-between;
+    padding: var(--space-2) var(--space-4) var(--space-3);
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    letter-spacing: var(--tracking-wider);
+    text-transform: uppercase;
+    color: var(--text-muted);
+    flex-shrink: 0;
+  }
+
+  /* Theme toggle */
+  .theme-toggle .icon-dark { display: none; }
+  [data-theme="dark"] .theme-toggle .icon-light { display: none; }
+  [data-theme="dark"] .theme-toggle .icon-dark  { display: block; }
+</style>
+</head>
+<body>
+
+
+<!-- shared icons -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-home"     viewBox="0 0 24 24"><path d="M3 11l9-8 9 8M5 9v12h14V9"/></symbol>
+    <symbol id="i-dash"     viewBox="0 0 24 24"><path d="M3 3h7v9H3zM14 3h7v5h-7zM14 12h7v9h-7zM3 16h7v5H3z"/></symbol>
+    <symbol id="i-users"    viewBox="0 0 24 24"><circle cx="9" cy="8" r="4"/><path d="M2 21v-1a5 5 0 0 1 5-5h4a5 5 0 0 1 5 5v1"/><circle cx="17" cy="6" r="3"/><path d="M22 19v-1a4 4 0 0 0-4-4h-1"/></symbol>
+    <symbol id="i-orders"   viewBox="0 0 24 24"><path d="M3 6h2l2 11h11l2-8H6"/><circle cx="9" cy="20" r="1.5"/><circle cx="17" cy="20" r="1.5"/></symbol>
+    <symbol id="i-products" viewBox="0 0 24 24"><path d="M3 7l9-4 9 4-9 4-9-4zM3 12l9 4 9-4M3 17l9 4 9-4"/></symbol>
+    <symbol id="i-customers" viewBox="0 0 24 24"><path d="M4 21v-1a5 5 0 0 1 5-5h6a5 5 0 0 1 5 5v1"/><circle cx="12" cy="8" r="4"/></symbol>
+    <symbol id="i-lists"    viewBox="0 0 24 24"><path d="M9 6h12M9 12h12M9 18h12"/><circle cx="4" cy="6" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="18" r="1"/></symbol>
+    <symbol id="i-library"  viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 11l5-3 4 2 6-4 3 2"/></symbol>
+    <symbol id="i-formats"  viewBox="0 0 24 24"><path d="M5 4h10l4 4v12H5z"/><path d="M15 4v4h4"/></symbol>
+    <symbol id="i-notice"   viewBox="0 0 24 24"><path d="M3 11l13-7v16L3 13z"/><path d="M16 10h4M16 14h4"/></symbol>
+    <symbol id="i-gear"     viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></symbol>
+    <symbol id="i-mobile"   viewBox="0 0 24 24"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></symbol>
+    <symbol id="i-file"     viewBox="0 0 24 24"><path d="M5 4h10l4 4v12H5z"/><path d="M15 4v4h4"/><path d="M9 14h6M9 18h4"/></symbol>
+    <symbol id="i-upload"   viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5M12 3v12"/></symbol>
+    <symbol id="i-chev"     viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></symbol>
+    <symbol id="i-chev-r"   viewBox="0 0 16 16"><path d="M6 4l4 4-4 4"/></symbol>
+    <symbol id="i-search"   viewBox="0 0 16 16"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></symbol>
+    <symbol id="i-download" viewBox="0 0 16 16"><path d="M2 11v2a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-2M8 2v8M5 7l3 3 3-3"/></symbol>
+    <symbol id="i-plus"     viewBox="0 0 16 16"><path d="M8 3v10M3 8h10"/></symbol>
+    <symbol id="i-sparkle"  viewBox="0 0 16 16"><path d="M8 2l1.4 3.3L13 7l-3.6 1.7L8 12l-1.4-3.3L3 7l3.6-1.7L8 2z" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-refresh"  viewBox="0 0 16 16"><path d="M13 6a5 5 0 1 0 1 4"/><path d="M13 2v4h-4"/></symbol>
+    <symbol id="i-sun"      viewBox="0 0 16 16"><circle cx="8" cy="8" r="3"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3 3l1.5 1.5M11.5 11.5L13 13M3 13l1.5-1.5M11.5 4.5L13 3"/></symbol>
+    <symbol id="i-moon"     viewBox="0 0 16 16"><path d="M13 9.5a5.5 5.5 0 0 1-7-7 6 6 0 1 0 7 7z"/></symbol>
+    <!-- Real Supercat mark — double-wave brand glyph (gold) -->
+    <symbol id="i-mark" viewBox="0 0 41 28">
+      <path d="M20.4773 17.6424C16.8375 10.6856 13.5207 10.6117 10.2067 10.5378C8.69685 10.5042 7.18762 10.4706 5.64872 9.78608L0 0H2.43148C5.09633 3.25885 7.65432 3.51236 10.2129 3.76594C13.5561 4.09728 16.9003 4.42872 20.4853 11.4648C24.0761 4.39466 27.4109 4.0844 30.7463 3.77408C33.2971 3.53675 35.8483 3.29939 38.5148 0.0385625H41L35.3692 9.78883C33.8047 10.503 32.2722 10.5331 30.7392 10.5634C27.4294 10.6286 24.1175 10.6937 20.4773 17.6424Z" fill="currentColor" stroke="none"/>
+      <path d="M20.4773 27.9975L20.4771 27.9972L20.4756 28L20.4756 27.9944C17.538 22.3699 14.7931 21.2243 12.1087 20.9635L7.9752 13.8017C8.72235 13.9462 9.4664 14.0158 10.2103 14.0855C13.5487 14.398 16.8835 14.7102 20.4773 21.7843C24.0589 14.7274 27.3849 14.4269 30.7115 14.1261C31.4831 14.0563 32.2548 13.9866 33.0298 13.8324L28.8886 20.9942C26.1863 21.25 23.4405 22.3367 20.4773 27.9969V27.9975Z" fill="currentColor" stroke="none"/>
+    </symbol>
+    <!-- Metric tile icons -->
+    <symbol id="i-box"      viewBox="0 0 24 24"><path d="M3 7l9-4 9 4-9 4-9-4zM3 12l9 4 9-4M3 17l9 4 9-4"/></symbol>
+    <symbol id="i-cart"     viewBox="0 0 24 24"><path d="M3 6h2l2 11h11l2-8H6"/><circle cx="9" cy="20" r="1.5"/><circle cx="17" cy="20" r="1.5"/></symbol>
+    <symbol id="i-building" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18"/><path d="M9 7h2M13 7h2M9 11h2M13 11h2M9 15h2M13 15h2"/></symbol>
+    <symbol id="i-pulse"    viewBox="0 0 24 24"><path d="M3 12h4l3-8 4 16 3-8h4"/></symbol>
+  </defs>
+</svg>
+
+
+<div class="kshell">
+
+  <!-- ─── SIDEBAR ─── -->
+  <sc-app-sidebar active="dashboard" orders-count="1,287"></sc-app-sidebar>
+
+
+  <!-- ─── MAIN ─── -->
+  <div class="kshell-main">
+
+    <header class="kshell-top">
+      <div class="crumb-row">
+        <a href="#">Opame Collective</a>
+        <span class="crumb-sep">/</span>
+        <span class="crumb-here">Dashboard</span>
+      </div>
+      <div class="topbar-actions">
+        <button class="kb kb-sm kb-ghost kb-icon" data-reload aria-label="Refresh">
+          <svg viewBox="0 0 16 16"><use href="#i-refresh"/></svg>
+        </button>
+        <button class="kb kb-sm kb-secondary">
+          <svg viewBox="0 0 16 16" style="color:var(--color-gold)"><use href="#i-sparkle"/></svg>
+          New look &amp; feedback
+        </button>
+        <button class="kb kb-sm kb-secondary kb-icon theme-toggle"
+                aria-label="Toggle theme"
+                onclick="document.documentElement.dataset.theme = document.documentElement.dataset.theme === 'dark' ? '' : 'dark'">
+          <svg class="icon-light" viewBox="0 0 16 16"><use href="#i-moon"/></svg>
+          <svg class="icon-dark"  viewBox="0 0 16 16"><use href="#i-sun"/></svg>
+        </button>
+      </div>
+    </header>
+
+
+    <main class="kshell-content">
+
+      <!-- PAGE HEAD -->
+      <div class="page-head">
+        <h1>Dashboard</h1>
+        <span class="meta">2025-04-15 → 2025-05-16 · past 30 days</span>
+        <div class="actions">
+          <button class="kb kb-md kb-secondary">
+            <svg viewBox="0 0 16 16"><use href="#i-download"/></svg>
+            Export
+          </button>
+          <button class="kb kb-md kb-primary">
+            <svg viewBox="0 0 16 16"><use href="#i-plus"/></svg>
+            Create report
+          </button>
+        </div>
+      </div>
+
+
+      <!-- ─── METRIC TILES (4-up) — skeleton-loaded ─── -->
+      <div data-loadable aria-busy="true" data-load="900">
+        <div data-skel>
+          <div class="kc-grid kc-grid-4">
+            <article class="kc kc-metric">
+              <span class="kskel kskel-line" style="--w: 55%"></span>
+              <div class="kc-metric-row" style="margin: var(--space-3) 0;">
+                <span class="kskel kskel-line kskel-h-xl" style="--w: 65%; height: 36px;"></span>
+                <span class="kskel kskel-circle" aria-hidden="true"></span>
+              </div>
+              <span class="kskel kskel-line" style="--w: 45%"></span>
+            </article>
+            <article class="kc kc-metric">
+              <span class="kskel kskel-line" style="--w: 50%"></span>
+              <div class="kc-metric-row" style="margin: var(--space-3) 0;">
+                <span class="kskel kskel-line kskel-h-xl" style="--w: 70%; height: 36px;"></span>
+                <span class="kskel kskel-circle" aria-hidden="true"></span>
+              </div>
+              <span class="kskel kskel-line" style="--w: 55%"></span>
+            </article>
+            <article class="kc kc-metric">
+              <span class="kskel kskel-line" style="--w: 60%"></span>
+              <div class="kc-metric-row" style="margin: var(--space-3) 0;">
+                <span class="kskel kskel-line kskel-h-xl" style="--w: 50%; height: 36px;"></span>
+                <span class="kskel kskel-circle" aria-hidden="true"></span>
+              </div>
+              <span class="kskel kskel-line" style="--w: 38%"></span>
+            </article>
+            <article class="kc kc-metric">
+              <span class="kskel kskel-line" style="--w: 65%"></span>
+              <div class="kc-metric-row" style="margin: var(--space-3) 0;">
+                <span class="kskel kskel-line kskel-h-xl" style="--w: 40%; height: 36px;"></span>
+                <span class="kskel kskel-circle" aria-hidden="true"></span>
+              </div>
+              <span class="kskel kskel-line" style="--w: 50%"></span>
+            </article>
+          </div>
+        </div>
+        <div data-real>
+          <div class="kc-grid kc-grid-4">
+            <article class="kc kc-metric">
+              <span class="kc-eyebrow">Total products</span>
+              <div class="kc-metric-row">
+                <span class="kc-metric-val">50</span>
+                <span class="kc-metric-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-box"/></svg></span>
+              </div>
+              <span class="kc-metric-trend kc-trend-up">+ 4 this month</span>
+            </article>
+
+            <article class="kc kc-metric">
+              <span class="kc-eyebrow">App orders</span>
+              <div class="kc-metric-row">
+                <span class="kc-metric-val">1,287</span>
+                <span class="kc-metric-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-cart"/></svg></span>
+              </div>
+              <span class="kc-metric-trend kc-trend-up">+ 12% vs last month</span>
+            </article>
+
+            <article class="kc kc-metric">
+              <span class="kc-eyebrow">Total customers</span>
+              <div class="kc-metric-row">
+                <span class="kc-metric-val">342</span>
+                <span class="kc-metric-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-building"/></svg></span>
+              </div>
+              <span class="kc-metric-trend kc-trend-flat">no change</span>
+            </article>
+
+            <article class="kc kc-metric">
+              <span class="kc-eyebrow">Active users · 30d</span>
+              <div class="kc-metric-row">
+                <span class="kc-metric-val">42</span>
+                <span class="kc-metric-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-pulse"/></svg></span>
+              </div>
+              <span class="kc-metric-trend kc-trend-down">- 2 this week</span>
+            </article>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ─── OVERVIEW SECTION ─── -->
+      <div class="section-head">
+        <h2>Overview</h2>
+        <span class="meta">Orders trend · past 30 days</span>
+      </div>
+
+      <div class="grid-2">
+        <!-- Order trend chart panel -->
+        <article class="kc">
+          <header class="kc-head">
+            <div class="kc-head-lead">
+              <span class="kc-eyebrow">Orders per day</span>
+              <h3 class="kc-title" style="margin:0;font-size:var(--text-lg);font-weight:var(--weight-medium);letter-spacing:var(--tracking-tighter);">Trend</h3>
+            </div>
+            <div class="kc-head-actions">
+              <nav class="ktab ktab-seg ktab-sm" role="tablist" aria-label="Range">
+                <button class="ktab-item" role="tab">7d</button>
+                <button class="ktab-item" role="tab" aria-selected="true">30d</button>
+                <button class="ktab-item" role="tab">90d</button>
+              </nav>
+            </div>
+          </header>
+          <div class="kc-body kc-body-flush">
+            <div class="chart-plot" role="img" aria-label="Orders per day chart (placeholder)">
+              <!-- 15 bars span the 30-day window — ~2 days per bar.
+                   Each bar carries a native `title` tooltip with the
+                   exact date + order count, so hover gives precise
+                   numbers without needing a JS tooltip system. -->
+              <span class="chart-bar" style="height: 30%" title="Apr 16 · 14 orders"></span>
+              <span class="chart-bar" style="height: 45%" title="Apr 18 · 21 orders"></span>
+              <span class="chart-bar" style="height: 38%" title="Apr 20 · 17 orders"></span>
+              <span class="chart-bar" style="height: 52%" title="Apr 22 · 24 orders"></span>
+              <span class="chart-bar" style="height: 68%" title="Apr 24 · 31 orders"></span>
+              <span class="chart-bar" style="height: 41%" title="Apr 26 · 19 orders"></span>
+              <span class="chart-bar" style="height: 55%" title="Apr 28 · 25 orders"></span>
+              <span class="chart-bar" style="height: 72%" title="Apr 30 · 33 orders"></span>
+              <span class="chart-bar" style="height: 64%" title="May 2 · 29 orders"></span>
+              <span class="chart-bar is-peak" style="height: 92%" title="May 6 · 42 orders · peak"></span>
+              <span class="chart-bar" style="height: 78%" title="May 8 · 36 orders"></span>
+              <span class="chart-bar" style="height: 81%" title="May 10 · 37 orders"></span>
+              <span class="chart-bar" style="height: 66%" title="May 12 · 30 orders"></span>
+              <span class="chart-bar" style="height: 88%" title="May 14 · 40 orders"></span>
+              <span class="chart-bar" style="height: 74%" title="May 15 · 34 orders"></span>
+            </div>
+            <div class="chart-x">
+              <span>Apr 17</span>
+              <span>Apr 24</span>
+              <span>May 01</span>
+              <span>May 08</span>
+              <span>May 15</span>
+            </div>
+          </div>
+          <footer class="kc-foot">
+            <span class="kc-foot-meta">Peak · May 6 · 42 orders</span>
+            <span class="kc-foot-spacer"></span>
+            <a class="kb kb-link" href="#">Full report
+              <svg class="arr-svg" viewBox="0 0 16 16"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+            </a>
+          </footer>
+        </article>
+
+        <!-- Statistics summary card -->
+        <article class="kc">
+          <header class="kc-head">
+            <div class="kc-head-lead">
+              <h3 class="kc-title" style="margin:0;font-size:var(--text-lg);font-weight:var(--weight-medium);letter-spacing:var(--tracking-tighter);">Statistics</h3>
+            </div>
+          </header>
+          <div class="kc-body">
+            <ul class="kc-list">
+              <li class="kc-list-item">
+                <div class="kc-list-main"><div class="kc-list-name">Billable users</div></div>
+                <span class="kc-list-trail">12</span>
+              </li>
+              <li class="kc-list-item">
+                <div class="kc-list-main"><div class="kc-list-name">Total users</div></div>
+                <span class="kc-list-trail">42</span>
+              </li>
+              <li class="kc-list-item">
+                <div class="kc-list-main"><div class="kc-list-name">Avg order value</div></div>
+                <span class="kc-list-trail">$3,180.00</span>
+              </li>
+              <li class="kc-list-item">
+                <div class="kc-list-main"><div class="kc-list-name">Fulfillment rate</div></div>
+                <span class="kc-list-trail">94.2%</span>
+              </li>
+              <li class="kc-list-item">
+                <div class="kc-list-main"><div class="kc-list-name">Return rate</div></div>
+                <span class="kc-list-trail">1.8%</span>
+              </li>
+            </ul>
+          </div>
+        </article>
+      </div>
+
+
+      <!-- ─── PERFORMANCE SECTION ─── -->
+      <div class="section-head">
+        <h2>Performance</h2>
+        <span class="meta">Top sellers · most active users</span>
+      </div>
+
+      <div class="grid-2">
+        <!-- Best Selling Products table panel -->
+        <article class="kc">
+          <header class="kc-head">
+            <div class="kc-head-lead">
+              <span class="kc-eyebrow">Past 30 days</span>
+              <h3 class="kc-title" style="margin:0;font-size:var(--text-lg);font-weight:var(--weight-medium);letter-spacing:var(--tracking-tighter);">Best selling products</h3>
+            </div>
+            <div class="kc-head-actions">
+              <a class="kb kb-link" href="#">Full report
+                <svg class="arr-svg" viewBox="0 0 16 16"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+              </a>
+            </div>
+          </header>
+          <div class="kc-body kc-body-flush">
+            <div class="kdt-wrap">
+              <table class="kdt kdt-compact">
+                <thead>
+                  <tr>
+                    <th>Product</th>
+                    <th class="kdt-mono">SKU</th>
+                    <th>Vendor</th>
+                    <th class="kdt-num">Units</th>
+                    <th class="kdt-num">Revenue</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td>Mantle dining table</td><td class="kdt-mono">MN-2210</td><td class="kdt-soft">Caldera Mills</td><td class="kdt-num">142</td><td class="kdt-num">$150,520.00</td></tr>
+                  <tr><td>Ridgeline armchair</td><td class="kdt-mono">RD-1042</td><td class="kdt-soft">Caldera Mills</td><td class="kdt-num">88</td><td class="kdt-num">$109,120.00</td></tr>
+                  <tr><td>Cane side table</td><td class="kdt-mono">CS-7732</td><td class="kdt-soft">Wovenway Co.</td><td class="kdt-num">412</td><td class="kdt-num">$24,720.00</td></tr>
+                  <tr><td>Field bench</td><td class="kdt-mono">FB-3304</td><td class="kdt-soft">Field &amp; Frame</td><td class="kdt-num">298</td><td class="kdt-num">$17,880.00</td></tr>
+                  <tr><td>Linen runner · oat</td><td class="kdt-mono">LR-0418</td><td class="kdt-soft">Atlas Linens</td><td class="kdt-num">181</td><td class="kdt-num">$362.00</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <footer class="kc-foot">
+            <span class="kc-foot-meta">5 of 47 SKUs</span>
+            <span class="kc-foot-spacer"></span>
+            <button class="kb kb-sm kb-secondary">Export CSV</button>
+          </footer>
+        </article>
+
+        <!-- Most Active Users -->
+        <article class="kc">
+          <header class="kc-head">
+            <div class="kc-head-lead">
+              <span class="kc-eyebrow">Most active</span>
+              <h3 class="kc-title" style="margin:0;font-size:var(--text-lg);font-weight:var(--weight-medium);letter-spacing:var(--tracking-tighter);">Users</h3>
+            </div>
+            <div class="kc-head-actions">
+              <a class="kb kb-link" href="#">All users
+                <svg class="arr-svg" viewBox="0 0 16 16"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+              </a>
+            </div>
+          </header>
+          <div class="kc-body">
+            <ul class="kc-list">
+              <li class="kc-list-item">
+                <span class="kc-list-avatar" aria-hidden="true">BS</span>
+                <div class="kc-list-main">
+                  <div class="kc-list-name">Brent Sanders</div>
+                  <div class="kc-list-meta">42 logins · 18 orders</div>
+                </div>
+                <span class="kc-list-trail">$84,320</span>
+              </li>
+              <li class="kc-list-item">
+                <span class="kc-list-avatar" aria-hidden="true">LP</span>
+                <div class="kc-list-main">
+                  <div class="kc-list-name">Lina Park</div>
+                  <div class="kc-list-meta">28 logins · 12 orders</div>
+                </div>
+                <span class="kc-list-trail">$56,180</span>
+              </li>
+              <li class="kc-list-item">
+                <span class="kc-list-avatar" aria-hidden="true">JH</span>
+                <div class="kc-list-main">
+                  <div class="kc-list-name">Jamie Hoang</div>
+                  <div class="kc-list-meta">21 logins · 9 orders</div>
+                </div>
+                <span class="kc-list-trail">$41,005</span>
+              </li>
+              <li class="kc-list-item">
+                <span class="kc-list-avatar" aria-hidden="true">RD</span>
+                <div class="kc-list-main">
+                  <div class="kc-list-name">Rae Donnelly</div>
+                  <div class="kc-list-meta">18 logins · 7 orders</div>
+                </div>
+                <span class="kc-list-trail">$29,440</span>
+              </li>
+            </ul>
+          </div>
+        </article>
+      </div>
+
+
+      <!-- ─── INSIGHTS · donut, line, progress ─── -->
+      <div class="section-head">
+        <h2>Insights</h2>
+        <span class="meta">Source · revenue · goals</span>
+      </div>
+
+      <div class="kc-grid kc-grid-3">
+
+        <!-- DONUT — order source breakdown -->
+        <article class="kc">
+          <header class="kc-head">
+            <div class="kc-head-lead">
+              <span class="kc-eyebrow">Order source</span>
+              <h3 class="kc-title" style="margin:0;font-size:var(--text-lg);font-weight:var(--weight-medium);letter-spacing:var(--tracking-tighter);">By channel</h3>
+            </div>
+          </header>
+          <div class="kc-body">
+            <!-- Donut · 4 channel segments with a harmonic clay-to-gold
+                 ramp. Circumference (r=42) = 264. Each segment's
+                 stroke-dasharray = "share gap", offset by cumulative
+                 length so segments butt with a small 2px gap for
+                 separation. Interactive: hover a segment to expand
+                 it and push its label into the center. -->
+            <div class="donut-wrap" role="img" aria-label="Order channel breakdown"
+                 data-donut
+                 data-segments='[
+                   {"name":"iPad",     "count":"732", "pct":56.9, "color":"color-mix(in oklch, var(--color-clay) 70%, var(--text-primary))"},
+                   {"name":"Web",      "count":"203", "pct":15.8, "color":"var(--color-clay)"},
+                   {"name":"Phone",    "count":"178", "pct":13.8, "color":"color-mix(in oklch, var(--color-clay) 55%, var(--color-gold))"},
+                   {"name":"Email",    "count":"117", "pct": 9.1, "color":"color-mix(in oklch, var(--color-gold) 75%, var(--color-clay))"},
+                   {"name":"In-person","count": "57", "pct": 4.4, "color":"var(--color-gold)"}
+                 ]'>
+              <svg class="donut" viewBox="0 0 120 120">
+                <!-- Track — thinner stroke (12 px) so the inner hole
+                     stays open enough for the center label to breathe. -->
+                <circle r="46" cx="60" cy="60" fill="none" stroke="var(--surface-2)" stroke-width="12"/>
+                <!-- Segments injected by JS so the gap math stays
+                     consistent if a developer changes the data. -->
+                <g class="donut-segs" transform="rotate(-90 60 60)"></g>
+              </svg>
+              <div class="donut-center">
+                <span class="donut-pct">1,287</span>
+                <span class="donut-label">Total orders</span>
+                <span class="donut-meta">5 channels · 30 days</span>
+              </div>
+            </div>
+            <ul class="kc-list donut-legend">
+              <li class="kc-list-item" data-donut-legend="iPad">
+                <span class="dot" style="background: color-mix(in oklch, var(--color-clay) 70%, var(--text-primary));" aria-hidden="true"></span>
+                <div class="kc-list-main"><div class="kc-list-name">iPad</div></div>
+                <span class="kc-list-trail">732 · 56.9%</span>
+              </li>
+              <li class="kc-list-item" data-donut-legend="Web">
+                <span class="dot" style="background: var(--color-clay);" aria-hidden="true"></span>
+                <div class="kc-list-main"><div class="kc-list-name">Web</div></div>
+                <span class="kc-list-trail">203 · 15.8%</span>
+              </li>
+              <li class="kc-list-item" data-donut-legend="Phone">
+                <span class="dot" style="background: color-mix(in oklch, var(--color-clay) 55%, var(--color-gold));" aria-hidden="true"></span>
+                <div class="kc-list-main"><div class="kc-list-name">Phone</div></div>
+                <span class="kc-list-trail">178 · 13.8%</span>
+              </li>
+              <li class="kc-list-item" data-donut-legend="Email">
+                <span class="dot" style="background: color-mix(in oklch, var(--color-gold) 75%, var(--color-clay));" aria-hidden="true"></span>
+                <div class="kc-list-main"><div class="kc-list-name">Email</div></div>
+                <span class="kc-list-trail">117 · 9.1%</span>
+              </li>
+              <li class="kc-list-item" data-donut-legend="In-person">
+                <span class="dot" style="background: var(--color-gold);" aria-hidden="true"></span>
+                <div class="kc-list-main"><div class="kc-list-name">In-person</div></div>
+                <span class="kc-list-trail">57 · 4.4%</span>
+              </li>
+            </ul>
+          </div>
+        </article>
+
+
+        <!-- LINE CHART — revenue trend -->
+        <article class="kc">
+          <header class="kc-head">
+            <div class="kc-head-lead">
+              <span class="kc-eyebrow">Revenue · 30 days</span>
+              <h3 class="kc-title" style="margin:0;font-size:var(--text-lg);font-weight:var(--weight-medium);letter-spacing:var(--tracking-tighter);">Trend</h3>
+            </div>
+            <div class="kc-head-actions">
+              <span style="font-family:var(--font-mono);font-size:var(--text-2xs);letter-spacing:var(--tracking-widest);text-transform:uppercase;color:var(--text-muted);">$401K</span>
+            </div>
+          </header>
+          <div class="kc-body kc-body-flush">
+            <!-- Wrap fills the remaining card height. The SVG inside
+                 uses preserveAspectRatio:none and 100% height to scale.
+                 JS reads the polyline points + data-values to draw the
+                 hover guide line + tooltip on mousemove. -->
+            <div class="line-chart-wrap"
+                 data-lc-dates="Apr 16,Apr 18,Apr 20,Apr 22,Apr 24,Apr 26,Apr 28,Apr 30,May 2,May 4,May 6,May 8,May 10,May 12,Today"
+                 data-lc-values="$268K,$278K,$292K,$298K,$306K,$310K,$316K,$321K,$330K,$336K,$342K,$355K,$362K,$378K,$401K">
+              <svg class="line-chart" viewBox="0 0 280 160" preserveAspectRatio="none" role="img" aria-label="Revenue trend over the past 30 days">
+                <defs>
+                  <!-- Whisper-soft cream wash. Stops at low opacity
+                       so the fill reads as paper texture, not chart
+                       fill. Uses --color-clay so the warmth carries
+                       through both light + dark themes. -->
+                  <linearGradient id="lcArea" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%"   stop-color="var(--color-clay)" stop-opacity="0.08"/>
+                    <stop offset="60%"  stop-color="var(--color-clay)" stop-opacity="0.025"/>
+                    <stop offset="100%" stop-color="var(--color-clay)" stop-opacity="0"/>
+                  </linearGradient>
+                </defs>
+                <!-- Hairline grid — 3 horizontal lines -->
+                <line class="lc-grid" x1="0" y1="40"  x2="280" y2="40"/>
+                <line class="lc-grid" x1="0" y1="80"  x2="280" y2="80"/>
+                <line class="lc-grid" x1="0" y1="120" x2="280" y2="120"/>
+                <!-- Area fill -->
+                <path class="lc-area"
+                      d="M0,120 L20,114 L40,108 L60,103 L80,96 L100,93 L120,87 L140,81 L160,74 L180,68 L200,60 L220,52 L240,44 L260,34 L280,24 L280,160 L0,160 Z"/>
+                <!-- Line -->
+                <polyline class="lc-line"
+                          points="0,120 20,114 40,108 60,103 80,96 100,93 120,87 140,81 160,74 180,68 200,60 220,52 240,44 260,34 280,24"/>
+                <!-- Cursor guide line (hidden, JS shows on hover) -->
+                <line class="lc-cursor" x1="0" y1="0" x2="0" y2="160"/>
+              </svg>
+              <!-- HTML overlay dots — stay circular under
+                   preserveAspectRatio="none". JS sets style.left/top. -->
+              <span class="lc-dot lc-end-dot" data-end></span>
+              <span class="lc-dot lc-cursor-dot" data-cursor></span>
+              <!-- Hover tooltip — JS updates content + transform -->
+              <div class="lc-tooltip" role="status" aria-live="polite">
+                <span class="lc-tooltip-date">Today</span>
+                <strong class="lc-tooltip-value">$401K</strong>
+              </div>
+            </div>
+            <div class="line-meta">
+              <span>vs prior period</span>
+              <span class="trend-up">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 12V4M4 7l4-4 4 4"/></svg>
+                + 18.4%
+              </span>
+            </div>
+          </div>
+        </article>
+
+
+        <!-- PROGRESS BARS — Q2 targets -->
+        <article class="kc">
+          <header class="kc-head">
+            <div class="kc-head-lead">
+              <span class="kc-eyebrow">Q2 targets</span>
+              <h3 class="kc-title" style="margin:0;font-size:var(--text-lg);font-weight:var(--weight-medium);letter-spacing:var(--tracking-tighter);">Goal progress</h3>
+            </div>
+          </header>
+          <div class="kc-body">
+
+            <div class="progress-row">
+              <div class="progress-label">
+                <span>Revenue · $401K of $460K</span>
+                <span class="progress-num">87%</span>
+              </div>
+              <div class="progress-track" role="progressbar" aria-valuenow="87" aria-valuemin="0" aria-valuemax="100" title="$401K of $460K · 87% to target">
+                <div class="progress-fill" style="width: 87%"></div>
+              </div>
+            </div>
+
+            <div class="progress-row">
+              <div class="progress-label">
+                <span>New customers · 51 of 50</span>
+                <span class="progress-num is-over">102%</span>
+              </div>
+              <div class="progress-track" role="progressbar" aria-valuenow="102" aria-valuemin="0" aria-valuemax="100" title="51 of 50 · target hit, + 1 over">
+                <div class="progress-fill is-over" style="width: 100%"></div>
+              </div>
+            </div>
+
+            <div class="progress-row">
+              <div class="progress-label">
+                <span>Returns · max 3.0% (now 1.8%)</span>
+                <span class="progress-num is-good">1.8%</span>
+              </div>
+              <div class="progress-track" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" title="Returns 1.8% · well under the 3.0% cap">
+                <div class="progress-fill" style="width: 60%"></div>
+              </div>
+            </div>
+
+            <div class="progress-row">
+              <div class="progress-label">
+                <span>Fulfillment · target 95%</span>
+                <span class="progress-num is-danger">94.2%</span>
+              </div>
+              <div class="progress-track" role="progressbar" aria-valuenow="94" aria-valuemin="0" aria-valuemax="100" title="94.2% fulfillment · 0.8 pts below target">
+                <div class="progress-fill is-danger" style="width: 94%"></div>
+              </div>
+            </div>
+
+          </div>
+        </article>
+
+      </div>
+
+
+      <!-- ─── ACTIONS / SHORTCUTS ─── -->
+      <div class="section-head">
+        <h2>Shortcuts</h2>
+        <span class="meta">Jump to common tasks</span>
+      </div>
+
+      <div class="kc-grid kc-grid-3">
+        <a class="kc kc-interactive" href="orders.html">
+          <header class="kc-head">
+            <div class="kc-head-lead">
+              <span class="kc-eyebrow">Orders</span>
+              <h3 class="kc-title" style="margin:0;font-size:var(--text-lg);font-weight:var(--weight-medium);letter-spacing:var(--tracking-tighter);">View 1,287 orders</h3>
+            </div>
+          </header>
+          <div class="kc-body" style="color:var(--text-body);font-size:var(--text-sm);line-height:var(--leading-relaxed);">
+            Filter by status, customer, or rep. Drill into individual order detail with full timeline.
+          </div>
+        </a>
+
+        <a class="kc kc-interactive" href="#">
+          <header class="kc-head">
+            <div class="kc-head-lead">
+              <span class="kc-eyebrow">Catalog</span>
+              <h3 class="kc-title" style="margin:0;font-size:var(--text-lg);font-weight:var(--weight-medium);letter-spacing:var(--tracking-tighter);">Browse 50 products</h3>
+            </div>
+          </header>
+          <div class="kc-body" style="color:var(--text-body);font-size:var(--text-sm);line-height:var(--leading-relaxed);">
+            Review pricing, SKUs, vendor relationships, and category coverage.
+          </div>
+        </a>
+
+        <article class="kc kc-inverse">
+          <header class="kc-head">
+            <div class="kc-head-lead">
+              <span class="kc-eyebrow">Setup</span>
+              <h3 class="kc-title" style="margin:0;font-size:var(--text-lg);font-weight:var(--weight-medium);letter-spacing:var(--tracking-tighter); color: inherit;">Import historical orders</h3>
+            </div>
+          </header>
+          <div class="kc-body" style="font-size:var(--text-sm);line-height:var(--leading-relaxed); opacity: 0.78;">
+            Bring your existing order history into SuperCat with a CSV upload. Takes about 2 minutes.
+          </div>
+          <footer class="kc-foot">
+            <span class="kc-foot-meta">CSV · 2 min setup</span>
+            <span class="kc-foot-spacer"></span>
+            <button class="kb kb-sm kb-ghost">Import →</button>
+          </footer>
+        </article>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- ─── Line-chart hover guide ────────────────────────────────────
+     Tracks the mouse over the .line-chart-wrap, snaps to the closest
+     data point, and renders the vertical guide + tooltip with the
+     date + value at that point. Pure JS, no dependencies. -->
+<script>
+(function () {
+  'use strict';
+  document.querySelectorAll('.line-chart-wrap').forEach(function (wrap) {
+    var svg     = wrap.querySelector('.line-chart');
+    var poly    = wrap.querySelector('.lc-line');
+    var cursor  = wrap.querySelector('.lc-cursor');
+    var endDot  = wrap.querySelector('.lc-end-dot');
+    var curDot  = wrap.querySelector('.lc-cursor-dot');
+    var tip     = wrap.querySelector('.lc-tooltip');
+    var tipDate = wrap.querySelector('.lc-tooltip-date');
+    var tipVal  = wrap.querySelector('.lc-tooltip-value');
+    var dates   = (wrap.dataset.lcDates  || '').split(',');
+    var values  = (wrap.dataset.lcValues || '').split(',');
+    if (!svg || !poly || !cursor || !tip) return;
+
+    // Parse the polyline points into [x, y] pairs (in viewBox units).
+    var points = poly.getAttribute('points').trim().split(/\s+/).map(function (p) {
+      var xy = p.split(',').map(Number); return { x: xy[0], y: xy[1] };
+    });
+    if (!points.length) return;
+    var vb = svg.viewBox.baseVal;
+
+    /* Position the static endpoint dot in pixel space. Updates on
+       resize so it tracks responsive width changes. */
+    function placeEnd() {
+      if (!endDot) return;
+      var r = svg.getBoundingClientRect();
+      var last = points[points.length - 1];
+      var pxPt = (last.x / vb.width)  * r.width;
+      var pyPt = (last.y / vb.height) * r.height;
+      endDot.style.left = pxPt + 'px';
+      endDot.style.top  = pyPt + 'px';
+    }
+    placeEnd();
+    window.addEventListener('resize', placeEnd);
+
+    wrap.addEventListener('mouseenter', function () { wrap.classList.add('is-hovering'); });
+    wrap.addEventListener('mouseleave', function () { wrap.classList.remove('is-hovering'); });
+    wrap.addEventListener('mousemove',  function (e) {
+      var r = svg.getBoundingClientRect();
+      var px = e.clientX - r.left;
+      var vx = (px / r.width) * vb.width;
+      // Find closest data point.
+      var best = 0, bestD = Infinity;
+      for (var i = 0; i < points.length; i++) {
+        var d = Math.abs(points[i].x - vx);
+        if (d < bestD) { bestD = d; best = i; }
+      }
+      var pt = points[best];
+      // Guide line in viewBox units (1D stretch is fine for a vertical line).
+      cursor.setAttribute('x1', pt.x);
+      cursor.setAttribute('x2', pt.x);
+      cursor.setAttribute('y1', 0);
+      cursor.setAttribute('y2', vb.height);
+      // HTML cursor-dot positioned in pixel space — stays circular.
+      var pxPt = (pt.x / vb.width)  * r.width;
+      var pyPt = (pt.y / vb.height) * r.height;
+      if (curDot) {
+        curDot.style.left = pxPt + 'px';
+        curDot.style.top  = pyPt + 'px';
+      }
+      // Tooltip near the dot in pixel space.
+      var tipW = tip.offsetWidth || 140;
+      var tipX = Math.max(8, Math.min(r.width - tipW - 8, pxPt - tipW / 2));
+      var tipY = Math.max(8, pyPt - 36);
+      tip.style.transform = 'translate(' + (tipX - 8) + 'px,' + (tipY - 8) + 'px)';
+      if (tipDate) tipDate.textContent = dates[best]  || '';
+      if (tipVal)  tipVal.textContent  = values[best] || '';
+    });
+  });
+})();
+</script>
+
+<!-- ─── Donut interactive segments ────────────────────────────────
+     Renders 5 segments at the correct arc lengths from the data
+     attribute, then wires hover → expand segment + replace center
+     summary with the segment's name + share. -->
+<script>
+(function () {
+  'use strict';
+  var R = 46;                   /* matches track radius */
+  var C = 2 * Math.PI * R;      /* ≈ 289 */
+  var GAP = 2;                   /* px between segments */
+  document.querySelectorAll('[data-donut]').forEach(function (wrap) {
+    var segs;
+    try { segs = JSON.parse(wrap.dataset.segments); } catch (e) { return; }
+    var g = wrap.querySelector('.donut-segs');
+    if (!g) return;
+    var pct = wrap.querySelector('.donut-pct');
+    var label = wrap.querySelector('.donut-label');
+    var meta = wrap.querySelector('.donut-meta');
+    var defaultPct = pct.textContent;
+    var defaultLabel = label.textContent;
+    var defaultMeta = meta ? meta.textContent : '';
+    var legendItems = wrap.parentElement.querySelectorAll('[data-donut-legend]');
+
+    var offset = 0;
+    segs.forEach(function (s, i) {
+      var len = (s.pct / 100) * C - GAP;
+      if (len < 0) len = 0;
+      var seg = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      seg.setAttribute('r', R);
+      seg.setAttribute('cx', 60);
+      seg.setAttribute('cy', 60);
+      seg.setAttribute('fill', 'none');
+      seg.setAttribute('stroke', s.color);
+      seg.setAttribute('stroke-width', 12);
+      seg.setAttribute('stroke-dasharray', len + ' ' + (C - len));
+      seg.setAttribute('stroke-dashoffset', -offset);
+      seg.setAttribute('class', 'donut-seg');
+      seg.dataset.name = s.name;
+      var title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+      title.textContent = s.name + ' · ' + s.count + ' orders · ' + s.pct + '%';
+      seg.appendChild(title);
+      g.appendChild(seg);
+      offset += len + GAP;
+
+      function activate() {
+        wrap.dataset.hover = '1';
+        seg.dataset.active = '1';
+        pct.textContent = s.pct + '%';
+        label.textContent = s.name;
+        if (meta) meta.textContent = s.count + ' orders';
+        legendItems.forEach(function (li) {
+          li.classList.toggle('is-active', li.dataset.donutLegend === s.name);
+        });
+      }
+      function deactivate() {
+        delete wrap.dataset.hover;
+        delete seg.dataset.active;
+        pct.textContent = defaultPct;
+        label.textContent = defaultLabel;
+        if (meta) meta.textContent = defaultMeta;
+        legendItems.forEach(function (li) { li.classList.remove('is-active'); });
+      }
+      seg.addEventListener('mouseenter', activate);
+      seg.addEventListener('mouseleave', deactivate);
+      var legendItem = wrap.parentElement.querySelector('[data-donut-legend="' + s.name + '"]');
+      if (legendItem) {
+        legendItem.addEventListener('mouseenter', activate);
+        legendItem.addEventListener('mouseleave', deactivate);
+      }
+    });
+  });
+})();
+</script>
+
+<!-- ─── Bar chart interactive tooltip ─────────────────────────────
+     The Trend bar chart has native `title` tooltips already. This
+     layer upgrades them to an Apple-style HTML tooltip: hovering a
+     bar darkens its neighbours, lifts the bar a touch, and shows the
+     date + value in a floating chip near the cursor. -->
+<style>
+  .chart-plot { position: relative; }
+  .chart-bar { transition: filter 140ms var(--ease-out), transform 140ms var(--ease-out); cursor: pointer; }
+  .chart-bar:hover {
+    filter: brightness(1.08);
+    transform: translateY(-2px);
+  }
+  .chart-plot[data-hover] .chart-bar:not([data-active]) {
+    opacity: 0.45;
+  }
+  .bar-tooltip {
+    position: absolute;
+    pointer-events: none;
+    display: inline-flex;
+    align-items: baseline;
+    gap: 10px;
+    padding: 6px 10px;
+    border-radius: var(--radius-sm);
+    background: var(--surface-card);
+    border: 1px solid var(--border-default);
+    box-shadow: var(--shadow-1);
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    letter-spacing: var(--tracking-wider);
+    text-transform: uppercase;
+    color: var(--text-muted);
+    opacity: 0;
+    transition: opacity 140ms var(--ease-out);
+    z-index: 5;
+    white-space: nowrap;
+    top: -8px;
+    transform: translate(-50%, -100%);
+  }
+  .bar-tooltip[data-show] { opacity: 1; }
+  .bar-tooltip strong {
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-medium);
+    color: var(--text-primary);
+    letter-spacing: var(--tracking-tighter);
+    text-transform: none;
+    font-variant-numeric: tabular-nums lining-nums;
+  }
+</style>
+<script>
+(function () {
+  'use strict';
+  var plot = document.querySelector('.chart-plot');
+  if (!plot) return;
+  var bars = plot.querySelectorAll('.chart-bar');
+  if (!bars.length) return;
+  var tip = document.createElement('div');
+  tip.className = 'bar-tooltip';
+  tip.innerHTML = '<span class="bar-tooltip-date">—</span><strong class="bar-tooltip-value">—</strong>';
+  plot.appendChild(tip);
+  var tipDate = tip.querySelector('.bar-tooltip-date');
+  var tipVal  = tip.querySelector('.bar-tooltip-value');
+  bars.forEach(function (bar) {
+    /* Read native title, then suppress so browser tooltip doesn't
+       double up with the custom one. */
+    var raw = bar.getAttribute('title') || '';
+    if (!raw) return;
+    bar.removeAttribute('title');
+    bar.dataset.title = raw;
+    /* "May 6 · 42 orders · peak" → date / rest */
+    var parts = raw.split('·').map(function (s) { return s.trim(); });
+    var date = parts[0] || '';
+    var rest = parts.slice(1).join(' · ');
+
+    bar.addEventListener('mouseenter', function () {
+      plot.dataset.hover = '1';
+      bar.dataset.active = '1';
+      tipDate.textContent = date;
+      tipVal.textContent  = rest;
+      var br = bar.getBoundingClientRect();
+      var pr = plot.getBoundingClientRect();
+      tip.style.left = (br.left - pr.left + br.width / 2) + 'px';
+      tip.style.top  = (br.top  - pr.top) + 'px';
+      tip.dataset.show = '1';
+    });
+    bar.addEventListener('mouseleave', function () {
+      delete plot.dataset.hover;
+      delete bar.dataset.active;
+      delete tip.dataset.show;
+    });
+  });
+})();
+</script>
+
+</body>
+</html>
