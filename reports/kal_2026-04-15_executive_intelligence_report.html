@@ -1,0 +1,1236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kalco Lighting — Customer Intelligence Report</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300..800;1,9..40,300..800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #FAFAF8;
+      --surface: #FFFFFF;
+      --panel: #F5F4F1;
+      --border: #E8E5DE;
+      --border-light: #F0EDE6;
+      --text: #2C2925;
+      --text-secondary: #6B6660;
+      --text-muted: #9B958C;
+      --accent: #C47A4A;
+      --accent-deep: #89523B;
+      --accent-glow: rgba(196,122,74,.08);
+      --accent-border: rgba(196,122,74,.2);
+      --ok: #4A8C5C;
+      --ok-bg: #EDF7F0;
+      --ok-border: rgba(74,140,92,.2);
+      --warn: #B8863A;
+      --warn-bg: #FDF6EC;
+      --warn-border: rgba(184,134,58,.2);
+      --danger: #C0524A;
+      --danger-bg: #FDF0EF;
+      --danger-border: rgba(192,82,74,.2);
+      --info: #4A7A8C;
+      --info-bg: #EDF4F7;
+      --info-border: rgba(74,122,140,.2);
+      --fd: 'DM Sans', system-ui, sans-serif;
+      --fm: 'IBM Plex Mono', ui-monospace, monospace;
+      --r: 10px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font: 400 14px/1.65 var(--fd); color: var(--text); background: var(--bg); -webkit-font-smoothing: antialiased; }
+    .page { max-width: 920px; margin: 0 auto; padding: 0 24px 40px; }
+
+    /* ── Header ── */
+    .header { padding: 48px 0 32px; border-bottom: 1px solid var(--border); margin-bottom: 32px; position: relative; }
+    .h-brand { display: flex; align-items: center; gap: 8px; margin-bottom: 20px; }
+    .h-brand span { font: 500 10px/1 var(--fm); letter-spacing: .12em; text-transform: uppercase; color: var(--text-muted); }
+    .h-customer { font: 700 36px/1.1 var(--fd); color: var(--text); letter-spacing: -.01em; margin-bottom: 4px; }
+    .h-type { font: 400 15px/1 var(--fd); color: var(--text-secondary); margin-bottom: 16px; }
+    .h-meta { font: 400 11px/1 var(--fm); color: var(--text-muted); letter-spacing: .02em; }
+    .h-accent { position: absolute; bottom: -1px; left: 0; width: 64px; height: 2px; background: var(--accent); }
+
+    /* ── Key Highlights ── */
+    .highlights { margin: 8px 0 28px; padding: 0; list-style: none; counter-reset: hl; }
+    .highlights li { counter-increment: hl; padding: 12px 0; border-bottom: 1px solid var(--border-light); font: 400 13.5px/1.65 var(--fd); color: var(--text-secondary); padding-left: 36px; position: relative; }
+    .highlights li:last-child { border-bottom: none; }
+    .highlights li::before { content: counter(hl); position: absolute; left: 0; top: 14px; display: flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: var(--accent-glow); border: 1px solid var(--accent-border); font: 600 10px/1 var(--fm); color: var(--accent-deep); }
+    .highlights li strong { color: var(--text); font-weight: 600; }
+    .highlights a { color: var(--accent-deep); text-decoration: none; font-weight: 500; border-bottom: 1px solid var(--accent-border); transition: border-color .12s; }
+    .highlights a:hover { border-bottom-color: var(--accent); }
+    .priority-title a { color: inherit; text-decoration: none; border-bottom: 1px solid transparent; transition: border-color .12s; }
+    .priority-title a:hover { border-bottom-color: var(--accent); color: var(--accent-deep); }
+
+    /* ── Sections ── */
+    .section { margin-bottom: 32px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 28px 32px; }
+    .section-title { font: 700 20px/1.2 var(--fd); color: var(--text); margin-bottom: 4px; padding-bottom: 12px; border-bottom: 1px solid var(--border-light); }
+    .section-sub { font: 400 13px/1 var(--fd); color: var(--text-muted); margin-bottom: 20px; margin-top: 8px; }
+    .subsection { margin-top: 24px; }
+    .subsection-title { font: 600 15px/1.3 var(--fd); color: var(--text); margin-bottom: 12px; }
+    .sub-label { font: 500 9px/1 var(--fm); letter-spacing: .08em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; }
+    .section-light { background: var(--panel); border-color: var(--border-light); }
+    .what-this-means { margin-top: 16px; padding: 14px 18px; background: var(--panel); border-left: 3px solid var(--accent); border-radius: 0 6px 6px 0; font: 400 13px/1.6 var(--fd); color: var(--text-secondary); }
+    .what-this-means strong { color: var(--text); font-weight: 600; }
+
+    /* ── Priority Actions ── */
+    .priorities { display: grid; gap: 12px; margin-bottom: 32px; }
+    .priority { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 16px 20px; display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: start; }
+    .priority-badge { font: 700 9px/1 var(--fm); letter-spacing: .06em; text-transform: uppercase; padding: 4px 8px; border-radius: 4px; white-space: nowrap; margin-top: 2px; }
+    .priority-badge.high { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-border); }
+    .priority-badge.medium { background: var(--warn-bg); color: var(--warn); border: 1px solid var(--warn-border); }
+    .priority-badge.low { background: var(--info-bg); color: var(--info); border: 1px solid var(--info-border); }
+    .priority-title { font: 600 13px/1.35 var(--fd); color: var(--text); margin-bottom: 3px; }
+    .priority-desc { font: 400 12px/1.5 var(--fd); color: var(--text-secondary); }
+    .priority-impact { font: 600 12px/1 var(--fm); color: var(--ok); white-space: nowrap; margin-top: 2px; }
+
+    /* ── Metric cards ── */
+    .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 16px 0; }
+    .metric { background: var(--panel); border-radius: 8px; padding: 14px 16px; }
+    .metric-label { font: 500 9px/1 var(--fm); letter-spacing: .08em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
+    .metric-value { font: 700 22px/1.2 var(--fd); color: var(--text); }
+    .metric-note { font: 400 11px/1.3 var(--fd); color: var(--text-muted); margin-top: 2px; }
+    .metric-note.ok { color: var(--ok); font-weight: 500; }
+    .metric-note.warn { color: var(--warn); font-weight: 500; }
+    .metric-note.danger { color: var(--danger); font-weight: 500; }
+
+    /* ── Tables ── */
+    table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
+    thead { background: var(--panel); }
+    th { padding: 8px 12px; text-align: left; font: 600 10px/1 var(--fm); letter-spacing: .05em; text-transform: uppercase; color: var(--text-muted); border-bottom: 1px solid var(--border); }
+    td { padding: 8px 12px; border-bottom: 1px solid var(--border-light); color: var(--text-secondary); }
+    tbody tr:hover { background: var(--accent-glow); }
+    td strong { color: var(--text); font-weight: 600; }
+    .row-highlight { background: var(--ok-bg); }
+    .row-warn { background: var(--warn-bg); }
+    .row-danger { background: var(--danger-bg); }
+    .row-total { font-weight: 600; background: var(--panel); }
+    .row-total td { color: var(--text); border-bottom: 2px solid var(--border); }
+
+    /* ── Badges ── */
+    .badge { display: inline-block; padding: 3px 8px; border-radius: 4px; font: 600 10px/1 var(--fm); letter-spacing: .03em; text-transform: uppercase; }
+    .badge-ok { background: var(--ok-bg); color: var(--ok); border: 1px solid var(--ok-border); }
+    .badge-warn { background: var(--warn-bg); color: var(--warn); border: 1px solid var(--warn-border); }
+    .badge-danger { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-border); }
+    .badge-info { background: var(--info-bg); color: var(--info); border: 1px solid var(--info-border); }
+
+    /* ── Callout boxes ── */
+    .callout { border-radius: 8px; padding: 16px 20px; margin: 16px 0; font-size: 13px; line-height: 1.6; }
+    .callout-title { font: 600 13px/1 var(--fd); margin-bottom: 6px; }
+    .callout.alert { background: var(--danger-bg); border-left: 3px solid var(--danger); }
+    .callout.alert .callout-title { color: var(--danger); }
+    .callout.opportunity { background: var(--ok-bg); border-left: 3px solid var(--ok); }
+    .callout.opportunity .callout-title { color: var(--ok); }
+    .callout.insight { background: var(--panel); border-left: 3px solid var(--accent); }
+    .callout.insight .callout-title { color: var(--accent-deep); }
+    .callout.note { background: var(--info-bg); border-left: 3px solid var(--info); }
+    .callout.note .callout-title { color: var(--info); }
+    .callout ul { margin: 8px 0 0 20px; }
+    .callout li { margin: 4px 0; }
+
+    /* ── Coaching cards ── */
+    .coaching-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 20px 24px; margin: 12px 0; border-top: 3px solid var(--warn); }
+    .coaching-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+    .coaching-name { font: 600 15px/1 var(--fd); color: var(--text); }
+    .coaching-body { font: 400 13px/1.6 var(--fd); color: var(--text-secondary); margin-bottom: 8px; }
+    .coaching-body strong { color: var(--text); }
+    .coaching-action { font: 500 13px/1.5 var(--fd); color: var(--text); margin-bottom: 6px; }
+    .coaching-impact { display: inline-block; font: 500 12px/1 var(--fm); color: var(--ok); background: var(--ok-bg); border: 1px solid var(--ok-border); padding: 5px 10px; border-radius: 5px; }
+
+    /* ── Progressive disclosure (subsection) ── */
+    details { margin: 12px 0; }
+    details > summary { display: flex; align-items: center; gap: 8px; font: 500 13px/1 var(--fd); color: var(--accent-deep); cursor: pointer; list-style: none; padding: 10px 14px; user-select: none; background: var(--panel); border: 1px solid var(--border); border-radius: 6px; transition: all .15s; }
+    details > summary::-webkit-details-marker { display: none; }
+    details > summary::before { content: '\25B8'; font-size: 10px; transition: transform .15s; display: inline-block; color: var(--accent); }
+    details[open] > summary::before { transform: rotate(90deg); }
+    details > summary:hover { background: var(--accent-glow); border-color: var(--accent-border); color: var(--accent); }
+    details[open] > summary { border-radius: 6px 6px 0 0; border-bottom-color: transparent; background: var(--accent-glow); }
+    details > summary::after { content: 'click to expand'; margin-left: auto; font: 400 10px/1 var(--fm); color: var(--text-muted); letter-spacing: .02em; }
+    details[open] > summary::after { content: 'click to collapse'; }
+
+    /* ── Section-level collapse ── */
+    details.section-collapse { margin: 0 0 32px; border: none; background: none; }
+    details.section-collapse > summary { display: block; background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 24px 32px; cursor: pointer; transition: all .15s; }
+    details.section-collapse > summary::before { content: none; }
+    details.section-collapse > summary::after { content: none; }
+    details.section-collapse > summary:hover { border-color: var(--accent-border); box-shadow: 0 2px 8px rgba(196,122,74,.08); }
+    details.section-collapse > summary .section-title { margin-bottom: 4px; padding-bottom: 0; border-bottom: none; }
+    details.section-collapse > summary .section-sub { margin-bottom: 0; }
+    details.section-collapse > summary .section-contents { font: 400 12px/1.4 var(--fd); color: var(--text-muted); margin-top: 6px; }
+    details.section-collapse > summary .expand-hint { display: inline-block; margin-top: 10px; font: 500 10px/1 var(--fm); letter-spacing: .04em; text-transform: uppercase; color: var(--accent); opacity: .7; transition: opacity .12s; }
+    details.section-collapse > summary:hover .expand-hint { opacity: 1; }
+    details.section-collapse[open] > summary { border-radius: var(--r) var(--r) 0 0; border-bottom-color: var(--border-light); background: var(--surface); }
+    details.section-collapse[open] > summary .expand-hint { display: none; }
+    details.section-collapse > .section { margin-bottom: 0; border-top: none; border-radius: 0 0 var(--r) var(--r); }
+    details.section-collapse.light > summary { background: var(--panel); }
+    details.section-collapse.light[open] > summary { background: var(--panel); }
+    details.section-collapse.light > .section { background: var(--panel); }
+
+    /* ── TOC strip (sticky) ── */
+    .toc-strip { position: sticky; top: 0; z-index: 100; display: flex; flex-wrap: nowrap; gap: 5px; padding: 12px 0; margin-bottom: 28px; background: var(--bg); border-bottom: 1px solid var(--border); overflow-x: auto; transition: box-shadow .2s; }
+    .toc-strip.stuck { box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+    .toc-strip a { display: inline-block; padding: 4px 10px; font: 500 10.5px/1 var(--fd); color: var(--text-secondary); text-decoration: none; background: var(--panel); border: 1px solid var(--border-light); border-radius: 20px; transition: all .12s; white-space: nowrap; }
+    .toc-strip a:hover { color: var(--accent); background: var(--accent-glow); border-color: var(--accent-border); }
+    .toc-strip a.active { color: var(--accent-deep); font-weight: 600; background: var(--accent-glow); border-color: var(--accent-border); }
+
+    /* ── TL;DR — executive_intelligence profile ── */
+    .tldr { font: 600 15px/1.55 var(--fd); color: var(--text); padding: 14px 18px; background: var(--accent-glow); border-left: 3px solid var(--accent); border-radius: 0 6px 6px 0; margin: 0 0 20px 0; }
+
+    /* ── Appendix ── */
+    .appendix-row { display: grid; grid-template-columns: 200px 1fr; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border-light); font-size: 13px; }
+    .appendix-row:last-child { border-bottom: none; }
+    .appendix-label { font: 500 12px/1.5 var(--fd); color: var(--text); }
+    .appendix-value { font: 400 12px/1.5 var(--fd); color: var(--text-secondary); }
+    .data-tag { display: inline-block; font: 500 9px/1 var(--fm); letter-spacing: .04em; text-transform: uppercase; padding: 2px 6px; border-radius: 3px; background: var(--panel); color: var(--text-muted); border: 1px solid var(--border); margin-right: 4px; }
+
+    /* ── Footer ── */
+    .footer { margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--border); text-align: center; }
+    .footer-brand { font: 600 10px/1 var(--fm); letter-spacing: .12em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
+    .footer-text { font: 400 11px/1.5 var(--fd); color: var(--text-muted); }
+
+    /* ── Responsive ── */
+    @media (max-width: 600px) {
+      .h-customer { font-size: 26px; }
+      .section { padding: 20px 16px; }
+      .metrics { grid-template-columns: repeat(2, 1fr); }
+      .priority { grid-template-columns: 1fr; }
+      .priority-impact { margin-top: 4px; }
+      .appendix-row { grid-template-columns: 1fr; }
+      th, td { padding: 6px 8px; font-size: 12px; }
+    }
+
+    @media print {
+      .toc-strip { display: none; }
+      .page { margin: 0; padding: 0 16px; }
+      details[open] > summary { display: none; }
+      details > div, details > table { display: block !important; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="page">
+
+  <header class="header" id="top">
+    <div class="h-brand">
+      <span>Insightful &middot; Customer Intelligence</span>
+    </div>
+    <div class="h-customer">Kalco Lighting</div>
+    <div class="h-type">Customer Intelligence Report</div>
+    <div class="h-meta">April 2025 &ndash; April 2026 (Trailing 12 Months) &middot; Report Date: April 15, 2026</div>
+    <div class="h-meta" style="margin-top: 4px;">
+      <span class="badge badge-info">Full &middot; iPad + eCat Online</span>
+      <span class="badge badge-info" style="margin-left:6px;">executive_intelligence</span>
+    </div>
+    <div class="h-accent"></div>
+  </header>
+
+  <nav class="toc-strip" id="tocStrip">
+    <a href="#summary">Executive Summary</a>
+    <a href="#rep-intel">Rep Intelligence</a>
+    <a href="#customers">Customer &amp; Buyer</a>
+    <a href="#product">Product &amp; Inventory</a>
+    <a href="#commerce">Commerce Analytics</a>
+    <a href="#supporting-detail">Supporting Detail</a>
+    <a href="#appendix">Appendix</a>
+  </nav>
+
+
+  <!-- ═══ §1 EXECUTIVE SUMMARY ═══ -->
+  <section class="section" id="summary">
+    <h2 class="section-title" style="font-size: 24px;">Executive Summary</h2>
+
+    <p class="tldr">Kalco Lighting routes $2.75M — 23% of its $11.9M total business — through eCat at a $13K average order value driven by high-stakes project workflows, but only 87 of 404 ever-registered buyers placed an order last year, making dormant account reactivation and rep-led acceleration the two highest-leverage near-term opportunities.</p>
+
+    <ul class="highlights">
+      <li><strong>Project-scale commerce defines the eCat channel.</strong> eCat captures 23% of total GMV ($2.75M of $11.9M) across just 211 orders — a $13K average that reflects how reps are using eCat for high-value work: Quote orders average $34K, Hold-for-Confirmation orders average $17K. The platform is being used exactly as intended for large-project business. <a href="#commerce">See Commerce Analytics &rarr;</a></li>
+      <li><strong>317 dormant eCat buyers represent the largest untapped pipeline.</strong> Of 404 customers with documented eCat history, only 87 placed an order in the trailing 12 months — LBX Lighting Inc. (7 prior orders, $91K total, silent since October 2025) and Light &amp; Day LLC (9 orders, $50K total, also silent since October 2025) are the most immediately addressable. <a href="#customers">See Customer &amp; Buyer &rarr;</a></li>
+      <li><strong>Rep momentum is accelerating but heavily concentrated at the top.</strong> Claudia Carrillo (44 LTM orders, $664K) and Bob Ross (4 orders, $595K at a $149K AOV on large projects) account for 47% of team eCat GMV — Robert Parker's 1,100% surge in the last 90 days signals the next growth driver, while DBA Associates dropped 86% in the same window. <a href="#rep-intel">See Rep Intelligence &rarr;</a></li>
+    </ul>
+
+    <div class="sub-label">Priority Actions</div>
+    <div class="priorities">
+      <div class="priority">
+        <span class="priority-badge high">High</span>
+        <div>
+          <div class="priority-title"><a href="#customers">Reactivate high-value dormant eCat buyers</a></div>
+          <div class="priority-desc">317 customers have documented eCat ordering history but placed no order in the last 12 months. LBX Lighting Inc. and Light &amp; Day LLC each had 7–9 prior orders and strong total business volume before going silent. Rep-led outreach with a targeted eCat session is the clearest path to near-term volume recovery.</div>
+        </div>
+        <div class="priority-impact">317 accounts</div>
+      </div>
+      <div class="priority">
+        <span class="priority-badge medium">Medium</span>
+        <div>
+          <div class="priority-title"><a href="#product">Resolve OOS visibility on 8 high-selling items</a></div>
+          <div class="priority-desc">Eight products with $10K+ in historical sales are currently showing 0 available — including the Flint Pendant ($73K), Uroko Pendant ($68K), and Alta Orb Pendant ($60K). Three of these have no next-receipt date on file, meaning reps have no timeline to share with buyers. Confirm restock timelines and communicate proactively to prevent lost transactions.</div>
+        </div>
+        <div class="priority-impact">$420K at risk</div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ═══ §2 REP INTELLIGENCE ═══ -->
+  <details class="section-collapse" id="rep-intel">
+    <summary>
+      <h2 class="section-title">Rep Intelligence</h2>
+      <div class="section-sub">10 active reps LTM &middot; 211 eCat orders &middot; $2.75M eCat GMV &middot; $13.0K team avg AOV</div>
+      <div class="section-contents">Rep Activity Ladder &middot; 90-Day Trajectory &middot; Coaching Signals</div>
+      <span class="expand-hint">&#9662; Click to expand</span>
+    </summary>
+    <section class="section" style="margin-bottom:0;border-top:none;border-radius:0 0 var(--r) var(--r);">
+
+      <div class="metrics">
+        <div class="metric">
+          <div class="metric-label">Active Selling Reps (LTM)</div>
+          <div class="metric-value">10</div>
+          <div class="metric-note">5 with 10+ orders</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">eCat Orders (LTM)</div>
+          <div class="metric-value">211</div>
+          <div class="metric-note">181 iPad · 30 eCat Online</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">eCat GMV (LTM)</div>
+          <div class="metric-value">$2.75M</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Team Avg AOV</div>
+          <div class="metric-value">$13.0K</div>
+          <div class="metric-note">vs. $1,148 all-channel</div>
+        </div>
+      </div>
+
+      <div class="subsection">
+        <h3 class="subsection-title">Rep Activity Ladder — Trailing 12 Months</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Rep</th>
+              <th>LTM Orders</th>
+              <th>LTM GMV</th>
+              <th>AOV</th>
+              <th>Customers Served</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="row-highlight">
+              <td><strong>Claudia Carrillo</strong></td>
+              <td>44</td>
+              <td><strong>$664,190</strong></td>
+              <td>$15,095</td>
+              <td>4</td>
+            </tr>
+            <tr class="row-highlight">
+              <td><strong>Bob Ross</strong></td>
+              <td>4</td>
+              <td><strong>$595,484</strong></td>
+              <td>$148,871</td>
+              <td>2</td>
+            </tr>
+            <tr class="row-highlight">
+              <td><strong>Robert Parker</strong></td>
+              <td>23</td>
+              <td><strong>$355,916</strong></td>
+              <td>$15,475</td>
+              <td>8</td>
+            </tr>
+            <tr>
+              <td>Scott Fellner</td>
+              <td>25</td>
+              <td>$220,277</td>
+              <td>$8,811</td>
+              <td>5</td>
+            </tr>
+            <tr>
+              <td>DBA Associates</td>
+              <td>11</td>
+              <td>$194,109</td>
+              <td>$17,646</td>
+              <td>7</td>
+            </tr>
+            <tr>
+              <td>Kirk Marshall</td>
+              <td>16</td>
+              <td>$139,507</td>
+              <td>$8,719</td>
+              <td>10</td>
+            </tr>
+            <tr>
+              <td>Cheryl LaRosa</td>
+              <td>9</td>
+              <td>$134,587</td>
+              <td>$14,954</td>
+              <td>6</td>
+            </tr>
+            <tr>
+              <td>Tom Wright</td>
+              <td>4</td>
+              <td>$106,122</td>
+              <td>$26,531</td>
+              <td>4</td>
+            </tr>
+            <tr>
+              <td>Jenifer McCarty</td>
+              <td>9</td>
+              <td>$54,239</td>
+              <td>$6,027</td>
+              <td>6</td>
+            </tr>
+            <tr>
+              <td>Zachary Rapp</td>
+              <td>5</td>
+              <td>$41,772</td>
+              <td>$8,354</td>
+              <td>2</td>
+            </tr>
+            <tr class="row-total">
+              <td>Team Total</td>
+              <td>150</td>
+              <td>$2,651,203</td>
+              <td>—</td>
+              <td>—</td>
+            </tr>
+          </tbody>
+        </table>
+        <p style="font: 400 11px/1.4 var(--fd); color: var(--text-muted); margin-top: 6px;">Note: Row total reflects rep-attributed orders only. Full LTM eCat total of 211 includes unattributed and eCat Online orders. DBA Associates appears to be a firm-level account rather than an individual rep. Bob Ross's $149K AOV reflects large project-scale orders, not typical transaction size.</p>
+      </div>
+
+      <div class="subsection">
+        <h3 class="subsection-title">90-Day Trajectory (Most Recent vs. Prior Period)</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Rep</th>
+              <th>Orders (Prior 90d)</th>
+              <th>Orders (Recent 90d)</th>
+              <th>Change</th>
+              <th>Recent 90d GMV</th>
+              <th>Signal</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="row-highlight">
+              <td><strong>Robert Parker</strong></td>
+              <td>1</td>
+              <td>12</td>
+              <td><strong>+1,100%</strong></td>
+              <td>$225,317</td>
+              <td><span class="badge badge-ok">Rising</span></td>
+            </tr>
+            <tr class="row-highlight">
+              <td><strong>Claudia Carrillo</strong></td>
+              <td>7</td>
+              <td>15</td>
+              <td>+114%</td>
+              <td>$173,142</td>
+              <td><span class="badge badge-ok">Rising</span></td>
+            </tr>
+            <tr>
+              <td>Kirk Marshall</td>
+              <td>1</td>
+              <td>4</td>
+              <td>+300%</td>
+              <td>$10,921</td>
+              <td><span class="badge badge-ok">Rising</span></td>
+            </tr>
+            <tr>
+              <td>Bob Ross</td>
+              <td>1</td>
+              <td>2</td>
+              <td>+100%</td>
+              <td>$563,723</td>
+              <td><span class="badge badge-info">Steady</span></td>
+            </tr>
+            <tr>
+              <td>Scott Fellner</td>
+              <td>9</td>
+              <td>9</td>
+              <td>0%</td>
+              <td>$81,900</td>
+              <td><span class="badge badge-info">Steady</span></td>
+            </tr>
+            <tr class="row-warn">
+              <td>DBA Associates</td>
+              <td>7</td>
+              <td>1</td>
+              <td>−86%</td>
+              <td>$6,208</td>
+              <td><span class="badge badge-warn">Declining</span></td>
+            </tr>
+            <tr class="row-warn">
+              <td>Tom Wright</td>
+              <td>2</td>
+              <td>1</td>
+              <td>−50%</td>
+              <td>$84,489</td>
+              <td><span class="badge badge-warn">Declining</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="subsection">
+        <h3 class="subsection-title">Coaching Signals</h3>
+
+        <div class="coaching-card">
+          <div class="coaching-header">
+            <div class="coaching-name">Jenifer McCarty &amp; Cheryl LaRosa</div>
+            <span class="badge badge-warn">High Engagement · Low Conversion</span>
+          </div>
+          <div class="coaching-body">
+            Both reps show very high platform activity — Jenifer leads the entire org in library content views (801 views) and Cheryl is the top PDF catalog creator (59 catalogs, 293 library views) — but each submitted only <strong>9 eCat orders LTM</strong>. Engagement is strong; the conversion to submitted orders is not. These reps are likely finalizing business through phone or paper channels after using eCat for research and presentation.
+          </div>
+          <div class="coaching-action">&#8250; Route high-value catalog interactions into Quote or HFC workflows. If discovery is happening on eCat, the order should flow through eCat.</div>
+        </div>
+
+        <div class="coaching-card" style="border-top-color: var(--danger);">
+          <div class="coaching-header">
+            <div class="coaching-name">DBA Associates</div>
+            <span class="badge badge-danger">Volume Drop — Investigate</span>
+          </div>
+          <div class="coaching-body">
+            Order volume collapsed 86% in the most recent 90 days (7 orders → 1), but the account maintained <strong>33 logins and 155 sales portal accesses</strong> — the highest portal monitoring activity of any rep. Activity is maintained; transactions are not. This pattern typically indicates orders are being submitted through an alternate channel (phone, direct order entry) rather than through eCat.
+          </div>
+          <div class="coaching-action">&#8250; Confirm whether DBA Associates volume is appearing as direct orders in your business system rather than through eCat. If so, redirect to eCat HFC or Quote workflow for catalog-sourced business.</div>
+        </div>
+      </div>
+
+    </section>
+  </details>
+
+
+  <!-- ═══ §3 CUSTOMER & BUYER INTELLIGENCE ═══ -->
+  <details class="section-collapse" id="customers">
+    <summary>
+      <h2 class="section-title">Customer &amp; Buyer Intelligence</h2>
+      <div class="section-sub">87 LTM active eCat buyers &middot; 317 dormant eCat accounts &middot; 2,213 total customers</div>
+      <div class="section-contents">Dormant Account Pipeline &middot; Repeat Buyer Velocity &middot; New Buyer Acquisition</div>
+      <span class="expand-hint">&#9662; Click to expand</span>
+    </summary>
+    <section class="section" style="margin-bottom:0;border-top:none;border-radius:0 0 var(--r) var(--r);">
+
+      <div class="metrics">
+        <div class="metric">
+          <div class="metric-label">Total Customers</div>
+          <div class="metric-value">2,213</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Ever Ordered via eCat</div>
+          <div class="metric-value">404</div>
+          <div class="metric-note">18.3% of total base</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Active LTM eCat Buyers</div>
+          <div class="metric-value">87</div>
+          <div class="metric-note ok">Placed ≥1 order LTM</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Dormant eCat Accounts</div>
+          <div class="metric-value">317</div>
+          <div class="metric-note warn">Prior history, no LTM order</div>
+        </div>
+      </div>
+
+      <div class="what-this-means">
+        <strong>eCat buyer retention rate: 21.5%</strong> — of 404 customers who have ever placed an eCat order, only 87 did so in the last 12 months. The remaining 317 represent prior adopters who have not re-engaged. This is not a net-new adoption problem; it is a reactivation problem.
+      </div>
+
+      <div class="subsection">
+        <h3 class="subsection-title">Priority Dormant Accounts</h3>
+        <p style="font: 400 12px/1.5 var(--fd); color: var(--text-muted); margin-bottom: 12px;">Accounts with documented eCat ordering history that placed no order in the trailing 12 months, sorted by prior eCat activity and business volume.</p>
+        <table>
+          <thead>
+            <tr>
+              <th>Account</th>
+              <th>Prior eCat Orders</th>
+              <th>Total eCat GMV</th>
+              <th>Last eCat Order</th>
+              <th>Days Silent</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="row-danger">
+              <td><strong>LBX Lighting Inc.</strong></td>
+              <td>7</td>
+              <td>$90,995</td>
+              <td>Oct 2025</td>
+              <td>~180</td>
+            </tr>
+            <tr class="row-warn">
+              <td><strong>Light &amp; Day LLC</strong></td>
+              <td>9</td>
+              <td>$49,539</td>
+              <td>Oct 2025</td>
+              <td>~170</td>
+            </tr>
+            <tr>
+              <td>J Douglas Design</td>
+              <td>6</td>
+              <td>$12,770</td>
+              <td>Dec 2025</td>
+              <td>~130</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="callout opportunity" style="margin-top: 12px;">
+          <div class="callout-title">Reactivation Opportunity</div>
+          LBX Lighting placed 7 eCat orders totaling $91K before going silent — this is a customer with demonstrated willingness to transact through eCat at meaningful volume. A direct rep-led outreach paired with a catalog walkthrough of new items is the recommended first step.
+        </div>
+      </div>
+
+      <div class="subsection">
+        <h3 class="subsection-title">Most Consistent Repeat Buyers (LTM)</h3>
+        <p style="font: 400 12px/1.5 var(--fd); color: var(--text-muted); margin-bottom: 12px;">Accounts with 3+ eCat orders in the trailing 12 months, ranked by order frequency.</p>
+        <table>
+          <thead>
+            <tr>
+              <th>Account</th>
+              <th>LTM Orders</th>
+              <th>LTM GMV</th>
+              <th>Avg Days Between Orders</th>
+              <th>Last Order</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="row-highlight">
+              <td><strong>SPACIAL EFX</strong></td>
+              <td>11</td>
+              <td>$152,319</td>
+              <td>12.3 days</td>
+              <td>Feb 2026</td>
+            </tr>
+            <tr class="row-highlight">
+              <td><strong>Lighting Inc.</strong></td>
+              <td>6</td>
+              <td>$105,057</td>
+              <td>51.4 days</td>
+              <td>Mar 2026</td>
+            </tr>
+            <tr class="row-highlight">
+              <td><strong>FEI Ferguson (Main)</strong></td>
+              <td>6</td>
+              <td>$95,890</td>
+              <td>45.7 days</td>
+              <td>Feb 2026</td>
+            </tr>
+            <tr>
+              <td>J Douglas Design</td>
+              <td>6</td>
+              <td>$12,770</td>
+              <td>37.8 days</td>
+              <td>Dec 2025</td>
+            </tr>
+            <tr>
+              <td>Watson &amp; Co.</td>
+              <td>5</td>
+              <td>$4,768</td>
+              <td>67.0 days</td>
+              <td>Jan 2026</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="callout insight">
+          <div class="callout-title">SPACIAL EFX — Highest-Velocity Buyer</div>
+          11 orders at a 12-day average cadence across $152K total — this is the most engaged repeat buyer in the base. SPACIAL EFX represents a benchmark for what consistent eCat adoption looks like operationally. Understanding what drives this account's cadence can inform outreach to similar accounts.
+        </div>
+      </div>
+
+      <div class="subsection">
+        <h3 class="subsection-title">New Buyer Acquisition</h3>
+        <p style="font: 400 13px/1.6 var(--fd); color: var(--text-secondary); margin-bottom: 8px;">
+          New eCat buyer acquisition shows an active onboarding pipeline, with strong peaks in January 2026 (8 new buyers) and June 2025 (8 new buyers). New buyers arrive through two channels: <strong>rep-acquired</strong> (iPad-initiated, brought in by a sales rep) and <strong>eCat Online</strong> (self-serve, buyer-initiated through the buyer portal). The majority of new buyers enter through rep-led acquisition, consistent with the overall order channel profile.
+        </p>
+      </div>
+
+    </section>
+  </details>
+
+
+  <!-- ═══ §4 PRODUCT & INVENTORY INTELLIGENCE ═══ -->
+  <details class="section-collapse" id="product">
+    <summary>
+      <h2 class="section-title">Product &amp; Inventory Intelligence</h2>
+      <div class="section-sub">2,257 active inventory items &middot; 91.7% catalog completeness &middot; 8 high-selling items at zero availability</div>
+      <div class="section-contents">OOS Risk Items &middot; Catalog Completeness &middot; Category Performance</div>
+      <span class="expand-hint">&#9662; Click to expand</span>
+    </summary>
+    <section class="section" style="margin-bottom:0;border-top:none;border-radius:0 0 var(--r) var(--r);">
+
+      <div class="metrics">
+        <div class="metric">
+          <div class="metric-label">Active Inventory Items</div>
+          <div class="metric-value">2,257</div>
+          <div class="metric-note ok">Data fresh</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Catalog Completeness</div>
+          <div class="metric-value">91.7%</div>
+          <div class="metric-note ok">Visible products</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Missing Images</div>
+          <div class="metric-value">189</div>
+          <div class="metric-note warn">Of 2,268 visible products</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">OOS High-Sellers</div>
+          <div class="metric-value">8</div>
+          <div class="metric-note danger">$10K+ historical sales, 0 available</div>
+        </div>
+      </div>
+
+      <div class="subsection">
+        <h3 class="subsection-title">Out-of-Stock Risk — High Historical Sales</h3>
+        <p style="font: 400 12px/1.5 var(--fd); color: var(--text-muted); margin-bottom: 12px;">Products currently showing 0 available with $10K+ in historical sales. Items with no next-receipt date represent the highest operational risk.</p>
+
+        <div class="callout alert">
+          <div class="callout-title">3 Items Have No Next-Receipt Date on File</div>
+          The Alta 36 Inch Orb Pendant ($60K historical), Flair 8 Light Pendant ($22K), and Tappata 24" LED Outdoor Wall Sconce ($21K) show 0 inventory with no scheduled restock date. Reps have no timeline to share with buyers — these items should be flagged immediately for supplier confirmation.
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Item #</th>
+              <th>Description</th>
+              <th>Historical Sales</th>
+              <th>Available</th>
+              <th>Next Receipt</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="row-danger">
+              <td>519276WB</td>
+              <td><strong>Flint 3 Light Full Canopy Pendant</strong></td>
+              <td>$72,835</td>
+              <td>0</td>
+              <td>May 15, 2026</td>
+            </tr>
+            <tr class="row-danger">
+              <td>524655BN</td>
+              <td><strong>UROKO 28 IN PENDANT BN</strong></td>
+              <td>$67,998</td>
+              <td>0</td>
+              <td>Apr 30, 2026</td>
+            </tr>
+            <tr class="row-danger">
+              <td>037257-010-FR001</td>
+              <td><strong>Alta 36 Inch Orb Pendant</strong></td>
+              <td>$59,514</td>
+              <td>0</td>
+              <td><span class="badge badge-danger">No date</span></td>
+            </tr>
+            <tr class="row-warn">
+              <td>046255-073-FR001</td>
+              <td>CADERE 26 IN CHANDELIER</td>
+              <td>$49,125</td>
+              <td>0</td>
+              <td>May 30, 2026</td>
+            </tr>
+            <tr class="row-warn">
+              <td>524655PWB</td>
+              <td>Uroko 28" Pendant</td>
+              <td>$48,500</td>
+              <td>0</td>
+              <td>Apr 30, 2026</td>
+            </tr>
+            <tr>
+              <td>9413MB</td>
+              <td>Anastasia Outdoor 2 Light Large Wall Bracket</td>
+              <td>$30,726</td>
+              <td>0</td>
+              <td>May 15, 2026</td>
+            </tr>
+            <tr>
+              <td>520057OL</td>
+              <td>Flair 8 Light Pendant</td>
+              <td>$22,047</td>
+              <td>0</td>
+              <td><span class="badge badge-danger">No date</span></td>
+            </tr>
+            <tr>
+              <td>099021-063-FR001</td>
+              <td>Tappata 24" LED Outdoor Wall Sconce</td>
+              <td>$20,771</td>
+              <td>0</td>
+              <td><span class="badge badge-danger">No date</span></td>
+            </tr>
+          </tbody>
+        </table>
+        <p style="font: 400 11px/1.4 var(--fd); color: var(--text-muted); margin-top: 6px;">Historical sales figures are all-time cumulative from your sales history. Inventory data is current as of report generation.</p>
+      </div>
+
+      <div class="subsection">
+        <h3 class="subsection-title">Catalog Completeness</h3>
+        <p style="font: 400 13px/1.6 var(--fd); color: var(--text-secondary);">
+          The visible catalog is <strong>91.7% complete</strong> — 189 of 2,268 visible products are missing product images. No pricing gaps were detected. A 91.7% completeness rate is well above typical platform benchmarks and reflects consistent catalog maintenance. The remaining 189 image gaps are a manageable cleanup task that improves rep confidence and buyer conversion.
+        </p>
+
+        <div class="what-this-means">
+          <strong>Note on data freshness:</strong> Product data was last synchronized 43 days ago. Catalog completeness figures reflect that sync point. If new products have been added since, actual gap count may differ. A re-sync is recommended to ensure accuracy before sharing catalog content externally.
+        </div>
+      </div>
+
+    </section>
+  </details>
+
+
+  <!-- ═══ §5 COMMERCE ANALYTICS ═══ -->
+  <details class="section-collapse" id="commerce">
+    <summary>
+      <h2 class="section-title">Commerce Analytics</h2>
+      <div class="section-sub">$11.93M total business volume · $2.75M eCat · 23.1% eCat capture · $13.0K eCat AOV</div>
+      <div class="section-contents">Volume &amp; Channel Mix &middot; Order Type Breakdown &middot; Geographic Distribution</div>
+      <span class="expand-hint">&#9662; Click to expand</span>
+    </summary>
+    <section class="section" style="margin-bottom:0;border-top:none;border-radius:0 0 var(--r) var(--r);">
+
+      <div class="metrics">
+        <div class="metric">
+          <div class="metric-label">Total Business Volume (LTM)</div>
+          <div class="metric-value">$11.93M</div>
+          <div class="metric-note">10,390 all-channel orders</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">eCat GMV (LTM)</div>
+          <div class="metric-value">$2.75M</div>
+          <div class="metric-note ok">211 eCat orders</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">eCat GMV Capture</div>
+          <div class="metric-value">23.1%</div>
+          <div class="metric-note">of total business volume</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">eCat AOV</div>
+          <div class="metric-value">$13.0K</div>
+          <div class="metric-note ok">11× all-channel AOV</div>
+        </div>
+      </div>
+
+      <div class="what-this-means">
+        <strong>What this means:</strong> eCat processes 2% of total order count but captures 23% of total GMV. The platform is not a volume channel — it is a high-value project channel. Every eCat order averages $13K, compared to $1,148 across all channels. This gap reflects how reps are using eCat: for large project quotes, held orders, and confirmed contracts — not routine replenishment.
+      </div>
+
+      <div class="subsection">
+        <h3 class="subsection-title">Order Type Breakdown — eCat (LTM)</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Order Type</th>
+              <th>Channel</th>
+              <th>Orders</th>
+              <th>GMV</th>
+              <th>AOV</th>
+              <th>% of eCat GMV</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="row-highlight">
+              <td><strong>Quote</strong></td>
+              <td>iPad (Rep)</td>
+              <td>30</td>
+              <td>$1,029,992</td>
+              <td>$34,333</td>
+              <td>37.4%</td>
+            </tr>
+            <tr class="row-highlight">
+              <td><strong>Hold for Confirmation (HFC)</strong></td>
+              <td>iPad (Rep)</td>
+              <td>40</td>
+              <td>$667,934</td>
+              <td>$16,698</td>
+              <td>24.3%</td>
+            </tr>
+            <tr>
+              <td>Confirmed</td>
+              <td>iPad (Rep)</td>
+              <td>93</td>
+              <td>$649,733</td>
+              <td>$6,986</td>
+              <td>23.6%</td>
+            </tr>
+            <tr>
+              <td>Wishlist</td>
+              <td>iPad (Rep)</td>
+              <td>12</td>
+              <td>$266,851</td>
+              <td>$22,238</td>
+              <td>9.7%</td>
+            </tr>
+            <tr>
+              <td>Market Hold</td>
+              <td>iPad (Rep)</td>
+              <td>4</td>
+              <td>$77,189</td>
+              <td>$19,297</td>
+              <td>2.8%</td>
+            </tr>
+            <tr>
+              <td>Confirmed</td>
+              <td>eCat Online (Buyer)</td>
+              <td>30</td>
+              <td>$49,761</td>
+              <td>$1,659</td>
+              <td>1.8%</td>
+            </tr>
+            <tr>
+              <td>Other</td>
+              <td>iPad (Rep)</td>
+              <td>2</td>
+              <td>$8,916</td>
+              <td>—</td>
+              <td>0.3%</td>
+            </tr>
+            <tr class="row-total">
+              <td>Total</td>
+              <td></td>
+              <td>211</td>
+              <td>$2,750,374</td>
+              <td>$13,033</td>
+              <td>100%</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="callout insight">
+          <div class="callout-title">Channel Insight</div>
+          Rep-led iPad orders account for 98% of eCat GMV. Buyer self-serve (eCat Online) averages $1.7K per order vs. $16K+ for rep-submitted workflows — suggesting buyer self-service is currently supplemental and exploratory, not a primary transaction driver. Quote and HFC workflows together represent 62% of eCat GMV from 33% of orders.
+        </div>
+      </div>
+
+      <div class="subsection">
+        <h3 class="subsection-title">Geographic Distribution — eCat (LTM)</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>State</th>
+              <th>eCat Buyers</th>
+              <th>eCat Orders</th>
+              <th>eCat GMV</th>
+              <th>GMV / Buyer</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="row-highlight">
+              <td><strong>TX</strong></td>
+              <td>10</td>
+              <td>26</td>
+              <td>$295,000</td>
+              <td>$29,500</td>
+            </tr>
+            <tr class="row-highlight">
+              <td><strong>MD</strong></td>
+              <td>3</td>
+              <td>22</td>
+              <td>$203,000</td>
+              <td>$67,667</td>
+            </tr>
+            <tr>
+              <td>FL</td>
+              <td>9</td>
+              <td>13</td>
+              <td>$111,000</td>
+              <td>$12,333</td>
+            </tr>
+            <tr>
+              <td>VA</td>
+              <td>2</td>
+              <td>8</td>
+              <td>$110,000</td>
+              <td>$55,000</td>
+            </tr>
+            <tr>
+              <td>GA</td>
+              <td>8</td>
+              <td>13</td>
+              <td>$94,000</td>
+              <td>$11,750</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="callout note">
+          <div class="callout-title">MD Concentration Note</div>
+          Maryland shows only 3 active eCat buyers but 22 orders and $203K GMV — the highest GMV-per-buyer of any state at $68K. This level of concentration creates account-level risk: a single churn event in this state meaningfully impacts overall eCat volume. Understanding the rep relationship driving this activity is recommended.
+        </div>
+      </div>
+
+    </section>
+  </details>
+
+
+  <!-- ═══ §6 SUPPORTING DETAIL ═══ -->
+  <details class="section-collapse" id="supporting-detail">
+    <summary>
+      <h2 class="section-title">Supporting Detail</h2>
+      <div class="section-sub">Platform &amp; Feature Utilization · Data Health &amp; Pipeline</div>
+      <div class="section-contents">Seat Utilization &middot; Feature Engagement by Rep &middot; Import Pipeline &middot; Data Freshness</div>
+      <span class="expand-hint">&#9662; Click to expand</span>
+    </summary>
+    <section class="section" style="margin-bottom:0;border-top:none;border-radius:0 0 var(--r) var(--r);">
+
+      <div class="subsection" style="margin-top: 0;">
+        <h3 class="subsection-title">Platform &amp; Feature Utilization</h3>
+
+        <div class="metrics">
+          <div class="metric">
+            <div class="metric-label">Total Org Users</div>
+            <div class="metric-value">115</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Logged In (Last 90d)</div>
+            <div class="metric-value">53</div>
+            <div class="metric-note">46% seat utilization</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Placed Orders (Last 90d)</div>
+            <div class="metric-value">18</div>
+            <div class="metric-note warn">16% of total seats</div>
+          </div>
+        </div>
+
+        <div class="what-this-means">
+          46% of seats logged in during the last 90 days — a healthy engagement rate for a platform with 115 accounts. The gap between logins (53 users) and order-submitters (18 users) is expected: reps use the platform for research, catalog review, PDF creation, and customer presentation well before submitting orders.
+        </div>
+
+        <h3 class="subsection-title" style="margin-top: 20px;">Top Feature Engagement (Active Users)</h3>
+        <p style="font: 400 12px/1.5 var(--fd); color: var(--text-muted); margin-bottom: 12px;">Feature usage from platform behavior data, top users per feature.</p>
+        <table>
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>Days Active</th>
+              <th>Total Events</th>
+              <th>Orders Submitted</th>
+              <th>PDFs Created</th>
+              <th>Library Views</th>
+              <th>Portal Accesses</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>larosa</strong> (Cheryl LaRosa)</td>
+              <td>300</td>
+              <td>4,772</td>
+              <td>9</td>
+              <td><strong>59</strong></td>
+              <td>293</td>
+              <td>47</td>
+            </tr>
+            <tr>
+              <td><strong>bob_ross</strong> (Bob Ross)</td>
+              <td>325</td>
+              <td>3,835</td>
+              <td>6</td>
+              <td>5</td>
+              <td>265</td>
+              <td><strong>134</strong></td>
+            </tr>
+            <tr>
+              <td><strong>jenmccarty</strong> (Jenifer McCarty)</td>
+              <td>207</td>
+              <td>2,735</td>
+              <td>9</td>
+              <td>38</td>
+              <td><strong>801</strong></td>
+              <td>143</td>
+            </tr>
+            <tr>
+              <td><strong>rparker2</strong> (Robert Parker)</td>
+              <td>236</td>
+              <td>2,229</td>
+              <td><strong>25</strong></td>
+              <td>20</td>
+              <td>267</td>
+              <td>31</td>
+            </tr>
+            <tr>
+              <td><strong>ccarrillo</strong> (Claudia Carrillo)</td>
+              <td>101</td>
+              <td>1,936</td>
+              <td><strong>72</strong></td>
+              <td>38</td>
+              <td>40</td>
+              <td>6</td>
+            </tr>
+            <tr>
+              <td><strong>dbassociates</strong> (DBA Associates)</td>
+              <td>171</td>
+              <td>1,296</td>
+              <td>22</td>
+              <td>0</td>
+              <td>118</td>
+              <td>155</td>
+            </tr>
+          </tbody>
+        </table>
+        <p style="font: 400 11px/1.4 var(--fd); color: var(--text-muted); margin-top: 6px;">
+          <strong>Claudia Carrillo</strong> leads all reps in submit_order events (72 lifetime submissions). <strong>Jenifer McCarty</strong> leads in library content views (801) — the highest content engagement in the org. <strong>Bob Ross</strong> leads in sales portal accesses (134) — tracking deal pipeline externally.
+        </p>
+      </div>
+
+      <div class="subsection">
+        <h3 class="subsection-title">Data Health &amp; Import Pipeline</h3>
+        <p style="font: 400 13px/1.6 var(--fd); color: var(--text-secondary); margin-bottom: 12px;">
+          Import pipeline is active and consistent — 90 to 154 import events per month over the last six months, confirming regular data operations. Customer, inventory, and order data are current. Product data is the primary staleness concern.
+        </p>
+        <table>
+          <thead>
+            <tr>
+              <th>Data Source</th>
+              <th>Status</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="row-highlight">
+              <td>Customers</td>
+              <td><span class="badge badge-ok">Fresh</span></td>
+              <td>0 days stale — current</td>
+            </tr>
+            <tr class="row-highlight">
+              <td>Inventory</td>
+              <td><span class="badge badge-ok">Fresh</span></td>
+              <td>0 days stale — current</td>
+            </tr>
+            <tr class="row-highlight">
+              <td>eCat Orders</td>
+              <td><span class="badge badge-ok">Fresh</span></td>
+              <td>Real-time — current</td>
+            </tr>
+            <tr class="row-highlight">
+              <td>All-Channel Business Orders</td>
+              <td><span class="badge badge-ok">Fresh</span></td>
+              <td>Current feed active</td>
+            </tr>
+            <tr>
+              <td>Products</td>
+              <td><span class="badge badge-warn">Monitor</span></td>
+              <td>43 days since last sync — schedule a refresh</td>
+            </tr>
+            <tr class="row-danger">
+              <td>Sales Quotas</td>
+              <td><span class="badge badge-danger">Stale</span></td>
+              <td>237 days — not used in this report's calculations</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </section>
+  </details>
+
+
+  <!-- ═══ §7 APPENDIX ═══ -->
+  <details class="section-collapse light" id="appendix">
+    <summary>
+      <h2 class="section-title">Appendix</h2>
+      <div class="section-sub">Report metadata, data sources, gating flags, and caveats</div>
+      <span class="expand-hint">&#9662; Click to expand</span>
+    </summary>
+    <section class="section section-light" style="margin-bottom:0;border-top:none;border-radius:0 0 var(--r) var(--r);">
+
+      <div class="sub-label" style="margin-bottom: 12px;">Report Metadata</div>
+      <div class="appendix-row">
+        <div class="appendix-label">Client</div>
+        <div class="appendix-value">Kalco Lighting</div>
+      </div>
+      <div class="appendix-row">
+        <div class="appendix-label">Report Type</div>
+        <div class="appendix-value">Customer Intelligence Report — Executive Intelligence Profile</div>
+      </div>
+      <div class="appendix-row">
+        <div class="appendix-label">Report Period</div>
+        <div class="appendix-value">April 2025 – April 2026 (Trailing 12 Months)</div>
+      </div>
+      <div class="appendix-row">
+        <div class="appendix-label">Generated</div>
+        <div class="appendix-value">April 15, 2026</div>
+      </div>
+
+      <div class="sub-label" style="margin-top: 20px; margin-bottom: 12px;">Data Sources</div>
+      <div class="appendix-row">
+        <div class="appendix-label">eCat Orders &amp; Customer Activity</div>
+        <div class="appendix-value">Trailing 12 months through April 2026 — current</div>
+      </div>
+      <div class="appendix-row">
+        <div class="appendix-label">Total Business Volume (All-Channel)</div>
+        <div class="appendix-value">Trailing 12 months through April 2026. Reflects all business across all channels — not limited to eCat-submitted orders.</div>
+      </div>
+      <div class="appendix-row">
+        <div class="appendix-label">Inventory Data</div>
+        <div class="appendix-value">As of April 15, 2026 — current</div>
+      </div>
+      <div class="appendix-row">
+        <div class="appendix-label">Product Catalog</div>
+        <div class="appendix-value">As of approximately March 3, 2026 (43 days prior to report date). A catalog sync is recommended to ensure completeness figures remain current.</div>
+      </div>
+      <div class="appendix-row">
+        <div class="appendix-label">Historical Sales Data</div>
+        <div class="appendix-value">All-time cumulative — used for out-of-stock risk context and category analysis. Historical figures are not limited to the trailing 12-month window.</div>
+      </div>
+      <div class="appendix-row">
+        <div class="appendix-label">Platform Engagement Data</div>
+        <div class="appendix-value">Cumulative through report date — used for rep feature engagement and seat utilization analysis</div>
+      </div>
+
+      <div class="sub-label" style="margin-top: 20px; margin-bottom: 12px;">Notes</div>
+      <div class="appendix-row">
+        <div class="appendix-label">DBA Associates</div>
+        <div class="appendix-value">Appears to be a firm-level account rather than an individual rep. Activity and order metrics are attributed to this account as configured in your platform.</div>
+      </div>
+      <div class="appendix-row">
+        <div class="appendix-label">Product Data</div>
+        <div class="appendix-value">Catalog completeness metrics (91.7%, 189 missing images) reflect the last product sync (approximately March 3, 2026). Actual state may differ if products were added or updated since that sync.</div>
+      </div>
+      <div class="appendix-row">
+        <div class="appendix-label">Web Traffic Analytics</div>
+        <div class="appendix-value">Portal web traffic data is not available for this account. The Portal Engagement section is not included in this report.</div>
+      </div>
+      <div class="appendix-row">
+        <div class="appendix-label">Peer Benchmarking</div>
+        <div class="appendix-value">Peer benchmark data was not available at the time this report was generated. The Peer Benchmarking section is not included in this report.</div>
+      </div>
+
+    </section>
+  </details>
+
+
+  <footer class="footer">
+    <div class="footer-brand">Insightful &middot; Customer Intelligence</div>
+    <div class="footer-text">Generated April 15, 2026 &middot; Kalco Lighting &middot; Confidential — prepared for Kalco Lighting use only</div>
+  </footer>
+
+</div><!-- .page -->
+
+<script>
+  (function() {
+    const strip = document.getElementById('tocStrip');
+    if (!strip) return;
+    window.addEventListener('scroll', function() {
+      strip.classList.toggle('stuck', window.scrollY > 40);
+    });
+    const links = strip.querySelectorAll('a');
+    const sections = [];
+    links.forEach(function(a) {
+      const id = a.getAttribute('href').replace('#', '');
+      const el = document.getElementById(id);
+      if (el) sections.push({ el, a });
+    });
+    window.addEventListener('scroll', function() {
+      let current = sections[0];
+      sections.forEach(function(s) {
+        if (window.scrollY >= s.el.offsetTop - 80) current = s;
+      });
+      links.forEach(function(a) { a.classList.remove('active'); });
+      if (current) current.a.classList.add('active');
+    }, { passive: true });
+  })();
+</script>
+
+</body>
+</html>

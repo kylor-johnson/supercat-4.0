@@ -4,9 +4,15 @@ Paste a filled-in version of the block below to start any client session. It poi
 the agent at the always-on rules, the right skill, and the client profile — so you
 don't reload KB articles, field specs, or client context every time.
 
-> The always-on rules (`ecat-ground-truth`, `ecat-import-ops`, `ecat-data-model`) and
-> the `.cursor/skills/ecat-*` skills live in the **SuperCat 4.0** workspace
-> (`.cursor/`). Keep both workspace folders open so they load.
+> Always-on rules (`ecat-ground-truth`, `ecat-import-ops`, `ecat-data-model`) and
+> `.cursor/skills/ecat-*` live in **SuperCat Ops** (`~/repos/supercat-4.0`).
+> Live client files live in **eCat Implementation**
+> (`~/repos/ecat-onboarding-workspace` / iCloud `SuperCat_Simple_Final`)
+> under `02_Implementation/<Client>/`.
+>
+> Keep the three-root `SuperCat.code-workspace` open so both load.
+>
+> **Do not recreate a live client folder under `eCat_Onboarding/`.**
 
 ---
 
@@ -15,6 +21,8 @@ don't reload KB articles, field specs, or client context every time.
 ```
 Client: <Client Name>  (org shortname: <shortname>)
 Read first: 02_Implementation/<Client>/CLIENT_PROFILE.md and HANDOFF.md (if present).
+Canonical tree: ~/repos/ecat-onboarding-workspace/02_Implementation/<Client>/
+  (iCloud mirror: SuperCat_Simple_Final/02_Implementation/<Client>/)
 Task: <what we're doing today>.
 Source file: <path to the latest file the client sent — this is the source of truth>.
 
@@ -42,5 +50,6 @@ Apply the always-on eCat rules. Use the skill(s) for this task:
 
 ## New client?
 
-Copy `_Template/` → `<Client>/`, fill `CLIENT_PROFILE.md`, and work the phases in
-`LIFECYCLE_CHECKLIST.md`.
+Copy `_Template/` → `02_Implementation/<Client>/` in **ecat-onboarding-workspace**,
+fill `CLIENT_PROFILE.md`, and work the phases in `LIFECYCLE_CHECKLIST.md`.
+Do not create that folder under SuperCat 4.0 `eCat_Onboarding/`.

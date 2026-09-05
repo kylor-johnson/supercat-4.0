@@ -1,34 +1,62 @@
-# eCat Onboarding Automation
+# SuperCat 4.0 — operations workspace
 
-Personal staging repo for SuperCat's eCat iPad onboarding automation IP —
-Cursor agent skills, import rules, onboarding models, and orchestration tooling.
+Personal GitHub repo (`kylor-johnson/supercat-4.0`) for SuperCat operations:
+Cursor/Claude skills, import rules, onboarding models, foundation docs, PM
+material, and analysis/report trees.
 
-## Status
+It is **not** the product codebase (`~/supercat-code`) and **not** the live
+client-implementation tree.
 
-**Personal staging** — parked here until the company repo situation (SuperCatSolutionsLLC/agentic_operations) is resolved and a clean separation is established.
+## How to open
 
-This repo holds only onboarding-related intellectual property. It does not contain client data, secrets, or the broader SuperCat 4.0 workspace.
+**File → Open Workspace from File… → `~/repos/supercat-4.0/SuperCat.code-workspace`**
+
+Three roots:
+
+| Root | Clone | What lives there |
+|---|---|---|
+| SuperCat Ops | `~/repos/supercat-4.0` | This repo |
+| eCat Implementation | `~/repos/ecat-onboarding-workspace` | Live client CSVs + build work (`02_Implementation/`) |
+| supercat-code | `~/supercat-code` | Rails / iOS application source |
+
+Do not open iCloud `SuperCat 4.0` as the working folder. iCloud is leftover
+sync, not the edit surface.
+
+## Source of truth
+
+| Work | Repo |
+|---|---|
+| Skills, rules, onboarding-models, PM, foundation, reports | `~/repos/supercat-4.0` |
+| Live client onboarding (Legrand, jcusa, Fine Art, …) | `~/repos/ecat-onboarding-workspace` → `02_Implementation/<Client>/` |
+| Company weekly agents / PRs | `~/repos/agent-factory` |
+
+`eCat_Onboarding/` in this repo is **pointers + kickoff + registry only**.
+Do not recreate live client folders here.
+
+## Client data
+
+Working CSVs (customers, products, order/invoice, territories) live in the
+**private** `kylor-johnson/ecat-onboarding-workspace` repo by intent. This
+ops repo does not hold those payloads. `Ready_For_Import/` stays gitignored.
+
+## Never commit
+
+- Secrets — `.env`, `*service-account*.json`, HubSpot/Fathom/BigQuery keys under `integrations/`
+- `Ready_For_Import/*.csv`
+- Transcript archives (`*transcript*.zip`)
+- Frozen Insightful / Health museum trees
+- Nested `agent-factory/`
 
 ## What's in here
 
 | Path | Description |
 |---|---|
-| `.cursor/skills/ecat-*/` | Cursor agent skills for each onboarding phase |
-| `.cursor/rules/ecat-*.mdc` | Import ground truth and data model rules |
-| `eCat_Onboarding/` | Per-client onboarding workspaces |
-| `onboarding-models/` | Phase framework, output contracts, templates, and rendering pipeline |
-| `IMPLEMENTATION_PLAN.md` | Full automation implementation plan (2026-07-27) |
+| `.cursor/skills/`, `.cursor/rules/` | Agent skills and always-on import/data-model rules |
+| `onboarding-models/` | Phase framework, acceptance checks, ground-truth, collector |
+| `eCat_Onboarding/` | Kickoff prompt, registry, pointers to Implementation |
+| `foundation/` | Company context (figures live in `foundation/sources/`) |
+| `PM/` | Program material |
+| Analysis trees | Customer Intelligence, Segmentation, Pricing Migration, HPMKT, EBR, reports |
 
-## Implementation Plan
-
-See [`IMPLEMENTATION_PLAN.md`](./IMPLEMENTATION_PLAN.md) for the complete roadmap
-covering the loop architecture, phase-gate model, agent skill structure, and
-build-out sequence.
-
-## What's excluded
-
-- Client data files (`customers.csv`, `Ready_For_Import/*.csv`)
-- Transcript archives (`*transcript*.zip`, `ecat-onboarding-transcripts-MERGED-*`)
-- Secrets (`.env`, `*service-account*.json`)
-- Frozen legacy folders (`Insightful Product 2.0/`, `3.0/`)
-- Other SuperCat 4.0 workspace folders not relevant to onboarding
+Agent orientation: [`AGENTS.md`](./AGENTS.md). Workspace: [`WORKSPACE.md`](./WORKSPACE.md).
+Other-Mac setup: [`HANDOFF_OTHER_MACHINE.md`](./HANDOFF_OTHER_MACHINE.md).

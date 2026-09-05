@@ -1,14 +1,24 @@
-# eCat_Onboarding — NOT the canonical implementation tree
+# eCat_Onboarding — pointers only, not the implementation tree
 
-**Canonical implementation, source data and build work lives at:**
+**Canonical implementation, source data, and build work lives at:**
+
+```
+~/repos/ecat-onboarding-workspace/02_Implementation/<Client Name>/
+```
+
+iCloud mirror (do not treat as the edit surface):
 
 ```
 SuperCat_Simple_Final/02_Implementation/<Client Name>/
 ```
 
 Use full client names there (`Dorell`, `Legrand`, `Lib & Co Onboarding`,
-`Magic Lite`, `Pebl`, `Teracotta`, `The CopperSmith`, `Fine Art`, `111Mercer`),
-not shortnames.
+`Magic Lite`, `Pebl`, `Teracotta`, `The CopperSmith`, `Fine Art`, `111Mercer`,
+`jcusa`), not shortnames.
+
+**Never recreate a live client folder in this directory.** This folder is
+kickoff + registry + pointers. Client CSVs belong in the private
+`kylor-johnson/ecat-onboarding-workspace` repo.
 
 ## What happened on 2026-09-03
 
@@ -48,3 +58,5 @@ The onboarding **assessment** work — not implementation:
 - `onboarding-models/ground-truth/clients/<sn>/` — the per-client blind reads
   (CORPUS / JOURNEY / GAPS / RAWSTATE), moved here 2026-09-03
 - `eCat_Onboarding/REGISTRY.yaml` — machine-readable client registry
+- `eCat_Onboarding/00_KICKOFF_PROMPT.md` — session starter
+- `eCat_Onboarding/jcusa.md` — pointer to Implementation `jcusa`

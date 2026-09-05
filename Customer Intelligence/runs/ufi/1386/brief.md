@@ -1,0 +1,260 @@
+# Customer Intelligence Brief — STAR FURNITURE
+> **Account**: 1386 | **Location**: Houston, TX 77084 | **Price Level**: wh
+> **Territory**: 1201 | **Ship-To Count**: 8+ (via placement history)
+> **Generated**: 2026-06-15 | **Source**: Universal Furniture (ufi, org 18)
+
+---
+
+## Account at a Glance
+
+| Metric | LTM (12mo) | Prior Year | YoY Change |
+|--------|-----------|------------|------------|
+| Total Business (Portal) | $971,440 | $1,600,909 | -39.3% |
+| Portal Orders | 139 | 186 | -25.3% |
+| Portal AOV | $6,989 | $8,607 | -18.8% |
+| eCat Orders (LTM) | 0 | 0 | — |
+| eCat GMV (lifetime) | $448,900 | — | — |
+| eCat Penetration | 0% | — | — |
+
+**Last Order**: 2026-06-12 (3 days ago)
+**Lifecycle Stage**: Declining / At Risk | **Relationship**: 24 months
+**First Order**: 2024-06-17
+
+---
+
+## Purchase DNA — Categories
+
+| Category | LTM Revenue | % of Spend | LTM Units | Prior Revenue | YoY Change |
+|----------|------------|-----------|-----------|---------------|------------|
+| Dining Chairs | $131,358 | 14.7% | 664 | $73,837 | +77.9% |
+| Chairs UP | $114,023 | 12.8% | 158 | $138,640 | -17.8% |
+| Sofas MO | $85,760 | 9.6% | 60 | $380,741 | -77.5% |
+| Chairs MO | $63,455 | 7.1% | 89 | $255,863 | -75.2% |
+| Entertainment Consoles | $57,030 | 6.4% | 37 | $8,757 | +551.2% |
+| Dining Tables | $49,419 | 5.5% | 63 | $17,622 | +180.4% |
+| Dressers | $44,394 | 5.0% | 52 | $57,230 | -22.4% |
+| Sofas UP | $42,111 | 4.7% | 40 | $77,656 | -45.8% |
+| Nightstands | $35,436 | 4.0% | 102 | $44,488 | -20.3% |
+| Cocktail Tables | $32,596 | 3.7% | 51 | $24,701 | +32.0% |
+| Dining Display/Cabinets | $29,980 | 3.4% | 27 | $16,512 | +81.6% |
+| Lamp/End/Side Tables | $27,752 | 3.1% | 69 | $36,132 | -23.2% |
+| Sofa/Console Tables | $19,871 | 2.2% | 26 | $12,760 | +55.7% |
+| Buffets/Servers/Sideboards | $15,890 | 1.8% | 18 | $29,630 | -46.4% |
+| Spec Order Dining Chairs | $15,420 | 1.7% | 28 | — | New |
+
+**Key Insight**: Massive decline in motion upholstery (Sofas MO -78%, Chairs MO -75%), which was previously the account's largest category. Dining categories (chairs, tables, display) are growing and partially offsetting. Category mix shifting from upholstery to casegoods/dining.
+
+---
+
+## Purchase DNA — Top Items
+
+| Item | Description | Collection | Units | Revenue | Inventory |
+|------|-------------|-----------|-------|---------|-----------|
+| U470628 | Sable Side Chair | Modern Sable-Desert | 270 | $53,847 | 433 |
+| U470966 | Sable Dune Credenza | Modern Sable-Desert | 30 | $39,645 | 102 |
+| U311501-1671-1 | Mixon Sofa | Mixon Motion | 26 | $38,580 | 17 |
+| U470652 | Sable Dining Table | Modern Sable-Desert | 40 | $33,874 | 267 |
+| U313501-1676-1 | Tucker Sofa | Tucker Motion | 19 | $30,305 | 5 ⚠️ |
+| U225D734 | Loleta Side Chair | Erinn V x Universal | 132 | $22,645 | 1,329 |
+| U470625 | Sable Arm Chair | Modern Sable-Desert | 94 | $20,880 | 143 |
+| U582505 | Clermont Sofa -SO | Clermont | 16 | $20,440 | 0 ⚠️ |
+| U156505 | Exhale Swivel Chair -SO | Exhale | 32 | $20,142 | 0 ⚠️ |
+| U470675 | Sable Display Cabinet | Modern Sable-Desert | 13 | $17,555 | 134 |
+| U066513 | Jocelyn Swivel Chair - SO | Jocelyn | 20 | $17,265 | 0 ⚠️ |
+| U311503-1671-1 | Mixon Chair | Mixon Motion | 19 | $17,005 | 2 ⚠️ |
+| U560D966 | Blossom Credenza | Modern Veil-Mist | 6 | $16,000 | 15 |
+| U385627 | Lea Dining Chair - SO | Spec Order Dining | 28 | $15,420 | 0 ⚠️ |
+| U312503-1678-1 | Kelce Chair | Kelce Motion | 23 | $14,950 | 0 ⚠️ |
+
+**Inventory Alerts**: Multiple top-selling items at zero or near-zero stock (Tucker Sofa: 5 units, Mixon Chair: 2, plus 5 items at 0). Special Order items (marked SO) produce to order so 0 stock is expected for those.
+
+---
+
+## Purchase DNA — Collections
+
+| Collection | LTM Revenue | % of Spend | Units | SKU Count |
+|------------|------------|-----------|-------|-----------|
+| Modern Sable-Desert | $212,925 | 23.9% | 526 | 17 |
+| Birchaven | $118,028 | 13.2% | 307 | 17 |
+| Mixon Motion | $70,330 | 7.9% | 68 | 4 |
+| Tucker Motion | $52,035 | 5.8% | 48 | 4 |
+| Coalesce | $36,944 | 4.1% | 77 | 5 |
+| Erinn V x Universal | $26,810 | 3.0% | 136 | 2 |
+| Kelce Motion | $25,300 | 2.8% | 32 | 2 |
+| Clermont | $20,440 | 2.3% | 16 | 1 |
+| Exhale | $20,142 | 2.3% | 32 | 1 |
+| Jocelyn | $17,265 | 1.9% | 20 | 1 |
+| Modern Veil-Mist | $16,000 | 1.8% | 6 | 1 |
+| Spec Order Dining | $15,420 | 1.7% | 28 | 1 |
+| Modern (U365) | $14,678 | 1.6% | 22 | 5 |
+| Theo | $13,833 | 1.6% | 18 | 1 |
+| Mitchell | $13,517 | 1.5% | 16 | 1 |
+
+**Key Insight**: Modern Sable-Desert (24%) and Birchaven (13%) anchor the account. Motion collections (Mixon + Tucker + Kelce = 16.5%) still meaningful but likely way down from prior year. High special-order mix suggests a custom-driven retail model.
+
+---
+
+## Buying Rhythm
+
+| Metric | Value |
+|--------|-------|
+| LTM Orders | 139 |
+| Orders/Month | 11.6 |
+| Avg Days Between Orders | 2.6 |
+| Active Months (of 12) | 13 |
+
+**Pattern**: Consistent bi-weekly to weekly ordering. Lower velocity than prior year (186 orders) but no dormant months — still actively engaged.
+
+### Monthly Revenue Trend (24mo)
+
+| Month | Orders | Revenue |
+|-------|--------|---------|
+| 2024-06 | 5 | $35,460 |
+| 2024-07 | 23 | $142,125 |
+| 2024-08 | 29 | $317,961 |
+| 2024-09 | 14 | $47,565 |
+| 2024-10 | 5 | $8,520 |
+| 2024-11 | 13 | $96,945 |
+| 2024-12 | 17 | $143,421 |
+| 2025-01 | 11 | $66,158 |
+| 2025-02 | 14 | $192,804 |
+| 2025-03 | 21 | $182,263 |
+| 2025-04 | 14 | $168,069 |
+| 2025-05 | 7 | $108,442 |
+| 2025-06 | 17 | $100,087 |
+| 2025-07 | 9 | $78,625 |
+| 2025-08 | 16 | $120,334 |
+| 2025-09 | 9 | $21,602 |
+| 2025-10 | 17 | $65,994 |
+| 2025-11 | 5 | $103,503 |
+| 2025-12 | 7 | $59,630 |
+| 2026-01 | 12 | $166,368 |
+| 2026-02 | 20 | $177,082 |
+| 2026-03 | 14 | $46,240 |
+| 2026-04 | 6 | $9,685 |
+| 2026-05 | 13 | $57,771 |
+| 2026-06 | 7 | $55,698 |
+
+**Volatility**: Highly variable month-to-month. Aug 2024 ($318K) was a peak (likely market buys flowing in). Recent months oscillating between $10K–$177K. Q2 2026 trending weak relative to prior Q2.
+
+---
+
+## Spend Trajectory (Quarterly)
+
+| Quarter | Orders | Revenue | QoQ Change |
+|---------|--------|---------|------------|
+| Q2 2024 | 5 | $35,460 | — |
+| Q3 2024 | 66 | $507,651 | +1,331% |
+| Q4 2024 | 35 | $248,886 | -51.0% |
+| Q1 2025 | 46 | $441,225 | +77.3% |
+| Q2 2025 | 38 | $376,597 | -14.7% |
+| Q3 2025 | 34 | $220,561 | -41.4% |
+| Q4 2025 | 29 | $229,126 | +3.9% |
+| Q1 2026 | 46 | $389,689 | +70.1% |
+| Q2 2026 | 26 | $123,154 | -68.4% |
+
+**Trajectory**: After a strong Q3 2024 launch, the account has been on a downward trend. Q1 2026 showed a promising spike ($390K) but Q2 2026 is pacing very weak (~$123K with half the quarter gone, on pace for ~$185K vs $377K prior Q2). The -39% YoY decline is real and accelerating in the current quarter.
+
+---
+
+## Channel Mix (LTM)
+
+| Channel | Orders | Revenue | % of Business |
+|---------|--------|---------|---------------|
+| EDI | 81 | $825,029 | 84.9% |
+| OCC (Order Confirmation Center) | 26 | $138,076 | 14.2% |
+| Online | 32 | $8,335 | 0.9% |
+
+**Key Insight**: EDI-dominant but with a meaningful OCC component (14%) — suggests some manual/rep-assisted ordering. Online minimal. Historical eCat GMV of $449K (lifetime) indicates past app usage that has since stopped.
+
+---
+
+## Wallet Share
+
+| Metric | Star Furniture | TX State Cohort |
+|--------|---------------|-----------------|
+| LTM Revenue | $971,440 | — |
+| State Total | — | $6,114,082 |
+| State Customers | — | 302 |
+| State Average | — | $20,245 |
+| **Share of State** | **15.9%** | — |
+| vs. Average | **48.0x** | — |
+
+**Key Insight**: Star Furniture is UFI's largest Texas account, representing 16% of total TX business. Even in decline, they're 48x the average Texas customer — a must-retain strategic account.
+
+---
+
+## Market Commitments
+
+| Market | Date | Items Committed |
+|--------|------|-----------------|
+| APR2026 | 2026-04-28 | 24 |
+| APR2026 | 2026-04-28 | 24 |
+| OCT2025 | 2025-10-23 | 20 |
+| APR2025 | 2025-05-01 | 22 |
+| OCT2024 | 2024-10-24 | 18 |
+| (pre-code) | 2023-10-13 | 25 |
+| (pre-code) | 2023-05-22 | 12 |
+| (pre-code) | 2022-10-25 | 4 |
+| (pre-code) | 2022-04-08 | 6 |
+| (pre-code) | 2019-10-28 | 49 |
+
+**Key Insight**: Consistent market attendee — committing at every HPMKT since 2019. Recent commitments stable at 18–24 items per market. APR2026 showing double-submission (24+24) — possibly two buyers or two ship-to locations. Long-tenured relationship despite recent order decline.
+
+---
+
+## Showroom Placements
+
+| Showroom | Ship-To | Days Since Update | Items |
+|----------|---------|-------------------|-------|
+| Y | 368089 | 2,315 | 56 |
+| Y | 73251 | 2,315 | 52 |
+| Y | 73253 | 2,315 | 51 |
+| Y | 73263 | 2,315 | 64 |
+| Y | 155046 | 2,315 | 57 |
+| Y | 73249 | 2,359 | 36 |
+| Y | 73255 | 2,359 | 72 |
+| Y | 73253 | 2,359 | 54 |
+| Y | 73251 | 2,359 | 51 |
+| Y | 73261 | 2,359 | 29 |
+
+**Note**: 8+ store locations tracked historically (last updated ~2020). Large multi-store retailer with significant floor presence (50–72 items per location). Stale placement data — opportunity to refresh.
+
+---
+
+## Buyer Intelligence
+
+No buyer-level data available (EDI orders do not carry buyer attribution). No rep assignment in order data.
+
+---
+
+## Rep Engagement
+
+No eCat app engagement data. Account previously used eCat ($449K lifetime GMV, 20 orders) but has not placed an eCat order in 12+ months. All current ordering via EDI/OCC.
+
+---
+
+## Strategic Summary
+
+**Account Profile**: Star Furniture is a multi-store Houston-area retailer and UFI's largest Texas account. After strong initial ramp in mid-2024, the account is in significant decline (-39% YoY) driven primarily by the collapse of motion upholstery purchasing.
+
+**Decline Analysis**:
+- Motion categories (Sofas MO + Chairs MO + Loveseats MO) dropped from ~$706K to ~$149K (-79%)
+- This single category shift accounts for ~$557K of the ~$629K total decline
+- Possible causes: competitive loss in motion, floor space reallocation, vendor consolidation, or product lifecycle issue
+- Casegoods/dining categories are actually growing (+78% dining chairs, +180% dining tables)
+
+**Positive Signals**:
+- Still ordering regularly (11.6 orders/month, no dormant months)
+- Active at every High Point Market with consistent commitment levels
+- Growing in dining and entertainment categories
+- Last order just 3 days ago — not disengaged
+
+**Risks & Opportunities**:
+- ⚠️ Q2 2026 pacing at -67% vs Q2 2025 — decline may be accelerating
+- ⚠️ Tucker Sofa (5 units), Mixon Chair (2 units) — low stock on their remaining motion buys
+- ⚠️ Former eCat user now inactive — lost digital engagement
+- 📈 Investigate motion decline: competitive displacement or assortment gap?
+- 📈 Growing dining momentum could be accelerated with targeted introductions
+- 📈 Re-engage with eCat app for showroom reorders / floor planning
+- 📈 Refresh placement data across 8+ stores for merchandising insights

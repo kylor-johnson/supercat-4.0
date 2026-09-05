@@ -1,0 +1,1491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Braxton Culler — Customer Intelligence Report</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300..800;1,9..40,300..800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #FAFAF8;
+      --surface: #FFFFFF;
+      --panel: #F5F4F1;
+      --border: #E8E5DE;
+      --border-light: #F0EDE6;
+      --text: #2C2925;
+      --text-secondary: #6B6660;
+      --text-muted: #9B958C;
+      --accent: #C47A4A;
+      --accent-deep: #89523B;
+      --accent-glow: rgba(196,122,74,.08);
+      --accent-border: rgba(196,122,74,.2);
+      --ok: #4A8C5C;
+      --ok-bg: #EDF7F0;
+      --ok-border: rgba(74,140,92,.2);
+      --warn: #B8863A;
+      --warn-bg: #FDF6EC;
+      --warn-border: rgba(184,134,58,.2);
+      --danger: #C0524A;
+      --danger-bg: #FDF0EF;
+      --danger-border: rgba(192,82,74,.2);
+      --info: #4A7A8C;
+      --info-bg: #EDF4F7;
+      --info-border: rgba(74,122,140,.2);
+      --fd: 'DM Sans', system-ui, sans-serif;
+      --fm: 'IBM Plex Mono', ui-monospace, monospace;
+      --r: 10px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font: 400 14px/1.65 var(--fd); color: var(--text); background: var(--bg); -webkit-font-smoothing: antialiased; }
+
+    .page { max-width: 920px; margin: 0 auto; padding: 0 24px 40px; }
+
+    /* ── Header ── */
+    .header { padding: 48px 0 32px; border-bottom: 1px solid var(--border); margin-bottom: 32px; position: relative; }
+    .h-brand { display: flex; align-items: center; gap: 8px; margin-bottom: 20px; }
+    .h-brand span { font: 500 10px/1 var(--fm); letter-spacing: .12em; text-transform: uppercase; color: var(--text-muted); }
+    .h-customer { font: 700 36px/1.1 var(--fd); color: var(--text); letter-spacing: -.01em; margin-bottom: 4px; }
+    .h-type { font: 400 15px/1 var(--fd); color: var(--text-secondary); margin-bottom: 16px; }
+    .h-meta { font: 400 11px/1 var(--fm); color: var(--text-muted); letter-spacing: .02em; }
+    .h-accent { position: absolute; bottom: -1px; left: 0; width: 64px; height: 2px; background: var(--accent); }
+
+    /* ── TL;DR ── */
+    .tldr { font: 500 15px/1.6 var(--fd); color: var(--text); background: var(--panel); border-left: 3px solid var(--accent); padding: 14px 18px; border-radius: 0 6px 6px 0; margin-bottom: 20px; }
+
+    /* ── Key Highlights ── */
+    .highlights { margin: 8px 0 28px; padding: 0; list-style: none; counter-reset: hl; }
+    .highlights li { counter-increment: hl; padding: 12px 0; border-bottom: 1px solid var(--border-light); font: 400 13.5px/1.65 var(--fd); color: var(--text-secondary); padding-left: 36px; position: relative; }
+    .highlights li:last-child { border-bottom: none; }
+    .highlights li::before { content: counter(hl); position: absolute; left: 0; top: 14px; display: flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: var(--accent-glow); border: 1px solid var(--accent-border); font: 600 10px/1 var(--fm); color: var(--accent-deep); }
+    .highlights li strong { color: var(--text); font-weight: 600; }
+    .highlights a { color: var(--accent-deep); text-decoration: none; font-weight: 500; border-bottom: 1px solid var(--accent-border); transition: border-color .12s; }
+    .highlights a:hover { border-bottom-color: var(--accent); }
+    .priority-title a { color: inherit; text-decoration: none; border-bottom: 1px solid transparent; transition: border-color .12s; }
+    .priority-title a:hover { border-bottom-color: var(--accent); color: var(--accent-deep); }
+
+    /* ── Sections ── */
+    .section { margin-bottom: 32px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 28px 32px; }
+    .section-title { font: 700 20px/1.2 var(--fd); color: var(--text); margin-bottom: 4px; padding-bottom: 12px; border-bottom: 1px solid var(--border-light); }
+    .section-sub { font: 400 13px/1 var(--fd); color: var(--text-muted); margin-bottom: 20px; margin-top: 8px; }
+    .subsection { margin-top: 24px; }
+    .subsection-title { font: 600 15px/1.3 var(--fd); color: var(--text); margin-bottom: 12px; }
+    .sub-label { font: 500 9px/1 var(--fm); letter-spacing: .08em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; }
+    .section-light { background: var(--panel); border-color: var(--border-light); }
+    .what-this-means { margin-top: 16px; padding: 14px 18px; background: var(--panel); border-left: 3px solid var(--accent); border-radius: 0 6px 6px 0; font: 400 13px/1.6 var(--fd); color: var(--text-secondary); }
+    .what-this-means strong { color: var(--text); font-weight: 600; }
+
+    /* ── Priority Actions ── */
+    .priorities { display: grid; gap: 12px; margin-bottom: 32px; }
+    .priority { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 16px 20px; display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: start; }
+    .priority-badge { font: 700 9px/1 var(--fm); letter-spacing: .06em; text-transform: uppercase; padding: 4px 8px; border-radius: 4px; white-space: nowrap; margin-top: 2px; }
+    .priority-badge.high { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-border); }
+    .priority-badge.medium { background: var(--warn-bg); color: var(--warn); border: 1px solid var(--warn-border); }
+    .priority-badge.low { background: var(--info-bg); color: var(--info); border: 1px solid var(--info-border); }
+    .priority-title { font: 600 13px/1.35 var(--fd); color: var(--text); margin-bottom: 3px; }
+    .priority-desc { font: 400 12px/1.5 var(--fd); color: var(--text-secondary); }
+    .priority-impact { font: 600 12px/1 var(--fm); color: var(--ok); white-space: nowrap; margin-top: 2px; }
+
+    /* ── Metric cards ── */
+    .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 16px 0; }
+    .metric { background: var(--panel); border-radius: 8px; padding: 14px 16px; }
+    .metric-label { font: 500 9px/1 var(--fm); letter-spacing: .08em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
+    .metric-value { font: 700 22px/1.2 var(--fd); color: var(--text); }
+    .metric-note { font: 400 11px/1.3 var(--fd); color: var(--text-muted); margin-top: 2px; }
+    .metric-note.ok { color: var(--ok); font-weight: 500; }
+    .metric-note.warn { color: var(--warn); font-weight: 500; }
+    .metric-note.danger { color: var(--danger); font-weight: 500; }
+
+    /* ── Tables ── */
+    table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
+    thead { background: var(--panel); }
+    th { padding: 8px 12px; text-align: left; font: 600 10px/1 var(--fm); letter-spacing: .05em; text-transform: uppercase; color: var(--text-muted); border-bottom: 1px solid var(--border); }
+    td { padding: 8px 12px; border-bottom: 1px solid var(--border-light); color: var(--text-secondary); }
+    tbody tr:hover { background: var(--accent-glow); }
+    td strong { color: var(--text); font-weight: 600; }
+    .row-highlight { background: var(--ok-bg); }
+    .row-warn { background: var(--warn-bg); }
+    .row-danger { background: var(--danger-bg); }
+    .row-total { font-weight: 600; background: var(--panel); }
+    .row-total td { color: var(--text); border-bottom: 2px solid var(--border); }
+
+    /* ── Badges ── */
+    .badge { display: inline-block; padding: 3px 8px; border-radius: 4px; font: 600 10px/1 var(--fm); letter-spacing: .03em; text-transform: uppercase; }
+    .badge-ok { background: var(--ok-bg); color: var(--ok); border: 1px solid var(--ok-border); }
+    .badge-warn { background: var(--warn-bg); color: var(--warn); border: 1px solid var(--warn-border); }
+    .badge-danger { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-border); }
+    .badge-info { background: var(--info-bg); color: var(--info); border: 1px solid var(--info-border); }
+
+    /* ── Callout boxes ── */
+    .callout { border-radius: 8px; padding: 16px 20px; margin: 16px 0; font-size: 13px; line-height: 1.6; }
+    .callout-title { font: 600 13px/1 var(--fd); margin-bottom: 6px; }
+    .callout.alert { background: var(--danger-bg); border-left: 3px solid var(--danger); }
+    .callout.alert .callout-title { color: var(--danger); }
+    .callout.opportunity { background: var(--ok-bg); border-left: 3px solid var(--ok); }
+    .callout.opportunity .callout-title { color: var(--ok); }
+    .callout.insight { background: var(--panel); border-left: 3px solid var(--accent); }
+    .callout.insight .callout-title { color: var(--accent-deep); }
+    .callout.note { background: var(--info-bg); border-left: 3px solid var(--info); }
+    .callout.note .callout-title { color: var(--info); }
+    .callout ul { margin: 8px 0 0 20px; }
+    .callout li { margin: 4px 0; }
+
+    /* ── Coaching cards ── */
+    .coaching-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 20px 24px; margin: 12px 0; border-top: 3px solid var(--warn); }
+    .coaching-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .coaching-name { font: 600 14px/1.2 var(--fd); color: var(--text); }
+    .coaching-body { font: 400 13px/1.6 var(--fd); color: var(--text-secondary); margin-bottom: 10px; }
+    .coaching-action { font: 400 12px/1.5 var(--fd); color: var(--text-muted); padding: 8px 12px; background: var(--panel); border-radius: 6px; margin-top: 8px; }
+    .coaching-impact { font: 600 11px/1 var(--fm); color: var(--ok); }
+
+    /* ── Peer benchmark ── */
+    .peer-bar-row { display: flex; align-items: center; gap: 12px; margin: 8px 0; }
+    .peer-bar-label { font: 400 12px/1 var(--fd); color: var(--text-secondary); width: 200px; flex-shrink: 0; }
+    .peer-bar-track { flex: 1; background: var(--border); border-radius: 4px; height: 8px; position: relative; }
+    .peer-bar-fill { height: 8px; border-radius: 4px; background: var(--accent); }
+    .peer-bar-fill.warn { background: var(--warn); }
+    .peer-bar-fill.danger { background: var(--danger); }
+    .peer-bar-fill.ok { background: var(--ok); }
+    .peer-bar-value { font: 600 11px/1 var(--fm); color: var(--text); width: 60px; text-align: right; flex-shrink: 0; }
+    .peer-bar-quartile { font: 500 9px/1 var(--fm); letter-spacing: .04em; text-transform: uppercase; width: 40px; text-align: right; flex-shrink: 0; }
+    .peer-bar-quartile.q4 { color: var(--ok); }
+    .peer-bar-quartile.q3 { color: var(--accent); }
+    .peer-bar-quartile.q2 { color: var(--warn); }
+    .peer-bar-quartile.q1 { color: var(--danger); }
+    .peer-confidence { font: 400 11px/1.5 var(--fd); color: var(--text-muted); margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--border-light); }
+
+    /* ── TOC strip ── */
+    .toc-strip { display: flex; gap: 0; background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 10px 20px; margin-bottom: 28px; flex-wrap: wrap; gap: 4px; position: sticky; top: 0; z-index: 100; transition: box-shadow .15s; }
+    .toc-strip.stuck { box-shadow: 0 2px 12px rgba(44,41,37,.08); }
+    .toc-strip a { font: 500 11px/1 var(--fm); letter-spacing: .04em; text-transform: uppercase; color: var(--text-muted); text-decoration: none; padding: 4px 8px; border-radius: 4px; transition: all .12s; }
+    .toc-strip a:hover, .toc-strip a.active { background: var(--accent-glow); color: var(--accent-deep); }
+
+    /* ── Collapsible sections ── */
+    details.section-collapse { margin: 0 0 32px; border: none; background: none; }
+    details.section-collapse > summary { display: block; background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 24px 32px; cursor: pointer; transition: all .15s; }
+    details.section-collapse > summary::before { content: none; }
+    details.section-collapse > summary::after { content: none; }
+    details.section-collapse > summary:hover { border-color: var(--accent-border); box-shadow: 0 2px 8px rgba(196,122,74,.08); }
+    details.section-collapse > summary .section-title { margin-bottom: 4px; padding-bottom: 0; border-bottom: none; }
+    details.section-collapse > summary .section-sub { margin-bottom: 0; }
+    details.section-collapse > summary .section-contents { font: 400 12px/1.4 var(--fd); color: var(--text-muted); margin-top: 6px; }
+    details.section-collapse > summary .expand-hint { display: inline-block; margin-top: 10px; font: 500 10px/1 var(--fm); letter-spacing: .04em; text-transform: uppercase; color: var(--accent); opacity: .7; transition: opacity .12s; }
+    details.section-collapse > summary:hover .expand-hint { opacity: 1; }
+    details.section-collapse[open] > summary { border-radius: var(--r) var(--r) 0 0; border-bottom-color: var(--border-light); background: var(--surface); }
+    details.section-collapse[open] > summary .expand-hint { display: none; }
+    details.section-collapse > .section { margin-bottom: 0; border-top: none; border-radius: 0 0 var(--r) var(--r); }
+    details.section-collapse.light > summary { background: var(--panel); }
+    details.section-collapse.light[open] > summary { background: var(--panel); }
+    details.section-collapse.light > .section { background: var(--panel); }
+
+    /* ── Appendix ── */
+    .appendix-block { margin-bottom: 20px; }
+    .appendix-title { font: 600 12px/1 var(--fm); letter-spacing: .05em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; }
+    .appendix-body { font: 400 12px/1.6 var(--fd); color: var(--text-secondary); }
+    .appendix-body ul { margin: 6px 0 0 18px; }
+    .appendix-body li { margin: 4px 0; }
+
+    /* ── Geographic table ── */
+    .geo-bar { height: 6px; border-radius: 3px; background: var(--accent); display: inline-block; vertical-align: middle; }
+  </style>
+</head>
+<body>
+
+<div class="page">
+
+  <header class="header" id="top">
+    <div class="h-brand">
+      <span>Insightful &middot; Customer Intelligence</span>
+    </div>
+    <div class="h-customer">Braxton Culler</div>
+    <div class="h-type">Customer Intelligence Report</div>
+    <div class="h-meta">April 2025 &ndash; April 2026 (Trailing 12 Months) &middot; Report Date: April 15, 2026</div>
+    <div class="h-meta" style="margin-top: 4px;">
+      <span class="badge badge-info">Full &middot; iPad + eCat Online + Sales Portal</span>
+      <span class="badge badge-info" style="margin-left: 4px;">Executive Intelligence</span>
+    </div>
+    <div class="h-accent"></div>
+  </header>
+
+  <nav class="toc-strip" id="tocStrip">
+    <a href="#summary">Executive Summary</a>
+    <a href="#rep-intel">Rep Intelligence</a>
+    <a href="#customers">Customer &amp; Buyer</a>
+    <a href="#product">Product &amp; Inventory</a>
+    <a href="#commerce">Commerce Analytics</a>
+    <a href="#peer">Peer Benchmarking</a>
+    <a href="#supporting-detail">Supporting Detail</a>
+    <a href="#appendix">Appendix</a>
+  </nav>
+
+
+  <!-- ═══ §1 + §2: TL;DR + EXECUTIVE SUMMARY ═══ -->
+  <section class="section" id="summary">
+    <h2 class="section-title" style="font-size: 24px;">Executive Summary</h2>
+
+    <p class="tldr">eCat Online reached order-volume parity with the rep channel in March 2026 — a structural shift from supplemental to co-primary — while the platform's catalog completeness gap (82% vs 95% peer median) is the single upstream lever that explains below-median order velocity and limits the full value of both channels.</p>
+
+    <ul class="highlights">
+      <li><strong>eCat Online crossed order-volume parity with the iPad channel in March 2026.</strong> In the trailing 12 months, buyers self-submitted 1,305 orders through the online channel vs 1,303 rep-submitted iPad orders — a statistical tie, with online volume accelerating (133 online orders in March vs 131 iPad). Of the 291 new customers acquired in the last 12 months, 182 (63%) placed their first order online. The self-service channel is no longer a supplement; it is co-primary. <a href="#commerce">See Commerce Analytics &rarr;</a></li>
+      <li><strong>173 LTM-active accounts have gone silent in the last 90 days.</strong> Of 374 customers who placed an eCat order in the past year, 173 have not ordered in the last 90 days. Top dormant accounts: Simpler &amp; Sons LLC ($61K, DE, last order Jan 12), Closter Sales ($34K, NJ, Dec 29), Sweat&apos;s Furniture ($33K, GA, Dec 11), Outer Banks Furniture ($32K, NC, Dec 18). Spring ordering is open. <a href="#customers">See Customer &amp; Buyer &rarr;</a></li>
+      <li><strong>Platform value delivery ranks top quartile vs comparable peers — but order velocity sits below median, with catalog completeness as the driver.</strong> Among comparable platforms in the furniture and home furnishings space, Braxton Culler ranks in the top quartile for platform engagement and value delivery per session. Order velocity ranks 33rd percentile (755 vs 852 peer median in Q4 2025), driven in significant part by a catalog completeness score of 82% vs 95% peer median — the upstream gap that constrains searchability, configurability, and conversion across both channels. <a href="#peer">See Peer Benchmarking &rarr;</a></li>
+    </ul>
+
+    <div class="sub-label">Priority Actions</div>
+    <div class="priorities">
+      <div class="priority">
+        <span class="priority-badge high">This Week</span>
+        <div>
+          <div class="priority-title"><a href="#customers">Dormant Account Outreach — Spring Window Open</a></div>
+          <div class="priority-desc">173 accounts that ordered in the past year have gone quiet for 90+ days. Priority targets: Simpler &amp; Sons LLC (DE, $61K LTM, last order Jan 12), Closter Sales/Richard Goodman (NJ, $34K, Dec 29), Sweat&apos;s Furniture (GA, $33K, Dec 11), Outer Banks Furniture (NC, $32K, Dec 18), B&amp;B Family Ventures (NC, $27K, Sep 29). Spring floor samples and new-season collections are a natural re-engagement hook. At the platform&apos;s weighted order value, re-engaging 20–30 of these accounts is the highest near-term revenue action available.</div>
+        </div>
+        <div class="priority-impact">Reactivation opp.</div>
+      </div>
+      <div class="priority">
+        <span class="priority-badge medium">This Month</span>
+        <div>
+          <div class="priority-title"><a href="#product">Inventory Receipt Date Audit + Catalog Completeness Sprint</a></div>
+          <div class="priority-desc">110 items (10% of catalog) show as out of stock with restock dates from 2025 — dates that have already passed. If those items arrived and inventory records were not refreshed, buyers and reps are seeing false OOS across both channels. Audit and update these 110 items. Simultaneously, the catalog completeness score of 82% vs 95% peer median is the upstream constraint on order velocity; closing even half the gap would meaningfully improve searchability, configurator performance, and order conversion on the eCat Online channel.</div>
+        </div>
+        <div class="priority-impact">Catalog uplift</div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ═══ §3: REP INTELLIGENCE ═══ -->
+  <!-- HAS_SALES_SECTION = true (15 qualifying reps with 10+ LTM iPad orders each) -->
+  <details class="section-collapse" id="rep-intel">
+    <summary>
+      <h2 class="section-title">Rep Intelligence</h2>
+      <div class="section-sub">15 qualifying reps &middot; 1,303 iPad orders &middot; $4.33M iPad GMV (LTM) &middot; iPad AOV $3,323</div>
+      <div class="section-contents">Rep Activity Ladder &middot; AOV Patterns &middot; Coaching Signals</div>
+      <span class="expand-hint">&#9662; Click to expand</span>
+    </summary>
+  <section class="section" style="margin-bottom:0;border-top:none;border-radius:0 0 var(--r) var(--r);">
+
+    <div class="callout note" style="margin-bottom: 20px;">
+      <div class="callout-title">Data Note — Customer Code Attribution</div>
+      Two reps (Jaime Hernandez and Jane Harrington) show zero unique customer accounts attached to their LTM orders. Their order volume is real, but no customer codes were recorded on submission — which means their account reach cannot be measured and territory attribution is incomplete. This is a data quality gap, not a performance indicator. Separately, Barbara Harper shows 1 customer code across 308 orders, but cross-referencing billing records confirms she serves 178 distinct companies. Her customer_num field is not being populated consistently on order submission. Both patterns affect leaderboard accuracy and territory reporting.
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Rep Activity Ladder — Top 10 by GMV (LTM iPad Orders)</div>
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Rep Name</th>
+            <th>Orders</th>
+            <th>GMV</th>
+            <th>AOV</th>
+            <th>Unique Accounts</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="row-warn">
+            <td><strong>1</strong></td>
+            <td><strong>Barbara Harper</strong></td>
+            <td>308</td>
+            <td>$852,846</td>
+            <td>$2,769</td>
+            <td><span class="badge badge-warn">1 ⚑</span></td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>Jerry Montini</td>
+            <td>186</td>
+            <td>$823,534</td>
+            <td>$4,428</td>
+            <td>32</td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>Todd Teague</td>
+            <td>117</td>
+            <td>$624,276</td>
+            <td>$5,336</td>
+            <td>38</td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td>Sharyn Moss</td>
+            <td>171</td>
+            <td>$388,247</td>
+            <td>$2,270</td>
+            <td>49</td>
+          </tr>
+          <tr>
+            <td>5</td>
+            <td>Jack Johnson</td>
+            <td>54</td>
+            <td>$307,163</td>
+            <td>$5,688</td>
+            <td>20</td>
+          </tr>
+          <tr>
+            <td>6</td>
+            <td>Andrea Teague</td>
+            <td>48</td>
+            <td>$229,113</td>
+            <td>$4,773</td>
+            <td>22</td>
+          </tr>
+          <tr>
+            <td>7</td>
+            <td>Steve Billingsley</td>
+            <td>21</td>
+            <td>$134,987</td>
+            <td>$6,428</td>
+            <td>12</td>
+          </tr>
+          <tr>
+            <td>8</td>
+            <td>Richard Goodman</td>
+            <td>40</td>
+            <td>$96,707</td>
+            <td>$2,418</td>
+            <td>12</td>
+          </tr>
+          <tr>
+            <td>9</td>
+            <td>Katrinka Barnhart</td>
+            <td>46</td>
+            <td>$95,455</td>
+            <td>$2,075</td>
+            <td>26</td>
+          </tr>
+          <tr class="row-highlight">
+            <td>10</td>
+            <td>Bobby Hansard</td>
+            <td>36</td>
+            <td>$79,897</td>
+            <td>$2,219</td>
+            <td>7</td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="font: 400 11px/1.4 var(--fd); color: var(--text-muted); margin-top: 8px;">5 additional qualifying reps not shown: Tracey Thomas ($73,956), Jaime Hernandez ($62,241 — 0 accts), Christie Schellenbach ($62,087), Jane Harrington ($55,889 — 0 accts), Jeff Knight ($51,247).</div>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Coaching Signals</div>
+
+      <div class="coaching-card">
+        <div class="coaching-header">
+          <div class="coaching-name">Barbara Harper — Customer Code Not Populating on Submission</div>
+          <span class="badge badge-warn">Data Quality</span>
+        </div>
+        <div class="coaching-body">Barbara Harper leads by GMV at $852K across 308 orders (AOV $2,769), but records show only 1 customer code across all LTM submissions. Cross-referencing billing data confirms she is actively serving <strong>178 distinct companies</strong> — this is a data entry or workflow issue, not a volume or territory concern. Orders are real; attribution is not being captured. This understates her account reach and affects rep-level territory analytics across all reporting.</div>
+        <div class="coaching-action">Action: Review Barbara Harper&apos;s order workflow and determine where customer code selection is being bypassed. If it is a platform step being skipped, confirm whether it requires workflow coaching or a configuration adjustment. The issue affects 308 LTM orders.</div>
+      </div>
+
+      <div class="coaching-card">
+        <div class="coaching-header">
+          <div class="coaching-name">Steve Billingsley — Highest AOV in Platform at $6,428</div>
+          <span class="badge badge-info">Insight</span>
+        </div>
+        <div class="coaching-body">21 orders, $134,987 GMV, AOV <strong>$6,428</strong> — the highest average order value of any individual rep on the platform. 12 unique accounts. This is a high-ticket, low-frequency specialist pattern — likely project-cycle or high-end placement accounts. At this AOV, even 5 additional orders in a year would add $32K to GMV. Frequency coaching and pipeline review are the right levers.</div>
+        <div class="coaching-action">Action: Identify the account mix and project cadence for Steve Billingsley. Assess whether current follow-up intervals match project cycle length. Explore whether the AOV pattern ($6,428) is replicable in adjacent territory accounts.</div>
+        <div><span class="coaching-impact">[ESTIMATED] $30K–$50K uplift from frequency increase</span></div>
+      </div>
+
+      <div class="coaching-card">
+        <div class="coaching-header">
+          <div class="coaching-name">Todd Teague — Broad Reach + High AOV: Platform&apos;s Best-Practice Rep Pattern</div>
+          <span class="badge badge-ok">Strength</span>
+        </div>
+        <div class="coaching-body">Todd Teague ranks #3 by GMV ($624K) with 38 unique accounts and an AOV of <strong>$5,336</strong> — the best combination of account breadth and ticket size on the platform. This is the pattern worth replicating: broad account coverage with high per-order value. Contrast this with reps who have higher order counts but narrower books or lower AOV — Todd&apos;s efficiency ratio (GMV per account: ~$16,428) is the highest among reps with 20+ accounts.</div>
+        <div class="coaching-action">Action: Use Todd Teague as a coaching benchmark for reps with similar AOV but lower account counts (e.g., Jack Johnson at 20 accounts, Steve Billingsley at 12). Identify what segment of the account base drives this pattern and whether it is transferable.</div>
+      </div>
+
+      <div class="coaching-card">
+        <div class="coaching-header">
+          <div class="coaching-name">Jaime Hernandez &amp; Jane Harrington — Zero Accounts on 70 Combined Orders</div>
+          <span class="badge badge-warn">Data Quality</span>
+        </div>
+        <div class="coaching-body">Jaime Hernandez (43 orders, $62K) and Jane Harrington (27 orders, $56K) show zero unique customer accounts across a combined 70 LTM submissions. Both reps are actively placing orders — the volume is real — but no customer codes are attached. This prevents attribution, territory reporting, and dormant account identification for their books.</div>
+        <div class="coaching-action">Action: Same workflow review as Barbara Harper — identify whether customer code selection is being skipped at order submission. Priority: resolve before spring ordering peak so new orders begin populating territory data.</div>
+      </div>
+
+    </div>
+
+    <div class="what-this-means">
+      <strong>What this tells you:</strong> The top three reps by GMV (Barbara Harper, Jerry Montini, Todd Teague) account for $2.30M of $4.33M in LTM iPad GMV — 53% — with contrasting patterns: Barbara leads by volume but has an attribution gap; Jerry and Todd show high-AOV, account-breadth models. The platform's coaching opportunity is in the mid-tier (reps #8–#15): modest order counts and moderate AOV suggest coverage gaps, not activity gaps. Customer code attribution across at least three reps is the data quality issue with the highest downstream reporting impact.
+    </div>
+
+  </section>
+  </details>
+
+
+  <!-- ═══ §4: CUSTOMER & BUYER INTELLIGENCE ═══ -->
+  <details class="section-collapse" id="customers">
+    <summary>
+      <h2 class="section-title">Customer &amp; Buyer Intelligence</h2>
+      <div class="section-sub">1,987 total accounts &middot; 576 ever ordered via eCat &middot; 374 active (LTM) &middot; 173 recently dormant</div>
+      <div class="section-contents">Account Activation Funnel &middot; Dormant Account Opportunity &middot; New Buyer Acquisition</div>
+      <span class="expand-hint">&#9662; Click to expand</span>
+    </summary>
+  <section class="section" style="margin-bottom:0;border-top:none;border-radius:0 0 var(--r) var(--r);">
+
+    <div class="subsection">
+      <div class="subsection-title">Account Activation Funnel</div>
+      <div class="metrics">
+        <div class="metric">
+          <div class="metric-label">Total Account Base</div>
+          <div class="metric-value">1,987</div>
+          <div class="metric-note">Full customer roster</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Ever Ordered via eCat</div>
+          <div class="metric-value">576</div>
+          <div class="metric-note warn">29% of account base</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Active — Last 12 Mo</div>
+          <div class="metric-value">374</div>
+          <div class="metric-note warn">65% of ever-ordered</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Active — Last 90 Days</div>
+          <div class="metric-value">201</div>
+          <div class="metric-note warn">54% of LTM active</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Dormant (LTM, &gt;90d)</div>
+          <div class="metric-value">173</div>
+          <div class="metric-note danger">Reactivation target</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Never Ordered via eCat</div>
+          <div class="metric-value">1,411</div>
+          <div class="metric-note">71% of account base</div>
+        </div>
+      </div>
+      <div class="what-this-means">
+        <strong>What this tells you:</strong> Of 1,987 customer accounts, only 576 (29%) have ever placed an eCat order. Of those, 374 were active in the last year — meaning 202 accounts that had previously ordered went fully dormant before the current LTM window. There are two separate opportunity pools here: the 173 accounts active in the last year who have gone quiet, and the 1,411 accounts in the base who have never placed an eCat order.
+      </div>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Top Dormant Accounts — Highest Priority for Reactivation</div>
+      <p style="font: 400 12px/1.5 var(--fd); color: var(--text-muted); margin-bottom: 10px;">Accounts that ordered via eCat in the last 12 months but have not placed an order in the last 90 days, ranked by LTM eCat GMV.</p>
+      <table>
+        <thead>
+          <tr>
+            <th>Account Name</th>
+            <th>State</th>
+            <th>Last eCat Order</th>
+            <th>LTM eCat GMV</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="row-warn">
+            <td><strong>Simpler &amp; Sons LLC</strong></td>
+            <td>DE</td>
+            <td>Jan 12, 2026</td>
+            <td><strong>$61,495</strong></td>
+          </tr>
+          <tr>
+            <td>Closter Sales / Richard Goodman</td>
+            <td>NJ</td>
+            <td>Dec 29, 2025</td>
+            <td>$33,812</td>
+          </tr>
+          <tr>
+            <td>Sweat&apos;s Furniture, Inc.</td>
+            <td>GA</td>
+            <td>Dec 11, 2025</td>
+            <td>$32,570</td>
+          </tr>
+          <tr>
+            <td>Outer Banks Furniture</td>
+            <td>NC</td>
+            <td>Dec 18, 2025</td>
+            <td>$32,279</td>
+          </tr>
+          <tr>
+            <td>B &amp; B Family Ventures Inc</td>
+            <td>NC</td>
+            <td>Sep 29, 2025</td>
+            <td>$26,755</td>
+          </tr>
+          <tr>
+            <td>Halo Home</td>
+            <td>NC</td>
+            <td>Nov 5, 2025</td>
+            <td>$25,940</td>
+          </tr>
+          <tr>
+            <td>Kalin Home Furnishings</td>
+            <td>FL</td>
+            <td>Dec 15, 2025</td>
+            <td>$25,600</td>
+          </tr>
+          <tr>
+            <td>Esther Ashe Designs</td>
+            <td>GA</td>
+            <td>Apr 27, 2025</td>
+            <td>$24,631</td>
+          </tr>
+          <tr>
+            <td>Custom Home Furnishings</td>
+            <td>NC</td>
+            <td>Nov 2, 2025</td>
+            <td>$23,500</td>
+          </tr>
+          <tr>
+            <td>Home Accents II</td>
+            <td>SC</td>
+            <td>Nov 3, 2025</td>
+            <td>$23,210</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">New Buyer Acquisition — LTM First-Time eCat Customers</div>
+      <div class="metrics">
+        <div class="metric">
+          <div class="metric-label">Total New LTM Buyers</div>
+          <div class="metric-value">291</div>
+          <div class="metric-note ok">First eCat order in LTM</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">New — eCat Online</div>
+          <div class="metric-value">182</div>
+          <div class="metric-note ok">63% of new buyers</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">New — iPad / Rep</div>
+          <div class="metric-value">109</div>
+          <div class="metric-note">37% of new buyers</div>
+        </div>
+      </div>
+      <div class="what-this-means">
+        <strong>What this tells you:</strong> 291 of the 374 LTM-active customers placed their very first eCat order in the last 12 months — the platform is actively acquiring new buyers, not just re-engaging existing ones. Of these, 182 (63%) arrived through the online self-service channel. The rep channel is still bringing in new accounts (109), but eCat Online is now the primary first-touch acquisition path.
+      </div>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Geographic Distribution — Top Markets (LTM iPad Orders)</div>
+      <table>
+        <thead>
+          <tr>
+            <th>State</th>
+            <th>Orders</th>
+            <th>LTM GMV</th>
+            <th>Share of iPad GMV</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="row-highlight">
+            <td><strong>NC</strong></td>
+            <td>265</td>
+            <td><strong>$930,957</strong></td>
+            <td><span class="geo-bar" style="width:120px"></span> 21.5%</td>
+          </tr>
+          <tr>
+            <td>NJ</td>
+            <td>208</td>
+            <td>$544,599</td>
+            <td><span class="geo-bar" style="width:70px"></span> 12.6%</td>
+          </tr>
+          <tr>
+            <td>SC</td>
+            <td>112</td>
+            <td>$506,707</td>
+            <td><span class="geo-bar" style="width:66px"></span> 11.7%</td>
+          </tr>
+          <tr>
+            <td>GA</td>
+            <td>64</td>
+            <td>$285,417</td>
+            <td><span class="geo-bar" style="width:37px"></span> 6.6%</td>
+          </tr>
+          <tr>
+            <td>FL</td>
+            <td>68</td>
+            <td>$253,303</td>
+            <td><span class="geo-bar" style="width:33px"></span> 5.9%</td>
+          </tr>
+          <tr>
+            <td>PA</td>
+            <td>93</td>
+            <td>$248,278</td>
+            <td><span class="geo-bar" style="width:32px"></span> 5.7%</td>
+          </tr>
+          <tr>
+            <td>DE</td>
+            <td>43</td>
+            <td>$222,485</td>
+            <td><span class="geo-bar" style="width:29px"></span> 5.1%</td>
+          </tr>
+          <tr>
+            <td>TX</td>
+            <td>75</td>
+            <td>$176,325</td>
+            <td><span class="geo-bar" style="width:23px"></span> 4.1%</td>
+          </tr>
+          <tr>
+            <td>VA</td>
+            <td>48</td>
+            <td>$131,559</td>
+            <td><span class="geo-bar" style="width:17px"></span> 3.0%</td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="font: 400 11px/1.4 var(--fd); color: var(--text-muted); margin-top: 8px;">NC (home market) leads at 21.5% of iPad GMV. NJ, SC, and GA together represent another 31%. Note: MD billing state has a formatting inconsistency in order data (&ldquo;MD.&rdquo; vs &ldquo;MD&rdquo;) — combined Maryland GMV is approximately $217K.</div>
+    </div>
+
+  </section>
+  </details>
+
+
+  <!-- ═══ §5: PRODUCT & INVENTORY INTELLIGENCE ═══ -->
+  <!-- HAS_INVENTORY = true, HAS_SALES_DATA = true -->
+  <details class="section-collapse" id="product">
+    <summary>
+      <h2 class="section-title">Product &amp; Inventory Intelligence</h2>
+      <div class="section-sub">3,417 active products &middot; 1,098 inventory items tracked &middot; 110 items OOS (10%)</div>
+      <div class="section-contents">OOS Risk &middot; Top Products by Invoiced Revenue &middot; Catalog Health</div>
+      <span class="expand-hint">&#9662; Click to expand</span>
+    </summary>
+  <section class="section" style="margin-bottom:0;border-top:none;border-radius:0 0 var(--r) var(--r);">
+
+    <div class="callout alert" style="margin-bottom: 20px;">
+      <div class="callout-title">Inventory Receipt Date Alert — Stale Restock Dates</div>
+      110 items (10% of the tracked catalog) show as out of stock (qty_available &le; 0), and all recorded restock dates in the inventory data are from 2025 — dates that have already passed. This does not necessarily mean restocks failed to arrive; it is more likely that inventory records were not refreshed after receipt. If these items are physically in stock but the platform still shows them as OOS, buyers and reps are seeing outdated availability — suppressing orders on items that may be ready to ship. This is the highest-priority catalog accuracy action.
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Inventory Snapshot</div>
+      <div class="metrics">
+        <div class="metric">
+          <div class="metric-label">Total Tracked Items</div>
+          <div class="metric-value">1,098</div>
+          <div class="metric-note">Inventory file rows</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">In Stock</div>
+          <div class="metric-value">988</div>
+          <div class="metric-note ok">90% of tracked catalog</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Out of Stock / Backorder</div>
+          <div class="metric-value">110</div>
+          <div class="metric-note danger">10% — stale dates</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Last Inventory Update</div>
+          <div class="metric-value">Apr 15</div>
+          <div class="metric-note ok">Today — fresh</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Notable OOS Items — Highest Backorder Depth</div>
+      <table>
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th>Item #</th>
+            <th>Qty Available</th>
+            <th>Recorded Restock Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="row-danger">
+            <td>Ruth Occasional Arm Chair</td>
+            <td>1903-029</td>
+            <td><strong>&minus;18</strong></td>
+            <td>Nov 14, 2025 <span class="badge badge-warn">Past</span></td>
+          </tr>
+          <tr class="row-danger">
+            <td>Maren Dining Chair</td>
+            <td>1924-028</td>
+            <td><strong>&minus;16</strong></td>
+            <td>Nov 14, 2025 <span class="badge badge-warn">Past</span></td>
+          </tr>
+          <tr class="row-warn">
+            <td>Aria Queen Bed</td>
+            <td>0814-021</td>
+            <td><strong>&minus;14</strong></td>
+            <td>Nov 14, 2025 <span class="badge badge-warn">Past</span></td>
+          </tr>
+          <tr class="row-warn">
+            <td>Koenig Recliner</td>
+            <td>1065-L25</td>
+            <td><strong>&minus;11</strong></td>
+            <td>Sep 8, 2025 <span class="badge badge-warn">Past</span></td>
+          </tr>
+          <tr class="row-warn">
+            <td>Saylor Accent Chair</td>
+            <td>1929-001</td>
+            <td><strong>&minus;10</strong></td>
+            <td>Nov 14, 2025 <span class="badge badge-warn">Past</span></td>
+          </tr>
+          <tr>
+            <td>Ruth Accent Chair</td>
+            <td>1903-001</td>
+            <td>&minus;4</td>
+            <td>Nov 14, 2025 <span class="badge badge-warn">Past</span></td>
+          </tr>
+          <tr>
+            <td>Aria King Bed</td>
+            <td>0814-026</td>
+            <td>&minus;12</td>
+            <td>Nov 14, 2025 <span class="badge badge-warn">Past</span></td>
+          </tr>
+          <tr>
+            <td>Vera Cocktail Table</td>
+            <td>0296-072</td>
+            <td>&minus;3</td>
+            <td>Nov 14, 2025 <span class="badge badge-warn">Past</span></td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="font: 400 11px/1.4 var(--fd); color: var(--text-muted); margin-top: 8px;">All recorded restock dates have passed. If restocks have arrived, inventory records need to be refreshed. If items remain unfulfilled, buyers and reps should receive updated availability expectations.</div>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Top Products — All-Time Invoiced Revenue</div>
+      <p style="font: 400 12px/1.5 var(--fd); color: var(--text-muted); margin-bottom: 10px;">Ranked by total invoiced GMV across all order history available in the platform.</p>
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Product Name</th>
+            <th>Item #</th>
+            <th>All-Time Invoiced GMV</th>
+            <th>Units</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="row-highlight">
+            <td>1</td>
+            <td><strong>Emily King Bed</strong></td>
+            <td>0848-026</td>
+            <td><strong>$438,773</strong></td>
+            <td>627</td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>Briles Memory Swivel Chair</td>
+            <td>0510-005</td>
+            <td>$395,674</td>
+            <td>662</td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>Bedford Sofa</td>
+            <td>0728-011</td>
+            <td>$377,612</td>
+            <td>396</td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td>Weston Swivel Glider</td>
+            <td>0635-002</td>
+            <td>$328,558</td>
+            <td>456</td>
+          </tr>
+          <tr>
+            <td>5</td>
+            <td>Bel-Air 2v2 LSF 1-Arm Sofa</td>
+            <td>0705-081</td>
+            <td>$326,767</td>
+            <td>310</td>
+          </tr>
+          <tr>
+            <td>6</td>
+            <td>Leighton Memory Swivel Chair</td>
+            <td>0512-005</td>
+            <td>$309,801</td>
+            <td>423</td>
+          </tr>
+          <tr>
+            <td>7</td>
+            <td>Lind Island Accent Chair</td>
+            <td>1046-001</td>
+            <td>$290,454</td>
+            <td>386</td>
+          </tr>
+          <tr>
+            <td>8</td>
+            <td>Bel-Air 2v2 RSF 1-Arm Sofa</td>
+            <td>0705-080</td>
+            <td>$288,422</td>
+            <td>268</td>
+          </tr>
+          <tr>
+            <td>9</td>
+            <td>Naples King Panel Headboard</td>
+            <td>0807-026H</td>
+            <td>$279,199</td>
+            <td>525</td>
+          </tr>
+          <tr>
+            <td>10</td>
+            <td>Emily Queen Bed</td>
+            <td>0848-021</td>
+            <td>$275,579</td>
+            <td>436</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="what-this-means">
+      <strong>What this tells you:</strong> The top product catalog centers on upholstered seating (swivel chairs, sofas), bedroom (Emily Bed collection, Naples headboard), and case goods — consistent with a full-line furniture manufacturer. The Emily King and Queen Beds and Bedford Sofa represent the highest all-time invoiced volume, which makes inventory accuracy on those families directly material to order fulfillment confidence. Cross-reference the OOS list against these top sellers to prioritize the inventory refresh.
+    </div>
+
+  </section>
+  </details>
+
+
+  <!-- ═══ §6: COMMERCE ANALYTICS ═══ -->
+  <details class="section-collapse" id="commerce">
+    <summary>
+      <h2 class="section-title">Commerce Analytics</h2>
+      <div class="section-sub">2,608 total eCat orders &middot; $6.57M eCat GMV (LTM) &middot; Dual-channel platform</div>
+      <div class="section-contents">Channel Mix &middot; Monthly Trend &middot; eCat Online Top Buyers &middot; GMV Context</div>
+      <span class="expand-hint">&#9662; Click to expand</span>
+    </summary>
+  <section class="section" style="margin-bottom:0;border-top:none;border-radius:0 0 var(--r) var(--r);">
+
+    <div class="callout insight" style="margin-bottom: 20px;">
+      <div class="callout-title">Dual-Channel Context</div>
+      Braxton Culler operates two active eCat ordering channels: rep-submitted iPad orders and buyer-initiated eCat Online orders. In the last 12 months, both channels reached near-identical order volume (1,303 iPad / 1,305 online). These figures reflect eCat platform commerce only. A separate order history imported from the company&apos;s business system is available for context but reflects a partial sync and is not directly comparable to eCat order counts or GMV figures.
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Channel Mix — LTM eCat Orders</div>
+      <div class="metrics">
+        <div class="metric">
+          <div class="metric-label">iPad Orders (Rep)</div>
+          <div class="metric-value">1,303</div>
+          <div class="metric-note">50.0% of eCat orders</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">iPad GMV</div>
+          <div class="metric-value">$4.33M</div>
+          <div class="metric-note">66% of eCat GMV</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">iPad AOV</div>
+          <div class="metric-value">$3,323</div>
+          <div class="metric-note">Rep-placed orders</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">eCat Online Orders</div>
+          <div class="metric-value">1,305</div>
+          <div class="metric-note ok">50.0% of eCat orders</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">eCat Online GMV</div>
+          <div class="metric-value">$2.24M</div>
+          <div class="metric-note">34% of eCat GMV</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">eCat Online AOV</div>
+          <div class="metric-value">$1,714</div>
+          <div class="metric-note">Self-service buyers</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Monthly Order Volume — iPad vs eCat Online (LTM)</div>
+      <table>
+        <thead>
+          <tr>
+            <th>Month</th>
+            <th>iPad Orders</th>
+            <th>iPad GMV</th>
+            <th>eCat Online Orders</th>
+            <th>eCat Online GMV</th>
+            <th>Combined GMV</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Apr 2025</td>
+            <td>57</td>
+            <td>$197,758</td>
+            <td>49</td>
+            <td>$74,922</td>
+            <td>$272,680</td>
+          </tr>
+          <tr>
+            <td>May 2025</td>
+            <td>122</td>
+            <td>$393,179</td>
+            <td>110</td>
+            <td>$164,665</td>
+            <td>$557,844</td>
+          </tr>
+          <tr>
+            <td>Jun 2025</td>
+            <td>97</td>
+            <td>$233,747</td>
+            <td>105</td>
+            <td>$169,815</td>
+            <td>$403,562</td>
+          </tr>
+          <tr>
+            <td>Jul 2025</td>
+            <td>107</td>
+            <td>$308,134</td>
+            <td>111</td>
+            <td>$240,196</td>
+            <td>$548,330</td>
+          </tr>
+          <tr>
+            <td>Aug 2025</td>
+            <td>111</td>
+            <td>$324,310</td>
+            <td>104</td>
+            <td>$169,428</td>
+            <td>$493,738</td>
+          </tr>
+          <tr>
+            <td>Sep 2025</td>
+            <td>111</td>
+            <td>$304,907</td>
+            <td>91</td>
+            <td>$143,306</td>
+            <td>$448,213</td>
+          </tr>
+          <tr>
+            <td>Oct 2025</td>
+            <td>90</td>
+            <td>$312,641</td>
+            <td>119</td>
+            <td>$215,627</td>
+            <td>$528,268</td>
+          </tr>
+          <tr class="row-highlight">
+            <td><strong>Nov 2025</strong></td>
+            <td><strong>140</strong></td>
+            <td><strong>$604,354</strong></td>
+            <td>88</td>
+            <td>$147,609</td>
+            <td><strong>$751,963</strong></td>
+          </tr>
+          <tr>
+            <td>Dec 2025</td>
+            <td>68</td>
+            <td>$284,444</td>
+            <td>78</td>
+            <td>$163,633</td>
+            <td>$448,077</td>
+          </tr>
+          <tr>
+            <td>Jan 2026</td>
+            <td>91</td>
+            <td>$300,937</td>
+            <td>113</td>
+            <td>$177,511</td>
+            <td>$478,448</td>
+          </tr>
+          <tr class="row-highlight">
+            <td><strong>Feb 2026</strong></td>
+            <td><strong>121</strong></td>
+            <td><strong>$570,162</strong></td>
+            <td>131</td>
+            <td>$217,769</td>
+            <td><strong>$787,931</strong></td>
+          </tr>
+          <tr class="row-highlight">
+            <td><strong>Mar 2026</strong></td>
+            <td>131</td>
+            <td>$371,834</td>
+            <td><strong>133</strong></td>
+            <td>$229,439</td>
+            <td>$601,273</td>
+          </tr>
+          <tr>
+            <td>Apr 2026 (partial)</td>
+            <td>57</td>
+            <td>$124,097</td>
+            <td>73</td>
+            <td>$122,530</td>
+            <td>$246,627</td>
+          </tr>
+          <tr class="row-total">
+            <td><strong>LTM Total</strong></td>
+            <td><strong>1,303</strong></td>
+            <td><strong>$4,330,502</strong></td>
+            <td><strong>1,305</strong></td>
+            <td><strong>$2,236,449</strong></td>
+            <td><strong>$6,566,951</strong></td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="font: 400 11px/1.4 var(--fd); color: var(--text-muted); margin-top: 8px;">November 2025 and February 2026 were the platform&apos;s two strongest months. March 2026 was the first month eCat Online orders (133) exceeded iPad orders (131) — a structural shift in the channel mix. April 2026 is a partial month (through Apr 15).</div>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Top eCat Online Buyers — LTM (Self-Service Channel)</div>
+      <table>
+        <thead>
+          <tr>
+            <th>Buyer / Account</th>
+            <th>State</th>
+            <th>Online Orders</th>
+            <th>LTM Online GMV</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="row-highlight">
+            <td><strong>Outer Banks Furniture</strong></td>
+            <td>NC</td>
+            <td>92</td>
+            <td><strong>$151,174</strong></td>
+          </tr>
+          <tr>
+            <td>Emily Guthrie / Guthrie Interiors</td>
+            <td>NC</td>
+            <td>60</td>
+            <td>$93,765</td>
+          </tr>
+          <tr>
+            <td>Debbie Minner / Trident Furnishings Inc</td>
+            <td>DE</td>
+            <td>54</td>
+            <td>$79,512</td>
+          </tr>
+          <tr>
+            <td>Tim Booth / W.F. Booth &amp; Son, Inc.</td>
+            <td>VA</td>
+            <td>67</td>
+            <td>$72,362</td>
+          </tr>
+          <tr>
+            <td>Carol Dekar / Furniture &amp; More</td>
+            <td>FL</td>
+            <td>50</td>
+            <td>$71,438</td>
+          </tr>
+          <tr>
+            <td>Cori Sides / Osborne&apos;s Furniture</td>
+            <td>NJ</td>
+            <td>27</td>
+            <td>$65,875</td>
+          </tr>
+          <tr>
+            <td>Cindy Wilson / Steven Shell Living</td>
+            <td>SC</td>
+            <td>17</td>
+            <td>$62,300</td>
+          </tr>
+          <tr>
+            <td>Pam White / Exotic Imports, Inc.</td>
+            <td>NC</td>
+            <td>21</td>
+            <td>$60,533</td>
+          </tr>
+          <tr>
+            <td>Sean Kelly / Styled By Sean</td>
+            <td>NJ</td>
+            <td>17</td>
+            <td>$42,929</td>
+          </tr>
+          <tr>
+            <td>Victoria Grimes / Donna Grimes Custom Designs</td>
+            <td>NJ</td>
+            <td>23</td>
+            <td>$41,985</td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="font: 400 11px/1.4 var(--fd); color: var(--text-muted); margin-top: 8px;">178 unique accounts placed at least one eCat Online order in the LTM period. The top 10 above account for $741K of $2.24M in online GMV (33%). Outer Banks Furniture placed 92 self-service orders — the highest volume buyer in the online channel.</div>
+    </div>
+
+    <div class="what-this-means">
+      <strong>What this tells you:</strong> The eCat Online channel has reached order-volume parity with the iPad channel and is carrying meaningful GMV on its own ($2.24M LTM). The gap in AOV between channels ($3,323 iPad vs $1,714 online) is structurally expected — online buyers tend toward smaller, more frequent orders vs rep-mediated larger-project orders. Both channels are growing. The inventory accuracy priority (OOS items with stale dates) affects both channels simultaneously: if buyers see false OOS on the online catalog, they cannot self-serve those items even if stock exists.
+    </div>
+
+  </section>
+  </details>
+
+
+  <!-- ═══ §7: PEER BENCHMARKING ═══ -->
+  <!-- HAS_PEER_DATA = true | Furniture / Full peer group | benchmark_eligible = True -->
+  <details class="section-collapse" id="peer">
+    <summary>
+      <h2 class="section-title">Peer Benchmarking</h2>
+      <div class="section-sub">Furniture &amp; Home Furnishings peers &middot; Full-platform comparable accounts</div>
+      <div class="section-contents">Platform Engagement &middot; Order Velocity &middot; Catalog Completeness &middot; Peer Context</div>
+      <span class="expand-hint">&#9662; Click to expand</span>
+    </summary>
+  <section class="section" style="margin-bottom:0;border-top:none;border-radius:0 0 var(--r) var(--r);">
+
+    <div class="callout insight" style="margin-bottom: 20px;">
+      <div class="callout-title">Benchmark Context</div>
+      Braxton Culler is compared against platforms in the furniture and home furnishings space with a similar product catalog scope and full-platform configuration (iPad ordering + eCat Online). Benchmarking reflects eCat platform activity only and does not reflect total business revenue, off-platform sales, or market share. Peer values are anonymous medians — no individual vendor data is included.
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Platform Performance vs Comparable Peers</div>
+
+      <div style="margin: 16px 0;">
+        <div class="peer-bar-row">
+          <div class="peer-bar-label">Platform Engagement</div>
+          <div class="peer-bar-track"><div class="peer-bar-fill ok" style="width:83%"></div></div>
+          <div class="peer-bar-value">83rd %ile</div>
+          <div class="peer-bar-quartile q4">Q4</div>
+        </div>
+        <div class="peer-bar-row">
+          <div class="peer-bar-label">Value Delivery per Session</div>
+          <div class="peer-bar-track"><div class="peer-bar-fill ok" style="width:83%"></div></div>
+          <div class="peer-bar-value">83rd %ile</div>
+          <div class="peer-bar-quartile q4">Q4</div>
+        </div>
+        <div class="peer-bar-row">
+          <div class="peer-bar-label">Login Intensity</div>
+          <div class="peer-bar-track"><div class="peer-bar-fill" style="width:50%"></div></div>
+          <div class="peer-bar-value">50th %ile</div>
+          <div class="peer-bar-quartile q3">Q3</div>
+        </div>
+        <div class="peer-bar-row">
+          <div class="peer-bar-label">Order Velocity (90-Day)</div>
+          <div class="peer-bar-track"><div class="peer-bar-fill warn" style="width:33%"></div></div>
+          <div class="peer-bar-value">33rd %ile</div>
+          <div class="peer-bar-quartile q2">Q2</div>
+        </div>
+        <div class="peer-bar-row">
+          <div class="peer-bar-label">Orders per Platform User</div>
+          <div class="peer-bar-track"><div class="peer-bar-fill warn" style="width:33%"></div></div>
+          <div class="peer-bar-value">33rd %ile</div>
+          <div class="peer-bar-quartile q2">Q2</div>
+        </div>
+        <div class="peer-bar-row">
+          <div class="peer-bar-label">Catalog Completeness</div>
+          <div class="peer-bar-track"><div class="peer-bar-fill warn" style="width:33%"></div></div>
+          <div class="peer-bar-value">33rd %ile</div>
+          <div class="peer-bar-quartile q2">Q2</div>
+        </div>
+      </div>
+
+      <div class="metrics" style="margin-top: 16px;">
+        <div class="metric">
+          <div class="metric-label">Order Vol. vs Peer Median</div>
+          <div class="metric-value" style="color: var(--warn);">&minus;11%</div>
+          <div class="metric-note warn">755 vs 852 (90-day)</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Catalog Completeness vs Peer</div>
+          <div class="metric-value" style="color: var(--warn);">&minus;13 pts</div>
+          <div class="metric-note warn">82% vs 95% median</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Engagement vs Peer</div>
+          <div class="metric-value" style="color: var(--ok);">Top Q</div>
+          <div class="metric-note ok">83rd percentile</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">What the Gap Means</div>
+      <p style="font: 400 13px/1.65 var(--fd); color: var(--text-secondary);">Braxton Culler ranks top quartile on engagement — reps and buyers who use the platform engage deeply and derive high session value. The gap shows up in order output: at 755 orders in Q4 2025 vs a peer median of 852, the platform is leaving roughly 97 orders per quarter unrealized relative to comparable peers. The data points to catalog completeness (82% vs 95%) as the upstream constraint: incomplete product data suppresses search results, configurator completeness, and buyer confidence to order — directly reducing conversion on both the iPad and online channels.</p>
+      <p style="font: 400 13px/1.65 var(--fd); color: var(--text-secondary); margin-top: 12px;">The 13-point catalog completeness gap is the single highest-leverage platform health action available. Moving to peer median on completeness is the most direct path to improving order velocity without changing sales capacity or buyer acquisition.</p>
+    </div>
+
+    <p class="peer-confidence">Benchmarking methodology: Comparison reflects operational platform activity and commerce metrics as observed through the platform. It does not reflect total business volume, revenue, market share, or off-platform business activity. All peer values are anonymous medians — no individual vendor data is disclosed.</p>
+
+  </section>
+  </details>
+
+
+  <!-- ═══ §8: SUPPORTING DETAIL ═══ -->
+  <!-- HAS_CLICKY = false — Portal Traffic subsection omitted -->
+  <details class="section-collapse" id="supporting-detail">
+    <summary>
+      <h2 class="section-title">Supporting Detail</h2>
+      <div class="section-sub">Platform configuration &middot; User activity &middot; Feature utilization &middot; Data freshness</div>
+      <div class="section-contents">Platform Features &middot; User Activity &middot; Platform Events &middot; Data Freshness</div>
+      <span class="expand-hint">&#9662; Click to expand</span>
+    </summary>
+  <section class="section" style="margin-bottom:0;border-top:none;border-radius:0 0 var(--r) var(--r);">
+
+    <div class="subsection">
+      <div class="subsection-title">Platform Configuration &amp; Active Features</div>
+      <table>
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>eCat iPad (Core)</td>
+            <td><span class="badge badge-ok">Active</span></td>
+          </tr>
+          <tr>
+            <td>eCat iPad — Additional Seats</td>
+            <td><span class="badge badge-ok">Active</span></td>
+          </tr>
+          <tr>
+            <td>eCat Online — B2B Cart</td>
+            <td><span class="badge badge-ok">Active</span></td>
+          </tr>
+          <tr>
+            <td>eCat Online — Catalog</td>
+            <td><span class="badge badge-ok">Active</span></td>
+          </tr>
+          <tr>
+            <td>eCat Online — Closed Site</td>
+            <td><span class="badge badge-ok">Active</span></td>
+          </tr>
+          <tr>
+            <td>eCat Online — Sales Portal</td>
+            <td><span class="badge badge-ok">Active</span></td>
+          </tr>
+          <tr>
+            <td>Portal Engagement Analytics</td>
+            <td><span class="badge badge-info">Not Configured</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">User Activity</div>
+      <div class="metrics">
+        <div class="metric">
+          <div class="metric-label">Total Registered Users</div>
+          <div class="metric-value">1,406</div>
+          <div class="metric-note">All-time platform users</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Active — Last 90 Days</div>
+          <div class="metric-value">897</div>
+          <div class="metric-note ok">64% of registered</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Active — Last 12 Months</div>
+          <div class="metric-value">1,153</div>
+          <div class="metric-note ok">82% of registered</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Platform Event Utilization (All-Time)</div>
+      <table>
+        <thead>
+          <tr>
+            <th>Event</th>
+            <th>All-Time Count</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Product Searches</td>
+            <td><strong>38,286</strong></td>
+          </tr>
+          <tr>
+            <td>Library / Story Views</td>
+            <td>17,804</td>
+          </tr>
+          <tr>
+            <td>Sales Portal Accesses</td>
+            <td>7,944</td>
+          </tr>
+          <tr>
+            <td>Configured Item Orders</td>
+            <td>7,544</td>
+          </tr>
+          <tr>
+            <td>Order Submissions (Platform)</td>
+            <td>1,849</td>
+          </tr>
+          <tr>
+            <td>Kit Views</td>
+            <td>1,159</td>
+          </tr>
+          <tr>
+            <td>PDF Catalog Creates</td>
+            <td>880</td>
+          </tr>
+          <tr>
+            <td>Kit Orders</td>
+            <td>195</td>
+          </tr>
+          <tr>
+            <td>Camera Scans</td>
+            <td>15</td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="font: 400 11px/1.4 var(--fd); color: var(--text-muted); margin-top: 8px;">Product search (38K events) and library views (17.8K) are the highest-volume engagement actions, confirming that the catalog is the primary navigation layer. Configured item orders (7,544) reflect high usage of the option configurator feature.</div>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Data Freshness</div>
+      <table>
+        <thead>
+          <tr>
+            <th>Data Source</th>
+            <th>Last Updated</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Products (catalog)</td>
+            <td>April 15, 2026</td>
+            <td><span class="badge badge-ok">Fresh</span></td>
+          </tr>
+          <tr>
+            <td>Inventories</td>
+            <td>April 15, 2026</td>
+            <td><span class="badge badge-ok">Fresh</span></td>
+          </tr>
+          <tr>
+            <td>eCat iPad Orders</td>
+            <td>April 15, 2026</td>
+            <td><span class="badge badge-ok">Fresh</span></td>
+          </tr>
+          <tr>
+            <td>eCat Online Orders</td>
+            <td>April 15, 2026</td>
+            <td><span class="badge badge-ok">Fresh</span></td>
+          </tr>
+          <tr>
+            <td>Order History (business system)</td>
+            <td>April 15, 2026</td>
+            <td><span class="badge badge-ok">Fresh</span></td>
+          </tr>
+          <tr>
+            <td>Customer Records</td>
+            <td>April 15, 2026</td>
+            <td><span class="badge badge-ok">Fresh</span></td>
+          </tr>
+          <tr>
+            <td>Peer Benchmark Data</td>
+            <td>April 14, 2026</td>
+            <td><span class="badge badge-ok">Fresh</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="what-this-means">
+      <strong>What this tells you:</strong> All core data sources are fresh as of the report date. The OOS items flagged in Product &amp; Inventory show current inventory records (updated today) but carry stale restock dates — this is a data quality issue within the inventory records themselves, not a report data freshness issue.
+    </div>
+
+  </section>
+  </details>
+
+
+  <!-- ═══ §9: APPENDIX ═══ -->
+  <details class="section-collapse light" id="appendix">
+    <summary>
+      <h2 class="section-title">Appendix</h2>
+      <div class="section-sub">Data sources &middot; Definitions &middot; Methodology notes &middot; Standing disclosures</div>
+      <span class="expand-hint">&#9662; Click to expand</span>
+    </summary>
+  <section class="section" style="margin-bottom:0;border-top:none;border-radius:0 0 var(--r) var(--r); background: var(--panel);">
+
+    <div class="appendix-block">
+      <div class="appendix-title">Report Scope</div>
+      <div class="appendix-body">
+        This report covers eCat platform activity for Braxton Culler (account: bcf) for the trailing 12-month period ending April 15, 2026. All order counts and GMV figures reflect platform-recorded activity only. Report generated April 15, 2026.
+      </div>
+    </div>
+
+    <div class="appendix-block">
+      <div class="appendix-title">eCat Order Sources — Definition</div>
+      <div class="appendix-body">
+        Two order channels are tracked in this report:
+        <ul>
+          <li><strong>iPad Orders:</strong> Orders submitted by sales reps using the eCat iPad application. These are rep-mediated and attributed to individual rep accounts.</li>
+          <li><strong>eCat Online Orders:</strong> Orders submitted directly by buyers through the eCat Online B2B platform. Rep attribution is not applicable; orders are attributed to buyer accounts directly.</li>
+        </ul>
+        GMV figures reflect order totals at time of submission and do not account for post-submission adjustments, cancellations, or shipping charges unless included in the order total.
+      </div>
+    </div>
+
+    <div class="appendix-block">
+      <div class="appendix-title">Order History (Business System) — Partial Sync Disclosure</div>
+      <div class="appendix-body">
+        A separate order history sourced from Braxton Culler&apos;s business system is available in the platform and covers 1,631 orders ($2.19M) in the LTM period. This figure reflects a partial import and does not represent total business volume. Because eCat platform GMV ($6.57M) is substantially higher than the imported order history, direct comparisons between these two figures are not made in this report. The imported history provides rep assignment and customer attribution context but is not used as the primary commerce reference.
+      </div>
+    </div>
+
+    <div class="appendix-block">
+      <div class="appendix-title">Customer Count Definition</div>
+      <div class="appendix-body">
+        &ldquo;Ever ordered via eCat&rdquo; counts reflect unique customer account codes (customer_num) present on at least one submitted order. Three reps (Barbara Harper, Jaime Hernandez, Jane Harrington) have submitted a combined 378 LTM orders with incomplete customer code attribution — meaning some customers they serve may not be counted in eCat order-customer figures. The true unique customer reach of the platform may be modestly higher than reported.
+      </div>
+    </div>
+
+    <div class="appendix-block">
+      <div class="appendix-title">Inventory OOS — Methodology Note</div>
+      <div class="appendix-body">
+        Out-of-stock items are identified as inventory records where qty_available &le; 0. Recorded restock dates reflect what was entered in the last inventory file upload; all visible dates are from 2025 and have passed. This report does not confirm whether those items have since been restocked — it flags the data state as requiring verification against current warehouse records.
+      </div>
+    </div>
+
+    <div class="appendix-block">
+      <div class="appendix-title">Peer Benchmarking — Methodology</div>
+      <div class="appendix-body">
+        Peer benchmarking uses the most recent benchmark run (April 14, 2026) based on platform operational data across comparable accounts. The comparison group consists of platforms in the furniture and home furnishings vertical with a similar full-platform configuration. Benchmark data reflects platform metrics only — not total business revenue, market share, or off-platform activity. Percentile rankings use a 0–1 scale internally; this report expresses them as ordinal percentages (e.g., 83rd percentile) and quartile designations (Q1–Q4). No individual peer account data is disclosed.
+      </div>
+    </div>
+
+    <div class="appendix-block">
+      <div class="appendix-title">Product Revenue — Methodology Note</div>
+      <div class="appendix-body">
+        Top products are ranked by all-time invoiced GMV from the order history data (sales_data), which reflects historical invoice records imported from the business system. This covers a longer period than the trailing 12-month LTM window used for order counts and is provided for catalog context. LTM product-level GMV by eCat order is not separately reported in this edition.
+      </div>
+    </div>
+
+    <div class="appendix-block">
+      <div class="appendix-title">Geographic Data Note</div>
+      <div class="appendix-body">
+        Geographic distribution is based on billing state as recorded on iPad order submissions. A minor data quality issue exists for Maryland orders: two state codes (&ldquo;MD&rdquo; and &ldquo;MD.&rdquo;) appear in the dataset, reflecting an inconsistent entry in order records. Combined Maryland GMV is approximately $217K LTM. This does not affect any other reported figures.
+      </div>
+    </div>
+
+  </section>
+  </details>
+
+</div>
+
+<script>
+  // Sticky TOC active state
+  (function() {
+    const strip = document.getElementById('tocStrip');
+    if (!strip) return;
+    window.addEventListener('scroll', function() {
+      strip.classList.toggle('stuck', window.scrollY > 40);
+    });
+    const links = strip.querySelectorAll('a');
+    const sections = [];
+    links.forEach(function(a) {
+      const id = a.getAttribute('href').replace('#', '');
+      const el = document.getElementById(id);
+      if (el) sections.push({ el, a });
+    });
+    window.addEventListener('scroll', function() {
+      let current = sections[0];
+      sections.forEach(function(s) {
+        if (window.scrollY >= s.el.offsetTop - 80) current = s;
+      });
+      links.forEach(function(a) { a.classList.remove('active'); });
+      if (current) current.a.classList.add('active');
+    }, { passive: true });
+  })();
+</script>
+
+</body>
+</html>

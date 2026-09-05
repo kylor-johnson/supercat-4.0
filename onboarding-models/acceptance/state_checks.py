@@ -53,11 +53,36 @@ def sql_a2(sn):
     """Price levels by customer share, with how many distinct values each
     resolves to across the live catalogue.
 
-    `net` is stored on `products.net_price`; every other level lives in the
-    `prices_json` blob under its own code. A level that resolves to ONE distinct
-    value across the whole catalogue is a placeholder, and it only matters when
-    customers actually point at it - drf had 389 of 389 customers on `net` with
-    every product at $1.00 for 42+ days.
+    `net` is stored on `products.net_price`; every other AD-HOC level lives in
+    the `prices_json` blob under its own code. A level that resolves to ONE
+    distinct value across the whole catalogue is a placeholder, and it only
+    matters when customers actually point at it - drf had 389 of 389 customers
+    on `net` with every product at $1.00 for 42+ days.
+
+    ## A2 only evaluates ad-hoc levels, and now says so
+
+    `arithmetic` and `quantity` levels store NO key in `prices_json`; their value
+    is COMPUTED (`net_price` x `factor`, optionally against
+    `target_price_level_id`). Reading `prices_json ->> code` for one of those
+    returns NULL on every row, `count(DISTINCT ...)` discards the NULLs, and the
+    check saw either 0 or - worse - whatever single stray row happened to carry
+    the key.
+
+    That produced a BLOCKING finding on `uhc`: 'wholesale' is arithmetic
+    factor=1.0, exactly ONE of 4,433 products carried a stray `wholesale` key at
+    307.89, and A2 reported "resolves to ONE distinct value across all 4433 live
+    products". The catalogue in fact carries 396 distinct net prices, $0.00 to
+    $450.00. Fleet-wide, 46 of A2's 47 findings were this artifact.
+
+    So: non-ad-hoc levels are declared NOT EVALUATED rather than measured wrong.
+    Resolving the arithmetic properly means following factor / target chains and
+    is a separate job; it is not needed to stop the check lying.
+
+    `products_carrying_value` is selected so the message can use the number of
+    products that ACTUALLY carry a price for the level as its denominator. The
+    old text said "across all N live products" where N was the whole catalogue
+    even when the count came from one row - the same shape as OPEN_ITEMS F7, a
+    partition that does not describe what it claims.
     """
     o = org_ref(sn)
     return """
@@ -79,6 +104,14 @@ SELECT pl.code, pl.name, pl.pl_type,
             THEN (SELECT count(DISTINCT net_price) FROM live)
             ELSE (SELECT count(DISTINCT prices_json::jsonb ->> pl.code::text) FROM live)
        END AS distinct_values,
+       -- How many live products actually CARRY a value for this level. This is
+       -- the denominator the finding must quote: count(DISTINCT ...) above
+       -- silently skips NULLs, so "1 distinct value" can describe one row while
+       -- reading as though it described the catalogue.
+       CASE WHEN lower(pl.code)='net'
+            THEN (SELECT count(net_price) FROM live)
+            ELSE (SELECT count(prices_json::jsonb ->> pl.code::text) FROM live)
+       END AS products_carrying_value,
        CASE WHEN lower(pl.code)='net'
             THEN (SELECT min(net_price)::text FROM live)
             ELSE (SELECT min(prices_json::jsonb ->> pl.code::text) FROM live)
@@ -99,26 +132,57 @@ def check_a2(rows, measured_at):
         share = 100.0 * on / total
         distinct = r.get('distinct_values')
         live = r.get('live_products') or 0
-        if share <= 50 or distinct is None:
+        carrying = r.get('products_carrying_value')
+        pl_type = (r.get('pl_type') or '').strip().lower()
+        # Below the share threshold the level is out of scope for a
+        # placeholder-pricing finding whatever its type, so nothing is said.
+        # Above it, a level A2 CANNOT evaluate has to say so out loud rather
+        # than fall through to a number derived from the wrong column.
+        if share <= 50:
             continue
-        if int(distinct) == 1 and int(live) > 20:
+        if pl_type and pl_type != 'ad-hoc':
+            findings.append({
+                'rule': 'A2.not_evaluated', 'severity': 'INFO',
+                'measured_at': measured_at,
+                'detail': "NOT EVALUATED - %r is %s level; its value derives from "
+                          "net_price and is not stored in prices_json. A2 measures "
+                          "stored values. The level carries %d of %d customers "
+                          "(%.1f%%), so if placeholder pricing is a live question for "
+                          "this org it has to be answered another way."
+                          % (r['code'],
+                             ('an %s' if pl_type[:1] in 'aeiou' else 'a %s') % pl_type,
+                             int(on), int(total), share),
+            })
+            continue
+        if distinct is None:
+            continue
+        # Denominator is the products that carry a price for THIS level, not the
+        # whole catalogue. Fall back to live_products only when the SQL predates
+        # this column, and say which one is being quoted either way.
+        if carrying is None:
+            denom, denom_text = int(live), "%d live products" % int(live)
+        else:
+            denom = int(carrying)
+            denom_text = ("the %d live product(s) carrying a price for it, of %d live"
+                          % (int(carrying), int(live)))
+        if int(distinct) == 1 and denom > 20:
             findings.append({
                 'rule': 'A2.placeholder_pricing', 'severity': 'BLOCKING',
                 'measured_at': measured_at,
                 'detail': "price level %r carries %d of %d customers (%.1f%%) and "
-                          "resolves to ONE distinct value (%s) across all %d live "
-                          "products. That is a placeholder priced catalogue reaching "
-                          "every customer on the level."
+                          "resolves to ONE distinct value (%s) across %s. That is a "
+                          "placeholder priced catalogue reaching every customer on "
+                          "the level."
                           % (r['code'], int(on), int(total), share,
-                             r.get('sample_value'), int(live)),
+                             r.get('sample_value'), denom_text),
             })
-        elif int(distinct) <= 3 and int(live) > 50:
+        elif int(distinct) <= 3 and denom > 50:
             findings.append({
                 'rule': 'A2.near_constant_pricing', 'severity': 'WARN',
                 'measured_at': measured_at,
                 'detail': "price level %r carries %.1f%% of customers and resolves to "
-                          "only %d distinct values across %d live products."
-                          % (r['code'], share, int(distinct), int(live)),
+                          "only %d distinct values across %s."
+                          % (r['code'], share, int(distinct), denom_text),
             })
     return findings
 

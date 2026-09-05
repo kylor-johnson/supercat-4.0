@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Account Value Summary — Oly Studio</title>
+<style>
+  :root{
+    --bg:#0c0c0e;--surface:#141418;--surface-2:#1c1c22;
+    --border:#26262f;--border-s:#1a1a22;
+    --text:#e8e8ed;--text-2:#8888a0;--text-3:#44444e;
+    --green:#34d399;--green-bg:rgba(52,211,153,0.07);--green-border:rgba(52,211,153,0.18);
+    --blue:#60a5fa;--blue-bg:rgba(96,165,250,0.07);--blue-border:rgba(96,165,250,0.18);
+    --amber:#fbbf24;--amber-bg:rgba(251,191,36,0.07);--amber-border:rgba(251,191,36,0.18);
+    --red:#f87171;--red-bg:rgba(248,113,113,0.07);--red-border:rgba(248,113,113,0.18);
+  }
+
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    font-size:15px;
+    line-height:1.65;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  .page{
+    max-width:820px;
+    margin:0 auto;
+    padding:56px 32px;
+  }
+
+  /* ── Top bar ── */
+  .topbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    border-bottom:1px solid var(--border);
+    padding-bottom:16px;
+    margin-bottom:40px;
+  }
+  .topbar-left{display:flex;flex-direction:column;gap:4px}
+  .brand{
+    font-size:12px;
+    font-weight:600;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    color:var(--text-2);
+  }
+  .doc-title{
+    font-size:22px;
+    font-weight:700;
+    color:var(--text);
+    letter-spacing:-0.01em;
+    margin-top:4px;
+  }
+  .doc-date{
+    font-size:13px;
+    color:var(--text-3);
+    margin-top:2px;
+  }
+  .health-badge{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:4px;
+    padding:10px 16px;
+    border-radius:8px;
+    min-width:80px;
+  }
+  .health-badge.green{background:var(--green-bg);border:1px solid var(--green-border)}
+  .health-badge.blue{background:var(--blue-bg);border:1px solid var(--blue-border)}
+  .health-badge.amber{background:var(--amber-bg);border:1px solid var(--amber-border)}
+  .health-badge .score{
+    font-size:28px;
+    font-weight:800;
+    line-height:1;
+  }
+  .health-badge.green .score{color:var(--green)}
+  .health-badge.blue .score{color:var(--blue)}
+  .health-badge.amber .score{color:var(--amber)}
+  .health-badge .score-label{
+    font-size:10px;
+    font-weight:600;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    color:var(--text-2);
+  }
+
+  /* ── Lede ── */
+  .lede{
+    font-size:16px;
+    line-height:1.7;
+    color:var(--text);
+    margin-bottom:36px;
+  }
+
+  /* ── Section headings ── */
+  .section-heading{
+    font-size:13px;
+    font-weight:700;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    color:var(--blue);
+    margin-top:36px;
+    margin-bottom:16px;
+  }
+  .section-subtitle{
+    font-size:14px;
+    color:var(--text-2);
+    margin-top:-8px;
+    margin-bottom:16px;
+  }
+
+  /* ── Stat rows ── */
+  .stat-row{
+    display:grid;
+    gap:12px;
+    margin-bottom:12px;
+  }
+  .stat-row.col-4{grid-template-columns:repeat(4,1fr)}
+  .stat-row.col-3{grid-template-columns:repeat(3,1fr)}
+  .stat-row.col-2{grid-template-columns:repeat(2,1fr)}
+  .stat-row.col-1{grid-template-columns:1fr}
+
+  .stat{
+    background:var(--surface);
+    border:1px solid var(--border-s);
+    border-radius:8px;
+    padding:14px 16px;
+    text-align:center;
+  }
+  .stat-val{
+    font-size:24px;
+    font-weight:700;
+    color:var(--text);
+    line-height:1.2;
+  }
+  .stat-val.green{color:var(--green)}
+  .stat-val.blue{color:var(--blue)}
+  .stat-val.amber{color:var(--amber)}
+  .stat-lbl{
+    font-size:11px;
+    font-weight:500;
+    color:var(--text-2);
+    margin-top:4px;
+    letter-spacing:0.02em;
+  }
+
+  /* ── Platform health breakdown ── */
+  .tbl-wrap{
+    overflow-x:auto;
+    margin-bottom:28px;
+    -webkit-overflow-scrolling:touch;
+  }
+  table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:14px;
+  }
+  table th,table td{
+    text-align:left;
+    padding:10px 14px;
+    border-bottom:1px solid var(--border);
+  }
+  table th{
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--text-2);
+    background:var(--surface);
+  }
+  table td{color:var(--text)}
+  table td.score{
+    text-align:right;
+    font-weight:700;
+    font-size:15px;
+    white-space:nowrap;
+  }
+  table td.evidence{color:var(--text-2);font-size:13px}
+  table tr.hi-green td{background:var(--green-bg)}
+  table tr.hi-green td.score{color:var(--green)}
+  table tr:last-child td{border-bottom:none}
+
+  /* ── Divider ── */
+  hr{
+    border:none;
+    border-top:1px solid var(--border);
+    margin:36px 0;
+  }
+
+  /* ── Two-column feature inventory ── */
+  .two-col{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:24px;
+    margin-bottom:28px;
+  }
+  .feat-group h4{
+    font-size:12px;
+    font-weight:700;
+    letter-spacing:0.04em;
+    text-transform:uppercase;
+    color:var(--text-2);
+    margin-bottom:10px;
+    padding-bottom:6px;
+    border-bottom:1px solid var(--border-s);
+  }
+  .feat-list{
+    list-style:none;
+    padding:0;
+  }
+  .feat-list li{
+    position:relative;
+    padding:6px 0 6px 20px;
+    font-size:14px;
+    color:var(--text);
+    border-bottom:1px solid var(--border-s);
+  }
+  .feat-list li:last-child{border-bottom:none}
+  .feat-list li::before{
+    content:"✓";
+    position:absolute;
+    left:0;
+    color:var(--green);
+    font-weight:700;
+    font-size:13px;
+  }
+  .feat-list .feat-desc{
+    display:block;
+    font-size:12px;
+    color:var(--text-3);
+    margin-top:2px;
+  }
+
+  /* ── Pricing comparison table ── */
+  .pricing-table{margin:16px 0 28px}
+  .pricing-table th:first-child{color:var(--text-3)}
+  .pricing-table .col-current{color:var(--text)}
+  .pricing-table .col-new{color:var(--green)}
+  .pricing-table tr.total td{
+    font-weight:700;
+    font-size:15px;
+    border-top:2px solid var(--border);
+    border-bottom:none;
+  }
+
+  /* ── Graduated rate table ── */
+  .rate-table{
+    margin:16px 0;
+    font-size:13px;
+  }
+  .rate-table td{color:var(--text-2)}
+  .rate-table td:last-child{
+    text-align:right;
+    font-weight:600;
+    color:var(--text);
+  }
+  .table-caption{
+    font-size:12px;
+    color:var(--text-3);
+    margin-top:8px;
+    font-style:italic;
+  }
+
+  /* ── Tier percentile bar ── */
+  .percentile-bar{
+    margin:20px 0 28px;
+    padding:20px 24px;
+    background:var(--surface);
+    border:1px solid var(--border-s);
+    border-radius:8px;
+  }
+  .percentile-bar .bar-labels{
+    display:flex;
+    justify-content:space-between;
+    font-size:12px;
+    color:var(--text-3);
+    margin-bottom:8px;
+  }
+  .percentile-bar .bar-track{
+    position:relative;
+    height:8px;
+    background:var(--surface-2);
+    border-radius:4px;
+    overflow:visible;
+  }
+  .percentile-bar .bar-fill{
+    position:absolute;
+    left:0;
+    top:0;
+    height:100%;
+    background:linear-gradient(90deg,var(--border) 0%,var(--green) 2%);
+    border-radius:4px;
+    width:2%;
+  }
+  .percentile-bar .bar-marker{
+    position:absolute;
+    top:-6px;
+    left:2%;
+    transform:translateX(-50%);
+    width:4px;
+    height:20px;
+    background:var(--green);
+    border-radius:2px;
+  }
+  .percentile-bar .bar-value{
+    position:absolute;
+    top:-26px;
+    left:2%;
+    transform:translateX(-50%);
+    font-size:12px;
+    font-weight:700;
+    color:var(--green);
+    white-space:nowrap;
+  }
+  .percentile-bar .range-labels{
+    display:flex;
+    justify-content:space-between;
+    margin-top:10px;
+    font-size:11px;
+    color:var(--text-3);
+  }
+
+  /* ── Platform investment / roadmap ── */
+  .roadmap-intro{
+    font-size:14px;
+    color:var(--text-2);
+    margin-bottom:20px;
+  }
+  .roadmap-date{
+    font-size:12px;
+    font-weight:700;
+    letter-spacing:0.04em;
+    text-transform:uppercase;
+    color:var(--amber);
+    margin-top:20px;
+    margin-bottom:8px;
+  }
+  .roadmap-list{
+    list-style:none;
+    padding:0;
+  }
+  .roadmap-list li{
+    position:relative;
+    padding:8px 0 8px 20px;
+    font-size:14px;
+    color:var(--text);
+  }
+  .roadmap-list li::before{
+    content:"→";
+    position:absolute;
+    left:0;
+    color:var(--amber);
+    font-weight:700;
+  }
+  .roadmap-list .roadmap-desc{
+    display:block;
+    font-size:13px;
+    color:var(--text-2);
+    margin-top:2px;
+  }
+
+  /* ── Callout box ── */
+  .callout{
+    padding:20px 24px;
+    border-radius:8px;
+    margin:32px 0;
+    font-size:14px;
+    line-height:1.7;
+  }
+  .callout.green{
+    background:var(--green-bg);
+    border:1px solid var(--green-border);
+    color:var(--text);
+  }
+  .callout.blue{
+    background:var(--blue-bg);
+    border:1px solid var(--blue-border);
+    color:var(--text);
+  }
+  .callout .callout-heading{
+    font-size:12px;
+    font-weight:700;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    color:var(--green);
+    margin-bottom:8px;
+  }
+  .callout.blue .callout-heading{color:var(--blue)}
+
+  /* ── Footer ── */
+  .doc-footer{
+    margin-top:48px;
+    padding-top:16px;
+    border-top:1px solid var(--border);
+    font-size:12px;
+    color:var(--text-3);
+  }
+
+  /* ── Driver explanation ── */
+  .driver-block{
+    background:var(--surface);
+    border-left:3px solid var(--blue);
+    padding:16px 20px;
+    margin:16px 0 24px;
+    border-radius:0 6px 6px 0;
+    font-size:14px;
+    color:var(--text);
+    line-height:1.7;
+  }
+
+  /* ── Responsive ── */
+  @media(max-width:680px){
+    .page{padding:32px 16px}
+    .topbar{flex-direction:column;gap:16px}
+    .stat-row.col-4{grid-template-columns:repeat(2,1fr)}
+    .stat-row.col-3,.stat-row.col-2{grid-template-columns:1fr}
+    .two-col{grid-template-columns:1fr}
+    .doc-title{font-size:18px}
+    .percentile-bar .bar-value{font-size:10px}
+  }
+
+  @media(max-width:420px){
+    .stat-row.col-4{grid-template-columns:1fr}
+    .stat-val{font-size:20px}
+  }
+
+  @media print{
+    body{background:#fff;color:#111}
+    .page{padding:32px 24px}
+    .topbar{border-color:#ccc}
+    .health-badge{border-color:#ccc;background:#f5f5f5}
+    .health-badge .score{color:#111}
+    .stat{background:#f8f8f8;border-color:#ddd}
+    .stat-val,.stat-val.green,.stat-val.blue{color:#111}
+    table th{background:#f0f0f0;color:#555}
+    .pricing-table .col-new{color:#059669}
+    .callout{background:#f5faf7;border-color:#059669}
+    .driver-block{background:#f5f5f5;border-color:#2563eb}
+    .doc-footer{border-color:#ccc;color:#888}
+    .percentile-bar{background:#f8f8f8;border-color:#ddd}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ═══ 1. TOP BAR ═══ -->
+  <!-- Health badge removed — internal score vocabulary, §2.5 non-negotiable -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <span class="brand">SuperCat · Account Summary</span>
+      <h1 class="doc-title">Oly Studio</h1>
+      <span class="doc-date">May 27, 2026 · Pricing update effective August 1, 2026</span>
+    </div>
+  </div>
+
+  <!-- ═══ 2. LEDE ═══ -->
+  <!-- §4.13: Watch/At Risk → dollar-first; Healthy/Thriving → relationship-before-price -->
+  <p class="lede">Oly Studio has been on SuperCat since 2025 — 1 year. 2 monthly active users on the platform. Your monthly invoice is moving from $1,115 to $1,295 — a $180/month increase.</p>
+
+  <!-- ═══ 3. HOW YOU'RE USING THE PLATFORM ═══ -->
+  <div class="section-heading">How you're using the platform</div>
+
+  <!-- Two confirmed stats from CSV; Postgres-dependent stats (session count, eCat orders)
+       handled by <div class="stat-row col-2"><div class="stat"><div class="stat-val">40</div><div class="stat-lbl">Sessions (90 days)</div></div><div class="stat"><div class="stat-val">55</div><div class="stat-lbl">eCat orders (last 12 months)</div></div></div> — stub for fresh-agent Postgres integration pass -->
+  <div class="stat-row col-3">
+    <div class="stat">
+      <div class="stat-val">2<span style="font-size:14px;color:var(--text-2)"> /mo</span></div>
+      <div class="stat-lbl">Avg monthly active users</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val">1<span style="font-size:14px;color:var(--text-2)"> yrs</span></div>
+      <div class="stat-lbl">Tenure on platform</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val">Professional</div>
+      <div class="stat-lbl">Current tier</div>
+    </div>
+  </div>
+
+  <!-- POSTGRES_STAT_ROW: sessions (90d) + eCat orders (LTM) from data/postgres_metrics.json -->
+  <!-- Refresh: re-query login_events + orders via Postgres MCP, update the JSON, rebuild -->
+  <div class="stat-row col-2"><div class="stat"><div class="stat-val">40</div><div class="stat-lbl">Sessions (90 days)</div></div><div class="stat"><div class="stat-val">55</div><div class="stat-lbl">eCat orders (last 12 months)</div></div></div>
+
+  <!-- ═══ 4. PLATFORM ACTIVITY DETAIL ═══ -->
+  <!-- Score labels (Active/Developing/Limited) are plain-language descriptions, not internal scores.
+       Raw dimension scores (adoption_score %, value_delivery_score %) are NOT shown — §2.5. -->
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Area</th>
+          <th style="text-align:right">Status</th>
+          <th>Details</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="row-neutral">
+          <td>Team Activity</td>
+          <td class="score">Fair</td>
+          <td class="evidence">Focus the next conversation on converting activity into outcomes; portal activation or an order-workflow review is the starting point.</td>
+        </tr>
+        <tr class="row-neutral">
+          <td>Feature Usage</td>
+          <td class="score">Fair</td>
+          <td class="evidence">Using iPad+CPQ+CC across 2 active reps.</td>
+        </tr>
+        <tr class="row-neutral">
+          <td>Business Results</td>
+          <td class="score">Fair</td>
+          <td class="evidence">55 eCat orders submitted through SuperCat in the last 12 months.</td>
+        </tr>
+        <tr class="row-positive">
+          <td>System Health</td>
+          <td class="score">Strong</td>
+          <td class="evidence">Data integrations and catalog configuration are strong.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ═══ 5. DIVIDER ═══ -->
+  <hr>
+
+  <!-- ═══ 6. WHAT YOUR TIER INCLUDES ═══ -->
+  <div class="section-heading">What Commerce Professional includes</div>
+  <p class="section-subtitle">Everything in Catalog Essentials, plus online ordering for your accounts and a dedicated CSM.</p>
+
+  <ul class="feature-list">
+  <li>Everything in Catalog Essentials</li>
+  <li>Buyer-facing online ordering (self-serve cart)</li>
+  <li>Order and invoice tracking for buyers</li>
+  <li>15 users included (up to 3 brands)</li>
+  <li>Dedicated CSM</li>
+</ul>
+
+  <!-- ═══ 7. WHY YOUR INVOICE IS CHANGING ═══ -->
+  <div class="section-heading">Why your invoice is changing</div>
+
+  <div class="driver-block">
+    When your account was set up, the platform was priced at the book rate at that time. The current standard rate for this tier is higher — your invoice is moving to the current standard. Your tier isn't changing, only the rate.
+  </div>
+
+  <div class="tbl-wrap">
+    <table class="pricing-table">
+      <thead>
+        <tr>
+          <th></th>
+          <th class="col-current">Current</th>
+          <th class="col-new">New</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Plan</td>
+          <td>iPad+CPQ+CC</td>
+          <td>Commerce Professional</td>
+        </tr>
+        <tr>
+          <td>Platform base</td>
+          <td>$1,115/mo</td>
+          <td>$1,295/mo</td>
+        </tr>
+        <tr>
+          <td>Included users</td>
+          <td>25</td>
+          <td>15</td>
+        </tr>
+        <tr>
+          <td>User charges</td>
+          <td>$0/mo</td>
+          <td>$0/mo</td>
+        </tr>
+        <tr class="total">
+          <td>Monthly total</td>
+          <td>$1,115</td>
+          <td>$1,295</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="tbl-wrap">
+    <table class="rate-table">
+      <thead>
+        <tr>
+          <th>Excess users</th>
+          <th style="text-align:right">Rate</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>1–10</td><td>$25/user</td></tr>
+        <tr><td>11–25</td><td>$22/user</td></tr>
+        <tr><td>26–50</td><td>$20/user</td></tr>
+        <tr><td>51+</td><td>$18/user</td></tr>
+      </tbody>
+    </table>
+    <p class="table-caption">Applied across all accounts on the same schedule</p>
+  </div>
+
+  <!-- ═══ 8. WHERE YOUR PRICE SITS ═══ -->
+  <div class="section-heading">Where your price sits</div>
+
+  <div class="percentile-bar">
+    <div class="bar-labels">
+      <span>Commerce Professional range</span>
+      <span>Your position</span>
+    </div>
+    <div class="bar-track">
+      <div class="bar-fill"></div>
+      <div class="bar-value">$1,295/mo</div>
+      <div class="bar-marker"></div>
+    </div>
+    <div class="range-labels">
+      <span>$1,295/mo (floor)</span>
+      <span>$1,589/mo (ceiling)</span>
+    </div>
+  </div>
+
+  <!-- ═══ 9. WHAT'S COMING IN 2026 ═══ -->
+  <!-- Verbatim from _root/03_what_we_sell.md §3 — §2.9 non-negotiable: no edits -->
+  <div class="section-heading">What's coming in 2026</div>
+  <p class="roadmap-intro">At this rate, you have access to two releases already in progress:</p>
+
+  <div class="roadmap-date">June 1</div>
+  <ul class="roadmap-list">
+    <li>Rebuilt admin console<span class="roadmap-desc">The admin console is getting its first major redesign in years. Faster to navigate, easier to update, cleaner day-to-day management from top to bottom.</span></li>
+    <li>Rapid fire scanning<span class="roadmap-desc">Optimized for high-volume market environments. Your reps write more orders, move between meetings faster, without losing momentum mid-floor.</span></li>
+    <li>Multiple active orders<span class="roadmap-desc">Open more than one order at a time. Start a cart for one account, shift to another buyer, come back without starting over.</span></li>
+  </ul>
+
+  <div class="roadmap-date">July 1</div>
+  <ul class="roadmap-list">
+    <li>Rep activity log<span class="roadmap-desc">Your reps log calls, visits, and follow-up notes inside SuperCat. You see it in one place. One source of truth for what's happening in the field — no separate system needed for the conversations that happen before an order.</span></li>
+    <li>Direct catalog editing<span class="roadmap-desc">Edit product data, configurations, and mappings in a live web view. The export-edit-reimport cycle for small catalog changes goes away.</span></li>
+  </ul>
+
+  <!-- ═══ 10. WHAT HAPPENS NEXT ═══ -->
+  <div class="callout callout-positive">
+    <div class="callout-heading">What happens next</div>
+    Your Customer Success contact will be in touch before the effective date. If you&#39;d like to talk through the rate or anything about this before then — reply directly and we&#39;ll find time.
+  </div>
+
+  <!-- ═══ 11. FOOTER ═══ -->
+  <div class="doc-footer">
+    Prepared May 27, 2026 · Data sourced from SuperCat platform records
+  </div>
+
+</div>
+</body>
+</html>

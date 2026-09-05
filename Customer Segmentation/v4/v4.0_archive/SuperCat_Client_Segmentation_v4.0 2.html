@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SuperCat Client Segmentation v4.0</title>
+<style>
+  :root {
+    --bg: #0c0c0f;
+    --surface: #16161a;
+    --surface-raised: #1e1e24;
+    --border: #2a2a32;
+    --text: #e8e6e3;
+    --text-muted: #94929d;
+    --accent: #7f5af0;
+    --accent-glow: rgba(127, 90, 240, .15);
+    --luxury: #d4af37;
+    --premium: #7f5af0;
+    --midmarket: #2cb67d;
+    --volume: #e16162;
+    --specialty: #72757e;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrapper {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 4rem 2rem 6rem;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 4rem;
+    padding-bottom: 3rem;
+    border-bottom: 1px solid var(--border);
+  }
+  header h1 {
+    font-size: 2.8rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.15;
+    background: linear-gradient(135deg, #e8e6e3 30%, var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  header .subtitle {
+    font-size: 1.15rem;
+    color: var(--text-muted);
+    margin-top: .75rem;
+    font-weight: 400;
+  }
+  .meta {
+    margin-top: 1.5rem;
+    font-size: .8rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+    max-width: 640px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  section { margin-bottom: 3.5rem; }
+
+  h2 {
+    font-size: 1.6rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    margin-bottom: 1rem;
+  }
+  h3 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    margin: 1.8rem 0 .6rem;
+  }
+  p, li { font-size: .95rem; color: var(--text); }
+  p + p { margin-top: .8rem; }
+
+  ul { list-style: none; padding-left: 0; }
+  ul li { position: relative; padding-left: 1.2rem; margin-bottom: .35rem; }
+  ul li::before { content: '\2014'; position: absolute; left: 0; color: var(--text-muted); }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2rem 2.2rem;
+    margin-bottom: 2.5rem;
+    transition: border-color .2s;
+  }
+  .card:hover { border-color: var(--accent); }
+
+  .card-header {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.2rem;
+  }
+  .card-header h2 { margin-bottom: 0; }
+
+  .badge {
+    display: inline-block;
+    font-size: .72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    padding: .25rem .65rem;
+    border-radius: 6px;
+    line-height: 1;
+  }
+
+  .stat-row {
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.2rem;
+  }
+  .stat { display: flex; flex-direction: column; }
+  .stat-value { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.02em; }
+  .stat-label { font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; color: var(--text-muted); }
+
+  .callout {
+    background: var(--surface-raised);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 1rem 1.4rem;
+    font-size: .88rem;
+    color: var(--text-muted);
+    margin: 1.4rem 0;
+    line-height: 1.65;
+  }
+
+  .table-wrap {
+    overflow-x: auto;
+    margin: 1rem 0;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+  }
+  table { width: 100%; border-collapse: collapse; font-size: .82rem; }
+  thead { background: var(--surface-raised); }
+  th {
+    text-align: left;
+    padding: .6rem .75rem;
+    font-weight: 600;
+    font-size: .68rem;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  th.num { text-align: right; }
+  td { padding: .5rem .75rem; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  td.dim { color: var(--text-muted); }
+  tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: var(--accent-glow); }
+
+  .seg-luxury .badge { background: rgba(212,175,55,.15); color: var(--luxury); }
+  .seg-luxury .stat-value { color: var(--luxury); }
+  .seg-luxury:hover { border-color: var(--luxury); }
+
+  .seg-premium .badge { background: rgba(127,90,240,.15); color: var(--premium); }
+  .seg-premium .stat-value { color: var(--premium); }
+  .seg-premium:hover { border-color: var(--premium); }
+
+  .seg-midmarket .badge { background: rgba(44,182,125,.15); color: var(--midmarket); }
+  .seg-midmarket .stat-value { color: var(--midmarket); }
+  .seg-midmarket:hover { border-color: var(--midmarket); }
+
+  .seg-volume .badge { background: rgba(225,97,98,.15); color: var(--volume); }
+  .seg-volume .stat-value { color: var(--volume); }
+  .seg-volume:hover { border-color: var(--volume); }
+
+  .seg-specialty .badge { background: rgba(114,117,126,.15); color: var(--specialty); }
+  .seg-specialty .stat-value { color: var(--specialty); }
+  .seg-specialty:hover { border-color: var(--specialty); }
+
+  .overview-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin: 2rem 0;
+  }
+  .overview-cell {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.3rem 1.5rem;
+    text-align: center;
+    transition: transform .15s, border-color .2s;
+  }
+  .overview-cell:hover { transform: translateY(-2px); }
+  .overview-cell .seg-label { font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .5rem; }
+  .overview-cell .seg-num { font-size: 2rem; font-weight: 700; line-height: 1; }
+  .overview-cell .seg-detail { font-size: .78rem; color: var(--text-muted); margin-top: .35rem; }
+
+  .oc-luxury { border-top: 3px solid var(--luxury); }
+  .oc-luxury .seg-label { color: var(--luxury); }
+  .oc-luxury .seg-num { color: var(--luxury); }
+  .oc-luxury:hover { border-color: var(--luxury); }
+
+  .oc-premium { border-top: 3px solid var(--premium); }
+  .oc-premium .seg-label { color: var(--premium); }
+  .oc-premium .seg-num { color: var(--premium); }
+  .oc-premium:hover { border-color: var(--premium); }
+
+  .oc-midmarket { border-top: 3px solid var(--midmarket); }
+  .oc-midmarket .seg-label { color: var(--midmarket); }
+  .oc-midmarket .seg-num { color: var(--midmarket); }
+  .oc-midmarket:hover { border-color: var(--midmarket); }
+
+  .oc-volume { border-top: 3px solid var(--volume); }
+  .oc-volume .seg-label { color: var(--volume); }
+  .oc-volume .seg-num { color: var(--volume); }
+  .oc-volume:hover { border-color: var(--volume); }
+
+  .truth {
+    background: var(--surface-raised);
+    border-radius: 8px;
+    padding: 1.2rem 1.5rem;
+    margin-top: 1.2rem;
+    border: 1px solid var(--border);
+  }
+  .truth p { font-size: .9rem; color: var(--text-muted); line-height: 1.7; }
+  .truth strong { color: var(--text); }
+
+  .flag-table td:first-child { font-weight: 600; }
+  .flag-table td:nth-child(3) { color: var(--text-muted); font-size: .8rem; }
+
+  .glossary-grid {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: .4rem 1.2rem;
+    font-size: .85rem;
+    margin: 1rem 0;
+  }
+  .glossary-grid dt { font-weight: 600; color: var(--accent); }
+  .glossary-grid dd { color: var(--text-muted); }
+
+  footer {
+    margin-top: 4rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border);
+    text-align: center;
+  }
+  footer p { font-size: .88rem; color: var(--text-muted); max-width: 700px; margin: 0 auto; line-height: 1.7; }
+  footer .closing { font-size: 1.1rem; font-weight: 600; color: var(--text); margin-bottom: 1rem; }
+
+  em { font-style: italic; color: var(--text-muted); }
+  strong { font-weight: 600; }
+
+  @media (max-width: 600px) {
+    header h1 { font-size: 2rem; }
+    .wrapper { padding: 2rem 1.2rem 3rem; }
+    .stat-row { gap: 1.2rem; }
+    .overview-grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+  <header>
+    <h1>SuperCat Client Segmentation</h1>
+    <p class="subtitle">By How They Sell and To Whom</p>
+    <p class="meta">
+      v4.0 &mdash; July 7, 2026<br>
+      108 accounts &middot; 4 primary segments &middot; 2&sigma;-scrubbed pricing + Postgres enrichment<br>
+      Baseline: v3.2 (Kylor-stamped July 2). No orgs reclassified.
+    </p>
+  </header>
+
+  <!-- ═══ FRAMEWORK ═══ -->
+  <section>
+    <h2>Three Questions</h2>
+    <p>We classify by selling motion, not by eCat usage:</p>
+    <ul>
+      <li><strong>What do they sell?</strong> &mdash; product type and price point ($3/unit vs $9,100/unit)</li>
+      <li><strong>How do they sell it?</strong> &mdash; specification into projects, brand-building through dealers, multi-channel distribution, or commodity replenishment</li>
+      <li><strong>Who buys from them?</strong> &mdash; interior designers, showroom dealers, retail chains, category managers</li>
+    </ul>
+    <div class="callout">
+      <strong>Segment boundaries:</strong><br>
+      &bull; <strong>Luxury &harr; Premium:</strong> Designers <em>specify</em> products into projects vs. buyers <em>choose</em> a brand through dealers<br>
+      &bull; <strong>Premium &harr; Mid-Market:</strong> Trade-primary brand-building vs. omnichannel distribution (trade + retail + ecommerce + contractor)<br>
+      &bull; <strong>Mid-Market &harr; Volume:</strong> Moderate per-piece pricing ($55+) vs. commodity-adjacent bulk ($33 and below)
+    </div>
+  </section>
+
+  <!-- ═══ OVERVIEW ═══ -->
+  <section>
+    <h2>The Four Segments</h2>
+    <div class="overview-grid">
+      <div class="overview-cell oc-luxury">
+        <div class="seg-label">Luxury Specification</div>
+        <div class="seg-num">33</div>
+        <div class="seg-detail">$765 med $/unit &middot; 4,773 med customers</div>
+      </div>
+      <div class="overview-cell oc-premium">
+        <div class="seg-label">Premium Trade Brand</div>
+        <div class="seg-num">31</div>
+        <div class="seg-detail">$300 med $/unit &middot; 3,752 med customers</div>
+      </div>
+      <div class="overview-cell oc-midmarket">
+        <div class="seg-label">Mid-Market Multi-Channel</div>
+        <div class="seg-num">26</div>
+        <div class="seg-detail">$99 med $/unit &middot; 1,540 med customers</div>
+      </div>
+      <div class="overview-cell oc-volume">
+        <div class="seg-label">Volume Distribution</div>
+        <div class="seg-num">13</div>
+        <div class="seg-detail">$9 med $/unit &middot; 1,631 med customers</div>
+      </div>
+    </div>
+    <p style="font-size:.85rem;color:var(--text-muted);text-align:center;">Plus 5 Specialty/Non-Traditional accounts. 108 total.</p>
+
+    <div class="table-wrap" style="margin-top:1.5rem">
+      <table>
+        <thead><tr>
+          <th>Segment</th><th class="num">N</th><th class="num">Med $/Unit</th><th>IQR</th>
+          <th class="num">Med Orders</th><th class="num">Med T12M</th><th class="num">Med AOV</th>
+          <th class="num">Med PCodes</th><th class="num">Med Customers</th>
+        </tr></thead>
+        <tbody>
+          <tr><td style="color:var(--luxury)">Luxury Specification</td><td class="num">33</td><td class="num">$765</td><td>$624&ndash;$1,187</td><td class="num">2,446</td><td class="num">326</td><td class="num">$4,747</td><td class="num">4</td><td class="num">4,773</td></tr>
+          <tr><td style="color:var(--premium)">Premium Trade Brand</td><td class="num">31</td><td class="num">$300</td><td>$206&ndash;$536</td><td class="num">1,946</td><td class="num">330</td><td class="num">$3,926</td><td class="num">4</td><td class="num">3,752</td></tr>
+          <tr><td style="color:var(--midmarket)">Mid-Market Multi-Channel</td><td class="num">26</td><td class="num">$99</td><td>$77&ndash;$136</td><td class="num">255</td><td class="num">145</td><td class="num">$2,642</td><td class="num">3</td><td class="num">1,540</td></tr>
+          <tr><td style="color:var(--volume)">Volume Distribution</td><td class="num">13</td><td class="num">$9</td><td>$8&ndash;$18</td><td class="num">5,955</td><td class="num">1,701</td><td class="num">$1,383</td><td class="num">1</td><td class="num">1,631</td></tr>
+          <tr><td style="color:var(--specialty)">Specialty</td><td class="num">5</td><td class="num">$112</td><td>$59&ndash;$164</td><td class="num">914</td><td class="num">155</td><td class="num">$3,047</td><td class="num">14</td><td class="num">605</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ═══ SEGMENT 1: LUXURY ═══ -->
+  <div class="card seg-luxury">
+    <div class="card-header">
+      <h2>Luxury Specification</h2>
+      <span class="badge">Segment 1</span>
+    </div>
+    <div class="stat-row">
+      <div class="stat"><span class="stat-value">33</span><span class="stat-label">Accounts</span></div>
+      <div class="stat"><span class="stat-value">$765</span><span class="stat-label">Med $/Unit</span></div>
+      <div class="stat"><span class="stat-value">$624&ndash;$1,187</span><span class="stat-label">IQR</span></div>
+      <div class="stat"><span class="stat-value">$4,747</span><span class="stat-label">Med AOV</span></div>
+      <div class="stat"><span class="stat-value">4,773</span><span class="stat-label">Med Customers</span></div>
+    </div>
+
+    <h3>What They Are</h3>
+    <p>High-end furniture and lighting companies selling products above $500/unit through controlled trade channels. Their end customer is an interior designer, architect, or hospitality procurement team.</p>
+
+    <h3>How They Sell</h3>
+    <ul>
+      <li>Relationship-driven field sales through rep networks and showrooms</li>
+      <li>High Point, Dallas Market, private showroom presentations</li>
+      <li>Custom/configured orders (COM fabrics, custom finishes, bespoke sizing)</li>
+      <li>Orders originate as project specifications, not impulse purchases</li>
+      <li>Most do NOT sell direct-to-consumer with public checkout</li>
+    </ul>
+
+    <h3>Who Buys</h3>
+    <ul>
+      <li>Interior designers specifying for residential projects</li>
+      <li>Architects specifying for commercial/hospitality builds</li>
+      <li>Independently owned showroom dealers</li>
+      <li>Hospitality procurement teams (hotels, restaurants, luxury developers)</li>
+    </ul>
+
+    <h3>Accounts</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Company</th><th>org</th><th class="num">$/Unit</th><th class="num">Orders</th><th class="num">T12M</th><th class="num">AOV</th><th class="num">PCodes</th><th class="num">Customers</th><th class="num">Terr</th><th class="num">Users</th></tr></thead>
+        <tbody>
+          <tr><td>Alfonso Marina</td><td class="dim">am</td><td class="num">$9,100</td><td class="num">122</td><td class="num">106</td><td class="num">$11,200</td><td class="num">1</td><td class="num">92</td><td class="num">0</td><td class="num">22</td></tr>
+          <tr><td>Theodore Alexander Manhasset</td><td class="dim">tam</td><td class="num">$3,466</td><td class="num">353</td><td class="num">360</td><td class="num">$9,903</td><td class="num">1</td><td class="num">244</td><td class="num">0</td><td class="num">34</td></tr>
+          <tr><td>Interlude Furniture</td><td class="dim">ihw</td><td class="num">$2,195</td><td class="num">13,532</td><td class="num">2,093</td><td class="num">$5,285</td><td class="num">5</td><td class="num">6,098</td><td class="num">125</td><td class="num">58</td></tr>
+          <tr><td>Baker-McGuire</td><td class="dim">big</td><td class="num">$2,070</td><td class="num">130</td><td class="num">12</td><td class="num">$25,898</td><td class="num">1</td><td class="num">301</td><td class="num">0</td><td class="num">89</td></tr>
+          <tr><td>Somerset Bay / Modern History</td><td class="dim">sbmh</td><td class="num">$2,012</td><td class="num">30,652</td><td class="num">3,266</td><td class="num">$2,996</td><td class="num">4</td><td class="num">6,537</td><td class="num">0</td><td class="num">3,441</td></tr>
+          <tr><td>Jonathan Charles Designs Inc.</td><td class="dim">jcusa</td><td class="num">$1,419</td><td class="num">2,297</td><td class="num">293</td><td class="num">$6,696</td><td class="num">6</td><td class="num">5,106</td><td class="num">21</td><td class="num">2,554</td></tr>
+          <tr><td>Hancock &amp; Moore / Jessica Charles</td><td class="dim">hmjc</td><td class="num">$1,330</td><td class="num">2</td><td class="num">&mdash;</td><td class="num">$2,407</td><td class="num">1</td><td class="num">1,689</td><td class="num">0</td><td class="num">160</td></tr>
+          <tr><td>Theodore Alexander</td><td class="dim">ta</td><td class="num">$1,187</td><td class="num">8,956</td><td class="num">2,015</td><td class="num">$7,663</td><td class="num">4</td><td class="num">7,299</td><td class="num">0</td><td class="num">522</td></tr>
+          <tr><td>Interlude Home</td><td class="dim">ih</td><td class="num">$1,183</td><td class="num">13,705</td><td class="num">3,612</td><td class="num">$3,432</td><td class="num">5</td><td class="num">20,149</td><td class="num">43</td><td class="num">54</td></tr>
+          <tr><td>Palecek</td><td class="dim">pf</td><td class="num">$1,144</td><td class="num">41,610</td><td class="num">2,795</td><td class="num">$4,501</td><td class="num">15</td><td class="num">17,377</td><td class="num">0</td><td class="num">195</td></tr>
+          <tr><td>Rowe Furniture</td><td class="dim">rf</td><td class="num">$1,050</td><td class="num">1,282</td><td class="num">81</td><td class="num">$4,706</td><td class="num">4</td><td class="num">4,803</td><td class="num">0</td><td class="num">63</td></tr>
+          <tr><td>Visual Comfort Europe</td><td class="dim">vce</td><td class="num">$999</td><td class="num">126</td><td class="num">63</td><td class="num">$3,638</td><td class="num">24</td><td class="num">1,748</td><td class="num">0</td><td class="num">39</td></tr>
+          <tr><td>Sarreid, Ltd.</td><td class="dim">sarreid</td><td class="num">$968</td><td class="num">13,422</td><td class="num">590</td><td class="num">$3,897</td><td class="num">6</td><td class="num">4,773</td><td class="num">100</td><td class="num">144</td></tr>
+          <tr><td>Oly Studio</td><td class="dim">ol</td><td class="num">$830</td><td class="num">79</td><td class="num">55</td><td class="num">$9,742</td><td class="num">4</td><td class="num">13,364</td><td class="num">2</td><td class="num">20</td></tr>
+          <tr><td>Four Seasons Furniture</td><td class="dim">fsf</td><td class="num">$765</td><td class="num">11,403</td><td class="num">7,188</td><td class="num">$2,079</td><td class="num">3</td><td class="num">776</td><td class="num">0</td><td class="num">754</td></tr>
+          <tr><td>Corbett Lighting</td><td class="dim">cl</td><td class="num">$758</td><td class="num">283</td><td class="num">&mdash;</td><td class="num">$8,437</td><td class="num">4</td><td class="num">2,272</td><td class="num">0</td><td class="num">212</td></tr>
+          <tr><td>Hooker Furnishings</td><td class="dim">hf</td><td class="num">$749</td><td class="num">345</td><td class="num">118</td><td class="num">$11,976</td><td class="num">7</td><td class="num">12,536</td><td class="num">0</td><td class="num">70</td></tr>
+          <tr><td>Bliss Studio</td><td class="dim">blh</td><td class="num">$744</td><td class="num">3,506</td><td class="num">36</td><td class="num">$3,096</td><td class="num">2</td><td class="num">8,527</td><td class="num">0</td><td class="num">3,610</td></tr>
+          <tr><td>Jonathan Charles Fine Furniture</td><td class="dim">jc</td><td class="num">$733</td><td class="num">138</td><td class="num">49</td><td class="num">$81,608</td><td class="num">1</td><td class="num">34</td><td class="num">0</td><td class="num">62</td></tr>
+          <tr><td>Charleston Forge</td><td class="dim">cfg</td><td class="num">$670</td><td class="num">6,658</td><td class="num">492</td><td class="num">$3,036</td><td class="num">3</td><td class="num">2,555</td><td class="num">0</td><td class="num">1,506</td></tr>
+          <tr><td>Yutzy Woodworking</td><td class="dim">yw</td><td class="num">$642</td><td class="num">180</td><td class="num">82</td><td class="num">$5,496</td><td class="num">2</td><td class="num">227</td><td class="num">0</td><td class="num">35</td></tr>
+          <tr><td>Currey &amp; Company</td><td class="dim">cci</td><td class="num">$624</td><td class="num">13,875</td><td class="num">4,036</td><td class="num">$1,976</td><td class="num">6</td><td class="num">39,039</td><td class="num">0</td><td class="num">108</td></tr>
+          <tr><td>Gabby</td><td class="dim">gh</td><td class="num">$593</td><td class="num">175,014</td><td class="num">14,751</td><td class="num">$2,366</td><td class="num">14</td><td class="num">12,001</td><td class="num">237</td><td class="num">8,008</td></tr>
+          <tr><td>Alden Home</td><td class="dim">ap</td><td class="num">$575</td><td class="num">1,635</td><td class="num">29</td><td class="num">$4,788</td><td class="num">3</td><td class="num">4,763</td><td class="num">0</td><td class="num">1,234</td></tr>
+          <tr><td>Accord Lighting</td><td class="dim">all</td><td class="num">$461</td><td class="num">94</td><td class="num">22</td><td class="num">$3,534</td><td class="num">5</td><td class="num">673</td><td class="num">0</td><td class="num">76</td></tr>
+          <tr><td>Visual Comfort Signature</td><td class="dim">vcg</td><td class="num">$435</td><td class="num">9,496</td><td class="num">600</td><td class="num">$2,765</td><td class="num">16</td><td class="num">5,170</td><td class="num">0</td><td class="num">174</td></tr>
+          <tr><td>Visual Comfort - Modern</td><td class="dim">tla</td><td class="num">$285</td><td class="num">2,595</td><td class="num">221</td><td class="num">$11,003</td><td class="num">23</td><td class="num">4,418</td><td class="num">0</td><td class="num">199</td></tr>
+          <tr><td>Visual Comfort - Studio/Fans</td><td class="dim">fms</td><td class="num">$115</td><td class="num">17,065</td><td class="num">1,065</td><td class="num">$3,649</td><td class="num">&mdash;</td><td class="num">5,299</td><td class="num">0</td><td class="num">215</td></tr>
+          <tr><td>Schonbek Lighting</td><td class="dim">sbl</td><td class="num">$14 *</td><td class="num">412</td><td class="num">137</td><td class="num">$14,255</td><td class="num">4</td><td class="num">1,323</td><td class="num">0</td><td class="num">143</td></tr>
+          <tr><td>Fine Art Handcrafted Lighting</td><td class="dim">fal</td><td class="num">&mdash;</td><td class="num">3,492</td><td class="num">2,191</td><td class="num">$17,073</td><td class="num">10</td><td class="num">6,846</td><td class="num">0</td><td class="num">77</td></tr>
+          <tr><td>Century Furniture</td><td class="dim">cf</td><td class="num">&mdash;</td><td class="num">&mdash;</td><td class="num">&mdash;</td><td class="num">&mdash;</td><td class="num">2</td><td class="num">&mdash;</td><td class="num">0</td><td class="num">117</td></tr>
+          <tr><td>Highland House</td><td class="dim">hh</td><td class="num">&mdash;</td><td class="num">&mdash;</td><td class="num">&mdash;</td><td class="num">&mdash;</td><td class="num">2</td><td class="num">&mdash;</td><td class="num">0</td><td class="num">86</td></tr>
+          <tr><td>Kindel Karges Furniture</td><td class="dim">kkc</td><td class="num">&mdash;</td><td class="num">&mdash;</td><td class="num">&mdash;</td><td class="num">&mdash;</td><td class="num">6</td><td class="num">368</td><td class="num">0</td><td class="num">93</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout">
+      <strong>*</strong> Schonbek $14: Only 1 of 4,186 products has a catalog price populated &mdash; it's an accessory/part. Brand sells luxury crystal chandeliers ($1K&ndash;$100K+). Validated by AOV ($14,255) and brand identity.<br>
+      <strong>fms AOV corrected:</strong> $92,048 &rarr; $3,649 (23 corrupt duplicate orders excluded).
+    </div>
+
+    <div class="truth">
+      <h3>Key Commercial Truth</h3>
+      <p>These companies' orders don't consummate in eCat. A designer specs a $6,000 chandelier &rarr; rep enters the project in eCat &rarr; order goes to HQ &rarr; HQ audits, configures, enters into ERP &rarr; ships weeks later. eCat is the <strong>presentation and project-capture tool</strong>, never the transaction system.</p>
+    </div>
+  </div>
+
+  <!-- ═══ SEGMENT 2: PREMIUM ═══ -->
+  <div class="card seg-premium">
+    <div class="card-header">
+      <h2>Premium Trade Brand</h2>
+      <span class="badge">Segment 2</span>
+    </div>
+    <div class="stat-row">
+      <div class="stat"><span class="stat-value">31</span><span class="stat-label">Accounts</span></div>
+      <div class="stat"><span class="stat-value">$300</span><span class="stat-label">Med $/Unit</span></div>
+      <div class="stat"><span class="stat-value">$206&ndash;$536</span><span class="stat-label">IQR</span></div>
+      <div class="stat"><span class="stat-value">$3,926</span><span class="stat-label">Med AOV</span></div>
+      <div class="stat"><span class="stat-value">3,752</span><span class="stat-label">Med Customers</span></div>
+    </div>
+
+    <h3>What They Are</h3>
+    <p>Mid-to-upper-market brands ($150&ndash;$700/unit) building brand recognition with consumers while keeping trade/dealer channels as the primary revenue driver. Multi-tier pricing typical.</p>
+
+    <h3>How They Sell</h3>
+    <ul>
+      <li>Authorized dealer networks + growing DTC presence</li>
+      <li>Trade programs with tiered pricing; many do contract/hospitality</li>
+      <li>Select marketplace/curated retail (Lumens, Perigold) &mdash; rarely mass Amazon/Wayfair</li>
+      <li>Reps manage territory coverage and dealer relationships</li>
+      <li>Brand marketing to consumers (social, lifestyle, Shopify stores)</li>
+    </ul>
+
+    <h3>Who Buys</h3>
+    <ul>
+      <li>Dealers and showrooms (primary)</li>
+      <li>Interior designers</li>
+      <li>Direct consumers via website (growing but secondary)</li>
+      <li>Hospitality/contract specifiers</li>
+    </ul>
+
+    <h3>Accounts</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Company</th><th>org</th><th class="num">$/Unit</th><th class="num">Orders</th><th class="num">T12M</th><th class="num">AOV</th><th class="num">PCodes</th><th class="num">Customers</th><th class="num">Terr</th><th class="num">Users</th></tr></thead>
+        <tbody>
+          <tr><td>International Home Miami</td><td class="dim">ihm</td><td class="num">$1,070</td><td class="num">18</td><td class="num">3</td><td class="num">$2,963</td><td class="num">1</td><td class="num">121</td><td class="num">0</td><td class="num">29</td></tr>
+          <tr><td>Hubbardton Forge</td><td class="dim">hfg</td><td class="num">$846</td><td class="num">8,885</td><td class="num">1,873</td><td class="num">$9,542</td><td class="num">8</td><td class="num">9,055</td><td class="num">52</td><td class="num">207</td></tr>
+          <tr><td>Universal Furniture</td><td class="dim">ufi</td><td class="num">$692</td><td class="num">37,497</td><td class="num">2,135</td><td class="num">$7,672</td><td class="num">1</td><td class="num">14,649</td><td class="num">46</td><td class="num">120</td></tr>
+          <tr><td>Kalco / Allegri Crystal</td><td class="dim">kal</td><td class="num">$647</td><td class="num">1,352</td><td class="num">182</td><td class="num">$8,332</td><td class="num">3</td><td class="num">2,255</td><td class="num">0</td><td class="num">1,707</td></tr>
+          <tr><td>Donald Choi Canada</td><td class="dim">dccl</td><td class="num">$607</td><td class="num">520</td><td class="num">292</td><td class="num">$3,396</td><td class="num">2</td><td class="num">376</td><td class="num">0</td><td class="num">142</td></tr>
+          <tr><td>Arabela Lighting</td><td class="dim">arl</td><td class="num">$579</td><td class="num">340</td><td class="num">340</td><td class="num">$2,120</td><td class="num">1</td><td class="num">33</td><td class="num">0</td><td class="num">74</td></tr>
+          <tr><td>Braxton Culler</td><td class="dim">bcf</td><td class="num">$554</td><td class="num">6,772</td><td class="num">2,780</td><td class="num">$2,672</td><td class="num">6</td><td class="num">2,049</td><td class="num">0</td><td class="num">1,508</td></tr>
+          <tr><td>Summer Classics Contract</td><td class="dim">sccon</td><td class="num">$537</td><td class="num">65,834</td><td class="num">7,828</td><td class="num">$17,272</td><td class="num">6</td><td class="num">5,366</td><td class="num">104</td><td class="num">1,199</td></tr>
+          <tr><td>Ciana Varaluz</td><td class="dim">vl</td><td class="num">$534</td><td class="num">743</td><td class="num">112</td><td class="num">$7,366</td><td class="num">6</td><td class="num">1,855</td><td class="num">0</td><td class="num">112</td></tr>
+          <tr><td>Furniture Classics</td><td class="dim">fc</td><td class="num">$457</td><td class="num">31,171</td><td class="num">3,433</td><td class="num">$4,147</td><td class="num">4</td><td class="num">3,738</td><td class="num">111</td><td class="num">9,404</td></tr>
+          <tr><td>Summer Classics</td><td class="dim">sc</td><td class="num">$430</td><td class="num">333,367</td><td class="num">29,380</td><td class="num">$4,421</td><td class="num">1</td><td class="num">92,414</td><td class="num">0</td><td class="num">157</td></tr>
+          <tr><td>Eurofase</td><td class="dim">el</td><td class="num">$422</td><td class="num">1,245</td><td class="num">196</td><td class="num">$11,248</td><td class="num">4</td><td class="num">1,987</td><td class="num">0</td><td class="num">335</td></tr>
+          <tr><td>Butler Specialty</td><td class="dim">bsc</td><td class="num">$411</td><td class="num">8,607</td><td class="num">24</td><td class="num">$1,849</td><td class="num">18</td><td class="num">8,351</td><td class="num">0</td><td class="num">29</td></tr>
+          <tr><td>Ratana International</td><td class="dim">ril</td><td class="num">$350</td><td class="num">1,946</td><td class="num">1,268</td><td class="num">$13,725</td><td class="num">15</td><td class="num">4,440</td><td class="num">72</td><td class="num">305</td></tr>
+          <tr><td>Wildwood / Chelsea House</td><td class="dim">wwjc</td><td class="num">$303</td><td class="num">43,432</td><td class="num">7,000</td><td class="num">$1,716</td><td class="num">7</td><td class="num">14,028</td><td class="num">116</td><td class="num">20,746</td></tr>
+          <tr><td>Geo Contemporary</td><td class="dim">gcl</td><td class="num">$298</td><td class="num">469</td><td class="num">249</td><td class="num">$2,121</td><td class="num">4</td><td class="num">174</td><td class="num">0</td><td class="num">43</td></tr>
+          <tr><td>Lucas McKearn</td><td class="dim">luc</td><td class="num">$289</td><td class="num">4</td><td class="num">&mdash;</td><td class="num">$2,230</td><td class="num">1</td><td class="num">877</td><td class="num">0</td><td class="num">25</td></tr>
+          <tr><td>Crystorama</td><td class="dim">clm</td><td class="num">$281</td><td class="num">1,816</td><td class="num">155</td><td class="num">$3,790</td><td class="num">5</td><td class="num">4,839</td><td class="num">0</td><td class="num">772</td></tr>
+          <tr><td>Troy Lighting</td><td class="dim">tl</td><td class="num">$255</td><td class="num">548</td><td class="num">2</td><td class="num">$3,194</td><td class="num">4</td><td class="num">2,272</td><td class="num">0</td><td class="num">220</td></tr>
+          <tr><td>Hudson Valley Lighting</td><td class="dim">hvl</td><td class="num">$245</td><td class="num">849</td><td class="num">1</td><td class="num">$3,926</td><td class="num">4</td><td class="num">2,289</td><td class="num">0</td><td class="num">189</td></tr>
+          <tr><td>Wendover Art Group</td><td class="dim">wag</td><td class="num">$238</td><td class="num">4,645</td><td class="num">3,555</td><td class="num">$4,801</td><td class="num">1</td><td class="num">24,630</td><td class="num">0</td><td class="num">105</td></tr>
+          <tr><td>Jamie Young Company</td><td class="dim">jyc</td><td class="num">$230</td><td class="num">82,355</td><td class="num">8,653</td><td class="num">$1,043</td><td class="num">4</td><td class="num">9,487</td><td class="num">100</td><td class="num">16,200</td></tr>
+          <tr><td>Elegant Furniture &amp; Lighting</td><td class="dim">eli</td><td class="num">$198</td><td class="num">21,114</td><td class="num">319</td><td class="num">$3,280</td><td class="num">1</td><td class="num">6,010</td><td class="num">0</td><td class="num">1,480</td></tr>
+          <tr><td>RENWIL</td><td class="dim">rw</td><td class="num">$196</td><td class="num">10,300</td><td class="num">8,929</td><td class="num">$1,207</td><td class="num">5</td><td class="num">4,900</td><td class="num">0</td><td class="num">103</td></tr>
+          <tr><td>Buster &amp; Punch</td><td class="dim">bp</td><td class="num">$185</td><td class="num">26</td><td class="num">14</td><td class="num">$4,070</td><td class="num">41</td><td class="num">6,821</td><td class="num">0</td><td class="num">102</td></tr>
+          <tr><td>Kuzco Lighting</td><td class="dim">kll</td><td class="num">$184</td><td class="num">973</td><td class="num">303</td><td class="num">$6,523</td><td class="num">11</td><td class="num">2,840</td><td class="num">0</td><td class="num">989</td></tr>
+          <tr><td>Minka Lighting Group</td><td class="dim">mlg</td><td class="num">$159</td><td class="num">169</td><td class="num">141</td><td class="num">$10,444</td><td class="num">26</td><td class="num">8,609</td><td class="num">0</td><td class="num">128</td></tr>
+          <tr><td>Matteo Lighting</td><td class="dim">mlc</td><td class="num">$139</td><td class="num">368</td><td class="num">123</td><td class="num">$3,833</td><td class="num">2</td><td class="num">1,211</td><td class="num">0</td><td class="num">65</td></tr>
+          <tr><td>Dainolite</td><td class="dim">da</td><td class="num">$118</td><td class="num">22,044</td><td class="num">4,266</td><td class="num">$1,665</td><td class="num">2</td><td class="num">2,008</td><td class="num">0</td><td class="num">53</td></tr>
+          <tr><td>Alfresco Home</td><td class="dim">ah</td><td class="num">$60</td><td class="num">9,563</td><td class="num">1,078</td><td class="num">$5,642</td><td class="num">1</td><td class="num">3,752</td><td class="num">0</td><td class="num">1,866</td></tr>
+          <tr><td>WAC / Modern Forms</td><td class="dim">wac</td><td class="num">&mdash;</td><td class="num">4,757</td><td class="num">1,527</td><td class="num">$4,336</td><td class="num">26</td><td class="num">9,612</td><td class="num">0</td><td class="num">172</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="truth">
+      <h3>Key Commercial Truth</h3>
+      <p>These brands are balancing trade-partner loyalty with consumer demand. They grew on dealer relationships but are investing in DTC. The tension is <strong>dealer protection vs. brand pull</strong> &mdash; not eCat login volume.</p>
+    </div>
+  </div>
+
+  <!-- ═══ SEGMENT 3: MID-MARKET ═══ -->
+  <div class="card seg-midmarket">
+    <div class="card-header">
+      <h2>Mid-Market Multi-Channel</h2>
+      <span class="badge">Segment 3</span>
+    </div>
+    <div class="stat-row">
+      <div class="stat"><span class="stat-value">26</span><span class="stat-label">Accounts</span></div>
+      <div class="stat"><span class="stat-value">$99</span><span class="stat-label">Med $/Unit</span></div>
+      <div class="stat"><span class="stat-value">$77&ndash;$136</span><span class="stat-label">IQR</span></div>
+      <div class="stat"><span class="stat-value">$2,642</span><span class="stat-label">Med AOV</span></div>
+      <div class="stat"><span class="stat-value">1,540</span><span class="stat-label">Med Customers</span></div>
+    </div>
+
+    <h3>What They Are</h3>
+    <p>Lighting, furniture, and home goods companies selling $30&ndash;$150 products through as many channels as possible. Compete on availability, breadth of distribution, and price competitiveness.</p>
+
+    <h3>How They Sell</h3>
+    <ul>
+      <li>Everywhere: own site, Amazon, Wayfair, Home Depot, Lowe's, showrooms, distributors</li>
+      <li>High SKU counts (thousands of products)</li>
+      <li>Dealer portals for wholesale; product feeds for online retailers</li>
+      <li>Mix of decorative/residential and builder/commercial</li>
+    </ul>
+
+    <h3>Who Buys</h3>
+    <ul>
+      <li>Lighting showrooms and electrical distributors</li>
+      <li>Online marketplace shoppers (growing fast)</li>
+      <li>Builders, contractors, and electricians</li>
+      <li>Home Depot / Lowe's as retail partners</li>
+    </ul>
+
+    <h3>Accounts</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Company</th><th>org</th><th class="num">$/Unit</th><th class="num">Orders</th><th class="num">T12M</th><th class="num">AOV</th><th class="num">PCodes</th><th class="num">Customers</th><th class="num">Terr</th><th class="num">Users</th></tr></thead>
+        <tbody>
+          <tr><td>Lifestyle Solutions</td><td class="dim">lss</td><td class="num">$449</td><td class="num">155</td><td class="num">159</td><td class="num">$2,744</td><td class="num">2</td><td class="num">52</td><td class="num">0</td><td class="num">28</td></tr>
+          <tr><td>Sauder Woodworking</td><td class="dim">swc</td><td class="num">$390</td><td class="num">5</td><td class="num">&mdash;</td><td class="num">$10,825</td><td class="num">&mdash;</td><td class="num">0</td><td class="num">0</td><td class="num">37</td></tr>
+          <tr><td>Shadow Catchers</td><td class="dim">sca</td><td class="num">$260</td><td class="num">3,065</td><td class="num">417</td><td class="num">$4,179</td><td class="num">1</td><td class="num">2,782</td><td class="num">0</td><td class="num">44</td></tr>
+          <tr><td>Golden Lighting</td><td class="dim">gl</td><td class="num">$153</td><td class="num">526</td><td class="num">242</td><td class="num">$929</td><td class="num">6</td><td class="num">2,345</td><td class="num">0</td><td class="num">586</td></tr>
+          <tr><td>Capital Lighting</td><td class="dim">clc</td><td class="num">$153</td><td class="num">285</td><td class="num">285</td><td class="num">$4,758</td><td class="num">2</td><td class="num">3,244</td><td class="num">35</td><td class="num">1,096</td></tr>
+          <tr><td>Savoy House Lighting</td><td class="dim">shl</td><td class="num">$137</td><td class="num">6,747</td><td class="num">644</td><td class="num">$6,942</td><td class="num">4</td><td class="num">1,357</td><td class="num">0</td><td class="num">2,160</td></tr>
+          <tr><td>Karat Home</td><td class="dim">khi</td><td class="num">$131</td><td class="num">&mdash;</td><td class="num">&mdash;</td><td class="num">&mdash;</td><td class="num">&mdash;</td><td class="num">2</td><td class="num">0</td><td class="num">21</td></tr>
+          <tr><td>Coleto / Kichler</td><td class="dim">kl</td><td class="num">$123</td><td class="num">875</td><td class="num">146</td><td class="num">$7,249</td><td class="num">7</td><td class="num">3,193</td><td class="num">0</td><td class="num">133</td></tr>
+          <tr><td>Linon / Powell Furniture</td><td class="dim">lpf</td><td class="num">$117</td><td class="num">11,837</td><td class="num">1,837</td><td class="num">$2,193</td><td class="num">2</td><td class="num">1,975</td><td class="num">49</td><td class="num">2,508</td></tr>
+          <tr><td>Craftmade</td><td class="dim">clli</td><td class="num">$109</td><td class="num">1,348</td><td class="num">225</td><td class="num">$4,695</td><td class="num">3</td><td class="num">5,188</td><td class="num">61</td><td class="num">1,715</td></tr>
+          <tr><td>AFX, Inc.</td><td class="dim">afx</td><td class="num">$99</td><td class="num">73</td><td class="num">62</td><td class="num">$1,929</td><td class="num">3</td><td class="num">3,550</td><td class="num">0</td><td class="num">78</td></tr>
+          <tr><td>EGLO Canada</td><td class="dim">eglo_can</td><td class="num">$99</td><td class="num">149</td><td class="num">42</td><td class="num">$6,405</td><td class="num">11</td><td class="num">790</td><td class="num">0</td><td class="num">26</td></tr>
+          <tr><td>Vaxcel International</td><td class="dim">vic</td><td class="num">$90</td><td class="num">316</td><td class="num">95</td><td class="num">$497</td><td class="num">8</td><td class="num">1,496</td><td class="num">38</td><td class="num">340</td></tr>
+          <tr><td>Coleto / Progress Lighting</td><td class="dim">prog</td><td class="num">$87</td><td class="num">96</td><td class="num">96</td><td class="num">$2,994</td><td class="num">1</td><td class="num">6,551</td><td class="num">0</td><td class="num">115</td></tr>
+          <tr><td>ET2 Lighting</td><td class="dim">et2</td><td class="num">$84</td><td class="num">53</td><td class="num">&mdash;</td><td class="num">$2,455</td><td class="num">31</td><td class="num">7,529</td><td class="num">0</td><td class="num">94</td></tr>
+          <tr><td>Eglo USA</td><td class="dim">eglo</td><td class="num">$80</td><td class="num">289</td><td class="num">79</td><td class="num">$2,642</td><td class="num">6</td><td class="num">1,321</td><td class="num">0</td><td class="num">58</td></tr>
+          <tr><td>Designer's Fountain</td><td class="dim">df</td><td class="num">$76</td><td class="num">27</td><td class="num">9</td><td class="num">$749</td><td class="num">1</td><td class="num">778</td><td class="num">0</td><td class="num">50</td></tr>
+          <tr><td>DALS Lighting</td><td class="dim">dals</td><td class="num">$71</td><td class="num">55</td><td class="num">3</td><td class="num">$2,248</td><td class="num">2</td><td class="num">630</td><td class="num">0</td><td class="num">65</td></tr>
+          <tr><td>Groupe Courchesne</td><td class="dim">gc</td><td class="num">$70</td><td class="num">3,722</td><td class="num">1,634</td><td class="num">$1,134</td><td class="num">1</td><td class="num">1,513</td><td class="num">0</td><td class="num">341</td></tr>
+          <tr><td>Access Lighting</td><td class="dim">ali</td><td class="num">$64</td><td class="num">129</td><td class="num">2</td><td class="num">$2,091</td><td class="num">27</td><td class="num">2,373</td><td class="num">0</td><td class="num">282</td></tr>
+          <tr><td>Millennium Lighting</td><td class="dim">ml</td><td class="num">$60</td><td class="num">118</td><td class="num">44</td><td class="num">$2,168</td><td class="num">&mdash;</td><td class="num">0</td><td class="num">0</td><td class="num">161</td></tr>
+          <tr><td>Maxim Lighting</td><td class="dim">mli</td><td class="num">$55</td><td class="num">255</td><td class="num">144</td><td class="num">$6,600</td><td class="num">35</td><td class="num">9,378</td><td class="num">0</td><td class="num">96</td></tr>
+          <tr><td>Magnussen Home</td><td class="dim">mh</td><td class="num">&mdash;</td><td class="num">1,955</td><td class="num">297</td><td class="num">$5,234</td><td class="num">3</td><td class="num">1,567</td><td class="num">42</td><td class="num">109</td></tr>
+          <tr><td>Legrand US</td><td class="dim">??</td><td class="num">&mdash;</td><td class="num">&mdash;</td><td class="num">&mdash;</td><td class="num">&mdash;</td><td class="num">&mdash;</td><td class="num">&mdash;</td><td class="num">&mdash;</td><td class="num">&mdash;</td></tr>
+          <tr><td>Morgan Fabrics</td><td class="dim">mfc</td><td class="num">&mdash;</td><td class="num">51</td><td class="num">&mdash;</td><td class="num">$1,054</td><td class="num">2</td><td class="num">94</td><td class="num">0</td><td class="num">586</td></tr>
+          <tr><td>Silver One</td><td class="dim">??</td><td class="num">&mdash;</td><td class="num">&mdash;</td><td class="num">&mdash;</td><td class="num">&mdash;</td><td class="num">&mdash;</td><td class="num">&mdash;</td><td class="num">&mdash;</td><td class="num">&mdash;</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout"><strong>shl AOV corrected:</strong> $75,722 &rarr; $6,942 (one $464M corrupt order excluded).</div>
+
+    <div class="truth">
+      <h3>Key Commercial Truth</h3>
+      <p>Distribution arms race &mdash; availability and catalog breadth beat exclusivity. eCat is <strong>one wholesale channel among many</strong>; most volume may never touch the iPad. Reps need prompts that flex between dealer, distributor, retail, and online motions.</p>
+    </div>
+  </div>
+
+  <!-- ═══ SEGMENT 4: VOLUME ═══ -->
+  <div class="card seg-volume">
+    <div class="card-header">
+      <h2>Volume Distribution</h2>
+      <span class="badge">Segment 4</span>
+    </div>
+    <div class="stat-row">
+      <div class="stat"><span class="stat-value">13</span><span class="stat-label">Accounts</span></div>
+      <div class="stat"><span class="stat-value">$9</span><span class="stat-label">Med $/Unit</span></div>
+      <div class="stat"><span class="stat-value">$8&ndash;$18</span><span class="stat-label">IQR</span></div>
+      <div class="stat"><span class="stat-value">$1,383</span><span class="stat-label">Med AOV</span></div>
+      <div class="stat"><span class="stat-value">1,631</span><span class="stat-label">Med Customers</span></div>
+    </div>
+
+    <h3>What They Are</h3>
+    <p>High-volume, low-unit-price distribution (&lt;$30/unit). Housewares, tabletop, bulbs, giftware, low-cost decor. Buyer is a category manager at a chain or purchasing agent.</p>
+
+    <h3>How They Sell</h3>
+    <ul>
+      <li>POs from retail chains and regional distributors</li>
+      <li>Trade shows (AmericasMart, housewares/gift shows)</li>
+      <li>Category management: planograms, shelf space, MOQs, container-direct</li>
+      <li>High velocity, low per-line value</li>
+    </ul>
+
+    <h3>Who Buys</h3>
+    <ul>
+      <li>Category managers at big-box retailers</li>
+      <li>Regional distributors and wholesalers</li>
+      <li>Convenience/drug/grocery chain buyers</li>
+      <li>Mass marketplace shoppers</li>
+    </ul>
+
+    <h3>Accounts</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Company</th><th>org</th><th class="num">$/Unit</th><th class="num">Orders</th><th class="num">T12M</th><th class="num">AOV</th><th class="num">PCodes</th><th class="num">Customers</th><th class="num">Terr</th><th class="num">Users</th></tr></thead>
+        <tbody>
+          <tr><td>Abaline Supply</td><td class="dim">asi</td><td class="num">$33</td><td class="num">78,507</td><td class="num">8,457</td><td class="num">$2,126</td><td class="num">2</td><td class="num">1,756</td><td class="num">0</td><td class="num">297</td></tr>
+          <tr><td>Pioneer Morton</td><td class="dim">mpc</td><td class="num">$24</td><td class="num">74,378</td><td class="num">5,662</td><td class="num">$1,915</td><td class="num">1</td><td class="num">1,764</td><td class="num">0</td><td class="num">258</td></tr>
+          <tr><td>Godinger Silver Art</td><td class="dim">gsa</td><td class="num">$19</td><td class="num">4,663</td><td class="num">25</td><td class="num">$1,383</td><td class="num">1</td><td class="num">2,023</td><td class="num">0</td><td class="num">51</td></tr>
+          <tr><td>Ricci Argentieri</td><td class="dim">rac</td><td class="num">$18</td><td class="num">6,489</td><td class="num">507</td><td class="num">$755</td><td class="num">1</td><td class="num">548</td><td class="num">0</td><td class="num">51</td></tr>
+          <tr><td>Bulbrite</td><td class="dim">bri</td><td class="num">$12</td><td class="num">5,955</td><td class="num">3,142</td><td class="num">$979</td><td class="num">22</td><td class="num">3,232</td><td class="num">0</td><td class="num">1,372</td></tr>
+          <tr><td>Philip Whitney</td><td class="dim">pw</td><td class="num">$10</td><td class="num">461</td><td class="num">&mdash;</td><td class="num">$513</td><td class="num">1</td><td class="num">102</td><td class="num">0</td><td class="num">48</td></tr>
+          <tr><td>Studio Silversmiths</td><td class="dim">ssi</td><td class="num">$9</td><td class="num">567</td><td class="num">&mdash;</td><td class="num">$1,148</td><td class="num">1</td><td class="num">410</td><td class="num">0</td><td class="num">49</td></tr>
+          <tr><td>ELICO LTD.</td><td class="dim">etl</td><td class="num">$8</td><td class="num">5,502</td><td class="num">607</td><td class="num">$3,523</td><td class="num">3</td><td class="num">595</td><td class="num">0</td><td class="num">23</td></tr>
+          <tr><td>Moda at Home</td><td class="dim">mah</td><td class="num">$8</td><td class="num">5,506</td><td class="num">789</td><td class="num">$969</td><td class="num">1</td><td class="num">880</td><td class="num">0</td><td class="num">377</td></tr>
+          <tr><td>Sixtrees</td><td class="dim">st</td><td class="num">$8</td><td class="num">429</td><td class="num">&mdash;</td><td class="num">$908</td><td class="num">1</td><td class="num">787</td><td class="num">0</td><td class="num">27</td></tr>
+          <tr><td>Home Essentials &amp; Beyond</td><td class="dim">heb</td><td class="num">$7</td><td class="num">16,307</td><td class="num">324</td><td class="num">$1,783</td><td class="num">1</td><td class="num">1,631</td><td class="num">0</td><td class="num">108</td></tr>
+          <tr><td>Kennedy International</td><td class="dim">kii</td><td class="num">$6</td><td class="num">32,777</td><td class="num">2,613</td><td class="num">$4,849</td><td class="num">1</td><td class="num">3,636</td><td class="num">0</td><td class="num">112</td></tr>
+          <tr><td>Uniware Housewares</td><td class="dim">uhc</td><td class="num">$3</td><td class="num">19,387</td><td class="num">3,799</td><td class="num">$5,865</td><td class="num">2</td><td class="num">6,617</td><td class="num">0</td><td class="num">25</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="truth">
+      <h3>Key Commercial Truth</h3>
+      <p>Selling conversation is margins, minimums, freight, and fill rates &mdash; not design or specification. Reps may write <strong>more</strong> eCat orders because they're in the field daily capturing replenishment. The iPad is a <strong>territory management and order-capture tool</strong>.</p>
+    </div>
+  </div>
+
+  <!-- ═══ SEGMENT 5: SPECIALTY ═══ -->
+  <div class="card seg-specialty">
+    <div class="card-header">
+      <h2>Specialty / Non-Traditional</h2>
+      <span class="badge">Segment 5</span>
+    </div>
+    <div class="stat-row">
+      <div class="stat"><span class="stat-value">5</span><span class="stat-label">Accounts</span></div>
+    </div>
+    <p>Exception bucket &mdash; accounts that don't fit the manufacturer&rarr;dealer motion:</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Company</th><th>org</th><th class="num">$/Unit</th><th class="num">Orders</th><th class="num">T12M</th><th class="num">Customers</th><th class="num">Users</th><th class="num">DCs</th></tr></thead>
+        <tbody>
+          <tr><td>Sabine Pools, Spas, &amp; Furniture</td><td class="dim">sp</td><td class="num">$216</td><td class="num">1,827</td><td class="num">309</td><td class="num">0</td><td class="num">20</td><td class="num">5</td></tr>
+          <tr><td>Kaleen Rugs &amp; Broadloom</td><td class="dim">krb</td><td class="num">$7</td><td class="num">2</td><td class="num">1</td><td class="num">2,208</td><td class="num">39</td><td class="num">0</td></tr>
+          <tr><td>Tomlinson Companies</td><td class="dim">??</td><td class="num">&mdash;</td><td class="num">&mdash;</td><td class="num">&mdash;</td><td class="num">&mdash;</td><td class="num">&mdash;</td><td class="num">&mdash;</td></tr>
+          <tr><td>America's Backyards</td><td class="dim">abol</td><td class="num">&mdash;</td><td class="num">&mdash;</td><td class="num">&mdash;</td><td class="num">605</td><td class="num">29</td><td class="num">0</td></tr>
+          <tr><td>Ideal Living</td><td class="dim">??</td><td class="num">&mdash;</td><td class="num">&mdash;</td><td class="num">&mdash;</td><td class="num">&mdash;</td><td class="num">&mdash;</td><td class="num">&mdash;</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ═══ REVIEW FLAGS ═══ -->
+  <section>
+    <h2>Pre-Stamp Review Candidates</h2>
+    <p style="color:var(--text-muted);font-size:.9rem;margin-bottom:1rem">These 8 accounts were flagged by enrichment data as potential boundary cases. No moves made &mdash; flagged for Kylor/Kjael decision based on real-world selling motion.</p>
+    <div class="table-wrap flag-table">
+      <table>
+        <thead><tr><th>Company</th><th>Current Segment</th><th>Why Flagged</th></tr></thead>
+        <tbody>
+          <tr><td>Currey &amp; Company</td><td>Luxury Spec</td><td>Broad dealer footprint (39K customers) but specification-led selling motion</td></tr>
+          <tr><td>Hooker Furnishings</td><td>Luxury Spec</td><td>Heritage wholesale/dealer brand signals; 12.5K customers</td></tr>
+          <tr><td>Rowe Furniture</td><td>Luxury Spec</td><td>Custom upholstery through dealers &mdash; spec-led or brand-led?</td></tr>
+          <tr><td>Sarreid, Ltd.</td><td>Luxury Spec</td><td>Broad dealer distribution (4.7K customers, 100 territories)</td></tr>
+          <tr><td>Charleston Forge</td><td>Luxury Spec</td><td>High-end brand with dealer channels; 2.5K customers</td></tr>
+          <tr><td>Four Seasons Furniture</td><td>Luxury Spec</td><td>7.2K T12M orders &mdash; high activity relative to segment</td></tr>
+          <tr><td>Alden Home</td><td>Luxury Spec</td><td>Dealer-brand signals exist but premium/spec placement is the baseline</td></tr>
+          <tr><td>Magnussen Home</td><td>Mid-Market</td><td>Likely dealer-territory furniture brand; possible Premium Trade Brand</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ═══ COLUMN KEY ═══ -->
+  <section>
+    <h2>Column Key</h2>
+    <dl class="glossary-grid">
+      <dt>$/Unit</dt><dd>Best price: invoiced unit price when available (39 orgs), else 2&sigma;-scrubbed catalog median</dd>
+      <dt>IQR</dt><dd>Middle 50% of prices across orgs in that segment (25th&ndash;75th percentile)</dd>
+      <dt>Orders</dt><dd>Total eCat orders ever submitted (all time). Proxy for platform depth.</dd>
+      <dt>T12M</dt><dd>Trailing 12 months of orders. Shows current activity vs. historical.</dd>
+      <dt>AOV</dt><dd>Average Order Value. Big = project orders; small = replenishment.</dd>
+      <dt>PCodes</dt><dd>Distinct price levels (Dealer, Designer, Net, Retail). More = more complex channel.</dd>
+      <dt>Customers</dt><dd>Customer records loaded in eCat. Ranges from 34 to 92,000+.</dd>
+      <dt>Terr</dt><dd>Territory assignments. Zero = not configured, not proof of no coverage.</dd>
+      <dt>Users</dt><dd>eCat user accounts (reps + portal buyers). 8K+ usually means B2B buyer logins.</dd>
+      <dt>DCs</dt><dd>Distribution centers. Most orgs have 0 &mdash; fulfillment happens outside eCat.</dd>
+    </dl>
+  </section>
+
+  <!-- ═══ FOOTER ═══ -->
+  <footer>
+    <p class="closing">Four buckets. How they sell and to whom.</p>
+    <p><strong>108 accounts.</strong> v3.2 membership preserved. Postgres enrichment added as operational context. No orgs reclassified.</p>
+    <p style="margin-top:1rem;font-size:.82rem">Next step: personas within each segment for co-pilot initialization.</p>
+  </footer>
+
+</div>
+</body>
+</html>

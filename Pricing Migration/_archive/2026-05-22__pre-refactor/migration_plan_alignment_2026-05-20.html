@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SuperCat — Migration Plan Alignment Review</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0c0c0e;
+    --surface: #141418;
+    --surface-2: #1c1c22;
+    --border: #26262f;
+    --border-s: #1a1a22;
+    --text: #e8e8ed;
+    --text-2: #8888a0;
+    --text-3: #44444e;
+    --green: #34d399;
+    --green-bg: rgba(52,211,153,0.07);
+    --green-border: rgba(52,211,153,0.18);
+    --blue: #60a5fa;
+    --blue-bg: rgba(96,165,250,0.07);
+    --blue-border: rgba(96,165,250,0.18);
+    --amber: #fbbf24;
+    --amber-bg: rgba(251,191,36,0.07);
+    --amber-border: rgba(251,191,36,0.18);
+    --red: #f87171;
+    --red-bg: rgba(248,113,113,0.07);
+    --red-border: rgba(248,113,113,0.18);
+    --purple: #a78bfa;
+    --purple-bg: rgba(167,139,250,0.07);
+    --purple-border: rgba(167,139,250,0.18);
+  }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 14px; line-height: 1.65; -webkit-font-smoothing: antialiased; }
+  .page { max-width: 960px; margin: 0 auto; padding: 56px 32px 96px; }
+
+  .brand { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-3); margin-bottom: 10px; }
+  .doc-title { font-size: 30px; font-weight: 700; letter-spacing: -0.7px; line-height: 1.2; margin-bottom: 6px; }
+  .doc-sub { font-size: 16px; color: var(--text-2); margin-bottom: 6px; }
+  .doc-meta { font-size: 12px; color: var(--text-3); margin-bottom: 4px; }
+
+  hr { border: none; border-top: 1px solid var(--border); margin: 40px 0; }
+
+  .section-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-3); margin-bottom: 8px; }
+  h2 { font-size: 20px; font-weight: 700; letter-spacing: -0.4px; margin-bottom: 8px; }
+  h3 { font-size: 13px; font-weight: 700; letter-spacing: -0.2px; margin-bottom: 6px; }
+  .section-intro { font-size: 14px; color: var(--text-2); line-height: 1.7; margin-bottom: 20px; }
+  .section-intro strong { color: var(--text); }
+
+  .stat-row { display: grid; gap: 10px; margin-bottom: 10px; }
+  .col-4 { grid-template-columns: repeat(4,1fr); }
+  .col-3 { grid-template-columns: repeat(3,1fr); }
+  .col-2 { grid-template-columns: repeat(2,1fr); }
+  .stat { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px 18px; }
+  .stat-val { font-size: 24px; font-weight: 700; letter-spacing: -0.6px; line-height: 1.1; margin-bottom: 3px; font-variant-numeric: tabular-nums; }
+  .stat-lbl { font-size: 11px; color: var(--text-2); }
+  .green { color: var(--green); }
+  .blue { color: var(--blue); }
+  .amber { color: var(--amber); }
+  .red { color: var(--red); }
+
+  .tbl-wrap { border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 16px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead th { background: var(--surface); color: var(--text-2); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; padding: 9px 14px; text-align: left; border-bottom: 1px solid var(--border); }
+  tbody tr { border-bottom: 1px solid var(--border-s); }
+  tbody tr:last-child { border-bottom: none; }
+  td { padding: 9px 14px; vertical-align: top; line-height: 1.5; }
+  tr.hi-green { background: var(--green-bg); }
+  tr.hi-amber { background: var(--amber-bg); }
+  tr.hi-red { background: var(--red-bg); }
+  tr.hi-blue { background: var(--blue-bg); }
+  tr.hi-surface { background: var(--surface); }
+
+  .tag { display: inline-block; padding: 2px 7px; border-radius: 4px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+  .tag-green { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+  .tag-blue { background: var(--blue-bg); color: var(--blue); border: 1px solid var(--blue-border); }
+  .tag-amber { background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber-border); }
+  .tag-red { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-border); }
+  .tag-neutral { background: rgba(255,255,255,0.04); color: var(--text-2); border: 1px solid var(--border); }
+
+  .callout { border-left: 3px solid; border-radius: 0 8px 8px 0; padding: 14px 18px; font-size: 13px; margin-bottom: 12px; }
+  .callout-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 5px; }
+  .c-neutral { background: rgba(255,255,255,0.03); border-color: var(--border); }
+  .c-neutral .callout-title { color: var(--text-3); }
+  .c-green { background: var(--green-bg); border-color: var(--green-border); }
+  .c-green .callout-title { color: var(--green); }
+  .c-blue { background: var(--blue-bg); border-color: var(--blue-border); }
+  .c-blue .callout-title { color: var(--blue); }
+  .c-amber { background: var(--amber-bg); border-color: var(--amber-border); }
+  .c-amber .callout-title { color: var(--amber); }
+  .c-red { background: var(--red-bg); border-color: var(--red-border); }
+  .c-red .callout-title { color: var(--red); }
+
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px 22px; margin-bottom: 12px; }
+  .card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+  .card-title { font-size: 14px; font-weight: 700; }
+  .card-id { font-size: 11px; color: var(--text-3); margin-bottom: 2px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; }
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 12px; }
+  .col-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-3); margin-bottom: 6px; }
+  .col-body { font-size: 12px; color: var(--text-2); line-height: 1.65; }
+  .col-body strong { color: var(--text); }
+
+  .discussion-item { display: flex; gap: 14px; align-items: flex-start; padding: 14px 0; border-bottom: 1px solid var(--border-s); }
+  .discussion-item:last-child { border-bottom: none; }
+  .d-num { font-size: 20px; font-weight: 700; color: var(--text-3); line-height: 1.1; flex-shrink: 0; width: 28px; }
+  .d-body { flex: 1; }
+  .d-title { font-size: 13px; font-weight: 700; margin-bottom: 5px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .d-context { font-size: 12px; color: var(--text-2); line-height: 1.65; }
+
+  .doc-footer { margin-top: 64px; padding-top: 20px; border-top: 1px solid var(--border); font-size: 11px; color: var(--text-3); }
+
+  @media(max-width:680px){
+    .col-4,.col-3{grid-template-columns:repeat(2,1fr);}
+    .col-2,.two-col{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <div style="margin-bottom: 48px;">
+    <div class="brand">SuperCat &nbsp;·&nbsp; Internal — CEO Review</div>
+    <h1 class="doc-title">Migration Plan Alignment Review</h1>
+    <div class="doc-sub">Comms Progress Brief vs. Execution Plan v3.1 — Where we agree, where we diverge, what to resolve</div>
+    <div class="doc-meta">May 20, 2026 &nbsp;·&nbsp; Source A: migration_comms_progress_2026-05-19 &nbsp;·&nbsp; Source B: migration_execution_plan__v3_OUTLINE</div>
+  </div>
+
+  <div class="stat-row col-4" style="margin-bottom: 24px;">
+    <div class="stat">
+      <div class="stat-val green">10</div>
+      <div class="stat-lbl">Areas fully aligned — no decisions needed</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val red">1</div>
+      <div class="stat-lbl">Critical divergence — gates Format B send</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val amber">4</div>
+      <div class="stat-lbl">Material gaps — need resolution this week</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val" style="color: var(--text-2);">7</div>
+      <div class="stat-lbl">Discussion items for CEO</div>
+    </div>
+  </div>
+
+  <div class="callout c-neutral" style="margin-bottom: 36px;">
+    <div class="callout-title">How to read this document</div>
+    Both source documents were produced on May 19 and share a large amount of underlying analysis. The <strong>Comms Progress Brief (CPB)</strong> reflects what has been built and is ready to execute right now. The <strong>v3.1 Execution Plan</strong> is the CEO's structural framework for how the migration should run. Most gaps are sequencing and architecture decisions — not contradictions about individual accounts.
+  </div>
+
+  <!-- SECTION 1: ALIGNED -->
+  <div class="section-label">Section 1</div>
+  <h2>Where We're Aligned</h2>
+  <p class="section-intro">These items are consistent across both documents. <strong>No decision needed — they are effectively stamped.</strong></p>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 220px;">Topic</th>
+          <th>Both documents agree</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="hi-green">
+          <td><strong>Account universe & economics</strong></td>
+          <td style="font-size:12px;">109 pending accounts, +$32,653/mo modeled uplift, current install-base MRR $156,433. No reconciliation needed.</td>
+        </tr>
+        <tr>
+          <td><strong>HVLG = strategic decision, not comms</strong></td>
+          <td style="font-size:12px;">Both agree hvl, tl, cl cannot receive any comm format until CEO defines the program. VD=0.0, +229% on hvl. v3.1 formalizes this as a separate negotiation program starting Week 3–4 of Track B.</td>
+        </tr>
+        <tr>
+          <td><strong>Annual contracts → 90-day notice</strong></td>
+          <td style="font-size:12px;">Both flag 11–12 annual accounts needing renewal dates before notices can be sequenced. Jonathan Charles is top urgency. Finance must pull the date; 90-day window may already be running.</td>
+        </tr>
+        <tr>
+          <td><strong>Support fires = hard hold</strong></td>
+          <td style="font-size:12px;">No notice goes out while a support issue is open. Named accounts: Alfresco Home (7d), Universal Furniture (7d), Wildwood/Chelsea House (27d), Savoy House Lighting (39d).</td>
+        </tr>
+        <tr>
+          <td><strong>Entity accounts — parent conversation first</strong></td>
+          <td style="font-size:12px;">No brand receives notice until the entity parent conversation is complete. v3.1 formalizes 13 entity packets; CPB has 17 entity groups triaged in the HOLD queue.</td>
+        </tr>
+        <tr>
+          <td><strong>Kaleen Rugs / VD&lt;40 → health intervention</strong></td>
+          <td style="font-size:12px;">CPB explicitly removes Kaleen Rugs from the migration queue and routes to activation program. v3.1 codifies a broader hold-out track for VD&lt;40 / Watch-band accounts.</td>
+        </tr>
+        <tr>
+          <td><strong>Format C / expansion — strictly separate</strong></td>
+          <td style="font-size:12px;">Never send an expansion/upgrade notice with or before the migration notice. Build it after wave 1 responses come in. Queue it only after confirmed positive migration signal.</td>
+        </tr>
+        <tr>
+          <td><strong>CEO involvement for highest-delta accounts</strong></td>
+          <td style="font-size:12px;">Both agree CEO must co-sign or pre-call for the largest increases. v3.1 sets the mechanical threshold at &gt;$400/mo absolute; CPB uses relationship-led selection (9 CEO Letters + 9 CEO Pre-Calls).</td>
+        </tr>
+        <tr>
+          <td><strong>Walk-away on HVLG if VD stays 0</strong></td>
+          <td style="font-size:12px;">Both accept that if HVLG demands permanent legacy economics, intentional churn is the correct outcome. Pricing concessions to VD=0 accounts compound the structural problem.</td>
+        </tr>
+        <tr>
+          <td><strong>Parallel tracks — not sequential waves</strong></td>
+          <td style="font-size:12px;">CPB already runs parallel queues (ready-to-send formats + HOLD triage + CEO queue simultaneously). v3.1 formalizes this as three named parallel tracks + annual track + hold-out programs.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <hr>
+
+  <!-- SECTION 2: DIVERGENCES -->
+  <div class="section-label">Section 2</div>
+  <h2>Where We Diverge</h2>
+  <p class="section-intro">Seven areas where the two documents are in tension or explicit conflict. <strong>Severity indicates impact on the ability to send notices in the next two weeks.</strong></p>
+
+  <!-- D1 -->
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <div class="card-id">D1 — Critical</div>
+        <div class="card-title">Meeting architecture — the biggest gap</div>
+      </div>
+      <span class="tag tag-red">Critical</span>
+    </div>
+    <div class="two-col">
+      <div>
+        <div class="col-label">Comms Progress Brief says</div>
+        <div class="col-body">Format B actively offers a follow-up meeting in the close. 19 accounts are built with meeting offers as a default feature of the communication.</div>
+      </div>
+      <div>
+        <div class="col-label">v3.1 Execution Plan says</div>
+        <div class="col-body">No default meeting for Core or Narrative accounts. <strong>"The artifact IS the personal outreach for ~100 accounts."</strong> Proactive meetings only for entity parents (~10–11 conversations) and Strategic (~4–5). Total proactive meeting load: ~16–17 across the entire migration.</div>
+      </div>
+    </div>
+    <div class="callout c-red">
+      <div class="callout-title">Impact</div>
+      If Format B goes out as built, CPB implies ~19 proactive meeting offers. v3.1 would reduce this to ~0 (inbound only for Core/Narrative). <strong>Decision required before Format B sends.</strong>
+    </div>
+  </div>
+
+  <!-- D2 -->
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <div class="card-id">D2 — Material</div>
+        <div class="card-title">Segmentation thresholds — different split criteria</div>
+      </div>
+      <span class="tag tag-amber">Material</span>
+    </div>
+    <div class="two-col">
+      <div>
+        <div class="col-label">Comms Progress Brief says</div>
+        <div class="col-body">Splits on percentage only: ≤10% = Format A; &gt;10% = Format B. CEO Letter = relationship-led selection for delta &gt;20%.</div>
+      </div>
+      <div>
+        <div class="col-label">v3.1 Execution Plan says</div>
+        <div class="col-body">Splits on two dimensions — percentage AND absolute dollar. Core = 10–20% AND ≤$400/mo absolute. Narrative = &gt;20% OR &gt;$400/mo. CEO exec letter = &gt;$400/mo absolute OR any entity parent (mechanical, not relationship-led).</div>
+      </div>
+    </div>
+    <div class="callout c-amber">
+      <div class="callout-title">Impact</div>
+      Accounts like Currey &amp; Company (+$305/+13.9%) are Format B in CPB but Core in v3.1 — no meeting offer, no full artifact. Hubbardton Forge (+$420/+13.8%) is CEO Letter in CPB; v3.1's absolute threshold also routes it to Narrative + CEO letter — incidentally aligned but for different reasons.
+    </div>
+  </div>
+
+  <!-- D3 -->
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <div class="card-id">D3 — Material</div>
+        <div class="card-title">Value artifact depth — per-order anchor vs. two-axis bespoke HTML</div>
+      </div>
+      <span class="tag tag-amber">Material</span>
+    </div>
+    <div class="two-col">
+      <div>
+        <div class="col-label">Comms Progress Brief says</div>
+        <div class="col-body">Format B includes a per-order cost value anchor (annual subscription ÷ LTM eCat orders), auto-suppressed if &gt;$200. Format B brief = 1–2 page doc + 5-sentence delivery email. <strong>Production-ready today.</strong></div>
+      </div>
+      <div>
+        <div class="col-label">v3.1 Execution Plan says</div>
+        <div class="col-body">Bespoke HTML artifacts for all &gt;$400/mo accounts (~25), composed dynamically on two axes: <strong>migration_driver</strong> (pricing explanation spine) + <strong>health profile</strong> (value demonstration). Simplified summaries for $150–400/mo (~20 accounts). Standard notice only for &lt;$150/mo (~40 accounts).</div>
+      </div>
+    </div>
+    <div class="callout c-amber">
+      <div class="callout-title">Impact</div>
+      Current CPB briefs are functional but simpler than v3.1's full artifact vision. The per-order anchor is one data point; v3.1 wants composite health score, 4 dimension scores, dimension narratives, and driver-aware framing. <strong>Are current briefs "good enough to send" or are they first drafts of the full artifact?</strong>
+    </div>
+  </div>
+
+  <!-- D4 -->
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <div class="card-id">D4 — Material</div>
+        <div class="card-title">Readiness sprint vs. "production-ready now"</div>
+      </div>
+      <span class="tag tag-amber">Material</span>
+    </div>
+    <div class="two-col">
+      <div>
+        <div class="col-label">Comms Progress Brief says</div>
+        <div class="col-body">Four formats are production-ready: templates built, delivery emails drafted, agent prompts pulling live Postgres data, calibration examples complete. Framing: <strong>ready to send pending CEO calendar and co-sign.</strong></div>
+      </div>
+      <div>
+        <div class="col-label">v3.1 Execution Plan says</div>
+        <div class="col-body">Requires a 2.5–3 week readiness sprint BEFORE Track A launches. Sprint deliverables not visible in CPB: (a) objection scripts (4 segments, ~28 responses), (b) 13 entity packets, (c) dry-run red-team on 3 exemplars, (d) contract audit + renewal dates, (e) hold-out plans.</div>
+      </div>
+    </div>
+    <div class="callout c-amber">
+      <div class="callout-title">Impact</div>
+      The key question: does the CPB work constitute the sprint output, or is there remaining sprint work before sending? The gap items are objection scripts, entity packets, and the dry-run red-team. Templates and agent prompts look like sprint outputs already. <strong>Likely synthesis: Good-News + Format A can send now; Format B holds until objection scripts exist.</strong>
+    </div>
+  </div>
+
+  <!-- D5 -->
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <div class="card-id">D5 — Material</div>
+        <div class="card-title">Watch-band routing — gap in CPB coverage</div>
+      </div>
+      <span class="tag tag-amber">Material</span>
+    </div>
+    <div class="two-col">
+      <div>
+        <div class="col-label">Comms Progress Brief says</div>
+        <div class="col-body">Kaleen Rugs (At Risk) explicitly removed from migration queue. Other Watch-band accounts are not called out with specific routing overrides.</div>
+      </div>
+      <div>
+        <div class="col-label">v3.1 Execution Plan says</div>
+        <div class="col-body">Explicit hold-out track for Watch-band / VD&lt;40: Studio Silversmiths (VD 33.3), Baker-McGuire (VD 33.3), Morgan Fabrics (Watch 40.0), Alden Home (Watch 59.4), Rock House Farm (Watch entity). <strong>Coleto Brands (Kichler Watch 47.1 + Progress Lighting Watch 57.5) → both Strategic.</strong> None receive notice until health check complete.</div>
+      </div>
+    </div>
+    <div class="callout c-red">
+      <div class="callout-title">Impact</div>
+      If any Watch-band accounts are in CPB's 47 "ready" cohort, they need to be pulled before sending. Coleto (Kichler + Progress) should be in the CEO/Strategic queue, not Format B. A quick audit of the ready list against this Watch-band roster is a gate before Format A sends.
+    </div>
+  </div>
+
+  <!-- D6 -->
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <div class="card-id">D6 — Operational</div>
+        <div class="card-title">Governance & concession framework — v3.1 has it, CPB doesn't</div>
+      </div>
+      <span class="tag tag-neutral">Operational</span>
+    </div>
+    <div class="two-col">
+      <div>
+        <div class="col-label">Comms Progress Brief says</div>
+        <div class="col-body">Silent on concession authority, budget gating, and escalation triggers. Open items focus on sequencing and template readiness.</div>
+      </div>
+      <div>
+        <div class="col-label">v3.1 Execution Plan says</div>
+        <div class="col-body">Explicit decision authority matrix. Kylor pre-authorized for: user cleanup, billing date adjustment, 30-day transition credit, annual prepay, multi-brand consolidation. Anything beyond = CEO same-day approval. Aggregate cap: &lt;10% of modeled uplift (~$3,265/mo). Per-account L1 ceiling: 25% of annual uplift.</div>
+      </div>
+    </div>
+    <div class="callout c-neutral">
+      <div class="callout-title">Impact</div>
+      Not a blocker for sending — but a blocker for handling responses correctly. Before Kylor starts fielding inbound from Format B accounts, the concession guardrails need to be agreed and documented so every pushback doesn't escalate to CEO.
+    </div>
+  </div>
+
+  <!-- D7 -->
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <div class="card-id">D7 — Operational</div>
+        <div class="card-title">Objection scripts — not mentioned in CPB</div>
+      </div>
+      <span class="tag tag-neutral">Operational</span>
+    </div>
+    <div class="two-col">
+      <div>
+        <div class="col-label">Comms Progress Brief says</div>
+        <div class="col-body">No mention of objection scripts. Agent prompts produce briefs; delivery emails are templated. Implies Kylor handles objections ad hoc.</div>
+      </div>
+      <div>
+        <div class="col-label">v3.1 Execution Plan says</div>
+        <div class="col-body">Required deliverable: 4 segment-specific objection scripts (~28 scripted responses total). Produced during readiness sprint via brainstorm → draft → internal red-team → refine. CEO and Kylor co-author.</div>
+      </div>
+    </div>
+    <div class="callout c-neutral">
+      <div class="callout-title">Impact</div>
+      Once Format B sends, objections will arrive within days. Scripted responses are a significant force multiplier for a 2-person CS team. This is a sprint deliverable not visible as complete in CPB. Agree on whether we draft these before Format B sends or respond ad hoc and build the scripts from real inbound.
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- SECTION 3: ACCOUNT RECLASSIFICATION -->
+  <div class="section-label">Section 3</div>
+  <h2>Account Reclassification Under v3.1 Thresholds</h2>
+  <p class="section-intro">Accounts whose routing changes when the absolute $400/mo threshold is applied alongside the percentage threshold. <strong>This is not a complete list — a full pass is needed before Format B sends.</strong></p>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Account</th>
+          <th>CPB Format</th>
+          <th>v3.1 Segment</th>
+          <th>Delta $</th>
+          <th>Delta %</th>
+          <th>Note</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Currey &amp; Company</strong></td>
+          <td><span class="tag tag-blue">Format B</span></td>
+          <td><span class="tag tag-neutral">Core</span></td>
+          <td>+$305/mo</td>
+          <td>+13.9%</td>
+          <td style="font-size:12px;color:var(--text-2);">Below $400 absolute — no full artifact, no meeting offer in v3.1</td>
+        </tr>
+        <tr>
+          <td><strong>Golden Lighting</strong></td>
+          <td><span class="tag tag-blue">Format B</span></td>
+          <td><span class="tag tag-neutral">Core</span></td>
+          <td>+$360/mo</td>
+          <td>+18.6%</td>
+          <td style="font-size:12px;color:var(--text-2);">Below $400 absolute — also anchor suppressed in CPB (order volume)</td>
+        </tr>
+        <tr>
+          <td><strong>Hubbardton Forge</strong></td>
+          <td><span class="tag tag-green">CEO Letter</span></td>
+          <td><span class="tag tag-amber">Narrative + CEO letter</span></td>
+          <td>+$420/mo</td>
+          <td>+13.8%</td>
+          <td style="font-size:12px;color:var(--text-2);">Incidentally aligned — absolute threshold in v3.1; relationship-led in CPB</td>
+        </tr>
+        <tr class="hi-red">
+          <td><strong>Kichler (Coleto)</strong></td>
+          <td><span class="tag tag-neutral">Not in CPB cohort</span></td>
+          <td><span class="tag tag-red">Strategic — CEO-led</span></td>
+          <td>+$770/mo</td>
+          <td>+77.2%</td>
+          <td style="font-size:12px;"><span style="color:var(--red);">Watch 47.1 — v3.1 routes both Coleto brands to Strategic. Confirm not in any Format B queue.</span></td>
+        </tr>
+        <tr class="hi-red">
+          <td><strong>Progress Lighting (Coleto)</strong></td>
+          <td><span class="tag tag-neutral">Not in CPB cohort</span></td>
+          <td><span class="tag tag-red">Strategic — CEO-led</span></td>
+          <td>~+$100/mo</td>
+          <td>+19.9%</td>
+          <td style="font-size:12px;"><span style="color:var(--red);">Watch 57.5 — entity pair with Kichler; both Strategic per v3.1</span></td>
+        </tr>
+        <tr class="hi-red">
+          <td><strong>Studio Silversmiths</strong></td>
+          <td><span class="tag tag-neutral">In HOLD queue</span></td>
+          <td><span class="tag tag-red">Hold-out — health first</span></td>
+          <td>—</td>
+          <td>—</td>
+          <td style="font-size:12px;"><span style="color:var(--red);">VD 33.3 — health intervention required before any notice</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <hr>
+
+  <!-- SECTION 4: DISCUSSION ITEMS -->
+  <div class="section-label">Section 4</div>
+  <h2>Discussion Items for CEO — 7 Decisions</h2>
+  <p class="section-intro">Listed in urgency order. <strong>The first two affect what goes out in the next week.</strong> The rest are gated on Track B launch.</p>
+
+  <div class="card">
+    <!-- D1 -->
+    <div class="discussion-item">
+      <div class="d-num">1</div>
+      <div class="d-body">
+        <div class="d-title">
+          Watch-band audit: confirm no Watch-band accounts in the send-ready cohort
+          <span class="tag tag-red">Before any send</span>
+        </div>
+        <div class="d-context">
+          v3.1 identifies: Studio Silversmiths, Baker-McGuire, Morgan Fabrics, Alden Home, Rock House Farm (entity), Kichler (Watch 47.1), Progress Lighting (Watch 57.5). All should be held pending health check. A quick pass of CPB's 47 "ready" accounts against this Watch-band list is needed before Track A or Format A sends. 15-minute task.
+        </div>
+      </div>
+    </div>
+
+    <!-- D2 -->
+    <div class="discussion-item">
+      <div class="d-num">2</div>
+      <div class="d-body">
+        <div class="d-title">
+          Meeting offer: keep or drop from Format B?
+          <span class="tag tag-amber">This week</span>
+        </div>
+        <div class="d-context">
+          v3.1 is explicit — no default meeting for Narrative/Core accounts; artifact is the outreach. But Format B briefs are built with a meeting offer in the close. Options: (A) Keep as availability signal ("happy to connect if questions arise"), not a proactive schedule. (B) Remove entirely. (C) Keep only for high-delta Format B accounts (&gt;$400/mo). This affects how 19 accounts land.
+        </div>
+      </div>
+    </div>
+
+    <!-- D3 -->
+    <div class="discussion-item">
+      <div class="d-num">3</div>
+      <div class="d-body">
+        <div class="d-title">
+          Can we send Good-News + Format A now, while Format B waits for objection scripts?
+          <span class="tag tag-amber">This week</span>
+        </div>
+        <div class="d-context">
+          Proposed synthesis: the 4 Good-News accounts and 15 Format A accounts are Track A — low risk, ops validation, no objection exposure. Send these now. Format B (19 accounts) is the first batch where clients will respond with pushback — objection scripts matter here. Hold Format B until Kylor + CEO draft even a rough set. CEO Letter queue (9 accounts) stays gated on CEO calendar and co-sign regardless.
+        </div>
+      </div>
+    </div>
+
+    <!-- D4 -->
+    <div class="discussion-item">
+      <div class="d-num">4</div>
+      <div class="d-body">
+        <div class="d-title">
+          Segmentation: adopt the absolute $400/mo threshold or stay percentage-only?
+          <span class="tag tag-amber">This week</span>
+        </div>
+        <div class="d-context">
+          v3.1 argues percentage-only misses 4 accounts: Hubbardton Forge (+$420/+13.8%), Bulbrite (+$349), Currey &amp; Company (+$305/+13.9%), Golden Lighting (+$360/+18.6%). Under the percentage-only split, Currey and Golden are Format B with meeting offers. Under v3.1's absolute threshold, both drop to Core — no full artifact, no meeting offer. Should we re-run the full account list against the &gt;$400/mo absolute threshold before Format B sends?
+        </div>
+      </div>
+    </div>
+
+    <!-- D5 -->
+    <div class="discussion-item">
+      <div class="d-num">5</div>
+      <div class="d-body">
+        <div class="d-title">
+          Are current briefs good enough to send, or do they need the full two-axis artifact upgrade?
+          <span class="tag tag-neutral">Before Track B</span>
+        </div>
+        <div class="d-context">
+          v3.1's bespoke HTML artifact system (migration_driver + health profile) is more substantive than CPB's per-order cost anchor. The CEO Letter accounts (9) and CEO Pre-Call accounts (9) are most likely to benefit from the full artifact. For standard Format B accounts, the current brief with per-order anchor may be sufficient. Does CEO want to review and red-team 2–3 exemplars before Format B sends, or ship current briefs and upgrade high-delta accounts in the background?
+        </div>
+      </div>
+    </div>
+
+    <!-- D6 -->
+    <div class="discussion-item">
+      <div class="d-num">6</div>
+      <div class="d-body">
+        <div class="d-title">
+          Stamp the concession menu before Format B responses arrive
+          <span class="tag tag-neutral">Before Track B</span>
+        </div>
+        <div class="d-context">
+          v3.1's pre-authorized concession menu: user cleanup, billing date adjustment, 30-day transition credit, annual prepay, multi-brand consolidation. Anything beyond requires CEO same-day approval. Aggregate cap ~$3,265/mo. Not a blocker for sending — but a blocker for handling responses correctly. Without agreed guardrails, every pushback escalates to CEO. A 30-minute conversation to stamp the menu before Format B responses start arriving.
+        </div>
+      </div>
+    </div>
+
+    <!-- D7 -->
+    <div class="discussion-item">
+      <div class="d-num">7</div>
+      <div class="d-body">
+        <div class="d-title">
+          HVLG timing — initiate before Track B or wait until Week 3–4?
+          <span class="tag tag-neutral">Before Track B</span>
+        </div>
+        <div class="d-context">
+          v3.1 targets Week 3–4 of Track B for the HVLG CEO-led parent conversation. But given VD=0 and +229% delta on hvl, the longer HVLG sits without a conversation, the more the relationship drifts. Does CEO want to initiate HVLG earlier — even before Track B launches formally — to get a read on the situation? Walk-away pre-authorization required before the first call regardless.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- SECTION 5: SYNTHESIS -->
+  <div class="section-label">Section 5</div>
+  <h2>Synthesis — Where to Focus First</h2>
+  <p class="section-intro">The two documents are more aligned than they appear. The real tension is in three operational decisions that need to be stamped before Format B sends.</p>
+
+  <div class="callout c-green">
+    <div class="callout-title">Send immediately — no decision required</div>
+    The 4 Good-News accounts (Palecek, RENWIL, Jamie Young, Donald Choi Canada) are aligned under both frameworks. Send these first — they validate ops mechanics and generate zero client friction. This is Track A.
+  </div>
+
+  <div class="callout c-blue">
+    <div class="callout-title">1 decision before Format A sends (~15 accounts)</div>
+    Confirm no Watch-band accounts are in the Format A cohort. A 15-minute audit of CPB's Format A list against the v3.1 Watch-band hold-out roster clears this gate.
+  </div>
+
+  <div class="callout c-amber">
+    <div class="callout-title">2 decisions before Format B sends (~19 accounts)</div>
+    (1) Meeting offer: keep or drop from the Format B close? (2) Objection scripts: draft a rough set now, or send Format B and handle responses ad hoc? These two decisions gate the 19 Format B accounts — the largest single batch and the highest expected response volume.
+  </div>
+
+  <div class="callout c-neutral">
+    <div class="callout-title">CEO Letter queue (9 accounts) — gated on CEO calendar and co-sign only</div>
+    The 9 CEO Letter accounts are aligned between the two documents. The only gate is CEO review, co-sign, and scheduling follow-up call commitments. No structural decisions required — templates and agent prompts are production-ready.
+  </div>
+
+  <div class="callout c-red">
+    <div class="callout-title">CEO Pre-Call queue (9 accounts) — gated on CEO calendar</div>
+    Same as above: templates are ready, the constraint is CEO availability. The 4 early adopters (Elegant, Capital, Sarreid, Crystorama) are the recommended starting point — those conversations have a specific tenure-acknowledgment framing requirement. Arabela Lighting (+$716/+109.8%, annual contract) is the highest urgency of all 18 CEO-touch accounts.
+  </div>
+
+  <!-- FOOTER -->
+  <div class="doc-footer">
+    <div>SuperCat &nbsp;·&nbsp; Migration Plan Alignment Review &nbsp;·&nbsp; Generated May 20, 2026</div>
+    <div style="margin-top:4px;">Source A: <em>migration_comms_progress_2026-05-19.html</em> &nbsp;·&nbsp; Source B: <em>2026-05-19__migration_execution_plan__v3_OUTLINE.md</em></div>
+  </div>
+
+</div>
+</body>
+</html>

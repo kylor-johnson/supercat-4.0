@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gabby &amp; Summer Classics — Intelligence Deep-Dive EBR</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-snap-type:y mandatory;scroll-behavior:smooth;font-size:16px}
+body{font-family:'DM Sans',sans-serif;color:#1E3A2F;background:#F7F5F0;line-height:1.5}
+.slide{min-height:100vh;scroll-snap-align:start;display:flex;align-items:center;justify-content:center;position:relative;padding:48px 24px}
+.slide .inner{max-width:1060px;width:100%}
+.s-dk{background:#1E3A2F;color:#fff}
+.s-lt{background:#F7F5F0;color:#1E3A2F}
+.s-wh{background:#fff;color:#1E3A2F}
+.lbl{font-family:'DM Mono',monospace;font-size:0.68rem;text-transform:uppercase;letter-spacing:0.12em;color:#C9A84C;margin-bottom:6px}
+.s-dk .lbl{color:#C9A84C}
+h2{font-family:Georgia,serif;font-size:2.2rem;font-weight:400;margin-bottom:18px;line-height:1.2}
+h3{font-family:Georgia,serif;font-size:1.4rem;font-weight:400;margin-bottom:12px}
+.s-dk h2{color:#fff}
+.gold-rule{width:56px;height:2px;background:#C9A84C;margin-bottom:18px}
+.stat-row{display:flex;gap:24px;flex-wrap:wrap;margin:20px 0}
+.stat-card{flex:1;min-width:140px;text-align:center}
+.stat-card .num{font-family:Georgia,serif;font-size:2.8rem;color:#1E3A2F;line-height:1.1}
+.s-dk .stat-card .num{color:#C9A84C}
+.stat-card .lab{font-family:'DM Mono',monospace;font-size:0.68rem;text-transform:uppercase;letter-spacing:0.08em;color:#4A7C59;margin-top:4px}
+.s-dk .stat-card .lab{color:rgba(255,255,255,0.6)}
+table{width:100%;border-collapse:collapse;font-size:0.8rem;font-family:'DM Mono',monospace;margin:16px 0}
+th{font-size:0.68rem;text-transform:uppercase;letter-spacing:0.08em;border-bottom:2px solid #1E3A2F;padding:6px 8px;text-align:left;color:#4A7C59;font-weight:500}
+td{padding:6px 8px;border-bottom:1px solid rgba(30,58,47,0.1)}
+.num-cell{text-align:right;font-variant-numeric:tabular-nums}
+.bold{font-weight:700}
+.gold-text{color:#C9A84C}
+.green-text{color:#4A7C59}
+.red-text{color:#C45D5D}
+.winner-col{color:#B8960C;text-align:right;border-left:2px solid rgba(201,168,76,0.3);font-weight:500}
+.insight-box{border-left:3px solid #C9A84C;padding:10px 16px;margin:16px 0;font-size:0.88rem;background:rgba(201,168,76,0.06)}
+.card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin:16px 0}
+.card{background:#fff;border-radius:6px;padding:16px;border-top:3px solid #4A7C59}
+.s-wh .card{background:#F7F5F0}
+.card-gold{border-top-color:#C9A84C}
+.rec-card{border-top:3px solid #C9A84C;background:#fff;border-radius:6px;padding:20px;margin-bottom:12px}
+.s-wh .rec-card{background:#F7F5F0}
+.rec-card .priority{font-family:'DM Mono',monospace;color:#C9A84C;font-size:0.8rem;margin-bottom:4px}
+.rec-card h3{margin-bottom:10px}
+.rec-card .row-label{font-family:'DM Mono',monospace;font-size:0.68rem;text-transform:uppercase;letter-spacing:0.08em;color:#4A7C59;margin-top:8px}
+.q-block{margin:18px 0;padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.1)}
+.q-tag{font-family:'DM Mono',monospace;font-size:0.68rem;text-transform:uppercase;letter-spacing:0.1em;color:#C9A84C;margin-bottom:4px}
+.q-text{font-family:Georgia,serif;font-size:1.05rem;color:rgba(255,255,255,0.92);line-height:1.4}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin:16px 0}
+.col-header{font-family:'DM Mono',monospace;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.1em;padding:8px 12px;color:#fff;margin-bottom:12px;border-radius:4px 4px 0 0}
+.col-header.green-hd{background:#4A7C59}
+.col-header.gold-hd{background:#B8960C}
+.commit-list{list-style:none;padding:0}
+.commit-list li{padding:6px 12px;font-size:0.84rem;border-bottom:1px solid rgba(30,58,47,0.08)}
+.commit-list li.blank{color:#999;font-style:italic}
+.risk-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px}
+.module-grid td.active{background:rgba(74,124,89,0.12);color:#4A7C59;text-align:center;font-weight:700}
+.module-grid td.gap{background:rgba(196,93,93,0.08);color:#C45D5D;text-align:center}
+.mini-stat{background:#fff;border-radius:6px;padding:14px;text-align:center}
+.s-wh .mini-stat{background:#F7F5F0}
+.mini-stat .entity-name{font-family:'DM Mono',monospace;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.08em;color:#4A7C59;margin-bottom:4px}
+.mini-stat .rep-name{font-weight:700;font-size:0.88rem;margin-bottom:2px}
+.mini-stat .rep-pct{font-family:Georgia,serif;font-size:1.6rem;line-height:1.1}
+
+.status-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:16px 0}
+.status-item{background:#F7F5F0;border-radius:6px;padding:14px;display:flex;align-items:flex-start;gap:10px}
+.s-wh .status-item{background:#fff}
+.status-dot{width:10px;height:10px;border-radius:50%;margin-top:4px;flex-shrink:0}
+.status-item .si-label{font-family:'DM Mono',monospace;font-size:0.68rem;text-transform:uppercase;color:#4A7C59;letter-spacing:0.08em}
+.status-item .si-detail{font-size:0.82rem;margin-top:2px}
+
+.growth-card{text-align:center;padding:18px;background:#fff;border-radius:6px}
+.s-lt .growth-card{background:#fff}
+.growth-card .growth-pct{font-family:Georgia,serif;font-size:3.2rem;color:#C9A84C;line-height:1}
+.growth-card .growth-label{font-family:'DM Mono',monospace;font-size:0.68rem;text-transform:uppercase;letter-spacing:0.08em;color:#4A7C59;margin-top:4px}
+.growth-card .growth-detail{font-size:0.78rem;color:#666;margin-top:4px}
+
+.transfer-item{display:flex;align-items:flex-start;gap:14px;padding:14px 0;border-bottom:1px solid rgba(30,58,47,0.08)}
+.transfer-icon{width:36px;height:36px;border-radius:50%;background:rgba(201,168,76,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#C9A84C;font-size:1.2rem}
+.transfer-icon.green-icon{background:rgba(74,124,89,0.12);color:#4A7C59}
+
+.closing-text{font-family:Georgia,serif;font-size:2.4rem;color:#fff;line-height:1.3;max-width:700px}
+.closing-sub{font-family:'DM Mono',monospace;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.12em;color:#C9A84C;margin-top:20px}
+
+#counter{position:fixed;bottom:16px;right:20px;font-family:'DM Mono',monospace;font-size:0.72rem;color:rgba(30,58,47,0.4);z-index:100;pointer-events:none}
+.s-dk #counter,.slide.s-dk~#counter{color:rgba(255,255,255,0.35)}
+
+#notes-bar{position:fixed;bottom:0;left:0;right:0;background:rgba(30,58,47,0.92);color:rgba(255,255,255,0.88);padding:12px 24px;font-size:0.82rem;border-top:2px solid #C9A84C;display:none;z-index:200;max-height:120px;overflow-y:auto;font-family:'DM Sans',sans-serif}
+#notes-bar.visible{display:block}
+
+@media print{
+html{scroll-snap-type:none}
+.slide{min-height:auto;page-break-after:always;padding:24px}
+#counter,#notes-bar,.pnote{display:none!important}
+.s-dk{background:#1E3A2F!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+@media(max-width:900px){
+.slide{padding:24px 16px}
+h2{font-size:1.6rem}
+.stat-card .num{font-size:2rem}
+.two-col,.status-grid{grid-template-columns:1fr}
+table{font-size:0.7rem}
+.card-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<section class="slide s-dk" data-slide="1">
+<div class="inner">
+<div class="gold-rule"></div>
+<h2 style="font-size:3.4rem;margin-bottom:8px">Executive Business Review</h2>
+<p style="font-family:Georgia,serif;font-size:1.3rem;color:rgba(255,255,255,0.75);margin-bottom:6px">Sales Intelligence &amp; Operational Deep-Dive</p>
+<p style="font-family:Georgia,serif;font-size:1.6rem;color:rgba(255,255,255,0.92);margin-bottom:20px">Gabby &middot; Summer Classics</p>
+<p style="font-family:'DM Mono',monospace;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.12em;color:#C9A84C">March 2026 &middot; SuperCat / eCat</p>
+</div>
+<div class="pnote" data-note>This is the data-heavy version. Move through the title quickly — this audience wants substance.</div>
+</section>
+<section class="slide s-lt" data-slide="2">
+<div class="inner">
+<div class="lbl">Partnership Overview</div>
+<h2>Multi-Year Partnership. 4 Divisions. One Platform.</h2>
+<div class="stat-row">
+<div class="stat-card"><div class="num">4</div><div class="lab">Active Entities</div></div>
+<div class="stat-card"><div class="num">262</div><div class="lab">Active Users</div></div>
+<div class="stat-card"><div class="num">7,642</div><div class="lab">Total Orders YTD</div></div>
+<div class="stat-card"><div class="num">$36.1M</div><div class="lab">Total Revenue YTD</div></div>
+</div>
+<table class="module-grid">
+<tr><th>Entity</th>
+<th style="text-align:center">iPad CPQ</th>
+<th style="text-align:center">Sales Portal</th>
+<th style="text-align:center">PDF Catalogs</th>
+<th style="text-align:center">Kits</th>
+<th style="text-align:center">Config Items</th>
+<th style="text-align:center">Camera Scan</th>
+<th style="text-align:center">SmartPicks</th>
+<th style="text-align:center">Customer Lists</th>
+<th style="text-align:center">Flipbook</th>
+</tr>
+<tr><td class="bold">Gabby</td>
+<td class="active">&#10003;</td>
+<td class="active">&#10003;</td>
+<td class="active">&#10003;</td>
+<td class="active">&#10003;</td>
+<td class="active">&#10003;</td>
+<td class="active">&#10003;</td>
+<td class="active">&#10003;</td>
+<td class="active">&#10003;</td>
+<td class="active">&#10003;</td>
+</tr>
+<tr><td class="bold">SC Wholesale</td>
+<td class="active">&#10003;</td>
+<td class="active">&#10003;</td>
+<td class="active">&#10003;</td>
+<td class="active">&#10003;</td>
+<td class="active">&#10003;</td>
+<td class="active">&#10003;</td>
+<td class="active">&#10003;</td>
+<td class="active">&#10003;</td>
+<td class="active">&#10003;</td>
+</tr>
+<tr><td class="bold">SC Retail</td>
+<td class="active">&#10003;</td>
+<td class="active">&#10003;</td>
+<td class="active">&#10003;</td>
+<td class="active">&#10003;</td>
+<td class="active">&#10003;</td>
+<td class="active">&#10003;</td>
+<td class="active">&#10003;</td>
+<td class="active">&#10003;</td>
+<td class="active">&#10003;</td>
+</tr>
+<tr><td class="bold">SC Contract</td>
+<td class="gap">&mdash;</td>
+<td class="active">&#10003;</td>
+<td class="active">&#10003;</td>
+<td class="active">&#10003;</td>
+<td class="active">&#10003;</td>
+<td class="gap">&mdash;</td>
+<td class="gap">&mdash;</td>
+<td class="active">&#10003;</td>
+<td class="active">&#10003;</td>
+</tr>
+</table>
+<p style="font-size:0.88rem;color:#666;margin-top:12px">Today we're sharing intelligence about your sales team and customer base across all 4 divisions. We want your guidance on what matters most.</p>
+</div>
+<div class="pnote" data-note>60-90 seconds. This audience wants data — move quickly through orientation. The module grid is a fast visual proof of maturity.</div>
+</section>
+<section class="slide s-wh" data-slide="3">
+<div class="inner">
+<div class="lbl">Sales Team Intelligence</div>
+<h2>Your 262 Active Users Across 4 Divisions</h2>
+<div class="stat-row">
+<div class="stat-card"><div class="num">262</div><div class="lab">Active Users</div></div>
+<div class="stat-card"><div class="num">59.5%</div><div class="lab">Adoption Rate</div></div>
+<div class="stat-card"><div class="num">7,642</div><div class="lab">Total Orders</div></div>
+<div class="stat-card"><div class="num">$36.1M</div><div class="lab">Total Revenue</div></div>
+</div>
+<table>
+<tr><th>Entity</th><th class="num-cell">Licensed</th><th class="num-cell">Active</th><th class="num-cell">Active %</th><th class="num-cell">Orders</th><th class="num-cell">Revenue</th><th class="num-cell">AOV</th></tr>
+<tr><td class="bold">Gabby</td>
+<td class="num-cell">114</td>
+<td class="num-cell">54</td>
+<td class="num-cell">47.4%</td>
+<td class="num-cell">2,270</td>
+<td class="num-cell">$7.1M</td>
+<td class="num-cell">$3,113</td>
+</tr>
+<tr><td class="bold">SC Wholesale</td>
+<td class="num-cell">153</td>
+<td class="num-cell">117</td>
+<td class="num-cell">76.5%</td>
+<td class="bold num-cell">2,796</td>
+<td class="bold num-cell">$11.4M</td>
+<td class="num-cell">$4,089</td>
+</tr>
+<tr><td class="bold">SC Retail</td>
+<td class="num-cell">112</td>
+<td class="num-cell">61</td>
+<td class="num-cell">54.5%</td>
+<td class="num-cell">1,701</td>
+<td class="num-cell">$6.6M</td>
+<td class="num-cell">$3,866</td>
+</tr>
+<tr><td class="bold">SC Contract</td>
+<td class="num-cell">61</td>
+<td class="num-cell">30</td>
+<td class="num-cell">49.2%</td>
+<td class="num-cell">875</td>
+<td class="num-cell">$11.0M</td>
+<td class="num-cell">$12,604</td>
+</tr>
+</table>
+</div>
+<div class="pnote" data-note>Lead with the headline revenue figure: $36.1M across 4 divisions YTD. Then let them absorb the per-entity breakdown. 2 minutes.</div>
+</section>
+<section class="slide s-lt" data-slide="4">
+<div class="inner">
+<div class="lbl">Power Users</div>
+<h2>Your Top Performers Work Across Divisions</h2>
+<table>
+<tr><th>Rep</th>
+<th class="num-cell">Gabby</th>
+<th class="num-cell">SC Wholesale</th>
+<th class="num-cell">SC Retail</th>
+<th class="num-cell">SC Contract</th>
+<th class="num-cell">Total</th><th class="num-cell">Breadth</th></tr>
+<tr><td class="bold">Ryan Casabella</td>
+<td class="num-cell">225</td>
+<td class="num-cell">&mdash;</td>
+<td class="num-cell">261</td>
+<td class="num-cell">&mdash;</td>
+<td class="num-cell bold">486</td>
+<td class="num-cell">15</td>
+</tr>
+<tr><td class="bold">Paul Bentley</td>
+<td class="num-cell">165</td>
+<td class="num-cell">&mdash;</td>
+<td class="num-cell">109</td>
+<td class="num-cell">&mdash;</td>
+<td class="num-cell bold">274</td>
+<td class="num-cell">16</td>
+</tr>
+<tr><td class="bold">Clare Colón</td>
+<td class="num-cell">140</td>
+<td class="num-cell">&mdash;</td>
+<td class="num-cell">87</td>
+<td class="num-cell">&mdash;</td>
+<td class="num-cell bold">227</td>
+<td class="num-cell">16</td>
+</tr>
+<tr><td class="bold">Heather Robert</td>
+<td class="num-cell">157</td>
+<td class="num-cell">&mdash;</td>
+<td class="num-cell">37</td>
+<td class="num-cell">&mdash;</td>
+<td class="num-cell bold">194</td>
+<td class="num-cell">14</td>
+</tr>
+<tr><td class="bold">Tanya Houge</td>
+<td class="num-cell">63</td>
+<td class="num-cell">&mdash;</td>
+<td class="num-cell">126</td>
+<td class="num-cell">&mdash;</td>
+<td class="num-cell bold">189</td>
+<td class="num-cell">15</td>
+</tr>
+<tr><td class="bold">Diana Horsley</td>
+<td class="num-cell">58</td>
+<td class="num-cell">&mdash;</td>
+<td class="num-cell">122</td>
+<td class="num-cell">&mdash;</td>
+<td class="num-cell bold">180</td>
+<td class="num-cell">11</td>
+</tr>
+<tr><td class="bold">Wynne White</td>
+<td class="num-cell">56</td>
+<td class="num-cell">&mdash;</td>
+<td class="num-cell">118</td>
+<td class="num-cell">&mdash;</td>
+<td class="num-cell bold">174</td>
+<td class="num-cell">15</td>
+</tr>
+<tr style="background:rgba(201,168,76,0.1)"><td class="bold">Rob Robinson</td>
+<td class="num-cell">75</td>
+<td class="num-cell">&mdash;</td>
+<td class="num-cell">92</td>
+<td class="num-cell">&mdash;</td>
+<td class="num-cell bold">167</td>
+<td class="num-cell">20</td>
+</tr>
+</table>
+<div class="insight-box">Power users share a pattern: high feature breadth (10-15 vs avg 11) and cross-entity fluency. Combined "active users" includes individuals working across entities. True unique count is lower — your team is more concentrated than the headline suggests.</div>
+</div>
+<div class="pnote" data-note>Name names. This audience wants specifics. Call out top performers by name and their cross-entity patterns.</div>
+</section>
+<section class="slide s-wh" data-slide="5">
+<div class="inner">
+<div class="lbl">Feature Benchmarking</div>
+<h2>Feature Depth: How Your Divisions Compare</h2>
+<table>
+<tr><th>Feature</th>
+<th class="num-cell">Gabby</th>
+<th class="num-cell">SC Wholesale</th>
+<th class="num-cell">SC Retail</th>
+<th class="num-cell">SC Contract</th>
+<th class="winner-col">Winner</th></tr>
+<tr><td>Submit Order</td>
+<td class="num-cell" style="background:rgba(74,124,89,0.15)">1,767</td>
+<td class="num-cell" style="background:rgba(201,168,76,0.15)">3,375</td>
+<td class="num-cell" style="background:rgba(74,124,89,0.14)">1,585</td>
+<td class="num-cell" style="background:rgba(196,93,93,0.1)">0</td>
+<td class="winner-col">SC Wholesale</td>
+</tr>
+<tr><td>View Kit</td>
+<td class="num-cell" style="background:rgba(74,124,89,0.08)">1,008</td>
+<td class="num-cell" style="background:rgba(201,168,76,0.15)">8,040</td>
+<td class="num-cell" style="background:rgba(74,124,89,0.12)">2,791</td>
+<td class="num-cell" style="background:rgba(74,124,89,0.09)">1,439</td>
+<td class="winner-col">SC Wholesale</td>
+</tr>
+<tr><td>Order Kit</td>
+<td class="num-cell" style="background:rgba(74,124,89,0.07)">524</td>
+<td class="num-cell" style="background:rgba(201,168,76,0.15)">6,140</td>
+<td class="num-cell" style="background:rgba(74,124,89,0.12)">2,040</td>
+<td class="num-cell" style="background:rgba(74,124,89,0.09)">1,113</td>
+<td class="winner-col">SC Wholesale</td>
+</tr>
+<tr><td>Config Items</td>
+<td class="num-cell" style="background:rgba(74,124,89,0.17)">1,050</td>
+<td class="num-cell" style="background:rgba(201,168,76,0.15)">1,764</td>
+<td class="num-cell" style="background:rgba(74,124,89,0.12)">597</td>
+<td class="num-cell" style="background:rgba(74,124,89,0.10)">447</td>
+<td class="winner-col">SC Wholesale</td>
+</tr>
+<tr><td>Camera Scan</td>
+<td class="num-cell" style="background:rgba(74,124,89,0.07)">322</td>
+<td class="num-cell" style="background:rgba(201,168,76,0.15)">3,949</td>
+<td class="num-cell" style="background:rgba(74,124,89,0.06)">216</td>
+<td class="num-cell" style="background:rgba(196,93,93,0.1)">0</td>
+<td class="winner-col">SC Wholesale</td>
+</tr>
+<tr><td>Create PDF Catalog</td>
+<td class="num-cell" style="background:rgba(74,124,89,0.14)">178</td>
+<td class="num-cell" style="background:rgba(201,168,76,0.15)">380</td>
+<td class="num-cell" style="background:rgba(74,124,89,0.08)">57</td>
+<td class="num-cell" style="background:rgba(74,124,89,0.08)">58</td>
+<td class="winner-col">SC Wholesale</td>
+</tr>
+<tr><td>Sales Portal</td>
+<td class="num-cell" style="background:rgba(201,168,76,0.15)">1,603</td>
+<td class="num-cell" style="background:rgba(74,124,89,0.07)">185</td>
+<td class="num-cell" style="background:rgba(74,124,89,0.21)">1,322</td>
+<td class="num-cell" style="background:rgba(74,124,89,0.07)">169</td>
+<td class="winner-col">Gabby</td>
+</tr>
+<tr><td>Select Customer</td>
+<td class="num-cell" style="background:rgba(74,124,89,0.12)">3,771</td>
+<td class="num-cell" style="background:rgba(201,168,76,0.15)">10,763</td>
+<td class="num-cell" style="background:rgba(74,124,89,0.11)">3,272</td>
+<td class="num-cell" style="background:rgba(74,124,89,0.09)">1,996</td>
+<td class="winner-col">SC Wholesale</td>
+</tr>
+<tr><td>Search Customer</td>
+<td class="num-cell" style="background:rgba(74,124,89,0.13)">10,531</td>
+<td class="num-cell" style="background:rgba(201,168,76,0.15)">24,935</td>
+<td class="num-cell" style="background:rgba(74,124,89,0.12)">8,155</td>
+<td class="num-cell" style="background:rgba(74,124,89,0.08)">3,409</td>
+<td class="winner-col">SC Wholesale</td>
+</tr>
+<tr><td>Library Entry</td>
+<td class="num-cell" style="background:rgba(74,124,89,0.23)">1,313</td>
+<td class="num-cell" style="background:rgba(201,168,76,0.15)">1,494</td>
+<td class="num-cell" style="background:rgba(74,124,89,0.22)">1,249</td>
+<td class="num-cell" style="background:rgba(74,124,89,0.11)">434</td>
+<td class="winner-col">SC Wholesale</td>
+</tr>
+<tr><td>SmartPicks</td>
+<td class="num-cell" style="background:rgba(74,124,89,0.20)">19</td>
+<td class="num-cell" style="background:rgba(201,168,76,0.15)">26</td>
+<td class="num-cell" style="background:rgba(74,124,89,0.15)">13</td>
+<td class="num-cell" style="background:rgba(196,93,93,0.1)">0</td>
+<td class="winner-col">SC Wholesale</td>
+</tr>
+<tr><td>Flipbook</td>
+<td class="num-cell" style="background:rgba(74,124,89,0.09)">29</td>
+<td class="num-cell" style="background:rgba(201,168,76,0.15)">154</td>
+<td class="num-cell" style="background:rgba(74,124,89,0.19)">105</td>
+<td class="num-cell" style="background:rgba(74,124,89,0.11)">48</td>
+<td class="winner-col">SC Wholesale</td>
+</tr>
+<tr><td>Show Sales</td>
+<td class="num-cell" style="background:rgba(201,168,76,0.15)">13</td>
+<td class="num-cell" style="background:rgba(74,124,89,0.08)">2</td>
+<td class="num-cell" style="background:rgba(74,124,89,0.11)">4</td>
+<td class="num-cell" style="background:rgba(74,124,89,0.07)">1</td>
+<td class="winner-col">Gabby</td>
+</tr>
+</table>
+<div class="insight-box">Each division has a strength the others can learn from. SC Wholesale dominates volume and feature breadth; Gabby leads in Sales Portal adoption; SC Retail drives kit and configured item workflows.</div>
+</div>
+<div class="pnote" data-note>Read the 'Winner' column vertically — it tells the story of which division is best at what. 3 minutes.</div>
+</section>
+<section class="slide s-lt" data-slide="6">
+<div class="inner">
+<div class="lbl">Risk Analysis</div>
+<h2>Rep Concentration by Entity</h2>
+<div class="card-grid">
+<div class="mini-stat">
+        <div class="entity-name">Gabby</div>
+        <div class="rep-name">Ryan Casabella</div>
+        <div class="rep-pct" style="color:#4A7C59">12.7%</div>
+        <div style="margin-top:4px"><span class="risk-dot" style="background:#4A7C59"></span><span style="font-family:'DM Mono',monospace;font-size:0.72rem;color:#4A7C59">Low Risk</span></div>
+    </div>
+<div class="mini-stat">
+        <div class="entity-name">SC Wholesale</div>
+        <div class="rep-name">Rachel Packer</div>
+        <div class="rep-pct" style="color:#4A7C59">5.9%</div>
+        <div style="margin-top:4px"><span class="risk-dot" style="background:#4A7C59"></span><span style="font-family:'DM Mono',monospace;font-size:0.72rem;color:#4A7C59">Low Risk</span></div>
+    </div>
+<div class="mini-stat">
+        <div class="entity-name">SC Retail</div>
+        <div class="rep-name">Ryan Casabella</div>
+        <div class="rep-pct" style="color:#B8960C">16.5%</div>
+        <div style="margin-top:4px"><span class="risk-dot" style="background:#B8960C"></span><span style="font-family:'DM Mono',monospace;font-size:0.72rem;color:#B8960C">Moderate Risk</span></div>
+    </div>
+<div class="mini-stat">
+        <div class="entity-name">SC Contract</div>
+        <div class="rep-name">Kimberly Wilber</div>
+        <div class="rep-pct" style="color:#4A7C59">0%</div>
+        <div style="margin-top:4px"><span class="risk-dot" style="background:#4A7C59"></span><span style="font-family:'DM Mono',monospace;font-size:0.72rem;color:#4A7C59">Low Risk</span></div>
+    </div>
+</div>
+<p style="font-size:0.82rem;color:#666;margin-top:12px;text-align:center">20% = single-rep dependency threshold</p>
+<div class="insight-box">Gabby, SC Wholesale, SC Contract show healthy distribution; SC Retail has concentration worth monitoring.</div>
+</div>
+<div class="pnote" data-note>Only surface this if relevant to the conversation. Don't lead with risk if everything is healthy.</div>
+</section>
+<section class="slide s-wh" data-slide="7">
+<div class="inner">
+<div class="lbl">Customer Intelligence</div>
+<h2>What the Platform Reveals About Your Customers</h2>
+<table>
+<tr><th>Entity</th><th class="num-cell">Customers</th><th class="num-cell">Ordering</th><th class="num-cell">Activation</th><th class="num-cell">AOV</th><th class="num-cell">Top Cust. %</th></tr>
+<tr><td class="bold">Gabby</td>
+<td class="num-cell">1,128</td>
+<td class="num-cell">1,081</td>
+<td class="num-cell">95.8%</td>
+<td class="num-cell">$3,113</td>
+<td class="num-cell">1.7%</td>
+</tr>
+<tr><td class="bold">SC Wholesale</td>
+<td class="num-cell">2,087</td>
+<td class="num-cell">2,051</td>
+<td class="num-cell">98.3%</td>
+<td class="num-cell">$4,089</td>
+<td class="num-cell">1.0%</td>
+</tr>
+<tr><td class="bold">SC Retail</td>
+<td class="num-cell">740</td>
+<td class="num-cell">615</td>
+<td class="num-cell">83.1%</td>
+<td class="num-cell">$3,866</td>
+<td class="num-cell">3.3%</td>
+</tr>
+<tr><td class="bold">SC Contract</td>
+<td class="num-cell">381</td>
+<td class="num-cell">357</td>
+<td class="num-cell">93.7%</td>
+<td class="num-cell" style="background:rgba(201,168,76,0.15)">$12,604</td>
+<td class="num-cell" style="background:rgba(201,168,76,0.15)">7.7%</td>
+</tr>
+</table>
+<div class="insight-box"><strong>SC Retail</strong>: Top customer <strong>SUNSTAR PROPERTIES, LLC</strong> at $219,618 (3.3% of revenue)</div>
+<div class="insight-box"><strong>SC Contract</strong>: Top customer <strong>OMNI HOTELS MANAGEMENT CORP</strong> at $853,308 (7.7% of revenue)</div>
+<p style="font-size:0.78rem;color:#999;margin-top:8px">Note: Customer counts reflect ordering period Jan–Mar 2026. SC Retail customers are individual consumers (lower AOV expected). SC Contract projects inflate AOV by design.</p>
+</div>
+<div class="pnote" data-note>The concentration data is FYI, not alarming unless they tell you otherwise. The activation gap is the actionable insight.</div>
+</section>
+<section class="slide s-lt" data-slide="8">
+<div class="inner">
+<div class="lbl">Digital Adoption &amp; Growth</div>
+<h2>Self-Service Adoption &amp; Revenue Trajectory</h2>
+<h3>Self-Service Orders (Website Origin)</h3>
+<div class="card-grid">
+<div class="card" style="text-align:center;border-top-color:#4A7C59">
+        <div style="font-family:'DM Mono',monospace;font-size:0.72rem;text-transform:uppercase;color:#4A7C59">Gabby</div>
+        <div style="font-family:Georgia,serif;font-size:2.2rem;color:#4A7C59;margin:6px 0">35.9%</div>
+        <div style="font-size:0.78rem;color:#666">815 of 2,270 orders</div>
+    </div>
+<div class="card" style="text-align:center;border-top-color:#C45D5D">
+        <div style="font-family:'DM Mono',monospace;font-size:0.72rem;text-transform:uppercase;color:#4A7C59">SC Wholesale</div>
+        <div style="font-family:Georgia,serif;font-size:2.2rem;color:#C45D5D;margin:6px 0">0.0%</div>
+        <div style="font-size:0.78rem;color:#666">0 of 2,796 orders</div>
+    </div>
+<div class="card" style="text-align:center;border-top-color:#4A7C59">
+        <div style="font-family:'DM Mono',monospace;font-size:0.72rem;text-transform:uppercase;color:#4A7C59">SC Retail</div>
+        <div style="font-family:Georgia,serif;font-size:2.2rem;color:#4A7C59;margin:6px 0">26.2%</div>
+        <div style="font-size:0.78rem;color:#666">446 of 1,701 orders</div>
+    </div>
+<div class="card" style="text-align:center;border-top-color:#B8960C">
+        <div style="font-family:'DM Mono',monospace;font-size:0.72rem;text-transform:uppercase;color:#4A7C59">SC Contract</div>
+        <div style="font-family:Georgia,serif;font-size:2.2rem;color:#B8960C;margin:6px 0">1.7%</div>
+        <div style="font-size:0.78rem;color:#666">15 of 875 orders</div>
+    </div>
+</div>
+<h3 style="margin-top:24px">Month-over-Month Revenue Growth</h3>
+<div class="card-grid">
+<div class="growth-card">
+            <div class="growth-pct">-30%</div>
+            <div class="growth-label">Gabby</div>
+            <div class="growth-detail">$4.0M &rarr; $2.8M</div>
+        </div>
+<div class="growth-card">
+            <div class="growth-pct">+94%</div>
+            <div class="growth-label">SC Wholesale</div>
+            <div class="growth-detail">$3.6M &rarr; $7.0M</div>
+        </div>
+<div class="growth-card">
+            <div class="growth-pct">+34%</div>
+            <div class="growth-label">SC Retail</div>
+            <div class="growth-detail">$2.6M &rarr; $3.5M</div>
+        </div>
+<div class="growth-card">
+            <div class="growth-pct">+15%</div>
+            <div class="growth-label">SC Contract</div>
+            <div class="growth-detail">$4.4M &rarr; $5.1M</div>
+        </div>
+</div>
+<p style="font-size:0.82rem;color:#666;margin-top:12px">Self-service = orders submitted via Website/B2B. SC Retail at 0% is expected (in-store POS workflow). SC Contract projects are typically rep-quoted.</p>
+</div>
+<div class="pnote" data-note>Self-service and growth are different conversations. Lead with whichever the audience cares about. For ops: self-service. For leadership: growth. 3 minutes.</div>
+</section>
+<section class="slide s-wh" data-slide="9">
+<div class="inner">
+<div class="lbl">Platform Health</div>
+<h2>Platform &amp; Data Health Check</h2>
+<div class="status-grid">
+<div class="status-item">
+    <div class="status-dot" style="background:#4A7C59"></div>
+    <div><div class="si-label">Data Freshness</div><div class="si-detail">All 4 entities showing order activity through Mar 3, 2026. Data is current.</div></div>
+</div>
+<div class="status-item">
+    <div class="status-dot" style="background:#4A7C59"></div>
+    <div><div class="si-label">eCat Version</div><div class="si-detail">Majority on v20260220 (latest). Some stragglers on 20251107 — recommend update push.</div></div>
+</div>
+<div class="status-item">
+    <div class="status-dot" style="background:#4A7C59"></div>
+    <div><div class="si-label">Order Pipeline</div><div class="si-detail">5,507 confirmed / 2,116 quotes across all entities. Healthy mix.</div></div>
+</div>
+<div class="status-item">
+    <div class="status-dot" style="background:#B8960C"></div>
+    <div><div class="si-label">User Adoption</div><div class="si-detail">59.5% active rate. Several licensed users with zero logins — opportunity for re-engagement.</div></div>
+</div>
+<div class="status-item">
+    <div class="status-dot" style="background:#B8960C"></div>
+    <div><div class="si-label">iOS Versions</div><div class="si-detail">Mix of iOS 26.x, 18.x, and some legacy 17.x/16.x devices. Older versions may limit feature access.</div></div>
+</div>
+<div class="status-item">
+    <div class="status-dot" style="background:#4A7C59"></div>
+    <div><div class="si-label">Territory Coverage</div><div class="si-detail">All major territories actively generating orders. No configuration gaps detected.</div></div>
+</div>
+</div>
+</div>
+<div class="pnote" data-note>2-3 minutes max. If everything is healthy, say so and move on. Flag the eCat version stragglers as a quick win.</div>
+</section>
+<section class="slide s-dk" data-slide="10">
+<div class="inner">
+<div class="lbl">Data-Anchored Discovery</div>
+<h2 style="color:#fff">Now That You've Seen the Data — What Resonates?</h2>
+<div class="q-block">
+        <div class="q-tag">Cross-Entity Adoption · All Divisions</div>
+        <div class="q-text">Ryan Casabella and your top reps work across 2 divisions with 486 total orders. Is that by design, or are they filling gaps? Should we formalize cross-training?</div>
+    </div>
+<div class="q-block">
+        <div class="q-tag">Self-Service Adoption</div>
+        <div class="q-text">Gabby shows 35.9% self-service orders, SC Retail at 26.2%. What's driving the difference — customer profile, rep workflow, or B2B configuration?</div>
+    </div>
+<div class="q-block">
+        <div class="q-tag">Pipeline · SC Contract</div>
+        <div class="q-text">SC Contract AOV is $12,604. With 503 active quotes in pipeline, what's the conversion timeline?</div>
+    </div>
+<div class="q-block">
+        <div class="q-tag">Feature Activation</div>
+        <div class="q-text">Some features show zero adoption in certain divisions but strong activity where used. Should we pilot these in the divisions that haven't started?</div>
+    </div>
+<div class="q-block">
+        <div class="q-tag">Rep Dependency · SC Retail</div>
+        <div class="q-text">Ryan Casabella represents 16.5% of SC Retail orders. Is that a capacity issue or a training opportunity for other reps?</div>
+    </div>
+</div>
+<div class="pnote" data-note>The intelligence sections earned you this conversation. Reference specific data points — don't re-present. Listen for which patterns they care about. 5-8 minutes.</div>
+</section>
+<section class="slide s-wh" data-slide="11">
+<div class="inner">
+<div class="lbl">Recommendations</div>
+<h2>Closing the Gaps</h2>
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
+<div class="rec-card">
+        <div class="priority">Priority 01</div>
+        <h3>Sales Portal Expansion</h3>
+        <div class="row-label">The Gap</div>
+        <p style="font-size:0.82rem">Gabby: 1,603 Sales Portal events / SC Wholesale: 185 Sales Portal events / SC Retail: 1,322 Sales Portal events / SC Contract: 169 Sales Portal events</p>
+        <div class="row-label">The Path</div>
+        <p style="font-size:0.82rem">Enable Sales Portal for store managers and team leads. Start with top 3 reps per entity. Provide 30-min onboarding session.</p>
+        <div class="row-label">The Outcome</div>
+        <p style="font-size:0.82rem">Unified reporting across divisions. Managers gain real-time visibility into rep activity and customer ordering patterns.</p>
+    </div>
+<div class="rec-card">
+        <div class="priority">Priority 02</div>
+        <h3>Camera Scan Best Practice Transfer</h3>
+        <div class="row-label">The Gap</div>
+        <p style="font-size:0.82rem">Gabby: 322 events / SC Wholesale: 3,949 events / SC Retail: 216 events / SC Contract: 0 events</p>
+        <div class="row-label">The Path</div>
+        <p style="font-size:0.82rem">Identify 2 champion reps to demo camera scan workflow. Include in next rep update call.</p>
+        <div class="row-label">The Outcome</div>
+        <p style="font-size:0.82rem">Faster product lookup in field. Reduces order entry time by eliminating manual SKU search.</p>
+    </div>
+<div class="rec-card">
+        <div class="priority">Priority 03</div>
+        <h3>Inactive User Re-Engagement → All Entities</h3>
+        <div class="row-label">The Gap</div>
+        <p style="font-size:0.82rem">178 licensed users have zero or minimal activity across all divisions. Represents untapped capacity.</p>
+        <div class="row-label">The Path</div>
+        <p style="font-size:0.82rem">Export inactive user list. Identify which are still employed vs. departed. For active employees, schedule targeted re-training sessions by entity.</p>
+        <div class="row-label">The Outcome</div>
+        <p style="font-size:0.82rem">Increase effective adoption rate. Each activated rep is a force multiplier — estimated 15-25% increase in order throughput per newly active user.</p>
+    </div>
+</div>
+</div>
+<div class="pnote" data-note>Connect every recommendation to something surfaced in discovery. If they didn't react to it in Slide 10, don't push it here.</div>
+</section>
+<section class="slide s-lt" data-slide="12">
+<div class="inner">
+<div class="lbl">Feature Roadmap</div>
+<h2>Capabilities Available but Not Yet Activated</h2>
+<table>
+<tr><th>Feature</th><th>Current Usage</th><th>Best Pilot Entity</th><th>Business Case</th><th>Status</th></tr>
+<tr><td class="bold">Flipbook</td><td>Zero in most entities</td><td>SC Wholesale</td><td>Digital catalog sharing replaces PDF email — faster customer engagement</td><td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(201,168,76,0.15);color:#B8960C;font-family:'DM Mono',monospace;font-size:0.72rem;">Pilot Ready</span></td></tr>
+<tr><td class="bold">SmartPicks</td><td>Low across board</td><td>SC Wholesale</td><td>AI-powered product recommendations increase AOV and cross-sell</td><td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(201,168,76,0.15);color:#B8960C;font-family:'DM Mono',monospace;font-size:0.72rem;">Pilot Ready</span></td></tr>
+<tr><td class="bold">Customer Product Lists</td><td>Minimal usage</td><td>Gabby</td><td>Curated lists per customer save rep time and increase reorder rates</td><td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(196,93,93,0.1);color:#C45D5D;font-family:'DM Mono',monospace;font-size:0.72rem;">Not Started</span></td></tr>
+<tr><td class="bold">Maybe List</td><td>Active in SC Wholesale only</td><td>Gabby</td><td>Staging area reduces abandoned carts and incomplete orders</td><td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(74,124,89,0.12);color:#4A7C59;font-family:'DM Mono',monospace;font-size:0.72rem;">Active</span></td></tr>
+<tr><td class="bold">Show Sales in Catalog</td><td>Active in select entities</td><td>SC Retail</td><td>Sales visibility in catalog helps reps prioritize high-volume items</td><td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(74,124,89,0.12);color:#4A7C59;font-family:'DM Mono',monospace;font-size:0.72rem;">Active</span></td></tr>
+<tr><td class="bold">Order from Flipbook</td><td>Zero in most</td><td>SC Wholesale</td><td>Direct ordering from digital catalog reduces friction</td><td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(196,93,93,0.1);color:#C45D5D;font-family:'DM Mono',monospace;font-size:0.72rem;">Not Started</span></td></tr>
+</table>
+</div>
+<div class="pnote" data-note>This is the activation menu. Don't read every row — ask which ones they want to discuss. For ops audiences, this is often where the real conversation happens.</div>
+</section>
+<section class="slide s-wh" data-slide="13">
+<div class="inner">
+<div class="lbl">Cross-Entity Playbook</div>
+<h2>What One Division Does Well, Others Can Learn</h2>
+<div class="transfer-item">
+        <div class="transfer-icon ">&#x21BB;</div>
+        <div>
+            <div class="bold" style="margin-bottom:4px">Sales Portal Expansion</div>
+            <div style="font-size:0.84rem;color:#555">Gabby: 1,603 events / SC Wholesale: 185 events / SC Retail: 1,322 events / SC Contract: 169 events. Transfer the workflow — it's a configuration change, not a project.</div>
+        </div>
+    </div>
+<div class="transfer-item">
+        <div class="transfer-icon ">&#x21BB;</div>
+        <div>
+            <div class="bold" style="margin-bottom:4px">Kit & Config Workflow Transfer</div>
+            <div style="font-size:0.84rem;color:#555">Gabby: 524 kit orders / SC Wholesale: 6,140 kit orders / SC Retail: 2,040 kit orders / SC Contract: 1,113 kit orders. Curated room packages increase AOV.</div>
+        </div>
+    </div>
+<div class="transfer-item">
+        <div class="transfer-icon ">&#x21BB;</div>
+        <div>
+            <div class="bold" style="margin-bottom:4px">Camera Scan Adoption</div>
+            <div style="font-size:0.84rem;color:#555">Gabby: 322 events / SC Wholesale: 3,949 events / SC Retail: 216 events / SC Contract: 0 events. Scan-to-quote reduces manual SKU entry for project-based orders.</div>
+        </div>
+    </div>
+<div class="transfer-item">
+        <div class="transfer-icon green-icon">+</div>
+        <div>
+            <div class="bold" style="margin-bottom:4px">Flipbook & SmartPicks: New Capability Rollout</div>
+            <div style="font-size:0.84rem;color:#555">Neither feature has reached critical mass. Pilot in the entity with the highest feature breadth, then cascade.</div>
+        </div>
+    </div>
+</div>
+<div class="pnote" data-note>This is the unique value of the multi-entity view. For ops audiences, be specific about implementation — 'this is a config change, not a project.' 2-3 minutes.</div>
+</section>
+<section class="slide s-lt" data-slide="14">
+<div class="inner">
+<div class="lbl">Housekeeping</div>
+<h2>Support Status &amp; Engagement History</h2>
+<div class="card-grid">
+<div class="card">
+    <h3 style="font-size:1rem">Open Tickets</h3>
+    <p style="font-size:0.84rem">No critical open tickets at this time. Standard support channel available for any issues surfaced during this review.</p>
+    <p style="font-size:0.78rem;color:#4A7C59;margin-top:8px">Resolution commitment: 48-hour response SLA</p>
+</div>
+<div class="card">
+    <h3 style="font-size:1rem">Payment Status</h3>
+    <p style="font-size:0.84rem">All 4 entities active and current. MRR stable across the account family.</p>
+    <p style="font-size:0.78rem;color:#4A7C59;margin-top:8px">Status: Current</p>
+</div>
+<div class="card">
+    <h3 style="font-size:1rem">Data Health</h3>
+    <p style="font-size:0.84rem">Order data syncing through Mar 3, 2026. Usage data current. No import errors detected in recent files.</p>
+    <p style="font-size:0.78rem;color:#4A7C59;margin-top:8px">All systems operational</p>
+</div>
+<div class="card">
+    <h3 style="font-size:1rem">Engagement History</h3>
+    <p style="font-size:0.84rem">This is the operational deep-dive EBR. Prior touchpoints include quarterly reviews and ad-hoc support.</p>
+    <p style="font-size:0.78rem;color:#C9A84C;margin-top:8px">Cadence: Quarterly EBR recommended</p>
+</div>
+</div>
+</div>
+<div class="pnote" data-note>90 seconds. For ops audiences, the ticket resolution commitment matters more than the relationship framing. Be specific on timelines.</div>
+</section>
+<section class="slide s-wh" data-slide="15">
+<div class="inner">
+<div class="lbl">Next Steps</div>
+<h2>What We'll Do Next</h2>
+<div class="two-col">
+<div>
+    <div class="col-header green-hd">From SuperCat / eCat</div>
+    <ul class="commit-list">
+        <li>Resolve any open support tickets within 48 hours</li>
+        <li>Deliver rep activity CSV export for all 4 entities</li>
+        <li>Provide Sales Portal configuration proposal for SC Retail & Contract</li>
+        <li>Camera Scan pilot plan for SC Contract (1 week)</li>
+        <li>Inactive user audit report by entity (1 week)</li>
+        <li>Formalized EBR summary document within 48 hours</li>
+    </ul>
+</div>
+<div>
+    <div class="col-header gold-hd">From Gabby / Summer Classics</div>
+    <ul class="commit-list">
+        <li>Confirm technical contacts for Sales Portal expansion</li>
+        <li>Identify 2 pilot champions per entity for new features</li>
+        <li>Share integration requirements or ERP roadmap changes</li>
+        <li>Review inactive user list — confirm employment status</li>
+        <li class="blank">[From discussion]</li>
+        <li class="blank">[From discussion]</li>
+    </ul>
+</div>
+</div>
+<p style="text-align:center;font-family:'DM Mono',monospace;font-size:0.78rem;color:#4A7C59;margin-top:20px">Formalized summary within 48 hours.</p>
+</div>
+<div class="pnote" data-note>For ops audiences, be crisp. They want clarity, not open-ended commitments. Specific deliverables with specific dates.</div>
+</section>
+<section class="slide s-lt" data-slide="16">
+<div class="inner">
+<div class="lbl">Appendix</div>
+<h2>Rep Activity Detail by Entity</h2>
+<table>
+<tr><th>Rep</th><th>Entity</th><th class="num-cell">Logins</th><th class="num-cell">Orders</th><th class="num-cell">Events</th><th class="num-cell">Breadth</th><th>Last Active</th></tr>
+<tr><td class="bold">Ryan Casabella</td><td>SC Retail</td><td class="num-cell">420</td><td class="num-cell">261</td><td class="num-cell">3,293</td><td class="num-cell">12</td><td></td></tr>
+<tr><td class="bold">Ryan Casabella</td><td>Gabby</td><td class="num-cell">390</td><td class="num-cell">225</td><td class="num-cell">2,871</td><td class="num-cell">15</td><td></td></tr>
+<tr><td class="bold">Rachel Packer</td><td>SC Wholesale</td><td class="num-cell">301</td><td class="num-cell">200</td><td class="num-cell">3,384</td><td class="num-cell">11</td><td></td></tr>
+<tr><td class="bold">Dierdre   Essix</td><td>SC Wholesale</td><td class="num-cell">297</td><td class="num-cell">196</td><td class="num-cell">4,097</td><td class="num-cell">12</td><td></td></tr>
+<tr><td class="bold">Julie Smallwood</td><td>SC Wholesale</td><td class="num-cell">178</td><td class="num-cell">188</td><td class="num-cell">3,006</td><td class="num-cell">11</td><td></td></tr>
+<tr><td class="bold">Paul Bentley</td><td>Gabby</td><td class="num-cell">240</td><td class="num-cell">165</td><td class="num-cell">2,554</td><td class="num-cell">16</td><td></td></tr>
+<tr><td class="bold">Heather Robert</td><td>Gabby</td><td class="num-cell">226</td><td class="num-cell">157</td><td class="num-cell">2,582</td><td class="num-cell">14</td><td></td></tr>
+<tr><td class="bold">Karen Glass</td><td>SC Wholesale</td><td class="num-cell">169</td><td class="num-cell">152</td><td class="num-cell">2,609</td><td class="num-cell">11</td><td></td></tr>
+<tr><td class="bold">Annette Konstantoudakis</td><td>SC Wholesale</td><td class="num-cell">195</td><td class="num-cell">152</td><td class="num-cell">1,391</td><td class="num-cell">13</td><td></td></tr>
+<tr><td class="bold">Blake Frierdich</td><td>SC Wholesale</td><td class="num-cell">138</td><td class="num-cell">149</td><td class="num-cell">1,546</td><td class="num-cell">12</td><td></td></tr>
+<tr><td class="bold">Anne Leonard</td><td>Gabby</td><td class="num-cell">163</td><td class="num-cell">148</td><td class="num-cell">3,094</td><td class="num-cell">13</td><td></td></tr>
+<tr><td class="bold">Clare Colón</td><td>Gabby</td><td class="num-cell">318</td><td class="num-cell">140</td><td class="num-cell">3,238</td><td class="num-cell">16</td><td></td></tr>
+<tr><td class="bold">Kim McCarthy</td><td>SC Wholesale</td><td class="num-cell">252</td><td class="num-cell">139</td><td class="num-cell">2,859</td><td class="num-cell">13</td><td></td></tr>
+<tr><td class="bold">Tanya Houge</td><td>SC Retail</td><td class="num-cell">273</td><td class="num-cell">126</td><td class="num-cell">2,322</td><td class="num-cell">15</td><td></td></tr>
+<tr><td class="bold">Michael Karcher</td><td>SC Wholesale</td><td class="num-cell">241</td><td class="num-cell">125</td><td class="num-cell">1,256</td><td class="num-cell">13</td><td></td></tr>
+<tr><td class="bold">Charles Hindt</td><td>SC Wholesale</td><td class="num-cell">136</td><td class="num-cell">123</td><td class="num-cell">2,897</td><td class="num-cell">15</td><td></td></tr>
+<tr><td class="bold">Deanne Puryear</td><td>SC Wholesale</td><td class="num-cell">256</td><td class="num-cell">122</td><td class="num-cell">2,418</td><td class="num-cell">12</td><td></td></tr>
+<tr><td class="bold">Diana Horsley</td><td>SC Retail</td><td class="num-cell">257</td><td class="num-cell">122</td><td class="num-cell">1,367</td><td class="num-cell">9</td><td></td></tr>
+<tr><td class="bold">Wynne White</td><td>SC Retail</td><td class="num-cell">179</td><td class="num-cell">118</td><td class="num-cell">1,617</td><td class="num-cell">15</td><td></td></tr>
+<tr><td class="bold">Jeffery Gibb</td><td>SC Wholesale</td><td class="num-cell">308</td><td class="num-cell">117</td><td class="num-cell">3,115</td><td class="num-cell">12</td><td></td></tr>
+</table>
+<p style="font-size:0.78rem;color:#999;margin-top:12px">Full dataset available as CSV export — ask for it.</p>
+</div>
+<div class="pnote" data-note>Only navigate here if they ask for individual rep data. Don't present proactively.</div>
+</section>
+<section class="slide s-dk" data-slide="17">
+<div class="inner">
+<div class="gold-rule"></div>
+<div class="closing-text">262 Users. 4 Divisions. $36.1M YTD.<br>The Data Tells the Story.</div>
+<div class="closing-sub">SuperCat / eCat &middot; March 2026</div>
+</div>
+<div class="pnote" data-note>Keep it short. This audience respects efficiency. Thank them, confirm deliverables, done.</div>
+</section>
+
+<div id="counter"></div>
+<div id="notes-bar"></div>
+<script>
+(function(){
+  const slides = document.querySelectorAll('.slide');
+  const counter = document.getElementById('counter');
+  const notesBar = document.getElementById('notes-bar');
+  let notesVisible = false;
+  const total = slides.length;
+
+  function updateCounter(){
+    let current = 1;
+    slides.forEach((s,i) => {
+      const r = s.getBoundingClientRect();
+      if(r.top < window.innerHeight/2 && r.bottom > window.innerHeight/2) current = i+1;
+    });
+    counter.textContent = current + ' / ' + total;
+    const activeSlide = slides[current-1];
+    if(activeSlide && activeSlide.classList.contains('s-dk')){
+      counter.style.color = 'rgba(255,255,255,0.35)';
+    } else {
+      counter.style.color = 'rgba(30,58,47,0.4)';
+    }
+    if(notesVisible){
+      const note = activeSlide ? activeSlide.querySelector('[data-note]') : null;
+      notesBar.textContent = note ? note.textContent : '';
+    }
+    return current;
+  }
+
+  window.addEventListener('scroll', updateCounter);
+  updateCounter();
+
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'n' || e.key === 'N'){
+      notesVisible = !notesVisible;
+      notesBar.classList.toggle('visible', notesVisible);
+      updateCounter();
+    }
+    const current = updateCounter();
+    if(e.key === 'ArrowDown' || e.key === ' ' || e.key === 'PageDown'){
+      e.preventDefault();
+      if(current < total) slides[current].scrollIntoView({behavior:'smooth'});
+    }
+    if(e.key === 'ArrowUp' || e.key === 'PageUp'){
+      e.preventDefault();
+      if(current > 1) slides[current-2].scrollIntoView({behavior:'smooth'});
+    }
+    if(e.key === 'Home'){e.preventDefault(); slides[0].scrollIntoView({behavior:'smooth'});}
+    if(e.key === 'End'){e.preventDefault(); slides[total-1].scrollIntoView({behavior:'smooth'});}
+  });
+})();
+</script>
+</body>
+</html>

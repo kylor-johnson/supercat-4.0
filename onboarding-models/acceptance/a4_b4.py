@@ -4,14 +4,18 @@
 Both read the structured records `import_log.py` produces. Neither re-parses a
 formatted string, and neither talks to the database.
 
-## A4 — import order
+## A4 — option-group membership
 
-Canonical order:
+**The canonical-order rule was DELETED 2026-09-04.** It asserted
+`options -> option_groups -> products -> stories -> inventory -> customers`
+within a single event and emitted FATAL on any deviation. No incident motivated
+it, no document described it, and it fired 4,602 times on `ufi`, whose routine
+since 2013 is `Products -> Inventory -> Product Stories -> Customers`; also
+607/609 events at `swc`, 2,383 at `ih`, 633 at `pf`, 291 at `ta`. File ordering
+across unrelated importers is a preference, not correctness.
 
-    options -> option_groups -> products -> stories -> inventory -> customers
-
-The load-bearing clause is the second one: **importing `options.csv` NULLS group
-membership, so `option_groups.csv` must be re-sent afterwards.** An Options
+What is left is the clause with a mechanism behind it: **importing `options.csv`
+NULLS group membership, so `option_groups.csv` must be re-sent afterwards.** An Options
 import with no Option Groups import following it leaves every product's option
 groups empty, and the import log reads clean either way.
 
@@ -22,6 +26,11 @@ restores it.
 
   FATAL  the standing state is nulled - nothing has restored it
   WARN   membership was nulled for a period and later restored
+  INFO   Option Groups was processed before Options inside one event
+
+Every A4 finding measures **the import log**. Whether anyone synced inside a
+window, or whether membership is empty right now, are separate claims the check
+does not make and says it does not make - see OPEN_ITEMS G1 and G2.
 
 Only the standing state is a defect. The first version of this rule tested
 "is every Options block followed by an Option Groups block before the next
@@ -35,23 +44,31 @@ was not counted. A bare Option Groups import is the remedy and is never flagged.
 posting into the same importer therefore overwrite each other, and only the last
 one's rows survive.
 
-The detector is the message-count signature. One file produces one recurring
-signature; two files alternating produce two, interleaved over the same window.
-leg's inventory alternates between exactly 237 and exactly 10 warnings.
+The detector is the message-count signature, and **overlapping date ranges are
+not enough** - see `check_b4`. A pair must additionally cover >=90% of that
+importer's runs in the window AND actually alternate (>=5 switches, >=30% of
+consecutive runs). Range overlap alone produced 1,711 findings across 13 orgs,
+1,262 FATAL, two defensible; the three tests together produce 2.
 
-**This measures the log, not the catalogue.** Two signatures is strong evidence
-of two files; it does not by itself prove which rows are currently live. The
-verdict says so, and names the query that would settle it.
+Input is `import_log --mode feed_pairs`. A `--mode signatures` file is declined
+rather than silently downgraded.
+
+**This measures the log, not the catalogue.** It does not prove which rows are
+currently live, nor that two signatures are two FILES rather than one file whose
+error count moved - message content would settle that and is not wired in. Every
+finding says so.
 """
 
 import argparse
 import collections
+import datetime
 import json
 import sys
 
-CANONICAL = ['Options', 'Option Groups', 'Products', 'Product Stories',
-             'Inventory', 'Customers']
-ORDER = {name: i for i, name in enumerate(CANONICAL)}
+# NOTE: the CANONICAL six-way file order that used to live here is gone on
+# purpose (see the module docstring). Do not reintroduce it as a check - the
+# ordering of unrelated importers within one event is a client's routine, not a
+# correctness property, and asserting it cost 4,602 FATALs on one org.
 
 # Files whose importer hard-deletes and reloads: two feeds here destroy data
 # rather than merely confusing it.
@@ -64,6 +81,30 @@ def load(path):
     return payload['records'] if isinstance(payload, dict) else payload
 
 
+def _window_length(start, end):
+    """Human duration between two timestamp strings, or '' if unparseable.
+
+    Reported because the severity of a nulled window depends on how long it ran
+    - pebl's 276.5h and leg's 2.6h are not the same fact - and the check
+    currently gives them the same severity. Stating the length at least lets a
+    reader tell them apart until severity is graded properly.
+    """
+    for fmt in ('%Y-%m-%d %H:%M:%S.%f', '%Y-%m-%d %H:%M:%S',
+                '%Y-%m-%dT%H:%M:%S.%f', '%Y-%m-%dT%H:%M:%S'):
+        try:
+            a = datetime.datetime.strptime(str(start)[:26], fmt)
+            b = datetime.datetime.strptime(str(end)[:26], fmt)
+        except ValueError:
+            continue
+        hours = (b - a).total_seconds() / 3600.0
+        if hours < 1:
+            return '%d min' % round(hours * 60)
+        if hours < 48:
+            return '%.1f h' % hours
+        return '%.1f days' % (hours / 24.0)
+    return 'duration unknown'
+
+
 # ------------------------------------------------------------------ A4
 
 def check_a4(records):
@@ -71,8 +112,29 @@ def check_a4(records):
     recs = sorted(records, key=lambda r: (r['created_at'], r.get('seq', 1)))
     findings = []
 
-    # 1. Within a single event carrying several file types, the sequence the
-    #    importer processed them in must respect the canonical order.
+    # 1. Option Groups processed BEFORE Options inside one event.
+    #
+    # REPLACED 2026-09-04. The previous rule asserted the full six-way CANONICAL
+    # order within an event and emitted FATAL on any deviation. It had no
+    # incident behind it, appeared in no document - BUILD_SPEC §3.1 A4 and the
+    # harness README both describe only rule 2 - and it fired on ordinary
+    # working feeds:
+    #
+    #   ufi   4,602 FATALs. Its routine since 2013 is
+    #         Products -> Inventory -> Product Stories -> Customers, which puts
+    #         Inventory (rank 4) ahead of Product Stories (rank 3).
+    #   swc   607 of 609 multiblock events.  ih 2,383.  pf 633.  ta 291.
+    #
+    # "Products before Inventory before Stories" is a preference, not a
+    # correctness rule, and a FATAL that fires on every import of a decade-old
+    # working routine is how a gate gets switched off.
+    #
+    # What survives is the one adjacency with a MECHANISM: importing Options
+    # nulls option-group membership, so an Option Groups block that the importer
+    # processes BEFORE an Options block in the same event has its membership
+    # nulled again by that Options block. Rule 2 below already scores the net
+    # effect over the event stream, so this is diagnostic rather than a defect
+    # in its own right - hence INFO, not FATAL.
     by_event = collections.OrderedDict()
     for r in recs:
         by_event.setdefault(r['event_id'], []).append(r)
@@ -81,15 +143,20 @@ def check_a4(records):
             continue
         seen = [(b.get('seq', 1), b['file_type']) for b in sorted(
             blocks, key=lambda b: b.get('seq', 1))]
-        ranks = [ORDER.get(ft) for _, ft in seen if ft in ORDER]
-        if ranks and ranks != sorted(ranks):
+        first_groups = next((s for s, ft in seen if ft == 'Option Groups'), None)
+        last_options = max((s for s, ft in seen if ft == 'Options'), default=None)
+        if first_groups is not None and last_options is not None \
+                and first_groups < last_options:
             findings.append({
-                'rule': 'A4.order',
-                'severity': 'FATAL',
+                'rule': 'A4.option_order_within_event',
+                'severity': 'INFO',
                 'when': blocks[0]['created_at'],
                 'event_id': eid,
-                'detail': 'files processed out of canonical order within one '
-                          'import: %s' % ' -> '.join(ft for _, ft in seen),
+                'detail': 'Option Groups was processed before Options in this import '
+                          '(%s), so that Options block nulled the membership the '
+                          'Option Groups block had just set. Whether membership is '
+                          'nulled NOW is rule 2 below, not this line.'
+                          % ' -> '.join(ft for _, ft in seen),
             })
 
     # 2. Option-group membership.
@@ -143,10 +210,24 @@ def check_a4(records):
                     'severity': 'WARN',
                     'when': nulled_since[1],
                     'event_id': nulled_since[0],
+                    # The old text read "Reps who synced inside that window saw no
+                    # option groups." That is a consequence, not a measurement, and
+                    # OPEN_ITEMS G1 settled the wording after doing the work: a
+                    # login is not proof of a sync, and a sync is not proof anyone
+                    # opened a product with options. Saying it anyway is SCORECARD
+                    # §12 R1 in the tool built after R1 was written up.
                     'detail': 'option group membership was nulled at %s and not '
-                              'restored until %s. Reps who synced inside that '
-                              'window saw no option groups.'
-                              % (nulled_since[1], when),
+                              'restored until %s (%s).'
+                              % (nulled_since[1], when,
+                                 _window_length(nulled_since[1], when)),
+                    'measured': 'the import log only - the window during which the '
+                                'standing state was nulled',
+                    'not_established': 'whether any user synced inside the window, '
+                                       'and whether anyone opened a product with '
+                                       'options if they did. Settle it against '
+                                       'login_events for the window and say "at '
+                                       'least one user was active during it" - never '
+                                       '"reps saw no option groups".',
                 })
                 nulled_since = None
     if nulled_since is not None:
@@ -156,9 +237,13 @@ def check_a4(records):
             'when': nulled_since[1],
             'event_id': nulled_since[0],
             'detail': 'the most recent Options import (%s) was not followed by an '
-                      'Option Groups import. Group membership is nulled RIGHT NOW '
-                      '- confirm against option_groups.options before acting.'
+                      'Option Groups import, so the standing state is nulled.'
                       % nulled_since[1],
+            'measured': 'the import log only',
+            'not_established': 'that membership is actually empty right now. '
+                               'CONFIRM against option_groups.options for this org '
+                               'before this reaches anyone - a harness finding is '
+                               'evidence, not a verdict (OPEN_ITEMS G2).',
         })
 
     stats = collections.Counter(r['file_type'] for r in recs)
@@ -167,56 +252,128 @@ def check_a4(records):
 
 # ------------------------------------------------------------------ B4
 
-def check_b4(signatures, min_events=3):
-    """`signatures` are rows from import_log --mode signatures."""
-    findings = []
-    by_type = collections.defaultdict(list)
-    for s in signatures:
-        by_type[s['file_type']].append(s)
+# B4 fires only when all three hold. Each has a meaning; none is a knob.
+MIN_PAIR_EVENTS = 10     # enough runs of the importer to see a pattern at all
+MIN_COVERAGE = 0.90      # the pair IS this importer's traffic in the window
+MIN_ALTERNATIONS = 5     # the pattern returns, rather than swapping once
+MIN_ALT_RATE = 0.30      # ...and returns at a rate, not 8 times in 340 events
 
-    for ft, sigs in sorted(by_type.items()):
-        # A recurring FEED, by definition, recurs over time. Two signatures
-        # that both live inside a single day are a batch uploaded in pieces -
-        # leg's demo-day image uploads produced 10/0 and 12/0 on 2025-06-13 and
-        # were flagged until this filter was added. Require each signature to
-        # span more than a day before treating it as a standing feed.
-        recurring = [s for s in sigs
-                     if int(s['events']) >= min_events
-                     and s['signature'] != '0/0'
-                     and s['first_seen'] != s['last_seen']]
-        if len(recurring) < 2:
+
+def check_b4(rows, min_events=3):
+    """`rows` are from `import_log --mode feed_pairs`.
+
+    ## What changed, and why the old test could not work
+
+    The previous test was "do the two signatures' [first_seen, last_seen] ranges
+    overlap". For any long-running feed they always do, so it fired on drift:
+    **1,711 findings across 13 orgs, 1,262 FATAL, two defensible.** `cl` alone
+    contributed 1,033 FATALs on an Inventory feed that ran clean 5,641 times out
+    of 5,865, whose three "competing files" were one feed whose warning count
+    drifted 1 -> 14 -> 17 over six months.
+
+    `fal` is the case that shows what the signature actually is. Its seven
+    Customers FATALs came from a ten-day window in January 2025 where the same
+    file was re-uploaded after each fix: `0/1001` is "still lots of billing
+    errors", `0/8` is "down to the last eight", and the eight are byte-identical
+    across 01-20, 01-24, 01-28 and 01-29 x3 - `Line 1927: Shipping post code
+    can't be blank: Customer # = 851825`. One file being iterated reads as two
+    files alternating if all you compare is a count.
+
+    ## The three tests
+
+    Two files feeding one importer implies all of:
+
+      coverage      n_pair / n_win >= 0.90
+                    If two files alternate into an importer, nearly every run of
+                    it is one of them. leg: 37 of 37, 100%.
+
+      alternation   alts >= 5 AND alts / (n_pair - 1) >= 0.30
+                    `A...A B...B` is one file REPLACED by another and scores near
+                    zero at any volume. The rate is needed as well as the count:
+                    sp's Kit Items pair is 340 events at 96.6% coverage with 8
+                    alternations - 2.4%, drift wearing coverage's clothing.
+
+      volume        n_pair >= 10
+
+    Validated against the four cases whose answer is known independently:
+
+        leg   Inventory 237/0 vs 10/0   100% cov, 19 alts, 52.8%  -> FIRES
+        cl    Inventory, 246 pairs      max alt rate 16.7%        -> silent
+        fal   Customers, 7 pairs        max 2 alts at >=90% cov   -> silent
+        pebl  Option Groups             0 alts; 423/423 groups OK -> silent
+
+    Across the same 13 orgs: **1,711 -> 2** (leg's FATAL, and one sp Products
+    WARN from a genuinely alternating 10-day window in 2021).
+
+    ## What this still does not establish
+
+    The signature is a COUNT of warnings and errors. Two files produce different
+    message CONTENT, not merely different counts, and comparing content is what
+    would settle this definitively - `--mode taxonomy` is the substrate for that
+    and it is not wired in. Every finding says so.
+    """
+    findings = []
+    if not rows:
+        return findings
+
+    # Legacy `--mode signatures` rows cannot answer the question. Decline
+    # loudly rather than falling back to range-overlap, which is the behaviour
+    # that produced 1,262 FATALs.
+    if 'alts' not in rows[0]:
+        return [{
+            'rule': 'B4.not_evaluated', 'severity': 'INFO',
+            'file_type': '(all)',
+            'detail': 'NOT EVALUATED - B4 needs `import_log --mode feed_pairs`. The '
+                      'rows supplied are `--mode signatures`, which carry only per-'
+                      'signature date ranges; whether two signatures ALTERNATE '
+                      'cannot be decided from those, and testing range overlap '
+                      'instead is what produced 1,262 FATALs of which two were '
+                      'defensible.',
+            'measured': 'nothing - the check did not run',
+            'not_established': 'anything about this org\'s feeds. Re-run with '
+                               '--mode feed_pairs.',
+        }]
+
+    for r in rows:
+        n_pair = int(r.get('n_pair') or 0)
+        n_win = int(r.get('n_win') or 0)
+        alts = int(r.get('alts') or 0)
+        if n_pair < MIN_PAIR_EVENTS or n_win <= 0:
             continue
-        # Interleaved: the windows overlap rather than following one another.
-        spans = [(s['first_seen'], s['last_seen'], s) for s in recurring]
-        overlapping = []
-        for i in range(len(spans)):
-            for j in range(i + 1, len(spans)):
-                a, b = spans[i], spans[j]
-                if a[0] <= b[1] and b[0] <= a[1]:
-                    overlapping.append((a[2], b[2]))
-        if not overlapping:
+        coverage = n_pair / float(n_win)
+        alt_rate = alts / float(n_pair - 1) if n_pair > 1 else 0.0
+        if coverage < MIN_COVERAGE:
             continue
-        for a, b in overlapping:
-            findings.append({
-                'rule': 'B4.two_feeds',
-                'severity': 'FATAL' if ft in HARD_DELETE else 'WARN',
-                'file_type': ft,
-                'detail': '%s shows two distinct recurring message signatures over '
-                          'the same window: %s (%s events, %s..%s) and %s (%s '
-                          'events, %s..%s). One file produces one signature; two '
-                          'interleaved signatures mean two different files are '
-                          'feeding this importer.%s'
-                          % (ft, a['signature'], a['events'], a['first_seen'],
-                             a['last_seen'], b['signature'], b['events'],
-                             b['first_seen'], b['last_seen'],
-                             ' %s hard-deletes and reloads, so only one file\'s '
-                             'rows survive at a time.' % ft
-                             if ft in HARD_DELETE else ''),
-                'measured': 'log signatures only',
-                'not_established': 'which file\'s rows are live right now. Settle '
-                                   'it by comparing the live key set against each '
-                                   'candidate source file.',
-            })
+        if alts < MIN_ALTERNATIONS or alt_rate < MIN_ALT_RATE:
+            continue
+        ft = r['file_type']
+        findings.append({
+            'rule': 'B4.two_feeds',
+            'severity': 'FATAL' if ft in HARD_DELETE else 'WARN',
+            'file_type': ft,
+            'detail': '%s alternates between two distinct message signatures over '
+                      '%s..%s: %s (%s events) and %s (%s events). Across that window '
+                      'they are %d of %d runs of this importer (%.0f%% coverage) and '
+                      'they alternate %d times (%.0f%% of consecutive runs switch). '
+                      'One file produces one signature; a pair that both dominates '
+                      'the importer and keeps swapping is two different files feeding '
+                      'it.%s'
+                      % (ft, r.get('win_start'), r.get('win_end'),
+                         r.get('sig_a'), r.get('events_a'),
+                         r.get('sig_b'), r.get('events_b'),
+                         n_pair, n_win, 100.0 * coverage,
+                         alts, 100.0 * alt_rate,
+                         ' %s hard-deletes and reloads, so only one file\'s rows '
+                         'survive at a time.' % ft if ft in HARD_DELETE else ''),
+            'measured': 'the import log only - signature counts, their coverage of '
+                        'this importer, and how often they alternate',
+            'not_established': 'which file\'s rows are live right now, and that the '
+                               'two signatures are different FILES rather than one '
+                               'file whose error count moves. Settle it by comparing '
+                               'the live key set against each candidate source file; '
+                               'message CONTENT (--mode taxonomy) would settle the '
+                               'second question and is not wired in.',
+        })
     return findings
 
 
@@ -234,6 +391,10 @@ def report(a4, b4, stats, out=sys.stdout):
     for f in a4:
         w('   %-7s %s\n' % (f['severity'], f['rule']))
         w('           %s\n' % f['detail'])
+        if f.get('measured'):
+            w('           measured: %s\n' % f['measured'])
+        if f.get('not_established'):
+            w('           NOT established: %s\n' % f['not_established'])
     w('\n-- B4 ' + '-' * 66 + '\n')
     if not b4:
         w('   no interleaved feed signatures found\n')
@@ -250,7 +411,9 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument('--events', help='records from import_log --mode events')
-    ap.add_argument('--signatures', help='records from import_log --mode signatures')
+    ap.add_argument('--signatures',
+                    help='records from import_log --mode feed_pairs (a --mode '
+                         'signatures file is accepted and declined, loudly)')
     ap.add_argument('--json', action='store_true')
     args = ap.parse_args()
 

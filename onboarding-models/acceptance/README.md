@@ -8,11 +8,11 @@ supercat-postgres-vpn MCP, never connects and never writes.
 | A1 | org fingerprint | **SHIPPED** — `a1_fingerprint.py` |
 | A2 | placeholder pricing | **SHIPPED** — `state_checks.py` |
 | A3 | references resolve | **SHIPPED** — `state_checks.py` |
-| A4 | import order | **SHIPPED** — `import_log.py` + `a4_b4.py` |
+| A4 | option-group membership | **SHIPPED** — `import_log.py` + `a4_b4.py` (canonical-order rule deleted 2026-09-04) |
 | B1 | registered fields populated | **SHIPPED** — `b1_fields.py` |
 | B2 | image filenames match FTP | **UNIMPLEMENTED — blocked, see below** |
 | B3 | territory codes | **SHIPPED** — `state_checks.py` |
-| B4 | feeds overwriting | **SHIPPED** — `import_log.py` + `a4_b4.py` |
+| B4 | feeds overwriting | **SHIPPED** — `import_log.py --mode feed_pairs` + `a4_b4.py` (alternation test added 2026-09-04) |
 | B5 | inventory config vs data | **SHIPPED** — `state_checks.py` |
 | B6 | carry-forward diff | **done** — `ecatlib.carryforward.diff_against_previous` |
 
@@ -187,7 +187,31 @@ could never supply. leg alone yields:
 
 ---
 
-## A4 — import order
+## A4 — option-group membership
+
+**The canonical-order rule was DELETED 2026-09-04.** A4 used to assert
+`options -> option_groups -> products -> stories -> inventory -> customers`
+within a single import event and emit **FATAL** on any deviation. Nothing
+motivated it: no incident, no line in BUILD_SPEC §3.1 A4, no line in this file.
+It fired on ordinary working feeds —
+
+| org | A4.order FATALs | that org's actual routine |
+|---|---|---|
+| `ufi` | **4,602** | `Products -> Inventory -> Product Stories -> Customers`, unchanged since 2013 |
+| `ih` | 2,383 | (since 2025-01-01 only) |
+| `pf` | 633 | " |
+| `swc` | 607 of 609 multiblock events | " |
+| `ta` | 291 | " |
+
+— because Inventory (rank 4) legitimately precedes Product Stories (rank 3) in
+those clients' routines. Ordering across unrelated importers is a preference,
+not a correctness property.
+
+What replaces it is the single adjacency with a **mechanism**: an `Option
+Groups` block processed *before* an `Options` block inside one event has its
+membership nulled again by that Options block. Reported at **INFO**, because
+rule 2 below already scores the net standing effect and is where a defect would
+actually show.
 
 **Corrected 2026-09-04, after a false positive.** The first rule was "every
 Options block must be followed by an Option Groups block before the next Options
@@ -234,11 +258,122 @@ The one worth a client conversation is pebl's **2026-04-10 → 2026-04-22** wind
 whether any rep synced inside it and saw nothing is a separate claim this check
 does not make.
 
+**The code now says that too (fixed 2026-09-04).** Every `A4.membership_window`
+finding used to end with the sentence *"Reps who synced inside that window saw
+no option groups."* — a consequence, asserted unconditionally, with no reference
+to `login_events`. OPEN_ITEMS G1 had already settled the wording after doing the
+work: a login is not proof of a sync, and a sync is not proof anyone opened a
+product with options. Findings now carry `measured` / `not_established` fields
+in the same shape B4 uses, and name `login_events` as what would settle it.
+
+Window counts are per **window**, not per event: pebl has 25 events ending on an
+Options block but **20 nulled windows**, because consecutive Options-ending
+events collapse into one. Earlier notes quoting 25 were counting events.
+
 Two independent implementations (Python over records, SQL over the event stream)
 agree on every figure above — the same discipline that made the original bug
 findable.
 
 ## B4 — two files feeding one importer
+
+**Rewritten 2026-09-04. Range overlap was never the test.**
+
+The first version asked only "do the two signatures' `[first_seen, last_seen]`
+ranges overlap". For any long-running feed they always do, so it fired on
+drift — a feed whose error count moves — as loudly as on two real files:
+
+| org | B4 before | of which FATAL | after |
+|---|---|---|---|
+| `cl` | 1,048 | 1,033 | **0** |
+| `sp` | 247 | 0 | 1 |
+| `uhc` | 201 | 167 | **0** |
+| `ufi` | 151 | 49 | **0** |
+| `pebl` | 23 | 1 | **0** |
+| `clli` | 20 | 3 | **0** |
+| `fal` | 16 | 7 | **0** |
+| `mali` | 3 | 1 | **0** |
+| `leg` | 1 | 1 | **1** ✅ |
+| `libco` | 1 | 0 | **0** |
+| **13 orgs** | **1,711** | **1,262** | **2** |
+
+`cl`'s 1,033 FATALs were an Inventory feed that ran **clean 5,641 times out of
+5,865**, whose three "competing files" were one feed drifting 1 → 14 → 17
+warnings over six months.
+
+**`fal` is the case that shows what a signature actually is.** Its seven
+Customers FATALs came from a ten-day window in January 2025 in which the same
+file was re-uploaded after each fix. `0/1001` is "still lots of billing errors";
+`0/8` is "down to the last eight" — and those eight are byte-identical across
+2025-01-20, 01-24, 01-28 and 01-29 ×3:
+
+```
+Line 1927: error=Validation failed: Shipping post code can't be blank: Customer # = 851825
+```
+
+One file being iterated is indistinguishable from two files alternating *if all
+you compare is a count*.
+
+### The three tests
+
+Two files feeding one importer implies all three. None is a knob.
+
+| test | rule | meaning |
+|---|---|---|
+| **coverage** | `n_pair / n_win ≥ 0.90` | if two files alternate into an importer, nearly every run of it is one of them. `leg`: 37 of 37 |
+| **alternation** | `alts ≥ 5` **and** `alts / (n_pair−1) ≥ 0.30` | `A…A B…B` is one file *replaced* by another and scores near zero at any volume |
+| **volume** | `n_pair ≥ 10` | enough runs to see a pattern at all |
+
+The rate is needed as well as the count. `sp`'s Kit Items pair is **340 events
+at 96.6% coverage with 8 alternations** — 2.4%, drift wearing coverage's
+clothing. A bare `alts ≥ 5` would have passed it.
+
+### Validated against four cases whose answer is known independently
+
+```
+leg   Inventory 237/0 vs 10/0    100% coverage, 19 alts, 52.8%   -> FIRES  (correct)
+cl    Inventory, 246 pairs       max alternation rate 16.7%      -> silent (correct)
+fal   Customers, 7 pairs         max 2 alts at >=90% coverage    -> silent (correct)
+pebl  Option Groups              0 alts; 423/423 groups OK       -> silent (correct)
+```
+
+The one survivor besides `leg` is `sp` **Products**, 2021-09-16..09-26: 11 runs,
+100% coverage, 5 alternations. Genuinely alternating; `Products` soft-deletes
+rather than hard-deletes, so WARN. A five-year-old window, reported as what it
+is.
+
+### Input, and the declined path
+
+B4 now consumes `import_log --mode feed_pairs`, which computes coverage and
+alternation **server-side** — `cl` has 39k blocks and `clli` 64k, so streaming
+them to Python was never affordable. That mode is deliberately two-stage
+(`HAVING` on coverage, then the window function only for survivors); the
+one-stage form times out at 30s on `cl`.
+
+A `--mode signatures` file is **declined**, not silently downgraded:
+
+```
+INFO    B4.not_evaluated
+        NOT EVALUATED - B4 needs `import_log --mode feed_pairs`. The rows supplied
+        are `--mode signatures`, which carry only per-signature date ranges; whether
+        two signatures ALTERNATE cannot be decided from those, and testing range
+        overlap instead is what produced 1,262 FATALs of which two were defensible.
+```
+
+### What it still does not establish
+
+The signature is a **count** of warnings and errors. Two different files produce
+different message *content*, and comparing content is what would settle this
+definitively. `--mode taxonomy` is the substrate for that and is not wired in.
+Every finding says so.
+
+**Known gap, not fixed:** the signature is `n_warning/n_error` and ignores
+`fatal`, so a fatal-tier block reads as `0/0` and is dropped as clean. `fal`'s
+2025-01-23 `Column shiptoaddress1 is missing` block is one. Two characters to
+fix; out of scope for this change.
+
+---
+
+### The original note, kept
 
 Detector is the message-count signature: one file produces one recurring
 signature, two alternating files produce two, interleaved over the same window.
@@ -404,10 +539,40 @@ plausible.
 
 ### Limits
 
-- A2 reads `net` from `products.net_price` and every other level from the
-  `prices_json` blob (TEXT, so it needs a `::jsonb` cast). Arithmetic levels
-  (`pl_type` with a factor) derive from a target level; A2 measures the stored
-  value and does not evaluate the arithmetic.
+- **A2 evaluates `ad-hoc` price levels ONLY, and now declares the rest.**
+  `net` is read from `products.net_price`; every other ad-hoc level from the
+  `prices_json` blob (TEXT, so it needs a `::jsonb` cast). `arithmetic` and
+  `quantity` levels store NO key there - their value is computed from
+  `net_price` x `factor` - so a level carrying more than half the org's
+  customers that is not ad-hoc is reported as `A2.not_evaluated` (INFO) rather
+  than measured against the wrong column.
+
+  **Corrected 2026-09-04.** The previous wording said A2 "does not evaluate the
+  arithmetic", which describes silence. The code did not stay silent: it read
+  `prices_json ->> code`, got NULL on every row, and emitted a defect finding
+  from what `count(DISTINCT ...)` returned after discarding those NULLs. On
+  `uhc` that was a **BLOCKING** finding - 'wholesale' is arithmetic factor=1.0,
+  exactly ONE of 4,433 products carried a stray `wholesale` key at 307.89, and
+  A2 reported "resolves to ONE distinct value across all 4433 live products".
+  The catalogue carries 396 distinct net prices, $0.00-$450.00. Fleet-wide,
+  **46 of A2's 47 findings were this artifact**; the 47th was `drf`, closed as
+  by design in OPEN_ITEMS A9.
+
+  Resolving arithmetic properly means following `factor` and
+  `target_price_level_id` chains. That is a separate job and is not needed to
+  stop the check lying.
+
+- **A2's denominator is the products that carry a price for the level**, not the
+  catalogue. `products_carrying_value` is selected for exactly this. The old
+  text said "across all N live products" with N = the whole catalogue even when
+  the distinct count came from one row - OPEN_ITEMS F7's shape, a partition that
+  does not describe what it claims.
+
+- **Residual, not fixed:** an ad-hoc level with >50% of customers, one distinct
+  value, and only a handful of products carrying it would still be BLOCKING. No
+  live org is in that state today (the only ad-hoc hit fleet-wide is drf at
+  1,627 of 1,627), and the denominator now makes the situation visible in the
+  message rather than hidden. Add a carrying-share threshold if a case appears.
 - A3 does **not** cover image filenames. That is B2, still unimplemented and
   still blocked on FTP access.
 - B5 reports what is registered and what is populated. **What the iPad renders

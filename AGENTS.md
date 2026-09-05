@@ -3,18 +3,29 @@
 Orientation for any agent working in this repo. Read this first, then the
 `.cursor/rules/*.mdc` files (auto-loaded) and `CLAUDE.md` (same rules, ported).
 
-**This file supersedes `README.md` for agent orientation.** `README.md` describes
-an earlier, narrower scope and is stale.
+**This file supersedes `README.md` for agent orientation.**
 
-**What this repo is:** the SuperCat operations workspace — client onboarding,
-agent skills, business foundation docs, reporting pipelines, and PM material.
-It is *not* the product codebase. Application source (`supercat_server`,
-`sarreid_ios`) lives at `~/supercat-code` and is opened as a second root via
-`SuperCat.code-workspace` (see `WORKSPACE.md`).
+**What this repo is:** the SuperCat operations workspace — agent skills,
+business foundation docs, reporting pipelines, PM material, and onboarding
+*models*. It is *not* the product codebase and *not* the live client-file tree.
 
-**Location caveat:** this workspace lives in iCloud Drive
-(`~/Library/Mobile Documents/com~apple~CloudDocs/SuperCat 4.0`). Paths contain
-spaces and `~` characters — always quote paths in shell commands.
+Application source (`supercat_server`, `sarreid_ios`) lives at `~/supercat-code`.
+Live client onboarding lives in the **private** repo
+`~/repos/ecat-onboarding-workspace` (`02_Implementation/<Client>/`).
+
+**Source of truth (edit here):**
+
+| Work | Path |
+|---|---|
+| Ops (this repo) | `~/repos/supercat-4.0` |
+| Live client implementation | `~/repos/ecat-onboarding-workspace` |
+| Product code | `~/supercat-code` |
+
+Open **File → Open Workspace from File… → `~/repos/supercat-4.0/SuperCat.code-workspace`**.
+Do not open iCloud `SuperCat 4.0` as the working folder.
+
+iCloud `SuperCat 4.0` and `SuperCat_Simple_Final` still exist as leftover sync.
+If you must touch them, quote paths (spaces and `~` characters).
 
 ---
 
@@ -42,7 +53,7 @@ spaces and `~` characters — always quote paths in shell commands.
 ### Client onboarding
 | Path | Purpose |
 |---|---|
-| `eCat_Onboarding/` | Per-client workspaces (`drf`, `leg`, `libco`, `mali`, `pebl`, …) plus `_Template/` and `00_KICKOFF_PROMPT.md`. |
+| `eCat_Onboarding/` | **Pointers only** — kickoff, registry, `jcusa.md`. Live client folders are in `~/repos/ecat-onboarding-workspace/02_Implementation/`. **Never recreate client folders here.** |
 | `onboarding-models/` | Phase framework, output contracts, HTML artifact contract, questionnaire, rendering pipeline. |
 | `kb-articles/`, `KB - Net New/`, `documentation/` | Knowledge-base source and drafts. |
 
@@ -104,16 +115,20 @@ and any `* 2.md` / `* 2.py` duplicate — these are copies, not sources of truth
 
 **Naming**
 - Dated artifacts: `YYYY-MM-DD` prefix or suffix (`2026-07-16__name.md`).
-- Client work is keyed by **org shortname** (`mali`, `libco`, `drf`, `pebl`, `leg`).
+- Assessment / ground-truth is keyed by **org shortname** (`mali`, `libco`, `drf`, `pebl`, `leg`).
+  Live implementation folders use full client names in `ecat-onboarding-workspace`.
 - Reports commonly ship as a `.md` + `.html` pair with the same stem.
 - Docs carry a `> **Last updated**: YYYY-MM-DD` line near the top — **bump it when
   you change the file.** Several `foundation/` docs currently have edits that
   were made without bumping the stamp; do not add to that.
 
 **Never commit**
-- Client data (`customers.csv`, `Ready_For_Import/*.csv`)
-- Secrets — `.env`, `bigquery/service-account/`, `*service-account*.json`
+- Secrets — `.env`, `bigquery/service-account/`, `*service-account*.json`, HubSpot/Fathom keys under `integrations/`
+- `Ready_For_Import/*.csv` (staging payloads)
 - Transcript archives (`*transcript*.zip`)
+- Live client CSVs into *this* repo — they belong in the private
+  `kylor-johnson/ecat-onboarding-workspace` repo by intent
+- Recreated `eCat_Onboarding/<client>/` trees
 
 **Skills live in three places.**
 
