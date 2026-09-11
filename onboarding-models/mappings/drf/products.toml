@@ -1,0 +1,178 @@
+# Dorell / Loomcraft (drf) -- products.csv
+#
+# WRITTEN BLIND. See BLIND_BOUNDARY.md.
+#
+# The archetype that broke an onboarding: presentation-only, fabrics, ~30,000
+# SKUs against ~130 images, pricing in stories.csv. Two weeks lost, Showtime
+# missed, and the verdict was "the data question was never actually settled
+# before the build started."
+#
+# THE HEADLINE, and it is not a column mapping:
+#
+#   The entire product source is ONE 11.7 KB file containing 72 patterns.
+#   It has no images, no prices, and no colourways.
+#
+# A fabric catalogue is pattern x colourway. This file is the pattern axis only.
+# Nothing in `Source Data/` supplies the second axis, so **this mapping cannot
+# produce the catalogue** and does not pretend to. It produces the 72 rows the
+# source actually supports and reports the gap. See DISCREPANCY.md.
+
+client        = "drf"
+org_name      = "Dorell / Loomcraft"
+target        = "products.csv"
+input_class   = 2       # detector reads HYBRID at 61% -- see below
+mode          = "validate"
+dialect       = "legrand"
+line_terminator = "crlf"
+primary_input = "characteristics"
+
+# HYBRID, and the guard still applies. 14 of 23 headers are eCat field names and
+# 9 are client-domain columns carried alongside -- the exact shape the kickoff
+# warns about for this client by name. The eCat half has had its mapping done by
+# a human and must be VALIDATED, not re-mapped; the client half needs registering
+# as custom fields. Running the class-2 guard over the whole file is the
+# conservative choice: it means no column can be dropped or renamed here without
+# an explicit recorded reason (OPEN_ITEMS A22).
+
+[inputs.characteristics]
+format = "csv"
+path   = "Source Data/Characteristics Interwoven spring 2026_eCat MAPPED (1).csv"
+skip_rows_after_header = 1
+# Row 1 is eCat field names, row 2 is the CLIENT'S labels ("Product", "Status",
+# "Product Class", "Product Sub-class"), data from row 3. Third client in a row
+# with a two-header-row file, and the second where reading it naively would
+# import a product whose BaseItemCode is the literal string "Product".
+
+[escape_hatch]
+budget     = 3
+transforms = []
+# Zero. Nothing here needs a transform; what it needs is data that does not exist.
+
+# --- the eCat half: validate, do not transform -----------------------------------
+
+[[fields]]
+name = "BaseItemCode"
+op = "passthrough"
+# 72 values, 72 distinct, max length 12. These are PATTERN names (`ADELINA-UV`,
+# `AMELIE-C0`), not orderable SKUs. The `-UV` / `-C0` suffixes track the
+# `Finishing` column, not colour.
+
+[[fields]]
+name = "ShortDesc"
+op = "passthrough"
+# 93% populated, 68 distinct -- the pattern name in title case.
+
+[[fields]]
+name = "LongDesc"
+op = "passthrough"
+# FINDING: 4 distinct values across 72 rows (`ULTRA-BLEACH CLEAN`, `WOVEN`, ...).
+# The client's own label for this column is "Product Class". It is a
+# classification, not a description, and as LongDesc it gives 72 products
+# eighteen-way-duplicated names in a rep's list view. Passed through unchanged
+# and reported -- re-deriving it would be transforming a mapped file.
+
+[[fields]]
+name = "NewItem"
+op = "passthrough"
+# FINDING: carries `NEW ITEM` / `ACTIVE`, not `Y`/`N`. eCat's NewItem is a
+# boolean. Same family as libco's Yes/No booleans (A5/A19): a value that is
+# meaningful to a human and unmatched by the app.
+
+[[fields]]
+name = "TradeNameCode"
+op = "passthrough"
+# 99% `Dorell` -- one row blank.
+
+[[fields]]
+name = "CollectionCodes"
+op = "passthrough"
+# FINDING: 1.4% populated -- 1 row of 72 -- while the client-domain `Collection`
+# column (their "Product Sub-class": CHENILLE, TEXTURE, ...) is 100% populated
+# with 8 values. The taxonomy the client sent never reached the eCat taxonomy
+# column. Auto-create would build the catalogue's collection list from ONE row.
+
+[[fields]]
+name = "CategoryCodes"
+op = "passthrough"
+# 1.4% populated. Same gap.
+
+[[fields]]
+name = "Dimensions"
+op = "passthrough"
+# Empty on all 72. Shipped as an empty column deliberately: omitting a standard
+# column does not clear it.
+
+[[fields]]
+name = "ImageFileName"
+op = "passthrough"
+# EMPTY ON ALL 72 ROWS. The single most consequential fact in this source, and
+# the reason the profiler's "what doesn't add up" check exists. See DISCREPANCY.md.
+
+[[fields]]
+name = "PackedVolume"
+op = "passthrough"
+
+[[fields]]
+name = "PackQuantity"
+op = "passthrough"
+
+[[fields]]
+name = "MinimumQuantity"
+op = "passthrough"
+# Empty -- while the client-domain `Minimum` column ("330 YDS", "1,100 YDS") is
+# 100% populated. A yardage minimum is not an integer order minimum, so these are
+# NOT the same field and the mapping does not join them. That is a client
+# question, not a derivation.
+
+[[fields]]
+name = "NetPrice"
+op = "passthrough"
+primitive = "money"
+# EMPTY ON ALL 72 ROWS. Pricing is not in this file.
+
+[[fields]]
+name = "PromotionPrice"
+op = "passthrough"
+primitive = "money"
+
+# --- the client half: 9 columns that must be REGISTERED as custom fields ---------
+# Populated + unregistered = discarded on every import, silently (§3 B1b). These
+# are the fabric attributes a rep actually filters on, so registering them is not
+# optional decoration.
+
+[[fields]]
+name = "Collection"
+op = "passthrough"
+# Client label "Product Sub-class". 8 values, 100% populated. See CollectionCodes.
+
+[[fields]]
+name = "Origin"
+op = "passthrough"
+
+[[fields]]
+name = "Content"
+op = "passthrough"
+
+[[fields]]
+name = "Minimum"
+op = "passthrough"
+
+[[fields]]
+name = "CleaningCode"
+op = "passthrough"
+
+[[fields]]
+name = "Direction"
+op = "passthrough"
+
+[[fields]]
+name = "Abrasion"
+op = "passthrough"
+
+[[fields]]
+name = "Backing"
+op = "passthrough"
+
+[[fields]]
+name = "Finishing"
+op = "passthrough"

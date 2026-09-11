@@ -1,0 +1,611 @@
+# Legrand (leg) -- products.csv
+#
+# This file REPLACES build_ecat_files.py's products.csv path (1,537 lines).
+# Phase 2's acceptance test discards that script and regenerates the live file
+# from this mapping alone. Byte-identical or it does not ship.
+#
+# Everything here is DATA. No client Python runs except the one declared
+# escape-hatch transform in `custom.py` (see [escape_hatch]).
+
+client      = "leg"
+org_name    = "Legrand"
+org_id      = 273          # `lna` id 93 is a dead 2015 org with the same name
+target      = "products.csv"
+input_class = 1            # raw-ish vendor export -> map it
+dialect     = "legrand"    # NEVER inferred. values.LEGRAND is byte-exact with
+                           # build_ecat_files.py; that is what makes the
+                           # acceptance test possible at all.
+
+tables_files = ["tables.toml"]
+primary_input = "product_file"
+
+
+# --- inputs ------------------------------------------------------------------
+# Four price books + an image map. BUILD_SPEC §2 called the four price loaders
+# "genuinely client-specific". They are not: they differ only in the row the
+# data starts on and which column index holds which price. That is PARAMETERS.
+# One shared xlsx reader covers all four, so leg needs ZERO bespoke loaders here.
+
+[inputs.product_file]
+format = "csv"
+path   = "Source Data/Product File/adorne  radiant US  CAD Data File  5-14-26.xlsx - Data.csv"
+
+[inputs.image_map]
+format = "csv"
+path   = "Build/image_filename_map.csv"
+key    = "BaseItemCode"
+# Only filenames VERIFIED against a downloaded image. Guessing "{item}.jpg"
+# ships an ImageFileName matching no file on FTP -- worse than blank, because
+# it looks intentional. (BUILD_SPEC B2, pebl's 18 days of .jpg.jpg.)
+
+[inputs.us_radiant]
+format = "xlsx"
+path   = "Source Data/_converted/radiant_us.xlsx"
+data_start_row  = 2
+key_col         = 1
+skip_key_values = ["Item"]
+value_primitive = "money"
+dialect         = "legrand"
+columns = { msrp = 4, imap = 5, dn = 6 }
+
+[inputs.us_adorne]
+format = "xlsx"
+path   = "Source Data/_converted/adorne_us.xlsx"
+data_start_row  = 2
+key_col         = 1
+skip_key_values = ["Item"]
+value_primitive = "money"
+dialect         = "legrand"
+columns = { msrp = 5, imap = 6, dn = 7 }
+
+[inputs.ca_radiant]
+format = "xlsx"
+path   = "Source Data/_converted/radiant_ca.xlsx"
+data_start_row  = 8          # header row 6, data from 8
+key_col         = 1
+value_primitive = "money"
+dialect         = "legrand"
+columns = { net_cad = 5, imap_cad = 6, msrp_cad = 7 }
+
+[inputs.ca_adorne]
+format = "xlsx"
+path   = "Source Data/_converted/adorne_ca.xlsx"
+data_start_row  = 8          # header row 7, data from 8
+key_col         = 1
+value_primitive = "money"
+dialect         = "legrand"
+# NOTE the column order differs from ca_radiant: msrp and imap are SWAPPED.
+columns = { net_cad = 5, msrp_cad = 6, imap_cad = 7 }
+
+
+# --- escape hatch -------------------------------------------------------------
+# Budget: 3 per-field custom transforms. Used: 1.
+[escape_hatch]
+module     = "custom.py"
+transforms = ["packed_volume_cuft"]
+budget     = 3
+
+
+# --- carry-forward ------------------------------------------------------------
+# Values the generator CANNOT derive. A mapping describes source -> target and
+# carry-forward has no source, so it is first-class here rather than a post-step
+# someone remembers. This already cost leg 19 products' live images once.
+[carry_forward]
+source     = "Build/products.aug06-live.csv"
+key_column = "BaseItemCode"
+require    = true    # a missing source ABORTS. A silent {} is the original bug.
+
+
+# --- derived ------------------------------------------------------------------
+# Intermediate per-row values. Evaluated in order; not emitted.
+
+[[derived]]
+name = "item_id"
+op = "column"
+column = "Item ID"
+primitive = "trim"
+
+[[derived]]
+name = "collection"
+op = "column"
+column = "Collection"
+primitive = "trim"
+
+[[derived]]
+name = "is_adorne"
+op = "equals"
+input = "collection"
+value = "adorne"
+
+# Verified one-off typos in `Product Name`, keyed by Item ID so a fix can never
+# bleed. Applied BEFORE RelatedItems grouping and LongDesc: the family key is
+# derived from this name, so a wrong colour word orphans a SKU from its family.
+[[derived]]
+name = "product_name"
+op = "column"
+column = "Product Name"
+primitive = "trim"
+override_by_key = { table = "product_name_fixes", key = "item_id" }
+
+# Per-SKU Finish overrides short-circuit normalisation, exactly as get_finish
+# does: the override IS the answer, not an input to the fix table.
+[[derived]]
+name = "finish"
+op = "column"
+column = "Finish"
+primitive = "clean_lookup"
+params = { fixes = "finish_fixes" }
+override_by_key = { table = "finish_overrides", key = "item_id" }
+
+# -- pricing: four books, region x brand, with a main-file fallback for adorne --
+
+[[derived]]
+name = "us_dn"
+op = "source_switch"
+on = "collection"
+cases = { adorne = "us_adorne" }
+default_input = "us_radiant"
+key = "item_id"
+field = "dn"
+
+[[derived]]
+name = "us_msrp"
+op = "source_switch"
+on = "collection"
+cases = { adorne = "us_adorne" }
+default_input = "us_radiant"
+key = "item_id"
+field = "msrp"
+
+[[derived]]
+name = "us_imap"
+op = "source_switch"
+on = "collection"
+cases = { adorne = "us_adorne" }
+default_input = "us_radiant"
+key = "item_id"
+field = "imap"
+
+[[derived]]
+name = "ca_net_book"
+op = "source_switch"
+on = "collection"
+cases = { adorne = "ca_adorne" }
+default_input = "ca_radiant"
+key = "item_id"
+field = "net_cad"
+
+[[derived]]
+name = "ca_imap_book"
+op = "source_switch"
+on = "collection"
+cases = { adorne = "ca_adorne" }
+default_input = "ca_radiant"
+key = "item_id"
+field = "imap_cad"
+
+[[derived]]
+name = "ca_msrp_book"
+op = "source_switch"
+on = "collection"
+cases = { adorne = "ca_adorne" }
+default_input = "ca_radiant"
+key = "item_id"
+field = "msrp_cad"
+
+# The main product file carries adorne pricing as a fallback. radiant rows must
+# NOT fall back to it -- `only_when` reproduces that exactly.
+[[derived]]
+name = "main_dn"
+op = "column"
+column = "Dist NET 1"
+primitive = "money"
+only_when = { field = "collection", equals = "adorne" }
+
+[[derived]]
+name = "main_retail"
+op = "column"
+column = "Retail Price"
+primitive = "money"
+only_when = { field = "collection", equals = "adorne" }
+
+[[derived]]
+name = "main_imap"
+op = "column"
+column = "IMAP Price"
+primitive = "money"
+only_when = { field = "collection", equals = "adorne" }
+
+# "Canadiant NET" is misspelled in the SOURCE header. Preserved verbatim:
+# correcting it here would silently read nothing.
+[[derived]]
+name = "main_ca_net"
+op = "column"
+column = "Canadiant NET"
+primitive = "money"
+only_when = { field = "collection", equals = "adorne" }
+
+[[derived]]
+name = "main_ca_imap"
+op = "column"
+column = "Canadian IMAP"
+primitive = "money"
+only_when = { field = "collection", equals = "adorne" }
+
+[[derived]]
+name = "main_ca_msrp"
+op = "column"
+column = "Canadian MSRP"
+primitive = "money"
+only_when = { field = "collection", equals = "adorne" }
+
+[[derived]]
+name = "net_price"
+op = "coalesce"
+of = ["us_dn", "main_dn"]
+
+[[derived]]
+name = "retail_price"
+op = "coalesce"
+of = ["us_msrp", "main_retail"]
+
+[[derived]]
+name = "imap_price"
+op = "coalesce"
+of = ["us_imap", "main_imap"]
+
+[[derived]]
+name = "ca_net"
+op = "coalesce"
+of = ["ca_net_book", "main_ca_net"]
+
+[[derived]]
+name = "ca_imap"
+op = "coalesce"
+of = ["ca_imap_book", "main_ca_imap"]
+
+[[derived]]
+name = "ca_msrp"
+op = "coalesce"
+of = ["ca_msrp_book", "main_ca_msrp"]
+
+# -- descriptions --
+# limit 50 / 15 are the values the LIVE file was built with. They are NOT the
+# values in preflight/limits_generated.py -- see MAPPING_FORMAT.md § Open
+# question. Reproduction pins them; changing them is a separate, deliberate act.
+
+[[derived]]
+name = "long_desc"
+op = "apply"
+primitive = "long_desc"
+args = ["product_name", "collection", "finish", 50]
+
+[[derived]]
+name = "short_desc"
+op = "apply"
+primitive = "short_desc"
+args = ["long_desc", 15]
+
+# -- dimensions (raw columns; note the lowercase source headers) --
+
+[[derived]]
+name = "h_raw"
+op = "column"
+column = "height"
+
+[[derived]]
+name = "w_raw"
+op = "column"
+column = "width/dia"
+
+[[derived]]
+name = "l_raw"
+op = "column"
+column = "length"
+
+# -- taxonomy: source category -> Tracy's categories -> Devices/Plates/Other --
+# clean_category does NOT null-map: a literal "0" category stays "0", while
+# normalize_finish DOES null-map. Same primitive, different null policy, so the
+# policy is a parameter. That asymmetry is deliberate; do not "tidy" it.
+
+[[derived]]
+name = "src_category"
+op = "column"
+column = "Category"
+primitive = "clean_lookup"
+params = { fixes = "category_fixes", null_tokens = [] }
+
+[[derived]]
+name = "cat_mapped"
+op = "contains"
+table = "category_remap"
+input = "src_category"
+
+[[derived]]
+name = "new_category"
+op = "lookup"
+table = "category_remap"
+input = "src_category"
+default_to_input = true
+
+# An UNMAPPED category falls to "Other" wholesale -- it does not get to pick a
+# collection by coincidence of name. Silently dropping one would hide products
+# from the iPad, so the run reports the unmapped set.
+[[derived]]
+name = "new_collection"
+op = "lookup"
+table = "category_to_collection"
+input = "new_category"
+default = "Other"
+only_when = { field = "cat_mapped" }
+otherwise_value = "Other"
+
+[[derived]]
+name = "image_filename"
+op = "source"
+input = "image_map"
+key = "item_id"
+field = "ImageFileName"
+
+
+# --- related items -------------------------------------------------------------
+# Finish variants are Related Items, not option sets: every finish is its own
+# orderable SKU and the source's "Add Option *" columns are all blank.
+# Grouped on the DERIVED name and finish, so the typo fixes above feed the key.
+[related_items]
+key_args   = ["product_name", "finish"]
+code       = "item_id"
+min_family = 2
+into       = "RelatedItems"
+
+
+# --- fields --------------------------------------------------------------------
+# Order IS the file's column order. All 18 Admin-registered custom fields appear
+# even when blank: a registered column missing from the file emits a Warning per
+# field, and an UNregistered column in the file is silently DROPPED (§3 B1b).
+
+[[fields]]
+name = "BaseItemCode"
+op = "ref"
+from = "item_id"
+
+[[fields]]
+name = "LongDesc"
+op = "ref"
+from = "long_desc"
+
+[[fields]]
+name = "ShortDesc"
+op = "ref"
+from = "short_desc"
+
+[[fields]]
+name = "ImageFileName"
+op = "ref"
+from = "image_filename"
+carry_forward = { when = "blank" }
+# Images uploaded to the server SINCE the last build are real. Blanking them on
+# reimport strips live images, and products.csv soft-deletes omitted rows, so
+# the import still reads clean. This is the 19-image incident (BUILD_SPEC B6).
+
+[[fields]]
+name = "Dimensions"
+op = "apply"
+primitive = "dimensions"
+args = ["h_raw", "w_raw", "l_raw"]
+
+[[fields]]
+name = "ShipWeight"
+op = "column"
+column = "weight"
+primitive = "weight"
+default = "0"
+
+[[fields]]
+name = "PackedVolume"
+op = "custom"
+fn = "packed_volume_cuft"
+args = ["Carton Height", "Carton Length", "Carton Width"]
+args_are_columns = true
+# ESCAPE HATCH 1 of 3. A cubic-feet cube over three carton columns is not
+# `primitive + dialect + parameters`. If a second client needs it, it becomes an
+# ecatlib primitive rather than a second copy here.
+
+[[fields]]
+name = "PackQuantity"
+op = "const"
+value = "1"
+
+[[fields]]
+name = "MinimumQuantity"
+op = "column"
+column = "Order Minimum"
+primitive = "clean_integer"
+params = { default = "1", minimum = 1 }
+missing = "1"
+
+# Brand-first nav: adorne / radiant are Trade Names, not Collections under a
+# parent "Legrand". Client confirmed 2026-07-15 and again 2026-07-24.
+[[fields]]
+name = "TradeNameCode"
+op = "ref"
+from = "collection"
+
+# Auto-Create taxonomy: whatever string goes here BECOMES the iPad label.
+# Never ship internal codes (COL126, TN1).
+[[fields]]
+name = "CollectionCodes"
+op = "ref"
+from = "new_collection"
+
+[[fields]]
+name = "CategoryCodes"
+op = "ref"
+from = "new_category"
+
+[[fields]]
+name = "NewItem"
+op = "const"
+value = "N"
+
+[[fields]]
+name = "NetPrice"
+op = "ref"
+from = "net_price"
+default = "0.00"
+
+[[fields]]
+name = "PromotionPrice"
+op = "const"
+value = ""
+
+[[fields]]
+name = "Price_dn"
+op = "ref"
+from = "net_price"
+
+[[fields]]
+name = "Price_retail"
+op = "ref"
+from = "retail_price"
+
+[[fields]]
+name = "Price_imap"
+op = "ref"
+from = "imap_price"
+
+[[fields]]
+name = "Price_canet"
+op = "ref"
+from = "ca_net"
+
+[[fields]]
+name = "Price_caimap"
+op = "ref"
+from = "ca_imap"
+
+[[fields]]
+name = "Price_camsrp"
+op = "ref"
+from = "ca_msrp"
+
+[[fields]]
+name = "UPCValue"
+op = "column"
+column = "UPC"
+primitive = "trim"
+
+[[fields]]
+name = "Finish"
+op = "ref"
+from = "finish"
+
+[[fields]]
+name = "CountryOfOrigin"
+op = "column"
+column = "Country of Origin"
+primitive = "clean_country"
+# clean_country KEEPS "N/A" as a value here, unlike clean_na. Deliberate.
+
+[[fields]]
+name = "drop_ship"
+op = "column"
+column = "Drop Ship"
+primitive = "boolean"
+# dialect legrand -> "Y"/"". eCat boolean filters match only Y/y/T/t/1-9, so a
+# raw "Yes" would ship a filter chip that cannot match (OPEN_ITEMS A5).
+
+[[fields]]
+name = "shipped_via"
+op = "column"
+column = "Shipped Via"
+primitive = "clean_na"
+
+[[fields]]
+name = "order_uom"
+op = "column"
+column = "Order Unit of Measure"
+primitive = "clean_na"
+
+# Spec fields registered in Admin 2026-07-23, blank until Legrand supplies data.
+# They ship as EMPTY COLUMNS deliberately: omitting a standard column does not
+# clear it, and a registered field absent from the file warns on every import.
+# Populated-and-unregistered is the dangerous direction; this is the other one.
+[[fields]]
+name = "rohscompliant"
+op = "const"
+value = ""
+
+[[fields]]
+name = "Color"
+op = "const"
+value = ""
+
+[[fields]]
+name = "voltage"
+op = "const"
+value = ""
+
+[[fields]]
+name = "wattage"
+op = "const"
+value = ""
+
+[[fields]]
+name = "switchtype"
+op = "const"
+value = ""
+
+[[fields]]
+name = "workswith"
+op = "const"
+value = ""
+
+[[fields]]
+name = "wiresize"
+op = "const"
+value = ""
+
+[[fields]]
+name = "mountingtype"
+op = "const"
+value = ""
+
+[[fields]]
+name = "prop65"
+op = "const"
+value = ""
+
+[[fields]]
+name = "warranty"
+op = "const"
+value = ""
+
+[[fields]]
+name = "numberofswitches"
+op = "const"
+value = ""
+
+[[fields]]
+name = "bulbcompatibility"
+op = "const"
+value = ""
+
+[[fields]]
+name = "numberofgangs"
+op = "const"
+value = ""
+
+# Filled by the [related_items] pass.
+[[fields]]
+name = "RelatedItems"
+op = "const"
+value = ""
+
+# Hideable is set BY HAND in Admin. Nothing in the source knows about it, so the
+# stored value is authoritative and always wins; "N" only when never set.
+[[fields]]
+name = "Hideable"
+op = "const"
+value = ""
+carry_forward = { when = "always", default = "N" }

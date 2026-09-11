@@ -80,6 +80,28 @@ def apply_carryforward(products, carried, column, key_column='BaseItemCode',
     return applied, missed
 
 
+# Which column identifies a row, per eCat file type. B6 is meaningless without
+# the right one: see the `key_missing` guard below.
+DIFF_KEYS = {
+    'products.csv':      'BaseItemCode',
+    'inventory.csv':     'BaseItemCode',
+    'stories.csv':       'BaseItemCode',
+    'customers.csv':     'BillToCode',
+    'options.csv':       'Code',
+    'option_groups.csv': 'Code',
+}
+
+
+def diff_key_for(path):
+    """Pick the key column from a filename, defaulting to the products key."""
+    import os
+    base = os.path.basename(path).lower()
+    for name, key in DIFF_KEYS.items():
+        if name in base:
+            return key
+    return 'BaseItemCode'
+
+
 def diff_against_previous(previous_rows, new_rows, key_column='BaseItemCode'):
     """Compare a regenerated file against the one that produced live state.
 
@@ -89,7 +111,27 @@ def diff_against_previous(previous_rows, new_rows, key_column='BaseItemCode'):
     Returns a dict with dropped / added keys and per-column change counts, plus
     `blanked`: columns that had a value before and are empty now. Blanking is
     the dangerous direction and is counted separately for that reason.
+
+    `key_missing` is set when the key column is absent from either side. It has
+    to be, because the failure is silent otherwise: keyed on `BaseItemCode`, a
+    customers.csv collapses every row onto the key '', which is then dropped,
+    and B6 reports dropped=0 added=0 changed={} - "identical to the previous
+    build" - for the mali pair where the real key shows 3,412 changed
+    DefaultPriceCode values and 105 dropped customers. That is BUILD_SPEC §3.4:
+    a check with nothing to measure must report NOT CHECKED, never a pass.
     """
+    prev_has = any(key_column in r for r in previous_rows)
+    new_has = any(key_column in r for r in new_rows)
+    if not (prev_has and new_has):
+        missing = [n for n, h in (('previous', prev_has), ('produced', new_has)) if not h]
+        return {
+            'dropped': [], 'added': [], 'changed': {}, 'blanked': {},
+            'blanked_examples': {},
+            'key_missing': ('%r is not a column in the %s file, so B6 evaluated '
+                            'NOTHING. Pass the right key for this file type '
+                            '(ecatlib.carryforward.diff_key_for).'
+                            % (key_column, ' and '.join(missing))),
+        }
     prev = {(r.get(key_column) or '').strip(): r for r in previous_rows}
     new = {(r.get(key_column) or '').strip(): r for r in new_rows}
     prev.pop('', None)
@@ -117,6 +159,8 @@ def diff_against_previous(previous_rows, new_rows, key_column='BaseItemCode'):
         'dropped': dropped, 'added': added,
         'changed': dict(changed), 'blanked': dict(blanked),
         'blanked_examples': {k: v for k, v in blanked_examples.items()},
+        'key_missing': None, 'key_column': key_column,
+        'compared': len(set(prev) & set(new)),
     }
 
 

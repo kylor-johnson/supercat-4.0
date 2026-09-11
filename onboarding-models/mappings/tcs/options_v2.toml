@@ -1,0 +1,334 @@
+# The CopperSmith (tcs) -- the OPTION STACK, v2. POST-UNBLIND.
+#
+# `options.toml` is the BLIND mapping and stays exactly as it was written; its
+# score is the score. This file is the correction, and the correction is not a
+# tweak -- it is a different reading of what the source is.
+#
+# ============================================================================
+# WHAT THE BLIND RUN MISSED, AND IT WAS IN THE FOLDER THE WHOLE TIME
+# ============================================================================
+#
+# Blind, I read the 72 transposed columns as the WHOLE option stack: header =
+# option name, cell = option code, and the eight-way type partition invented by
+# me from the column names, with a paragraph of the mapping spent justifying it.
+#
+# 338 of the 341 options in the build are rows of `Accessories-Table 1.csv`.
+#
+#   Accessory SKU       -> options.Code          338 of 341
+#   Accessory Name      -> options.Name          303 of 341 byte-exact
+#   Accessory Dealer Net-> options.PriceAddend   338 of 341
+#   Accessory Category  -> options.Description   = THE TYPE PARTITION
+#
+# `Accessory Category` holds GAS, ELECTRIC, FINISHES, DECORATIVE OPTIONS, WALL
+# ACCESSORIES, CEILING MOUNT, WALL MOUNT, POST & PIER MOUNT -- eight option
+# types, which is the partition I spent the blind run deriving by hand and got
+# structurally different. The client had already written it down.
+#
+# I had classified that sheet on the PRODUCTS run, as a source of products (46
+# of 419 rows ship as products). Having answered "what is this sheet" once, I
+# never asked it again for a different file type. That is the reusable failure.
+#
+# ============================================================================
+# THE SHAPE, WHICH IS THE ACTUAL FORMAT LESSON
+# ============================================================================
+#
+# A sideways option block is TWO sources, not one, and they answer different
+# questions:
+#
+#     the CATALOGUE   what the options ARE       rows    -> options.csv
+#     the MATRIX      who can HAVE which         columns -> option_groups.csv
+#
+# The blind mapping collapsed them and had to invent the half it was missing.
+# `[option_catalogue]` + `matrix_columns` + `option_types` separates them, and
+# with a catalogue present the axis partition stops being a judgement call:
+# it is a column the client already filled in.
+#
+# **Before declaring a partition, look for the column that already carries it.**
+
+client        = "tcs"
+org_name      = "The CopperSmith"
+kind          = "option_stack"
+input_class   = 3
+dialect       = "tcs"
+line_terminator = "crlf"
+primary_input = "lanterns"
+
+null_tokens       = ["----", "---", "--", "-", "N/A", "n/a"]
+on_code_collision = "report"
+
+# ImageName is DELIBERATELY NOT EMITTED, and that is a decision, not an omission.
+#
+# The importer already defaults it to `{code}.jpg`, so emitting that value adds
+# nothing. And it is wrong here: only 31 of the build's 341 options use the
+# default. The rest are hand-mapped swatches (`ContempoFlush_ADS.jpg`,
+# `BFH.jpg` for BFH1..BFH10) from a map that does not exist anywhere in the
+# source folder. Emitting `{code}.jpg` would have been wrong on 322 of 328 rows.
+#
+# This is Legrand's 19 destroyed images, in a different file: a value the
+# generator cannot derive must come from the last known-good file or a
+# regeneration destroys it. Blind, I emitted it. That was the error.
+#
+# Add it back only as carry-forward, against a previous options.csv.
+options_columns       = ["Code", "Name", "Description", "PriceAddend"]
+option_groups_columns = ["Code", "Name", "Options"]
+
+# The availability matrix: the same 72 columns, unioned BY NAME with repeats
+# disambiguated positionally. Which axis each cell belongs to now comes from the
+# catalogue, so this list no longer carries a partition at all.
+matrix_columns = [
+  "Matte Black",
+  "Oil Rubbed Bronze",
+  "Graphite Gray",
+  "Clear Coat",
+  "Propane Tip",
+  "Gas Pressure Regulator",
+  "e-lyte",
+  "Auto Shutoff Valve",
+  "Wind Guard (WGS or WGL)",
+  "Frosted Hurricane Shade",
+  "Sanded Hurricane Shade",
+  "Cylinder Hurricane Shade",
+  "Replacement Glass - RG",
+  "Hammered Replacement Glass - HRG",
+  "Seeded Replacement Glass - SRG",
+  "Weiyan",
+  "Turtle Friendly #2",
+  "Single 12-V Base",
+  "Adhara Dark Sky",
+  "Wall Yoke",
+  "Gooseneck Plain",
+  "Gooseneck Scroll",
+  "Estate Extension",
+  "Classic Yoke",
+  "Pendant Yoke",
+  "Contemporary Yoke",
+  "Ladder Rests",
+  "Chain Mount",
+  "Quartet Chain Mount",
+  "Heavy Chain Mount",
+  "Chain/Stem Length",
+  "Stem Mount",
+  "Heavy Slope Ceiling Mount",
+  "Biltmore® Yoke",
+  "Biltmore® Chain Mount",
+  "Biltmore® Stem Mount",
+  "Grand Harbor 12\"",
+  "Grand Harbor 17\"",
+  "Classic Moustache",
+  "Dual Scroll Moustache",
+  "Fancy Moustache",
+  "Biltmore® Top Scroll",
+  "Biltmore® Moustache",
+  "Top Scroll Wide",
+  "Top Scroll",
+  "Bottom Scroll Wide",
+  "Bottom Scroll",
+  "Reverse Bottom Scroll",
+  "Farm House Hook",
+  "Bottom Farm House Hook",
+  "Moneo Top Hook",
+  "Direct Burial Post Adapter",
+  "Post Fitter",
+  "Grand Post Fitter",
+  "6' Foot Lamp Post",
+  "8' Foot Lamp Post",
+  "10' Foot Lamp Post",
+  "Pier Mount",
+  "Grand Pier Mount",
+  "Copper Pier Mount",
+  "Pier Mount #2",
+  "Post Ladder Rest",
+  "Biltmore® Post Fitter",
+  "Biltmore® Pier Mount",
+  "Biltmore® Copper Pier Mount",
+  "Coach House Bars",
+  "London Top",
+  "London Bottom",
+  "Fluted Top",
+  "Solid Copper Top Panels",
+  "Fleur De Lis Finial",
+  "Braided Brass Ring",
+]
+
+[emit]
+options       = "options.csv"
+option_groups = "option_groups.csv"
+assignments   = "_INTERMEDIATE_option_assignments.csv"
+
+[product_key]
+column = "SKU"
+
+# ---------------------------------------------------------------------------
+# THE CATALOGUE. 419 accessory SKUs; the option types are eight of its twelve
+# categories. BULBS, PARTS, RLM and ACCESSORIES are NOT option types -- they are
+# products, or in the case of PARTS not shipped at all -- and a code whose
+# category is not claimed by an axis is counted and skipped, never guessed at.
+#
+# emit = "referenced": a catalogue row nobody can order is not an option. 333 of
+# the 419 rows are referenced by the matrix. The build ships 341, of which 13
+# appear in no source file at all (BRASS, COPPER, COY4/5/8, CY06/07/18/20,
+# GNP7, PFA, COY12, COY13) -- added by hand from something outside the folder,
+# and not derivable here. Five more (BS, BSW, FH, RBS, WG) are unsuffixed base
+# codes present in the matrix and excluded by the build's own audit fix.
+# ---------------------------------------------------------------------------
+
+[option_catalogue]
+input = "accessories"
+code  = "Accessory SKU"
+name  = "Accessory Name"
+type  = "Accessory Category"
+emit  = "referenced"
+fields = { PriceAddend = "Accessory Dealer Net" }
+
+# The client SHOUTS its categories; the build title-cases them. Declared as data
+# rather than done with a .title() call, because "POST & PIER MOUNT" ->
+# "Post & Pier Mount" is not what .title() produces and a silent mismatch here
+# renames every option type on the iPad.
+# ---------------------------------------------------------------------------
+# PER-CODE TYPE OVERRIDE — the single largest correction in this file.
+#
+# The catalogue's type column is per CODE. The matrix's type is per COLUMN.
+# When one code appears in columns of two different types, the catalogue cannot
+# express it and the code lands in exactly one axis.
+#
+# `LR` is that code, and it was 68 of the 100 member sets this mapping got
+# wrong — 22 of the 32 points of missing recall, from ONE row of the client's
+# catalogue:
+#
+#   catalogue     LR | Ladder Rests | POST & PIER MOUNT      <- wrong
+#   matrix        `Ladder Rests`      LR on 171 rows          <- a ceiling mount
+#                 `Post Ladder Rest`  PLR on 156, LR on 3     <- 3 are typos
+#   live build    LR -> Ceiling Mount
+#
+# `Ladder Rests` is a ceiling-mount accessory. The client filed it under
+# POST & PIER MOUNT in its own catalogue and the build corrected it by hand.
+# That correction is NOT derivable from the source, so it is DECLARED DATA with
+# a reason rather than inferred — a mapping that silently re-filed a client's
+# own categories would be the class-2 failure in a new costume.
+#
+# Because groups are per-product, one miscategorised code multiplies across
+# every product that offers it. 171 of 379 products offer LR. That is why a
+# single row moved a whole-file metric by 22 points, and it is the reason this
+# file type needs a per-code escape at all.
+#
+# THE THREE `LR` VALUES IN `Post Ladder Rest` ARE A SOURCE TYPO and are NOT
+# corrected here. They put LR on 3 products that should have PLR. Reproducing
+# them is correct; telling the client is a separate action (FINDINGS_2b P7).
+# ---------------------------------------------------------------------------
+
+[option_type_overrides]
+"LR" = "CEILING MOUNT"
+
+[type_labels]
+"GAS"                = "Gas"
+"ELECTRIC"           = "Electric"
+"FINISHES"           = "Finish"
+"DECORATIVE OPTIONS" = "Decorative"
+"WALL ACCESSORIES"   = "Wall Accessories"
+"CEILING MOUNT"      = "Ceiling Mount"
+"WALL MOUNT"         = "Wall Mount"
+"POST & PIER MOUNT"  = "Post & Pier Mount"
+
+[inputs.lanterns]
+format   = "csv_multi_named"
+encoding = "utf-8-sig"
+files = [
+  { path = "Source Data/Master Sheet E+G-Table 1.csv", header_row = 2, tag = { _sheet = "master" } },
+  { path = "Source Data/Weiyan LED-Table 1.csv", header_row = 2, tag = { _sheet = "weiyan" } },
+]
+
+# Header on ROW 2. Row 1 is a banner whose THIRD cell reads
+# "**DO NOT CHANGE COLUMN HEADERS!" -- an instruction to a human sitting inside
+# the data. `csv_multi_named` is the reader that can be told which row that is.
+[inputs.accessories]
+format   = "csv_multi_named"
+encoding = "utf-8-sig"
+files = [
+  { path = "Source Data/Accessories-Table 1.csv", header_row = 2 },
+]
+
+
+# ===========================================================================
+# THE AXES -- one per catalogue type. No hand partition.
+# ===========================================================================
+
+[[axis]]
+code         = "FIN"
+name         = "Finish"
+option_set   = 1
+required     = "Y"
+option_types = ["FINISHES"]
+grouping     = "per_product"
+group_code   = "FIN{n}"
+group_name   = "Finish {n}"
+
+[[axis]]
+code         = "GAS"
+name         = "Gas"
+option_set   = 2
+required     = "N"
+option_types = ["GAS"]
+grouping     = "per_product"
+group_code   = "GAS{n}"
+group_name   = "Gas {n}"
+
+[[axis]]
+code         = "ELE"
+name         = "Electric"
+option_set   = 3
+required     = "N"
+option_types = ["ELECTRIC"]
+grouping     = "per_product"
+group_code   = "ELE{n}"
+group_name   = "Electric {n}"
+
+[[axis]]
+code         = "DEC"
+name         = "Decorative"
+option_set   = 4
+required     = "N"
+option_types = ["DECORATIVE OPTIONS"]
+grouping     = "per_product"
+group_code   = "DEC{n}"
+group_name   = "Decorative {n}"
+
+[[axis]]
+code         = "WA"
+name         = "Wall Accessories"
+option_set   = 5
+required     = "N"
+option_types = ["WALL ACCESSORIES"]
+grouping     = "per_product"
+group_code   = "WA{n}"
+group_name   = "Wall Accessories {n}"
+
+[[axis]]
+code         = "WM"
+name         = "Wall Mount"
+option_set   = 6
+required     = "N"
+option_types = ["WALL MOUNT"]
+grouping     = "per_product"
+group_code   = "WM{n}"
+group_name   = "Wall Mount {n}"
+
+[[axis]]
+code         = "CM"
+name         = "Ceiling Mount"
+option_set   = 7
+required     = "N"
+option_types = ["CEILING MOUNT"]
+grouping     = "per_product"
+group_code   = "CM{n}"
+group_name   = "Ceiling Mount {n}"
+
+[[axis]]
+code         = "PP"
+name         = "Post & Pier Mount"
+option_set   = 8
+required     = "N"
+option_types = ["POST & PIER MOUNT"]
+grouping     = "per_product"
+group_code   = "PP{n}"
+group_name   = "Post & Pier Mount {n}"
+

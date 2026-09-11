@@ -29,9 +29,9 @@ from . import values, desc, related, carryforward, csvio  # noqa: F401
 
 from .values import (  # noqa: F401
     LEGRAND, LIBCO, TCS,
-    clean_text, clean_na, clean_lookup, clean_country,
+    clean_text, clean_na, clean_lookup, clean_country, split_first,
     parse_money, has_float_tail, parse_weight_lb, build_dimensions,
-    to_boolean, normalize_date, clean_integer,
+    to_boolean, normalize_date, clean_integer, parse_int, round_decimals, strip_float_tail,
 )
 from .desc import (  # noqa: F401
     truncate_word_boundary, find_token_span, build_long_desc, build_short_desc,
@@ -41,7 +41,8 @@ from .related import (  # noqa: F401
     build_related_items, parse_related_items, merge_related,
 )
 from .carryforward import (  # noqa: F401
-    load_carryforward, apply_carryforward, diff_against_previous, rollup_taxonomy,
+    load_carryforward, apply_carryforward, diff_against_previous, diff_key_for,
+    rollup_taxonomy,
 )
 from .csvio import (  # noqa: F401
     read_rows, read_table, write_rows, write_table, sniff_bytes_equal,

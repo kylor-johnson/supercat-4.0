@@ -1,0 +1,149 @@
+# The client registry — DATA, not code.
+#
+# Phase 2's whole point is that a build produces a MAPPING and the code is
+# shared. This file is the last piece of per-client knowledge the mapping
+# itself cannot carry: WHERE the client's folder is, and what its trusted
+# output is called. A mapping declares paths relative to a client root; only
+# something outside it can say which directory that root is.
+#
+# Three things here are not derivable and each has cost time:
+#
+#  * FOLDER NAME != SHORTNAME. The org is `leg`; the folder is `Legrand`. The
+#    mapping directory is `mappings/legrand/`. Three spellings of one client.
+#  * THE BUILD DIRECTORY IS NOT ALWAYS `Build`. Legrand's outputs live in
+#    `Build/`; 111Mercer's live in `Import Files/`. A runner that assumed
+#    `Build/` would silently find no previous file for mer and run B6 as
+#    NOT CHECKED — which reads like a pass.
+#  * TWO ORGS ARE NAMED "legrand". Live is `leg`, id 273. `lna`, id 93, is a
+#    dead 2015 org. `org_id` is pinned here and cross-checked against the
+#    mapping's own `org_id`, so a mapping edited to the wrong org refuses.
+#
+# `expect_bytes` is the regression contract, and only for clients whose live
+# file is trusted and reproducible. It is deliberately absent for stories.csv:
+# `fix_stories_encoding.py` post-processes the committed one, so the mapping's
+# output differs and SHOULD differ. Pinning it would encode a post-process the
+# mapping does not perform.
+
+# --------------------------------------------------------------------- leg
+[clients.leg]
+name        = "Legrand"
+org_id      = 273
+client_dir  = "02_Implementation/Legrand"
+source_dir  = "Source Data"
+build_dir   = "Build"
+mapping_dir = "legrand"
+mode        = "regression"
+# Import order is enforced by the runner, not by this list; these are the
+# targets leg has mappings for. options/option_groups/stories/customers are
+# absent because leg has no mapping for them, and the runner says so rather
+# than emitting a partial upload set as though it were complete.
+targets     = ["products", "inventory"]
+
+[clients.leg.expect_bytes]
+"products.csv"  = 404798
+"inventory.csv" = 35067
+
+[clients.leg.notes]
+stories = """stories.csv is NOT pinned. The committed file is post-processed by
+fix_stories_encoding.py, so a mapping that reproduced it byte-for-byte would be
+reproducing the post-process, not the build. leg has no stories mapping."""
+
+# --------------------------------------------------------------------- mer
+[clients.mer]
+name        = "111Mercer"
+org_id      = 302
+client_dir  = "02_Implementation/111Mercer"
+source_dir  = "Source Data"
+build_dir   = "Import Files"
+mapping_dir = "mercer"
+mode        = "new_client"
+targets     = ["products"]
+
+[clients.mer.expect_bytes]
+"products.csv" = 40995
+
+[clients.mer.notes]
+org = """Legrand's 1,020-row products.csv was imported into THIS org on
+2026-08-18 and soft-deleted all 102 of its products. The file that did it is
+still in this client's own build folder as products.csv.20260818-1549.csv.
+Nothing in a products.csv says which org it belongs to — which is why A1 is a
+gate phase here and not an optional extra."""
+
+# --------------------------------------------------------------------- tcs
+[clients.tcs]
+name        = "The CopperSmith"
+org_id      = 0            # not pinned yet; cross-check is skipped and SAID
+client_dir  = "02_Implementation/The CopperSmith"
+source_dir  = "Source Data"
+# NOT `Build`. tcs's trusted outputs live in CS_eCat_Rebuild/ — assuming
+# `Build` gave B6 no previous file to diff, which reports NOT CHECKED and
+# reads uncomfortably like a pass.
+build_dir   = "CS_eCat_Rebuild"
+mapping_dir = "tcs"
+mode        = "new_client"
+# products + stories + customers map and ship. The option stack maps and does
+# NOT ship: 0 of 379 products have identical option availability and there are
+# 1,561 EXTRA offers, so a rep could order a configuration the build does not
+# support. Listing options here would let a green run imply they are ready.
+targets     = ["products", "stories", "customers"]
+
+[clients.tcs.notes]
+options = """options.csv and option_groups.csv are BLOCKED, not missing:
+13 option codes exist in no file in the folder (COPPER is a finish on 375 of
+379 products) and per-product option availability is exact on 0 of 379.
+Both files HARD-delete. See mappings/tcs/SCORE_2b.md."""
+
+# --------------------------------------------------------------------- libco
+[clients.libco]
+name        = "Lib & Co Onboarding"
+org_id      = 0
+client_dir  = "02_Implementation/Lib & Co Onboarding"
+# libco has NO `Source Data/` folder — its source files sit loose in the client
+# root alongside HANDOFF.md, three .bak copies and an image directory. That is
+# the KICKOFF observation ("three of six clients have no Source Data folder")
+# as a concrete path, and it is why source_dir is declared rather than assumed.
+source_dir  = "."
+build_dir   = "."
+mapping_dir = "libco"
+mode        = "blind"
+targets     = ["products"]
+
+# --------------------------------------------------------------------- drf
+[clients.drf]
+name        = "Dorell"
+org_id      = 0
+client_dir  = "02_Implementation/Dorell"
+source_dir  = "Source Data"
+build_dir   = "."          # drf's products/stories/customers sit in the client root
+mapping_dir = "drf"
+mode        = "blind"
+targets     = ["products"]
+
+[clients.drf.notes]
+key = """drf has NO score and that is the finding. The build is keyed
+pattern x colourway (ADELINA-UV-ASH); the source carries only the pattern
+(ADELINA-UV). Zero key overlap, so a per-column score over an empty
+intersection is vacuous. Expect the gate to refuse, and expect that to be
+correct."""
+
+# --------------------------------------------------------------------- mali
+[clients.mali]
+name        = "Magic Lite"
+org_id      = 0
+client_dir  = "02_Implementation/Magic Lite"
+# mali is organised by phase (00_Import_Files, 01_Kickoff, 03_Data, ...), with
+# no `Source Data/` anywhere. 03_Data is the one holding the customer exports —
+# including BOTH indistinguishable customer files the profiler exists to
+# disambiguate (COMBINED 2.0 at 3,518 rows and REVISED at 421, same headers,
+# same date).
+source_dir  = "03_Data"
+build_dir   = "00_Import_Files"
+mapping_dir = "mali"
+mode        = "new_client"
+targets     = ["customers"]
+
+[clients.mali.notes]
+lossy = """mali's customers.csv regenerated from the available export carries
+BillToAddress1 on 21.3% of rows where live holds 100%, and puts every customer
+on a LIST price code where live has them on dealer-net. That is what B7 is for;
+it should refuse."""

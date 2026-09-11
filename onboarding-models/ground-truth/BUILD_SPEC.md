@@ -54,6 +54,34 @@ primitives.** That convergence is the evidence for where the shared boundary sit
 sheet), `stage2_lantern_rebuild` / `stage4_parts_and_kits` / `sku_ignition` (tcs
 buildable SKUs), `apply_discontinued_promo` (libco).
 
+### CORRECTION 2026-09-04 — the list above conflates three different things
+
+**Added after Phase 2 built the mapping layer and mapped leg, mer and libco.**
+The seven functions above are cited as one category. They are three, and the
+distinction matters because the escape-hatch budget was calibrated against this
+list:
+
+| function | what it actually is | still code? |
+|---|---|---|
+| `load_us_radiant_prices`, `load_ca_adorne_prices` | xlsx readers differing only in start row and column index | **no** — parameters |
+| `load_spec_master` | csv reader whose second row is a label row | **no** — parameters |
+| `stage2_lantern_rebuild`, `stage4_parts_and_kits` | decide which ROWS exist | loaders |
+| `apply_discontinued_promo`, `sku_ignition` | write ONE field's value | per-field transforms |
+
+**Three of the seven are not client-specific at all.** One parameterised xlsx
+reader covers Legrand's four price books; `skip_rows_after_header` covers
+libco's spec master. This is demonstrated, not argued: `mappings/legrand/` and
+`mappings/libco/` declare all of them as parameters, and Legrand reproduces
+`products.csv` **and** `inventory.csv` byte-identical with **zero** bespoke
+loaders.
+
+So §2 overstates what is irreducibly client-specific, and the budget of 3 was
+derived from a miscounted list. Re-derived from four measured clients
+(`mapping/BUDGET.md`) the ceiling is still 3 — reached at `mer`, not at `tcs` —
+but bespoke loaders now carry a budget of their own (**0**, justified per
+exception), and hand-written SKU manifests such as libco's `FORCE_ADD_PRODUCTS`
+/ `FORCE_DROP_SKUS` are **data, not code**, and count against nothing.
+
 ### The primitives are shared; the DIALECT is per-client config
 
 **Added 2026-09-04, after the extraction was actually done.** The table above
@@ -138,6 +166,31 @@ imports, 13 empty announced filters).
 
 **Therefore: the ingestion agent may never treat import success as done.** Acceptance is
 a post-import state check against the criteria above, not a log tier.
+
+### 3.4 Every check states its coverage
+
+**Added 2026-09-05 after the sixth instance of one failure.** A check that had nothing to
+measure reported a pass or a fail, and the output was indistinguishable from a real result:
+
+| # | instance | read as |
+|---|---|---|
+| 1 | `territory_codes = '[]'` — the empty value is a literal string, not `''` | "everyone has a territory" when nobody did |
+| 2 | B4's `sig <> '0/0'` — fatal blocks excluded from candidacy | pairs that could never be candidates |
+| 3 | F6's `_key()` — `file:option_groups` never matched the event key `Option Groups` | 73 windows sitting at WARN *looking evaluated* |
+| 4 | libco validator's >50% prevalence floor | `ShipWeight` clean at 41% |
+| 5 | `score_blind.py` on `drf` — 21 byte-exact columns over **0 shared rows** | a passing score across an empty intersection |
+| 6 | `score_blind.py` on `tcs` — case-sensitive header match | 52.2% when the answer was 66.2% |
+
+Six instances, in two independently written codebases, by different sessions. That is not
+a bug class — it is a missing requirement.
+
+> **Every check reports the denominator it actually evaluated: `evaluated N of M
+> candidates`. A check whose N is zero reports `NOT CHECKED` and may not report a pass or
+> a fail.**
+
+This is the `NOT CHECKED` discipline pushed down from the report to the individual check.
+The cost of not having it, measured: five of the six above were caught only because
+somebody happened to look at an adjacent number.
 
 ---
 

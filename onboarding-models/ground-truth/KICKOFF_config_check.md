@@ -83,7 +83,7 @@ docs were wrong for exactly this reason (SCORECARD § 12):
 - `leg` sends `QtyOnHand` and no `QtyAvailable`. That was reported as a broken display.
   Both fields are used live across the fleet; which one shows is configurable.
 
-So build `onboarding-models/config_intent.yml` alongside the skill:
+So build `onboarding-models/config_intent.toml` alongside the skill:
 
 ```yaml
 leg:

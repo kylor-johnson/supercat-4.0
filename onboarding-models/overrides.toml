@@ -1,0 +1,109 @@
+# Onboarding framework manual overrides
+#
+# Small, version-controlled set of human-confirmed facts the live data can't
+# express on its own. Edit here once; every future run reads it. No DB writes.
+#
+# Integration OWNERSHIP is NOT here — it is read authoritatively from the
+# HubSpot deal line items at run time (see Phase_Anchors.md § Integration
+# Workstream). This file records the *status* of an owned integration plus the
+# by-design / domain facts below that have no system of record.
+#
+# ---------------------------------------------------------------------------
+# WHY TOML AND NOT YAML — converted 2026-09-05, same reasons as
+# config_intent.toml:
+#
+#   1. `tomllib` is stdlib (Python 3.11+). PyYAML is not installed and cannot
+#      be — Homebrew's Python is externally managed (PEP 668).
+#   2. YAML 1.1 resolves bare N / NO / ON / OFF to booleans. This config names
+#      eCat things, where `N` is a literal boolean token and codes are short
+#      uppercase strings.
+#
+# The nesting here is three deep (integration_status -> shortname -> field) and
+# carries both an array and two tables. TOML expresses all of it directly —
+# `[integration_status.libco]` — which is why this file converted too rather
+# than being left behind.
+#
+# EVERY DECLARATION BELOW WAS SILENTLY INACTIVE until 2026-09-05, because
+# `collector.py::load_overrides` caught the PyYAML ImportError and returned
+# `{}`. Downstream, `{}` is indistinguishable from "nothing is declared". It
+# now raises instead. See F5.
+# ---------------------------------------------------------------------------
+
+# Orgs confirmed to run single Net-Price-only pricing BY DESIGN.
+# Listing a shortname here means: 1 price level is intentional, Phase 3's price
+# requirement is satisfied, and SINGLE_PRICE_LEVEL_UNCONFIRMED must NOT fire.
+# (See Flags_and_Signals.md § F and Phase_Anchors.md § Phase 3 Done-when.)
+# drf removed 2026-07-16 — DRF now has 11 price levels (confirmed HelpScout #14638 Jul 2)
+net_price_only_confirmed = []
+
+# Manual client_domains[] overrides (Phase_Anchors.md § Resolving client_domains[]).
+# Use ONLY when the live resolution order can't produce the right set — e.g. a
+# legitimate second parent/DBA domain the order-email/admin-email sources miss.
+# A shortname listed here uses this list verbatim and skips the resolution order.
+#   <shortname> = ["domain1.com", "domain2.com"]
+[client_domains]
+# example:
+# pebl = ["peblfurniture.com", "skyard-outdoor.com"]   # confirm skyard is a real DBA before enabling
+
+# Per-client project start date (ISO YYYY-MM-DD), as a STRING.
+# Use when organizations.created_at ≠ real project kickoff — e.g. the account
+# was provisioned months before the client actually started onboarding.
+# When present, days_in_onboarding is computed from this date, not created_at.
+#
+# NOTE the quotes are load-bearing in a way they were not in YAML: TOML has a
+# native date type, so a bare 2026-06-19 parses to a `datetime.date` rather
+# than a string. Quoted, it stays the string every consumer expects.
+[project_start_date]
+# org created 2025-06-10 for a pre-sales demo (dismantled 2026-06-18);
+# deal closed-won 2026-06-11, first Legrand-domain user 2026-06-19.
+# Without this, days_in_onboarding reads 448 instead of 74.
+# This is the value D19's at-risk fix depends on, and it was inert until
+# load_overrides stopped failing open.
+leg = "2026-06-19"
+#
+# Added 2026-09-05 from HubSpot closed-won, per D19's stated derivation order:
+# closed-won date first, first client-domain user as fallback, NEVER
+# organizations.created_at. Each is the ORIGINAL onboarding deal - expansion and
+# renewal deals are deliberately excluded, because they are not a project start.
+mer   = "2026-08-04"   # "111 Mercer- TIER 1" $16,992; org created 2026-08-10
+drf   = "2026-03-31"   # "Dorell Fabrics - TIER 1" $8,988; org created 2026-04-15
+libco = "2026-05-20"   # "Lib & Co - TIER 2" $17,472; org created 2026-03-23 -
+                       # note the ORG PREDATES the deal by 2 months here
+mali  = "2025-11-11"   # "MAGIC LITE / NSL - eCat; eOL" $22,680; org 2025-11-21
+tcd   = "2025-09-30"   # "Terracotta Lighting / Kanova - eCat" $8,700; org 2025-10-16
+pebl  = "2025-07-18"   # "Pebl Furniture  - eCat" $8,700; org created 2025-07-24
+#
+# NOT DERIVABLE, and therefore NOT populated - the at-risk rule declares
+# NOT CHECKED for these rather than falling back to created_at, which is the
+# D19 bug:
+#   cl, clli, sp, uhc, ufi, fal
+# Searched HubSpot 2026-09-05. What exists for them is either an EXPANSION deal
+# (fal "Exp. Sales Portal" closed 2026-07-13 against an org created 2024-08-06;
+# ufi "Sales Portal" closed 2025-06-26 against an org created 2011-11-09) or a
+# subscription-management record (`PM cl —`, `PM clli —`, `PM sp —`, `PM uhc —`,
+# `PM ufi —`, all hs_is_closed_won=false, all dated 2026-08-01). Neither is a
+# project start. A human needs to supply these, or accept NOT CHECKED.
+#
+# leg's own value is the FALLBACK, not the closed-won date: the deal closed
+# 2026-06-11 and the first Legrand-domain user was created 2026-06-19. The
+# 8-day difference was a deliberate human choice recorded before this file was
+# machine-read; left as-is rather than silently rewritten to 2026-06-11.
+
+# Integration STATUS for clients SuperCat owns the build on (a "Managed
+# Integration" deal line item). Ownership comes from HubSpot; this just records
+# where the build stands so INTEGRATION_OWNER_UNCLEAR stops firing once tracked.
+#   [integration_status.<shortname>]
+#   approach = "API" | "FTP" | "PIM"     # how the data moves
+#   status   = "scoping" | "building" | "live"
+#   note     = free text (who's driving, last activity, etc.)
+# Leave empty until a managed-integration client needs tracking.
+[integration_status.libco]
+approach = "API"
+status = "building"
+note = "Managed Integration (Business Central), Brent building"
+
+# example — uncomment and edit when a managed integration is in flight:
+# [integration_status.acme]
+# approach = "API"
+# status = "building"
+# note = "ERP push live in staging; cutover targeted next sprint"

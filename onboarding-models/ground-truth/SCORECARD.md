@@ -418,7 +418,7 @@ pebl is the adoption case the other two are not: **8 distinct ordering users, 91
 > **User deletion NULLIFIES order attribution rather than leaving a dangling id.**
 > The creators of those 27 were deleted: Mandy's ten accounts on 2026-07-28..30
 > (§ 9.1) plus the `ICA` group and `ckirbeyi@ica.com.tr` (removed between 08-25 and
-> 09-04; see `config_intent.yml § pebl`). Grouping by `org_user_id` returns the 8
+> 09-04; see `config_intent.toml § pebl`). Grouping by `org_user_id` returns the 8
 > users that still exist and silently drops the other 27 orders — so every read of
 > "who is ordering at pebl", including this one, has been made on 66 of 93 orders.
 >
@@ -633,14 +633,14 @@ Root cause: **`organizations.created_at` is not the project start.** leg's org w
 2025-06-10 for a demo; the project began 2026-06-19. Every duration the framework computes
 for this client is wrong by a factor of ten.
 
-`overrides.yml` has a `project_start_date` field for exactly this, and it is **empty** —
+`overrides.toml` has a `project_start_date` field for exactly this, and it is **empty** —
 `project_start_date: {}`. The mechanism exists and is unused.
 
 **Fix, and it is required before the at-risk state ships:**
 1. Suppress regression detection before a project-start date.
 2. Derive project start from the **HubSpot closed-won date**, not `created_at`, falling back
    to the first user account created on a client domain.
-3. Populate `overrides.yml § project_start_date` for `leg` = `2026-06-19`.
+3. Populate `overrides.toml § project_start_date` for `leg` = `2026-06-19`.
 
 Without this, the fix I added produces a nine-month false alarm on the only client in the
 cohort.

@@ -1,0 +1,196 @@
+# Declared configuration intent — the ecat-config-check exception file
+#
+# The database shows structure. It cannot show intent. A setting that looks
+# wrong from a query is often a deliberate decision nobody wrote down, and a
+# checker that flags deliberate configuration gets ignored by week two.
+#
+# This file is what prevents that. Anything declared here prints as DECLARED,
+# never as a finding.
+#
+# THE RULE: a declaration needs a reason, and the reason is the point. A bare
+# "ignore this" is worthless in six months. Say who decided, when, and why.
+#
+# When Kylor says "that's fine" during a config-check review, the answer goes
+# HERE — never into a hardcoded exception inside SKILL.md. An exception in the
+# skill applies to every org and cannot be argued with; a line here is scoped,
+# dated, and reversible.
+#
+# Sibling to overrides.toml, which does the same job for the phase framework.
+# Read-only consumers only. No DB writes, ever.
+#
+# Shape:
+#   [<shortname>]
+#   <key> = "<value>"            # why this is intentional
+#   declared_deviations = []     # user-group names exempt from conformance
+#   note = "free text — the reason, and how it was confirmed"
+#
+# ---------------------------------------------------------------------------
+# WHY TOML AND NOT YAML — converted 2026-09-05
+#
+# 1. It parses with the standard library. `tomllib` has shipped since Python
+#    3.11 and needs no install. PyYAML is NOT installed here and CANNOT be:
+#    Homebrew's Python is externally managed (PEP 668), so `pip install` is
+#    refused. The Phase 2 session hit the same wall independently.
+#
+#    Before this, `acceptance/intent.py` carried ~70 lines of hand-rolled
+#    subset parser that existed only because of a format choice. A bespoke
+#    parser drifts from its own spec and the drift is silent. Those lines are
+#    now deleted.
+#
+# 2. YAML 1.1 — which is what PyYAML's safe_load implements — resolves bare
+#    N, NO, ON and OFF to booleans, along with Y, YES, TRUE and FALSE. This
+#    config describes eCat, where the boolean tokens are LITERALLY `Y` and `N`
+#    and finish/territory codes are short uppercase strings. A declaration
+#    reading `boolean_dialect: N` would silently become `False`. TOML has no
+#    implicit typing: a bare token is a syntax error and a quoted one stays a
+#    string.
+# ---------------------------------------------------------------------------
+
+[leg]
+library_scoping = "per-agency"
+# 24 agency user groups, one per rep agency, every one shared_resources_auth='c'
+# with 96 scoped resources. Legrand hosts a per-agency Design Studio link in the
+# Library, so each agency needs its own group to scope access to its own URL.
+# Group COUNT is never a finding here, and empty groups are not either — the
+# agencies are onboarding at different rates. Only deviation from the ('c', 96)
+# shape is a finding. Confirmed SCORECARD § 12 R2, 2026-09-03.
+
+inventory_field = "qty_on_hand"
+# NOT qty_available. leg sends QtyOnHand and no QtyAvailable, and that is correct
+# for them — which field the iPad displays is configurable, and both run live
+# across the fleet (ta/tam/etl/ol are on-hand only; cl/cf are available only).
+# This was reported to the client as a broken display. It was not true and the
+# client reacted badly. Never flag a null qty_available at leg.
+# Confirmed SCORECARD § 12 R1, retracted 2026-09-03.
+
+note = """
+Design Studio links are per-agency; group count follows agency count. \
+Both entries above are retractions of findings this project got wrong — \
+read SCORECARD § 12 before adding a third.\
+"""
+
+[mer]
+parent_company = "tempaper.com"
+order_email_domain = "tempaper.com"
+# 111Mercer is a Tempaper brand, not a standalone company. All three client
+# users on the org are @tempaper.com (jeffrey.barney, jen.dolan, ryan), so
+# jen.dolan@tempaper.com is a real staffer at the correct domain — not the
+# placeholder it looks like when you compare the domain to the org NAME.
+# This case is why § 1.1's personal-domain check now compares against the
+# org's own user domains instead of its name. Confirmed 2026-09-03.
+
+note = """
+Org name is the brand; the client is the parent. Expect tempaper.com \
+on users, order email and admin contacts.\
+"""
+
+[uhc]
+order_email_domain = "gmail.com"
+# uniwarehs@gmail.com is the working order desk and has delivered 20,032
+# orders. Flagged here rather than silently exempted because the mismatch is
+# real: the org carries company_email = sales@uniwarehouseware.com and
+# website uniwarehouseware.com, so its own record disagrees with where order
+# mail actually goes. Reviewed and accepted 2026-09-03 (Kylor) — a long-lived
+# transacting address has answered the question by working.
+
+note = """
+Accepted mismatch, not a correct configuration. If order delivery is ever \
+reported as flaky here, this is the first thing to re-examine.\
+"""
+
+[pebl]
+# User-group structure is NOT fully mapped. Measured 2026-09-04, six groups:
+#
+#   Pebl sales oversea    9  gmail.com, peblfurniture.com, supercatsolutions.com
+#   Pebl Managers         3  peblfurniture.com, skyard-outdoor.com
+#   Pebl sales domestic   2  peblfurniture.com
+#   Albania-Sezon Dekor   1  sezondekor.com          <- known distributor
+#   whiteline             1  whitelinemod.com        <- NOT in any prior note
+#   ETC                   1  hotmail.com             <- purpose unknown
+#
+# `whiteline` (hadi@whitelinemod.com) appears in no handoff, profile or
+# scorecard. It is deliberate configuration, not an anomaly — recorded here so
+# a later conformance check does not flag it as one.
+#
+# Note the docs refer to distributors including "ICA", but NO group of that
+# name exists. So the mapping from "distributor" to user group is not 1:1 and
+# the group count cannot be used to count distributors. `ETC` on a hotmail
+# address is unexplained and is a question for the client, not a finding.
+#
+# Per SCORECARD § 12 R2: check conformance to the org's OWN pattern, never
+# fleet prevalence. Three single-member external-domain groups IS pebl's
+# pattern.
+#
+# ICA — REMOVED between 2026-08-25 and 2026-09-04. Prior state, measured
+# 2026-08-25 and recorded in SCORECARD § 9: a user group named `ICA` holding
+# ckirbeyi@ica.com.tr, with 2 orders against it.
+#
+# Measured 2026-09-04: no group named ICA at pebl (6 groups, none matching).
+# The `users` row for ckirbeyi@ica.com.tr SURVIVES (id 80652) but has ZERO
+# org memberships anywhere — so what was removed is the org_users membership
+# and the group, not the user record. A second ica.com.tr address,
+# ckilby@ica.com.tr (id 7938), likewise exists with no memberships and appears
+# in no note.
+#
+# Anyone reading SCORECARD § 9 will go looking for ICA and not find it. It was
+# there; it is gone; the user id persists and would be reused on a re-add.
+#
+# THE RULE THIS FORCES: pebl's group set is not stable. Any conformance check
+# must RE-DERIVE the group set every run and never cache it. Group count
+# cannot be used to count distributors — not because the mapping was never
+# 1:1, but because the set changes underneath.
+#
+# ORDER ATTRIBUTION IS INCOMPLETE, and it is a consequence of the deletions
+# above. Measured 2026-09-04: 93 submitted orders, 66 with a creator across 8
+# distinct users, 27 with org_user_id IS NULL (29.0%), 0 dangling.
+#
+# Deletion NULLIFIES the reference; it does not leave a dangling id. So a
+# query that groups by org_user_id returns 8 users and silently drops 27
+# orders. SCORECARD § 9.3's "8 distinct ordering users" was made on 66 of 93.
+#
+# The 27 belong to Mandy's ten accounts destroyed 2026-07-28..30 and to the
+# removed ICA membership. ckirbeyi@ica.com.tr was NOT a dormant tidy-up: the
+# users row (id 80652, created 2026-07-22) carries 18 login_events across two
+# days, 2026-07-23 and 2026-07-24. ckilby@ica.com.tr (id 7938, created
+# 2016-05-11) is the same human on a decade-old duplicate record with 0 logins.
+#
+# Count NULL creators explicitly in any adoption or rep-activity read here.
+note = """
+Group structure partially mapped. whiteline and ETC are undocumented but \
+deliberate. Do not infer distributor count from group count.\
+"""
+
+[drf]
+archetype = "presentation_only"
+pricing = "not_used"
+# eCat at drf is a PRESENTATION tool for their Showtime market, not an
+# ordering system. Declared on the client's own words, 2026-04-29 onboarding
+# call, Suzanne Fukunaga:
+#
+#   "There's not going to be any pricing on anything at this point. We don't
+#    charge for our half-yard cuts, and we don't charge for our waterfalls."
+#   "maybe prices going forward just to give a, but Brian right now doesn't
+#    want prices."
+#   "This is purely to show customer samples and to show them a new product,
+#    to order waterfalls and samples."
+#   "95% of our business is from POs" - 70% FOB China, EDI for the rest.
+#   "Our salesmen don't have territories, and we let all our salespeople look
+#    at all our customers."   (asked about inventory: "Nope")
+#
+# So the $1.00 `net` level across 1,627 products with all 389 customers on it
+# is BY DESIGN, and pricing lives in the stories file so a rep can look one up
+# when needed. This was twice framed as a defect by this programme, and the
+# proposed fix - switching DefaultPriceCode to `list` - would have surfaced
+# prices the client explicitly does not want shown.
+#
+# Closed as OPEN_ITEMS A9, 2026-09-04. Written here 2026-09-05 as part of F5;
+# A9 said it belonged here and nothing had put it here.
+#
+# NOT declared by this: drf's two registered-but-empty multi filters
+# (OriginalProduct, SampleType, 0 of 1,627). An empty filter chip is a real
+# defect and the archetype says nothing about it.
+note = """
+Presentation-only archetype. No pricing, no inventory, no territories, no \
+order submission. Ask of any new check what it reports for this org before \
+assuming a finding here is real.\
+"""

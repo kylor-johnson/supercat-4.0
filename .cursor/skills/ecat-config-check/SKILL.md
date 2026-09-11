@@ -30,7 +30,7 @@ specifically the config layer.
 
 Weight the output accordingly: a contradiction outranks any prevalence line.
 
-**Before reporting anything, read `onboarding-models/config_intent.yml`** — § 4. Declared
+**Before reporting anything, read `onboarding-models/config_intent.toml`** — § 4. Declared
 configuration prints as `DECLARED` and never as a finding.
 
 ## 0. Resolve the org first
@@ -46,6 +46,50 @@ an inactive 2015 org. Scope every subsequent query by `organization_id`.
 
 Note the status. Some thresholds below are **go-live rules and must not fire at full weight
 on an org still in `onboarding`** — see § 6.
+
+## 0.1 Any user count is staff-excluded, and says so
+
+**We hold accounts on nearly every org.** An unfiltered user count measures our own
+presence alongside the client's. The rule, derived and tested rather than assumed
+(OPEN_ITEMS A27, resolved 2026-09-05):
+
+```sql
+-- staff = users.billable IS FALSE  OR  email ILIKE '%@supercatsolutions.com'
+not (u.billable is false or u.email ilike '%@supercatsolutions.com')   -- client-side
+```
+
+**Both halves earn their place.** The domain half catches the staff seats provisioned
+inside client orgs and marked billable (`chuck+911@`, `steve+53@`, `kyla+rep@`,
+`brent+demo2@`, `sarah+test@`). The `billable` half catches staff on personal or
+contractor domains that a domain filter misses — including `kylor22johnson@gmail.com`,
+`is_admin = true`, member of 110 orgs, which is the admin account on both `leg` and `mer`.
+Either half alone undercounts.
+
+Fleet, verified live 2026-09-09 over users provisioned into at least one org:
+**97 staff** (34 both signals · 24 billable-only · 39 domain-only) against **70,040
+client-side**, total 70,137. A27 recorded 96 / 70,008 on 2026-09-05; the rule reproduces
+and the drift is one new staff account in four days. `login_events.is_super_user`
+corroborates independently — 10 accounts, none missed.
+
+**Proportional damage is worst on small onboarding orgs** — the ones this skill runs on
+most: `sp` −41% of provisioned users, `leg` −29%, `mer` −25%. `mer`'s "2 users logged in"
+is really **1**.
+
+Two hard rules:
+
+- **The definition travels with the number.** Every count states that it is staff-excluded
+  and names the rule. A staff-excluded count reported bare is indistinguishable from an
+  unfiltered one, and the next reader will compare it against a raw Admin Console figure.
+- **Never use org-count as a staff signal. It is refuted** (A28). eCat's client-side
+  population includes multi-line rep agencies and multi-brand dealers who legitimately
+  hold accounts at many manufacturers — `riccisales.com` up to 11 orgs,
+  `decorlightingsales.com` up to 15, `lightingvision@comcast.net` 16.
+  **2,982 client accounts sit in 5+ orgs and none of them are staff.** `billable`
+  separates where org-count does not: the 57 non-billable accounts average 32.4 orgs,
+  the 70,047 billable average 1.6.
+
+**Residual, named rather than zeroed:** a staff member on a personal domain holding a
+billable seat is invisible to both signals. Say so when the count is load-bearing.
 
 ## 1. Contradictions
 
@@ -94,8 +138,12 @@ select n.recipient_domain, n.company_domain, n.website_domain,
        (select string_agg(distinct lower(split_part(u.email,'@',2)), ', ')
           from org_users ou join users u on u.id = ou.user_id
          where ou.organization_id = :org_id and not coalesce(ou.disabled,false)
+           -- staff-excluded per 0.1: the domain test alone leaks a staff account on a
+           -- personal or contractor domain into the client-domain set, which would
+           -- whitelist a recipient by our own presence
+           and not (u.billable is false
+                    or u.email ilike '%@supercatsolutions.com')
            and lower(split_part(u.email,'@',2)) not in (
-             'supercatsolutions.com',
              'gmail.com','outlook.com','yahoo.com','icloud.com','hotmail.com',
              'live.com','aol.com','msn.com','me.com','sbcglobal.net')) as client_domains
 from norm n;
@@ -107,7 +155,7 @@ from norm n;
 - Matches none of them → **one `UNUSUAL` line showing the comparison**, no verdict.
   (`uhc` → recipient `uniwarehs@gmail.com` while the org carries
   `sales@uniwarehouseware.com`; 20,032 orders have gone through the gmail, so it works —
-  but the org's own record disagrees with it. Declared in `config_intent.yml`.)
+  but the org's own record disagrees with it. Declared in `config_intent.toml`.)
 - `@supercatsolutions.com` → **always fire.** Our address is never the client's order desk.
 
 **Both exclusions in that query are load-bearing, and both were found by running it:**
@@ -197,8 +245,15 @@ select ut.id, ut.name,
   ut.shared_resources_auth as sr_auth,
   (select count(*) from shared_resources_user_types x where x.user_type_id = ut.id) as sr_scoped,
   ut.customer_synching,
-  (select count(*) from org_users ou
-    where ou.user_type_id = ut.id and not coalesce(ou.disabled,false)) as users
+  -- staff-excluded per 0.1; an unfiltered count here measures our own presence
+  (select count(*) from org_users ou join users u on u.id = ou.user_id
+    where ou.user_type_id = ut.id and not coalesce(ou.disabled,false)
+      and not (u.billable is false
+               or u.email ilike '%@supercatsolutions.com')) as client_users,
+  (select count(*) from org_users ou join users u on u.id = ou.user_id
+    where ou.user_type_id = ut.id and not coalesce(ou.disabled,false)
+      and (u.billable is false
+           or u.email ilike '%@supercatsolutions.com')) as staff_users
 from user_types ut
 where ut.organization_id = :org_id
 order by cohort, ut.name;
@@ -210,6 +265,13 @@ The naming convention is read off the fleet, not invented. Across active/onboard
 
 **`z-SuperCat` is our own access group, not the client's.** Drop it from the maths
 entirely rather than exempting it, so it cannot skew a modal shape.
+
+The query returns `client_users` and `staff_users` separately (§ 0.1) — the cohort split is
+by group *name*, but a client-named group can still hold staff seats, and reporting a group
+as populated on the strength of our own accounts is the same error one level down. Report
+`client_users`; mention `staff_users` only when it is the sole reason a group looks
+populated. **Group membership count is never itself a finding** — § 1.4 scores
+`(shared_resources_auth, sr_scoped)` shape, not headcount (see § 8, 2026-09-03 R2).
 
 **Step 2 — find the modal shape** of the `client` cohort over
 `(shared_resources_auth, sr_scoped)`, and report members that deviate from it.
@@ -365,6 +427,7 @@ Terminal-readable, grouped by severity, quiet when there is nothing to say.
 
 ```
 ecat-config-check — leg (Legrand US, org 273)     status: onboarding
+user counts: staff-excluded (billable IS FALSE OR @supercatsolutions.com) — 11 of 38 excluded
 
 CONTRADICTIONS  2
   custom fields  13 registered with send_to_ipad, 9 used as filters, 0 populated
@@ -380,7 +443,7 @@ UNUSUAL         2
   user groups    Catalyst  'a' with 0 scoped resources; its 23 peers are 'c' / 96
 
 DECLARED        2
-  library scoping   26 groups / 1 populated is per-agency by design (config_intent.yml)
+  library scoping   26 groups / 1 populated is per-agency by design (config_intent.toml)
   inventory field   qty_on_hand is the configured field; null qty_available is correct
 
 NOT CHECKED     2
@@ -402,7 +465,7 @@ Four rules on the output:
   territory codes".
 - **Silence on a clean org.** If nothing is wrong, say so in one line. Do not pad.
 
-## 4. Declared intent — `onboarding-models/config_intent.yml`
+## 4. Declared intent — `onboarding-models/config_intent.toml`
 
 **The database shows structure. It cannot show intent.** Two findings in the source
 documents were wrong for exactly this reason, and both reached a human as fact
@@ -414,11 +477,108 @@ Rules:
 - **A declaration needs a reason, and the reason is the point.** No reason, no declaration.
 - **A "that's fine" goes in that file, never into a hardcoded exception here.** An
   exception in this skill applies to every org and cannot be argued with; a line in the
-  YAML is scoped, dated, and reversible.
+  TOML is scoped, dated, and reversible.
 - Keys are org shortnames. `declared_deviations` lists user-group names exempt from § 1.4.
 
 A checker that flags intentional configuration gets ignored by week two. This file is what
 prevents that, which is why the review loop is the real work and not a formality.
+
+### 4.1 How to read it — stdlib `tomllib`, and nothing else
+
+The file was YAML until 2026-09-05. It is **TOML** now, and the format is not cosmetic:
+
+- **`tomllib` is stdlib** (Python 3.11+). Nothing to install.
+- **But `python3` on this machine is NOT 3.11+.** `/usr/bin/python3` is Apple's **3.9.6**
+  and has no `tomllib`; `import tomllib` there raises `ModuleNotFoundError`. Verified
+  2026-09-09. **Run this with an explicit interpreter:**
+
+  ```bash
+  /opt/homebrew/bin/python3.12   # 3.12.13, tomllib present — verified
+  /opt/homebrew/bin/python3.13   # 3.13.13, tomllib present — verified
+  ```
+
+  There is no `/opt/homebrew/bin/python3` symlink, so a bare `python3` silently gets 3.9.
+  **A bare `python3` is the PyYAML `ImportError` in a different costume** — same missing
+  module, same temptation to catch it and continue with `{}`. Do not catch it: an
+  interpreter without `tomllib` is a refusal (§ 4.2), not a degraded mode.
+- **PyYAML is not installed and cannot be.** Homebrew's Python is externally managed
+  (PEP 668), so `pip install` is refused. That wall is *why* the format changed.
+- **YAML 1.1 — what `safe_load` implements — resolves bare `N`, `NO`, `ON`, `OFF` to
+  booleans.** This config describes eCat, whose boolean tokens are literally `Y` and `N`.
+  A declaration reading `boolean_dialect: N` would have silently become `False`. TOML has
+  no implicit typing.
+
+```python
+import tomllib
+with open('onboarding-models/config_intent.toml', 'rb') as fh:
+    intent = tomllib.load(fh)          # note: binary mode
+org_intent = dict(intent.get(shortname) or {})
+```
+
+**Never hand-roll a parser.** `acceptance/intent.py` shipped ~70 lines of strict-subset
+parser that existed only because of a format choice; a bespoke parser drifts from its own
+spec and the drift is silent. Those lines were deleted. `acceptance/intent.py` itself is
+the working reference — read it before writing a loader here, and reuse
+`load()` / `for_org()` / `declarations_for()` rather than restating them.
+
+### 4.2 Fail closed, and loudly
+
+**A missing declaration file is indistinguishable from an org with no declarations, and
+that difference is the entire point of the file.** `collector.py::load_overrides` once
+caught the PyYAML `ImportError`, warned to stderr and returned `{}` — which silently
+converted every declared exception back into a finding.
+
+**Refuse to run** if `config_intent.toml` is missing, parses as empty, or is malformed
+(`tomllib.TOMLDecodeError`). Do not fall back to "no declarations". Report the refusal as
+the result:
+
+```
+ecat-config-check — leg (Legrand US, org 273)          REFUSED TO RUN
+
+  declared-intent file unreadable: onboarding-models/config_intent.toml
+  <missing | parsed as empty | not valid TOML: line N, col M>
+
+  Refusing to audit without it. An absent declaration file reads identically to
+  "this org declared nothing", so every retraction in § 8 would fire again as a
+  fresh finding. Fix the file, or re-run with --no-intent and read § 4.3.
+```
+
+### 4.3 The opt-out flag stamps every line
+
+`--no-intent` is the only way to proceed without declarations, it must be passed
+explicitly, and it is never the default. When it is set, **every line of the report
+carries the stamp** — not just a header, which scrolls away:
+
+```
+ecat-config-check — leg (Legrand US, org 273)     status: onboarding
+!! --no-intent: declarations NOT applied. Every line below is unfiltered. !!
+
+CONTRADICTIONS  2
+  [NO-INTENT] custom fields  13 registered with send_to_ipad, 9 used as filters, 0 populated
+  [NO-INTENT] photo gate     product_synch_requires_photo=true, 2 active products no image
+
+UNUSUAL         3
+  [NO-INTENT] inventory field  qty_available null on 1,204 products
+              ^ this is leg's declared configuration and is NOT a defect — see § 8 R1
+```
+
+A run under `--no-intent` **reproduces the two findings this project already retracted**
+(§ 8: `leg` inventory field, `leg` library scoping). One of them was reported to the client
+as broken, was not true, and the client reacted badly. The stamp is what stops that output
+from being read as an audit.
+
+### 4.4 The DECLARED block always prints
+
+Print it **even when the org declared nothing** — `no declarations for <org> in
+config_intent.toml`. A silent block is unreadable two ways: it cannot be distinguished
+from a skipped read, and a suppressed finding nobody can see is worse than the finding.
+
+Only five orgs currently declare anything — `leg`, `mer`, `uhc`, `pebl`, `drf`. For every
+other org the correct DECLARED block is the "no declarations" line, not an absent block.
+
+A declared key that no criterion here reads is still real intent: print it as
+**`RECORDED, CONSUMED BY NOTHING`** rather than implying coverage that does not exist.
+`library_scoping`, `parent_company` and `order_email_domain` are in that state today.
 
 ## 5. Standing NOT CHECKED entries
 
@@ -437,6 +597,9 @@ Name these every run unless the check was actually performed:
   and indistinguishable from correct here. § 4 narrows this; it does not close it.
 - **Group conformance below the cohort minimum** — § 1.4 needs ≥5 client groups. Name the
   count so a reader knows the check was skipped rather than passed.
+- **Staff on a personal domain holding a billable seat** — invisible to both halves of the
+  § 0.1 rule. Every user count here is "staff-excluded to the limit of that rule", not
+  "staff-free". Name it whenever a count carries weight.
 
 ## 6. Status gates
 
@@ -491,7 +654,11 @@ have never been tested.
 | 2026-09-03 | § 1.5 dangling ids | Recency split at 180 days. Confirmed against `pebl` (83 days, fires) and `ufi` (12 codes ≥1,600 days, collapsed). |
 | 2026-09-03 | `ufi` group deviations | Reported as `UNUSUAL`; **no declaration written.** Kylor declined to declare them without a confirmed reason. The check keeps flagging them until someone knows why they differ. |
 | 2026-09-03 | § 1.1 recipient domain | **Gated.** Compare the domain to the org's own user domains and contact details, never to its name. The name test false-positived on `mer` the first time it ran. |
-| 2026-09-03 | `mer` / `uhc` recipients | Declared in `config_intent.yml`. `mer` is correct (Tempaper is the parent). `uhc` is an accepted mismatch, not a correct setting — recorded as such. |
+| 2026-09-03 | `mer` / `uhc` recipients | Declared in `config_intent.toml`. `mer` is correct (Tempaper is the parent). `uhc` is an accepted mismatch, not a correct setting — recorded as such. |
+| 2026-09-05 | § 4 intent file format | **YAML → TOML.** PyYAML is not installed and cannot be (PEP 668, Homebrew Python externally-managed); `tomllib` is stdlib. YAML 1.1 also coerces bare `N`/`NO`/`OFF` to booleans, and eCat's boolean tokens are literally `Y`/`N`. Hand-rolled parser deleted — see § 4.1. |
+| 2026-09-05 | § 4 missing intent file | **Fail closed.** Was: warn and return `{}`, which silently reconverted every declaration into a finding. Now refuses to run; `--no-intent` is the explicit opt-out and stamps every line (§ 4.2–4.3). |
+| 2026-09-09 | § 4.1 interpreter | **Name the interpreter explicitly.** `import tomllib` fails on this machine's default `python3` (Apple 3.9.6, no `tomllib`); only Homebrew `python3.12`/`3.13` carry it, and there is no bare `python3` symlink to them. Found by running the skill, not by reading it. |
+| 2026-09-05 | § 0.1 user counts | **Staff-excluded, always**, by `billable IS FALSE OR @supercatsolutions.com` (A27). Both halves load-bearing. Org-count as a staff signal **refuted** (A28) — 2,982 client accounts sit in 5+ orgs because multi-line rep agencies hold accounts at many manufacturers. |
 
 **Not yet reviewed:** § 1.1 placeholder-recipient heuristic (what counts as a placeholder),
 § 1.3 partial-population ratio (no threshold set, deliberately), § 2 prevalence lines on an

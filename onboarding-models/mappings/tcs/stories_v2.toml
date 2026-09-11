@@ -1,0 +1,114 @@
+# The CopperSmith (tcs) -- stories.csv, v2. POST-UNBLIND.
+#
+# `stories.toml` is the blind mapping and its score is the score: ProductStory
+# 0 of 379, and the column choice was RIGHT while the composition was missed.
+#
+# The build's ProductStory is:
+#
+#     Marketing Copy
+#     <blank line>
+#     • Feature 1
+#     • Feature 2
+#     ... through Feature 6, blanks omitted
+#
+# Blind I emitted `Marketing Copy` alone: 272 characters of an 858-character
+# story, a correct prefix of every single row and byte-exact on none. The score
+# reads 0% and the reading was 100% right about WHICH column; it was wrong that
+# a story is one column.
+#
+# The lesson is narrower than "concatenate more": a prose field on a spec sheet
+# is usually a PART. Four columns of prose (Short Description, Long Description,
+# Marketing Copy, SEO Description) plus six Feature columns is a components
+# list, not four rival candidates, and the question to ask a class-3 template is
+# which parts assemble rather than which column wins.
+#
+# `concat` gained `skip_blank` and `prefix_each` for this. Both are operator
+# changes, not escape hatches: every catalogue has a features block, and the
+# next client gets them free. Escape-hatch budget still 0 for this file.
+#
+# STILL NOT REPRODUCED: 249 of 628 reference rows. The build ships stories for
+# accessories and kits; the two lantern sheets carry 379. Those 249 have no
+# prose columns in this folder at all -- Accessories-Table 1.csv has an
+# `Accessory Name` and nothing else -- so they are written elsewhere. Reported,
+# not invented.
+
+client        = "tcs"
+org_name      = "The CopperSmith"
+target        = "stories.csv"
+input_class   = 3
+dialect       = "tcs"
+line_terminator = "crlf"
+primary_input = "lanterns"
+
+skip_row_when_blank = "_story"
+
+[inputs.lanterns]
+format   = "csv_multi_named"
+encoding = "utf-8-sig"
+files = [
+  { path = "Source Data/Master Sheet E+G-Table 1.csv", header_row = 2 },
+  { path = "Source Data/Weiyan LED-Table 1.csv", header_row = 2 },
+]
+
+[[derived]]
+name = "_mc"
+op = "column"
+column = "Marketing Copy"
+primitive = "clean_text"
+
+[[derived]]
+name = "_f1"
+op = "column"
+column = "Feature 1"
+primitive = "clean_text"
+[[derived]]
+name = "_f2"
+op = "column"
+column = "Feature 2"
+primitive = "clean_text"
+[[derived]]
+name = "_f3"
+op = "column"
+column = "Feature 3"
+primitive = "clean_text"
+[[derived]]
+name = "_f4"
+op = "column"
+column = "Feature 4"
+primitive = "clean_text"
+[[derived]]
+name = "_f5"
+op = "column"
+column = "Feature 5"
+primitive = "clean_text"
+[[derived]]
+name = "_f6"
+op = "column"
+column = "Feature 6"
+primitive = "clean_text"
+
+[[derived]]
+name = "_features"
+op = "concat"
+of = ["_f1", "_f2", "_f3", "_f4", "_f5", "_f6"]
+join = "\n"
+prefix_each = "• "
+skip_blank = true
+
+[[derived]]
+name = "_story"
+op = "concat"
+of = ["_mc", "_features"]
+join = "\n\n"
+skip_blank = true
+
+[[fields]]
+name = "BaseItemCode"
+op = "column"
+column = "SKU"
+primitive = "trim"
+
+[[fields]]
+name = "ProductStory"
+op = "ref"
+from = "_story"

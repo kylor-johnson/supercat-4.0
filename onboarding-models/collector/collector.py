@@ -38,6 +38,7 @@ import json
 import os
 import re
 import sys
+import tomllib
 from datetime import datetime, timezone, date
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -157,7 +158,7 @@ def resolve_client_domains(org: dict, admin_domains: list[dict],
 
     ov = (overrides.get("client_domains") or {}).get(shortname)
     if ov:
-        return {"domains": [d.lower() for d in ov], "source": "overrides.yml",
+        return {"domains": [d.lower() for d in ov], "source": "overrides.toml",
                 "flags": []}
 
     rcpt = (org.get("order_email_recipient") or "").strip()
@@ -477,16 +478,67 @@ def load_to_bigquery(snapshots: list[dict], sa_key: str) -> str:
 
 # ---------------------------------------------------------------------- main
 
-def load_overrides(path: str) -> dict:
+class OverridesUnavailable(RuntimeError):
+    """Raised rather than returning {}. See load_overrides."""
+
+
+def load_overrides(path: str, allow_missing: bool = False) -> dict:
+    """Load overrides.toml, or REFUSE.
+
+    ## Why this raises instead of returning {}
+
+    It used to catch ImportError on PyYAML, warn to stderr and return `{}`.
+    Downstream, `{}` is indistinguishable from "no overrides are declared" — so
+    a missing dependency silently converted every human-confirmed fact back
+    into an unknown. For as long as that ran here:
+
+      * `net_price_only_confirmed` was empty, so SINGLE_PRICE_LEVEL_UNCONFIRMED
+        could fire on an org confirmed by design;
+      * `integration_status` was empty, so INTEGRATION_OWNER_UNCLEAR could fire
+        on libco, which is tracked;
+      * `project_start_date` was empty — and D19's at-risk fix DEPENDS on it.
+        Without it the regression rule false-positives on pre-sales orgs, which
+        is the nine-month false alarm D19 exists to prevent.
+
+    None of that was visible: one stderr line that scrolls past, then silence.
+
+    ## TOML, since 2026-09-05
+
+    `tomllib` is stdlib from Python 3.11, so the dependency that caused all of
+    the above no longer exists. PyYAML could not be installed here in any case —
+    Homebrew's Python is externally managed (PEP 668). TOML also has no implicit
+    typing, where YAML 1.1 turns bare `N` / `NO` / `ON` / `OFF` into booleans;
+    this config names eCat things, and `N` is a literal eCat boolean token.
+
+    Note `project_start_date` values are QUOTED strings. TOML has a native date
+    type, so a bare `2026-06-19` would parse to `datetime.date` rather than the
+    string every consumer here expects.
+
+    A caller that genuinely wants to proceed without overrides must pass
+    `allow_missing=True` and say so in its own output. Never by default.
+    """
     if not os.path.exists(path):
-        return {}
+        if allow_missing:
+            return {}
+        raise OverridesUnavailable(
+            f"{path} not found. Refusing to continue: an absent overrides file is "
+            f"indistinguishable from an org with no overrides, and that difference "
+            f"is what the file is for. Pass allow_missing=True to proceed anyway."
+        )
     try:
-        import yaml
-    except ImportError:
-        print(f"  ! PyYAML missing — {os.path.basename(path)} ignored", file=sys.stderr)
-        return {}
-    with open(path) as f:
-        return yaml.safe_load(f) or {}
+        with open(path, "rb") as f:
+            data = tomllib.load(f)
+    except tomllib.TOMLDecodeError as exc:
+        raise OverridesUnavailable(
+            f"{path} is not valid TOML: {exc}. Refusing to continue — an overrides "
+            f"file that half-parses is how a human-confirmed fact silently reverts "
+            f"to unknown."
+        ) from exc
+    if not data:
+        raise OverridesUnavailable(
+            f"{path} parsed as empty. Refusing to treat that as 'no overrides'."
+        )
+    return data
 
 
 def main() -> int:
@@ -501,7 +553,10 @@ def main() -> int:
     ap.add_argument("--from-results", help="results.json produced from an --emit-sql plan")
     ap.add_argument("--load-bq", action="store_true", help="append snapshots to BigQuery")
     ap.add_argument("--sa-key", default=DEFAULT_SA_KEY)
-    ap.add_argument("--overrides", default=os.path.join(os.path.dirname(here), "overrides.yml"))
+    ap.add_argument("--overrides", default=os.path.join(os.path.dirname(here), "overrides.toml"))
+    ap.add_argument("--no-overrides", action="store_true",
+                    help="proceed WITHOUT overrides.toml. Every declaration in it is "
+                         "inactive and the run says so. Never the default.")
     ap.add_argument("--out", help="write snapshots JSON here (default: stdout)")
     args = ap.parse_args()
 
@@ -509,7 +564,14 @@ def main() -> int:
         datetime.fromisoformat(args.as_of).replace(tzinfo=timezone.utc)
         if args.as_of else _utcnow()
     )
-    overrides = load_overrides(args.overrides)
+    try:
+        overrides = load_overrides(args.overrides, allow_missing=args.no_overrides)
+    except OverridesUnavailable as exc:
+        print(f"OVERRIDES UNAVAILABLE — refusing to run.\n  {exc}", file=sys.stderr)
+        return 2
+    if args.no_overrides:
+        print("!! overrides.toml NOT APPLIED (--no-overrides): every human-confirmed "
+              "fact in it is inactive for this run.", file=sys.stderr)
     shortnames = [s.strip() for s in args.orgs.split(",")] if args.orgs else None
 
     # -- resolve the org list -------------------------------------------

@@ -8,6 +8,10 @@ BEFORE the upload.
     soft-deleting all 102 of their products. Second occurrence of this failure
     mode (leg -> mali previously).
 
+F6: every A1 finding is `stage: pre_upload` and severity BLOCKING, not FATAL.
+`fatal` is the importer's word for a rejected file; A1 is about a file that has
+not been sent yet.
+
 Both times the file was valid, the import was clean, and the org was wrong.
 Nothing about the file says which org it belongs to, so the check has to ask the
 database.
@@ -243,6 +247,47 @@ def verdict(res, ftype, rivals=None):
     return out, fatal, warn
 
 
+
+
+# --- DATABASE_URL path (added 2026-09-09) -----------------------------------
+# Before this, A1 offered --emit-sql and --from-results only, so running it
+# meant a human carrying rows between two commands. That is workable at a desk
+# and impossible on a cron: the gate could not run in the same container that
+# produced the file it was meant to gate. `collector.py:197-217` had had a
+# working DATABASE_URL path since August; the four modules that actually gate
+# an upload had none, so a read-only replica credential on its own would still
+# have left the gate unrunnable.
+#
+# It runs the SAME statements --emit-sql prints and assembles the SAME dict
+# --from-results loads, so the two paths cannot drift into disagreeing about
+# what was measured. Read-only is enforced per statement in dbexec.
+
+def _session():
+    import os as _os
+    import sys as _sys
+    _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
+    import dbexec
+    return dbexec, dbexec.ReadOnlySession()
+
+def _results_from_db(sql):
+    """Run A1's one or two statements and return the --from-results shape.
+
+    emit_sql() concatenates the summary and the rival-org scan into one string
+    separated by `;` and a comment. Splitting on that comment rather than on
+    `;` is deliberate: the VALUES lists contain no semicolons today, but a
+    quoted key could, and a split that is right by luck in a gate this file
+    exists to provide is not right.
+    """
+    dbexec, sess = _session()
+    with sess:
+        head, sep, tail = sql.partition('-- rival orgs:')
+        res = {'summary': sess.rows(head)}
+        if sep:
+            res['rivals'] = sess.rows(sep + tail)
+    return res
+
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -250,6 +295,9 @@ def main():
     ap.add_argument('--org', required=True, help='target org shortname')
     ap.add_argument('--emit-sql', action='store_true')
     ap.add_argument('--from-results', help='JSON {"summary": {...}, "rivals": [...]}')
+    ap.add_argument('--use-db', action='store_true',
+                    help='run the statements directly against DATABASE_URL, '
+                         'read-only. For a container; needs psycopg2.')
     args = ap.parse_args()
 
     ftype, keycol, keys, blank, note = read_keys(args.file)
@@ -273,10 +321,25 @@ def main():
             print(sql)
         return 0 if sql else 2
 
-    if not args.from_results:
-        ap.error('need --emit-sql or --from-results')
-    with open(args.from_results) as fh:
-        res = json.load(fh)
+    if args.use_db:
+        sql, err = emit_sql(ftype, keys, args.org)
+        if err:
+            print('NOT CHECKED - %s' % err)
+            return 2
+        try:
+            res = _results_from_db(sql)
+        except Exception as exc:                              # noqa: BLE001
+            print('A1 NOT CHECKED - %s' % exc)
+            return 2
+    elif args.from_results:
+        with open(args.from_results) as fh:
+            res = json.load(fh)
+    else:
+        ap.error('need --emit-sql, --from-results or --use-db')
+    if not res.get('summary'):
+        print('A1 NOT CHECKED - the results carry no `summary` rows. An empty '
+              'result is not a clean fingerprint.')
+        return 2
     summary = res['summary'][0] if isinstance(res['summary'], list) else res['summary']
 
     print('=' * 70)
@@ -301,10 +364,18 @@ def main():
     for l in lines:
         print(l)
     print('-' * 70)
+    # F6 Decision 1+2. A1 used to print its own FATAL/WARN shape. The ladder is
+    # now BLOCKING/WARN/INFO like every other module, and the thing FATAL was
+    # really carrying here - "this has not happened yet, you can still stop" -
+    # is the `stage` field. Every A1 finding is pre_upload by construction:
+    # A1 runs against a FILE, before the upload that would make it true.
     for f in fatal:
-        print('FATAL  : %s' % f)
+        print('BLOCKING [pre_upload] : %s' % f)
     for w in warn:
-        print('WARN   : %s' % w)
+        print('WARN     [pre_upload] : %s' % w)
+    print('\nstage    : pre_upload - nothing here has been applied to the org yet.')
+    print('repair   : none - A1 is a gate, not a defect report. The repair is to')
+    print('           upload the right file to the right org.')
     if fatal:
         print('\nVERDICT: DO NOT UPLOAD')
         return 1

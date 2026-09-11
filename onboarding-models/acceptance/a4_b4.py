@@ -24,9 +24,13 @@ by its last Options/Option Groups block, because the importer processes them in
 order: ending on Options leaves membership nulled, ending on Option Groups
 restores it.
 
-  FATAL  the standing state is nulled - nothing has restored it
-  WARN   membership was nulled for a period and later restored
-  INFO   Option Groups was processed before Options inside one event
+  BLOCKING  the standing state is nulled - nothing has restored it
+  WARN      membership was nulled for a period and later restored
+  INFO      Option Groups was processed before Options inside one event
+
+(F6: was FATAL. `fatal` is the IMPORTER's word - import_log.py computes it for
+import tiers - so the harness ladder is BLOCKING/WARN/INFO and `stage` carries
+the pre_upload vs post_import distinction FATAL used to imply.)
 
 Every A4 finding measures **the import log**. Whether anyone synced inside a
 window, or whether membership is empty right now, are separate claims the check
@@ -63,7 +67,11 @@ import argparse
 import collections
 import datetime
 import json
+import os
 import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import severity as sev  # noqa: E402
 
 # NOTE: the CANONICAL six-way file order that used to live here is gone on
 # purpose (see the module docstring). Do not reintroduce it as a check - the
@@ -147,7 +155,7 @@ def check_a4(records):
         last_options = max((s for s, ft in seen if ft == 'Options'), default=None)
         if first_groups is not None and last_options is not None \
                 and first_groups < last_options:
-            findings.append({
+            findings.append(sev.stamp({
                 'rule': 'A4.option_order_within_event',
                 'severity': 'INFO',
                 'when': blocks[0]['created_at'],
@@ -157,7 +165,7 @@ def check_a4(records):
                           'Option Groups block had just set. Whether membership is '
                           'nulled NOW is rule 2 below, not this line.'
                           % ' -> '.join(ft for _, ft in seen),
-            })
+            }, evidence_from=str(blocks[0]['created_at'])[:10]))
 
     # 2. Option-group membership.
     #
@@ -205,7 +213,7 @@ def check_a4(records):
                 nulled_since = (eid, when)
         else:
             if nulled_since is not None:
-                findings.append({
+                findings.append(sev.stamp({
                     'rule': 'A4.membership_window',
                     'severity': 'WARN',
                     'when': nulled_since[1],
@@ -228,12 +236,16 @@ def check_a4(records):
                                        'login_events for the window and say "at '
                                        'least one user was active during it" - never '
                                        '"reps saw no option groups".',
-                })
+                }, evidence_from=str(nulled_since[1])[:10],
+                   evidence_to=str(when)[:10], evidence_state='closed'))
                 nulled_since = None
     if nulled_since is not None:
-        findings.append({
+        findings.append(sev.stamp({
             'rule': 'A4.membership_nulled_now',
-            'severity': 'FATAL',
+            # F6 Decision 1: was FATAL. `fatal` is the importer's word - see
+            # import_log.py's tier computation - so the harness uses BLOCKING and
+            # carries the rest in `stage`.
+            'severity': 'BLOCKING',
             'when': nulled_since[1],
             'event_id': nulled_since[0],
             'detail': 'the most recent Options import (%s) was not followed by an '
@@ -244,7 +256,7 @@ def check_a4(records):
                                'CONFIRM against option_groups.options for this org '
                                'before this reaches anyone - a harness finding is '
                                'evidence, not a verdict (OPEN_ITEMS G2).',
-        })
+        }, evidence_from=str(nulled_since[1])[:10], evidence_state='standing'))
 
     stats = collections.Counter(r['file_type'] for r in recs)
     return findings, stats
@@ -256,7 +268,24 @@ def check_a4(records):
 MIN_PAIR_EVENTS = 10     # enough runs of the importer to see a pattern at all
 MIN_COVERAGE = 0.90      # the pair IS this importer's traffic in the window
 MIN_ALTERNATIONS = 5     # the pattern returns, rather than swapping once
-MIN_ALT_RATE = 0.30      # ...and returns at a rate, not 8 times in 340 events
+MIN_ALT_RATE = 0.30      # ...and returns at a RATE, not 8 times in 340 events
+#
+# PROVENANCE OF 0.30, because it is the one number here that is a knob.
+# MIN_COVERAGE is definitional (two files feeding one importer means nearly
+# every run is one of them) and MIN_PAIR_EVENTS is a floor. This is neither:
+# it is CALIBRATED ON ONE TRUE POSITIVE. leg Inventory sits at 52.8% and the
+# nearest non-case, cl Inventory, tops out at 16.7%; 0.30 splits a gap with a
+# single confirmed example on one side of it. Treat it as provisional and
+# re-derive it the moment a second true positive exists.
+#
+# Known consequence: the count and the rate swap which one binds at
+# n_pair ~= 17 (0.30 x 16 = 4.8). Above that the rate dominates, so a
+# 340-event pair needs 102 alternations and a LARGE CLUMPY INTERLEAVE - two
+# files on a weekly rotation, say - is silent. If that ever bites, the
+# principled replacement is runs rather than switches: count maximal
+# same-signature stretches and test the longest run as a share of the pair.
+# That separates a weekly rotation from a drifting feed without a fitted
+# constant.
 
 
 def check_b4(rows, min_events=3):
@@ -313,6 +342,55 @@ def check_b4(rows, min_events=3):
     and it is not wired in. Every finding says so.
     """
     findings = []
+
+    # Two things B4 does NOT check, emitted on EVERY run however clean, because
+    # a check that is silent about its blind spots reads as coverage it does
+    # not have. Neither is a defect in an org; both are limits of the method.
+    findings.append({
+        'stage': 'post_import', 'repair_channel': 'none',
+        'evidence_state': 'standing', 'evidence_from': None, 'evidence_to': None,
+        'rule': 'B4.not_checked.clean_competitor', 'severity': 'NOT CHECKED',
+        'file_type': '(method)',
+        'detail': 'A competing pair where EITHER file imports cleanly is invisible to '
+                  'B4: a clean block carries no message signature to compare, and '
+                  '`sig <> 0/0` excludes it. leg was caught only because its two files '
+                  'happen to produce different NONZERO warning counts (237 and 10); had '
+                  'both been well-formed, A8 would be live and B4 green.',
+        'measured': 'nothing - this names what the detector cannot see',
+        'not_established': 'whether any org has two well-formed files feeding one '
+                           'importer. `import_events` has four columns (id, created_at, '
+                           'organization_id, data) and carries no source filename - the '
+                           '6,397 fleet-wide ".csv" mentions are message text naming the '
+                           'CANONICAL import name, which is identical for both competing '
+                           'files. A PARTIAL side channel exists for the email-attachment '
+                           'delivery path: active_storage_blobs (97 rows, 88 data files) '
+                           'via active_storage_attachments record_type=InboundEmail, '
+                           'which for leg shows LegrandAdorneInventory.xlsx AND '
+                           'LegrandRadiantInventory.xlsx arriving daily against ONE leg '
+                           'Inventory import event per day - A8 by filename. It cannot '
+                           'carry a check: record_type InboundEmail has no backing table '
+                           'so blobs are UNATTRIBUTABLE to an org in-DB, it covers a '
+                           'handful of orgs not the fleet, it records what ARRIVED and '
+                           'never what the importer CONSUMED, and FTP - how most orgs '
+                           'deliver - records nothing. Unattributable and partial, NOT '
+                           'permanent.',
+    })
+    findings.append({
+        'stage': 'post_import', 'repair_channel': 'none',
+        'evidence_state': 'standing', 'evidence_from': None, 'evidence_to': None,
+        'rule': 'B4.not_checked.rate_provenance', 'severity': 'NOT CHECKED',
+        'file_type': '(method)',
+        'detail': 'The alternation rate threshold (%.2f) is CALIBRATED ON ONE TRUE '
+                  'POSITIVE - leg Inventory at 52.8%%, against cl Inventory topping out '
+                  'at 16.7%%. Coverage and the volume floor are definitional; this one '
+                  'is a knob.' % MIN_ALT_RATE,
+        'measured': 'nothing - this names the provenance of a constant',
+        'not_established': 'that 0.30 generalises. The count and the rate also swap '
+                           'which binds at n_pair ~= 17, so above that a large clumpy '
+                           'interleave - two files on a weekly rotation - is silent: a '
+                           '340-event pair would need 102 alternations.',
+    })
+
     if not rows:
         return findings
 
@@ -320,8 +398,10 @@ def check_b4(rows, min_events=3):
     # loudly rather than falling back to range-overlap, which is the behaviour
     # that produced 1,262 FATALs.
     if 'alts' not in rows[0]:
-        return [{
-            'rule': 'B4.not_evaluated', 'severity': 'INFO',
+        return findings + [{
+            'stage': 'post_import', 'repair_channel': 'none',
+            'evidence_state': 'standing', 'evidence_from': None, 'evidence_to': None,
+            'rule': 'B4.not_evaluated', 'severity': 'NOT CHECKED',
             'file_type': '(all)',
             'detail': 'NOT EVALUATED - B4 needs `import_log --mode feed_pairs`. The '
                       'rows supplied are `--mode signatures`, which carry only per-'
@@ -347,9 +427,20 @@ def check_b4(rows, min_events=3):
         if alts < MIN_ALTERNATIONS or alt_rate < MIN_ALT_RATE:
             continue
         ft = r['file_type']
-        findings.append({
+        # Decision 3/4: the pair's channel is its own file type, and it is
+        # STANDING while the pair is still the importer's traffic - i.e. its
+        # latest event reaches the org's most recent import of that type.
+        # leg: pair_last_seen 2026-09-04 == last Inventory import 2026-09-04, so
+        # standing, so no demotion. Its WINDOW ends 09-03; keying demotion off
+        # the window instead is exactly the bug the closed-evidence clause
+        # exists to prevent, and it would drop A8 to WARN.
+        pair_last = r.get('pair_last_seen') or r.get('win_end')
+        last_of_type = (r.get('last_import_of_type') or None)
+        standing = bool(pair_last and last_of_type
+                        and str(pair_last)[:10] >= str(last_of_type)[:10])
+        findings.append(sev.stamp({
             'rule': 'B4.two_feeds',
-            'severity': 'FATAL' if ft in HARD_DELETE else 'WARN',
+            'severity': 'BLOCKING' if ft in HARD_DELETE else 'WARN',
             'file_type': ft,
             'detail': '%s alternates between two distinct message signatures over '
                       '%s..%s: %s (%s events) and %s (%s events). Across that window '
@@ -373,7 +464,10 @@ def check_b4(rows, min_events=3):
                                'the live key set against each candidate source file; '
                                'message CONTENT (--mode taxonomy) would settle the '
                                'second question and is not wired in.',
-        })
+        }, evidence_from=str(r.get('win_start'))[:10],
+           evidence_to=str(pair_last)[:10],
+           repair_channel='file:%s' % ft,
+           evidence_state='standing' if standing else 'closed'))
     return findings
 
 
@@ -396,7 +490,7 @@ def report(a4, b4, stats, out=sys.stdout):
         if f.get('not_established'):
             w('           NOT established: %s\n' % f['not_established'])
     w('\n-- B4 ' + '-' * 66 + '\n')
-    if not b4:
+    if not [f for f in b4 if f['severity'] != 'NOT CHECKED']:
         w('   no interleaved feed signatures found\n')
     for f in b4:
         w('   %-7s %s (%s)\n' % (f['severity'], f['rule'], f['file_type']))
@@ -404,7 +498,7 @@ def report(a4, b4, stats, out=sys.stdout):
         w('           measured: %s\n' % f['measured'])
         w('           NOT established: %s\n' % f['not_established'])
     w('\n')
-    return 1 if any(f['severity'] == 'FATAL' for f in a4 + b4) else 0
+    return 1 if any(f['severity'] == 'BLOCKING' for f in a4 + b4) else 0
 
 
 def main():
@@ -421,7 +515,7 @@ def main():
     b4 = check_b4(load(args.signatures)) if args.signatures else []
     if args.json:
         print(json.dumps({'a4': a4, 'b4': b4}, indent=2))
-        return 1 if any(f['severity'] == 'FATAL' for f in a4 + b4) else 0
+        return 1 if any(f['severity'] == 'BLOCKING' for f in a4 + b4) else 0
     return report(a4, b4, stats)
 
 

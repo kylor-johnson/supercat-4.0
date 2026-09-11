@@ -124,7 +124,7 @@ shown.
 salespeople look at all our customers."* So drf needs no territory filtering either — B3
 passing on drf is incidental, not a requirement.
 
-→ belongs in `config_intent.yml` as `drf: presentation_only`, so no future check reports it.
+→ belongs in `config_intent.toml` as `drf: presentation_only`, so no future check reports it.
 
 ### A10 — `drf`: order email still a placeholder
 Flagged 2026-07-17 as temporary; unchanged. Stated intent on the 2026-05-18 call was
@@ -186,6 +186,351 @@ Kyla promised "this week" have no answer anywhere in the corpus.
 
 ---
 
+### ~~A18 — `libco`: every barcode ships with a float tail~~ — DOWNGRADED, live is clean
+
+Found 2026-09-05 by the Phase 2 blind run, **before any build**, in the source file.
+`UPCValue` is a text field carrying a float representation on **100% of rows**. A barcode
+with a decimal tail is not the barcode. Distinct from a formatting nit because the value is
+what a scanner matches against.
+
+**Measured:** the source column, 897/897. **Not established:** what the live org currently
+holds, or whether the existing build already strips it — the blind rule forbade reading the
+build. **Confirm against live `products` before this reaches the client.**
+
+Same run found `ShipWeight` float-tailed on 822 rows, missed initially by the validator's
+own >50% prevalence threshold (41%). Threshold removed.
+
+**CONFIRMED AGAINST LIVE 2026-09-05 — and it does not hold.** Org 288, 915 live products,
+912 with a populated `upc_value`: **0 carry a float tail.** Specimen of a live value:
+`810117540005` — clean. The existing build already strips it.
+
+So the measurement was right about the SOURCE and wrong about the consequence. Nothing on
+any iPad has a bad barcode, and nothing needs telling to the client. This is a **source
+hygiene note and a code hazard for the next regeneration**, not a live defect — the §12 R1
+distinction, and the fourth time on this programme that a true measurement pointed at a
+false consequence.
+
+What survives: any mapping reading that xlsx must strip the tail explicitly, because
+`openpyxl` returns every numeric cell as a float and `UPCValue` is a TEXT field. That is
+now `ecatlib.values.strip_float_tail`, and it is in the libco mapping.
+
+### A19 — `libco`: Yes/No on binary filters — CONFIRMED live, narrower than filed, and it is A5
+
+Registered as booleans, populated with `Yes`/`No`. eCat's boolean tokens are `Y`/`N`.
+
+**CONFIRMED AGAINST LIVE 2026-09-05, org 288, with the scope corrected.** I filed this as
+*five* fields. Only **three** of the five are registered with `use_as_filter = 'binary'`:
+
+| field | live values | registered |
+|---|---|---|
+| `Dimmable` (`ecat_custom_field_27`) | Yes 871 / No 9 = **880** | binary filter |
+| `SlopeCeilingCompatible` (`_37`) | Yes 733 / No 53 = **786** | binary filter |
+| `MotionSensor` (`_40`) | No 160 / Yes 2 = **162** | binary filter |
+| **total** | **1,828** | **3 chips** |
+| `BulbIncluded` (`_36`) | Yes 493 / No 74 = 567 | `send_to_ipad`, **not a filter** |
+| `ADA` (`_32`) | Yes only | `send_to_ipad`, **not a filter** |
+
+`BulbIncluded` and `ADA` are detail-view fields, where `Yes`/`No` is the correct and
+readable value. **Filing them as defects would have been wrong.**
+
+`Rating` (`_31`) is separately registered `binary` and carries **Damp 628 / Dry 279 = 907** —
+neither `Yes/No` nor `Y/N`, and unambiguous whatever eCat's matcher does.
+
+**This is A5, re-derived independently from the source by an agent that had never read A5.**
+Same three fields, same 1,828, same `Rating` footnote. Not a new finding — it is
+corroboration of an existing one by a different route, which is worth more than a fifth
+instance would have been. **Merge A19 into A5.**
+
+Standing caveat unchanged: whether eCat's boolean matcher is first-character or exact has
+**not** been settled from the product side. `Rating` is unambiguous; the `Yes`/`No` three
+are conditional on that answer.
+
+### ~~A20 — `libco`: 15 `FinishCode` case-duplicates~~ — DOWNGRADED, live is clean
+
+`Aged Brass` and `Aged brass` are two filter facets for one finish, in the SOURCE file.
+
+**CONFIRMED AGAINST LIVE 2026-09-05 — and it does not hold.** Org 288, `FinishCode` is
+`ecat_custom_field_14`, registered `use_as_filter = 'multi'`. Live: **43 distinct finishes,
+907 values, and ZERO pairs differing only by case.** The existing build already normalises
+them.
+
+Same shape as A18: true of the source, false of the live org. A source-hygiene finding for
+any future regeneration, not something a rep is seeing and not something to raise with the
+client.
+
+### A21 — `libco`: image references with no file — CONFIRMED live, 199 of 1,992
+
+Found blind in the source: 191 of 1,812 references with no file in either image folder.
+
+**CONFIRMED AGAINST LIVE 2026-09-05.** Org 288, references read from `products.images_json`
+(**not** `products.images`, which is empty on all 915 — the sibling-column trap again) and
+checked against the org's `product_images` library of 2,796 files:
+
+```
+1,992 distinct image references
+  199 resolve to no file in the org library   (10.0%)
+  190 products affected
+```
+
+**The consequence splits, and the split is the whole point:**
+
+- **190 are SECONDARY images** (position > 1, every one ending `-1.jpg`). Those products
+  show their primary image; a secondary slot resolves to nothing.
+- **9 are PRIMARY images** (position 1). Those 9 products have **no image at all** —
+  corroborated independently by `image_exists = false` on exactly 9 of 915 products, a
+  different column reaching the same number. Specimens: `12069-01`, `12069-02`, `12070-01`,
+  `12298`, `12299`.
+
+Those 9 are the SKUs added by `rebuild_lib_co_files.py`'s hand-written `FORCE_ADD_PRODUCTS`
+manifest — rows cloned from a template, which is why no image was ever uploaded for them.
+
+So: **"191 products have no image" would have been false.** 9 do. 190 are missing one
+secondary view. Both are worth fixing and they are not the same conversation.
+
+An image import runs clean with all 199 missing — D10 again.
+
+### A22 — the blind-mapping run works, and its most useful output was a failure
+
+`libco` was mapped blind — source files only, forbidden from opening
+`rebuild_lib_co_files.py` or the existing `products.csv` until the mapping was written and
+committed. Four calls were wrong, and **three were the same mistake**: renaming a header,
+dropping `ShipLBS`, dropping `Video` — all reasonable improvements to a file where a human
+had already decided.
+
+**Class 2 is `validate, do not transform`, and the agent was wrong 3 for 3 in exactly the
+way the rule predicts.** That is the empirical justification for the rule, and it argues
+the rule should be a **hard guard in `mapper.py`** — a class-2 file's headers are immutable
+and column drops require an explicit per-field override — not prose in a kickoff.
+
+**IMPLEMENTED 2026-09-05.** `Engine.class2_guard()` in `mapping/mapper.py`. On any mapping
+declaring `input_class = 2` or `mode = "validate"` the engine REFUSES to run when a field's
+output name differs from its source column without a `rename_reason`, or when a source
+column is neither emitted nor declared in `[[drop]]` with a `reason`. Pointed at the libco
+mapping as written blind, it refuses with exactly the three violations:
+
+```
+CLASS-2 GUARD (OPEN_ITEMS A22) — 3 violation(s):
+   - header renamed 'netprice' -> 'NetPrice' with no `rename_reason`
+   - source column 'ShipLBS' is not emitted and not declared in [[drop]]
+   - source column 'Video' is not emitted and not declared in [[drop]]
+```
+
+The libco mapping has been corrected the way the rule prescribes rather than annotated
+around it: the rename is reverted (the lowercase header is now a validation FINDING), and
+both columns ship. Byte-exact columns went 27 -> 29 of 63 as a result.
+
+### A23 — filing A18–A21 into §A was 50% wrong, and the caveat did not save it
+
+I filed four libco findings into **§A — the client-issue section** — from source-file
+evidence, each carrying *"confirm against live before this reaches the client."* Two were
+then refuted outright (A18, A20) and a third had the wrong consequence (A21: "191 products
+have no image" would have been false; it is 9).
+
+The caveat was correct and insufficient. **§A is the section someone reads to decide what
+to tell a client**, so a finding's presence here is itself a claim. The rule that cost us
+F1 is not *attach a caveat* — it is **confirm first, then file.**
+
+**Changed:** source-only findings stay in the session report until confirmed against live.
+§A means confirmed. See also §F.
+
+### A24 — `cl`: 212 users, no import in 134 days, no order since 2025-02-28
+
+Surfaced 2026-09-05 by F6's org-state header, **on an org that had been returning clean.**
+
+```
+users        212 provisioned · 184 ever logged in · 11 active in 30d
+last import  2026-04-24   (134 days)
+last order   2025-02-28
+```
+
+Not a defect — a **business signal**, and the first one this programme has produced. It is
+also precisely what the cold read said a green report must not be able to hide. Whether
+`cl` is dormant, seasonal or churning is a question for the account owner, not the harness.
+
+Same run, from `login_events`: **`ufi` 15, `clli` 13, `pebl` 10 users who appear in
+`login_events` with no `org_users` row today** — accounts destroyed rather than
+deactivated. `pebl`'s ten are Mandy's, and they are why 27 of 93 `pebl` orders carry
+`org_user_id` NULL. D13/D16's *"three sources nothing reads"* is now partly read.
+
+### A25 — `drf`: 62 products carry `-` as their image filename, and all 62 render as missing
+
+Found by the Phase 2 blind run in the built file; **confirmed against live 2026-09-05**,
+org 290, BEFORE filing here — per A23, §A means confirmed.
+
+**Measured:**
+
+```
+1,627 live products
+1,564 image_exists = true
+   63 image_exists = FALSE
+   62 of those carry the literal string "-" in images_json
+    0 of the 62 resolve                       (dash_but_resolves = 0)
+    0 files named "-" or "-.jpg" exist in the org's 1,564-file image library
+    1 further product is imageless for a different reason
+```
+
+**Consequence, and it is now established rather than assumed:** `-` is **not** a known
+placeholder that the app renders as anything. It is an ordinary filename that matches no
+file, so those 62 products show no image. The question this item was raised to settle —
+*missing, or a deliberate placeholder?* — has an answer: **missing.**
+
+**Not a single category.** 26 of the 62 are `*-WF-ASSORTED`, but 96 `-WF-ASSORTED` SKUs
+exist in total so the suffix does not predict it. The other 36 are a mix — `CARMINE
+SB-ASSORTED`, `CELARA SB-ASSORTED`, and ordinary colourways like `ECHELON-GINGER`,
+`ECHELON-SAFARI`, `ECHELON-STEEL`. So this is not "assortment cards have no photo"; it is
+62 individually unresolved rows.
+
+Same family as `pebl`'s doubled `.jpg.jpg` and `mali`'s ~200 wrong photos: **an image
+import runs clean with all 62 in place.** A literal `-` is a valid string; nothing rejects
+it.
+
+### A26 — **DO NOT REGENERATE `mali` CUSTOMERS FROM THE AVAILABLE EXPORT** — data-loss hazard
+
+Found 2026-09-05 by the Phase 2b run. Filed at this weight because the operation looks
+routine and destroys production data.
+
+`customers.csv` **HARD-DELETES ALL customers and ship-tos, then reloads.** Measured against
+`mali`'s live org, the export the repo holds is not a faithful representation of live:
+
+| | |
+|---|---|
+| addresses **blank in the export, filled live** | **2,701** |
+| postcodes where both are filled and they **disagree** | 1,428 |
+| `BillToAddress1` content | holds **contact names**, not addresses |
+
+So a regeneration from that export, imported normally, **blanks 2,701 live addresses.**
+Nothing about the run would look wrong: the file parses, the import reads clean, and the
+deletes fire precisely *because* it is clean (deletes only run on a warnings-only import).
+
+**Same shape as the 111Mercer incident** — Legrand's 1,020-row `products.csv` imported into
+`mer` on 2026-08-18, soft-deleting all 102 of their products, second occurrence of that
+failure mode. This one would be worse: customers hard-delete, so there is no `deleted=true`
+to reverse.
+
+**Rules until an enriched export exists:**
+
+1. `mali` customer regeneration is **blocked**. Not "careful" — blocked.
+2. The mapping carries the live addresses forward and **declares them as carried**, which
+   the Phase 2b run already does. That declaration must survive any future edit.
+3. The outstanding ask is an export that includes address fields. Until it lands, live
+   Postgres is the only complete record of mali's customer addresses.
+4. `a1_fingerprint.py` does not protect against this. It confirms the file's item codes
+   overlap the target org — it says nothing about whether the file's *contents* are poorer
+   than live. **That is a gap in the pre-upload gate**, and it generalises past mali: any
+   regeneration from a lossy export passes A1 and destroys data.
+
+#### A26a — the worse hazard is not the blank addresses, it is a silent repricing of every customer
+
+Found 2026-09-09 by B7's spot-check, which is the check that was almost not built.
+
+A26 documents mali's export as blanking ~2,700 addresses and disagreeing on 1,428
+postcodes. Both are true and both are the smaller problem.
+
+```
+FILE   nsllist 3,096  +  mllist 421  =  3,517     every row a *list* level
+LIVE   nsldn   3,003  +  mldn   415  =  3,418     every row a *dn* (discount net) level
+                                                   ZERO overlap
+```
+
+**`DefaultPriceCode` disagrees on 49 of 49 sampled rows.** Importing that file moves **all
+3,418 mali customers off discount pricing and onto list pricing.** That does not change
+what an address field says — it changes **what every rep quotes**, on every customer, from
+the next sync.
+
+**It is invisible to every other gate:**
+
+| gate | why it misses |
+|---|---|
+| B7 density | 100% filled in the file, 100% filled live — no drop to detect |
+| A1 fingerprint | every key is present and matches the org |
+| B6 carry-forward | no previous generated file to diff against |
+| the importer | valid codes, clean parse, clean import |
+
+Only a **value-level spot-check on matched keys** sees it. The 50-row sample caught it at
+100% disagreement, which is the argument for pairing the spot-check with the density check
+rather than shipping density alone.
+
+The same sample also found disagreements A26 never recorded: `BillToCity` 45%,
+`BillToState` 26%, `BillToAddress1` 70% — the last being A26's *"BillToAddress1 holds
+contact names"* caught in the act, specimen `16304: file='BILL HALEY' live='15 COMMERCE
+DRIVE'`.
+
+**A26's block on mali customer regeneration stands and is now underwritten by a second,
+larger reason.** Nothing is at immediate risk. But if the block is ever lifted on the
+grounds that "the addresses were fixed," the repricing is still there and still silent.
+
+### ~~A27 — user counts include SuperCat staff~~ — RESOLVED 2026-09-05
+
+Found 2026-09-05 by the session-prep run. `kylor22johnson@gmail.com` is the admin account on
+both `leg` and `mer`, so filtering on `@supercatsolutions.com` misses it. `mer`'s "2 users
+logged in" is really **1**.
+
+**This reaches back into a tool marked done.** F6's org-state header counts users, and the
+at-risk rule reasons about provisioning. Both are soft by however many staff accounts sit
+in an org — including **A24's headline**, `cl`'s *"212 users, 184 ever logged in, 11 active"*,
+which is the finding that justified building the header at all.
+
+**RESOLVED.** The rule, derived and tested rather than assumed:
+
+```sql
+staff = users.billable IS FALSE  OR  email ILIKE '%@supercatsolutions.com'
+```
+
+Both halves earn their place. `billable` catches the **24** on personal or contractor
+domains a filter misses — including `kylor22johnson@gmail.com`, `is_admin = true`, member
+of 110 orgs. The domain half catches the **39** staff seats marked billable: test and demo
+accounts provisioned inside client orgs (`chuck+911@`, `steve+53@`, `kyla+rep@`,
+`brent+demo2@`, `sarah+test@`).
+
+Fleet: **96 staff** (33 both signals · 24 billable-only · 39 domain-only = 96) against
+70,008 client-side, total 70,104. `login_events.is_super_user` corroborates independently —
+10 accounts, none missed. **Residual named, not zero:** a staff member on a personal domain
+holding a billable seat is invisible to both signals.
+
+**A24 recounted, and it survives:** 204 client-side provisioned · 182 ever logged in · **11
+active in 30d, unchanged — none of cl's active users are staff.** 283 orders, 0
+staff-placed, last order 2025-02-28. Fit to send. (Worth noting alongside it: cl's
+Inventory was last imported **2023-02-08** and Customers 2024-10-11 — older signals than
+the 134-day figure that raised the flag.)
+
+Proportional damage was worst on small onboarding orgs: `sp` −41% of provisioned, `leg`
+−29%, `mer` −25%. The header now states staff-exclusion, names the rule, and lists the
+excluded addresses, so the definition travels with the number.
+
+### A28 — a user in many orgs is normally a REP, not staff — and it breaks sender→org attribution
+
+Found 2026-09-05 while deriving the staff rule, by testing a hypothesis rather than
+adopting it. **This is a domain fact about eCat's market, and it invalidates an inference
+that holds in most SaaS.**
+
+eCat's client-side population includes **multi-line rep agencies and multi-brand dealers
+who legitimately hold accounts at many manufacturers**:
+
+```
+riccisales.com             5 accounts, up to 11 orgs   jeff@ jessica@ maureen@ rob@ steve@
+decorlightingsales.com     5 accounts, up to 15 orgs   allison@ nick@ tami@
+pacificliteforcesales.com  8 accounts, up to 13 orgs
+lightingvision@comcast.net                   16 orgs
+christieslightinggallery@gmail.com          10+ orgs
+```
+
+**2,982 accounts sit in 5+ orgs and none of them are staff.** Using org-count as a staff
+signal would have misclassified thousands of real client users. By contrast, the 57
+non-billable accounts average **32.4** orgs (max 167) against 70,047 billable averaging
+**1.6** (max 17) — `billable` separates where org-count does not.
+
+**Two consequences beyond the staff question:**
+
+1. **An email domain does not identify a client org.** A message from `riccisales.com`
+   could concern any of eleven manufacturers. Any tool that routes correspondence,
+   attributes a ticket, or scopes a corpus by sender domain **must disambiguate** —
+   probably by the org named in the thread, or by asking. This directly constrains the
+   **correspondence agent**.
+2. **Personal and free-mail domains are load-bearing client identities**, not noise.
+   `lightingvision@comcast.net` holds accounts at 16 orgs. A rule that drops free-mail
+   domains as "staff and personal logins" loses real users — the session-prep skill
+   currently does this at SKILL.md:149 and should be narrowed to the staff rule above.
+
 ## B. Decisions needed, not defects
 
 ### B1 — `leg` MATRIX sheet: products or matrix options?
@@ -218,7 +563,7 @@ Found 2026-09-04 while verifying a rep count. `whiteline`, holding
 (`eltecul@hotmail.com`).
 
 Not a defect — a gap in our understanding. pebl's group structure has been described in
-`SCORECARD` §9 and in `config_intent.yml` as six user types, and the distributor layer was
+`SCORECARD` §9 and in `config_intent.toml` as six user types, and the distributor layer was
 characterised from the three we happened to notice. There is a fourth.
 
 **Why it matters:** anything that reasons about pebl's structure — the config checker's
@@ -226,7 +571,7 @@ conformance rule especially — is working from an incomplete picture, and an un
 group is exactly the shape that later gets flagged as an anomaly and wastes a cycle.
 
 **Action:** confirm whiteline is a real distributor (whitelinemod.com is a furniture
-brand), then record all four in `config_intent.yml` with the same treatment ICA and
+brand), then record all four in `config_intent.toml` with the same treatment ICA and
 Albania-Sezon Dekor already have. While there, re-derive the group list from the database
 rather than from notes — if one was missed, others may be.
 
@@ -316,6 +661,45 @@ across the whole table times out at 30s. Batch by org.
 
 ---
 
+### D17 — `drf`: the source folder is one season's supplement, and nothing says so
+
+**This is the drf failure reproduced exactly, and it is a finding about the SOURCE FOLDER,
+not about any mapping.**
+
+`Source Data/` contains three files. The only product file is `Characteristics Interwoven
+spring 2026_eCat MAPPED (1).csv` — 11.7 KB, **72 patterns**, no images, no prices, no
+colourways. Reconciled against the built catalogue (pinned before scoring):
+
+```
+built SKUs                                      1,627
+  attributable to one of the source's 72 patterns   743   (45.7%)
+  belonging to a family ABSENT from the source      884   (54.3%)
+
+built pattern families                            115
+source patterns                                    72
+  appearing in the build                           55
+  appearing NOWHERE in the build                   17
+colourways per pattern                     min 4, max 28, mean 13.5
+```
+
+**More than half the live catalogue is outside the only product file in the folder.** The
+filename says "Interwoven spring 2026" and the catalogue spans many lines; nothing else in
+`Source Data/` records that, and a build started from that folder is building 46% of a
+catalogue while believing it has all of it.
+
+The blind read of this client concluded *"the data question was never actually settled
+before the build started"* — two weeks lost, Showtime missed. **The folder is still in that
+state today.** Nothing has been added that would stop the next person making the same
+assumption.
+
+What would close it: a one-line manifest in `Source Data/` naming what each file covers and
+what it does not. The profiler's folder mode produces exactly that and nobody has run it
+here.
+
+*(Related but separate: `NetPrice` is the constant `1` on all 1,627 rows with real money in
+`Price_List` / `Price_Retail` and eight more columns. Already recorded as by-design — A9.
+Not re-raised.)*
+
 ## E. Framework defects recorded but deliberately not fixed
 
 | id | defect | why unfixed |
@@ -323,7 +707,7 @@ across the whole table times out at 30s. Batch by org.
 | D2 | Phases are a checklist, not a sequence — Phase 7 needs any two of four clauses, so Phase 6 is skippable by construction | needs a design decision, not a patch |
 | D3 | No adoption state. Five clients, five distinct failure modes | same |
 | D10 | Import tier is silent on catalogue correctness. Confirmed on drf, mali, leg | **not fixable from Postgres.** Bounds what any log-reading automation can know |
-| D19 | The D1 at-risk fix false-positives on pre-sales orgs | `overrides.yml § project_start_date` now populated for `leg`; the *rule* still needs the guard before at-risk ships |
+| D19 | The D1 at-risk fix false-positives on pre-sales orgs | `overrides.toml § project_start_date` now populated for `leg`; the *rule* still needs the guard before at-risk ships |
 
 ---
 
@@ -348,6 +732,33 @@ asserted from it* was never checked. That is the rule in `SCORECARD § 12 R1`, a
 now cost something three times.
 
 ---
+
+### F8 — I predicted G6's blast radius from a premise I never checked
+
+Stated before the G6 re-run, as a falsifiable prediction and with a stated falsifier:
+
+> Fatals are already outside `n_pair` and outside the alternation window — `0/0` is never a
+> pair member — so dropping them raises coverage and **can only add pairs**. If B4 falls, or
+> any alternation rate moves, the edit is wrong.
+
+The premise is false. `0/0` is the signature of a **pure** fatal block. Across thirteen orgs
+there are 1,594 fatal blocks and **1,292 of them (81%) also carry warnings or errors**, so
+their signature is `237/0`-shaped, not `0/0` — and several are live pair members (`cl`
+Inventory `1/0`, `sp` Products `1001/0` and `1002/0`, `ufi` and `uhc` Inventory `1001/0`).
+Dropping fatals therefore removes pair members too: `n_pair` can fall below the floor and
+`alts` can change.
+
+`cl`'s coverage-passing pairs went 246 → 245 — exactly the movement I said could not happen.
+It reached no finding only because `cl` was already at zero.
+
+**The cost, had it landed differently: my stated falsifier would have condemned a correct
+edit.** A prediction is only worth making if its premise is checked as hard as its
+conclusion, and I checked neither — I reasoned from the *name* of the sentinel (`sig <>
+'0/0'` in the candidate filter) to a claim about the *severity* of the block, which are
+different things that happen to coincide in 19% of cases.
+
+Same family as §F1: a measurement (`sig = '0/0'`) and its consequence (`this block is
+fatal-only`) are two claims. I verified neither and asserted the link.
 
 ## G. Harness defects found in testing
 
@@ -441,6 +852,48 @@ hears*, until live state agrees.
 
 ---
 
+### G4 — "age" is not one dimension: `submit_date` vs `created_at`
+
+Found 2026-09-04, while reading `clli` cold. A3 reported nine dangling
+`orders.price_level` values; one of them, price level `3`, looked like a live case:
+
+```
+order_number  63390-022021-7   THE LIGHTING BOUTIQUE   $20,252.25
+submit_date   2021-02-21       <- the business event
+created_at    2026-08-05       <- the database row
+updated_at    2026-08-05
+```
+
+Reading `created_at`, it is one month old and urgent. Reading `submit_date` — and the
+order number, which encodes `022021` — it is five and a half years old and archaeology.
+**Neither column alone says what happened:** a 2021 order was backfilled or re-synced on
+2026-08-05.
+
+Measured spread, submitted orders where the row was created >30 days after the event:
+
+| org | orders | diverging | max lag |
+|---|---|---|---|
+| `fal` | 3,909 | 80 (2.0%) | 641 days |
+| `clli` | 1,362 | 5 (0.4%) | 2,002 days |
+| `uhc` | 20,034 | 32 (0.2%) | 1,805 days |
+| `ufi` | 37,817 | 22 (0.1%) | **4,751 days** |
+| `pebl` / `cl` / `sp` | — | 0 | ≤ 7 days |
+
+Rare, but with enormous lags — which is the dangerous shape. A recency filter on
+`created_at` surfaces a thirteen-year-old order as new; one on `submit_date` misses that
+the row changed last month.
+
+**Constraint on F6 (severity), recorded not solved.** Any recency-based severity must say
+**which clock it means**, and the honest input is probably both — when the business event
+happened, and when the row last changed — reported separately. Do not fold them into a
+single "age".
+
+**This is the third pair of this shape** — see `SESSION_HANDOFF` § Things that will bite
+you. `qty_available`/`qty_on_hand`, the two login columns plus `login_events`, and now
+these. Before using any column as *the* answer, look for its sibling.
+
+---
+
 ### G3 — B1b must separate "unregistered and populated" from "unregistered and empty"
 
 Found 2026-09-04 via A4's closure. B1b flags source columns that carry no Admin
@@ -462,3 +915,163 @@ INFO, with the advice to drop the column from the generator rather than register
 
 Same failure family as G1: the check was directionally right and its severity was wrong,
 and the cost of that is an operator who stops reading it.
+
+### G5 — B4's substrate cannot see a competing feed that imports cleanly
+
+Found 2026-09-04, reading the F3 fix rather than running it. **Not a defect in the fix — a
+limit of what B4 can know, which has to be declared before a green B4 is trusted.**
+
+`import_log.sql_feed_pairs` builds every signature as `n_warning || '/' || n_error`, then
+filters candidates with `WHERE events >= 3 AND sig <> '0/0' AND fs::date <> ls::date`. That
+`sig <> '0/0'` is load-bearing and correct — a clean block carries nothing to compare — but
+it has a consequence nobody wrote down:
+
+> **Two files overwriting each other daily are invisible to B4 if either of them imports
+> cleanly.**
+
+`leg` was caught only because its two inventory files happen to produce *different nonzero*
+warning counts (237/0 and 10/0). Had both been well-formed, A8 would be live and B4 silent.
+Same shape as the cold-read finding — output that reads as "no competing feeds" and means
+"no competing feeds *that produce two distinct nonzero warning counts*."
+
+**Action:** B4 emits a `NOT CHECKED` line naming this on every run, the way
+`preflight_gate.py` does. An unexplained absence is how a real gap becomes a silent pass.
+
+#### G5a — there IS a filename side channel, and it independently confirms A8
+
+The first pass concluded *"no filename to read, so the blind spot is permanent."* That is
+right about `import_events` — verified, it has exactly four columns (`id`, `created_at`,
+`organization_id`, `data`), and the 6,397 fleet-wide `.csv` mentions are message text naming
+the canonical import name, identical for both competing files. It is **wrong about the
+database.** A wider sweep of `information_schema` for filename-shaped columns found:
+
+```
+active_storage_blobs.filename          97 rows, 88 matching .csv/.xls[x]/.txt/.zip
+  joined via active_storage_attachments -> record_type = 'InboundEmail'
+```
+
+Files arrive as **email attachments**. For `leg` they are named, dated, and unambiguous:
+
+| day | Legrand-named .xlsx | leg Inventory import events |
+|---|---|---|
+| 2026-09-04 | `LegrandAdorneInventory.xlsx` (51,805 B) + `LegrandRadiantInventory.xlsx` (66,461 B) | 1 |
+| 2026-09-03 | both | 4 |
+| 2026-09-02 … 08-25 | both, every day including weekends | 1/day |
+
+**Two files in per day, one import slot out.** That is A8, visible without inferring
+anything from warning counts — a third independent confirmation, after the corpus and after
+B4. It also supplies the mechanism A8 never had: the ingestion channel accepts two daily
+emails into a single inventory import, and `inventory.csv` hard-deletes and reloads, so each
+day one file wins and erases the other's rows.
+
+State already recorded this and A8 says so — 439 rows / adorne on 2026-08-27, 755 rows /
+radiant as of 2026-09-04 06:01 (re-confirmed: 755 rows, 755 distinct `updated_at`, all
+inside a 2.2-second window). **The filenames are not new evidence of the flip; they are the
+first evidence of its cause.** A8 knew the winner alternates. It did not know why, and
+"two files are emailed in every day against one import slot" is the why.
+
+*(A third daily attachment, `inventory-report-<date>.xlsx` ~157 KB, is weekday-only where the
+Legrand pair is seven-day — a different source, not attributed. Do not assume it is `leg`.)*
+
+**Four limits, all of which keep G5's NOT CHECKED line necessary:**
+
+1. `record_type = 'InboundEmail'` has **no backing table in this schema** — no
+   `inbound_emails`, no `action_mailbox_inbound_emails`. Blobs cannot be attributed to an
+   organization in the database. `leg`'s are identifiable only by the string "Legrand" in
+   the filename and by date correlation.
+2. **97 blobs total.** This covers a handful of orgs and a short window, not the fleet.
+3. It records what **arrived**, never what the importer **consumed**. Two files landing is
+   not proof both were imported.
+4. It is a different ingestion path from FTP, which is how most orgs deliver and which
+   leaves no filename anywhere.
+
+**So B4 does not change.** 97 rows cannot carry a check. What changes is the wording: the
+`NOT CHECKED` line says *no filename in `import_events`; a partial side channel exists in
+`active_storage_blobs` for the email-attachment path, unattributable to an org in-DB* —
+and G5 stops being described as permanent.
+
+**Separately, and larger than B4:** inbound client files arrive by email into ActiveStorage
+and nothing in the programme documents that channel. It is a live ingestion path for at
+least one onboarding client. It belongs in the correspondence agent's scope and in
+`BUILD_SPEC`.
+
+### G6 — fatal blocks read as `0/0`, and the two fixes are not the same edit
+
+Found by the F3 session and filed as *"two characters, outside this change."* The characters
+are right; **"inert" is not, and neither is "one edit."**
+
+`sql_signatures` and `sql_feed_pairs` both count only `warning` and `error`. `sql_events`
+computes tier properly (`CASE WHEN n_fatal>0 THEN 'fatal' ...`), so the conflation is
+confined to the two signature modes — but within them a **fatal import, where the entire
+file was rejected and nothing changed, is byte-identical to a clean one.** Specimen: `fal`
+2025-01-23, `Column shiptoaddress1 is missing`.
+
+**The correction, which the F3 session made and which the first version of this item got
+wrong.** These are two different changes:
+
+| target | edit | why |
+|---|---|---|
+| `sql_signatures`, tier reporting | **add** fatal to the signature | a rejected file reading as identical to a clean one is straightforwardly wrong |
+| `sql_feed_pairs` / B4 | **drop fatal blocks from the stream** | a fatal import did not overwrite anything. Making it a distinct signature would let B4 count a no-op as a file switch, manufacturing alternations out of imports that had no effect |
+
+**Predicted direction of the B4 delta, stated in advance so the re-run can falsify it.**
+Fatal blocks are already excluded from `n_pair` and from the alternation window (their sig
+is `0/0`, never a pair member), but they *are* counted in `n_win`, the coverage denominator.
+Dropping them therefore **raises coverage and can only add pairs, never remove them.** So:
+
+> B4's count after G6 is **≥ 2**, it moves only where an org has fatal blocks inside a
+> candidate pair's window, and it moves via coverage alone — alternation figures are
+> untouched.
+
+If the re-run shows B4 *falling*, or any alternation rate changing, something else moved and
+the change is wrong.
+
+### G7 — the 0.30 alternation rate is fitted, and should be labelled as such
+
+The F3 report says the three tests each have *"a meaning rather than a knob."* True of two.
+**Coverage ≥ 0.90** is definitional and **n_pair ≥ 10** is a volume floor. **alts/(n_pair−1)
+≥ 0.30 is a knob**, sitting between `cl`'s highest false positive at 16.7% and `leg`'s single
+true positive at 52.8% — chosen the way a count cutoff would have been, one level up.
+
+Reasonable place for it; the objection is the label, not the number. **One true positive
+cannot calibrate a rate.** Two properties worth knowing, both verified:
+
+- The thresholds swap which one binds at **n_pair = 17** (0.30 × 16 = 4.8). Below it the
+  count binds — at the volume floor of 10, five alternations is already 55%. Above it the
+  rate binds, and a 340-event pair needs 102 alternations.
+- So a large, clumpy interleave — two files on a weekly rotation — is silent. Unknown
+  whether that case exists in the fleet.
+
+**Action now:** the constant's comment explains the mechanism, not the provenance —
+
+```python
+MIN_ALTERNATIONS = 5     # the pattern returns, rather than swapping once
+MIN_ALT_RATE = 0.30      # ...and returns at a rate, not 8 times in 340 events
+```
+
+— add that it is fitted to n=1, and revisit after the **second** confirmed true positive.
+
+**The principled replacement, when it bites** (F3 session's proposal, recorded so it isn't
+re-derived): count maximal same-signature **runs** and test the longest run as a share of
+the pair. Two files on a weekly rotation produce many runs at a low switch rate; a drifting
+feed produces few long runs. Separates the case the rate cannot, with no fitted constant.
+Not worth building until something is actually missed.
+
+### G8 — a percentage was published without its denominator
+
+After F3 the report said A4 membership (73) and B1a (70) were *"94% of what is left."*
+Reading that against the 166 sub-top-tier findings gives 86%, and the discrepancy was raised
+as an arithmetic error.
+
+**It was not one.** The 94% was over WARN only: B5's 14 findings are 5 WARN + 9 INFO, so the
+denominator is 151 and 143/151 = **94.7%**. Both numbers were right.
+
+The defect is that the sentence opened with *"the remaining WARN volume"* and closed with
+*"94% of what is left"*, naming no denominator and inviting the wrong one. Corrected and
+republished as **143 of the 151 remaining WARN findings (95%); 81% of all 177 remaining
+findings at every level.**
+
+**The rule this confirms, which is now the second instance in a week** (the first was mine,
+§F7): a partition names its denominator in the same sentence as its percentage. A correct
+number with an unlabelled base is indistinguishable from a wrong one, and costs the same to
+chase.

@@ -1,0 +1,329 @@
+# The CopperSmith (tcs) -- products.csv
+#
+# WRITTEN BLIND. See BLIND_BOUNDARY.md. `rebuild_perfection.py` and everything
+# in `CS_eCat_Rebuild/` were NOT opened until this file was on disk.
+#
+# INPUT CLASS 3 -- industry template, and THE TEMPLATE IS THE CONTRACT.
+#
+# The contract is not implied; the client wrote it down. `eCat Navigation and
+# Filtering (1).csv` is 711 bytes, has its header on row 9, is not tabular data
+# at all, and specifies the iPad navigation:
+#
+#     Collections >>>>> All Lighting
+#         CopperSmith >>>> AS, CS, DI, etc
+#         CS | Biltmore >>>> AP, AR, AU, etc
+#     Product Type >>>>>
+#         Accessories >>>>>  (only items that aren't lantern configurations)
+#             Electric Accessories, Gas Accessories, Light Bulbs
+#         Outdoor Lighting >>>>
+#             Gas Lanterns, Electric Lanterns, Flush Mount, LED Fixtures,
+#             RLM Lighting, Sconces, Wildlife Friendly
+#     Smart Lists: New Arrivals, Ready to Ship (In stock inventory)
+#
+# Every taxonomy decision below is read off that file rather than inferred from
+# the data, because on a class-3 client the template outranks the data.
+
+client        = "tcs"
+org_name      = "The CopperSmith"
+target        = "products.csv"
+input_class   = 3
+dialect       = "tcs"        # money PASSTHROUGH after stripping $ and ,
+line_terminator = "crlf"
+primary_input = "catalogue"
+
+# --- the six-sheet reconciliation -------------------------------------------------
+#
+# This is the work. The column mapping is not.
+#
+#   Master Sheet E+G   283 lanterns      162 cols, header row 2  -> products.csv
+#   Weiyan LED          96 LED fixtures  162 cols, header row 2  -> products.csv
+#   Accessories        420 accessories    28 cols, header row 2  -> products.csv
+#   Parts              234 parts          28 cols, header row 2  -> products.csv
+#   Dealers_eCat       724 dealers        21 cols, header row 1  -> customers.csv
+#   eCat Navigation     18 rows            5 cols, header row 9  -> CONTRACT, not data
+#
+# WHICH SHEET IS AUTHORITATIVE WHERE TWO DISAGREE: **none of them disagree.**
+# Measured, not assumed:
+#
+#   Master vs Weiyan      key overlap 0 of 283/96   identical column SET
+#   Accessories vs Parts  key overlap 0 of 420/234  header overlap 83%
+#
+# Zero overlap in both pairs. These are complementary PARTITIONS, not rival
+# versions -- the opposite of mali's "COMBINED 2.0", where two files shared
+# headers and one contained the other. Here, choosing one would silently drop a
+# whole product line. **Union them; never choose.**
+#
+# Total: 283 + 96 + 420 + 234 = 1,033 products.
+
+[inputs.catalogue]
+format   = "csv_multi_named"
+encoding = "utf-8-sig"
+
+# Header on row 2 for all four. Row 1 is a banner, and on Accessories and Parts
+# its THIRD cell reads "**DO NOT CHANGE COLUMN HEADERS! DO NOT EDIT..." -- an
+# instruction to a human sitting inside the data.
+files = [
+  { path = "Source Data/Master Sheet E+G-Table 1.csv", header_row = 2, tag = { _sheet = "master",      _kind = "lantern" } },
+
+  # THE EIGHT ALIASES. Master and Weiyan are the same template with eight
+  # columns spelled differently -- including three that differ ONLY by a double
+  # space. Without this map a name-based union emits two columns for one field.
+  { path = "Source Data/Weiyan LED-Table 1.csv", header_row = 2, tag = { _sheet = "weiyan", _kind = "lantern" }, aliases = { "UPC/GTIN" = "UPC", "Fixture Style" = "Primary Genre/ Style", "MSRP" = "MSRP/ List Price", "Total Voltage" = "Voltage", "Backplate Width (inches)" = "Backplate Width  (inches)", "Backplate Height (inches)" = "Backplate Height  (inches)", "Canopy Width (inches)" = "Canopy Width  (inches)", "Oil Rubbed Bronze Image - BRZ" = "Oil Rubbed Bronze Image -  BRZ" } },
+
+  # Accessories and Parts share a template with the lanterns' key semantics but
+  # none of its columns. `Accessory Name/Desciption` is misspelled in the SOURCE
+  # -- preserved, because correcting it here reads nothing.
+  { path = "Source Data/Accessories-Table 1.csv", header_row = 2, tag = { _sheet = "accessories", _kind = "accessory" }, aliases = { "Accessory SKU" = "SKU", "Accessory Name" = "Retailer Product Name", "Accessory Category" = "Accessory Category", "Accessory Dealer Net" = "Dealer Net", "Accessory MAP" = "MAP/ IMAP", "Accessory MSRP" = "MSRP/ List Price", "Accessory GTIN" = "UPC" } },
+  # CORRECTED after the blind score. Parts were unioned in blind; the build
+  # ships ZERO of the 234. The signal was in the source and I read past it:
+  # every row shares ONE Parent SKU ("RG") and ONE Category ("PARTS"), and
+  # twelve carry "Price not listed in source PDF". That is a replacement-parts
+  # list, not a catalogue. Excluded, with the reason recorded rather than the
+  # file quietly dropped.
+  # { path = "Source Data/Parts-Table 1.csv", header_row = 2, ... }
+]
+
+[escape_hatch]
+module     = "custom.py"
+transforms = ["image_filename", "taxonomy_category"]
+budget     = 3
+
+# --- derived ------------------------------------------------------------------
+
+[[derived]]
+name = "sku"
+op = "column"
+column = "SKU"
+primitive = "trim"
+
+[[derived]]
+name = "kind"
+op = "column"
+column = "_kind"
+
+[[derived]]
+name = "is_lantern"
+op = "equals"
+input = "kind"
+value = "lantern"
+
+[[derived]]
+name = "brand"
+op = "column"
+column = "Brand Name"
+primitive = "trim"
+
+[[derived]]
+name = "fixture_subtype"
+op = "column"
+column = "Fixture Sub-Type (Additional Filtering Options)"
+primitive = "trim"
+
+[[derived]]
+name = "acc_category"
+op = "column"
+column = "Accessory Category"
+primitive = "trim"
+
+[[derived]]
+name = "lit_accessories"
+op = "const"
+value = "Accessories"
+
+# --- fields ---------------------------------------------------------------------
+
+[[fields]]
+name = "BaseItemCode"
+op = "ref"
+from = "sku"
+
+[[fields]]
+name = "LongDesc"
+op = "column"
+column = "Retailer Product Name"
+primitive = "trim"
+
+[[fields]]
+name = "ShortDesc"
+op = "column"
+column = "Short Description"
+primitive = "trim"
+
+[[fields]]
+name = "UPCValue"
+op = "column"
+column = "UPC"
+primitive = "trim"
+# Accessories carry `----` and `8.43E+11` here -- a null token and a float in
+# scientific notation. Both reach a TEXT field verbatim. Reported, see VALIDATION.
+
+# CONTRACT: Collections = brand. The navigation file says
+# "Collections >>>>> All Lighting / CopperSmith / CS | Biltmore".
+[[fields]]
+name = "CollectionCodes"
+op = "ref"
+from = "brand"
+
+# CONTRACT: the category leaf. For lanterns that is `Fixture Sub-Type`, whose 9
+# values are the navigation file's Outdoor Lighting leaves. Accessories and
+# parts take the navigation's other branch.
+[[fields]]
+name = "CategoryCodes"
+op = "custom"
+fn = "taxonomy_category"
+args = ["kind", "fixture_subtype", "acc_category"]
+# ESCAPE HATCH 1 of 3.
+
+[[fields]]
+name = "TradeNameCode"
+op = "ref"
+from = "brand"
+
+[[fields]]
+name = "NetPrice"
+op = "column"
+column = "Dealer Net"
+primitive = "money"
+# CORRECTED after the blind score. The Master header is literally `Dealer Net `
+# WITH a trailing space; `csv_multi_named` strips header whitespace, so the
+# canonical name has none. Declaring the raw name here matched nothing and
+# NetPrice came back blank on 379 of 425 rows. Two correct decisions -- strip on
+# read, declare explicitly -- that were not made in the same place.
+
+[[fields]]
+name = "Price_map"
+op = "column"
+column = "MAP/ IMAP"
+primitive = "money"
+
+[[fields]]
+name = "Price_msrp"
+op = "column"
+column = "MSRP/ List Price"
+primitive = "money"
+
+[[fields]]
+name = "Price_distnet"
+op = "column"
+column = "Distributor Net Pricing"
+primitive = "money"
+# Carries the literal token `#` on some rows -- not a price. `tcs` money is
+# passthrough, so `#` would ship verbatim. Reported rather than silently dropped.
+
+[[fields]]
+name = "ImageFileName"
+op = "custom"
+fn = "image_filename"
+args = ["Main Image File Name"]
+args_are_columns = true
+# ESCAPE HATCH 2 of 3. The source holds `16WST` with NO extension on all 283
+# rows. An ImageFileName without an extension matches no file on FTP.
+
+[[fields]]
+name = "ShipWeight"
+op = "column"
+column = "Shipping Weight (lbs)"
+primitive = "round"
+params = { places = 2 }
+
+[[fields]]
+name = "Dimensions"
+op = "apply"
+primitive = "dimensions"
+args = ["h_raw", "w_raw", "d_raw"]
+dialect = "tcs"
+
+[[fields]]
+name = "Materials"
+op = "column"
+column = "Material"
+primitive = "trim"
+
+[[fields]]
+name = "PackQuantity"
+op = "const"
+value = "1"
+
+[[fields]]
+name = "MinimumQuantity"
+op = "const"
+value = "1"
+
+[[fields]]
+name = "NewItem"
+op = "const"
+value = "N"
+
+[[fields]]
+name = "PromotionPrice"
+op = "const"
+value = ""
+
+[[fields]]
+name = "PackedVolume"
+op = "const"
+value = "1"
+
+# --- client-domain custom fields, to be REGISTERED in Admin ---------------------
+[[fields]]
+name = "FixtureType"
+op = "column"
+column = "Fixture Type"
+primitive = "trim"
+
+[[fields]]
+name = "Collection"
+op = "column"
+column = "Collection"
+primitive = "trim"
+
+[[fields]]
+name = "Style"
+op = "column"
+column = "Primary Genre/ Style"
+primitive = "trim"
+
+[[fields]]
+name = "PowerSource"
+op = "column"
+column = "Power Source"
+primitive = "trim"
+
+[[fields]]
+name = "Finish"
+op = "column"
+column = "Finish Name"
+primitive = "trim"
+
+[[fields]]
+name = "LocationRating"
+op = "column"
+column = "Location Rating"
+primitive = "trim"
+
+[[fields]]
+name = "Certifications"
+op = "column"
+column = "Certifications"
+primitive = "trim"
+
+[[fields]]
+name = "CountryOfOrigin"
+op = "column"
+column = "Country of Origin"
+primitive = "clean_country"
+
+[[derived]]
+name = "h_raw"
+op = "column"
+column = "Height (inches)"
+
+[[derived]]
+name = "w_raw"
+op = "column"
+column = "Width (inches)"
+
+[[derived]]
+name = "d_raw"
+op = "column"
+column = "Depth (inches)"
