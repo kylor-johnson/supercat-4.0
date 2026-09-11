@@ -51,6 +51,9 @@ import os
 import re
 import sys
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import severity as sev  # noqa: E402
+
 SHORTNAME_RE = re.compile(r'^[a-z0-9_-]{1,32}$')
 COL_RE = re.compile(r'^ecat_custom_field_[0-9]{1,3}$')
 
@@ -216,7 +219,44 @@ def check_b1b(headers, fields, fill=None, rows=0):
     return blocking, info
 
 
-def check_b1a(fields, counts):
+def b1b_findings(blocking, info, measured_at=None):
+    """B1b as findings on the F6 ladder.
+
+    This module had no INFO tier at all, which is §G3: a check that cannot say
+    "measured, not a defect" returned exit 1 on leg's file, which was fine.
+    Both halves are `pre_upload` - the point of B1b is that it runs BEFORE the
+    import, from the file plus the registry, with no reference to the log.
+    """
+    out = []
+    for e in blocking:
+        out.append(sev.stamp({
+            'rule': 'B1b.unregistered_populated', 'severity': 'BLOCKING',
+            'field': e['column'], 'measured_at': measured_at,
+            'detail': '%r carries data on %d of %d rows and is NOT registered in '
+                      'Admin, so the importer drops it silently on every import.'
+                      % (e['column'], e['filled'], e['rows']),
+            'measured': '%d of %d rows populated in the file' % (e['filled'], e['rows']),
+            'not_established': 'that anyone wants the field - registering it and '
+                               'dropping it from the generator are both valid fixes.',
+        }, evidence_from=measured_at))
+    for e in info:
+        n = ('%d of %d rows' % (e['filled'], e['rows'])
+             if e['filled'] is not None else 'fill unknown')
+        out.append(sev.stamp({
+            'rule': 'B1b.unregistered_empty', 'severity': 'INFO',
+            'field': e['column'], 'measured_at': measured_at,
+            'detail': '%r is in the file, EMPTY (%s), and not registered. One '
+                      '"Custom field is missing" warning per import and nothing '
+                      'else. No data is being lost; stop emitting the column.'
+                      % (e['column'], n),
+            'measured': n,
+            'not_established': 'nothing - this is the INFO case §G3 added, and it '
+                               'is why B1b no longer exits 1 on a file that is fine.',
+        }, evidence_from=measured_at))
+    return out
+
+
+def check_b1a(fields, counts, measured_at=None):
     """Registered column fields carrying no values."""
     live = counts.get('live_products')
     findings, reported = [], []
@@ -242,7 +282,8 @@ def check_b1a(fields, counts):
             continue
         filterish = bool(f.get('use_as_filter'))
         if n == 0:
-            findings.append({
+            findings.append(sev.stamp({
+                'rule': 'B1a.empty_field',
                 'severity': 'BLOCKING' if (f.get('send_to_ipad') and filterish)
                             else 'WARN',
                 'field': name, 'where': where,
@@ -252,13 +293,14 @@ def check_b1a(fields, counts):
                           % (' with send_to_ipad' if f.get('send_to_ipad') else '',
                              ', used as a %s filter' % f['use_as_filter']
                              if filterish else ''),
-            })
+            }, evidence_from=measured_at))
         elif live and n / float(live) < 0.05:
-            findings.append({
+            findings.append(sev.stamp({
+                'rule': 'B1a.sparse_field',
                 'severity': 'WARN', 'field': name, 'where': where,
                 'detail': 'populated on %d of %s live products (%.1f%%) - too sparse '
                           'to be a useful filter.' % (n, live, 100.0 * n / live),
-            })
+            }, evidence_from=measured_at))
     return findings, reported
 
 
@@ -271,6 +313,7 @@ def main():
     ap.add_argument('--counts', help='JSON row from the population query')
     ap.add_argument('--file', help='products.csv to check for B1b')
     ap.add_argument('--emit-sql', action='store_true')
+    ap.add_argument('--measured-at', help='YYYY-MM-DD of the measurement')
     args = ap.parse_args()
 
     if args.emit_sql and args.stage == 'registered':
@@ -310,7 +353,7 @@ def main():
 
     rc = 0
     if counts:
-        findings, reported = check_b1a(fields, counts)
+        findings, reported = check_b1a(fields, counts, args.measured_at)
         print('\n-- B1a  registered but unpopulated ' + '-' * 36)
         print('   %-34s %-34s %s' % ('field (as the rep sees it)', 'stored at', 'populated'))
         for r in reported:
@@ -344,6 +387,11 @@ def main():
                          100.0 * e['filled'] / max(1, e['rows'])))
             print('   -> register these fields in Admin before the next import.')
             rc = 1
+        for f in b1b_findings(blocking, info, args.measured_at):
+            if f['severity'] == 'INFO':
+                continue
+            print('     [%s · %s · repair %s]'
+                  % (f['severity'], f['stage'], f['repair_channel']))
         if info:
             print('\n   INFO - present but EMPTY and not registered. These produce a')
             print('   "Custom field is missing" warning per import and nothing else:')

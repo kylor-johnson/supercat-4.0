@@ -31,8 +31,13 @@ without a date one of them just looks wrong. State moves — say when you looked
 import argparse
 import datetime
 import json
+import os
 import re
 import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import intent as intent_mod  # noqa: E402
+import severity as sev  # noqa: E402
 
 SHORTNAME_RE = re.compile(r'^[a-z0-9_-]{1,32}$')
 
@@ -141,7 +146,7 @@ def check_a2(rows, measured_at):
         if share <= 50:
             continue
         if pl_type and pl_type != 'ad-hoc':
-            findings.append({
+            findings.append(sev.stamp({
                 'rule': 'A2.not_evaluated', 'severity': 'INFO',
                 'measured_at': measured_at,
                 'detail': "NOT EVALUATED - %r is %s level; its value derives from "
@@ -152,7 +157,7 @@ def check_a2(rows, measured_at):
                           % (r['code'],
                              ('an %s' if pl_type[:1] in 'aeiou' else 'a %s') % pl_type,
                              int(on), int(total), share),
-            })
+            }, evidence_from=measured_at))
             continue
         if distinct is None:
             continue
@@ -166,7 +171,7 @@ def check_a2(rows, measured_at):
             denom_text = ("the %d live product(s) carrying a price for it, of %d live"
                           % (int(carrying), int(live)))
         if int(distinct) == 1 and denom > 20:
-            findings.append({
+            findings.append(sev.stamp({
                 'rule': 'A2.placeholder_pricing', 'severity': 'BLOCKING',
                 'measured_at': measured_at,
                 'detail': "price level %r carries %d of %d customers (%.1f%%) and "
@@ -175,19 +180,37 @@ def check_a2(rows, measured_at):
                           "the level."
                           % (r['code'], int(on), int(total), share,
                              r.get('sample_value'), denom_text),
-            })
+            }, evidence_from=measured_at))
         elif int(distinct) <= 3 and denom > 50:
-            findings.append({
+            findings.append(sev.stamp({
                 'rule': 'A2.near_constant_pricing', 'severity': 'WARN',
                 'measured_at': measured_at,
                 'detail': "price level %r carries %.1f%% of customers and resolves to "
                           "only %d distinct values across %s."
                           % (r['code'], share, int(distinct), denom_text),
-            })
+            }, evidence_from=measured_at))
     return findings
 
 
 # --------------------------------------------------------------------- A3
+
+# Measured 2026-09-05 at ufi (421 dangling orders, the largest case in the
+# cohort). Written into the finding so the tier carries its evidence.
+ORDERS_PRICE_LEVEL_CONSEQUENCE = (
+    ' CONSEQUENCE MEASURED, and it is none: the order total is STORED, not '
+    'recomputed (421 of 421 dangling ufi orders carry a non-null total, '
+    '$3,942,148.45; largest 1924-030314-2, level dc10, $976,925.00, 2014-03-03). '
+    '`orders.price_level` has no foreign key - the table has two, org_user_id '
+    'and organization_id - so it is a stored string by design. The Sales Portal '
+    'order-history path is portal_orders/portal_order_items, a separate '
+    'ERP-imported history with NO price_level column, so the Portal report '
+    'cannot read this field. Era-controlled, dangling orders are 1.2% '
+    'zero-total against a 0.7% control once the two STATUS codes are excluded '
+    '(H: 70 of 71 orders zero, $625 total; C: 3 of 3) - the apparent 18.3% was '
+    'those two pooled in, a common cause and not an effect. NOT ESTABLISHED: '
+    'the Rails order-detail render path, which is not readable from here; note '
+    'show_price_level_on_order is false at ufi/clli/cl/pebl and true only at '
+    'sp, and what it shows is the stored string.')
 
 def sql_a3(sn):
     """Every stored reference resolves.
@@ -266,6 +289,25 @@ WHERE p.organization_id = {o} AND NOT COALESCE(p.deleted,false)
 """.format(o=o).strip()
 
 
+# BUILD_SPEC §3.1 A3 says "every stored reference resolves" and names two
+# incidents that are NOT among the branches below. Declared here rather than
+# left implicit, per §3.4: a check that evaluates six of eight classes and
+# prints six passes reads as though it covered all eight.
+A3_REFERENCE_CLASSES_EVALUATED = 6
+A3_REFERENCE_CLASSES_TOTAL = 8
+A3_NOT_EVALUATED = [
+    ('mobile_sites.price_level_id',
+     'an eOL site pointing at a price level that exists in no organisation - '
+     'mali held price_level_id 5722 for eight days (OPEN_ITEMS A13, since '
+     'fixed). Forward-looking the way customers.default_price_code is: a site '
+     'on a dead level breaks the NEXT quote, it does not describe an old one.'),
+    ('organization_invitations',
+     'a bulk-invite link pointing INTO another org - mali held one into `tcd`. '
+     'Nothing validates that an invitation\'s user_type_id or redeemer belongs '
+     'to the inviting org.'),
+]
+
+
 def check_a3(rows, measured_at):
     findings = []
     for r in rows:
@@ -273,15 +315,84 @@ def check_a3(rows, measured_at):
         if not n:
             continue
         ref = r['reference']
-        sev = 'BLOCKING' if ref.startswith(('customers.', 'orders.')) else 'WARN'
-        findings.append({
-            'rule': 'A3.dangling_reference', 'severity': sev,
+        # RE-TIERED 2026-09-05, on a measurement rather than on aesthetics.
+        #
+        # `orders.price_level` was BLOCKING because the rule keyed on the COLUMN,
+        # not on the consequence. It has repair_channel `none` - a historical
+        # order's price-level string is immutable - so BLOCKING told an operator
+        # to act when there is no action. Before re-tiering, the consequence was
+        # measured (see `ORDERS_PRICE_LEVEL_CONSEQUENCE`):
+        #
+        #   1. The total is STORED, not recomputed: 421 of 421 dangling ufi
+        #      orders carry a non-null `total`, summing $3,942,148.45.
+        #   2. `orders` has exactly two foreign keys - org_user_id and
+        #      organization_id. `price_level` has NONE; it is a stored string by
+        #      design, and the level being retired does not orphan a reference.
+        #   3. The Sales Portal order-history path is `portal_orders` /
+        #      `portal_order_items`, a separate ERP-imported history (117,156
+        #      rows at ufi against 37,817 eCat orders) - and `portal_orders` has
+        #      NO price_level column at all. The Portal report cannot read it.
+        #   4. Era-controlled: within 2012-08-02..2021-03-25, resolving orders
+        #      are 0.7% zero-total and dangling orders 18.3%. That 26x gap is a
+        #      COMMON CAUSE, not a consequence - it collapses to `H` (70 of 71
+        #      orders zero, $625 total) and `C` (3 of 3), which are status codes
+        #      rather than pricing levels. Excluding those two, dangling orders
+        #      are 1.2% zero-total against the 0.7% control. No effect.
+        #
+        # So: INFO for orders.price_level. It stays a real, reportable
+        # observation - the codes ARE gone - and it no longer asks for an action
+        # that does not exist. customers.default_price_code keeps its tier: that
+        # one is forward-looking, and a customer pointing at a missing level
+        # breaks pricing on the NEXT order rather than describing an old one.
+        if ref.startswith('orders.'):
+            level = 'INFO'
+        elif ref.startswith('customers.'):
+            level = 'BLOCKING'
+        else:
+            level = 'WARN'
+        chan = sev.a3_channel(ref)
+        # Evidence dates come from the SQL where the branch has them (orders);
+        # elsewhere the dangling reference is a property of current state.
+        ev_from = r.get('first_seen') or measured_at
+        ev_to = r.get('last_seen') or measured_at
+        # evidence_state describes the EVIDENCE, not whether it is repairable.
+        # An order from 2019 is closed evidence even though `orders.price_level`
+        # has repair_channel `none`; conflating the two made a 2019 order print
+        # as `standing`. Demotion then declines separately, on the channel, and
+        # says which of the two reasons applied.
+        state = 'closed' if r.get('last_seen') else 'standing'
+        findings.append(sev.stamp({
+            'rule': 'A3.dangling_reference', 'severity': level,
             'measured_at': measured_at,
-            'detail': '%s: %d value(s) resolve to nothing (e.g. %r).%s'
+            'detail': '%s: %d value(s) resolve to nothing (e.g. %r).%s%s'
                       % (ref, n, r.get('example'),
                          ' Image filenames are NOT covered - that is B2, still '
-                         'unimplemented.' if ref.startswith('products.related') else ''),
-        })
+                         'unimplemented.' if ref.startswith('products.related') else '',
+                         ORDERS_PRICE_LEVEL_CONSEQUENCE
+                         if ref.startswith('orders.') else ''),
+        }, evidence_from=ev_from, evidence_to=ev_to,
+           repair_channel=chan, evidence_state=state))
+
+    # Coverage always, whether or not anything was found. A silent skip and a
+    # real negative are indistinguishable unless the check says which it was.
+    findings.append(sev.stamp({
+        'rule': 'A3.coverage', 'severity': 'NOT CHECKED',
+        'measured_at': measured_at,
+        'detail': 'evaluated %d of %d stored-reference classes. NOT evaluated: %s.'
+                  % (A3_REFERENCE_CLASSES_EVALUATED, A3_REFERENCE_CLASSES_TOTAL,
+                     '; '.join('%s - %s' % (n, why) for n, why in A3_NOT_EVALUATED)),
+        'measured': 'the six branches in sql_a3: customers.default_price_code, '
+                    'orders.price_level, products.trade_name_code, '
+                    'products.collection_code, products.category_code, '
+                    'products.related_items',
+        'not_established': 'whether the two unevaluated classes resolve. Measured '
+                           'directly 2026-09-09 and both are clean fleet-wide - '
+                           'mobile_sites 0 of 102 dangling and 0 cross-org, '
+                           'organization_invitations 0 of 307 with a wrong-org '
+                           'user_type and 0 dangling redeemers - so this is '
+                           'undeclared coverage, NOT a missed finding. That can '
+                           'change without this check noticing.',
+    }, evidence_from=measured_at))
     return findings
 
 
@@ -335,27 +446,27 @@ def check_b3(rows, measured_at):
     excluded = (r.get('excluded_non_reps') or '').strip()
     specimen = r.get('example_customer')
     if not total:
-        return [{'rule': 'B3.no_customers', 'severity': 'INFO',
+        return [sev.stamp({'rule': 'B3.no_customers', 'severity': 'INFO',
                  'measured_at': measured_at,
                  'detail': 'org has no customers; territory filtering is not yet '
-                           'applicable.'}]
+                           'applicable.'}, evidence_from=measured_at)]
     if without == 0:
         return []
     share = 100.0 * without / total
     # Severity turns on whether anyone is there to be filtered. Territory codes
     # on an org with no reps provisioned is a sequencing fact, not a defect.
     if without == total and reps > 0:
-        sev = 'BLOCKING'
+        level = 'BLOCKING'
         tail = ('Rep<->customer filtering is off org-wide: every one of %d reps sees '
                 'every customer.' % reps)
     elif reps == 0:
-        sev = 'INFO'
+        level = 'INFO'
         tail = ('No non-admin users exist yet, so nothing is being mis-filtered '
                 'today. This becomes blocking the moment reps are provisioned.')
     else:
-        sev = 'WARN'
+        level = 'WARN'
         tail = '%d rep(s) provisioned.' % reps
-    return [{'rule': 'B3.territory_codes_empty', 'severity': sev,
+    return [sev.stamp({'rule': 'B3.territory_codes_empty', 'severity': level,
              'measured_at': measured_at,
              'example': specimen,
              'detail': '%d of %d customers (%.1f%%) have empty territory codes '
@@ -364,7 +475,7 @@ def check_b3(rows, measured_at):
                           ', e.g. %r' % specimen if specimen else '',
                           tail,
                           ' (%s excluded as non-rep by the framework definition.)'
-                          % excluded if excluded else '')}]
+                          % excluded if excluded else '')}, evidence_from=measured_at)]
 
 
 # --------------------------------------------------------------------- B5
@@ -457,9 +568,10 @@ def check_b5(rows, measured_at):
                    d['negative'], rows_n - d['non_null']))
 
     if rows_n == 0:
-        return [{'rule': 'B5.no_inventory', 'severity': 'INFO',
+        return [sev.stamp({'rule': 'B5.no_inventory', 'severity': 'INFO',
                  'measured_at': measured_at,
-                 'detail': 'org has no inventory rows; nothing to reconcile.'}]
+                 'detail': 'org has no inventory rows; nothing to reconcile.'},
+                 evidence_from=measured_at)]
 
     state = '%s. %s. inventory custom fields populated on %d rows.' % (
         describe('qty_available', av), describe('qty_on_hand', oh), icust)
@@ -470,21 +582,21 @@ def check_b5(rows, measured_at):
     # recount.
     for nm, d in (('qty_available', av), ('qty_on_hand', oh)):
         if not partition_ok(d):
-            out.append({
+            out.append(sev.stamp({
                 'rule': 'B5.partition_mismatch', 'severity': 'WARN',
                 'measured_at': measured_at,
                 'detail': '%s breakdown does not sum: %d > 0 + %d zero + %d '
                           'negative != %d non-null. The counts are inconsistent, so '
                           'do not report any of them until this is resolved.'
                           % (nm, d['gt_zero'], d['zero'], d['negative'],
-                             d['non_null'])})
+                             d['non_null'])}, evidence_from=measured_at))
 
     neg_min = r.get('qty_on_hand_min')
     neg_sku = r.get('qty_on_hand_min_sku')
     if oh['negative'] and neg_min is not None and int(neg_min) < 0:
-        sev = 'WARN' if int(neg_min) <= -1000 else 'INFO'
-        out.append({
-            'rule': 'B5.negative_on_hand', 'severity': sev,
+        level = 'WARN' if int(neg_min) <= -1000 else 'INFO'
+        out.append(sev.stamp({
+            'rule': 'B5.negative_on_hand', 'severity': level,
             'measured_at': measured_at,
             'example': neg_sku,
             'detail': '%d row(s) carry a NEGATIVE qty_on_hand, floor %s on %r. '
@@ -492,37 +604,37 @@ def check_b5(rows, measured_at):
                       'backorder carried from the ERP - so this is reported as its '
                       'own state, not folded into "populated". The magnitude is the '
                       'question, not the sign.'
-                      % (oh['negative'], neg_min, neg_sku)})
+                      % (oh['negative'], neg_min, neg_sku)}, evidence_from=measured_at))
     if not aliases:
-        out.append({
+        out.append(sev.stamp({
             'rule': 'B5.no_display_field_registered', 'severity': 'WARN',
             'measured_at': measured_at,
             'detail': 'no i.qty_* or ic.* alias is registered, but inventory exists. '
                       '%s MEASUREMENT ONLY: what the iPad renders with no alias '
                       'registered is NOT established here - settle it against the '
                       'sync payload or the rendering code before telling anyone reps '
-                      'see nothing.' % state})
+                      'see nothing.' % state}, evidence_from=measured_at))
         return out
 
     wants_avail = 'i.qty_available' in aliases
     wants_onhand = 'i.qty_on_hand' in aliases
     if wants_avail and av['non_null'] == 0 and (oh['non_null'] > 0 or icust > 0):
-        out.append({
+        out.append(sev.stamp({
             'rule': 'B5.config_data_mismatch', 'severity': 'BLOCKING',
             'measured_at': measured_at,
             'detail': 'the registered display alias is qty_available, but no row '
-                      'carries a qty_available value. %s' % state})
+                      'carries a qty_available value. %s' % state}, evidence_from=measured_at))
     if wants_onhand and oh['non_null'] == 0 and (av['non_null'] > 0 or icust > 0):
-        out.append({
+        out.append(sev.stamp({
             'rule': 'B5.config_data_mismatch', 'severity': 'BLOCKING',
             'measured_at': measured_at,
             'detail': 'the registered display alias is qty_on_hand, but no row '
-                      'carries a qty_on_hand value. %s' % state})
+                      'carries a qty_on_hand value. %s' % state}, evidence_from=measured_at))
     if not out:
-        out.append({'rule': 'B5.agrees', 'severity': 'INFO',
+        out.append(sev.stamp({'rule': 'B5.agrees', 'severity': 'INFO',
                     'measured_at': measured_at,
                     'detail': 'registered alias(es) [%s] agree with the populated '
-                              'columns. %s' % (aliases, state)})
+                              'columns. %s' % (aliases, state)}, evidence_from=measured_at))
     return out
 
 
@@ -532,6 +644,44 @@ CHECKS = {
 }
 
 
+
+
+# --- DATABASE_URL path (added 2026-09-09) -----------------------------------
+# Before this, state_checks offered --emit-sql and --from-results only, so running it
+# meant a human carrying rows between two commands. That is workable at a desk
+# and impossible on a cron: the gate could not run in the same container that
+# produced the file it was meant to gate. `collector.py:197-217` had had a
+# working DATABASE_URL path since August; the four modules that actually gate
+# an upload had none, so a read-only replica credential on its own would still
+# have left the gate unrunnable.
+#
+# It runs the SAME statements --emit-sql prints and assembles the SAME dict
+# --from-results loads, so the two paths cannot drift into disagreeing about
+# what was measured. Read-only is enforced per statement in dbexec.
+
+def _session():
+    import os as _os
+    import sys as _sys
+    _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
+    import dbexec
+    return dbexec, dbexec.ReadOnlySession()
+
+def _statements(org, names):
+    """[(results-key, sql)] in emitted order: the header first, then each check.
+
+    The key is what --from-results expects as a dict key, lower-cased, and
+    --emit-sql prints it upper-cased in its `===== NAME =====` banner. One
+    function so the two paths cannot name the same statement differently -- the
+    F6 `_key()` defect (`file:option_groups` never matching `Option Groups`,
+    73 windows sitting at WARN while LOOKING evaluated) was exactly this shape.
+    """
+    out = [('header', sev.sql_header(org_ref(org)))]
+    for n in names:
+        out.append((n, CHECKS[n][0](org)))
+    return out
+
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -539,49 +689,145 @@ def main():
     ap.add_argument('--check', choices=sorted(CHECKS) + ['all'], default='all')
     ap.add_argument('--emit-sql', action='store_true')
     ap.add_argument('--from-results', help='JSON {"a2": [...], "a3": [...], ...}')
+    ap.add_argument('--use-db', action='store_true',
+                    help='run the statements directly against DATABASE_URL, '
+                         'read-only. For a container; needs psycopg2.')
     ap.add_argument('--measured-at', help='YYYY-MM-DD of the measurement')
+    ap.add_argument('--intent', help='path to config_intent.toml (default: alongside the harness)')
+    ap.add_argument('--no-intent', action='store_true',
+                    help='run WITHOUT declared intent. Every declaration is ignored and '
+                         'the report says so on every line. Never the default: an absent '
+                         'declaration file must not look like an org with no declarations.')
     args = ap.parse_args()
 
     names = sorted(CHECKS) if args.check == 'all' else [args.check]
 
     if args.emit_sql:
-        for n in names:
-            print('-- ===== %s =====' % n.upper())
-            print(CHECKS[n][0](args.org))
+        for key, sql in _statements(args.org, names):
+            print('-- ===== %s =====' % key.upper())
+            print(sql)
             print(';')
         return 0
 
-    if not args.from_results:
-        ap.error('need --emit-sql or --from-results')
+    if args.use_db:
+        try:
+            dbexec, sess = _session()
+            res = {}
+            with sess:
+                for key, sql in _statements(args.org, names):
+                    res[key] = sess.rows(sql)
+        except Exception as exc:                              # noqa: BLE001
+            print('state_checks NOT CHECKED - %s' % exc, file=sys.stderr)
+            return 2
+    elif args.from_results:
+        with open(args.from_results) as fh:
+            res = json.load(fh)
+    else:
+        ap.error('need --emit-sql, --from-results or --use-db')
     measured_at = args.measured_at or datetime.date.today().isoformat()
-    with open(args.from_results) as fh:
-        res = json.load(fh)
 
-    print('=' * 72)
+    # F5: declared intent. Fails CLOSED - if the file cannot be read the run
+    # stops, because "no declarations" and "declarations unavailable" are
+    # different states and only one of them is safe to report findings from.
+    org_intent, intent_unavailable = {}, None
+    if args.no_intent:
+        intent_unavailable = 'suppressed by --no-intent'
+    else:
+        try:
+            org_intent = intent_mod.for_org(intent_mod.load(args.intent), args.org)
+        except intent_mod.IntentError as e:
+            print('DECLARED INTENT UNAVAILABLE -- refusing to run.\n  %s\n'
+                  '  Re-run with --no-intent to proceed anyway; every finding will be '
+                  'marked as measured without declarations.' % e, file=sys.stderr)
+            return 2
+    suppressed, shown, unconsumed = intent_mod.declarations_for(org_intent)
+
+    # Decision 5: the org-state header, printed FIRST and ALWAYS. A green
+    # report is structurally impossible once the org's state is on it.
+    header = res.get('header')
+    header_state = {}
+    if header:
+        header_state = dict(header[0] if isinstance(header, list) else header)
+    header_state['shortname'] = args.org
+    header_state.setdefault('last_import_by_type', res.get('last_import_by_type') or {})
+    header_state.setdefault('admin_touched', res.get('admin_touched') or {})
+    if header:
+        sev.render_header(header_state, sys.stdout)
+    else:
+        print('=' * 72)
+        print('ecat-acceptance — %s' % args.org)
+        print('!! ORG-STATE HEADER NOT RUN (no `header` rows supplied). Findings '
+              'below are not\n   set against the org\'s state, and demotion has '
+              'nothing to key on.')
+        print('=' * 72)
+
+    print()
     print('§3 STATE CHECKS -- org %s -- measured %s' % (args.org, measured_at))
+    if intent_unavailable:
+        print('!! DECLARED INTENT NOT LOADED (%s) -- every finding below is '
+              'measured WITHOUT declarations.' % intent_unavailable)
     print('=' * 72)
-    allf, rc = [], 0
+    allf, alld, allmoves, rc = [], [], [], 0
+    if header:
+        hf = sev.header_findings(header_state, measured_at)
+        hf, hmoves = sev.apply_demotion(hf, header_state)
+        allmoves += hmoves
+        hf, hdecl = intent_mod.apply(hf, suppressed, measured_at)
+        alld += hdecl
+        if hf:
+            print('\n-- ORG STATE %s' % ('-' * 57))
+            for f in hf:
+                print('   %-9s %s  [%s · repair %s]'
+                      % (f['severity'], f['rule'], f['stage'],
+                         f['repair_channel']))
+                print('             %s' % f['detail'])
+                if f['severity'] == 'BLOCKING':
+                    rc = 1
+            allf += hf
     for n in names:
         rows = res.get(n)
         if rows is None:
             print('\n%s  NOT RUN (no results supplied)' % n.upper())
             continue
         findings = CHECKS[n][1](rows, measured_at)
+        findings, moves = sev.apply_demotion(findings, header_state)
+        allmoves += moves
+        findings, declared = intent_mod.apply(findings, suppressed, measured_at)
         allf += findings
+        alld += declared
         print('\n-- %s %s' % (n.upper(), '-' * 66))
-        if not findings:
+        if not findings and not declared:
             print('   pass - no finding')
+        elif not findings:
+            print('   pass - no finding (%d DECLARED, see below)' % len(declared))
         for f in findings:
-            print('   %-9s %s' % (f['severity'], f['rule']))
+            print('   %-9s %s  [%s · repair %s · evidence %s %s]'
+                  % (f['severity'], f['rule'], f.get('stage', '?'),
+                     f.get('repair_channel', '?'), f.get('evidence_state', '?'),
+                     ('%s..%s' % (f.get('evidence_from'), f.get('evidence_to')))
+                     if f.get('evidence_from') != f.get('evidence_to')
+                     else str(f.get('evidence_from'))))
             print('             %s' % f['detail'])
+            if f.get('demotion') and f['demotion'].startswith('demoted'):
+                print('             ^ %s' % f['demotion'])
             if f['severity'] == 'BLOCKING':
                 rc = 1
+    if not intent_unavailable:
+        intent_mod.render(shown, unconsumed, suppressed, alld, args.org, sys.stdout)
+
     print('\n%s' % ('-' * 72))
     counts = {}
     for f in allf:
         counts[f['severity']] = counts.get(f['severity'], 0) + 1
     print('summary: %s' % (', '.join('%s %d' % kv for kv in sorted(counts.items()))
                            or 'no findings'))
+    if alld:
+        print('declared: %d finding(s) suppressed by config_intent.toml (%s)'
+              % (len(alld), ', '.join(sorted(set(d['rule'] for d in alld)))))
+    if allmoves:
+        print('demoted:  %d finding(s) moved one level' % len(allmoves))
+        for rule, was, now, why in allmoves:
+            print('          %s  %s -> %s  (%s)' % (rule, was, now, why))
     print('all findings measured %s; state moves, so a later reading may differ.'
           % measured_at)
     return rc

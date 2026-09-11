@@ -95,7 +95,7 @@ ORDER BY shortname
 
 
 # ------------------------------------------------- client_domains[] resolution
-# Resolution order (Phase_Anchors.md): overrides.yml -> order_email_recipient
+# Resolution order (Phase_Anchors.md): overrides.toml -> order_email_recipient
 # -> [HubSpot: DROPPED, see RECONCILIATION.md] -> admin email fallback.
 # First non-empty SOURCE wins outright; do not merge across sources.
 

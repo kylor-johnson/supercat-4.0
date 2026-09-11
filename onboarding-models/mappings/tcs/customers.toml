@@ -1,0 +1,231 @@
+# The CopperSmith (tcs) -- customers.csv
+#
+# WRITTEN BLIND. `CS_OptionMapping_Rebuild/customers.csv` and
+# `CS_eCat_Rebuild/customers_build_report.csv` were not opened until this file
+# was on disk. See BLIND_BOUNDARY_2b.md.
+#
+# ============================================================================
+# THIS FILE IS THE MOST DESTRUCTIVE OF THE SIX
+# ============================================================================
+#
+# customers.csv HARD-DELETES ALL CUSTOMERS AND ALL SHIP-TOS, then reloads. Not
+# a soft delete like products.csv -- gone. And the delete only runs on a
+# WARNING-ONLY import: a single Error row suppresses it, which is why "the
+# delete didn't happen" is almost always an Error row nobody read.
+#
+# So a partial customers.csv is not a partial update. It is a deletion of
+# everyone it omits. This mapping emits the WHOLE dealer list, every time.
+#
+# ============================================================================
+# THE TWO REQUIRED FIELDS THIS SOURCE CANNOT ANSWER
+# ============================================================================
+#
+# **DefaultPriceCode is importer-fatal and 706 of 724 rows have no source for
+# it.** `Pricelist` is populated on 18 rows and holds prose --
+# `10%-No ELI-Paint-Custom`, `35% Over DNP`, `10% GCL` -- which are discount
+# ARRANGEMENTS, not price-level codes. Shipping those 18 verbatim rejects 18
+# rows; shipping nothing rejects all 724 and the org ends with zero customers.
+#
+# So the mapping declares a constant, and declares it as A DECISION SOMEONE
+# MUST CONFIRM rather than pretending it derived one. `MAP` is chosen because
+# the products build emits `Price_MAP` and `Price_MSRP` and these are 721
+# showrooms buying at map-protected retail. **It must be checked against
+# Products -> Price Levels before this file is uploaded.** A DefaultPriceCode
+# that does not exactly match an Admin price level code is the single most
+# common cause of a customers import loading zero rows.
+#
+# **TerritoryCodes is blank on 9 of 724.** It is KB-required and NOT
+# importer-fatal, so those 9 import clean and are then invisible to any rep in
+# a "show only associated customers" group. That is exactly `pebl`'s BLOCKING
+# finding at 171 of 171, at 1.2% instead of 100%. Nine is small enough to fix
+# by hand and too small to notice, which is the dangerous size.
+
+client        = "tcs"
+org_name      = "The CopperSmith"
+target        = "customers.csv"
+input_class   = 3
+dialect       = "tcs"
+line_terminator = "crlf"
+primary_input = "dealers"
+tables_files  = ["customers_tables.toml"]
+
+# Sorted by BillToCode: ship-to rows must sit immediately under their bill-to,
+# and the importer reads the file in order. One bill-to per dealer here, each
+# carrying its own address as its first ship-to -- a customer with zero ship-to
+# rows is DESTROYED with an error rather than loaded without addresses.
+sort_by = ["BillToCode"]
+
+skip_row_when_blank = "_keep"
+
+[inputs.dealers]
+format   = "csv"
+encoding = "utf-8-sig"
+path     = "Source Data/Dealers_eCat-Table 1.csv"
+
+# ---------------------------------------------------------------------------
+# Row selection: 721 Customers, 3 Vendors.
+#
+# A Vendor is not a customer. Loading three of them gives every rep three
+# accounts they cannot sell to, in a file where the only way to remove one
+# later is to reload all 724. Excluded, counted, and named here so the decision
+# is visible rather than buried in a filter.
+# ---------------------------------------------------------------------------
+
+# Derived steps run in DECLARED ORDER, so a step that reads another must come
+# after it. Ordering these wrong is silent: `_is_customer` evaluated before
+# `_type` reads a scope key that is not there yet.
+[[derived]]
+name = "_type"
+op = "column"
+column = "Type"
+
+[[derived]]
+name = "_is_customer"
+op = "equals"
+input = "_type"
+value = "Customer"
+
+[[derived]]
+name = "_code"
+op = "column"
+column = "external_id"
+
+[[derived]]
+name = "_keep"
+op = "ref"
+from = "_code"
+only_when = { field = "_is_customer" }
+otherwise_value = ""
+
+[[derived]]
+name = "_country_raw"
+op = "column"
+column = "Country"
+primitive = "trim"
+
+# ===========================================================================
+# FIELDS -- declared order IS the file's column order
+# ===========================================================================
+
+[[fields]]
+name = "BillToCode"          # required, 15. `external_id` is 11 chars at most
+op = "column"
+column = "external_id"
+primitive = "trim"
+
+[[fields]]
+name = "BillToName"          # required, 60. Longest source name is 47
+op = "column"
+column = "Name"
+primitive = "clean_text"
+
+[[fields]]
+name = "BillToAddress1"      # required, 60. Longest source street is 30
+op = "column"
+column = "Street"
+primitive = "clean_text"
+
+[[fields]]
+name = "BillToAddress2"
+op = "column"
+column = "Street 2"
+primitive = "clean_text"
+
+[[fields]]
+name = "BillToCity"          # required
+op = "column"
+column = "City"
+primitive = "clean_text"
+
+# State arrives as a FULL NAME (`Florida`, not `FL`). The field caps at 60 so
+# full names import, and only US rows are state-validated at all. Left as the
+# client wrote it: abbreviating is a transform nobody asked for, and the one
+# thing worse than a long state name is a wrong two-letter one.
+[[fields]]
+name = "BillToState"         # required
+op = "column"
+column = "State"
+primitive = "clean_text"
+
+[[fields]]
+name = "BillToPostCode"      # required, 20. Blank on 1 of 724 -- that row will
+op = "column"                # be rejected, and it is better rejected than
+column = "Zip Code"          # invented.
+primitive = "trim"
+
+# ISO-3166 two-character, via a declared table. If the org has country
+# validation ON, `United States` is rejected; if it is OFF, `US` is stored
+# unchanged. ISO is correct under both, which is the only reason to prefer it.
+[[fields]]
+name = "BillToCountry"
+op = "lookup"
+table = "country_iso"
+input = "_country_raw"
+default_to_input = true
+
+[[fields]]
+name = "TerritoryCodes"
+op = "column"
+column = "Territory #"
+primitive = "trim"
+
+# THE DECISION SOMEONE MUST CONFIRM. See the header.
+[[fields]]
+name = "DefaultPriceCode"
+op = "const"
+value = "MAP"
+
+[[fields]]
+name = "BuyerPhone"
+op = "column"
+column = "Phone"
+primitive = "trim"
+
+[[fields]]
+name = "BuyerEmail"
+op = "column"
+column = "Email"
+primitive = "trim"
+
+[[fields]]
+name = "Terms"
+op = "column"
+column = "Customer Payment Terms"
+primitive = "clean_text"
+
+# --- the ship-to, which is the same address ---------------------------------
+#
+# Every customer needs at least one ship-to row or the importer destroys it.
+# There is one address per dealer in this source, so the bill-to address is
+# repeated as the ship-to. That is not padding: it is the difference between a
+# loaded customer and a deleted one.
+
+[[fields]]
+name = "ShipToAddress1"
+op = "ref"
+from = "BillToAddress1"
+
+[[fields]]
+name = "ShipToAddress2"
+op = "ref"
+from = "BillToAddress2"
+
+[[fields]]
+name = "ShipToCity"
+op = "ref"
+from = "BillToCity"
+
+[[fields]]
+name = "ShipToState"
+op = "ref"
+from = "BillToState"
+
+[[fields]]
+name = "ShipToPostCode"
+op = "ref"
+from = "BillToPostCode"
+
+[[fields]]
+name = "ShipToCountry"
+op = "ref"
+from = "BillToCountry"

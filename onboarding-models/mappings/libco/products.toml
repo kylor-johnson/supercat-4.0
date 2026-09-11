@@ -1,0 +1,448 @@
+# Lib & Co (libco) -- products.csv
+#
+# WRITTEN BLIND. See BLIND_BOUNDARY.md. `rebuild_lib_co_files.py`, the built
+# `products.csv`, the deliverables folder and the live org were NOT opened while
+# this was written. Every decision below is derived from the client's own files
+# and from the eCat vocabulary in `preflight/limits_generated.py`.
+#
+# CLASS 2 / HYBRID -- the detector reads the primary source at 32.3% eCat
+# headers: 20 built-in eCat fields plus 42 client-domain spec columns. The rule
+# is VALIDATE, DO NOT TRANSFORM. Every field below is `passthrough`; the only
+# `primitive` calls are importer-required coercions (a float tail, a datetime,
+# a money format), never a re-derivation of a value a human already chose.
+
+client        = "libco"
+org_name      = "Lib & Co"
+target        = "products.csv"
+input_class   = 2
+mode          = "validate"
+dialect       = "legrand"        # money -> 2dp. Derived; see § money below.
+line_terminator = "crlf"
+primary_input = "fixed_prices"
+
+
+# --- which file is the one ------------------------------------------------------
+#
+# TWO files claim to be libco's products.csv, and choosing wrong here costs more
+# than every transform decision in this file combined.
+#
+#   Lib_Co_Spec_Master_eCat_Mapped...csv   906 products, 61 cols
+#   LIB_Co_Upload_Fixed_Prices.xlsx        897 products, 62 cols
+#
+# Measured by CONTAINMENT, not Jaccard (profiler REVIEW_LOG: a subset is
+# superseded, not complementary):
+#
+#   all 897 fixed-prices keys are in the spec master   (100.0%)
+#   897 of 906 spec-master keys are in fixed prices    ( 99.0%)
+#   -> 9 SKUs exist ONLY in the spec master, 0 only in fixed prices
+#
+# The spec master is the SUPERSET by key. It is nonetheless NOT the primary,
+# because its headers are placeholders: `Custom1`-`Custom39` and one column
+# whose header is literally `?????`. The fixed-prices file names the same
+# columns properly (`Subcategory`, `Dimmable`, `FinishCode`, `Price_cad` ...)
+# and adds `RelatedItems`, `IntroDate` and `NewItem`. It is the later and
+# better-mapped file, and its headers ARE the human's finished mapping --
+# which is the thing a class-2 file exists to carry.
+#
+# So: fixed prices is primary; the spec master is a secondary keyed lookup for
+# the one field fixed prices lost. See § LongDesc and § the 9 SKUs.
+
+[inputs.fixed_prices]
+format     = "xlsx_rows"
+path       = "LIB_Co_Upload_Fixed_Prices.xlsx"
+header_row = 1
+
+# Keyed lookup, used for exactly one column. Its own header row is row 1 (eCat
+# names) and row 2 holds the CLIENT'S labels, not data -- so data starts at
+# row 3 and a reader that assumed one header row would import a label row as a
+# product whose BaseItemCode is the literal string "Item#".
+[inputs.spec_master]
+format   = "csv"
+path     = "Lib_Co_Spec_Master_eCat_Mapped - Lib_Co_Spec_Master_eCat_Mapped.csv (2).csv"
+key      = "BaseItemCode"
+skip_rows_after_header = 1
+fields   = ["LongDesc"]
+
+[escape_hatch]
+budget     = 3
+transforms = []
+# ZERO used. A class-2 file should need none by definition: if it needs a
+# transform, either the human's mapping is wrong (report it) or the file is not
+# really class 2.
+
+
+# --- LongDesc -------------------------------------------------------------------
+#
+# `LongDesc` is 0% populated in the fixed-prices file -- 0 of 897 rows. It is
+# 100% populated in the spec master (max length 82, well inside the 255 limit
+# `limits_generated.py` gives for `longdesc`).
+#
+# LongDesc is the primary catalogue name: the string a rep reads in a list view.
+# Shipping the file as-is would blank it on every product. So it is backfilled
+# by key from the spec master. This is the ONE place this mapping takes a value
+# from a file other than the primary, and it is recorded here rather than done
+# quietly.
+
+
+# --- money ----------------------------------------------------------------------
+#
+# DERIVED, and flagged as a guess. The fixed-prices file stores prices as xlsx
+# floats (`100.0`, `10064.0`) which carry no format. The only statement of
+# format anywhere in the client's own files is the spec master, which presents
+# every one of its 906 prices as `$1,025.00` -- currency symbol, thousands
+# separator, two decimals, 906 of 906.
+#
+# So 2dp is what the client's own presentation says. NOTHING IN THE SOURCE says
+# whether the eCat file should keep `.00` on a whole-dollar price or drop it.
+# That is a human's answer, not the data's, and it is logged as such.
+
+
+# --- fields -----------------------------------------------------------------------
+# Order follows the source file, because a class-2 file's column order is also
+# part of what the human decided.
+
+[[fields]]
+name = "BaseItemCode"
+op = "passthrough"
+# 897 values, 897 distinct, 0 blank, max length 12 -- inside the 40-char
+# importer cap (which is 40, not the 20 the KB says).
+
+[[fields]]
+name = "LongDesc"
+op = "source"
+input = "spec_master"
+key = "BaseItemCode"
+field = "LongDesc"
+
+[[fields]]
+name = "UPCValue"
+op = "passthrough"
+primitive = "strip_tail"
+# `810117540005.0` -> `810117540005`. UPCValue is a TEXT field, so the importer
+# would take the `.0` verbatim and every barcode in the file would be wrong.
+
+[[fields]]
+name = "CollectionCodes"
+op = "passthrough"
+# 62 collections, shipped UPPERCASE (`ADELFIA`). Auto-Create means this string
+# BECOMES the iPad label, so reps would see ADELFIA where the spec master and
+# the client's own image folders say `Adelfia`. Reported, NOT changed: casing a
+# label is a client decision and re-casing it would be re-mapping.
+
+[[fields]]
+name = "CategoryCodes"
+op = "passthrough"
+# 4 values, and `CeilingMount` here has no space where `Subcategory` says
+# `Ceiling Mount`. Same word, two labels, one taxonomy. Reported, not changed.
+
+[[fields]]
+name = "Dimensions"
+op = "passthrough"
+
+[[fields]]
+name = "Materials"
+op = "passthrough"
+
+[[fields]]
+name = "ShipWeight"
+op = "passthrough"
+primitive = "strip_tail"
+# `42.0` -> `42`. Found by the score, not by the blind pass: the float tail is
+# on 369 of 897 rows -- only the whole-number weights get one -- and the
+# validator's old >50% threshold let it through. Threshold removed.
+# Already numeric (`1.32`). The neighbouring `ShipLBS` holds the same quantity
+# with a unit (`1.32 lbs`) -- two columns, one measurement. ShipWeight is the
+# eCat field name and the importable shape, so it is the one that ships.
+
+[[fields]]
+name = "ImageFileName"
+op = "passthrough"
+# Pre-concatenated `primary.jpg,secondary.jpg`. See the validation report: 191
+# of 1,812 referenced files are not present in either image directory.
+
+[[fields]]
+name = "RelatedItems"
+op = "passthrough"
+
+[[fields]]
+name = "netprice"
+op = "passthrough"
+primitive = "money"
+# CORRECTED after the blind score. This mapping originally renamed the header to
+# `NetPrice`, justified as "a header fix, not a value fix". That distinction was
+# mine, not the rule's -- renaming a header on a class-2 file is a transform, and
+# the build keeps `netprice` verbatim. The lowercase spelling is now a VALIDATION
+# FINDING instead of a silent correction: eCat header matching is not documented
+# as case-insensitive, and an unrecognised column is a fatal import error. If it
+# needs changing, the client changes it.
+
+[[fields]]
+name = "Price_cad"
+op = "passthrough"
+primitive = "money"
+
+[[fields]]
+name = "Price_imapcad"
+op = "passthrough"
+primitive = "money"
+
+[[fields]]
+name = "Price_imapusd"
+op = "passthrough"
+primitive = "money"
+
+[[fields]]
+name = "PromotionPrice"
+op = "passthrough"
+
+[[fields]]
+name = "PackedVolume"
+op = "passthrough"
+primitive = "strip_tail"
+
+[[fields]]
+name = "PackQuantity"
+op = "passthrough"
+primitive = "strip_tail"
+
+[[fields]]
+name = "MinimumQuantity"
+op = "passthrough"
+primitive = "strip_tail"
+
+[[fields]]
+name = "TradeNameCode"
+op = "passthrough"
+# `Lib & Co` -- the fixed-prices file corrected this. The spec master ships the
+# cryptic internal code `LC`, which Auto-Create would have made the iPad's
+# trade-name label.
+
+[[fields]]
+name = "NewItem"
+op = "passthrough"
+
+# --- client-domain custom fields ------------------------------------------------
+# 42 columns that are NOT built-in eCat fields. Each must be registered in
+# Admin > Products > Custom Fields BEFORE import: a column that is not
+# registered is SILENTLY DROPPED on every import, so populated + unregistered
+# means the data is discarded every single time and nothing says so.
+#
+# The registration list this mapping emits uses the client's own labels from the
+# spec master's second header row, because `Custom18` is not a label a rep can
+# read -- it is a placeholder, and the spec master says it means "Bulb Type".
+
+[[fields]]
+name = "Subcategory"
+op = "passthrough"
+# The spec master ships this same column under the header `?????`, which cannot
+# be imported at all. The fixed-prices file named it. 75% populated, 4 values
+# drawn from the SAME vocabulary as CategoryCodes but distributed differently
+# (Pendant 538 here vs 109 there) -- a genuine second taxonomy level, not a
+# duplicate. Whether eCat should model it as a category level is a client
+# question; it ships as a custom field until someone answers.
+
+[[fields]]
+name = "Feature1"
+op = "passthrough"
+
+[[fields]]
+name = "Feature2"
+op = "passthrough"
+
+[[fields]]
+name = "Feature3"
+op = "passthrough"
+
+[[fields]]
+name = "Feature4"
+op = "passthrough"
+
+[[fields]]
+name = "Feature5"
+op = "passthrough"
+
+[[fields]]
+name = "MaxHeight"
+op = "passthrough"
+
+[[fields]]
+name = "MinHeight"
+op = "passthrough"
+
+[[fields]]
+name = "ChainLength"
+op = "passthrough"
+
+[[fields]]
+name = "WireLength"
+op = "passthrough"
+
+[[fields]]
+name = "ExtensionRods"
+op = "passthrough"
+
+[[fields]]
+name = "BackplateDimension"
+op = "passthrough"
+
+[[fields]]
+name = "CanopyDimension"
+op = "passthrough"
+
+[[fields]]
+name = "FinishCode"
+op = "passthrough"
+# 62 values including `Aged Brass` AND `Aged brass` -- two spellings of one
+# finish. If registered as a multi-select filter that is two facets for one
+# thing. Reported, not merged: merging is a client decision.
+
+[[fields]]
+name = "ShadeMaterial"
+op = "passthrough"
+
+[[fields]]
+name = "ShadeColor"
+op = "passthrough"
+
+[[fields]]
+name = "NumberOfShades"
+op = "passthrough"
+primitive = "strip_tail"
+
+[[fields]]
+name = "ShadeDimension"
+op = "passthrough"
+
+[[fields]]
+name = "Disclaimer"
+op = "passthrough"
+
+[[fields]]
+name = "BulbType"
+op = "passthrough"
+
+[[fields]]
+name = "NbrBulbs"
+op = "passthrough"
+primitive = "strip_tail"
+
+[[fields]]
+name = "TotalWattage"
+op = "passthrough"
+
+[[fields]]
+name = "BulbWattage"
+op = "passthrough"
+
+[[fields]]
+name = "TotalLumen"
+op = "passthrough"
+primitive = "strip_tail"
+
+[[fields]]
+name = "Kelvin"
+op = "passthrough"
+
+[[fields]]
+name = "CRI"
+op = "passthrough"
+primitive = "strip_tail"
+
+[[fields]]
+name = "Dimmable"
+op = "passthrough"
+# Yes/No, 873 values. PASSED THROUGH UNCHANGED and reported instead.
+# eCat boolean filters match only Y/y/T/t/1-9, so IF this is registered as a
+# binary iPad filter the chip cannot match. Converting it to Y/N here would be
+# TRANSFORMING a class-2 file -- overriding a human's mapping on the strength
+# of a consequence nobody has confirmed against this org's Admin config. The
+# rule is validate, not fix. It is a BLOCKING finding in the report.
+
+[[fields]]
+name = "Voltage"
+op = "passthrough"
+
+[[fields]]
+name = "Certifications"
+op = "passthrough"
+
+[[fields]]
+name = "IPRating"
+op = "passthrough"
+primitive = "strip_tail"
+
+[[fields]]
+name = "Rating"
+op = "passthrough"
+# `Damp`/`Dry`, 897 values. Binary but neither Yes/No nor Y/N -- a different
+# problem in the same family as Dimmable, and unambiguous: whatever eCat's
+# boolean matcher does with `Yes`, it does not match `Damp`.
+
+[[fields]]
+name = "ADA"
+op = "passthrough"
+
+[[fields]]
+name = "LEDHours"
+op = "passthrough"
+primitive = "strip_tail"
+
+[[fields]]
+name = "BulbShape"
+op = "passthrough"
+
+[[fields]]
+name = "BulbSocket"
+op = "passthrough"
+
+[[fields]]
+name = "BulbIncluded"
+op = "passthrough"
+# Yes/No AND `NO` on 2 rows -- a case-duplicate on top of the boolean shape.
+
+[[fields]]
+name = "SlopeCeilingCompatible"
+op = "passthrough"
+
+[[fields]]
+name = "MotionSensor"
+op = "passthrough"
+
+[[fields]]
+name = "Direction"
+op = "passthrough"
+
+[[fields]]
+name = "IntroDate"
+op = "passthrough"
+primitive = "date"
+# `2023-01-01 00:00:00` -> `2023-01-01`. An xlsx date cell arrives as a
+# datetime; eCat wants YYYY-MM-DD.
+
+
+# --- columns I originally dropped, and now ship -----------------------------------
+#
+# CORRECTED after the blind score. Both were dropped in the blind run for
+# reasons that were, and still are, defensible:
+#
+#   ShipLBS  duplicates ShipWeight, carrying a unit string ("1.32 lbs")
+#   Video    9%-populated Google Drive URLs; arguably Library content, and an
+#            unregistered column is discarded silently on every import
+#
+# The build ships both. On a class-2 file a column the human included is a
+# DECISION, and "defensible" is exactly the problem -- it is the shape every one
+# of my three blind errors took. They are findings, not deletions.
+# The class-2 guard now refuses to run a mapping that drops a source column
+# without an explicit reason (OPEN_ITEMS A22).
+
+[[fields]]
+name = "ShipLBS"
+op = "passthrough"
+# Same measurement as ShipWeight with a unit suffix. Two columns, one quantity
+# -- reported, not resolved.
+
+[[fields]]
+name = "Video"
+op = "passthrough"
+# Not a built-in products.csv field, so it must be registered in Admin or it is
+# silently discarded on every import while the import reads clean.

@@ -332,6 +332,153 @@ def classify_input(headers_norm, raw_headers):
     return ('raw', 'no header matches an eCat field name - needs mapping', 0.0)
 
 
+def detect_transposed_options(rows, hi, headers):
+    """Find an option stack TRANSPOSED sideways into a product sheet.
+
+    THE PHASE 0 FALSE NEGATIVE THIS FIXES. Folder mode reported `options.csv`
+    and `option_groups.csv` MISSING for tcs. They are not missing. 72 columns of
+    its Master sheet, between `Propane Tip` and `Seeded Replacement Glass - SRG`,
+    ARE the option stack: each header is an option NAME and each cell is an
+    option CODE where that SKU can take it. The build emits OptionSet1-8 from
+    them.
+
+    A check whose whole job is saying what a source folder contains, reporting
+    ABSENT when the thing is present, is the worst shape of failure available to
+    it -- it does not merely fail to help, it actively tells you to go and ask
+    the client for a file they already sent.
+
+    THE SIGNATURE, and each clause is there because dropping it produced a false
+    positive on one of the five client folders:
+
+      * the header is NOT an eCat field name and NOT itself code-shaped
+        (a header that is a code is a pivot table, not an option block)
+      * every non-blank cell is <= 15 chars -- the option Code limit, which is
+        what makes a column of codes different from a column of prose
+      * few distinct values: <= 25, or exactly 1 (a pure availability flag)
+      * SPARSE: fill < 95%. An option column says which products CAN take it,
+        so a fully-populated column is an attribute, not an availability flag
+      * and it runs CONTIGUOUSLY for >= 8 columns. One such column is a code
+        field; eight in a row is a matrix
+
+    Returns None or a dict. Conservative by construction: it would rather say
+    nothing than mis-call a product sheet.
+    """
+    if hi is None or not headers:
+        return None
+    body = rows[hi + 1:]
+    if len(body) < 5:
+        return None
+    n = len(body)
+    CODE = re.compile(r'^[A-Za-z0-9][A-Za-z0-9 ._/#?-]{0,14}$')
+
+    def code_shaped(v):
+        """A CODE, not a word.
+
+        `Country of Origin` holds `China` and `Weiyan` holds `Yes`. Both are <=
+        15 chars, both are sparse, both have one distinct value -- and neither
+        is an option code. What separates them from `BLK`, `GPR`, `CSP10` and
+        `FH?` is that a code is not an ordinary word: it carries a digit, or it
+        is all upper case, or it has a separator.
+
+        Dropping this clause pulled `Country of Origin` and `Replacement SKU`
+        into the front of tcs's block and put a country in the option stack.
+        """
+        if not CODE.match(v):
+            return False
+        if not any(ch.isalpha() for ch in v):
+            # A NUMBER is not a code. mer's item export has nine consecutive
+            # price-list columns (`5. All Pro Stock`, `7. Distributor`,
+            # `Amazon`) holding 239.4, 68.4, 6.95 -- sparse, few distinct, under
+            # 15 chars, and a clean false positive until this line. A price is
+            # the single most common thing to find in a sparse numeric column on
+            # a product sheet, so the detector has to say so out loud.
+            return False
+        if any(ch.isdigit() for ch in v):
+            return True
+        if any(ch in '._/#?-' for ch in v):
+            return True
+        return v.isupper()
+    NULLS = {'----', '---', '--', '-', 'n/a', 'na', 'none'}
+
+    flags = []       # True = option-shaped, False = breaks a run, None = neutral
+    percol = []
+    for ci, h in enumerate(headers):
+        hn = norm(h)
+        vals = [str(r[ci]).strip() for r in body if ci < len(r)]
+        nb = [v for v in vals if v and v.lower() not in NULLS]
+        distinct = set(nb)
+        if bool(h.strip()) and not nb and not is_ecat_header(hn):
+            # An ENTIRELY EMPTY column is neutral: it neither is nor is not an
+            # option column, and it must not break a run. tcs has six of them
+            # sitting inside the block (`Weiyan` and `Single 12-V Base` are
+            # empty in Master, populated in Weiyan LED). Treating them as breaks
+            # cut a 72-column stack into a 21-column one and under-reported the
+            # finding by two thirds.
+            flags.append(None)
+            percol.append({'header': h, 'filled': 0, 'distinct': 0, 'values': []})
+            continue
+        ok = bool(h.strip()) and bool(nb) and not is_ecat_header(hn)
+        if ok:
+            # >= 90%, not all. `Farm House Hook` carries the literal value `FH?`
+            # -- a human's question mark left in the data -- and one such cell
+            # broke a 72-column run into 35. A block is code-shaped in aggregate;
+            # requiring purity makes the detector fail on exactly the messy
+            # sheets it exists for. The stragglers are reported, not ignored.
+            conform = sum(1 for v in nb if code_shaped(v)) / float(len(nb))
+            ok = conform >= 0.9
+        if ok:
+            ok = len(distinct) <= 40
+        if ok:
+            ok = (len(nb) / float(n)) < 0.95 or len(distinct) == 1
+        if ok:
+            # A header that is itself short and code-shaped is a pivot column,
+            # not an option name. Option names are words.
+            # ALL-CAPS and short: `BLK`, `WGS`. That is a pivot column whose
+            # header is itself a code. An option NAME is a word, and words are
+            # not excluded by this — `e-lyte` is lowercase and hyphenated and
+            # was being thrown out, which cut three columns off the front of
+            # tcs's block.
+            ok = not (re.match(r'^[A-Z0-9][A-Z0-9._/-]*$', h.strip())
+                      and len(h.strip()) <= 8 and ' ' not in h.strip())
+        flags.append(ok)
+        percol.append({'header': h, 'filled': len(nb), 'distinct': len(distinct),
+                       'values': sorted(distinct)[:6]})
+
+    best = (0, 0, 0)
+    i = 0
+    while i < len(flags):
+        if flags[i] is not True:
+            i += 1
+            continue
+        j = i
+        while j < len(flags) and flags[j] is not False:
+            j += 1
+        while j > i and flags[j - 1] is not True:   # do not end on a neutral
+            j -= 1
+        real = sum(1 for k in range(i, j) if flags[k] is True)
+        if real > best[0]:
+            best = (real, i, j)
+        i = j
+    run, a, b = best
+    if run < 8:
+        return None
+
+    vocab = set()
+    for ci in range(a, b):
+        vocab |= set(percol[ci]['values'])
+    return {
+        'first_column': headers[a], 'last_column': headers[b - 1],
+        'first_index': a, 'last_index': b - 1, 'columns': run,
+        'span': b - a,
+        'empty_inside': sum(1 for k in range(a, b) if flags[k] is None),
+        'rows': n,
+        'distinct_codes': sum(percol[ci]['distinct'] for ci in range(a, b)),
+        'specimens': [(percol[ci]['header'], percol[ci]['values'][:3])
+                      for ci in range(a, b) if flags[ci] is True][:3],
+        'vocab': vocab,
+    }
+
+
 def key_candidates(rows, header_i, headers, limit=4):
     """Columns that look like a key: high uniqueness, high fill, code-shaped."""
     data = rows[header_i + 1:]
@@ -481,6 +628,8 @@ def profile_file(path, root):
                                    'family count %d (%s)' % (top['score'], sem[best], best))
             rec['target_confidence'] = 'undetermined'
         rec['semantic'] = sem
+
+    rec['transposed_options'] = detect_transposed_options(rows, hi, headers)
 
     kc = key_candidates(rows, hi, headers)
     rec['key_candidates'] = [
@@ -822,12 +971,80 @@ def report(root, recs, exact, derived, near, out=sys.stdout):
         if r.get('target'):
             found.setdefault(r['target'], []).append(
                 (r['rel'], r.get('target_confidence')))
+
+    # TRANSPOSED OPTION STACKS. `options.csv` is not missing from tcs's folder;
+    # it is sideways, 72 columns inside the Master sheet. Reporting MISSING sent
+    # a reader to ask the client for a file they had already supplied. A check
+    # that says what a folder contains must not answer "absent" for "present in
+    # a shape I did not look for".
+    sideways = [r for r in recs if r.get('transposed_options')]
+    catalogues = []
+    if sideways:
+        vocab = set()
+        for r in sideways:
+            vocab |= r['transposed_options'].pop('vocab', set())
+        # The codes have to BE something. If another file's key column contains
+        # most of them, that file is the option CATALOGUE -- what the options
+        # are -- and the sideways block is the availability MATRIX -- who can
+        # have which. Two sources, two questions. Missing this on tcs cost the
+        # blind run its option names, descriptions, prices and type partition:
+        # 338 of 341 options were rows of a sheet already in the folder.
+        for r in recs:
+            if r.get('transposed_options') or not r.get('_keysets'):
+                continue
+            for col, vals in r['_keysets'].items():
+                if not vals or not vocab:
+                    continue
+                cover = len(vocab & set(vals)) / float(len(vocab))
+                if cover >= 0.5:
+                    catalogues.append((r['rel'], col, cover, len(vals)))
+        catalogues.sort(key=lambda t: -t[2])
+
     for t in REQUIRED_HEADERS:
         if t in found:
             for rel, conf in found[t]:
                 w('  %-18s CANDIDATE  %s [%s]\n' % (t, rel, conf))
+        elif t == 'option_groups.csv' and sideways:
+            w('  %-18s PRESENT, TRANSPOSED  same block as options.csv above — '
+              'the\n' % t)
+            w('  %-18s   groups are the per-product COMBINATIONS of those '
+              'codes.\n' % '')
+        elif t == 'options.csv' and sideways:
+            for r in sideways:
+                d = r['transposed_options']
+                w('  %-18s PRESENT, TRANSPOSED  inside %s\n' % (t, r['rel']))
+                w('  %-18s   %d contiguous columns, %s .. %s (index %d-%d), '
+                  '%d distinct codes over %d rows\n'
+                  % ('', d['columns'], d['first_column'], d['last_column'],
+                     d['first_index'], d['last_index'], d['distinct_codes'],
+                     d['rows']))
+                for hdr, vals in d['specimens']:
+                    w('  %-18s   e.g. %-32s -> %s\n'
+                      % ('', hdr, ', '.join(vals) or '(blank)'))
+            w('  %-18s   the header is the option NAME, the cell is the option '
+              'CODE.\n' % '')
+            w('  %-18s   NOT missing. Do not ask the client for it.\n' % '')
         else:
             w('  %-18s MISSING    no file in this folder resolves to it\n' % t)
+
+    if catalogues:
+        w('\n  OPTION CATALOGUE — the codes in that block resolve against:\n')
+        for rel, col, cover, nvals in catalogues[:3]:
+            w('    %s  column %r  contains %.0f%% of the codes (%d keys)\n'
+              % (rel, col, 100 * cover, nvals))
+        w('    That file is WHAT the options are (name, price, type); the\n')
+        w('    sideways block is WHO can have which. Map both.\n')
+    elif sideways:
+        w('\n  No file in this folder carries those codes as a key. The option\n')
+        w('  NAMES are the column headers and there is no price or type source.\n')
+
+    # BUILD_SPEC §3.4 — every check states its coverage.
+    scanned = [r for r in recs if r.get('header_row')]
+    w('\n  COVERAGE — evaluated %d of %d files for a target (%d parsed a header '
+      'row; %d were binary, noise or unparseable). Transposed-stack detection '
+      'ran on those same %d and fired on %d.\n'
+      % (len(scanned), len(recs), len(scanned), len(recs) - len(scanned),
+         len(scanned), len(sideways)))
     w('\n')
 
 

@@ -31,10 +31,10 @@ HubSpot is dropped as a cohort source. It can still feed Phase 1 readiness metad
 
 Resolution order — **the first non-empty SOURCE wins outright; within that one source include all of its distinct non-personal domains; do NOT merge domains across sources** (v3.4 — the old "first non-empty wins; concatenate non-empty results" wording was self-contradictory: it said both "stop at the first source" and "combine sources." Pick one source, take everything it has):
 
-1. Explicit per-client override in `onboarding-models/overrides.yml § client_domains` (a committed map of shortname → domain list). If listed, use that list verbatim and stop — it is authoritative.
+1. Explicit per-client override in `onboarding-models/overrides.toml § client_domains` (a committed map of shortname → domain list). If listed, use that list verbatim and stop — it is authoritative.
 2. `organizations.order_email_recipient` domain, if set and not a placeholder.
 3. ~~HubSpot company primary domain~~ — **REMOVED 2026-08-18.** HubSpot resolves 3 of 7 clients (`drf`/`libco`/`tcs` have no `hubspot_company_id` in `insightful_product.org_master`; `leg`'s points at a company row that no longer exists). Postgres alone resolves 7 of 7 via steps 2 and 4. Do not reintroduce it.
-4. **Fallback only:** admin `org_users.users.email` domains, EXCLUDING the personal-email providers below. If the fallback returns ≥2 distinct non-personal domains, emit `MULTI_DOMAIN_FALLBACK_UNVERIFIED` (`Flags_and_Signals.md § B`) to surface the second domain for standup verification; do not silently absorb it. Once a second domain is confirmed a real parent/DBA, add it to `overrides.yml § client_domains` so source 1 short-circuits the fallback on future runs and the flag stops recurring.
+4. **Fallback only:** admin `org_users.users.email` domains, EXCLUDING the personal-email providers below. If the fallback returns ≥2 distinct non-personal domains, emit `MULTI_DOMAIN_FALLBACK_UNVERIFIED` (`Flags_and_Signals.md § B`) to surface the second domain for standup verification; do not silently absorb it. Once a second domain is confirmed a real parent/DBA, add it to `overrides.toml § client_domains` so source 1 short-circuits the fallback on future runs and the flag stops recurring.
 
 **Personal-email providers — never treated as client_domains, regardless of source:**
 
@@ -163,7 +163,7 @@ That's it. There is no programmatic "did the client send the file" signal — we
 
 **Most-recent-per-file rule (block-level):** an `import_events` row may contain multiple top-level YAML blocks (e.g. `- - Products`, `- - Inventory`, `- - Product Stories` in the same row). Resolve "most-recent" at the YAML-block level — for each file type, find the most recent row whose body contains that file type's block, and inspect THAT block (not the row's entire body) for `:fatal`/`:error`/`:warning`. Row-level "most recent" alone will miss the case where today's row has clean Inventory but a stale row had a fatal Products import. **Do not rely on a fixed recent-row window of `import_events` (e.g. the 30 most-recent rows) — image-import events dominate the recent history for image-heavy orgs and hide core-file events. See `RUN_PROMPT.md § Step 1 — Import events` primitive for the per-file-type query that materializes this rule.**
 
-**Done when:** anchor passes AND the products file's most-recent block is not Fatal AND (≥2 price_levels exist OR Net-Price-only mode is confirmed). Net-Price-only is "confirmed" when the org's shortname is listed under `net_price_only_confirmed:` in `onboarding-models/overrides.yml` (a small committed config — no DB write needed). If the org has exactly 1 price level and is NOT listed there, this requirement is unmet and `SINGLE_PRICE_LEVEL_UNCONFIRMED` fires for standup. Once confirmed (shortname added to `overrides.yml`), single net pricing satisfies this clause and the flag stops recurring.
+**Done when:** anchor passes AND the products file's most-recent block is not Fatal AND (≥2 price_levels exist OR Net-Price-only mode is confirmed). Net-Price-only is "confirmed" when the org's shortname is listed under `net_price_only_confirmed:` in `onboarding-models/overrides.toml` (a small committed config — no DB write needed). If the org has exactly 1 price level and is NOT listed there, this requirement is unmet and `SINGLE_PRICE_LEVEL_UNCONFIRMED` fires for standup. Once confirmed (shortname added to `overrides.toml`), single net pricing satisfies this clause and the flag stops recurring.
 
 **Phase-3 health (graded):**
 - most-recent block tier per file type;
@@ -312,7 +312,7 @@ If a client has multiple deals, the **highest posture present wins** (Managed > 
 |---|---|---|
 | Owner | HubSpot deal line item (table above) — authoritative | `us` / `them` / `client` |
 | Approach | Enriched from Fathom `section_titles` / HelpScout body keywords (color only) | `API` / `FTP feed` / `manual` / `PIM (Catsy, etc.)` / `Business Central` / `unset` |
-| Status | Recorded per shortname in `onboarding-models/overrides.yml § integration_status` (committed config; `unset` if absent — there is no `integration_workstream` DB table). A managed client with no entry here raises `INTEGRATION_OWNER_UNCLEAR`. | `scoping` / `building` / `live` (free-form note alongside) |
+| Status | Recorded per shortname in `onboarding-models/overrides.toml § integration_status` (committed config; `unset` if absent — there is no `integration_workstream` DB table). A managed client with no entry here raises `INTEGRATION_OWNER_UNCLEAR`. | `scoping` / `building` / `live` (free-form note alongside) |
 | Last activity | Most recent Fathom OR HelpScout matching the integration keyword regex below | timestamp + source (`fathom` / `helpscout`) |
 
 **Integration keyword regex** (for *last-activity* enrichment only — not for ownership):

@@ -1,0 +1,77 @@
+# Legrand (leg) -- inventory.csv
+#
+# The interesting case in the whole set, and the reason it is mapped at all:
+# TWO source files land in ONE importer slot. `inventory.csv` HARD-deletes and
+# reloads, so whichever file imports second is the only stock in the app.
+# leg has run that way -- adorne and radiant alternating daily, one brand's
+# stock live on 17 of 23 days (BUILD_SPEC B4, OPEN_ITEMS A8).
+#
+# A mapping layer must answer this explicitly rather than inherit it. The answer
+# here is UNION: per-division files merge into one file, they never compete.
+
+client        = "leg"
+org_name      = "Legrand"
+org_id        = 273
+target        = "inventory.csv"
+dialect       = "legrand"
+primary_input = "inventory"
+
+skip_row_when_blank = "code"
+dedupe  = { on = "BaseItemCode", keep = "first" }
+sort_by = ["BaseItemCode"]
+
+[inputs.inventory]
+format   = "csv_multi"
+encoding = "utf-8-sig"
+# Header is NOT row 1 -- a title row and a blank row come first. Located by
+# content, never by index (profiler rule; CopperSmith's Parts header is row 2).
+header_at_first_cell = "Supplier ID"
+files = [
+  { path = "Source Data/Inventory/LegrandAdorneInventory.xlsx - LegrandAdorneInventory.csv",  tag = { _product_line = "adorne"  } },
+  { path = "Source Data/Inventory/LegrandRadiantInventory.xlsx - LegrandRadiantInventory.csv", tag = { _product_line = "radiant" } },
+]
+
+[[derived]]
+name = "code"
+op = "column"
+column = "Item Number"
+primitive = "trim"
+
+[[fields]]
+name = "BaseItemCode"
+op = "ref"
+from = "code"
+
+# QtyAvailable MIRRORS QtyOnHand. This is an ASSUMPTION, recorded as one: the
+# source has no independent backorder/reserved columns (both 100% blank), so
+# on-hand is passed through as available-to-promise.
+#
+# It is NOT safe to assume which of the two the app displays. Both qty_available
+# and qty_on_hand run live across the fleet and which one shows is CONFIGURED in
+# custom_fields.alias (BUILD_SPEC B5). Asserting that once already put a false
+# statement in front of this client -- SCORECARD §12 R1 / OPEN_ITEMS F1.
+# Populating both is what makes the mapping safe under either configuration;
+# it is not evidence that either is correct. Read the config before go-live.
+[[fields]]
+name = "QtyAvailable"
+op = "column"
+column = "Qty On Hand"
+primitive = "integer"
+
+[[fields]]
+name = "QtyOnHand"
+op = "column"
+column = "Qty On Hand"
+primitive = "integer"
+
+# `integer`, not `clean_integer`: a stock count is SIGNED. leg has 23 negative
+# on-hand rows, one at -12,643. clean_integer would clamp them to 1 and invent
+# stock that does not exist.
+
+# "to be sched" is prose, not a date, and NextReceiptDate rejects prose.
+# Blank means "unknown" -- which is not the same as 0 or none.
+[[fields]]
+name = "NextReceiptDate"
+op = "column"
+column = "Item Next Availability Date"
+primitive = "date"

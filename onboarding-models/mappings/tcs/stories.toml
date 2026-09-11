@@ -1,0 +1,81 @@
+# The CopperSmith (tcs) -- stories.csv
+#
+# WRITTEN BLIND. `CS_eCat_Rebuild/stories.csv` was not opened until this file
+# was on disk. See BLIND_BOUNDARY_2b.md.
+#
+# ============================================================================
+# THREE FIELDS, TWO FILES, AND THEY ARE NOT THE SAME THING
+# ============================================================================
+#
+#   LongDesc      products.csv   the CATALOGUE NAME the rep browses
+#   ShortDesc     products.csv   the compact ADMIN / ORDER-FORM name
+#   ProductStory  stories.csv    MARKETING COPY -- prose, not a name
+#
+# They collapse into each other constantly because all three are "the text",
+# and this source makes it worse by shipping four columns of prose whose names
+# invite exactly that mistake:
+#
+#   Short Description   283/283, up to 98 chars   -- PROSE, not ShortDesc
+#   Long Description    283/283, up to 734 chars  -- PROSE, not LongDesc
+#   Marketing Copy      283/283, up to 383 chars
+#   SEO Description     283/283, up to 240 chars
+#
+# `Short Description` is not `ShortDesc`. It is a 98-character sentence
+# beginning "Handcrafted solid copper wildlife-friendly wall sconce with...".
+# Putting it in ShortDesc would make the order form unreadable and would be the
+# same mistake the products run already made once -- W4, `ShortDesc` 0 of 425,
+# reading a column because its NAME matched. The catalogue and order-form names
+# come from `Retailer Product Name` and are products.toml's business.
+#
+# ProductStory takes `Marketing Copy`: it is the only one of the four that is
+# marketing copy by name AND by content ("Bring the romance of a gas flame to
+# outdoor spaces with the Adam Street..."). `Long Description` is the runner-up
+# and is more specification than story; if the key disagrees, that is the swap.
+#
+# ============================================================================
+# IMPORT SEMANTICS
+# ============================================================================
+#
+# stories.csv sets story = NULL. It does NOT delete the product. So an omitted
+# SKU loses its story silently and keeps everything else -- the quietest of the
+# six deletes, and the one most likely to be discovered by a rep rather than by
+# an import log.
+
+client        = "tcs"
+org_name      = "The CopperSmith"
+target        = "stories.csv"
+input_class   = 3
+dialect       = "tcs"
+line_terminator = "crlf"
+primary_input = "lanterns"
+
+skip_row_when_blank = "_story"
+
+[inputs.lanterns]
+format   = "csv_multi_named"
+encoding = "utf-8-sig"
+files = [
+  { path = "Source Data/Master Sheet E+G-Table 1.csv", header_row = 2 },
+  { path = "Source Data/Weiyan LED-Table 1.csv", header_row = 2 },
+]
+
+# Accessories and Parts carry no prose columns at all, so they contribute no
+# stories. That is a fact about the source, not a decision: a story file that
+# omits them leaves their story NULL, which is what it already is.
+
+[[derived]]
+name = "_story"
+op = "column"
+column = "Marketing Copy"
+primitive = "clean_text"
+
+[[fields]]
+name = "BaseItemCode"
+op = "column"
+column = "SKU"
+primitive = "trim"
+
+[[fields]]
+name = "ProductStory"
+op = "ref"
+from = "_story"

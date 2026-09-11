@@ -1,0 +1,295 @@
+# The CopperSmith (tcs) -- the OPTION STACK: options.csv + option_groups.csv
+#
+# WRITTEN BLIND. See BLIND_BOUNDARY_2b.md. Nothing in `CS_eCat_Rebuild/` or
+# `CS_OptionMapping_Rebuild/` was opened until this file was on disk.
+#
+# ============================================================================
+# WHY THIS FILE IS NOT SHAPED LIKE products.toml
+# ============================================================================
+#
+# Every mapping before this one is column -> column. This one is not.
+#
+# 72 columns of the Master sheet, from `Propane Tip` (index 87) to
+# `Seeded Replacement Glass - SRG` (158), are the option stack TRANSPOSED
+# sideways into the product sheet:
+#
+#     header  = the option NAME        `Grand Harbor 12"`
+#     cell    = the option CODE        `GH1`   (or blank, or `----`)
+#
+# N source columns become M rows in two other files, plus a per-product
+# reference back into products.csv. `[[fields]]` cannot say that, which is why
+# `kind = "option_stack"` exists.
+#
+# Phase 0's folder mode called `options.csv` and `option_groups.csv` MISSING for
+# this client. They are not missing. They are sideways.
+#
+# ============================================================================
+# THE READING, AND WHY IT IS DECLARED RATHER THAN DEFAULTED
+# ============================================================================
+#
+# Three readings of a sideways block are legal (Phase 2 U3, still open then):
+#
+#   per_column   `Post Fitter` becomes one group holding PF1..PF5, and a product
+#                carrying PF3 sees all five. Wrong here.
+#   single       the whole axis is one catalogue-wide group. Right where the
+#                cell is CONSTANT per column.
+#   per_product  the group is the distinct COMBINATION of codes one product
+#                offers on that axis. Right where the cell VARIES per row.
+#
+# The test is in the data, per axis: does the column's cell vary between rows?
+#
+#   `Gas Pressure Regulator`   GPR on all 125 populated rows        -> constant
+#   `Post Fitter`              PF1 PF2 PF3 PF4 PF5 PFPAU PFG15      -> varies
+#
+# A varying cell can only mean *this product's post fitter is PF3*, which is a
+# per-product membership statement. So every axis whose cells vary is
+# `per_product`; FINISH, whose four columns are constant (BLK/BRZ/GRAY/CLEAR),
+# would be `single` if 4 of 283 rows did not carry `Clear Coat` alone -- so it
+# is per_product too, and yields exactly TWO groups. Measured, not assumed.
+#
+# ============================================================================
+# THE AXIS PARTITION IS THE JUDGEMENT CALL, AND IT IS MINE
+# ============================================================================
+#
+# Nothing in the source says which of the 72 columns are "Finish" and which are
+# "Mount". `eCat Navigation and Filtering (1).csv` is the class-3 contract and
+# it covers NAVIGATION only -- what the rep browses, not what the rep configures.
+# That limit was already recorded on the products run and it holds here.
+#
+# So the eight axes below are read off the column NAMES by me. They are a
+# prediction, and a wrong partition is invisible in a clean import: an option in
+# the wrong type still imports, still shows, and is simply in the wrong drawer.
+#
+# The eight fall out of the names without forcing, and eight is also the number
+# of OptionSet slots the build uses. That agreement is evidence, not proof.
+#
+#   1 FIN  Finish              4 cols
+#   2 GAS  Gas Accessories     5
+#   3 SHD  Shades & Glass      6
+#   4 FEA  Feature             4
+#   5 MNT  Mount               17
+#   6 SCR  Scroll & Moustache  15
+#   7 PST  Post & Pier         14
+#   8 ORN  Ornament & Top      7
+#                             ---
+#                              72  = every column from 87 to 158, none left over
+
+client        = "tcs"
+org_name      = "The CopperSmith"
+kind          = "option_stack"
+input_class   = 3
+dialect       = "tcs"
+line_terminator = "crlf"
+primary_input = "lanterns"
+
+# `----` is a NULL TOKEN, not an option code. Weiyan LED fills six otherwise
+# empty columns with `----` on all 96 rows. Read as a code it would put six
+# options named "Frosted Hurricane Shade", "Turtle Friendly" and so on into
+# options.csv under a single code `----`, which is also over no length limit and
+# would import clean. Declared, counted, and reported per axis.
+null_tokens       = ["----", "---", "--", "-", "N/A", "n/a"]
+on_code_collision = "report"
+
+# ---------------------------------------------------------------------------
+# Output columns. DECLARED HERE, ABOVE THE FIRST TABLE, DELIBERATELY.
+#
+# In TOML a bare key after `[[axis]]` belongs to that axis, not to the file. I
+# wrote these three at the bottom first and they silently became keys of the
+# LAST axis: `options_columns` never reached the emitter and ImageName vanished
+# from options.csv without a word. Same family as everything else in this
+# programme -- a declaration that reads as though it applies and does not.
+#
+# `ImageName` defaults to `{code}.jpg` in the importer, and the swatches are
+# square 300x300 in FTP `/option_images`. Written EXPLICITLY so the file states
+# what it expects on the FTP: a missing swatch is then a diffable line rather
+# than an absence.
+# ---------------------------------------------------------------------------
+options_columns       = ["Code", "Name", "ImageName"]
+imagename             = "{code}.jpg"
+option_groups_columns = ["Code", "Name", "Options"]
+
+[emit]
+options       = "options.csv"
+option_groups = "option_groups.csv"
+assignments   = "_INTERMEDIATE_option_assignments.csv"
+
+[product_key]
+column = "SKU"
+
+# ---------------------------------------------------------------------------
+# The input: Master + Weiyan ONLY.
+#
+# Accessories and Parts share 28 columns with no option block; unioning them
+# here would add 654 rows with nothing on any axis.
+#
+# UNION BY NAME, NEVER BY POSITION. From index 99 the block is REORDERED --
+# Master's four finish columns sit at 99-102 and Weiyan's at 152-155. A
+# positional union pours Weiyan's `Wall Yoke` into Master's `Matte Black`: a
+# mounting option becomes a finish, on 96 rows, in a file that imports clean.
+#
+# And both sheets repeat `Pier Mount` and `Turtle Friendly`. The reader
+# disambiguates repeats positionally into `<name> #2` and says so; a plain dict
+# reader keeps the last and drops the first without a word. Both `#2` columns
+# are POPULATED (169 and 124 rows in Master) and both are declared below.
+# ---------------------------------------------------------------------------
+
+[inputs.lanterns]
+format   = "csv_multi_named"
+encoding = "utf-8-sig"
+files = [
+  { path = "Source Data/Master Sheet E+G-Table 1.csv", header_row = 2, tag = { _sheet = "master" } },
+  { path = "Source Data/Weiyan LED-Table 1.csv", header_row = 2, tag = { _sheet = "weiyan" } },
+]
+
+# ===========================================================================
+# THE AXES
+# ===========================================================================
+#
+# Per axis: which source columns, what the group Code and Name are, how each
+# column's values become option rows with codes, and which OptionSet slot a
+# product row references. That is the four-part answer the format owes.
+
+[[axis]]
+code        = "FIN"
+name        = "Finish"
+option_set  = 1
+required    = "Y"          # every lantern ships in a finish; 283 of 283 carry
+                           # at least `Clear Coat`.
+option_code = "cell"       # BLK, BRZ, GRAY, CLEAR
+option_name = "header"     # "Matte Black", "Oil Rubbed Bronze", ...
+grouping    = "per_product"
+group_code  = "FIN{n}"
+group_name  = "Finish {n}"
+columns = ["Matte Black", "Oil Rubbed Bronze", "Graphite Gray", "Clear Coat"]
+
+[[axis]]
+code        = "GAS"
+name        = "Gas Accessories"
+option_set  = 2
+required    = "N"
+option_code = "cell"
+option_name = "header"
+grouping    = "per_product"
+group_code  = "GAS{n}"
+group_name  = "Gas Accessories {n}"
+# `Propane Tip` is SPTS/SPTL/SPT and `Wind Guard` is WGS/WGL/WG -- small, large
+# and unsuffixed. That is a size choice inside a column, which is precisely why
+# this axis cannot be `per_column`: a product offered SPTS must not see SPTL.
+columns = [
+  "Propane Tip", "Gas Pressure Regulator", "e-lyte", "Auto Shutoff Valve",
+  "Wind Guard (WGS or WGL)",
+]
+
+[[axis]]
+code        = "SHD"
+name        = "Shades & Glass"
+option_set  = 3
+required    = "N"
+option_code = "cell"
+option_name = "header"
+grouping    = "per_product"
+group_code  = "SHD{n}"
+group_name  = "Shades & Glass {n}"
+# The three Replacement Glass columns are EMPTY in Master and `----` in Weiyan.
+# They contribute nothing and are declared anyway, so the file states the whole
+# 72-column block and the "declared column matched no header" check can speak.
+columns = [
+  "Frosted Hurricane Shade", "Sanded Hurricane Shade", "Cylinder Hurricane Shade",
+  "Replacement Glass - RG", "Hammered Replacement Glass - HRG",
+  "Seeded Replacement Glass - SRG",
+]
+
+[[axis]]
+code        = "FEA"
+name        = "Feature"
+option_set  = 4
+required    = "N"
+option_code = "cell"
+option_name = "header"
+grouping    = "per_product"
+group_code  = "FEA{n}"
+group_name  = "Feature {n}"
+# `Turtle Friendly #2` is the SECOND `Turtle Friendly` header, at index 96. The
+# first, at 47, is a Y/N product attribute and belongs to products.csv. Two
+# columns, one name, two entirely different jobs -- D4 from the products run,
+# and the reason repeats are disambiguated rather than collapsed.
+#
+# `Weiyan` carries the literal `Yes` on Weiyan LED's 96 rows and is EMPTY in
+# Master. A cell reading `Yes` is a flag, not an option code, so this axis will
+# emit an option coded `Yes`. FLAGGED: it is the one place the "cell is the
+# code" rule visibly does not hold, and I am shipping it rather than
+# special-casing it, because a special case here is how tcs's layout gets baked
+# into the format.
+columns = ["Weiyan", "Turtle Friendly #2", "Single 12-V Base", "Adhara Dark Sky"]
+
+[[axis]]
+code        = "MNT"
+name        = "Mount"
+option_set  = 5
+required    = "N"
+option_code = "cell"
+option_name = "header"
+grouping    = "per_product"
+group_code  = "MNT{n}"
+group_name  = "Mount {n}"
+columns = [
+  "Wall Yoke", "Gooseneck Plain", "Gooseneck Scroll", "Estate Extension",
+  "Classic Yoke", "Pendant Yoke", "Contemporary Yoke", "Ladder Rests",
+  "Chain Mount", "Quartet Chain Mount", "Heavy Chain Mount", "Chain/Stem Length",
+  "Stem Mount", "Heavy Slope Ceiling Mount", "Biltmore® Yoke",
+  "Biltmore® Chain Mount", "Biltmore® Stem Mount",
+]
+
+[[axis]]
+code        = "SCR"
+name        = "Scroll & Moustache"
+option_set  = 6
+required    = "N"
+option_code = "cell"
+option_name = "header"
+grouping    = "per_product"
+group_code  = "SCR{n}"
+group_name  = "Scroll & Moustache {n}"
+columns = [
+  "Grand Harbor 12\"", "Grand Harbor 17\"", "Classic Moustache",
+  "Dual Scroll Moustache", "Fancy Moustache", "Biltmore® Top Scroll",
+  "Biltmore® Moustache", "Top Scroll Wide", "Top Scroll", "Bottom Scroll Wide",
+  "Bottom Scroll", "Reverse Bottom Scroll", "Farm House Hook",
+  "Bottom Farm House Hook", "Moneo Top Hook",
+]
+
+[[axis]]
+code        = "PST"
+name        = "Post & Pier"
+option_set  = 7
+required    = "N"
+option_code = "cell"
+option_name = "header"
+grouping    = "per_product"
+group_code  = "PST{n}"
+group_name  = "Post & Pier {n}"
+# `Pier Mount` (141) is EMPTY on both sheets; `Pier Mount #2` (144) carries
+# PFPA/PMAU on 124 rows. Declaring only the first would have produced an axis
+# missing its largest column and no warning anywhere.
+columns = [
+  "Direct Burial Post Adapter", "Post Fitter", "Grand Post Fitter",
+  "6' Foot Lamp Post", "8' Foot Lamp Post", "10' Foot Lamp Post",
+  "Pier Mount", "Grand Pier Mount", "Copper Pier Mount", "Pier Mount #2",
+  "Post Ladder Rest", "Biltmore® Post Fitter", "Biltmore® Pier Mount",
+  "Biltmore® Copper Pier Mount",
+]
+
+[[axis]]
+code        = "ORN"
+name        = "Ornament & Top"
+option_set  = 8
+required    = "N"
+option_code = "cell"
+option_name = "header"
+grouping    = "per_product"
+group_code  = "ORN{n}"
+group_name  = "Ornament & Top {n}"
+columns = [
+  "Coach House Bars", "London Top", "London Bottom", "Fluted Top",
+  "Solid Copper Top Panels", "Fleur De Lis Finial", "Braided Brass Ring",
+]

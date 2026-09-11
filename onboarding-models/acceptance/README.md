@@ -469,6 +469,73 @@ python3 state_checks.py --org drf --check all --emit-sql
 python3 state_checks.py --org drf --from-results rows.json --measured-at 2026-09-04
 ```
 
+### F6 — one ladder, `stage`, demotion, repair channels, org-state header
+
+Implemented 2026-09-05 from `ground-truth/SPEC_F6_severity.md`. `severity.py` is
+the shared module; no check decides its own vocabulary any more.
+
+| | |
+|---|---|
+| **severities** | `BLOCKING` · `WARN` · `INFO` — all three in all five modules |
+| **`FATAL`** | **retired.** `fatal` is the *importer's* word (`import_log.py` computes it for import tiers); two live meanings for one word made "was that finding fatal?" ambiguous |
+| **not severities** | `NOT CHECKED` (method) and `DECLARED` (intent) — no ladder position, never demote, counted separately |
+| **`stage`** | `pre_upload` (A1, B1b) · `post_import` (everything else). A `BLOCKING` at `pre_upload` means *stop*; at `post_import` it means *remediate what is live* |
+| **demotion** | one level, **closed evidence only**, against the declared channel |
+| **`repair_channel`** | `file:<type>` · `admin:<table>` · `none` |
+
+**The closed-evidence clause is the regression test.** `leg`'s B4 finding (A8)
+has an alternation *window* of 2026-08-05..09-03 and the last Inventory import
+is 09-04 — a naive "evidence older than the last relevant import" rule demotes
+it. For a **standing** condition the most recent import is part of the evidence,
+not a chance to have fixed it. B4 therefore reports `pair_last_seen`
+(`greatest(a.ls, b.ls)`, = 09-04) rather than the window end, and `leg` stays
+`BLOCKING`. If A8 ever demotes, the clause was dropped.
+
+**`admin:custom_fields` was verified before being declared**, per the spec:
+`custom_fields.updated_at` is non-null on 13 of 13 cohort orgs and diverges from
+`created_at` on 11 of 13, so it is maintained rather than a create-time
+backfill. `orders.price_level` gets `none` — a historical order's price-level
+string is immutable, so the finding says *demotion does not apply* instead of
+appearing to have been evaluated.
+
+**A bug worth keeping written down.** The first run demoted **nothing**: the
+declared channel `file:option_groups` never matched the `import_events` key
+`Option Groups`, because the lookup normalised case but not separators. A silent
+miss there is indistinguishable from "no repair opportunity", so all 73 A4
+windows sat at WARN looking evaluated. `_key()` now folds case *and*
+spaces/hyphens to underscores.
+
+### The org-state header
+
+Printed on **every** report, clean or not — that is the structural answer to the
+cold read, because a green report becomes impossible once the org's state is on
+it.
+
+```
+ecat-acceptance — leg (Legrand US, org 273)     status: onboarding
+  users            14 provisioned · 11 ever logged in · 8 active in 30d
+                   (org_users rows; "rep" per collector/queries.py::REPS is a
+                    narrower count and is not this number)
+  login history    13 distinct users seen in login_events; 2 of them NO LONGER
+                   PROVISIONED · last 2026-09-04
+  last login       iPad 2026-09-04 · eOL never
+  last import      any 2026-09-04 · Customers 2026-08-28 · Inventory 2026-09-04 ...
+  orders           1 submitted · last submitted 2026-09-03 · last row written 2026-09-03
+```
+
+Three requirements, each from something that already cost us:
+
+- **never vs dropped** — "0 users" reads identically for a pre-launch org and one
+  that lost forty last month. `login_events` survives user deletion, so it can
+  say which. This makes the header the **first consumer of `login_events`**,
+  closing part of D13/D16. It immediately finds `pebl` 10, `ufi` 15, `clli` 13
+  users who used the app and have no `org_users` row today.
+- **name the clock** — both order clocks, always (G4). They differ on `libco`
+  (submitted 2026-08-11, row written 2026-08-24) and the header says so.
+  Likewise iPad and eOL logins are two surfaces (D14).
+- **state the definition** — provisioned / ever-logged-in / active-in-30d are
+  three numbers, and the header says it is *not* the framework's `REPS` count.
+
 ### Severity discipline, and why it is the hard part
 
 Three findings in a row were right about the fact and wrong about the severity:

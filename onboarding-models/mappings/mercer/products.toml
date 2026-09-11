@@ -1,0 +1,390 @@
+# 111 Mercer (mer) -- products.csv
+#
+# The NEW-CLIENT test. Legrand proves the format can reproduce a build we
+# already trust; mer proves it can express a client it was not designed around:
+# a raw NetSuite export, a different column set, a different price-level scheme,
+# a different RelatedItems shape, and a different dialect need.
+#
+# THE ORG. mer is org id 302, 102 products. Legrand's 1,020-row products.csv was
+# imported into THIS org on 2026-08-18 and soft-deleted all 102 of them -- the
+# second occurrence of that failure mode. The file that did it is still sitting
+# in this client's own build folder as `products.csv.20260818-1549.csv`. Nothing
+# in a products.csv says which org it belongs to, so run `a1_fingerprint.py`
+# against the produced file BEFORE any upload, not after.
+
+client        = "mer"
+org_name      = "111Mercer"
+org_id        = 302
+target        = "products.csv"
+input_class   = 1          # raw ERP export (NetSuite, 56 cols) -> map it
+dialect       = "tcs"      # money PASSTHROUGH. Not inferred -- measured.
+
+# mer's live file is LF-terminated; leg's is CRLF. Declared, never inherited.
+line_terminator = "lf"
+
+# Row order is NOT derivable from the NetSuite export -- see pass_row_order.
+row_order = "carry_forward"
+
+tables_files  = ["tables.toml"]
+primary_input = "item_export"
+
+# DIALECT -- and this is the entry that earns the whole format.
+#
+# This mapping first declared `legrand` (money always 2dp). That was a GUESS,
+# and the diff against the live build refuted it: 4 of 31 columns disagreed on
+# all or most rows, every one of them a price, every difference the same shape:
+#
+#     NetPrice        live 25     mapping 25.00     (45/102 agreed by luck --
+#     Price_trade     live 15     mapping 15.00      the ones already at 2dp)
+#     Price_dropship  live 12.5   mapping 12.50
+#     Price_wholesale live 10     mapping 10.00
+#
+# mer's live file is PASSTHROUGH: whatever the source held, stripped of `$` and
+# `,`. That is the `tcs` dialect, and 137 rows across three price levels differ
+# between the two choices.
+#
+# Every value above is a real, valid, plausible price under either dialect. No
+# importer would reject them and no clean import would notice. The only thing
+# that caught it was diffing against a build that is already live -- which is
+# why the acceptance test is the phase, not a formality.
+#
+# NOTE the standing caveat: this records what mer's CURRENT build does. Whether
+# passthrough is what the client WANTS is a separate question nobody has asked
+# Ryan. Structure is not intent.
+
+[inputs.item_export]
+format   = "csv"
+path     = "Source Data/111Mercer-ItemExport .csv"
+encoding = "utf-8-sig"
+# NOTE the leading space before `.csv` in the filename. It is real. Do not
+# "fix" it here; fix it at the source or the input is not found.
+
+# The same export, keyed by item code. Used ONLY to answer "does this SKU exist
+# in the catalogue?" when resolving the bolt<->sample link. A RelatedItems value
+# pointing at a SKU that is not in the file is a dangling reference (A3).
+[inputs.by_code]
+format   = "csv"
+path     = "Source Data/111Mercer-ItemExport .csv"
+encoding = "utf-8-sig"
+key      = "Name"
+fields   = ["Name"]
+
+[escape_hatch]
+module     = "custom.py"
+transforms = ["image_filename_from_code", "sample_counterpart", "design_family_key"]
+budget     = 3
+# AT BUDGET (3/3). A fourth transform is not permitted: that is the signal that
+# ecatlib is missing a primitive. Two were filed and added while writing this
+# mapping -- `parse_int` and `round_decimals` -- rather than forked in here.
+
+# Carry-forward from the last known-good build. For mer this is doing more work
+# than it does for Legrand: ten of the columns are EDITORIAL values a human
+# wrote, and the source cannot reproduce them. See § the unmapped list at the
+# foot of this file.
+[carry_forward]
+source     = "Import Files/products.csv"
+key_column = "BaseItemCode"
+require    = true
+
+
+# --- derived -------------------------------------------------------------------
+
+[[derived]]
+name = "code"
+op = "column"
+column = "Name"
+primitive = "trim"
+# `Name` IS the BaseItemCode. The profiler correctly refused to choose between
+# `Name` (GL9190-S) and `Internal ID` (6796) -- both are 102/102 unique -- and
+# said only the client can settle it. Settled by evidence, not preference: all
+# 102 codes in the live build join to `Name` exactly, 102/102. `Internal ID` is
+# a NetSuite surrogate and is not what a rep searches by.
+
+[[derived]]
+name = "is_sample"
+op = "ends_with"
+input = "code"
+value = "-S"
+
+[[derived]]
+name = "src_collection"
+op = "column"
+column = "Collection"
+primitive = "trim"
+
+[[derived]]
+name = "is_2026"
+op = "starts_with"
+input = "src_collection"
+value = "2026"
+
+[[derived]]
+name = "counterpart_code"
+op = "custom"
+fn = "sample_counterpart"
+args = ["code"]
+
+# '' when the counterpart is not in the catalogue -- 12 of 102 SKUs have no pair.
+[[derived]]
+name = "counterpart"
+op = "source"
+input = "by_code"
+key = "counterpart_code"
+field = "Name"
+
+[[derived]]
+name = "family_key"
+op = "custom"
+fn = "design_family_key"
+args = ["Description", "Name"]
+args_are_columns = true
+
+[[derived]]
+name = "cat_from_collection"
+op = "lookup"
+table = "category_codes"
+input = "src_collection"
+
+[[derived]]
+name = "lit_samples"
+op = "const"
+value = "Samples"
+
+[[derived]]
+name = "lit_sample"
+op = "const"
+value = "Sample"
+
+[[derived]]
+name = "lit_full_item"
+op = "const"
+value = "Full Item"
+
+[[derived]]
+name = "lit_y"
+op = "const"
+value = "Y"
+
+[[derived]]
+name = "lit_n"
+op = "const"
+value = "N"
+
+[[derived]]
+name = "blank"
+op = "const"
+value = ""
+
+
+[related_items]
+key_from     = "family_key"
+code         = "code"
+min_family   = 2
+into         = "RelatedItems"
+include_self = false   # mer lists PEERS only; Legrand includes the item itself
+sort_members = true    # mer's file is sorted; Legrand's is source order
+
+
+# --- fields ---------------------------------------------------------------------
+# 31 columns, in the live file's order.
+
+[[fields]]
+name = "BaseItemCode"
+op = "ref"
+from = "code"
+
+[[fields]]
+name = "LongDesc"
+op = "column"
+column = "Description"
+primitive = "trim"
+
+# -- the editorial block: carried forward, NOT derived. See the note at the foot.
+[[fields]]
+name = "MediumDesc"
+op = "const"
+value = ""
+carry_forward = { when = "always" }
+
+[[fields]]
+name = "ShortDesc"
+op = "const"
+value = ""
+carry_forward = { when = "always" }
+
+[[fields]]
+name = "Dimensions"
+op = "const"
+value = ""
+carry_forward = { when = "always" }
+
+[[fields]]
+name = "Materials"
+op = "const"
+value = ""
+carry_forward = { when = "always" }
+
+[[fields]]
+name = "Features"
+op = "const"
+value = ""
+carry_forward = { when = "always" }
+
+[[fields]]
+name = "ImageFileName"
+op = "custom"
+fn = "image_filename_from_code"
+args = ["code"]
+# ESCAPE HATCH 1 of 3.
+
+[[fields]]
+name = "ShipWeight"
+op = "column"
+column = "Weight"
+primitive = "round"
+params = { places = 2 }
+# `round`, not `money`: 0.008 lb -> 0.01, and 6.5 must stay 6.5 rather than
+# becoming 6.50. A price pads to a fixed width; a measurement does not.
+
+[[fields]]
+name = "PackedVolume"
+op = "const"
+value = "1"
+
+[[fields]]
+name = "PackQuantity"
+op = "const"
+value = "1"
+
+[[fields]]
+name = "MinimumQuantity"
+op = "const"
+value = "1"
+
+[[fields]]
+name = "TradeNameCode"
+op = "const"
+value = "111 Mercer"
+# mer is a Tempaper BRAND, not a standalone company -- all three client users
+# are @tempaper.com, so a domain that looks like a placeholder against the org
+# name is correct (config_intent.toml § mer).
+
+[[fields]]
+name = "CollectionCodes"
+op = "lookup"
+table = "collection_codes"
+input = "src_collection"
+
+# Samples are their own category regardless of collection; everything else rolls
+# up by collection. 102/102 against the live build.
+[[fields]]
+name = "CategoryCodes"
+op = "branch"
+on = "is_sample"
+then = "lit_samples"
+otherwise = "cat_from_collection"
+
+[[fields]]
+name = "NewItem"
+op = "branch"
+on = "is_2026"
+then = "lit_y"
+otherwise = "lit_n"
+
+[[fields]]
+name = "NetPrice"
+op = "column"
+column = "Base Price"
+primitive = "money"
+
+[[fields]]
+name = "PromotionPrice"
+op = "const"
+value = "0"
+
+# The three tiers, each pulled straight from its own raw column. The previous
+# hand-mapped template had `Price_dropship` populated from the raw `2. Trade`
+# column and never carried the real Drop Ship value anywhere -- a mapping error
+# that survived because both columns held plausible money. Naming the source
+# column per field in one reviewable place is what makes that visible.
+[[fields]]
+name = "Price_trade"
+op = "column"
+column = "2. Trade"
+primitive = "money"
+
+[[fields]]
+name = "Price_dropship"
+op = "column"
+column = "3. Drop Ship"
+primitive = "money"
+
+[[fields]]
+name = "Price_wholesale"
+op = "column"
+column = "4. Wholesale/Casepack"
+primitive = "money"
+
+[[fields]]
+name = "Hideable"
+op = "const"
+value = ""
+carry_forward = { when = "always" }
+
+[[fields]]
+name = "Design"
+op = "const"
+value = ""
+carry_forward = { when = "always" }
+
+[[fields]]
+name = "Colorway"
+op = "const"
+value = ""
+carry_forward = { when = "always" }
+
+[[fields]]
+name = "Material"
+op = "const"
+value = ""
+carry_forward = { when = "always" }
+
+[[fields]]
+name = "Format"
+op = "const"
+value = ""
+carry_forward = { when = "always" }
+
+[[fields]]
+name = "Width"
+op = "const"
+value = ""
+carry_forward = { when = "always" }
+
+[[fields]]
+name = "Sample"
+op = "branch"
+on = "is_sample"
+then = "lit_y"
+otherwise = "blank"
+
+# Peers sharing a design, same sample-ness, sorted, self excluded.
+[[fields]]
+name = "RelatedItems"
+op = "const"
+value = ""
+
+# The bolt <-> sample link, on its own tab. Blank when there is no counterpart.
+[[fields]]
+name = "RelatedItems2"
+op = "ref"
+from = "counterpart"
+
+[[fields]]
+name = "RelatedItems2TabName"
+op = "branch"
+on = "is_sample"
+then = "lit_full_item"
+otherwise = "lit_sample"
+only_when = { field = "counterpart" }
+otherwise_value = ""

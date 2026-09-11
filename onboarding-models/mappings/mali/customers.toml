@@ -1,0 +1,210 @@
+# Magic Lite (mali) -- customers.csv
+#
+# INPUT CLASS 2 -- PRE-MAPPED. All 16 source headers are already eCat field
+# names. The rule is VALIDATE, DO NOT TRANSFORM, and it is enforced by
+# `Engine.class2_guard()` rather than requested: a renamed header needs a
+# `rename_reason` and a dropped column needs a `[[drop]]` entry with a reason.
+#
+# That guard exists because on libco I was wrong three times out of three, and
+# every one was a sensible improvement to a file where a human had already
+# decided. The failure mode is HELPFULNESS and prompting does not fix it.
+#
+# ============================================================================
+# THE COMBINED 2.0 PROBLEM, WHICH IS WHY THIS CLIENT IS HERE
+# ============================================================================
+#
+# `03_Data/` holds two customer files:
+#
+#   ML + NSL CUSTOMERS COMBINED 2.0.csv   3,517 rows   ML and NSL together
+#   ML CUSTOMER LIST REVISED - UPDATED.csv  421 rows   ML only
+#
+# Two files, same headers, indistinguishable by name or date, and one CONTAINS
+# the other: 415 of the revised file's 421 codes are inside the combined file.
+# Choosing the smaller deletes a whole division -- and customers.csv HARD-
+# DELETES every customer and ship-to before it reloads, so that deletion is not
+# recoverable from the app.
+#
+# The profiler's rule decides it without a judgement call: **containment before
+# Jaccard**. The smaller file is a strict subset, so it is SUPERSEDED, and the
+# combined file is the source. Not merged -- superseded. Merging them would
+# re-add six stale codes the combined file drops.
+#
+# ============================================================================
+# WHAT THIS MAPPING CANNOT DERIVE, STATED RATHER THAN GUESSED
+# ============================================================================
+#
+# **105 of the 3,517 source rows are not in the live file, and there is no rule
+# in the source that selects them.** They are not the blank-address rows (67 of
+# 105 blank, against 2,768 of 3,517 overall), not duplicates (0 duplicate codes),
+# not one division. Four of the first five are Torbram Electric branches. It is
+# a hand-curated exclusion list and it belongs in the mapping as DATA if anyone
+# still knows the reason -- an `[[exclude]]` table of codes with a reason each.
+# Inventing a rule that happens to select 105 rows would be worse than saying so.
+#
+# So this mapping OVER-PRODUCES by 105 rows and says so out loud. On a file that
+# hard-deletes and reloads, over-production is the safe direction: the 105 come
+# back as customers rather than vanishing. Under-production is the one that
+# destroys data.
+#
+# ============================================================================
+# THE ONE TRANSFORM, AND IT IS NOT A CLASS-2 VIOLATION
+# ============================================================================
+#
+# DefaultPriceCode is `mllist` / `nsllist` in the source and `mldn` / `nsldn`
+# live. That is not the mapping second-guessing a human -- it is a different
+# PRICE LEVEL, list against dealer net, and the live org is the authority on
+# which of its own price levels the customers sit on. A DefaultPriceCode that
+# does not exactly match an Admin price level code rejects every row.
+#
+# Declared as a TABLE so an unseen fourth code fails loudly instead of passing
+# through and rejecting 3,418 customers on import.
+
+client        = "mali"
+org_name      = "Magic Lite"
+target        = "customers.csv"
+input_class   = 2
+mode          = "validate"
+dialect       = "tcs"          # passthrough money; no money field here anyway
+line_terminator = "crlf"
+primary_input = "customers"
+tables_files  = ["customers_tables.toml"]
+
+sort_by = ["BillToCode"]
+
+# ---------------------------------------------------------------------------
+# CARRY-FORWARD, AND THE DENOMINATOR THAT GOES WITH IT
+#
+# The combined export's ADDRESS BLOCK is not the source of the live addresses
+# and is not trustworthy. Measured against the live file over 3,412 shared
+# codes:
+#
+#   BillToAddress1   2,701 filled live and BLANK in the export; of the 711
+#                    filled in both, 371 disagree -- and the export's value is
+#                    a CONTACT NAME on many of them ("SALES MANAGER",
+#                    "JULIANNA", "TOM/JAN/BERNIE")
+#   BillToCountry    2,996 filled live, blank in the export
+#   BillToPostCode   1,428 of 2,964 both-filled rows disagree
+#   BillToCity       1,054 disagree     BillToState  589 disagree
+#
+# Those are not formatting differences. `EASTON MD 21601` against
+# `PHILADELPHIA PA 19101` is a different address. The live file's addresses came
+# from an enriched export that is NOT in this folder.
+#
+# So the address block is CARRIED, not derived, and `when = "always"` because
+# the stored value is authoritative -- the export's is actively wrong, not
+# merely missing.
+#
+# **The six carried columns are byte-identical BY DEFINITION and are not
+# evidence.** They are copied from the file being diffed against. The ten
+# derived columns are the evidence. Same rule and same reason as mer's eleven.
+#
+# What this actually means for the client: an address-enriched customer export
+# is an outstanding ASK. Until it arrives, a regeneration of customers.csv
+# depends entirely on the last known-good file, and customers.csv HARD-DELETES
+# before it reloads.
+# ---------------------------------------------------------------------------
+
+[carry_forward]
+source     = "00_Import_Files/Ready_For_Import/customers.csv"
+key_column = "BillToCode"
+require    = true
+
+[inputs.customers]
+format   = "csv"
+encoding = "utf-8-sig"
+path     = "03_Data/ML + NSL CUSTOMERS COMBINED 2.0.csv"
+
+[[derived]]
+name = "_price_raw"
+op = "column"
+column = "DefaultPriceCode"
+primitive = "trim"
+
+[[fields]]
+name = "BillToCode"
+op = "passthrough"
+column = "BillToCode"
+
+[[fields]]
+name = "BillToName"
+op = "passthrough"
+column = "BillToName"
+
+[[fields]]
+name = "BillToAddress1"
+op = "passthrough"
+column = "BillToAddress1"
+carry_forward = { when = "always" }
+
+[[fields]]
+name = "BillToAddress2"
+op = "passthrough"
+column = "BillToAddress2"
+carry_forward = { when = "always" }
+
+[[fields]]
+name = "BillToCity"
+op = "passthrough"
+column = "BillToCity"
+carry_forward = { when = "always" }
+
+[[fields]]
+name = "BillToState"
+op = "passthrough"
+column = "BillToState"
+carry_forward = { when = "always" }
+
+[[fields]]
+name = "BillToPostCode"
+op = "passthrough"
+column = "BillToPostCode"
+carry_forward = { when = "always" }
+
+[[fields]]
+name = "BillToCountry"
+op = "passthrough"
+column = "BillToCountry"
+carry_forward = { when = "always" }
+
+[[fields]]
+name = "BuyerPhone"
+op = "passthrough"
+column = "BuyerPhone"
+
+[[fields]]
+name = "BuyerEmail"
+op = "passthrough"
+column = "BuyerEmail"
+
+[[fields]]
+name = "TerritoryCodes"
+op = "passthrough"
+column = "TerritoryCodes"
+
+# The one transform. See the header.
+[[fields]]
+name = "DefaultPriceCode"
+op = "lookup"
+table = "price_code"
+input = "_price_raw"
+default_to_input = true
+
+[[fields]]
+name = "ShipToAddress1"
+op = "passthrough"
+column = "ShipToAddress1"
+
+[[fields]]
+name = "ShipToCity"
+op = "passthrough"
+column = "ShipToCity"
+
+[[fields]]
+name = "ShipToState"
+op = "passthrough"
+column = "ShipToState"
+
+[[fields]]
+name = "ShipToPostCode"
+op = "passthrough"
+column = "ShipToPostCode"

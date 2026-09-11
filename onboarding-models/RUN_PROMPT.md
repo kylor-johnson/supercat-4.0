@@ -68,14 +68,14 @@ Both require VPN active. The Sources table in `Phase_Anchors.md` lists the exact
 1. Run `date -u +%F` to set `$RUN_DATE` (used in the output filename).
 2. Execute the **auto-cohort query** verbatim from `Phase_Anchors.md § The cohort — auto-detected`. Confirm it returns exactly 4 onboarding clients (as of 2026-06-05 these were `tcs`, `drf`, `libco`, `pebl` — but check today's result; new clients may have entered the cohort).
 3. For each cohort member, resolve `client_domains[]` per `Phase_Anchors.md § Resolving \`client_domains[]\``. The resolution order is:
-   1. Manual override in `onboarding-models/overrides.yml` under `client_domains:` (a committed map of shortname → domain list). If the shortname is listed there, use that list verbatim and stop — it is authoritative and overrides every step below.
+   1. Manual override in `onboarding-models/overrides.toml` under `client_domains:` (a committed map of shortname → domain list). If the shortname is listed there, use that list verbatim and stop — it is authoritative and overrides every step below.
    2. `organizations.order_email_recipient` domain (when set and not a placeholder)
    3. ~~HubSpot company primary domain~~ — **REMOVED 2026-08-18** (resolves only 3 of 7 clients; Postgres alone resolves 7 of 7). Skip to step 4.
    4. **Fallback:** admin `org_users.users.email` domains, EXCLUDING the personal-email-providers list in `Phase_Anchors.md § Resolving \`client_domains[]\``
 
-   **Within a single chosen source, include all of that source's distinct non-personal domains; do NOT merge across sources.** The first non-empty source wins outright. When the chosen source is the step-4 admin-email fallback and it yields ≥2 distinct domains, raise `MULTI_DOMAIN_FALLBACK_UNVERIFIED` (and, if a second legit parent/DBA domain is real, fold it into `overrides.yml § client_domains` so it stops needing verification). Record each client's resolved `client_domains[]` — every Fathom / HelpScout / rep query downstream matches on these.
+   **Within a single chosen source, include all of that source's distinct non-personal domains; do NOT merge across sources.** The first non-empty source wins outright. When the chosen source is the step-4 admin-email fallback and it yields ≥2 distinct domains, raise `MULTI_DOMAIN_FALLBACK_UNVERIFIED` (and, if a second legit parent/DBA domain is real, fold it into `overrides.toml § client_domains` so it stops needing verification). Record each client's resolved `client_domains[]` — every Fathom / HelpScout / rep query downstream matches on these.
 
-4. Read `onboarding-models/overrides.yml`. It is a small committed config of human-confirmed facts the live data can't express. It carries:
+4. Read `onboarding-models/overrides.toml`. It is a small committed config of human-confirmed facts the live data can't express. It carries:
    - `net_price_only_confirmed:` — shortnames that run single Net-Price-only pricing by design. Any org listed there satisfies the Phase 3 price requirement and must NOT raise `SINGLE_PRICE_LEVEL_UNCONFIRMED` (see `Phase_Anchors.md § Phase 3` Done-when).
    - `integration_status:` — for clients SuperCat owns the integration on (a `Managed Integration` deal line item, per Step 2), the recorded approach/status. A shortname present here suppresses `INTEGRATION_OWNER_UNCLEAR` (it is now tracked); absent → the flag fires for managed clients.
    - `client_domains:` — manual domain overrides consumed in Step 0.3 above.
@@ -83,7 +83,7 @@ Both require VPN active. The Sources table in `Phase_Anchors.md` lists the exact
 
    Integration **ownership** is NOT decided here — that comes from the HubSpot deal line items in Step 2. This file only records the *status* of an owned integration and the by-design/domain facts above.
 
-   > If `overrides.yml` contains a `project_start_date` for this client, use that date (not `organizations.created_at`) to compute `days_in_onboarding`. This handles cases where provisioning significantly preceded the real project kickoff.
+   > If `overrides.toml` contains a `project_start_date` for this client, use that date (not `organizations.created_at`) to compute `days_in_onboarding`. This handles cases where provisioning significantly preceded the real project kickoff.
 
 ### Step 1 — Per-client phase classification
 
@@ -232,11 +232,11 @@ ORDER BY co.company, d.deal_id, li.properties_name;
 
 Then classify per `Phase_Anchors.md § Integration Workstream (parallel)`:
 
-- A **`Managed Integration Build` / `Managed Integration Hosting`** line item → Owner = **us**; show the Integration row + block; this is our workstream. Read the recorded status from `overrides.yml § integration_status` for this shortname. If no entry exists there, raise `INTEGRATION_OWNER_UNCLEAR` (managed-but-untracked); if an entry exists, use its `status`/`approach` and do NOT raise the flag.
+- A **`Managed Integration Build` / `Managed Integration Hosting`** line item → Owner = **us**; show the Integration row + block; this is our workstream. Read the recorded status from `overrides.toml § integration_status` for this shortname. If no entry exists there, raise `INTEGRATION_OWNER_UNCLEAR` (managed-but-untracked); if an entry exists, use its `status`/`approach` and do NOT raise the flag.
 - A **`Certified Pipeline`** line item → Owner = **them**; emit a single informational line only; do NOT show an open workstream and do NOT raise an integration flag.
 - **No integration line item** → self-serve FTP / none → **suppress the Integration row and block entirely.** Do not mention it on the standup.
 
-Multiple deals → highest posture wins (Managed > Certified > none). Enrich `Approach` / `Last activity` from the most recent integration-keyword Fathom/HelpScout (color only — never let it override the line-item ownership). When `overrides.yml § integration_status` has no entry for a managed client, Status = `unset` and `INTEGRATION_OWNER_UNCLEAR` fires.
+Multiple deals → highest posture wins (Managed > Certified > none). Enrich `Approach` / `Last activity` from the most recent integration-keyword Fathom/HelpScout (color only — never let it override the line-item ownership). When `overrides.toml § integration_status` has no entry for a managed client, Status = `unset` and `INTEGRATION_OWNER_UNCLEAR` fires.
 
 ### Step 3 — Flag emission
 
@@ -298,7 +298,7 @@ A **clean exit means the JSON was complete** — the generator's unresolved-toke
 - **Readability:** no banned internal words in the client-facing body; **no internal flag code anywhere in the body** (codes appear only in the appendix flag-reference map); acronyms expanded; each client leads with "Phase N of 7"; run metadata + framework feedback are in the bottom appendix only.
 - **One bucket per client:** in the standup agenda, each client appears under exactly one bucket (Resolve / Discuss / On track) — no client is listed twice; an informational/by-design note alone does not put an on-track client into Discuss.
 - **Integration shown only when we own it:** clients with no `Managed Integration` / `Certified Pipeline` line item have NO Integration row or block; `Certified Pipeline` clients get one informational line and no integration flag.
-- **Overrides honored:** any org in `overrides.yml § net_price_only_confirmed` does not carry `SINGLE_PRICE_LEVEL_UNCONFIRMED`; any managed-integration org in `overrides.yml § integration_status` does not carry `INTEGRATION_OWNER_UNCLEAR`; any org in `overrides.yml § client_domains` uses that domain list verbatim.
+- **Overrides honored:** any org in `overrides.toml § net_price_only_confirmed` does not carry `SINGLE_PRICE_LEVEL_UNCONFIRMED`; any managed-integration org in `overrides.toml § integration_status` does not carry `INTEGRATION_OWNER_UNCLEAR`; any org in `overrides.toml § client_domains` uses that domain list verbatim.
 - File written at `SuperCat 4.0/onboarding-models/output/{$RUN_DATE}-phase-assessment.md`.
 - **JSON + HTML emitted (Step 4b):** `output/{$RUN_DATE}-phase-assessment.json` validates against the schema and the generator exited clean (wrote the `.html`); the rendered `.html` opens with styling intact. The cohort and per-client cards in the JSON match the md 1:1, sorted phase-ascending, and at most one agenda item is `urgent`.
 - **Pipeline not broken:** if you touched anything that affects rendering, `python3 render_phase_assessment.py EXAMPLE-2026-06-09-phase-assessment.json --check EXAMPLE-2026-06-09-phase-assessment.html` still prints `MATCH`. (You should NOT have touched the generator/template/CSS — this is a safety net.)
