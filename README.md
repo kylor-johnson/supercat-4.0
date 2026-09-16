@@ -29,7 +29,7 @@ Three roots:
 | supercat-code | `~/supercat-code` | Rails / iOS application source |
 
 The **other Mac** clones under `~/repos` and opens
-`SuperCat.code.macbook-workspace` (Ops root = `~/repos/supercat-4.0`).
+`SuperCat.macbook.code-workspace` (Ops root = `~/repos/supercat-4.0`).
 See [`HANDOFF_OTHER_MACHINE.md`](./HANDOFF_OTHER_MACHINE.md).
 
 ## Source of truth

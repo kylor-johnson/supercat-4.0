@@ -22,12 +22,8 @@ That iCloud folder **is** the `kylor-johnson/supercat-4.0` git working tree.
 
 Hang-tag spike (tracked in this ops git): `SuperCat Ops/hang-tag-spike` — see `SPIKE.md`. Other Mac: `~/repos/supercat-4.0/hang-tag-spike` after pull, then `npm install`.
 
-`SuperCat.code.macbook-workspace` keeps `~/repos/supercat-4.0` roots for the
+`SuperCat.macbook.code-workspace` keeps `~/repos/supercat-4.0` roots for the
 **other Mac** after it clones from GitHub. Do not use it on this Mac.
-
-On the other Mac, iCloud `SuperCat 4.0` existing is not a substitute for
-`~/repos/supercat-4.0`. If an agent pulled hang-tag from iCloud, that was the
-trap — clone `~/repos` and open the macbook workspace.
 
 ## Do not
 

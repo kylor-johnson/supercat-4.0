@@ -49,7 +49,7 @@ That folder **is** `kylor-johnson/supercat-4.0` (remote name `personal`). There 
 no `~/repos/supercat-4.0` on this Mac. Do not recreate that clone here.
 
 The other Mac clones under `~/repos` — see `HANDOFF_OTHER_MACHINE.md` and
-`SuperCat.code.macbook-workspace`.
+`SuperCat.macbook.code-workspace`.
 
 ---
 
