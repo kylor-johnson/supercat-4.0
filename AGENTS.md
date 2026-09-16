@@ -169,7 +169,8 @@ The freeze is enforced by `.cursorignore` and `.cursor/rules/insightful-legacy-f
 
 Also treat as low-trust rather than frozen: `_archive/`, `scratch/`, `files 2/`,
 `Scoping Build/`, `HTML System/`, and any `* 2.md` / `* 2.py` duplicate — copies,
-not sources of truth.
+not sources of truth. Finder ` 2` / ` 3` copies are gitignored (`* 2.*`, `* 2/`,
+`* 3/`); versioned trees (`EBR 2.0`, `Health V2`, `HPMKT 2026`, `* 2.0`) are not.
 
 Health V3 / V3 Backfill are current scoring. Health V2 is in `_museums/`. Do not
 treat health scoring as the Insightful 4.0 pipeline.

@@ -1,16 +1,16 @@
 # eCat_Onboarding — pointers only, not the implementation tree
 
-**Canonical implementation, source data, and build work lives at:**
+**Canonical implementation, source data, and build work on this Mac lives at:**
 
 ```
-~/repos/ecat-onboarding-workspace/02_Implementation/<Client Name>/
+iCloud Drive/SuperCat_Simple_Final/02_Implementation/<Client Name>/
 ```
 
-iCloud mirror (do not treat as the edit surface):
+(`~/Library/Mobile Documents/com~apple~CloudDocs/SuperCat_Simple_Final`)
 
-```
-SuperCat_Simple_Final/02_Implementation/<Client Name>/
-```
+`~/repos/ecat-onboarding-workspace` is a **symlink** to that folder so older
+docs still resolve. Do not treat it as a separate clone. On the other Mac the
+live tree is the clone at `~/repos/ecat-onboarding-workspace`.
 
 Use full client names there (`Dorell`, `Legrand`, `Lib & Co Onboarding`,
 `Magic Lite`, `Pebl`, `Teracotta`, `The CopperSmith`, `Fine Art`, `111Mercer`,

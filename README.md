@@ -66,6 +66,7 @@ iCloud `SuperCat_Simple_Final`). This ops repo does not hold those payloads.
 - Nested `agent-factory/` (company repo; clone is `~/repos/agent-factory`)
 - `cursor-to-claude-migration/` dumps (live keys)
 - `_archive/`, `Scoping Build/`, `HTML System/`
+- Finder ` 2` / ` 3` copies (`* 2.*`, `* 2/`, `* 3/`) — not `Health V2`, `EBR 2.0`, `HPMKT 2026`, or `Insightful Product 2.0`
 
 ## What's in here
 
