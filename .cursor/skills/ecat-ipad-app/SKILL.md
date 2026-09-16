@@ -342,7 +342,12 @@ Run this before guessing:
 
 ## Code map
 
-Server (`supercat-code/supercat_server/`) + iOS (`supercat-code/sarreid_ios/eCatalog/`).
+Server (`SuperCatSolutionsLLC/supercat_server`) + iOS (`sarreid_ios/eCatalog/`).
+
+**Read server code from GitHub, not the local checkout** — `~/supercat-code/supercat_server`
+goes stale (10 weeks / ~55 PRs behind on 2026-08-25) and verifying against it has already put
+wrong facts into skills. Use `gh repo clone SuperCatSolutionsLLC/supercat_server /tmp/scs_repo -- --depth 1`
+and cite the commit SHA for any code-derived claim.
 Full file list: [Code & Config Reference](#code--config-reference).
 
 **Start here for a bug class:**
@@ -405,7 +410,7 @@ Read this when you need file-level debugging context.
 | Path | Role |
 |------|------|
 | `supercat-code/sarreid_ios/eCatalog/` | Native iPad app (Objective-C/Swift) |
-| `supercat-code/supercat_server/` | Rails API, importers, sync endpoints |
+| `SuperCatSolutionsLLC/supercat_server` (GitHub) | Rails API, importers, sync endpoints |
 
 ## Server — sync & versioning
 

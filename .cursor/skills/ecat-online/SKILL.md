@@ -31,16 +31,30 @@ When a question is "does org X have eOL?" or needs live state, consult
 For iPad-only pricing setup, use `ecat-pricing-levels`. For eOL **My Account** markup
 / retail / hide-prices behavior, stay in this skill.
 
-## Product tiers (commercial)
+## Where eOL sits commercially
 
-| Module | What it is |
-|--------|------------|
-| **eCat Online** | Web catalog (browse-only or authenticated) |
-| **B2B Cart** | Cart + checkout on a mobile site (`enable_online_ordering`) |
-| **Sales Portal** | Dashboard / Customers / Orders / Invoices tabs on eOL (`enable_sales_portal`) |
+Packaging is **three tiers**, not a la carte modules. The old "eCat Online / B2B Cart /
+Sales Portal as separate add-ons" framing is retired — legacy `recurring_services`
+strings still read that way on old accounts, but that is billing history, not entitlement.
 
-Cart and Portal are optional add-ons. An org can have Projects without Cart. Confirm
-provisioned modules in Postgres + billing before promising features.
+| Tier | /mo | /yr | Users | eOL-relevant contents |
+|---|---:|---:|---:|---|
+| **T1 Catalog Essentials** | $749 | $8,988 | 10 | Online Product Catalog (browse), iPad app, Admin Console, ERP import, multi-price lists |
+| **T2 Commerce Professional** | $1,295 | $15,540 | 15 | **+ Online Ordering, Private Storefront, Buyer Registration, Order & Invoice Tracking, Customer-Specific Pricing, Quick-Order Grid, Product Configurator (CPQ), Payment Processing (PCI), Address validation** |
+| **T3 Commerce Enterprise** | $2,295 | $27,540 | 40 | **+ Sales Intelligence Dashboard (the Sales Portal), Territory & Performance Views, Sales Reports & Summaries, Data Export, dedicated CSM, priority support w/ SLA** |
+
+So: **buyer cart and order/invoice tracking are T2. The Sales Portal reporting layer is T3.**
+
+> **Source-of-truth rule.** <https://supercatsolutions.com/pricing> is canonical for what
+> is in each tier. `Pricing Migration/_root/03_what_we_sell.md` is *comms language* and has
+> been observed stale on feature placement (it puts CPQ, card processing and the CSM in the
+> wrong tiers). If the two disagree, the live page wins. Never quote a tier's contents from
+> memory or from the migration doc alone.
+
+**Site flags are not entitlement.** `enable_online_ordering` / `enable_sales_portal` on a
+mobile site can be `true` on an account whose subscription never covered them — commonly on
+orgs that used a feature years ago. Provisioned ≠ paid for. Check the flags in Postgres
+*and* the commercial position (migration CSV / Jon & Emery) before promising anything.
 
 ## URLs & sites
 
@@ -63,6 +77,22 @@ Legacy home redirect: `/{org}/m/{url_key}/` → eOL home.
 
 **Custom CNAME:** `MobileSite#custom_cname` maps host → org + site via middleware
 (`custom_mobile_cname.rb`). Root `/` on CNAME redirects to legacy `/m/` path.
+
+### Custom hostname is self-service — no engineering ticket
+
+Admin Console → **Mobile Sites → [site] → Custom Hostname Configuration**
+(`CdnConfigurationsController` → `AwsManager::Cdn.ensure_cdn`, async). Requires admin + HTTPS.
+
+1. Set `custom_cname` on the mobile site.
+2. The page shows **CNAME #1** (name + value) for SSL validation, with a deadline.
+3. The certificate issues automatically once DNS propagates; status goes to `ISSUED`.
+4. Refresh until the CDN distribution reads `Deployed`, then it shows **CNAME #2** to point
+   the hostname at the CDN.
+
+Two customer-facing records total. Tell the client's IT team: **CNAME only.** Per KB
+`publishing-ecat-online`, an **A record will break the catalog when we move servers**, and
+records on internal DNS servers cause split-horizon failures. Custom domain is never a
+go-live dependency — run on the standard path first and add the hostname later.
 
 **Admin Console** (not eOL): `https://supercat.supercatsolutions.com/supercat/sessions/new`
 and org workspace `.../supercat/{shortname}`.
@@ -109,15 +139,43 @@ Site `properties.flags` (tri-state via `get_flag`): `self_service_enrollment_ena
 | Setting | Purpose |
 |---------|---------|
 | `display_order_function` | "Enable ordering?" — requires linked **customer** |
-| `enable_online_ordering` | `'y'` / `'n'` / `nil` (inherit site) |
+| `enable_online_ordering` | `'y'` / `'n'` / `''`/`nil` (inherit site) |
 | `allow_user_enrollment` | Rep "Enroll Customer" button |
-| `enable_sales_portal` | Portal tab visibility |
-| Authorized price levels | Which levels appear (same as iPad) |
+| `customer_synching` | `'a'` all / `'o'` own-territory / `'n'` none. Drives `Customer.get_customers`, which gates the customer list **and** the portal's fallback scope |
+| Authorized price levels | Which levels appear (same as iPad) — via `price_levels_user_types` |
+| SmartStack visibility | via `smart_stacks_user_types` (`smart_stack_id` + `user_type_id`) |
+
+There is **no `enable_sales_portal` column on `user_types`** — portal visibility is the
+mobile-site flag plus the gate in §"Sales Portal on eOL". Don't look for it.
+
+### The one-group constraint (governs what you can promise)
+
+**`org_users.user_type_id` is a single column.** A user belongs to exactly one group per
+org — there is no many-to-many. And `smart_stacks` has **no per-surface flag**.
+
+Consequences, both of which get promised wrongly on calls:
+
+- You **cannot** give the same rep one set of SmartStacks on the iPad and a different set
+  on the web. One group governs both surfaces. To scope web SmartStacks for reps, either
+  unpublish the list or accept it shows in both places.
+- Creating a parallel "<group> — online version" and moving reps into it **changes their
+  iPad experience too**. Safe for *buyers* (they were never in a rep group); not safe for reps.
+
+### Two different smart-stack filters — different scopes
+
+| Column | Scope | Applied in |
+|---|---|---|
+| `mobile_sites.smart_stack_filter_id` | **Web only** | `QueryForCatalog#for_mobile_site` |
+| `user_types.smart_stack_filter_id` | **Both surfaces** | `BuildQueryConditions` → `QueryForApi` (iPad) *and* `QueryForCatalog#for_user_type` |
+
+Both restrict the visible **product set** (not SmartStack list visibility). Only the
+site-level one is a web-only lever.
 
 **Rep + customer number conflict (common):** If an OrgUser has BOTH territory/rep codes
 AND a `customer_number`, the system treats them as a **customer**. They see only that
 customer's `DefaultPriceCode` and cannot switch levels. Fix: remove customer number from
-rep profiles. (HelpScout #12877; KB draft `price-levels-ecat-online-vs-ecat-ipad`.)
+rep profiles. (HelpScout #12877. Note: the KB article that used to cover this,
+`price-levels-ecat-online-vs-ecat-ipad`, is dead — explain it directly, don't link.)
 
 ## Pricing on eOL
 
@@ -172,7 +230,8 @@ The cart is **browser/device-local**, not per user account:
 Workarounds: same browser when customer returns; separate browser profiles on shared
 machines; use Projects as a placeholder list only.
 
-KB: `ecat-online-saving-your-cart-simple-guide`, `b2b-shopping-cart`.
+KB: `b2b-shopping-cart`. (`ecat-online-saving-your-cart-simple-guide` is dead — cart
+persistence is documented here only.)
 
 ### Order lifecycle
 
@@ -199,7 +258,39 @@ Applicant saved with `is_ecat_online = true`. Admin approves at
 Optional org flag `enrollment_requires_customer` validates customer number against
 `customers.csv`.
 
-KB: `ecat-online-quick-enrollment`, `ecat-online-1` (overview).
+Quick-enroll specifics (KB `streamlined-eol-enrollment`): a Sales Portal user can only
+enroll users for customers **already in their own customer list**; approval is immediate
+with credentials emailed; the new user lands in the **default user group at the default
+price level**, and changing that requires a request to SuperCat.
+
+### Migrating an existing buyer base — invitations vs. just logging in
+
+**Existing users cannot be invited.** `OrganizationInvitation` validates
+`user_does_not_exist_in_org` and rejects any email already attached to an org user. So for
+a client moving buyers off a legacy portal, the flow splits:
+
+| Buyer state | What happens |
+|---|---|
+| Already an org user | **No invitation.** They go to the eOL URL and sign in with existing credentials. Password reset covers anyone who's forgotten. |
+| Not in eCat | Invitation from their email; they set their own password on first use. |
+
+Invitation mechanics: token URL `https://<host>/onboarding/<token>`, **1-week default
+expiry** (`default_expiration_period`), bulk CSV import at Admin → Invitations →
+`import_from_file` with headers `email, username, first_name, last_name, user_type,
+territory_codes, customer_number`. `create_with_email` sends immediately via
+`OrganizationInvitationMailer`; `from:` is the **org's display name at a SuperCat address**.
+Tokens are exportable if a client wants to send the mail themselves — but mind the 1-week
+expiry against their send schedule.
+
+**Branding the enrollment mail:** Admin → Tools → **Company Settings → Email Templates**
+(`enrollment_welcome_template`). Variables `%username%`, `%password%` (renders
+"[your current password]" when blank, so it works for existing users too),
+`%existingsitemessage%`. **URL placeholders are NOT substituted** — hard-code the real eOL
+URL or the mail server turns the placeholder text into a broken tracked link. That's the
+whole subject of KB `fixing-invalid-urls-in-custom-enrollment-email-templates`.
+
+KB: `ecat-online-quick-enrollment`, `streamlined-eol-enrollment`, `user-enrollment`,
+`delegated-enrollment`, `ecat-online-1` (overview).
 
 ## Sales Portal on eOL
 
@@ -207,6 +298,38 @@ When `enable_sales_portal` on the mobile site:
 - Left nav: Dashboard, Customers, Orders, Invoices (per user group flags)
 - Uses **ERP-imported** `order_data.csv` / `invoice_data.csv` — NOT iPad-submitted orders
 - Optional: `territories.csv`, `enable_portal_delta_imports` org flag
+
+### Who sees which rows — `customer_number` wins
+
+`PortalOrder.get_orders` / `PortalInvoice` branch on the org user first:
+
+```ruby
+if org_user.customer_number.present?
+  # scoped to EXACTLY [org_user.customer_number]
+elsif parameters[:customer_bill_to_number]
+  # scoped to the requested account (rep/admin drilling into one customer)
+else
+  # scoped to Customer.get_customer_codes_for_org_user(org_user)  → territory path
+end
+```
+
+Verified against master @ `3d99376` (2026-08-25): `portal_order.rb:31`, `portal_invoice.rb:21`.
+
+So a user with a `customer_number` sees **only that one account**, and their territory
+codes are irrelevant to portal orders and invoices. A buyer carrying stray territory codes
+is a hygiene problem (per `b2b-shopping-cart`, it can surface a customer list they
+shouldn't see in the catalog UI) but it does **not** leak portal order/invoice rows.
+Don't over-warn about it; don't under-warn either — the system spec §7.6 lists separate
+open authorization risks on customer-detail and invoice-show that are not covered here.
+
+### Portal visibility gate
+
+`eol_left_nav_dataflow.rb` requires `customer_number.present? || !sync_no_customers?`.
+
+A user in a `customer_synching = 'n'` group **with no customer number sees no portal at
+all**. That is the usual cause of "the buyer can't see the portal," and it is also why
+buyer accounts missing a customer number are broken twice over — no portal *and* no cart
+(the cart needs a valid customer number too).
 
 Portal troubleshooting → verify portal imports in `import_events`, not iPad order sync.
 For portal-only reporting bugs, route engineering (Jira read-only). For missing ERP data,
@@ -223,13 +346,7 @@ customers. No separate "eOL products file."
 eOL-specific catalog behavior:
 - Product `hideable` flag — when site flag `hide_products_marked_hideable`, hidden from catalog
 - Smart stack filter on mobile site can limit visible products
-- User group auth still governs price level visibility **and trade names**. Left nav
-  is `TradeName.get_trade_name_collections_pairs(user_type, is_admin)`. Admins see
-  all trade names. Groups with `trade_names_auth = 'c'` only see the join-table
-  list. **A newly imported trade name is not auto-added to those lists.** That is
-  why a brand can sync to iPad (admin / `auth = 'a'`) and be missing from the
-  public eOL nav. Check the public proxy user (`mobile_sites.org_user_id`) and
-  the logged-in groups separately — they are often different lists.
+- User group auth still governs price level visibility
 
 Importer runs mobile-related steps when `organization.mobile_enabled?`.
 
@@ -266,60 +383,40 @@ group by order_source;
 -- pending enrollments
 select status, count(*) from enrollment_applicants
 where organization_id = :org_id group by status;
-
--- trade name auth (eOL left nav). 'a' = all, 'c' = join-table only, 'n' = none
-select ut.name as user_group, ut.trade_names_auth, t.name as trade_name
-from user_types ut
-left join trade_names_user_types x on x.user_type_id = ut.id
-left join taxonomies t on t.id = x.trade_name_id and t.type = 'TradeName'
-where ut.organization_id = :org_id
-order by ut.name, t.name;
 ```
 
 For **usage/adoption** (not just provisioned), also query BigQuery
 `google_analytics_ecat_online` per `supercat-data-routing`.
 
-For a faster first look at the same live state over HTTP (no VPN/psql), see the
-**MCP HTTP API** section below.
+## HTTP APIs
 
-## MCP HTTP API (fast first look)
+> **The `/api/v1/<shortname>/mcp/...` API does not exist in production.** Verified
+> 2026-08-25: every documented endpoint returns a Rails JSON `404 No route matches`, under
+> every path variant tried (shortname before `mcp`, after `mcp`, omitted, org-prefixed).
+> Auth succeeds — it is the route that is absent, so this is not a credentials problem.
+> Confirmed at source: `grep -c mcp config/routes.rb` returns **0** on master @ `3d99376`
+> (2026-08-25). The routes were never shipped, so this is not a deploy-lag issue.
+> Use `supercat-postgres-vpn` for live state. Do not restore this section without
+> re-testing against production.
 
-A read-only HTTP API that **complements** `supercat-postgres-vpn` for a quick first
-look — not a replacement. The base path puts the shortname **between** `/api/v1/` and
-`mcp`: `/api/v1/<shortname>/mcp/...`
-
-Scope nesting: `namespace :api` (`config/routes.rb:652`) → `namespace :v1` (654) →
-`scope '/:org_shortname/mcp'` (710).
-
-Most valuable for eOL:
-
-| Endpoint | Returns |
-|----------|---------|
-| `organizations/data/mobile_sites.json` | Site flags without hand-writing the `organizations`↔`mobile_sites` join |
-| `organizations/data/smart_stacks.json` | Smart stacks |
-| `organizations/data/org_users.json` | Org users |
-| `organizations/data/price_levels.json` | Price levels |
-| `organizations/customers/:customer_id/pricing_analysis.json` | Buyer price resolution (the My Account / `DefaultPriceCode` question) |
-| `organizations/users/permissions_summary.json` | Permission summary |
-
-**Auth is admin-only.** `verify_mcp_access` requires `is_admin?` on the user or
-org-user, else 403 (`api/v1/mcp/base_controller.rb:12,18-30`). `AdminController#authenticate`
-tries three methods **in this order** (`admin_controller.rb:6-14`):
-1. Existing session cookie
-2. `X-CLIENT-ID` + `X-API-KEY` headers (URL shortname must match the client-id's org,
-   lines 53-65)
-3. HTTP Basic (lines 21-25) — the practical choice for curl
-
-**Two hard requirements:**
-- **HTTPS only** (`prepend_before_action :require_https`).
-- The **`.json` extension is MANDATORY** — `api_call?` treats only plist/json/csv as API
-  requests (`admin_controller.rb:16-19`). Without it you're redirected to a login page and
-  get HTML back, which looks like an auth failure but isn't.
+**Order Download API** — real, documented at KB `order-download-api`.
 
 ```
-curl -u 'USER:PASS' \
-  https://supercat.supercatsolutions.com/api/v1/<shortname>/mcp/organizations/data/mobile_sites.json
+GET https://supercat.supercatsolutions.com/<org>/orders.json    # HTTP Basic
 ```
+
+| Param | Purpose |
+|---|---|
+| `export_format` | `stdjson` \| `stdjsonv2` \| `default` (v2 adds custom product fields per item) |
+| `submit_from` / `submit_to` | Filter by submission date (`yyyy-mm-dd` or ISO8601) |
+| `receipt_from` / `receipt_to` | Filter by server receipt date |
+| `single_document` | Return one JSON array instead of line-delimited objects |
+
+Default output is one JSON document per order, one per line. This is the right answer when a
+client asks for recurring or automated order downloads — better than walking them through
+Admin Console CSV export. Related: `batch-order-transfer-api`, `json-order-export-push`,
+`json-order-fields`. The Admin credentials in `~/.supercat/mcp-credentials.json` are **not**
+authorized for it (401) — it needs the org's own API credentials.
 
 ## Troubleshooting router
 
@@ -333,7 +430,6 @@ curl -u 'USER:PASS' \
 | Portal tabs missing | `enable_sales_portal` off, user group flag, or My Account pricing active | Check mobile site + session |
 | Portal orders blank | No/wrong `order_data.csv` import | Portal import path, not iPad |
 | Product on iPad but not eOL | `hideable` + site flag, smart stack filter, or sync lag | Compare catalog query filters |
-| Trade name on iPad, missing from eOL left nav | New trade name not authorized to the viewing group (`trade_names_auth = 'c'`). Public site user ≠ admin | Authorize the trade name to eOL Public Site and/or the logged-in eOL group. Confirm audience first (public vs enrolled) |
 | Enrollment button missing | `enrollment_enabled` off or `self_service_enrollment_enabled` false | Org + site flags |
 
 For reactive tickets, start with `ecat-support-triage` (eOL row), ground with
@@ -341,17 +437,32 @@ For reactive tickets, start with `ecat-support-triage` (eOL row), ground with
 
 ## KB articles (Craft CMS)
 
+Base URL: `https://supercatsolutions.com/knowledgebase/{slug}`. Slugs below verified live
+2026-08-25 against the full 146-article index (crawl the 8 category pages for the current set).
+
 | Topic | Slug |
 |-------|------|
 | Overview | `ecat-online-1` |
+| Sales Portal overview | `ecat-online-sales-portal` |
 | B2B Cart | `b2b-shopping-cart` |
 | Projects | `ecat-online-projects` |
-| Cart persistence | `ecat-online-saving-your-cart-simple-guide` |
-| My Account / retail pricing | `eol-retail-pricing` |
-| eOL vs iPad price levels | `price-levels-ecat-online-vs-ecat-ipad` |
-| Quick enrollment | `ecat-online-quick-enrollment` |
+| My Account / retail pricing | `eol-retail-pricing`, `select-eol-catalog-price` |
+| Quick enrollment | `ecat-online-quick-enrollment`, `streamlined-eol-enrollment` |
+| Other enrollment paths | `user-enrollment`, `delegated-enrollment`, `creating-delegates-for-enrollment`, `eol-accounts-for-prospective-customers` |
+| Enrollment email templates | `fixing-invalid-urls-in-custom-enrollment-email-templates` |
+| User groups / users | `user-groups`, `user-management`, `inactive-users-report` |
+| Price levels | `price-levels`, `pricelevelchanges`, `catalog-pricing`, `comparison-price-level`, `discount-market-promo-price-levels`, `import-contract-prices` |
+| Custom domain / URL | `publishing-ecat-online`, `ecat-online-url` |
+| Portal setup + verification | `publish-portal-dashboard`, `sales-portal-data-verification`, `sales-portal-file-specifications` |
+| Orders | `required-order-header-fields`, `custom-order-header-fields`, `order-surcharges`, `order-email-template`, `about-order-page` |
+| Order APIs | `order-download-api`, `batch-order-transfer-api`, `json-order-export-push`, `json-order-fields` |
+| Complete-order display | `hide-show-complete-orders-in-ecat-online` |
+| Payments | `supercat-credit-card-support`, `capture-credit-card-information`, `capture-credit-card-funds-for-an-order` |
 
-Base URL: `https://supercatsolutions.com/knowledgebase/{slug}`
+**Dead slugs — do not cite** (404 as of 2026-08-25, absent from the index):
+`ecat-online-saving-your-cart-simple-guide`, `price-levels-ecat-online-vs-ecat-ipad`.
+Cart-persistence behaviour is documented in this skill only; there is no live KB article
+for it, so explain it in your own words rather than linking.
 
 ## Code anchors (supercat_server)
 

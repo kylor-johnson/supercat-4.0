@@ -92,3 +92,33 @@ counts. Reps still in `DefaultUserGroup` bypass restrictions.
 `GET /api/v1/<shortname>/mcp/organizations/health` returns the six-category onboarding
 scorecard (foundational, catalog, customer/pricing, inventory, orders, engagement).
 Use it to turn a catalog-strong/transaction-empty org into an ordered import backlog.
+
+## Schema traps (verified 2026-08-25 — each one cost a failed query)
+
+| Expectation | Reality |
+|---|---|
+| `customers.bill_to_code` | It is **`customers.code`** |
+| `org_users.territory_codes` is text | It is **JSON**. `<> ''` throws `operator does not exist: json <> unknown`. Use `territory_codes::text NOT IN ('null','[]','""')` |
+| An `order_items` table | Does not exist. Line items are a **serialized TEXT column**, `orders.order_items` |
+| `import_events.file_name` / `.status` | Only four columns: `id, created_at, organization_id, data` (YAML blob) |
+| `price_levels.price_type` | Does not exist |
+| `user_types.enable_sales_portal` | Does not exist. Portal gating is the mobile-site flag + `customer_synching` |
+| `orders.mobile_site_id` | Does not exist. Only `rma_requests` carries `mobile_site_id`, so deleting a mobile site does not orphan order history |
+| Foreign keys on `mobile_sites` | There are **none** |
+
+### The `order_items` false positive
+
+`orders.order_items` is serialized JSON-in-TEXT whose keys are **always present even when
+empty** (`"matrix_option_item_code":""`, `"options":[]`). So:
+
+```sql
+-- WRONG: matches ~100% of rows and looks like a finding
+where order_items ilike '%matrix%'
+
+-- RIGHT: tests for a populated value
+where order_items ~ '"matrix_option_item_code":"[^"]+"'   -- real matrix pricing
+where order_items ~ '"options":\[\{'                      -- real configured options
+```
+
+Also: any scan of `orders.order_items` across all orgs times out at the 30s limit. Scope by
+`submit_date` year.

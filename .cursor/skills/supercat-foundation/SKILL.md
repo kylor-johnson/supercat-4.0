@@ -1,6 +1,6 @@
 ---
 name: supercat-foundation
-description: "SuperCat company context (L1) — ICP and the two segmentation lenses, T1/T2/T3 pricing, competitive set, strategic bets, FY26 headline targets, product surfaces, and how confident we're allowed to be before citing a figure. Use this BEFORE answering anything about what SuperCat is, who we serve, how we make money, where we're going, or how the company operates — including lazy phrasings like 'what's our ACV again', 'is X a T2', 'what's Platform-Embedded mean', or 'can I say $768M GMV in a deck', and including when drafting customer-, investor-, or board-facing material that leans on those facts. Trigger it even when the question sounds answerable from memory: the figures move quarterly. NOT for live org lookups (use supercat-data-routing), report runs (insightful-report-4), eCat file builds or import debugging (ecat-* skills), or workspace navigation (AGENTS.md)."
+description: "SuperCat company context (L1) — ICP and the two segmentation lenses, the persona axis (7 personas / 31 jobs — who uses the product), T1/T2/T3 pricing, competitive set, strategic bets, FY26 headline targets, product surfaces, and how confident we're allowed to be before citing a figure. Use this BEFORE answering anything about what SuperCat is, who we serve, who uses the product and what job they're doing, how we make money, where we're going, or how the company operates — including lazy phrasings like 'what's our ACV again', 'is X a T2', 'what's Platform-Embedded mean', 'who are our personas', 'what does a rep actually need', or 'can I say $768M GMV in a deck', and including when drafting customer-, investor-, or board-facing material that leans on those facts, or scoping what to build for a persona. Trigger it even when the question sounds answerable from memory: the figures move quarterly. NOT for live org lookups (use supercat-data-routing), report runs (insightful-report-4), eCat file builds or import debugging (ecat-* skills), or workspace navigation (AGENTS.md)."
 ---
 
 # SuperCat Foundation — L1 context router
@@ -25,10 +25,67 @@ vs. order-consummation contract, and the marketing-niche vs. analytical-ICP
 distinction — do not reconstruct those from elsewhere. For most questions it is
 sufficient alone.
 
+**Three axes, never collapsed.** Customer questions run on three orthogonal cuts, and the most
+common error is reading one off another:
+
+| Axis | Classifies | When |
+|---|---|---|
+| **Account Segment** (Lens 1 maturity / Lens 2 selling motion) | the client **organisation** | post-sale only — a stamped roster lookup, never recomputed |
+| **Prospect Archetype** | a **pre-sale** company, named for what is observable | pre-sale — **never** put a segment label on a prospect |
+| **Persona** (PER-01…PER-08) | a **behavioural role with jobs** — who uses the product | any "who uses it / what do they need / what should we build" question |
+
+Neither predicts the other. **PER-08 dealer buyer is a fourth thing again — our *customer's*
+customer**, the largest population on any surface, and never collapsed into the internal-user
+personas.
+
+**The build rule that falls out of it:** build once, parameterise on **org structure** (price codes,
+territories, products) — **not on segment.** Only 4 of 31 jobs vary, and on structure rather than
+selling motion. No segment-conditional variants.
+
 **If these paths don't resolve, you are not in the repo — or the workspace is out
 of sync.** Say so plainly and ask for the doc or the relevant pasted section. Do
 **not** fall back to memory. That failure is silent, sounds confident, and is the
 entire reason this skill exists.
+
+## The tier card (verified 2026-08-25)
+
+| Tier | /mo | /yr | Users | Brands |
+|---|---:|---:|---:|---:|
+| T1 Catalog Essentials | $749 | $8,988 | 10 | 1 |
+| T2 Commerce Professional | $1,295 | $15,540 | 15 | 3 |
+| T3 Commerce Enterprise | $2,295 | $27,540 | 40 | 5 |
+
+Annual is exactly 12x monthly — there is no annual discount built into these numbers.
+Additional users above the included base: **$25 / $22 / $20 / $18** per user/mo at bands
+**1-10 / 11-25 / 26-50 / 51+** (customer-facing bands; `foundation/03` D-004b carries
+different bands and is the one that needs reconciling).
+
+Tiers **replace**, they do not stack. A T2 account moving to T3 pays $2,295, not $1,295 +
+$2,295.
+
+What sits where (this is the part that gets misquoted):
+
+- **T1** — eCat iPad app, online product catalog (browse), Admin Console, ERP integration
+  and data import, multi-price lists and inventory, standard support.
+- **T2** — everything in T1, plus Online Ordering, Private Storefront, Buyer Registration,
+  Order and Invoice Tracking, Customer-Specific Pricing, Quick-Order Grid, **Product
+  Configurator (CPQ)**, **Payment Processing (PCI)**, Address validation.
+- **T3** — everything in T2, plus Sales Intelligence Dashboard (the Sales Portal), Territory
+  and Performance Views, Sales Reports and Summaries, Data Export, 12 images per product,
+  **dedicated CSM**, priority support with SLA, Executive Business Reviews.
+
+> **Source-of-truth rule.** <https://supercatsolutions.com/pricing> is canonical for tier
+> *contents*. `Pricing Migration/_root/03_what_we_sell.md` is comms language and was observed
+> stale on 2026-08-25 — it places CPQ and credit-card processing in T3 (they are T2) and the
+> dedicated CSM in T2 (it is T3). **The live page wins.** Never state what a tier includes
+> from memory or from the migration doc alone; open the page.
+
+Unpublished, response-only add-ons (never in proactive comms): Commerce $795/mo,
+Sales Intelligence $995/mo, Premium Support $495/mo. Note T2 + Sales Intelligence
+($27,480/yr) lands within $60 of T3 ($27,540/yr) — T3 is almost always the better answer for
+a T2 account that wants analytics.
+
+Implementation: Essentials included, Guided $2,500, Comprehensive $5,000.
 
 ## Depth routing — `foundation/`
 
@@ -37,7 +94,7 @@ entire reason this skill exists.
 | Orientation, identity, at-a-glance | `foundation/00_README.md` |
 | Product surfaces, gating layers, value-moment framework, BCF as deployed | `foundation/01_what_we_do.md` |
 | "What is the platform?" — spine → actors → surfaces → capabilities, as shipped | `foundation/PLATFORM_ANATOMY_CURRENT_STATE.md` |
-| ICP, both lenses, buyer types, our customers' customers, market context | `foundation/02_who_we_serve.md` |
+| ICP, both lenses, buyer types, our customers' customers, **the persona axis**, market context | `foundation/02_who_we_serve.md` |
 | Pricing, tiers, ACV, MRR, revenue targets, migration plan | `foundation/03_how_we_make_money.md` |
 | Competitors, buyer friction, where we win/lose, response playbooks | `foundation/04_market_and_competitors.md` |
 | Active bets, 10-year target, deliberate exclusions | `foundation/05_strategic_direction.md` |
@@ -62,6 +119,12 @@ entire reason this skill exists.
 | Install-base baseline | `foundation/sources/monetization_refresh_2026/10_exec/2026-01-29__q425_customer_base_readout.md` |
 | Selling Motion (Lens 2) — model and methodology | `foundation/sources/customer_segmentation/README.md`, `Customer Segmentation/current/SuperCat_Client_Segmentation_v4.0.md` |
 | Selling Motion (Lens 2) — per-org roster and buyer-type evidence | `Customer Segmentation/current/SuperCat_Customer_Segmentation_v4.0_MASTER.csv`, `foundation/sources/customer_segmentation/account_buyer_type_reads.csv` |
+| Prospect Archetype (pre-sale) — never a segment label on a prospect | `foundation/sources/customer_segmentation/taxonomy/prospect-archetypes.md`, `taxonomy/segment-archetype-mapping.md` |
+| **Persona (third axis) — who *uses* the product, keep/drop reasoning, measured populations** | `foundation/sources/customer_segmentation/personas/PER-00-persona-set.md` + the 7 `PER-0*.md` files |
+| **JTBD — all 31 jobs, primary metric, current state, segment variation** | `foundation/sources/customer_segmentation/analytics/jtbd-register.md` |
+| **Which surface a job lands on, build size, offline constraints** | `foundation/sources/customer_segmentation/product/surface-mapping.md` |
+| **What blocks a job — engineering backlog vs. client-data gaps** | `foundation/sources/customer_segmentation/product/data-gaps.md` |
+| The whole persona/JTBD picture in two pages | `foundation/sources/customer_segmentation/00-SYNTHESIS.md` |
 | "What it looks like deployed" / reference customer | `foundation/sources/insightful_product/01_bcf_instance_profile.md` |
 | Value moments — the catalog itself | `Insightful Product 4.0/foundation/capability/value_moment_catalog.md` |
 | Truth/confidence rules (Tier 0 — wins over `foundation/07`) | `Insightful Product 4.0/foundation/provenance_spine.md` |

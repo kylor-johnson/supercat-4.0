@@ -140,3 +140,32 @@ There is **no canonical install-base count.** 104 / 109 / 110 / 118 / 132 are al
 internally valid under different inclusion rules and dates. Name the one you used
 and its window; never average them or present one as "our customer count." See
 the `supercat-foundation` skill.
+
+## The standard binds on capability claims too, not just figures
+
+Everything above is written about numbers. The same bar applies to **statements about what
+the product does** the moment they enter customer-facing text — an email, a scoping doc, a
+proposal, a commitment on a call.
+
+A capability claim in client copy is a stated fact. Before it ships, it needs the same
+grounding a dollar figure would need: live code, live config, the live KB, or a live page.
+Failures observed 2026-08-25, all three drafted into a client email before being checked:
+
+- "extra columns are picked up as custom fields" — actually requires a `header_` / `footer_`
+  / `item_` prefix; an arbitrarily named column is silently ignored.
+- "smart list visibility is set per user" — it is set per **user group**.
+- "the demo login didn't have ordering enabled" — an inference; the site had ordering on and
+  the actual cause was never established.
+
+Two rules that would have caught all three:
+
+1. **A skill is evidence, not proof.** Skills go stale. On 2026-08-25 two skills documented
+   an HTTP API that returns 404 in production, two KB slugs that 404, and three DB columns
+   that do not exist. When a claim is load-bearing for a client, verify against the live
+   artifact and update the skill when it is wrong.
+2. **Name the inference.** "Most likely X" and "X" read identically once pasted into an
+   email. If you have not verified the cause, write the symptom and say you'll confirm.
+
+Cheapest guard: before sending, reread the draft and ask of each factual sentence, *what did
+I actually check?* Anything answered "the skill said so" or "it follows" gets verified or
+softened.

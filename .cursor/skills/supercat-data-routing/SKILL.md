@@ -46,7 +46,8 @@ would pollute routing. Use exactly this mapping:
 | eOL / portal web analytics | **bigquery-admin** | `google_analytics_ecat_online` |
 | iPad app analytics | **bigquery-admin** | `google_analytics_ecat` |
 | Deals, lifecycle, CSM ownership | **bigquery-admin** | `hubspot` / `hubspot_views` |
-| Billing & subscriptions | **bigquery-admin** | `stripe` |
+| Billing & subscriptions (payments only) | **bigquery-admin** | `stripe` |
+| **What tier an account is on / their rate** | **Pricing Migration CSV**, not BigQuery | `Pricing Migration/migration_comm_tiers_2026-05-19.csv` |
 | Health scoring / onboarding state | **bigquery-admin** | `scorecard`, `onboarding_assessment` |
 | Meeting recordings & transcripts | **Fathom** (if available), else **bigquery** | Fathom MCP, else BigQuery Fathom |
 
@@ -63,7 +64,7 @@ Notes on "enabled?" questions:
 
 ---
 
-## 2) Two HARD preconditions (must-do rules, not tips)
+## 2) HARD preconditions (must-do rules, not tips)
 
 ### Precondition A — Negative results don't prove absence
 
@@ -100,6 +101,33 @@ Rules:
 
 If identity cannot be resolved, **stop and ask** rather than drafting.
 
+### Precondition C — never price an account from the BigQuery rollup
+
+`insightful_product.org_master_with_segments` carries `mrr`, `arr`, `recurring_services` and
+`billing_status`. **Do not use any of it to answer "what is this client paying" or "what tier
+are they on."** Verified failure, 2026-08-25 on `jcusa`: the rollup returned two conflicting
+QuickBooks records for one org, `arr` as both `$0` and `$27,808`, and an MRR of `$715.50`
+whose correct value was **$795**. It also joined the wrong HubSpot company name to the org.
+
+Two specific traps:
+
+- **`recurring_services` is legacy line-item history, not entitlement.** Strings like
+  `eCat Online - B2B Cart`, `- Closed Site`, `- Portal` predate tier packaging. An account
+  can show `Portal` only and still be mid-migration to a tier that includes far more, and a
+  mobile-site flag can be `true` for a feature never on the subscription.
+- **Duplicate and churned QuickBooks rows coexist** for the same org.
+
+Correct routing:
+
+| Question | Source |
+|---|---|
+| Current rate, new rate, tier, driver, deal type (monthly/annual), hold status | `Pricing Migration/migration_comm_tiers_2026-05-19.csv` — columns `current_mrr`, `new_mrr`, `tier`, `deal_type`, `migration_driver`, `comm_action`, `hold_condition`, `flags` |
+| What a tier contains | <https://supercatsolutions.com/pricing> (see `supercat-foundation`) |
+| Anything commercial not in either | Ask Kylor, or Jon / Emery |
+
+Use the rollup for **adoption and segmentation** (`mp_*` usage counters, `segment`,
+`feature_depth`, portal traffic). Those are what it's good for.
+
 ---
 
 ## 3) Known-junk note (so schema discovery isn't fooled)
@@ -128,6 +156,7 @@ the next step. Once the data question is answered, route the follow-up work:
 | iPad file builds and imports | `ecat-core-files`, `ecat-customers-build`, `ecat-pricing-levels`, `ecat-options-and-mapping`, `ecat-images-ftp` |
 | a reactive ticket or client email | `ecat-support-triage` |
 | live DB state by shortname | `ecat-postgres-audit` |
+| apply a live Admin Console change | `ecat-admin-write` |
 
 ---
 
@@ -139,7 +168,9 @@ the next step. Once the data question is answered, route the follow-up work:
 3. If a tool/registry search comes up empty → run **Precondition A** (`list_datasets` on
    bigquery-admin) before concluding anything is missing.
 4. Query the correct source; ignore known-junk tables during schema discovery.
-5. Before answering or drafting, hand off to **`truth-discipline`** — it governs what
+5. If the question is rate / tier / what they pay → **Precondition C** (Pricing Migration CSV,
+   not the BigQuery rollup).
+6. Before answering or drafting, hand off to **`truth-discipline`** — it governs what
    the result is allowed to claim: confidence and completeness tiers, capture vs.
    attribution, invoiced-ERP truth vs. app-order intent, billed ≠ collected, and
    suppress-rather-than-guess. This skill routes you to the right source; it does not

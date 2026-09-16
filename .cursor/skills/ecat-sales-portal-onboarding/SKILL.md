@@ -84,6 +84,35 @@ First row of each order/invoice carries header fields **and** the first line ite
 | **`LastModifiedAt`** | Unix epoch integer (typically ms since 1970-01-01 UTC) on the **first row of each order/invoice only** — omit on continuation line rows. Required by KB for incremental import behavior. |
 | **No stray columns** | Remove ERP-only columns (e.g. `FISCAL_MONTH`). Allowed custom prefixes: `header_`, `footer_`, `item_`. |
 | **Credit memos** | Negative `NetAmount` and negative `QuantityInvoiced` on invoice lines. |
+| **`ItemTrackingCarrier`** | Max **5 chars** — a carrier *code* (`fedex`), not a display name (`FedEx Freight`). Validated against `Tracking.valid_code?`. Same for header `TrackingCarrier`. |
+
+> ### ⚠️ How portal history actually gets deleted
+>
+> **Confirmed in code (master @ 3d99376, 2026-08-25).** A scheduled reaper —
+> `Reapers::ReapPortalData`, run from `Reaper#reap_portal_data` — deletes portal orders and
+> invoices older than **`organization.max_portal_data_age_months`**, a superadmin field on
+> the org (Admin → org superadmin fields). It **only runs when that value is positive**, so
+> an org with it unset or zero keeps everything.
+>
+> Before promising a client "you'll see N years of history," check that setting. It silently
+> caps the window regardless of what they upload, and re-uploading old data won't help — the
+> reaper will take it out again on the next run.
+>
+> **Contrast with `invoice_tracking_data.csv`**, which *is* a full replacement: its importer
+> prelude runs `PortalInvoiceTrackingRecord...delete_all` for the org on every import. Send a
+> partial tracking file and you wipe the rest. Orders and invoices do **not** behave this way
+> — they upsert by order/invoice number.
+>
+> **`LastModifiedAt` gating.** Only rows whose timestamp is newer than what we hold get
+> applied, so an ERP that doesn't advance that value on edit produces silent no-ops. Invisible
+> in the import log — "the import succeeded" says nothing about whether changes landed.
+>
+> **Unverified KB claim, do not repeat.** KB `sales-portal-file-specifications` states the
+> import "will delete all records with dates prior to that minimum date" found in the file.
+> No such logic exists anywhere in the portal import path in current master. It appears to be
+> the KB describing the reaper loosely. Until someone confirms otherwise, **do not tell clients
+> they must resend their full history window on every upload** — partial incremental files are
+> safe for orders and invoices.
 ### Required fields for a first successful load (KB minimum)
 **`order_data.csv` header:** `LastModifiedAt`, `OrderNumber`, `Complete`, `OrderDate`, `Status`, `OrderOrigin`, `CustomerPONumber`, `CustomerBillToNumber`, `CustomerBillToName`, `TotalAmount`
 **`order_data.csv` lines:** `ItemNumber`, `Description`, `QuantityOrdered`, `QuantityInvoiced`, `UnitPrice`
@@ -159,41 +188,60 @@ Also: Dashboard Top Customers / Top Products use **ordered** amounts; invoiced K
 | Shipment tracking | Portal invoice fields or `invoice_tracking_data.csv` |
 | Unsubmitted iPad quotes across territories | **eCat iPad** → shared orders/quotes — not Portal |
 | Offline rep sales summary on iPad | `sales_data.csv` (manual or via `sales_data_sentinel.csv`) — not Portal |
-## 10. Read-only MCP HTTP API (fast first look)
+## 10. Checking what actually loaded
 
-A read-only JSON API in `supercat_server` complements `supercat-postgres-vpn` — same underlying
-data, quicker for a first pass. **The org shortname sits between `/api/v1/` and `mcp`**
-(`config/routes.rb:652,654,710-762`): `/api/v1/<shortname>/mcp/...`.
+> **The `/api/v1/<shortname>/mcp/...` API does not exist in production.** Verified
+> 2026-08-25 against a live org: every endpoint previously listed here returns a Rails JSON
+> `404 No route matches`, under every path variant tried. Auth succeeds, so this is not a
+> credentials problem — the routes are absent. Use `supercat-postgres-vpn`.
 
-| Endpoint | Use |
-|---|---|
-| `GET /api/v1/<shortname>/mcp/organizations/data/import_events.json` | Whether `Order_Data.csv` / `Invoice_Data.csv` actually loaded — same source as Admin → File Import Status. |
-| `GET /api/v1/<shortname>/mcp/organizations/data/orders.json` | Loaded order rows. |
-| `GET /api/v1/<shortname>/mcp/organizations/data/summary.json` | Data summary / counts. |
-| `GET /api/v1/<shortname>/mcp/organizations/data/customers.json` | Loaded customer rows. |
-| `GET /api/v1/<shortname>/mcp/organizations/territories.json` | Territory codes/names. |
-| `GET /api/v1/<shortname>/mcp/organizations/customers/hierarchy.json` | Bill-to / ship-to hierarchy. |
-| `GET /api/v1/<shortname>/mcp/organizations/health.json` (also `health_csv`) | Six-category onboarding scorecard. |
+Confirming an import without opening Admin:
 
-**Auth (verified in code) — admin-only.** `verify_mcp_access` requires `is_admin?` on the user
-or org-user and returns `403` otherwise (`api/v1/mcp/base_controller.rb:12,18-30`).
-`AdminController#authenticate` tries three methods in order (`admin_controller.rb:6-14`):
+```sql
+-- did the portal files land, and how current are they?
+select 'orders' src, count(*), min(order_date), max(order_date)
+from portal_orders where organization_id = :org_id
+union all
+select 'invoices', count(*), min(invoice_date), max(invoice_date)
+from portal_invoices where organization_id = :org_id
+union all
+select 'tracking', count(*), null, null
+from portal_invoice_tracking_records where organization_id = :org_id;
 
-1. **Existing session cookie** — why a browser-logged-in request may succeed with no headers.
-2. **`X-CLIENT-ID` + `X-API-KEY` headers** — the shortname in the URL must match the
-   client-id's org or auth is discarded (`admin_controller.rb:53-65`).
-3. **HTTP Basic** — the practical choice for curl (`admin_controller.rb:21-25`).
+-- import job history (data is YAML; there is no file_name or status column)
+select created_at::date, left(data::text, 200)
+from import_events where organization_id = :org_id
+order by created_at desc limit 10;
 
-Two hard requirements: **HTTPS only** (`prepend_before_action :require_https`) and the
-**`.json` extension is mandatory** — `api_call?` only treats plist/json/csv as API requests
-(`admin_controller.rb:16-19`), so without it you get redirected to the login page and see HTML
-instead of an auth challenge.
-
-```bash
-curl -s "https://<host>/api/v1/<shortname>/mcp/organizations/data/import_events.json" \
-  -u 'USER:PASS'
+-- identity alignment: do portal customer numbers resolve to the customer file?
+select count(distinct customer_bill_to_number) as portal_codes,
+       count(distinct customer_bill_to_number) filter (
+         where customer_bill_to_number in (select code from customers where organization_id = :org_id)
+       ) as matched
+from portal_orders where organization_id = :org_id;
 ```
 
-This is a faster first look, **not** a replacement for `supercat-postgres-vpn` on deeper questions.
+That last query is the fastest way to catch the most common portal failure: ERP bill-to
+codes that don't match `customers.csv`, which produces a portal that loads cleanly and shows
+a buyer nothing.
+
+Then verify in the UI per KB `sales-portal-data-verification`: check user-group **Customer
+list access** and **Customer sales totals access**; compare Dashboard Current YTD / Previous
+YTD / Previous Year; spot-check orders and invoices against source. Note **invoice totals
+include line items but not order surcharges or discounts**, and allow for warehouse lag (§6).
+
+**Order Download API** (KB `order-download-api`) — for clients who want recurring automated
+order pulls rather than Admin Console CSV:
+
+```
+GET https://supercat.supercatsolutions.com/<org>/orders.json    # HTTP Basic
+    ?export_format=stdjsonv2&submit_from=2026-08-01&submit_to=2026-08-31&single_document=1
+```
+
+One JSON document per order per line by default. This covers eCat-submitted orders, **not**
+imported portal history. Needs the org's own API credentials — the Admin credentials in
+`~/.supercat/mcp-credentials.json` return 401. See also `batch-order-transfer-api`,
+`json-order-export-push`, `json-order-fields`.
+
 ## When to hand off to reactive triage
 If the question is "is this a production bug," involves evidence rules (`PROD-REPRO`/`CODE-RISK`/etc.), canonical fixtures (`wwjc/betaverify`), the acceptance verification matrix, or the Rails code map — that's `ecat-support-triage` for the triage loop (identify the org, ground live state, diagnose, draft a reply, never auto-send — and Jira stays read-only), grounded in `PM/Sales Portal Docs/00-SALES-PORTAL-SYSTEM-SPEC.md` for evidence rules, fixtures, and the Rails code map. This skill stops at building and standing up a new portal.
