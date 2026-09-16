@@ -2,6 +2,41 @@
 
 Dated, human-readable log for canon + structure changes. Newest first.
 
+## 2026-09-16 — Anti-Sarreid send set (Tracks 0–3 / 2.5 wrap)
+
+Owner-accepted send set: sarreid, cci, clc, hfg, ali, da, sca. The factory was a
+Sarreid PASS3 clone; everyone else now gets adaptive sections, house/DTC screening
+on the decay extract, hero actions from the live list, and honest cross-sell
+(including ali `Q-CROSS-SELL` gap 0). **No golden freeze** — `config/golden_set.json`
+is not restamped; `./regression.sh` expected-red is accepted.
+
+## 2026-09-15 — Track 2.5 send-blockers (Slot C, identity, same-dealer card, floor copy)
+
+Close the four remaining unsendable defects on hfg/clc/sca/da. No new doctrine.
+**No golden freeze. No LIVE SQL edits.**
+
+- **A1 Slot C:** never drop `coaching_narratives` while coaching cards remain. House-card
+  screens re-key C by rep identity instead of falling through to the decline-walk
+  fallback. Card fallback is slope-aware (`is_real_decline` / grow / cadence-cliff) so a
+  grow-row account cannot be told to “walk the top at-risk account.”
+- **A2 identity:** one `display_rep_label` for L3, leaderboard, cards, and the call list.
+  Agency names on the RS-01 row print even on Tier 1 (BrandJump, not `rep  ` / `rep (1)`).
+  Rows with neither name nor number are omitted from named grids.
+- **A3 same-dealer card:** hero card is **Same-dealer spend change** (`same_base_lift_pct`).
+  §9 uses that label and unit; no “spent −2% more.” NRR `$0.84` sentence is unchanged.
+- **A4 floor copy:** quiet+dark sums say **quiet or dark**. “90+ days” only when the count
+  is `dark_seats`.
+
+## 2026-09-15 — Track 3 product wrap (Q-CROSS-SELL fill, no new religion)
+
+- **B1:** ali `Q-CROSS-SELL.csv` added to the existing `2026-06-30` cache dir (header-only =
+  gap 0). Query executed date-pinned to 2026-06-30 — not live-today — so it matches sibling
+  CSVs. Result: every LED FMT 35W anchor dealer already buys ROMA. sarreid/clc already 0;
+  cci 184; hfg 1; kal 42. No BACKLOG product queries.
+- **B2:** §8 leads with the new-line / YoY finding when that is the story (ali ROMA).
+- **B3:** ali Slot D rewritten to the honest depth sentence. Slot A left as the 1-year
+  new-line story (no overlap to add at gap 0). Play count unchanged.
+
 ## 2026-07-20 — Golden set rebaselined to the 2026-07-16 template voice pass
 
 The `pipeline/templates/*.j2` files were edited 2026-07-16 (voice pass: "doors"→"dealers",

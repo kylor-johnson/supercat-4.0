@@ -288,52 +288,151 @@ def build_coaching_bundle(
 
 # ─── Slot D: Play Framing ─────────────────────────────────────────────────
 
-def build_plays_from_gather(gather: GatherBundle, posture: RunPosture) -> list[dict]:
-    """Deterministic play selection — the LLM never selects plays."""
+def build_plays_from_gather(
+    gather: GatherBundle,
+    posture: RunPosture,
+    fired_signals: list[Signal] | None = None,
+) -> list[dict]:
+    """Select up to three plays from fired signals, ranked by ``Signal.rank``."""
+    if fired_signals is None:
+        from .signals import detect_all
+
+        fired_signals = detect_all(gather, posture)
+
+    eligible = {
+        "cross_sell_pocket",
+        "second_year_gap",
+        "leakage_discipline",
+        "new_line_takeoff",
+        "growth_pocket",
+    }
+    ranked = sorted(
+        (signal for signal in fired_signals if signal.kind in eligible),
+        key=lambda signal: signal.rank,
+        reverse=True,
+    )
+
     plays: list[dict] = []
+    selected_types: set[str] = set()
+    for signal in ranked:
+        if signal.kind in {
+            "cross_sell_pocket",
+            "new_line_takeoff",
+            "growth_pocket",
+        }:
+            if "cross_sell" in selected_types or not (
+                gather.products and gather.families
+            ):
+                continue
+            family_name = str(signal.context.get("family") or "")
+            target = next(
+                (
+                    family
+                    for family in gather.families
+                    if family.family_label == family_name
+                ),
+                gather.families[0],
+            )
+            gap = gather.cross_sell_gap
+            anchor = (
+                gap.anchor_item
+                if gap and gap.anchor_item
+                else gather.products[0].description
+            )
+            from .outreach_screen import looks_like_code
 
-    if gather.cross_sell_gap and gather.cross_sell_gap.count > 0:
-        top_family = None
-        if gather.families:
-            top_family = gather.families[0]
-        plays.append({
-            "type": "cross_sell",
-            "anchor_item": gather.cross_sell_gap.anchor_item,
-            "anchor_dealers": gather.products[0].dealers if gather.products else 0,
-            "target_family": top_family.family_label if top_family else "",
-            "target_ltm": top_family.ltm_revenue if top_family else 0.0,
-            "target_yoy": top_family.yoy_pct if top_family else None,
-            "target_dealers": top_family.dealer_count if top_family else 0,
-            "gap_count": gather.cross_sell_gap.count,
-        })
-
-    if gather.dealers and gather.dealers.second_year_return_rate is not None:
-        if gather.dealers.second_year_return_rate < 0.5:
-            plays.append({
+            title = (
+                f"{target.family_label} cross-sell"
+                if looks_like_code(gather.products[0].description)
+                else (
+                    f"{gather.products[0].description.strip()} "
+                    f"→ {target.family_label} cross-sell"
+                )
+            )
+            play = {
+                "type": "cross_sell",
+                "title": title,
+                "signal_kind": signal.kind,
+                "signal_rank": signal.rank,
+                "anchor_item": anchor,
+                "anchor_dealers": gather.products[0].dealers,
+                "target_family": target.family_label,
+                "target_ltm": target.ltm_revenue,
+                "target_yoy": target.yoy_pct,
+                "target_dealers": target.dealer_count,
+                "gap_available": gap is not None,
+                "gap_count": gap.count if gap is not None else None,
+            }
+            selected_types.add("cross_sell")
+        elif signal.kind == "second_year_gap":
+            if "retention" in selected_types or not gather.dealers:
+                continue
+            play = {
                 "type": "retention",
+                "title": "A second-order push for new dealers",
+                "signal_kind": signal.kind,
+                "signal_rank": signal.rank,
                 "new_dealers": gather.dealers.new_dealers,
                 "returning": gather.dealers.returning,
                 "second_year_return_rate": gather.dealers.second_year_return_rate,
                 "one_time_rev": gather.dealers.one_time_rev,
                 "active_ltm": gather.dealers.active_ltm,
-            })
-
-    if gather.rep_risks:
-        high_leak = [r for r in gather.rep_risks if r.leak_pct is not None and r.leak_pct > 3.0]
-        if high_leak:
-            top_leak = max(high_leak, key=lambda r: r.leak_pct or 0)
-            bottom_leak = min(high_leak, key=lambda r: r.leak_pct or 0)
-            total_leak_dollars = sum(r.dollars_at_risk for r in gather.rep_risks)
-            plays.append({
+            }
+            selected_types.add("retention")
+        else:
+            if "pricing" in selected_types or not gather.rep_risks:
+                continue
+            leak_rows = [
+                risk for risk in gather.rep_risks if risk.leak_pct is not None
+            ]
+            if not leak_rows or max(risk.leak_pct or 0 for risk in leak_rows) <= 10:
+                continue
+            top_leak = max(leak_rows, key=lambda risk: risk.leak_pct or 0)
+            bottom_leak = min(leak_rows, key=lambda risk: risk.leak_pct or 0)
+            play = {
                 "type": "pricing",
-                "top_leak_rep": top_leak.rep_name_tier2,
+                "title": "Pricing / discipline review",
+                "signal_kind": signal.kind,
+                "signal_rank": signal.rank,
+                "top_leak_rep": top_leak.rep_name_tier2
+                or f"rep {top_leak.rep_number}",
                 "top_leak_pct": top_leak.leak_pct,
                 "bottom_leak_pct": bottom_leak.leak_pct,
-                "total_leak_dollars": total_leak_dollars,
+                "total_leak_dollars": sum(
+                    risk.dollars_at_risk for risk in gather.rep_risks
+                ),
                 "inv_ltm_net": posture.inv_ltm_net,
-            })
+            }
+            selected_types.add("pricing")
 
-    return plays[:3]
+        plays.append(play)
+        if len(plays) == 3:
+            break
+
+    return plays
+
+
+def index_play_framing(
+    plays: list[dict], play_framing: list[str] | None
+) -> dict[str, str]:
+    """Map slot-D bodies onto play type. Positional zip — validator enforces
+    that body i matches play i's type, so the template never injects a
+    leakage paragraph under a cross-sell title.
+    """
+    if not plays or not play_framing:
+        return {}
+    indexed: dict[str, str] = {}
+    for play, body in zip(plays, play_framing):
+        if (
+            play["type"] == "cross_sell"
+            and (
+                not play.get("gap_available")
+                or not play.get("gap_count")
+            )
+        ):
+            continue
+        indexed[play["type"]] = body
+    return indexed
 
 
 def build_play_framing_bundle(
@@ -351,8 +450,6 @@ def build_play_framing_bundle(
             target_dealers = play["target_dealers"]
             anchor_dealers = play["anchor_dealers"]
 
-            low, high = estimate_cross_sell_upside(gap_count, target_ltm, target_dealers)
-
             entry_facts = {
                 "anchor_item": play["anchor_item"],
                 "anchor_dealers": anchor_dealers,
@@ -360,12 +457,22 @@ def build_play_framing_bundle(
                 "target_ltm": target_ltm,
                 "target_yoy": play["target_yoy"],
                 "target_dealers": target_dealers,
+                "gap_available": play["gap_available"],
                 "gap_count": gap_count,
             }
-            entry_derived = {
-                "upside_range": f"{_fmt_thousands(low)}-{_fmt_thousands(high)} DIRECTIONAL",
-                "gap_fraction": f"{gap_count} of {anchor_dealers}",
-            }
+            if gap_count is not None and gap_count > 0:
+                low, high = estimate_cross_sell_upside(
+                    gap_count, target_ltm, target_dealers
+                )
+                entry_derived = {
+                    "upside_range": (
+                        f"{_fmt_thousands(low)}-{_fmt_thousands(high)} "
+                        "DIRECTIONAL"
+                    ),
+                    "gap_fraction": f"{gap_count} of {anchor_dealers}",
+                }
+            else:
+                entry_derived = {}
 
         elif ptype == "retention":
             new_dealers = play["new_dealers"]

@@ -46,20 +46,20 @@ Your top customer holds {{ "{:.0f}".format(probe.top1_share) }}% of LTM invoiced
 
 {# ─── rep_overperform ──────────────────────────────────────────────────── #}
 {% macro signal_rep_overperform(sig, rep) -%}
-{{ rep.rep_label or ("rep " ~ rep.rep_number) }} grew {{ "{:+.0f}".format(rep.yoy_pct) }}% year-over-year — ${{ "{:,.2f}".format(rep.ltm_invoiced / 1_000_000) }}M invoiced (LTM) across {{ rep.customer_count }} accounts. That is a field build, not a one-account windfall.
+{{ rep.display_label or rep.rep_label or ("rep " ~ rep.rep_number) }} grew {{ "{:+.0f}".format(rep.yoy_pct) }}% year-over-year — ${{ "{:,.2f}".format(rep.ltm_invoiced / 1_000_000) }}M invoiced (LTM) across {{ rep.customer_count }} accounts. That is a field build, not a one-account windfall.
 {%- endmacro %}
 
 {# ─── rep_underperform ─────────────────────────────────────────────────── #}
 {% macro signal_rep_underperform(sig, rep) -%}
-{{ rep.rep_label or ("rep " ~ rep.rep_number) }} is down {{ "{:.0f}".format(rep.yoy_pct | abs) }}% year-over-year on a ${{ "{:,.2f}".format(rep.ltm_invoiced / 1_000_000) }}M book ({{ rep.customer_count }} accounts). The territory needs a coverage review — a book-wide decline across that many accounts is structural, not one bad break.
+{{ rep.display_label or rep.rep_label or ("rep " ~ rep.rep_number) }} is down {{ "{:.0f}".format(rep.yoy_pct | abs) }}% year-over-year on a ${{ "{:,.2f}".format(rep.ltm_invoiced / 1_000_000) }}M book ({{ rep.customer_count }} accounts). The territory needs a coverage review — a book-wide decline across that many accounts is structural, not one bad break.
 {%- endmacro %}
 
 {# ─── rep_atrisk_book ──────────────────────────────────────────────────── #}
 {% macro signal_rep_atrisk_book(sig, risk) -%}
 {% if risk.accounts_at_risk and risk.accounts_at_risk > 0 -%}
-{{ risk.rep_name_tier2 or ("rep " ~ risk.rep_number) }} carries ${{ "{:,.0f}".format(risk.dollars_at_risk / 1000) }}K at risk across {{ risk.accounts_at_risk }} account{{ "s" if risk.accounts_at_risk != 1 else "" }}{% if risk.leak_pct is not none %} ({{ "{:.1f}".format(risk.leak_pct) }}% leak rate on the book){% endif %}. Walk the top-risk account this week before working the tail.
+{{ risk.display_label or risk.rep_name_tier2 or ("rep " ~ risk.rep_number) }} carries ${{ "{:,.0f}".format(risk.dollars_at_risk / 1000) }}K flagged across {{ risk.accounts_at_risk }} account{{ "s" if risk.accounts_at_risk != 1 else "" }}{% if risk.leak_pct is not none %} ({{ "{:.1f}".format(risk.leak_pct) }}% leak rate on the book){% endif %}. Read the slope on the flagged account before choosing the call shape.
 {%- else -%}
-{{ risk.rep_name_tier2 or ("rep " ~ risk.rep_number) }} shows ${{ "{:,.0f}".format(risk.dollars_at_risk / 1000) }}K of exposure{% if risk.leak_pct is not none %} at a {{ "{:.1f}".format(risk.leak_pct) }}% leak rate{% endif %} — discount-discipline bleed, not account decay (no single account crossed the at-risk threshold). Review discount authority on this book rather than one account.
+{{ risk.display_label or risk.rep_name_tier2 or ("rep " ~ risk.rep_number) }} shows ${{ "{:,.0f}".format(risk.dollars_at_risk / 1000) }}K of exposure{% if risk.leak_pct is not none %} at a {{ "{:.1f}".format(risk.leak_pct) }}% leak rate{% endif %} — discount-discipline bleed, not account decay (no single account crossed the at-risk threshold). Review discount authority on this book rather than one account.
 {%- endif %}
 {%- endmacro %}
 
@@ -139,11 +139,17 @@ No invoiced dollars available on this window. Findings here are drawn from eCat 
 {%- endmacro %}
 
 {% macro action_rep_underperform(rep) -%}
-**Action:** Book a territory review with {{ rep.rep_label or ("rep " ~ rep.rep_number) }} this week. Look for the cluster pattern — is it one account pulling the average down, or a broad-based fade across the book? Different problems, different fixes.
+**Action:** Book a territory review with {{ rep.display_label or rep.rep_label or ("rep " ~ rep.rep_number) }} this week. Look for the cluster pattern — is it one account pulling the average down, or a broad-based fade across the book? Different problems, different fixes.
 {%- endmacro %}
 
-{% macro action_rep_atrisk_book(risk) -%}
-**Action:** Walk the top at-risk account on this book before working the tail. One conversation may explain the pattern; if it does not, triage the rest by days-silent and dollar-at-risk.
+{% macro action_rep_atrisk_book(risk, account=none) -%}
+{% if account and account.is_real_decline -%}
+**Action:** Walk this account this week — the slope is a real decline. One conversation may explain the pattern; if it does not, triage the rest by days-silent and dollar-at-risk.
+{%- elif account and (account.is_cadence_cliff or (account.recent_vs_prior_pct is not none and account.recent_vs_prior_pct > 0)) -%}
+**Action:** Confirm the next order — keep-pace, not a decline walk. This account is growing; do not open it as an at-risk rescue.
+{%- else -%}
+**Action:** Light-touch check-in on the flagged account. Do not open a decline conversation unless the slope is a real decline.
+{%- endif %}
 {%- endmacro %}
 
 {% macro action_cross_sell_pocket() -%}
@@ -209,14 +215,20 @@ No invoiced dollars available on this window. Findings here are drawn from eCat 
 "Running {{ "{:.0f}".format(p | abs) }}% behind last year — early enough to turn around with a check-in. What's the read?"
 {%- elif account.is_real_decline -%}
 "{{ d }} days since the last order on a formerly steady account. What shifted — timing, or something bigger?"
-{%- elif d and d > 60 -%}
+{%- elif d and d > 60 and (p is none or p <= 5) -%}
 "It's been {{ d }} days. What changed — project on hold, or did we lose the slot?"
 {%- elif p is not none and p <= -20 -%}
 "Ordering is running about {{ "{:.0f}".format(p | abs) }}% behind its recent pace. Worth a direct call — what's shifting?"
 {%- elif p is not none and p < -5 -%}
 "Pace has eased off {{ "{:.0f}".format(p | abs) }}%. A quick check-in now, before it settles into a trend."
 {%- elif p is not none and p > 5 -%}
-"Still pacing up ({{ "{:+.0f}".format(p) }}%) — this is a reinforce-the-relationship call, not a rescue. What else can we load in?"
+{%- if d and d <= 7 -%}
+"Up {{ "{:+.0f}".format(p) }}% on a ${{ "{:,.0f}".format(account.ltm_rev / 1000) }}K book and ordered {{ d }} day{{ "s" if d != 1 else "" }} ago — keep-pace, not a rescue. What else can we load in?"
+{%- elif d and d > 21 -%}
+"Still pacing up ({{ "{:+.0f}".format(p) }}%) on ${{ "{:,.0f}".format(account.ltm_rev / 1000) }}K but {{ d }} days quiet. Confirm the next order is on the calendar."
+{%- else -%}
+"Still pacing up ({{ "{:+.0f}".format(p) }}%) on a ${{ "{:,.0f}".format(account.ltm_rev / 1000) }}K book — reinforce the relationship, not a rescue. What else can we load in?"
+{%- endif -%}
 {%- else -%}
 "Ordering pace shifted recently — worth a quick check-in. What's the read on your end?"
 {%- endif -%}
@@ -247,13 +259,6 @@ The invoice data carries **{{ posture.distinct_origins }} distinct order-origin 
 
 No invoice data exists for {{ posture.org }} on the trailing-twelve-month window (zero invoices, $0 net). Without invoiced dollars, there is no revenue outcome to report. {{ section_name }} is suppressed. This brief stays on in-app activity only — no rep-to-revenue claim is made.
 {#- [Commerce confidence NONE — section suppressed] -#}
-{%- endmacro %}
-
-{% macro suppression_rep_tier(posture) -%}
-### Coaching cards — **not rendered at this rep-identity tier**
-
-The rep-name bridge for {{ posture.org }} resolves **{{ posture.name_bridge_pct }}%** of invoice reps to named people — below the 82% threshold required for coaching cards. The leaderboard above renders at **rep-code grain** (no names); coaching cards require named reps and are suppressed for this org. See the Appendix for which rows did not resolve to a name (they are never silently dropped from the leaderboard).
-{#- [Rep identity tier {{ posture.rep_identity_tier }} — coaching cards suppressed] -#}
 {%- endmacro %}
 
 {% macro suppression_feed_stale(posture) -%}

@@ -402,15 +402,24 @@ def detect_rep_atrisk_book(risk: RepRisk) -> Optional[Signal]:
 
 
 def detect_cross_sell_pocket(anchor: ProductRow, target_family: FamilyRollup, gather: GatherBundle) -> Optional[Signal]:
-    if target_family.yoy_pct is None or target_family.yoy_pct < 10:
+    if gather.cross_sell_gap is None:
         return None
-    if anchor.dealers < 5 or target_family.dealer_count < 5:
+    if target_family.dealer_count < 5:
         return None
     w = SIGNAL_WEIGHTS["cross_sell_pocket"]
+    gap_count = gather.cross_sell_gap.count
     return Signal(
         kind="cross_sell_pocket",
         section="products",
-        headline=f"Dealers buying {anchor.item_number} but not {target_family.family_label}",
+        headline=(
+            f"{gap_count} dealers buying {anchor.item_number} have not bought "
+            f"{target_family.family_label}"
+            if gap_count > 0
+            else (
+                f"{anchor.item_number} buyers already overlap fully with "
+                f"{target_family.family_label}"
+            )
+        ),
         surprise=w["surprise"],
         dollar_impact=target_family.ltm_revenue * CROSS_SELL_ADDRESSABLE_FRACTION,
         actionability=w["actionability"],
@@ -562,6 +571,13 @@ def detect_all(gather: GatherBundle, posture: RunPosture) -> list[Signal]:
         if sig:
             signals.append(sig)
         sig = detect_new_line_takeoff(family)
+        if sig:
+            signals.append(sig)
+
+    if gather.products and gather.families:
+        sig = detect_cross_sell_pocket(
+            gather.products[0], gather.families[0], gather
+        )
         if sig:
             signals.append(sig)
 

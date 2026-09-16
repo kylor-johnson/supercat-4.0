@@ -36,6 +36,39 @@ class AccountDecay:
     last_invoice_date: str
 
     @property
+    def has_display_name(self) -> bool:
+        """True when bill_to_name is a real account name, not a code or blank."""
+        from .outreach_screen import looks_like_code
+
+        name = (self.bill_to_name or "").strip()
+        if looks_like_code(name):
+            return False
+        if self.bill_to_number and name.casefold() == self.bill_to_number.casefold():
+            return False
+        return True
+
+    @property
+    def has_display_rep(self) -> bool:
+        """True when rep_label is a person/agency name, not a code."""
+        from .outreach_screen import looks_like_code
+
+        label = (self.rep_label or "").strip()
+        if looks_like_code(label):
+            return False
+        if re.fullmatch(r"rep\s*\S+", label, re.I):
+            return False
+        return True
+
+    @property
+    def display_label(self) -> Optional[str]:
+        """Call-list / watchlist identity — never a blank ``rep  `` or ``rep (n)``."""
+        return display_rep_label(
+            rep_name_tier2=self.rep_label,
+            rep_number=self.rep_number,
+            rep_label=self.rep_label,
+        )
+
+    @property
     def is_real_decline(self) -> bool:
         if self.prior_6mo <= 0:
             return False
@@ -77,6 +110,14 @@ class RepRow:
     customer_count: int
     is_house: bool
 
+    @property
+    def display_label(self) -> Optional[str]:
+        return display_rep_label(
+            rep_name_tier2=self.rep_name_tier2,
+            rep_number=self.rep_number,
+            rep_label=self.rep_label,
+        )
+
 
 @dataclass
 class RepRisk:
@@ -86,6 +127,14 @@ class RepRisk:
     accounts_at_risk: int
     leak_dollars: Optional[float]
     leak_pct: Optional[float]
+
+    @property
+    def display_label(self) -> Optional[str]:
+        return display_rep_label(
+            rep_name_tier2=self.rep_name_tier2,
+            rep_number=self.rep_number,
+            rep_label=self.rep_name_tier2,
+        )
 
 
 @dataclass
@@ -343,6 +392,11 @@ class GatherBundle:
     rep_activity: Optional[RepActivityRow] = None
     rep_coverage: Optional[RepCoverageRow] = None
     rep_quote_discipline: Optional[RepQuoteDisciplineRow] = None
+    # Set by outreach_screen.apply — count of decay / coaching rows dropped
+    # by the house / DTC / org-self screen before the top-7 cut.
+    outreach_screened: int = 0
+    outreach_reordered: bool = False
+    house_cards_screened: int = 0
 
     @property
     def named_families(self) -> list["FamilyRollup"]:
@@ -396,6 +450,55 @@ def _s(v) -> str:
 
 
 _REP_LABEL_RE = re.compile(r"^rep\s+(\S+)$", re.I)
+
+
+def display_rep_label(
+    *,
+    rep_name_tier2: Optional[str] = None,
+    rep_number: Optional[str] = None,
+    rep_label: Optional[str] = None,
+) -> Optional[str]:
+    """One identity string for L3, leaderboard, coaching cards, and the call list.
+
+    Priority: a real name on the row (agency or person — identity, not a
+    fabricated person) → ``rep {n}`` from ``rep_number`` → the RS-01
+    ``rep_label`` field Slot E already read. Never a blank ``rep  ``, never
+    a positional ``rep (1)`` when a code or name exists. Returns None when
+    the row has neither, so named grids can omit it.
+    """
+    from .outreach_screen import looks_like_code
+
+    def _clean(value: Optional[str]) -> str:
+        return (value or "").strip()
+
+    def _is_name(value: str) -> bool:
+        if not value:
+            return False
+        if _REP_LABEL_RE.fullmatch(value):
+            return False
+        if looks_like_code(value):
+            return False
+        return True
+
+    def _as_rep_code(value: str) -> str:
+        if _REP_LABEL_RE.fullmatch(value):
+            return f"rep {value.split(None, 1)[1]}"
+        if value.lower().startswith("rep "):
+            return value
+        return f"rep {value}"
+
+    name = _clean(rep_name_tier2)
+    if _is_name(name):
+        return name
+    number = _clean(rep_number)
+    if number:
+        return _as_rep_code(number)
+    fallback = _clean(rep_label)
+    if _is_name(fallback):
+        return fallback
+    if fallback:
+        return _as_rep_code(fallback)
+    return None
 
 
 def _extract_rep_number(row: dict) -> str:
@@ -897,14 +1000,18 @@ def gather_all(org: str, date: str) -> GatherBundle:
         bundle.families = derive_description_families(bundle.products)
     bundle.dealers = load_dealer_cohort(_read_csv(paths.csv_for("Q-DEALER-COHORT")))
 
-    # Populate accounts_at_risk from decay data (C2 CSV lacks this column)
+    # House / DTC / org-self screen BEFORE the top-7 cut. The auto-rule and
+    # per-org EXCLUDE table lived on rep-grain SQL; the decay extract that
+    # feeds the call list never applied them (cci HOUSE ACCOUNT, hfg DTC).
+    from . import outreach_screen as _outreach_screen
+
+    _outreach_screen.apply(bundle)
+
+    # Populate accounts_at_risk from the screened decay (C2 CSV lacks this column)
     for risk in bundle.rep_risks:
         risk.accounts_at_risk = sum(
             1 for a in bundle.decay if a.rep_number == risk.rep_number
         )
-
-    # Pre-sort outreach list per operator §5a.3
-    bundle.outreach_list = sorted(bundle.decay, key=outreach_sort_key, reverse=True)[:7]
 
     cs_path = paths.csv_for("Q-CROSS-SELL")
     if cs_path.exists():

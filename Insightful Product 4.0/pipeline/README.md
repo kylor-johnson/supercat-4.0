@@ -26,8 +26,12 @@ For the end-to-end run instructions, see
   `cache → preflight → gather → signals → assemble`.
 
 **It is not:**
-- A free-text generator. The only LLM contribution is one synthesis sentence
-  in §1, cached on first run. Everything else is deterministic templates.
+- A free-text generator. Six bounded prose slots (hero, talking points,
+  coaching, plays, growth connective, outreach) may be filled by an LLM or
+  by a Cursor agent writing `outputs/{org}_prose_{date}.json`. Every slot
+  has a fact bundle, a number-parity / voice gate, and a **deterministic
+  template fallback**. The LLM expresses; it never selects or computes.
+  Without a prose file or API key the report still ships.
 - A profile-ratification workflow. Profiles get ratified one-at-a-time
   when a prospect graduates to a real demo — the pipeline can *emit*
   inline drafts under `--cohort-validation`, but human ratification is
@@ -56,13 +60,10 @@ foundation/query_library_v2.md  ──►  cache.py  (extract SQL, execute, writ
                           ┌─────────────┴─────────────┐
                           ▼                           ▼
                     narrative.py               assemble.py  (Jinja2 → MD)
-                    (§1 hero, LLM)                    │
+                    (six prose slots)                 │
                           └─────────────┬─────────────┘
                                         ▼
                         outputs/{org}_DRAFT_{date}.md
-                                        │
-                                        ▼
-                             (surgical hand-edit → )
                                         │
                                         ▼
                         report_render/  →  outputs/{Org}_CEO_intelligence_report_{date}.html
@@ -77,7 +78,7 @@ foundation/query_library_v2.md  ──►  cache.py  (extract SQL, execute, writ
 | `gather`        | cache CSVs         | typed data bundles            | runs SQL |
 | `signals`       | gather + posture   | fired `Signal` list           | writes prose |
 | `assemble`      | posture + gather + signals | rendered Markdown     | runs SQL, detects signals |
-| `narrative`     | posture + top signals + few-shot | §1 hero string  | reads cache directly |
+| `narrative`     | posture + gather + signals | six slot strings (or fallback) | reads cache directly |
 | `smoke_check`   | draft MD           | pass/fail                     | is a gate library |
 
 ---
@@ -122,11 +123,13 @@ pipeline/
   when local creds aren't set up, the agent can populate cache through
   MCP + `cache.import_from_dicts(query_id, org, date, rows)`.
 
-**LLM (for §1 hero framing):**
-- `ANTHROPIC_API_KEY` in env. Optional: `INSIGHTFUL_NARRATIVE_MODEL`
-  (defaults to a Claude sonnet). Without a key, `narrative.py` logs
-  `ANTHROPIC_API_KEY not set — skipping` and inserts a NOT-GENERATED
-  placeholder for the surgical editor. Pipeline never crashes on this.
+**LLM (for the six prose slots):**
+- `ANTHROPIC_API_KEY` in env. Optional: `INSIGHTFUL_NARRATIVE_MODEL`.
+  Without a key, the pipeline looks for `outputs/{org}_prose_{date}.json`
+  (agent-authored). If that file is missing, every slot falls back to
+  deterministic template prose. Pipeline never crashes on this. The
+  archived surgical-edit step (`pipeline/_archive/SURGICAL_EDIT_GUIDE.md`)
+  is not part of the run.
 
 ---
 
@@ -144,7 +147,7 @@ pipeline/
 # smoke-check the draft
 .venv-renderer/bin/python -m pipeline.smoke_check outputs/sarreid_DRAFT_2026-06-30.md
 
-# surgical edit → then render to HTML
+# render to HTML (prose already in the draft via slots or template fallback)
 .venv-renderer/bin/python -m report_render.html_renderer outputs/sarreid_DRAFT_2026-06-30.md
 ```
 

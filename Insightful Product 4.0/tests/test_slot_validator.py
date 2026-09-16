@@ -9,9 +9,12 @@ from pipeline.slot_validator import (
     _bundle_values,
     _extract_numbers,
     _traces,
+    align_coaching_narratives,
     check_number_parity,
+    check_play_alignment,
     check_structure,
     check_voice_lint,
+    reorder_play_framing,
     validate_slot,
 )
 
@@ -220,3 +223,102 @@ def test_validate_slot_fails_on_invented():
     passed, violations = validate_slot("B", output, BUNDLE_BASIC, expected_count=2)
     assert not passed
     assert len(violations) > 0
+
+
+# ─── Slot D play-title vs body alignment (ali / hfg defect) ────────────────
+
+def test_play_alignment_pricing_body_under_cross_sell_fails():
+    """ali: play 1 titled ROMA cross-sell, slot D body was $25K leak rates."""
+    plays = [{"type": "cross_sell", "target_family": "ROMA", "anchor_item": "LED FMT"}]
+    framing = [
+        "$25K flagged across the rep base in discretionary-price dispersion — "
+        "0.34% of $7.3M invoiced. Leak rates run 5.6% to 7.1%."
+    ]
+    issues = check_play_alignment(plays, framing)
+    assert issues, "expected mismatch to fail"
+    assert any("cross_sell" in i for i in issues)
+
+
+def test_play_alignment_pricing_body_under_retention_fails():
+    """hfg: play 2 titled second-order push, slot D body was discount leakage."""
+    plays = [
+        {"type": "cross_sell", "target_family": "Axis"},
+        {"type": "retention", "second_year_return_rate": 0.56},
+    ]
+    framing = [
+        "The Axis family is the cross-sell target.",
+        "Discount leakage is immaterial: about $46K across the whole rep base.",
+    ]
+    issues = check_play_alignment(plays, framing)
+    assert any("retention" in i for i in issues)
+
+
+def test_play_alignment_length_mismatch_fails():
+    plays = [{"type": "cross_sell", "target_family": "Jupe"}]
+    framing = ["Jupe overlap list.", "Second-year return rate 46.9%."]
+    issues = check_play_alignment(plays, framing)
+    assert any("expected 1" in i and "got 2" in i for i in issues)
+
+
+def test_play_alignment_matching_bodies_pass():
+    plays = [
+        {"type": "cross_sell", "target_family": "Jupe", "anchor_item": "Lilac"},
+        {"type": "retention"},
+        {"type": "pricing"},
+    ]
+    framing = [
+        "The Lilac Sideboard → Jupe family cross-sell. Dealers who never bought Jupe.",
+        "743 dealers placed a first order last year and 46.9% came back. Second-year return rate.",
+        "About $171K sits in discount leakage. Cookie Birardi at 14.1% leak rate.",
+    ]
+    assert check_play_alignment(plays, framing) == []
+
+
+def test_play_alignment_empty_framing_passes():
+    assert check_play_alignment([{"type": "cross_sell"}], None) == []
+    assert check_play_alignment([], []) == []
+
+
+def test_rank_change_rekeys_complete_old_play_array_without_json_rewrite():
+    plays = [
+        {"type": "retention"},
+        {"type": "cross_sell", "target_family": "Jupe"},
+        {"type": "pricing"},
+    ]
+    old_order = [
+        "The Jupe family is the cross-sell target.",
+        "The second-year return rate needs a reorder push.",
+        "Discount leakage warrants a pricing review.",
+    ]
+    reordered = reorder_play_framing(plays, old_order)
+    assert reordered == [old_order[1], old_order[0], old_order[2]]
+    assert check_play_alignment(plays, reordered) == []
+
+
+class _CardRep:
+    def __init__(self, name=None, number=None):
+        self.rep_name_tier2 = name
+        self.rep_number = number
+
+
+def test_align_coaching_keeps_positional_when_lengths_match():
+    cards = [_CardRep("Envision Lighting Sales", "1"), _CardRep("Philip Winston Inc", "2")]
+    bodies = ["Envision keep-pace", "Philip growing"]
+    assert align_coaching_narratives(cards, bodies) == bodies
+
+
+def test_align_coaching_rekeys_when_house_card_removed():
+    cards = [_CardRep("Envision Lighting Sales", "1"), _CardRep("Philip Winston Inc", "2")]
+    bodies = [
+        "HOUSE ACCOUNT walk the top at-risk account",
+        "Envision Lighting Sales keep-pace on Lighting & Locks",
+        "Philip Winston Inc growing",
+    ]
+    aligned = align_coaching_narratives(cards, bodies)
+    assert aligned[0].startswith("Envision")
+    assert aligned[1].startswith("Philip")
+    assert "HOUSE ACCOUNT" not in "".join(aligned)
+
+
+def test_align_coaching_none_when_no_cards():
+    assert align_coaching_narratives([], ["body"]) is None

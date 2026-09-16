@@ -1,0 +1,70 @@
+"""House / DTC / org-self screen — applied to decay BEFORE the top-7 cut."""
+from __future__ import annotations
+
+from pipeline.gather import AccountDecay
+from pipeline.outreach_screen import (
+    account_is_screened,
+    looks_like_code,
+    parse_profile_screens,
+    screen_accounts,
+)
+
+
+def _acct(**kwargs) -> AccountDecay:
+    defaults = dict(
+        bill_to_number="X",
+        bill_to_name="Dealer Co",
+        rep_number="1",
+        rep_label="Jane Rep",
+        ltm_rev=100_000.0,
+        recent_6mo=40_000.0,
+        prior_6mo=60_000.0,
+        recent_vs_prior_pct=-33.0,
+        days_silent=10,
+        mean_order_gap_days=20.0,
+        lifetime_invoices=12,
+        last_invoice_date="2026-06-01",
+    )
+    defaults.update(kwargs)
+    return AccountDecay(**defaults)
+
+
+def test_house_auto_rule_screens_house_account_label():
+    rules = parse_profile_screens("")
+    house = _acct(rep_label="HOUSE ACCOUNT", bill_to_name="LIGHTING NEW YORK")
+    dealer = _acct(rep_label="JASON SCHLEICH", bill_to_name="LIGHTOLOGY")
+    assert account_is_screened(house, rules)
+    assert not account_is_screened(dealer, rules)
+
+
+def test_profile_dtc_codes_screen_hfg_webstores():
+    profile = """
+## 4. House / sample / internal accounts to screen
+
+- `10505` Handmade In Vermont.com (~$716K LTM) — HF's own DTC site
+- `35639` Shop Hubbardton Forge (~$559K LTM) — HF's own retail site
+- **`rep_number = NENOREP`** ($1.35M LTM) — a no-rep placeholder bucket
+"""
+    rules = parse_profile_screens(profile)
+    dtc = _acct(bill_to_number="10505", bill_to_name="", rep_number="NENOREP", rep_label=None)
+    other = _acct(bill_to_number="1489", bill_to_name="", rep_number="CANOREP")
+    kept, dropped = screen_accounts([dtc, other], rules)
+    assert [a.bill_to_number for a in dropped] == ["10505"]
+    assert [a.bill_to_number for a in kept] == ["1489"]
+
+
+def test_looks_like_code_for_unnamed_and_numeric():
+    assert looks_like_code("")
+    assert looks_like_code("(unnamed)")
+    assert looks_like_code("0003476")
+    assert looks_like_code("10505")
+    assert not looks_like_code("France and Sons")
+    assert not looks_like_code("LIGHTING NEW YORK")
+
+
+def test_looks_like_code_for_hfg_pipe_delimited_sku_description():
+    raw = (
+        '9N00145405-3-14-DL105 | TYPE DL-105 | 34.5" H x 64.5" D '
+        'x 92.5" L | OPEN CENTER'
+    )
+    assert looks_like_code(raw)

@@ -230,6 +230,17 @@ def main() -> int:
 
     profile_text = profile_path.read_text(encoding="utf-8") if has_ratified else ""
 
+    from . import fact_bundles as fb
+    from .slot_validator import (
+        align_coaching_narratives,
+        check_play_alignment,
+        reorder_play_framing,
+    )
+
+    plays = fb.build_plays_from_gather(bundle, posture, fired)
+    card_reps = [r for r in bundle.rep_risks if r.accounts_at_risk > 0][:5]
+    slot_d_fail = False
+
     # Multi-slot LLM prose generation
     import json as _json
 
@@ -240,11 +251,8 @@ def main() -> int:
     if not args.no_narrative:
         # Always write bundles first (enables agent-driven prose generation)
         try:
-            from . import fact_bundles as fb
             top_signals = sorted(fired, key=lambda s: s.rank, reverse=True)[:7]
-            outreach_list = sorted(bundle.decay, key=lambda a: a.ltm_rev, reverse=True)[:7]
-            card_reps = [r for r in bundle.rep_risks if r.accounts_at_risk > 0][:5]
-            plays = fb.build_plays_from_gather(bundle, posture)
+            outreach_list = list(bundle.outreach_list)
 
             all_bundles = {
                 "slot_a_bundle": fb.build_hero_bundle(posture, top_signals, bundle),
@@ -280,6 +288,59 @@ def main() -> int:
                 }
                 active = sum(1 for v in prose_vars.values() if v is not None)
                 print(f"slots: loaded {active}/6 from {prose_file.name}")
+
+                # Outreach list changed after house/DTC screen — old slot B/F
+                # bodies are zipped onto the wrong rows. Fall back to template.
+                if bundle.outreach_screened or bundle.outreach_reordered:
+                    prose_vars["talking_points"] = None
+                    prose_vars["outreach_framing"] = None
+                    reasons = []
+                    if bundle.outreach_screened:
+                        reasons.append(
+                            f"{bundle.outreach_screened} house/DTC rows screened"
+                        )
+                    if bundle.outreach_reordered:
+                        reasons.append("actionability ranking changed row order")
+                    print(
+                        f"slots: dropped talking_points/outreach_framing "
+                        f"({'; '.join(reasons)})"
+                    )
+                # Slot C must ship whenever coaching cards render. House-card
+                # screens used to null the whole array, which left grow-row
+                # cards on the decline-walk fallback (clc Envision / Lighting
+                # & Locks). Re-key if the prose array drifted; never drop C
+                # while _card_reps is non-empty.
+                original_c = prose_vars.get("coaching_narratives")
+                if card_reps:
+                    aligned_c = align_coaching_narratives(card_reps, original_c)
+                    if aligned_c != original_c:
+                        prose_vars["coaching_narratives"] = aligned_c
+                        print(
+                            "slots: re-keyed coaching_narratives to remaining cards"
+                        )
+                elif original_c:
+                    prose_vars["coaching_narratives"] = None
+                    print("slots: dropped coaching_narratives (no cards after screen)")
+
+                original_play_framing = prose_vars.get("play_framing")
+                aligned_play_framing = reorder_play_framing(
+                    plays, original_play_framing
+                )
+                if aligned_play_framing != original_play_framing:
+                    prose_vars["play_framing"] = aligned_play_framing
+                    print(
+                        "slots: re-keyed play_framing to ranked play order "
+                        "(prose JSON unchanged)"
+                    )
+                d_issues = check_play_alignment(
+                    plays, prose_vars.get("play_framing")
+                )
+                if d_issues:
+                    slot_d_fail = True
+                    prose_vars["play_framing"] = None
+                    print("slots: SLOT-D-MISMATCH — falling back to template bodies")
+                    for issue in d_issues:
+                        print(f"  - {issue}")
             except Exception as e:
                 print(f"slots: prose file exists but failed to load ({e})")
                 prose_vars = {}
@@ -319,6 +380,7 @@ def main() -> int:
         growth_connective=prose_vars.get("growth_connective"),
         outreach_framing=prose_vars.get("outreach_framing"),
         inline_draft_profile=not has_ratified,
+        plays=plays,
     )
 
     gatestop = posture.report_mode == "Gate-STOP"
@@ -338,6 +400,10 @@ def main() -> int:
             for i in issues:
                 print(f"  - {i}")
             return 1
+
+    if slot_d_fail:
+        print("SLOT-D-MISMATCH: play_framing does not match selected plays — run failed")
+        return 1
 
     return 0
 

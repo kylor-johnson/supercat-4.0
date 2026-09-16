@@ -71,6 +71,7 @@ def assemble_report(
     growth_connective: Optional[dict[str, str]] = None,
     outreach_framing: Optional[str] = None,
     inline_draft_profile: bool = False,
+    plays: Optional[list[dict]] = None,
 ) -> str:
     """Top-level assembly. Always uses _base.md.j2 regardless of mode.
 
@@ -78,15 +79,26 @@ def assemble_report(
     so run.sh can detect them and exit 2. But the template is the same for all
     modes — thin-data sections degrade gracefully through their own fallback paths.
     """
+    from . import fact_bundles as fb
+    from .availability import build_availability, outreach_mix
+    from .hero_sanitizer import sanitize_hero_framing
+
+    plays = plays or []
+    play_framing_by_type = fb.index_play_framing(plays, play_framing)
+    availability = build_availability(gather, posture, plays)
     context = {
         "posture": posture,
         "gather": gather,
         "signals": signals,
         "profile_text": profile_text,
-        "hero_framing": hero_framing,
+        "hero_framing": sanitize_hero_framing(hero_framing),
         "talking_points": talking_points,
         "coaching_narratives": coaching_narratives,
         "play_framing": play_framing,
+        "play_framing_by_type": play_framing_by_type,
+        "plays": plays,
+        "availability": availability,
+        "outreach_mix": outreach_mix(gather),
         "growth_connective": growth_connective,
         "outreach_framing": outreach_framing,
         "inline_draft_profile": inline_draft_profile,

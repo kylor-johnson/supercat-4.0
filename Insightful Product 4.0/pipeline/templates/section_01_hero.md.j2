@@ -24,6 +24,38 @@
 <!--slot:A-->
 {{ hero_framing }}
 <!--/slot:A-->
+{% if posture.commerce_confidence == "NONE" %}
+> *Every eCat dollar above is a confirmed-order floor, not invoiced revenue or total business.*
+{% endif %}
+{% set _hero_activity = gather.rep_activity if (gather.rep_activity and gather.rep_activity.any_data) else none -%}
+{% set _hero_coverage = gather.rep_coverage if (gather.rep_coverage and gather.rep_coverage.any_data) else none -%}
+{% set _hero_stale = gather.data_freshness | selectattr("status", "equalto", "Stale") | list -%}
+{% if gather.outreach_list or gather.rep_risks or plays or _hero_activity or _hero_coverage or _hero_stale %}
+
+**Priority actions, by cadence:**
+
+{% if posture.commerce_confidence != "NONE" -%}
+{% if gather.outreach_list -%}
+- **This week:** {{ gather.outreach_list | length }} call{{ "s" if gather.outreach_list | length != 1 else "" }} — {% for account in gather.outreach_list %}{{ account.bill_to_name or account.bill_to_number or "(unnamed)" }}{% if not loop.last %} · {% endif %}{% endfor %}.
+{%- endif %}
+{% if gather.rep_risks -%}
+- **This week:** Walk the top coaching cards at {% if posture.rep_identity_tier == 2 %}named-rep{% else %}rep-code{% endif %} grain — **~${{ "{:,.2f}".format((gather.rep_risks[:5] | sum(attribute='dollars_at_risk')) / 1_000_000) }}M of at-risk dollars** to act on.
+{%- endif %}
+{% if plays -%}
+- **This month:** {{ plays | length }} play{{ "s" if plays | length != 1 else "" }} — {% for play in plays %}{{ play.title }}{% if not loop.last %} · {% endif %}{% endfor %}.
+{%- endif %}
+{%- else -%}
+{% if _hero_activity and (_hero_activity.quiet_seats > 0 or _hero_activity.dark_seats > 0) -%}
+- **This week:** work the {{ _hero_activity.quiet_seats + _hero_activity.dark_seats }} quiet or dark seats — re-establish the platform habit before expanding the program.
+{%- endif %}
+{% if _hero_coverage and _hero_coverage.coverage_pct is not none -%}
+- **This month:** lift platform coverage past {{ "{:.1f}".format(_hero_coverage.coverage_pct) }}% — {{ "{:,}".format(_hero_coverage.untouched_customers) }} accounts were not touched in the last 90 days.
+{%- endif %}
+{% if _hero_stale -%}
+- **Data upkeep:** confirm whether the {{ _hero_stale | length }} stale configuration areas are intentionally static or need a refresh.
+{%- endif %}
+{%- endif %}
+{% endif %}
 {%- else -%}
 {% if posture.inv_ltm_net > 0 -%}
 {% set top_signals = signals | sort(attribute='rank', reverse=True) -%}
@@ -78,8 +110,12 @@ Your existing accounts {% if posture.is_stale %}were{% else %}are{% endif %} spe
 3. **{{ gather.decay | length }} accounts sit on the watchlist — ${{ "{:,.2f}".format((gather.decay | sum(attribute='ltm_rev')) / 1_000_000) }}M LTM at risk{% if posture.commerce_confidence != "STRONG" %} (directional — partial feed floor){% endif %}.** The watchlist is not short. It needs a territory-by-territory read, not a blanket approach.
 {% elif gather.channel_decomposition_ok and gather.channels_mapped[0].share_pct > 60 -%}
 3. **{{ gather.channels_mapped[0].label }} accounts for {{ "{:.0f}".format(gather.channels_mapped[0].share_pct) }}% of booked revenue.** A single channel decision at that concentration level moves the topline.
+{% elif gather.nrr and gather.nrr.nrr_pct is not none -%}
+3. **The same-dealer base spent ${{ "{:.2f}".format(gather.nrr.nrr_pct / 100) }} for every $1 last year.** Growing accounts added ${{ "{:,.1f}".format(gather.nrr.expansion_dollars / 1_000_000) }}M; shrinking and lapsed ones gave back ${{ "{:,.1f}".format((gather.nrr.contraction_dollars | abs) / 1_000_000) }}M.
+{% elif gather.dealers and gather.dealers.same_base_lift_pct is not none -%}
+3. **{{ "{:,}".format(gather.dealers.returning) }} dealers spent ${{ "{:.2f}".format(1 + gather.dealers.same_base_lift_pct / 100) }} for every prior-year dollar.**
 {% else -%}
-3. **The data shows where the money is moving. The cause behind each slope needs a phone call — not an assumption.** Every finding here is a named conversation with a named person and a named dollar.
+3. **Named accounts on this brief carry a named dollar and a named slope.** The cause behind each one still needs a call.
 {% endif -%}
 {%- endif %}
 
@@ -89,16 +125,15 @@ Your existing accounts {% if posture.is_stale %}were{% else %}are{% endif %} spe
 - **First — refresh the invoice feed.** It went quiet {{ posture.stale_age_phrase }} ago ({{ posture.erp_asof_stamp }}); the at-risk list below is that frozen window, not a live one. Nothing here should be called cold until a current feed re-verifies it.
 - **Then — work the live eCat channel.** ${{ "{:,.2f}".format(posture.ecat_ltm_confirmed_gmv / 1_000_000) }}M of confirmed order volume is current — a live floor ({{ posture.ecat_live_stamp }}). The accounts still ordering there are the live recovery base.
 {%- else -%}
-{% if gather.decay -%}
-- **This week:** {{ [gather.decay | length, 7] | min }} named calls on the at-risk list — {% for a in gather.decay[:7] %}{{ a.bill_to_name or a.bill_to_number or "(unnamed)" }}{% if not loop.last %} · {% endif %}{% endfor %}.
+{% if gather.outreach_list -%}
+- **This week:** {{ gather.outreach_list | length }} call{{ "s" if gather.outreach_list | length != 1 else "" }} on the at-risk list — {% for a in gather.outreach_list %}{{ a.bill_to_name or a.bill_to_number or "(unnamed)" }}{% if not loop.last %} · {% endif %}{% endfor %}.
 {%- endif %}
 {% if gather.rep_risks -%}
-- **This week:** Walk the top coaching cards with each named rep — **~${{ "{:,.2f}".format((gather.rep_risks[:5] | sum(attribute='dollars_at_risk')) / 1_000_000) }}M of at-risk dollars** to act on.
+- **This week:** Walk the top coaching cards at {% if posture.rep_identity_tier == 2 %}named-rep{% else %}rep-code{% endif %} grain — **~${{ "{:,.2f}".format((gather.rep_risks[:5] | sum(attribute='dollars_at_risk')) / 1_000_000) }}M of at-risk dollars** to act on.
 {%- endif %}
 {%- endif %}
-{% if gather.named_families or gather.dealers -%}
-{% set _hero_cs_target = (_hero_growers[0].family_label if (_hero_growers is defined and _hero_growers) else (gather.named_families[0].family_label if gather.named_families else "")) -%}
-- **This month:** 3 plays{% if _hero_cs_target %} — {{ _hero_cs_target }} cross-sell{% endif %}{% if gather.dealers and gather.dealers.second_year_return_rate is not none %}{% if _hero_cs_target %} · {% else %} — {% endif %}second-year dealer retention push{% endif %}{% if gather.rep_risks %} · pricing discipline review{% endif %}.
+{% if plays -%}
+- **This month:** {{ plays | length }} play{{ "s" if plays | length != 1 else "" }} — {% for play in plays %}{{ play.title }}{% if not loop.last %} · {% endif %}{% endfor %}.
 {%- endif %}
 {%- else -%}
 {% set _ra = gather.rep_activity if (gather.rep_activity and gather.rep_activity.any_data) else none -%}
@@ -140,7 +175,7 @@ Your existing accounts {% if posture.is_stale %}were{% else %}are{% endif %} spe
 | | |
 |---|---|
 {% if gather.dealers and gather.dealers.same_base_lift_pct is not none -%}
-| {% if gather.dealers.same_base_lift_pct >= 0 %}Same dealers, more spend{% else %}Same-dealer base — contracting{% endif %} | **{{ "{:+.0f}".format(gather.dealers.same_base_lift_pct) }}%** · {{ "{:,}".format(gather.dealers.returning) }} dealers |
+| Same-dealer spend change | **{{ "{:+.0f}".format(gather.dealers.same_base_lift_pct) }}%** · {{ "{:,}".format(gather.dealers.returning) }} dealers |
 {% endif -%}
 {% set _hero_growers = gather.named_families | selectattr("yoy_pct", "ne", none) | selectattr("yoy_pct", "gt", 0) | selectattr("ltm_revenue", "gt", 0) | sort(attribute="yoy_pct", reverse=True) | list -%}
 {% if _hero_growers -%}
@@ -153,7 +188,7 @@ Your existing accounts {% if posture.is_stale %}were{% else %}are{% endif %} spe
 {% if gather.reps | rejectattr("is_house") | selectattr("yoy_pct", "ne", none) | sort(attribute="yoy_pct", reverse=True) | list -%}
 {% set top_field = gather.reps | rejectattr("is_house") | selectattr("yoy_pct", "ne", none) | sort(attribute="yoy_pct", reverse=True) | list -%}
 {% if top_field[:3] | selectattr("yoy_pct", "gt", 30) | list -%}
-| Top field reps | **+{{ "{:.0f}".format(top_field[2].yoy_pct if top_field|length > 2 else top_field[-1].yoy_pct) }}–{{ "{:.0f}".format(top_field[0].yoy_pct) }}%** · {{ top_field[:3] | map(attribute="rep_label") | select | join(" · ") }} |
+| Top field reps | **+{{ "{:.0f}".format(top_field[2].yoy_pct if top_field|length > 2 else top_field[-1].yoy_pct) }}–{{ "{:.0f}".format(top_field[0].yoy_pct) }}%** · {{ top_field[:3] | map(attribute="display_label") | select | join(" · ") }} |
 {% endif -%}
 {% endif -%}
 {% if gather.decay -%}

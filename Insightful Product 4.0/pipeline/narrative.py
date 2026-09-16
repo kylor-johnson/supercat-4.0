@@ -584,7 +584,7 @@ async def generate_all_slots(
 
     if fb:
         bundles["hero_framing"] = fb.build_hero_bundle(posture, top_signals, gather)
-        outreach_list = sorted(gather.decay, key=lambda a: a.ltm_rev, reverse=True)[:7]
+        outreach_list = list(gather.outreach_list)
         bundles["talking_points"] = fb.build_talking_points_bundle(outreach_list, posture, profile_text)
         expected_counts["talking_points"] = len(outreach_list)
 
@@ -592,7 +592,7 @@ async def generate_all_slots(
         bundles["coaching_narratives"] = fb.build_coaching_bundle(card_reps, gather.decay, posture)
         expected_counts["coaching_narratives"] = len(card_reps)
 
-        plays = fb.build_plays_from_gather(gather, posture)
+        plays = fb.build_plays_from_gather(gather, posture, signals)
         bundles["play_framing"] = fb.build_play_framing_bundle(plays, gather, posture)
         expected_counts["play_framing"] = len(plays)
 

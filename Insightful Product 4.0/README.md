@@ -51,11 +51,11 @@ Display names come from the ratified profile H1 (`report_render/naming.py`). Do 
 ## Golden-set regression
 
 ```bash
-./regression.sh              # re-run all 6 golden orgs + verify checksums
+./regression.sh              # re-run the frozen golden set + verify checksums
 ./regression.sh --verify     # checksum only (no re-run)
 ```
 
-Baselines live in `config/golden_set.json` (cache date `2026-07-02`, ali `2026-07-01`). A passing run prints `GOLDEN SET: PASS (6/6)`.
+Frozen baselines live in `config/golden_set.json` **v11 — 4 orgs**: `sarreid`, `cci`, `da`, `clc` (stamped 2026-07-20). Root copy that said “6 golden orgs” was stale: `hfg`, `kal`, `ali`, and `sca` were dropped from the freeze instead of finishing completeness review, and they are the anti-Sarreid set Track 4 will re-include after owner sign-off. Do not treat checksums as authority until that freeze. A passing freeze run prints `GOLDEN SET: PASS (4/4)`.
 
 ## Four outcomes
 

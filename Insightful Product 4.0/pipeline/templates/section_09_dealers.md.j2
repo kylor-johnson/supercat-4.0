@@ -1,18 +1,22 @@
-{# §9 The dealer base — cohort math.
-   Reference: Sarreid PASS3 §9 (lines 230-244). #}
-{% from '_macros.md.j2' import signal_second_year_gap, action_second_year_gap, stale_historical_banner %}
-## The dealer base — flow underneath the flat count
+{# §9 Dealer/account availability: invoiced cohorts or eCat coverage. #}
+{% from '_macros.md.j2' import stale_historical_banner %}
+{% if availability.invoiced_dealers -%}
+{% set has_prior = gather.dealers.active_prior_ltm > 0 -%}
+## The dealer base{% if has_prior %} — flow underneath the flat count{% else %} — first-year shape{% endif %}
 
-{% if posture.is_stale and gather.dealers -%}
+{% if posture.is_stale -%}
 {{ stale_historical_banner(posture) }}
 
 {% endif -%}
-{% if gather.dealers -%}
-The active dealer count {% if (gather.dealers.active_ltm - gather.dealers.active_prior_ltm) | abs < 50 %}barely moved{% elif gather.dealers.active_ltm > gather.dealers.active_prior_ltm %}grew modestly{% else %}contracted{% endif %} ({{ "{:,}".format(gather.dealers.active_prior_ltm) }} → {{ "{:,}".format(gather.dealers.active_ltm) }}){% if posture.is_stale %} as of {{ posture.report_through_date }}{% endif %}. The flow underneath was {% if posture.is_stale %}much larger, in that frozen window{% else %}much larger{% endif %}:
+{% if has_prior -%}
+The active dealer count {% if (gather.dealers.active_ltm - gather.dealers.active_prior_ltm) | abs < 50 %}barely moved{% elif gather.dealers.active_ltm > gather.dealers.active_prior_ltm %}grew modestly{% else %}contracted{% endif %} ({{ "{:,}".format(gather.dealers.active_prior_ltm) }} → {{ "{:,}".format(gather.dealers.active_ltm) }}){% if posture.is_stale %} as of {{ posture.report_through_date }}{% endif %}. The flow underneath was larger:
 
 - **{{ "{:,}".format(gather.dealers.new_dealers) }} new dealers** placed a first-ever order this year
 - **{{ "{:,}".format(gather.dealers.lapsed) }} dealers** who bought last year ordered nothing this year
-- **{{ "{:,}".format(gather.dealers.returning) }} dealers** ordered in both years{% if gather.dealers.same_base_lift_pct is not none %} and spent {{ "{:+.0f}".format(gather.dealers.same_base_lift_pct) }}% more{% endif %}
+- **{{ "{:,}".format(gather.dealers.returning) }} dealers** ordered in both years{% if gather.dealers.same_base_lift_pct is not none %} (same-dealer spend change {{ "{:+.0f}".format(gather.dealers.same_base_lift_pct) }}%){% endif %}
+{%- else -%}
+This invoice history contains one current-year dealer book and no comparable prior-year slice. The table below is the available cadence read; retention and second-year claims stay off until a second year exists.
+{%- endif %}
 
 {% set total_rev = gather.dealers.frequent_rev + gather.dealers.occasional_rev + gather.dealers.one_time_rev -%}
 | Buyer cadence (this LTM) | Dealers | Revenue | Share |
@@ -21,17 +25,29 @@ The active dealer count {% if (gather.dealers.active_ltm - gather.dealers.active
 | Occasional (2–5) | {{ "{:,}".format(gather.dealers.occasional_count) }} | ${{ "{:,.2f}".format(gather.dealers.occasional_rev / 1_000_000) }}M | {{ "{:.1f}".format(gather.dealers.occasional_rev * 100 / total_rev) if total_rev else "n/a" }}% |
 | One-time | {{ "{:,}".format(gather.dealers.one_time_count) }} | ${{ "{:,.2f}".format(gather.dealers.one_time_rev / 1_000_000) }}M | {{ "{:.1f}".format(gather.dealers.one_time_rev * 100 / total_rev) if total_rev else "n/a" }}% |
 
-{% if gather.dealers.same_base_lift_pct is not none and gather.dealers.same_base_lift_pct > 10 -%}
-**Two stories live here.** The same-dealer base is the engine (spending {{ "{:+.0f}".format(gather.dealers.same_base_lift_pct) }}% more). {% if gather.dealers.second_year_return_rate is not none and gather.dealers.second_year_return_rate < 0.40 %}The new dealers from last year are the leak ({{ "{:.1f}".format(gather.dealers.second_year_return_rate * 100) }}% return rate). Different problems, different fixes.{% else %}New-dealer intake is healthy — {{ "{:,}".format(gather.dealers.new_dealers) }} first-timers this year{% if gather.dealers.second_year_return_rate is not none %}, {{ "{:.1f}".format(gather.dealers.second_year_return_rate * 100) }}% second-year return rate{% endif %}.{% endif %}
-{%- elif gather.dealers.same_base_lift_pct is not none and gather.dealers.same_base_lift_pct < -5 -%}
-{% if posture.is_stale %}The same-dealer base was contracting ({{ "{:+.0f}".format(gather.dealers.same_base_lift_pct) }}%) as of {{ posture.report_through_date }} — the quarter that "the topline follows within" has since passed, so a refreshed feed is what tells you whether it did. The reorder engine needed attention then; re-confirm it now.{% else %}The same-dealer base is contracting ({{ "{:+.0f}".format(gather.dealers.same_base_lift_pct) }}%). If new-dealer intake slows, the topline follows within a quarter. The reorder engine needs attention.{% endif %}
-{%- elif gather.dealers.same_base_lift_pct is not none -%}
-The same-dealer base is roughly flat ({{ "{:+.0f}".format(gather.dealers.same_base_lift_pct) }}%). Topline movement is coming from new-dealer intake ({{ "{:,}".format(gather.dealers.new_dealers) }} this year) and dealers who lapsed ({{ "{:,}".format(gather.dealers.lapsed) }}). Stability in the base is steady, but there is no organic reorder expansion carrying the business.
+{% if has_prior and gather.dealers.same_base_lift_pct is not none and gather.dealers.same_base_lift_pct > 10 -%}
+**Two stories live here.** The same-dealer base is the engine (same-dealer spend change {{ "{:+.0f}".format(gather.dealers.same_base_lift_pct) }}%). New-dealer intake added {{ "{:,}".format(gather.dealers.new_dealers) }} first-timers this year{% if gather.dealers.second_year_return_rate is not none %}, with a {{ "{:.1f}".format(gather.dealers.second_year_return_rate * 100) }}% second-year return rate{% endif %}.
+{%- elif has_prior and gather.dealers.same_base_lift_pct is not none and gather.dealers.same_base_lift_pct < -5 -%}
+The same-dealer base is contracting (same-dealer spend change {{ "{:+.0f}".format(gather.dealers.same_base_lift_pct) }}%). The reorder engine needs attention before new-dealer intake slows.
+{%- elif has_prior and gather.dealers.same_base_lift_pct is not none -%}
+The same-dealer base is roughly flat (same-dealer spend change {{ "{:+.0f}".format(gather.dealers.same_base_lift_pct) }}%). Topline movement is coming from new-dealer intake and dealers who lapsed.
 {%- endif %}
 
-{% if gather.dealers.second_year_return_rate is not none -%}
-**Second-year return rate:** {{ "{:.1f}".format(gather.dealers.second_year_return_rate * 100) }}%. {% if gather.dealers.new_dealers > 100 -%}Every 5-point move on that return is roughly **${{ "{:,.0f}".format(gather.dealers.one_time_rev * 0.05 / 1000) }}K on the full {{ "{:,}".format(gather.dealers.new_dealers) }} new-dealer base** — closer to half that on the addressable share if a meaningful portion are one-time-by-intent designer/project buyers.{%- else -%}On a {{ "{:,}".format(gather.dealers.new_dealers) }}-dealer new base, each 5-point improvement is worth tracking but not large enough to be a standalone program priority.{%- endif %}
+{% if has_prior and gather.dealers.second_year_return_rate is not none -%}
+**Second-year return rate:** {{ "{:.1f}".format(gather.dealers.second_year_return_rate * 100) }}%.
 {%- endif %}
 {%- else -%}
-*This section requires two or more years of invoiced ERP data to compute dealer retention and reorder flow. Connect or refresh the invoice data to unlock new-dealer intake, retention rate, and reorder cadence analysis.*
+{% set coverage = gather.rep_coverage -%}
+## Dealer coverage — platform activity
+
+This is owned platform account coverage, not an invoiced dealer-retention claim.
+
+| Coverage signal | Last 90 days |
+|---|---|
+| Active accounts in book | **{{ "{:,}".format(coverage.total_customers) }}** |
+| Accounts touched via platform | **{{ "{:,}".format(coverage.touched_customers) }}** |
+| Platform coverage | **{{ "{:.1f}".format(coverage.coverage_pct) if coverage.coverage_pct is not none else "n/a" }}%** |
+| Accounts not touched | {{ "{:,}".format(coverage.untouched_customers) }} |
+
+The untouched accounts are the available coverage gap. This section does not infer whether they bought through another channel.
 {%- endif %}

@@ -477,3 +477,170 @@ def validate_slot(
             print(f"[slot_validator] {v}", file=sys.stderr)
 
     return passed, all_violations
+
+
+# ─── Gate 4: Slot D play-title vs body alignment ────────────────────────────
+
+_PRICING_TOKENS = (
+    "leak",
+    "discount",
+    "pricing",
+    "price-discipline",
+    "price discipline",
+)
+_RETENTION_TOKENS = (
+    "second-year",
+    "second year",
+    "return rate",
+    "new dealer",
+    "first-time",
+    "reorder",
+)
+_CROSS_SELL_BAN = (
+    "leak rate",
+    "discount leakage",
+    "discretionary-price",
+    "discount-authority",
+    "discount authority",
+)
+
+
+def _body_matches_play_type(play: dict, body: str) -> bool:
+    """True when *body* is about the play's type, not a different play."""
+    ptype = play.get("type") or ""
+    body_l = (body or "").lower()
+    if ptype == "pricing":
+        return any(t in body_l for t in _PRICING_TOKENS)
+    if ptype == "retention":
+        if any(t in body_l for t in _CROSS_SELL_BAN):
+            return False
+        return any(t in body_l for t in _RETENTION_TOKENS)
+    if ptype == "cross_sell":
+        if any(t in body_l for t in _CROSS_SELL_BAN):
+            return False
+        family = str(play.get("target_family") or "").strip()
+        if family and family.lower() in body_l:
+            return True
+        anchor = str(play.get("anchor_item") or "").strip()
+        if anchor and anchor.lower() in body_l:
+            return True
+        return any(
+            t in body_l
+            for t in ("cross-sell", "cross sell", "never bought", "overlap", "family")
+        )
+    return True
+
+
+def check_play_alignment(
+    plays: list[dict], play_framing: list[str] | None
+) -> list[str]:
+    """Fail the run when slot-D bodies are zipped onto the wrong play title.
+
+    ``play_framing[i]`` must describe ``plays[i]``. A pricing/leakage body
+    under a cross-sell or second-year title is the ali/hfg defect.
+    """
+    if not play_framing:
+        return []
+    violations: list[str] = []
+    if len(play_framing) != len(plays):
+        violations.append(
+            f"Slot D: expected {len(plays)} play_framing strings "
+            f"(one per selected play), got {len(play_framing)}"
+        )
+        return violations
+    for i, (play, body) in enumerate(zip(plays, play_framing)):
+        ptype = play.get("type") or "unknown"
+        if not _body_matches_play_type(play, body):
+            violations.append(
+                f"Slot D[{i}]: play type {ptype!r} does not match framing body "
+                f"(title/body mismatch)"
+            )
+    return violations
+
+
+def reorder_play_framing(
+    plays: list[dict], play_framing: list[str] | None
+) -> list[str] | None:
+    """Re-key a complete old Slot-D array after signal ranking changes order.
+
+    This only succeeds when every body has one unique matching play. Otherwise
+    the original order is returned so ``check_play_alignment`` still fails the
+    run on a real title/body mismatch.
+    """
+    if not play_framing or len(play_framing) != len(plays):
+        return play_framing
+    remaining = list(enumerate(play_framing))
+    reordered: list[str] = []
+    for play in plays:
+        matches = [
+            (index, body)
+            for index, body in remaining
+            if _body_matches_play_type(play, body)
+        ]
+        if len(matches) != 1:
+            return play_framing
+        matched_index, matched_body = matches[0]
+        reordered.append(matched_body)
+        remaining = [
+            pair for pair in remaining if pair[0] != matched_index
+        ]
+    return reordered
+
+
+def _coaching_rep_keys(rep) -> list[str]:
+    keys: list[str] = []
+    name = (getattr(rep, "rep_name_tier2", None) or "").strip()
+    number = (getattr(rep, "rep_number", None) or "").strip()
+    if name:
+        keys.append(name)
+    if number:
+        keys.append(number)
+        if not number.lower().startswith("rep "):
+            keys.append(f"rep {number}")
+    return keys
+
+
+def _body_mentions_rep(body: str, keys: list[str]) -> bool:
+    text = (body or "").casefold()
+    for key in keys:
+        token = key.strip()
+        if len(token) < 2:
+            continue
+        if token.casefold() in text:
+            return True
+    return False
+
+
+def align_coaching_narratives(
+    card_reps: list, narratives: list[str] | None
+) -> list[str] | None:
+    """Keep Slot C when cards remain; re-key by rep identity if the array drifted.
+
+    Never drop the whole array while ``card_reps`` is non-empty. A 1:1 length
+    match keeps positional order (the common Track-2 rewrite). A length
+    mismatch unique-matches each remaining card to a narrative that names
+    that rep; unmatched cards get an empty string so the template fallback
+    (slope-aware) fills them.
+    """
+    if not card_reps:
+        return None
+    if not narratives:
+        return narratives
+    if len(narratives) == len(card_reps):
+        return list(narratives)
+    remaining = list(enumerate(narratives))
+    aligned: list[str] = []
+    used: set[int] = set()
+    for rep in card_reps:
+        keys = _coaching_rep_keys(rep)
+        hits = [
+            (idx, body)
+            for idx, body in remaining
+            if idx not in used and _body_mentions_rep(body, keys)
+        ]
+        if len(hits) == 1:
+            aligned.append(hits[0][1])
+            used.add(hits[0][0])
+        else:
+            aligned.append("")
+    return aligned

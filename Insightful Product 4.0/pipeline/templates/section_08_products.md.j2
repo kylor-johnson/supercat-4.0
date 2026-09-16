@@ -3,6 +3,15 @@
 {% from '_macros.md.j2' import signal_growth_pocket, signal_new_line_takeoff, action_growth_pocket %}
 ## What's selling
 
+{% if gather.families -%}
+{% set _lead = gather.families[0] -%}
+{% if _lead.is_new -%}
+**{{ _lead.family_label }} is a first-year line — ${{ "{:,.0f}".format(_lead.ltm_revenue / 1000) }}K across {{ _lead.dealer_count }} dealers.** The tables below are the catalog under that result, not a ranking to work in order.
+{% elif _lead.yoy_pct is not none and _lead.yoy_pct > 15 -%}
+**{{ _lead.family_label }} is up {{ "{:.0f}".format(_lead.yoy_pct) }}% YoY — ${{ "{:,.2f}".format(_lead.ltm_revenue / 1_000_000) }}M across {{ _lead.dealer_count }} dealers.** The tables below show where that sits in the mix.
+{% endif -%}
+{% endif %}
+
 ### Top 12 items, LTM
 
 {% if gather.products -%}
@@ -53,7 +62,13 @@ Family performance is steady — no single growth engine and no clear fade. Dist
 {% if gather.families and gather.products -%}
 {% set anchor = gather.products[0] -%}
 {% set target = gather.families[0] -%}
-{{ anchor.description | replace("  ", " ") }} ({{ anchor.dealers }} dealers) and the {{ target.family_label }} family ({{ target.dealer_count }} dealers) share a buyer profile. The cross-sell list — anchor-SKU buyers who have never bought from the target family — is the cleanest, most specific play this report can produce.
+{% if gather.cross_sell_gap is not none and gather.cross_sell_gap.count > 0 -%}
+**{{ gather.cross_sell_gap.count }} of {{ anchor.dealers }} {{ anchor.description | replace("  ", " ") }} dealers have never bought from the {{ target.family_label }} family.** That measured overlap gap is the named cross-sell list.
+{%- elif gather.cross_sell_gap is not none -%}
+Every {{ anchor.description | replace("  ", " ") }} dealer already buys from the {{ target.family_label }} family. There is no overlap list to push; the next question is depth by dealer.
+{%- else -%}
+The overlap between {{ anchor.description | replace("  ", " ") }} buyers and the {{ target.family_label }} family is not computed for this org. No shared-buyer-profile claim is made.
+{%- endif %}
 {%- elif gather.families -%}
 The {{ gather.families[0].family_label }} family at {{ gather.families[0].dealer_count }} dealers is the natural cross-sell target from top-12 buyers.
 {%- elif gather.products -%}

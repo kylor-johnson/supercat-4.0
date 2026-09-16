@@ -36,7 +36,7 @@
   'enrollment_applicants': 'Enrollments',
 } %}
 {% macro entity_name(raw) %}{{ entity_labels.get(raw, raw | replace('_', ' ') | title) }}{% endmacro %}
-## What's driving the topline — three layers
+## What's driving the topline
 
 {% set fresh = gather.data_freshness | selectattr("status", "equalto", "Fresh") | list -%}
 {% set monitor = gather.data_freshness | selectattr("status", "equalto", "Monitor") | list -%}
@@ -75,6 +75,7 @@ This is the always-on platform floor: owned platform data, not an invoice-feed c
 {{ stale_historical_banner(posture) }}
 
 {% endif -%}
+{% if availability.layer_1 -%}
 ### Layer 1 — The same-dealer base
 
 {% if gather.nrr and gather.nrr.nrr_pct is not none -%}
@@ -140,8 +141,10 @@ First year of invoice history — the same-dealer comparison (which accounts exp
 {%- else -%}
 *This layer requires two comparable invoiced windows. Connect or refresh the invoice data to unlock same-account retention, expansion, contraction, and dealers who went dark.*
 {%- endif %}
+{% endif %}
 
-### Layer 2 — {% if gather.families -%}{% set g = gather.families[0] -%}{% set family_share_pct = (g.ltm_revenue * 100 / posture.inv_ltm_net) if posture.inv_ltm_net else none -%}{% set g_declining = g.yoy_pct is not none and g.yoy_pct < 0 -%}{% if family_share_pct is not none and family_share_pct < FAMILY_COVERAGE_MIN_PCT -%}A growth pocket to watch{%- elif g_declining -%}The {{ g.family_label }} family — contracting{%- else -%}The {{ g.family_label }} family{%- endif %}{%- elif gather.families_all -%}No single family drives the topline{%- else %}Growth family{% endif %}
+{% if availability.layer_2 -%}
+### Layer 2 — {% if gather.families -%}{% set g = gather.families[0] -%}{% set family_share_pct = (g.ltm_revenue * 100 / posture.inv_ltm_net) if posture.inv_ltm_net else none -%}{% set g_declining = g.yoy_pct is not none and g.yoy_pct < 0 -%}{% if family_share_pct is not none and family_share_pct < FAMILY_COVERAGE_MIN_PCT -%}A growth pocket to watch{%- elif g_declining -%}The {{ g.family_label }} family — contracting{%- else -%}The {{ g.family_label }} family{%- endif %}{%- elif gather.products -%}A product pocket to watch{%- else %}Product mix{% endif %}
 
 {% if gather.families -%}
 {% set g = gather.families[0] -%}
@@ -179,12 +182,15 @@ First year of invoice history — the same-dealer comparison (which accounts exp
 {{ action_growth_pocket(g) }}
 {%- endif %}
 {%- endif %}
-{%- elif gather.families_all -%}
-This catalog isn't merchandised into branded designer collections — the invoiced items don't roll up under a marketable family name, so there is no single "hero collection" carrying the topline. That is a structural fact about how the line is coded, not a gap to fix. The growth here is broad-based: it lives in the same-dealer reorder base (Layer 1) and the field team (Layer 3), not in one branded family.
+{%- elif gather.products -%}
+{% set top_product = gather.products[0] -%}
+{{ top_product.description }} is the largest item slice in this window — **${{ "{:,.0f}".format(top_product.ltm_revenue / 1000) }}K invoiced (LTM)** across {{ top_product.dealers }} dealers. The catalog does not expose a marketable family rollup here, so this layer stays at item grain.
 {%- else -%}
 {# QUERY-NEEDED: Q-PROD-FAMILY not yet in cache — needed for growth-family decomposition. #}
 {%- endif %}
+{% endif %}
 
+{% if availability.layer_3 -%}
 ### Layer 3 — The field team
 
 {% if gather.reps -%}
@@ -195,7 +201,9 @@ The topline hides real books being built in the field:
 | Rep | This year (invoiced) | YoY |
 |---|---|---|
 {% for r in breakouts[:3] -%}
-| {% if posture.rep_identity_tier == 2 and r.rep_name_tier2 %}{{ r.rep_name_tier2 }}{% else %}rep {{ r.rep_number }}{% endif %} | ${{ "{:,.2f}".format(r.ltm_invoiced / 1_000_000) }}M | **{{ "{:+.0f}".format(r.yoy_pct) }}%** |
+{% if r.display_label -%}
+| {{ r.display_label }} | ${{ "{:,.2f}".format(r.ltm_invoiced / 1_000_000) }}M | **{{ "{:+.0f}".format(r.yoy_pct) }}%** |
+{% endif -%}
 {% endfor %}
 
 {% if growth_connective and growth_connective.layer_3 -%}
@@ -208,7 +216,7 @@ The topline hides real books being built in the field:
 {% if new_books | length > 2 -%}
 **{{ new_books | length }} reps carry >$50K with little or no prior-year history.** That is a field build, not a marketplace surge. Do not lose these people.
 {%- elif breakouts[0].yoy_pct > 50 -%}
-{{ breakouts[0].rep_name_tier2 or ("Rep " ~ breakouts[0].rep_number) }} at {{ "{:+.0f}".format(breakouts[0].yoy_pct) }}% is the headline — a breakout year on a real book. Protect the territory.
+{{ breakouts[0].display_label or breakouts[0].rep_name_tier2 or ("Rep " ~ breakouts[0].rep_number) }} at {{ "{:+.0f}".format(breakouts[0].yoy_pct) }}% is the headline — a breakout year on a real book. Protect the territory.
 {%- else -%}
 The field is growing in line with the business — no single breakout, no single drag. Steady is good here.
 {%- endif %}
@@ -218,14 +226,14 @@ The field is growing in line with the business — no single breakout, no single
 {%- else -%}
 {#- No prior-year rep comparisons (first-year dataset or invoice history lacks a prior window).
     Show field concentration by LTM volume instead of a suppression message. -#}
-{% set _nh_all = gather.reps | rejectattr("is_house") | sort(attribute="ltm_invoiced", reverse=True) | list -%}
+{% set _nh_all = gather.reps | rejectattr("is_house") | selectattr("display_label") | sort(attribute="ltm_invoiced", reverse=True) | list -%}
 {% if _nh_all -%}
 No prior-year comparison is available — first year of the invoiced record. Field book by LTM volume:
 
 | Rep | This year (invoiced) | Dealers |
 |---|---|---|
 {% for r in _nh_all[:5] -%}
-| {% if posture.rep_identity_tier == 2 and r.rep_name_tier2 %}{{ r.rep_name_tier2 }}{% else %}rep {{ r.rep_number }}{% endif %} | ${{ "{:,.2f}".format(r.ltm_invoiced / 1_000_000) }}M | {{ r.customer_count }} |
+| {{ r.display_label }} | ${{ "{:,.2f}".format(r.ltm_invoiced / 1_000_000) }}M | {{ r.customer_count }} |
 {% endfor %}
 
 {% if growth_connective and growth_connective.layer_3 -%}
@@ -236,7 +244,7 @@ No prior-year comparison is available — first year of the invoiced record. Fie
 {% set _top = _nh_all[0] -%}
 {% set _top_share = (_top.ltm_invoiced * 100 / posture.inv_ltm_net) if posture.inv_ltm_net else none -%}
 {% if _top_share is not none and _top_share > 25 -%}
-**{% if posture.rep_identity_tier == 2 and _top.rep_name_tier2 %}{{ _top.rep_name_tier2 }}{% else %}Rep {{ _top.rep_number }}{% endif %} carries {{ "{:.0f}".format(_top_share) }}%** of the invoiced business — ${{ "{:,.2f}".format(_top.ltm_invoiced / 1_000_000) }}M across {{ _top.customer_count }} dealer{{ "s" if _top.customer_count != 1 else "" }}. Concentration worth tracking; year-over-year comparisons will be available after the second full year of invoiced history.
+**{{ _top.display_label }} carries {{ "{:.0f}".format(_top_share) }}%** of the invoiced business — ${{ "{:,.2f}".format(_top.ltm_invoiced / 1_000_000) }}M across {{ _top.customer_count }} dealer{{ "s" if _top.customer_count != 1 else "" }}. Concentration worth tracking; year-over-year comparisons will be available after the second full year of invoiced history.
 {%- else -%}
 Year-over-year comparisons will be available after the second full year of invoiced history.
 {%- endif %}
@@ -246,3 +254,4 @@ Year-over-year comparisons will be available after the second full year of invoi
 {%- else -%}
 *This section requires invoiced ERP data. Connect the feed to unlock field-rep performance and territory breakout analysis.*
 {%- endif %}
+{% endif %}

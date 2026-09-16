@@ -5,7 +5,7 @@
    Tier resolution (report_operator.md §5a.1):
      All tiers — behavioral floor (VM-R1/R2/R4) renders when data present; omit-not-stub when absent
      Tier 2    — full leaderboard (names) + top-5 coaching cards
-     Tier 1    — leaderboard at rep-number grain, coaching cards suppressed (§O.4)
+     Tier 1    — leaderboard + coaching cards at rep-number grain
      Tier 0    — leaderboard suppressed; behavioral floor replaces suppression_commerce_none
 
    Rep behavior floor (VM-R1-R4, catalog Domain 12):
@@ -17,11 +17,11 @@
    Omit-not-stub: each leg guarded individually; if all legs absent,
    the "### Rep activity floor" heading is suppressed too. Use Jinja comments only.
 #}
-{% from '_macros.md.j2' import signal_rep_atrisk_book, action_rep_atrisk_book, suppression_rep_tier, suppression_commerce_none %}
-## The team — leaderboard{% if gather.rep_risks %} · ${{ "{:,.2f}".format((gather.rep_risks[:5] | sum(attribute='dollars_at_risk')) / 1_000_000) }}M to coach against{% else %} and coaching cards{% endif %}
+{% from '_macros.md.j2' import signal_rep_atrisk_book, action_rep_atrisk_book %}
+## The team{% if availability.team %} — leaderboard · ${{ "{:,.2f}".format((gather.rep_risks[:5] | sum(attribute='dollars_at_risk')) / 1_000_000) }}M to coach against{% else %} — activity floor{% endif %}
 
 {%- set _floor_r1 = gather.rep_activity and gather.rep_activity.any_data -%}
-{%- set _floor_r2 = gather.rep_coverage and gather.rep_coverage.any_data -%}
+{%- set _floor_r2 = gather.rep_coverage and gather.rep_coverage.any_data and posture.commerce_confidence != "NONE" -%}
 {%- set _floor_r4 = gather.rep_quote_discipline and gather.rep_quote_discipline.any_data -%}
 {%- set _any_floor = _floor_r1 or _floor_r2 or _floor_r4 -%}
 {%- if _any_floor %}
@@ -47,7 +47,13 @@
 
 {%- if ra.quiet_seats > 0 or ra.dark_seats > 0 %}
 {% set _silent = ra.quiet_seats + ra.dark_seats -%}
-**{{ _silent }} of {{ ra.active_seats }} seats have gone {{ "90+" if ra.dark_seats > 0 else "30+" }} days without logging in.** {% if _silent >= (ra.active_seats // 2) %}More than half the active seat base is quiet — this is a systematic adoption gap, not individual scheduling.{% else %}These are your re-activation targets: the customer relationships and territory knowledge are there, the platform habit isn't yet.{% endif %}
+{% if ra.quiet_seats > 0 and ra.dark_seats > 0 -%}
+**{{ _silent }} of {{ ra.active_seats }} seats are quiet or dark** ({{ ra.quiet_seats }} quiet, {{ ra.dark_seats }} dark / 90+ days). {% if _silent >= (ra.active_seats // 2) %}More than half the active seat base is quiet or dark — this is a systematic adoption gap, not individual scheduling.{% else %}These are your re-activation targets: the customer relationships and territory knowledge are there, the platform habit isn't yet.{% endif %}
+{%- elif ra.dark_seats > 0 -%}
+**{{ ra.dark_seats }} of {{ ra.active_seats }} seats have gone 90+ days without logging in.** {% if ra.dark_seats >= (ra.active_seats // 2) %}More than half the active seat base is dark — this is a systematic adoption gap, not individual scheduling.{% else %}These are your re-activation targets: the customer relationships and territory knowledge are there, the platform habit isn't yet.{% endif %}
+{%- else -%}
+**{{ ra.quiet_seats }} of {{ ra.active_seats }} seats are quiet** (31–90 days). {% if ra.quiet_seats >= (ra.active_seats // 2) %}More than half the active seat base is quiet — this is a systematic adoption gap, not individual scheduling.{% else %}These are your coaching targets: the customer relationships and territory knowledge are there, the platform habit isn't yet.{% endif %}
+{%- endif %}
 {%- elif ra.logins_30d == ra.active_seats %}
 All {{ ra.active_seats }} active seats logged in within the last month. Platform habit is consistent across the field team.
 {%- endif %}
@@ -90,18 +96,7 @@ All {{ ra.active_seats }} active seats logged in within the last month. Platform
 
 {% endif -%}
 {%- endif %}
-{% if posture.rep_identity_tier == 0 -%}
-{%- if not _any_floor -%}
-{%- if posture.ecat_ltm_confirmed_gmv > 0 -%}
-### The team — platform order floor
-
-No invoiced ERP feed connects this org, so the rep leaderboard cannot rank by revenue outcome. What the platform confirms: **${{ "{:,.2f}".format(posture.ecat_ltm_confirmed_gmv / 1_000_000) }}M of confirmed catalog orders (LTM)** — the field is placing orders through the tool.{% if gather.rep_activity and gather.rep_activity.active_seats %} {{ gather.rep_activity.active_seats }} reps are enrolled and active.{% endif %} Without an invoiced feed, there is no way to rank reps by revenue outcome or territory dollar result. Connect the ERP feed to unlock a full rep leaderboard with account-level drill-down.
-{#- [Commerce confidence NONE, catalog GMV floor rendered — RS-01 empty] -#}
-{%- else -%}
-{{ suppression_commerce_none(posture, "The team") }}
-{%- endif %}
-{%- endif %}
-{%- else %}
+{% if availability.team and posture.rep_identity_tier in [1, 2] -%}
 ### Top 10 reps by LTM invoiced
 
 {# REP_YOY_LABEL_THRESHOLDS: >50 "Breakout year", >20 "Growing fast", >0 "Steady growth", >-15 "Roughly flat", else "Declining book".
@@ -114,18 +109,18 @@ No invoiced ERP feed connects this org, so the rep leaderboard cannot rank by re
    splits the leaderboard into two malformed tables. The `{%- for %}` /
    `{%- endfor %}` trims keep header + rows contiguous. #}
 {% if gather.reps | list -%}
+{% set _lb = gather.reps | selectattr("display_label") | list -%}
+{% if _lb -%}
 | # | Rep | This year | YoY | Dealers | What it is |
 |---|---|---|---|---|---|
-{%- for r in gather.reps[:10] %}
-| {{ loop.index }} | {% if posture.rep_identity_tier == 2 and r.rep_name_tier2 -%}{{ r.rep_name_tier2 }}{%- elif r.rep_number -%}rep {{ r.rep_number }}{%- else -%}rep ({{ loop.index }}){%- endif %}{% if r.is_house %} *(house)*{% endif %} | ${{ "{:,.2f}".format(r.ltm_invoiced / 1_000_000) }}M | {% if r.yoy_pct is none %}n/a{% else %}{{ "{:+.0f}".format(r.yoy_pct) }}%{% endif %} | {{ r.customer_count }} | {% if r.is_house %}House / marketplace book{% elif r.yoy_pct is none %}No prior-year comp available{% elif r.yoy_pct > 50 %}Breakout year{% elif r.yoy_pct > 20 %}Growing fast{% elif r.yoy_pct > 0 %}Steady growth{% elif r.yoy_pct > -15 %}Roughly flat{% else %}Declining book — territory review{% endif %} |
+{%- for r in _lb[:10] %}
+| {{ loop.index }} | {{ r.display_label }}{% if r.is_house %} *(house)*{% endif %} | ${{ "{:,.2f}".format(r.ltm_invoiced / 1_000_000) }}M | {% if r.yoy_pct is none %}n/a{% else %}{{ "{:+.0f}".format(r.yoy_pct) }}%{% endif %} | {{ r.customer_count }} | {% if r.is_house %}House / marketplace book{% elif r.yoy_pct is none %}No prior-year comp available{% elif r.yoy_pct > 50 %}Breakout year{% elif r.yoy_pct > 20 %}Growing fast{% elif r.yoy_pct > 0 %}Steady growth{% elif r.yoy_pct > -15 %}Roughly flat{% else %}Declining book — territory review{% endif %} |
 {%- endfor %}
+{%- endif %}
 {%- else -%}
 {# QUERY-NEEDED: RS-01 not cached. Run: python -m pipeline.populate_cache --org <org> --queries RS-01 #}
 {%- endif %}
 
-{% if posture.rep_identity_tier == 1 -%}
-{{ suppression_rep_tier(posture) }}
-{%- else -%}
 {% if gather.rep_risks -%}
 {# Coaching cards are book-decay cards: only reps with at least one at-risk account
    belong here. Pure discount-leak reps (dollars_at_risk from leakage, accounts_at_risk==0)
@@ -136,15 +131,22 @@ No invoiced ERP feed connects this org, so the rep leaderboard cannot rank by re
 ### Top-{{ [_card_reps | length, 5] | min }} rep{{ "s" if (_card_reps | length) != 1 else "" }} by dollars at risk on their own book
 
 {% for c in _card_reps[:5] %}
-> **Card {{ loop.index }} — {% if c.rep_name_tier2 -%}{{ c.rep_name_tier2 }}{%- elif c.rep_number -%}rep {{ c.rep_number }}{%- else -%}rep ({{ loop.index }}){%- endif %} · ${{ "{:,.0f}".format(c.dollars_at_risk / 1000) }}K at risk across {{ c.accounts_at_risk }} account{{ "s" if c.accounts_at_risk != 1 else "" }}**
-{% if coaching_narratives and coaching_narratives[loop.index0] is defined -%}
+> **Card {{ loop.index }} — {{ c.display_label or "—" }} · ${{ "{:,.0f}".format(c.dollars_at_risk / 1000) }}K at risk across {{ c.accounts_at_risk }} account{{ "s" if c.accounts_at_risk != 1 else "" }}**
+{% if coaching_narratives and coaching_narratives[loop.index0] -%}
 <!--slot:C-->
 > {{ coaching_narratives[loop.index0] }}
 <!--/slot:C-->
 {%- else -%}
 {% set matching_decay = gather.decay | selectattr("rep_number", "eq", c.rep_number) | sort(attribute="ltm_rev", reverse=True) | list -%}
 {% if matching_decay and (matching_decay[0].bill_to_name or matching_decay[0].bill_to_number) -%}
-> {{ matching_decay[0].bill_to_name or matching_decay[0].bill_to_number }} is **${{ "{:,.0f}".format(matching_decay[0].ltm_rev / 1000) }}K** LTM — {% if matching_decay[0].is_real_decline %}down {{ "{:.0f}".format((1 - matching_decay[0].recent_6mo / matching_decay[0].prior_6mo) * 100) if matching_decay[0].prior_6mo > 0 else "materially" }}% over six months, {{ matching_decay[0].days_silent }} days silent{% elif matching_decay[0].is_cadence_cliff %}{{ matching_decay[0].days_silent }} days silent on a growing account ({{ "{:+.0f}".format(matching_decay[0].recent_vs_prior_pct) }}% YoY){% else %}{{ matching_decay[0].days_silent }} days silent{% endif %}. {{ action_rep_atrisk_book(c) }}
+{% set acct = matching_decay[0] -%}
+{% if acct.is_real_decline -%}
+> {{ acct.bill_to_name or acct.bill_to_number }} is **${{ "{:,.0f}".format(acct.ltm_rev / 1000) }}K** LTM — down {{ "{:.0f}".format((1 - acct.recent_6mo / acct.prior_6mo) * 100) if acct.prior_6mo > 0 else "materially" }}% over six months, {{ acct.days_silent }} days silent. {{ action_rep_atrisk_book(c, acct) }}
+{%- elif acct.is_cadence_cliff or (acct.recent_vs_prior_pct is not none and acct.recent_vs_prior_pct > 0) -%}
+> {{ acct.bill_to_name or acct.bill_to_number }} is **${{ "{:,.0f}".format(acct.ltm_rev / 1000) }}K** LTM — {{ acct.days_silent }} days silent on a growing account ({{ "{:+.0f}".format(acct.recent_vs_prior_pct) }}% YoY). {{ action_rep_atrisk_book(c, acct) }}
+{%- else -%}
+> {{ acct.bill_to_name or acct.bill_to_number }} is **${{ "{:,.0f}".format(acct.ltm_rev / 1000) }}K** LTM — {{ acct.days_silent }} days silent{% if acct.recent_vs_prior_pct is not none %} ({{ "{:+.0f}".format(acct.recent_vs_prior_pct) }}%){% endif %}. {{ action_rep_atrisk_book(c, acct) }}
+{%- endif %}
 {%- else -%}
 > {{ signal_rep_atrisk_book(none, c) }}
 {%- endif %}
@@ -158,15 +160,14 @@ No invoiced ERP feed connects this org, so the rep leaderboard cannot rank by re
 {% set bottom_leak = (gather.rep_risks | selectattr("leak_pct", "ne", none) | sort(attribute="leak_pct") | first) -%}
 {% if top_leak and top_leak.leak_pct is not none and bottom_leak and bottom_leak.leak_pct is not none -%}
 **A note on discount discipline.** {% if (top_leak.leak_pct - bottom_leak.leak_pct) < 3.0 -%}
-No rep stands out as a discount problem in this analysis. Top leak rate is {{ "{:.1f}".format(top_leak.leak_pct) }}% ({% if top_leak.rep_name_tier2 -%}{{ top_leak.rep_name_tier2 }}{%- elif top_leak.rep_number -%}rep {{ top_leak.rep_number }}{%- else -%}rep (top){%- endif %}), bottom is {{ "{:.1f}".format(bottom_leak.leak_pct) }}% — broadly distributed, none above the rep-coaching threshold.
+No rep stands out as a discount problem in this analysis. Top leak rate is {{ "{:.1f}".format(top_leak.leak_pct) }}% ({{ top_leak.display_label or top_leak.rep_name_tier2 or ("rep " ~ top_leak.rep_number) }}), bottom is {{ "{:.1f}".format(bottom_leak.leak_pct) }}% — broadly distributed, none above the rep-coaching threshold.
 {%- else -%}
-Leak rates range from {{ "{:.1f}".format(bottom_leak.leak_pct) }}% to {{ "{:.1f}".format(top_leak.leak_pct) }}%. {% if top_leak.rep_name_tier2 -%}{{ top_leak.rep_name_tier2 }}{%- elif top_leak.rep_number -%}rep {{ top_leak.rep_number }}{%- else -%}rep (top){%- endif %} at {{ "{:.1f}".format(top_leak.leak_pct) }}% warrants a discount-authority review.
+Leak rates range from {{ "{:.1f}".format(bottom_leak.leak_pct) }}% to {{ "{:.1f}".format(top_leak.leak_pct) }}%. {{ top_leak.display_label or top_leak.rep_name_tier2 or ("rep " ~ top_leak.rep_number) }} at {{ "{:.1f}".format(top_leak.leak_pct) }}% warrants a discount-authority review.
 {%- endif %}
 {%- endif %}
 {%- endif %}
 
 {%- else -%}
 {# QUERY-NEEDED: S1+C2 not cached. Run: python -m pipeline.populate_cache --org <org> --queries S1,C2 #}
-{%- endif %}
 {%- endif %}
 {%- endif %}
