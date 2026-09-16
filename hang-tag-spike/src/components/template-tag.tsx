@@ -1,10 +1,22 @@
 import type { CSSProperties } from "react";
+import { BarcodeMark } from "@/components/barcode-mark";
 import { boundImageSrc, boundText } from "@/data/bindings";
 import type { HangTagSku } from "@/data/sku";
-import type { HangTagTemplate, TemplateObject } from "@/data/template";
+import {
+  fontCssStack,
+  resolvedBarcodeFormat,
+  resolvedFontFamily,
+  resolvedTextAlign,
+  type HangTagTemplate,
+  type TemplateObject,
+} from "@/data/template";
 
-function objectStyle(spec: TemplateObject): CSSProperties {
+function objectStyle(
+  spec: TemplateObject,
+  template: HangTagTemplate,
+): CSSProperties {
   const wrapPrice = spec.binding === "price_line";
+  const fontFamily = resolvedFontFamily(template, spec);
   return {
     position: "absolute",
     left: `${spec.x}in`,
@@ -13,12 +25,10 @@ function objectStyle(spec: TemplateObject): CSSProperties {
     height: `${spec.height}in`,
     fontSize: spec.fontSize ? `${spec.fontSize}pt` : undefined,
     fontWeight: spec.fontWeight,
+    fontFamily: fontCssStack(fontFamily),
     letterSpacing: spec.letterSpacing,
     textTransform: spec.textTransform,
-    fontFamily:
-      spec.binding === "item_number"
-        ? "var(--font-mono), ui-monospace, monospace"
-        : undefined,
+    textAlign: spec.type === "text" ? resolvedTextAlign(spec) : undefined,
     overflow: "hidden",
     lineHeight: 1.15,
     whiteSpace: wrapPrice ? "normal" : "nowrap",
@@ -28,18 +38,34 @@ function objectStyle(spec: TemplateObject): CSSProperties {
 function TemplateObjectView({
   spec,
   sku,
+  template,
 }: {
   spec: TemplateObject;
   sku: HangTagSku;
+  template: HangTagTemplate;
 }) {
+  const style = objectStyle(spec, template);
+
   if (spec.type === "text") {
     const text =
       (spec.binding ? boundText(sku, spec.binding) : spec.text) || "";
     if (!text) return null;
     return (
-      <div className="template-tag-object" style={objectStyle(spec)}>
+      <div className="template-tag-object" style={style}>
         {text}
       </div>
+    );
+  }
+
+  if (spec.type === "barcode") {
+    return (
+      <BarcodeMark
+        key={`${sku.item_number}-${resolvedBarcodeFormat(template, spec)}`}
+        sku={sku}
+        format={resolvedBarcodeFormat(template, spec)}
+        className="template-tag-object template-tag-barcode"
+        style={style}
+      />
     );
   }
 
@@ -47,12 +73,8 @@ function TemplateObjectView({
   if (!src) return null;
   return (
     <img
-      className={
-        spec.type === "barcode"
-          ? "template-tag-object template-tag-barcode"
-          : "template-tag-object template-tag-image"
-      }
-      style={objectStyle(spec)}
+      className="template-tag-object template-tag-image"
+      style={style}
       src={src}
       alt=""
     />
@@ -75,7 +97,12 @@ export function TemplateTag({
       }}
     >
       {template.objects.map((spec) => (
-        <TemplateObjectView key={spec.id} spec={spec} sku={sku} />
+        <TemplateObjectView
+          key={spec.id}
+          spec={spec}
+          sku={sku}
+          template={template}
+        />
       ))}
     </article>
   );

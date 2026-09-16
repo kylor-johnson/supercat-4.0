@@ -17,6 +17,42 @@ export type BindingKey =
 
 export type TemplateObjectType = "text" | "image" | "barcode";
 
+export const FONT_FAMILIES = [
+  "geist",
+  "geist-mono",
+  "arial",
+  "georgia",
+  "times",
+  "courier",
+] as const;
+
+export type FontFamily = (typeof FONT_FAMILIES)[number];
+
+export const FONT_LABELS: Record<FontFamily, string> = {
+  geist: "Geist",
+  "geist-mono": "Geist Mono",
+  arial: "Arial",
+  georgia: "Georgia",
+  times: "Times New Roman",
+  courier: "Courier New",
+};
+
+export const TEXT_ALIGNS = ["left", "center", "right"] as const;
+export type TextAlign = (typeof TEXT_ALIGNS)[number];
+
+export const BARCODE_FORMATS = ["upc", "code128", "qr"] as const;
+export type BarcodeFormat = (typeof BARCODE_FORMATS)[number];
+
+export const BARCODE_FORMAT_LABELS: Record<BarcodeFormat, string> = {
+  upc: "UPC-A",
+  code128: "Code 128",
+  qr: "QR",
+};
+
+export const DEFAULT_FONT_FAMILY: FontFamily = "geist";
+export const DEFAULT_TEXT_ALIGN: TextAlign = "left";
+export const DEFAULT_BARCODE_FORMAT: BarcodeFormat = "upc";
+
 export type TemplateObject = {
   id: string;
   type: TemplateObjectType;
@@ -28,8 +64,11 @@ export type TemplateObject = {
   height: number;
   fontSize?: number;
   fontWeight?: number;
+  fontFamily?: FontFamily;
   letterSpacing?: string;
   textTransform?: "none" | "uppercase";
+  textAlign?: TextAlign;
+  barcodeFormat?: BarcodeFormat;
 };
 
 export type HangTagTemplate = {
@@ -37,14 +76,109 @@ export type HangTagTemplate = {
   name: string;
   stock: SheetCode;
   tag: { width: number; height: number };
+  fontFamily?: FontFamily;
+  barcodeFormat?: BarcodeFormat;
   objects: TemplateObject[];
 };
+
+function isFontFamily(value: unknown): value is FontFamily {
+  return (
+    typeof value === "string" &&
+    (FONT_FAMILIES as readonly string[]).includes(value)
+  );
+}
+
+function isTextAlign(value: unknown): value is TextAlign {
+  return (
+    typeof value === "string" &&
+    (TEXT_ALIGNS as readonly string[]).includes(value)
+  );
+}
+
+function isBarcodeFormat(value: unknown): value is BarcodeFormat {
+  return (
+    typeof value === "string" &&
+    (BARCODE_FORMATS as readonly string[]).includes(value)
+  );
+}
+
+export function fontCssStack(family: FontFamily): string {
+  switch (family) {
+    case "geist":
+      return "var(--font-geist-sans), system-ui, sans-serif";
+    case "geist-mono":
+      return "var(--font-geist-mono), ui-monospace, monospace";
+    case "arial":
+      return "Arial, Helvetica, sans-serif";
+    case "georgia":
+      return "Georgia, 'Times New Roman', serif";
+    case "times":
+      return "'Times New Roman', Times, serif";
+    case "courier":
+      return "'Courier New', Courier, monospace";
+  }
+}
+
+export function fontCanvasStack(family: FontFamily): string {
+  if (typeof document !== "undefined") {
+    if (family === "geist") {
+      const value = getComputedStyle(document.documentElement)
+        .getPropertyValue("--font-geist-sans")
+        .trim();
+      if (value) return value;
+    }
+    if (family === "geist-mono") {
+      const value = getComputedStyle(document.documentElement)
+        .getPropertyValue("--font-geist-mono")
+        .trim();
+      if (value) return value;
+    }
+  }
+  switch (family) {
+    case "geist":
+      return "Geist, system-ui, sans-serif";
+    case "geist-mono":
+      return "Geist Mono, ui-monospace, monospace";
+    case "arial":
+      return "Arial, Helvetica, sans-serif";
+    case "georgia":
+      return "Georgia, Times New Roman, serif";
+    case "times":
+      return "Times New Roman, Times, serif";
+    case "courier":
+      return "Courier New, Courier, monospace";
+  }
+}
+
+export function resolvedFontFamily(
+  template: HangTagTemplate,
+  spec: TemplateObject,
+): FontFamily {
+  if (spec.fontFamily) return spec.fontFamily;
+  if (template.fontFamily) return template.fontFamily;
+  return spec.binding === "item_number" ? "geist-mono" : DEFAULT_FONT_FAMILY;
+}
+
+export function resolvedTextAlign(spec: TemplateObject): TextAlign {
+  return spec.textAlign ?? DEFAULT_TEXT_ALIGN;
+}
+
+export function resolvedBarcodeFormat(
+  template: HangTagTemplate,
+  spec: TemplateObject,
+): BarcodeFormat {
+  if (spec.barcodeFormat) return spec.barcodeFormat;
+  if (template.barcodeFormat) return template.barcodeFormat;
+  return DEFAULT_BARCODE_FORMAT;
+}
 
 export const KUZCO_5371_TEMPLATE: HangTagTemplate = {
   version: TEMPLATE_VERSION,
   name: "Kuzco 5371 showroom",
   stock: "5371",
   tag: { width: 3.5, height: 2 },
+  fontFamily: "geist",
+  barcodeFormat: "upc",
   objects: [
     {
       id: "photo",
@@ -86,6 +220,7 @@ export const KUZCO_5371_TEMPLATE: HangTagTemplate = {
       width: 2.4,
       height: 0.16,
       fontSize: 7.5,
+      fontFamily: "geist-mono",
     },
     {
       id: "finish",
@@ -145,6 +280,8 @@ export const KUZCO_5392_TEMPLATE: HangTagTemplate = {
   name: "Kuzco 5392 showroom",
   stock: "5392",
   tag: { width: 4, height: 3 },
+  fontFamily: "geist",
+  barcodeFormat: "upc",
   objects: [
     {
       id: "photo",
@@ -186,6 +323,7 @@ export const KUZCO_5392_TEMPLATE: HangTagTemplate = {
       width: 2.45,
       height: 0.18,
       fontSize: 8.5,
+      fontFamily: "geist-mono",
     },
     {
       id: "finish",
@@ -272,7 +410,25 @@ export function parseStoredTemplate(
     if (parsed.stock !== "5371" && parsed.stock !== "5392") return null;
     if (stock && parsed.stock !== stock) return null;
     if (!Array.isArray(parsed.objects)) return null;
-    return parsed;
+    return {
+      ...parsed,
+      fontFamily: isFontFamily(parsed.fontFamily)
+        ? parsed.fontFamily
+        : undefined,
+      barcodeFormat: isBarcodeFormat(parsed.barcodeFormat)
+        ? parsed.barcodeFormat
+        : undefined,
+      objects: parsed.objects.map((object) => ({
+        ...object,
+        fontFamily: isFontFamily(object.fontFamily)
+          ? object.fontFamily
+          : undefined,
+        textAlign: isTextAlign(object.textAlign) ? object.textAlign : undefined,
+        barcodeFormat: isBarcodeFormat(object.barcodeFormat)
+          ? object.barcodeFormat
+          : undefined,
+      })),
+    };
   } catch {
     return null;
   }

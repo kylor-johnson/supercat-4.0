@@ -19,14 +19,17 @@ and physical Avery are later.
 | 5371 sheet | `/` — `TemplateTag` from JSON |
 | 5392 sheet | `/5392` — same |
 | Designer | `/design` (5371) and `/design?stock=5392` |
-| Git | `hang-tag-spike/` on `main` (`9df282b` shipped JSON print + 5392 designer) |
+| Git | `hang-tag-spike/` on `main` |
 | Vercel | CLI project `kuzco-hang-tags`. **Not GitHub-linked.** Push does not deploy. |
+| Fonts | Template default + per-object override. Geist, Geist Mono, Arial, Georgia, Times, Courier. |
+| Align | Text left/center/right (`textAlign`). Elements vs tag and vs selection; distribute at 3+. |
+| Barcodes | UPC-A default (`upc_value` fixture). Code 128 and QR in-app from the SKU’s UPC digits. |
 | Catalog / live IMAP | Parked. No live prices on the public URL. |
 | EBR-794 | Parked. Do not comment in Jira. |
 | Physical Avery | A check, not the gate. |
 
-Verified live 2026-09-16: `/`, `/5392`, `/design`, `/design?stock=5392` all 200;
-fixture SKUs on the sheets; no `api/v1` on the public HTML.
+`TEMPLATE_VERSION` stays **1**. New fields are additive; missing keys on old
+localStorage JSON fall back (SKU → Geist Mono, barcode → UPC-A, text → left).
 
 ## Run
 
@@ -65,8 +68,9 @@ The product is a **browser designer** that prints Avery tags. iPad hang tags sta
 - Avery **5371** letter: 3.5×2 in, 2×5, 0.5" top, 0.75" sides, no gap
 - Avery **5392** letter: 4×3 in, 2×3, 0.25" sides, 1" top/bottom (official Avery, not iOS 3-col 3×4)
 - Designer templates for **both** stocks (`src/data/template.ts`); print sheets render `TemplateTag` from that JSON
+- Font, text align, element align/distribute, and barcode type persist on that JSON
 - 10 live Kuzco (`kll`) SKUs on disk in `src/data/kuzco-fixture.json`
-- Real UPC-A (`scripts/render-upcs.mjs` → `public/fixtures/barcodes/`)
+- Real UPC-A (`scripts/render-upcs.mjs` → `public/fixtures/barcodes/`); Code 128 and QR generated in-app from the SKU UPC digits
 - Logo + product photos on disk
 - Print CSS hides chrome; Chrome File → Print
 - Unused leftover: `src/components/hang-tag.tsx` (old hardcoded renderer; sheets no longer import it)
@@ -89,7 +93,7 @@ Bindings match Kuzco live formats 3198 / 3204:
 
 Drag/drop must serialize. If layout only lives in React/Fabric state, the spike is throwaway.
 
-Schema: `src/data/template.ts`. Positions in **inches**. Objects: `text` / `image` / `barcode`. Bindings are IpadReport vocabulary (`item_number`, `c.FinishOptions`, `upc_value`, …), not `populate_hash` keys.
+Schema: `src/data/template.ts`. Positions in **inches**. Objects: `text` / `image` / `barcode`. Bindings are IpadReport vocabulary (`item_number`, `c.FinishOptions`, `upc_value`, …), not `populate_hash` keys. Template-level `fontFamily` / `barcodeFormat`; per-object `fontFamily`, `textAlign`, `barcodeFormat`.
 
 Defaults live in git (`KUZCO_5371_TEMPLATE`, `KUZCO_5392_TEMPLATE`). Designer edits persist in **that browser only**:
 
@@ -131,10 +135,9 @@ Do not push this repo to `agentic_operations`. Do not commit `node_modules`.
 
 ## Next (do not start catalog)
 
-1. Click the live pages in a browser (designer → print sheet, both stocks). Chrome print, not the static PDF.
-2. Decide how templates are shared beyond localStorage (commit JSON into the repo vs download-only).
-3. Physical Avery when a sheet is worth hanging.
-4. Catalog proxy only after Brent’s console key + a dedicated OrgUser.
+1. Decide how templates are shared beyond localStorage (commit JSON into the repo vs download-only).
+2. Physical Avery when a sheet is worth hanging.
+3. Catalog proxy only after Brent’s console key + a dedicated OrgUser.
 
 ## Design system
 
