@@ -15,3 +15,25 @@ Ghost accounts: 0
 Behavioral floor applied: 8
 Support fire flags: 0
 Bundle/config mismatches: 3
+
+---
+
+## Historical-run provenance (carried forward from the original run)
+
+These runs are **approximate**, per `HISTORICAL_RUN_GUIDE.md`. Regenerated
+2026-09-16 under V3.4.0 (equal weights) and the pinned interpreter; the
+limitations below are unchanged and still apply.
+
+## Known limitations
+- Adoption — feature flags reflect current config, not historical.
+- Catalog completeness — reflects today's catalog state, not Feb 2026.
+- Support Fire — only conversations created ≤ 2026-02-28 still open today are captured (zero captured in this run).
+- MAL — uses 2026-04-14 MAL.
+
+## Determinism
+
+- SHA-256 (V3.4.0, equal weights): `842c6289de61dff21062ce1f369208b6b2968972a7ec25c94986024c1d4185cd`
+- Regenerated 2026-09-16 under Python 3.9.6 / pandas 2.3.3 / numpy 2.0.2.
+- Drift vs the original stored run was +/-0.1 on a handful of composites
+  with **zero band changes** — see `ENVIRONMENT.md`.
+

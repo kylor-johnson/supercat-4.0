@@ -15,3 +15,26 @@ Ghost accounts: 1
 Behavioral floor applied: 10
 Support fire flags: 0
 Bundle/config mismatches: 3
+
+---
+
+## Historical-run provenance (carried forward from the original run)
+
+These runs are **approximate**, per `HISTORICAL_RUN_GUIDE.md`. Regenerated
+2026-09-16 under V3.4.0 (equal weights) and the pinned interpreter; the
+limitations below are unchanged and still apply.
+
+## Known limitations
+- **Adoption** — feature flags reflect current config, not historical (`pg_org_config.csv` was not date-filtered).
+- **Catalog completeness** — reflects today's catalog state (`pg_catalog.csv` has no `as_of` filter on `products`), not Nov 2025.
+- **Smart Stacks** — `pg_smart_stacks.csv` has no date filter; counts reflect current state, not Nov 2025.
+- **Support Fire** — only conversations created on or before 2025-11-30 that are *still* `active`/`pending` today are captured. Fires that have been resolved since 2025-11-30 do not appear, so this dimension structurally underreports for historical runs. (Helpscout query returned 0 rows, as expected per methodology note.)
+- **MAL** — uses 2026-04-14 master account list; orgs added after 4/14/2026 or removed before that date will be misclassified relative to their actual 2025-11-30 status.
+
+## Determinism
+
+- SHA-256 (V3.4.0, equal weights): `e0931bf5664c89f6d2b84414629e8147f1c1fe5136a52b6b5d44db19132ce029`
+- Regenerated 2026-09-16 under Python 3.9.6 / pandas 2.3.3 / numpy 2.0.2.
+- Drift vs the original stored run was +/-0.1 on a handful of composites
+  with **zero band changes** — see `ENVIRONMENT.md`.
+
