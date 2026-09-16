@@ -64,7 +64,7 @@ asked for a dry run.
 
 ## Step 1–4 — Execute the run prompt
 
-Read `Insightful Product 2.0/operators/external/run_prompt.md` and execute
+Read `_museums/Insightful Product 2.0/operators/external/run_prompt.md` and execute
 Steps 1 through 4 exactly as written, substituting the resolved parameters.
 
 The run prompt is the single source of truth for the workflow. Follow it to the

@@ -44,7 +44,7 @@ Keep these folder names here. Map on copy; do not reshape this ops tree into L0�
 | `Health V3 Backfill/{README,METHODOLOGY,RUN_PROMPT,FRESH_RUN_GUIDE,CHANGELOG}` | same `health_v3/` folder |
 | Persona / JTBD (`personas/` — `00-PERSONA-GROUPS.md`) + splices in `foundation/00`–`02` and `CEO_SYSTEM_CONTEXT.md` | **Hold** — do not splice into factory `context/` (factory #347 closed) |
 | `ttfv/` methodology + prompt (no result CSVs) | `agents/ceo_system/ttfv/` (factory PR #348, still open) |
-| `Insightful Product 2.0/` / `3.0/`, `Health V2/`, Implementation CSVs, `eCat_Onboarding/` | **Do not copy** — onboarding agent is unfinished local work |
+| `_museums/Insightful Product 2.0/` / `3.0/`, `_museums/Health V2/`, Implementation CSVs, `eCat_Onboarding/` | **Do not copy** — onboarding agent is unfinished local work |
 | `hang-tag-spike/` | **Do not copy** — hang-tag Next prototype stays in this ops repo |
 
 Open **File → Open Workspace from File… →**
@@ -69,11 +69,12 @@ nested company `agent-factory/` clone stay gitignored. Health and Insightful
 ### Tracked in `kylor-johnson/supercat-4.0`
 
 Skills, rules, foundation, onboarding-models, PM, reports, design-system,
-Customer Intelligence/Segmentation, Peer Benchmark, Pricing Migration,
-EBR/HPMKT, eCat_Onboarding pointers, kb-articles, documentation, prompts,
+Customer Segmentation, Peer Benchmark, Pricing Migration V2,
+EBR/HPMKT 2026, eCat_Onboarding pointers, kb-articles, documentation, prompts,
 scripts (the tracked files), ttfv, validation-reports,
-`Health V2/` / `Health V3/` / `Health V3 Backfill/` (source + runs, no venv),
-`Insightful Product 2.0/` / `3.0/` / `4.0/` (source; 4.0 is the active pipeline),
+`Health V3/` / `Health V3 Backfill/` (source + runs, no venv),
+`Insightful Product 4.0/` (active pipeline),
+`_museums/` (Insightful 2.0/3.0, Health V2, Customer Intelligence, Pricing Migration v1, HPMKT 2.0),
 `Migration-Health Artifacts/`, `hang-tag-spike/` (Next prototype; no `node_modules`).
 
 ### Local-only — do not copy into git
@@ -84,7 +85,7 @@ scripts (the tracked files), ttfv, validation-reports,
 | `cursor-to-claude-migration/` and `-macbook/` | Live secrets (BQ keys, Fathom, VPN, MCP passwords). |
 | `.venv/`, `.venv-renderer/`, `.venv_broken*` | Python environments. Recreate locally. |
 | `chat-history/`, `scratch/`, `files 2/`, `_archive/`, `Scoping Build/`, `HTML System/` | Dumps, Finder dupes, empty skeleton (successor is `design-system/`). |
-| `Insightful Product 3.0/password_overrides.csv` | Hosted-report passwords. |
+| `_museums/Insightful Product 3.0/password_overrides.csv` | Hosted-report passwords. |
 | `repos/` / `repos 2/` | iCloud dump of nested clones. Hang-tag lives at `hang-tag-spike/`. |
 
 ### Never commit
@@ -107,7 +108,7 @@ Live MCP is `~/.cursor/mcp.json`. Credentials live in `~/.supercat/`.
 | `.cursor/skills/` | 31 Cursor agent skills (in-repo, git-tracked). See skill index below. |
 | `.cursor/rules/` | 8 always-on rules (`.mdc`) — import ground truth, data model, Jira read-only, canvas ban, legacy freeze. |
 | `CLAUDE.md` | The `alwaysApply` rules ported for Claude Code. Generated from `.cursor/rules/`. |
-| `.cursorignore` | Excludes frozen Insightful 2.0/3.0, Health museums, and migration attics from indexing. Insightful 4.0 stays indexed. |
+| `.cursorignore` | Excludes `_museums/` (legacy Insightful/Health/program folders) and migration attics from indexing. Insightful 4.0 stays indexed. |
 | `prompts/`, `KB Creation prompts/` | Reusable prompt material. |
 
 ### Business foundation
@@ -130,13 +131,14 @@ Live MCP is `~/.cursor/mcp.json`. Credentials live in `~/.supercat/`.
 | Path | Purpose |
 |---|---|
 | `reports/` | Generated client reports (EBR, closed deals, feature analysis) in `.md` + `.html`. |
-| `Customer Intelligence/`, `Customer Segmentation/`, `Peer Benchmark/` | Segmentation and benchmarking analysis. |
-| `Pricing Migration/`, `Pricing Migration V2/` | Pricing migration program. |
-| `EBR 2.0/`, `HPMKT 2.0/`, `HPMKT 2026/` | Business-review and High Point Market material. |
+| `Customer Segmentation/`, `Peer Benchmark/` | Segmentation and benchmarking analysis. |
+| `Pricing Migration V2/` | Pricing migration program (v1 is in `_museums/`). |
+| `EBR 2.0/`, `HPMKT 2026/` | Business-review and High Point Market material (HPMKT 2.0 is in `_museums/`). |
 | `ttfv/`, `Data Scoping/`, `validation-reports/` | Time-to-first-value, scoping, and validation datasets. |
 | `scripts/` | Tracked analysis scripts only. Untracked dumps and Notion helpers stay local. |
-| `Health V2/`, `Health V3/`, `Health V3 Backfill/` | Account-health scoring source + runs (venvs gitignored). |
+| `Health V3/`, `Health V3 Backfill/` | Account-health scoring source + runs (venvs gitignored). Health V2 is in `_museums/`. |
 | `Insightful Product 4.0/` | Active CEO-intelligence pipeline (`CANON.md`, `run.sh`, `pipeline/`). |
+| `_museums/` | Frozen Insightful 2.0/3.0, Health V2, Customer Intelligence, Pricing Migration v1, HPMKT 2.0. |
 | `Migration-Health Artifacts/` | Pricing-migration health brief templates. |
 
 ### Presentation
@@ -153,15 +155,14 @@ Live MCP is `~/.cursor/mcp.json`. Credentials live in `~/.supercat/`.
 | Folder | Location |
 |---|---|
 | `Insightful Product` (original) | `iCloud Drive/Insightful Product/` — sibling to this folder |
-| `Insightful Product 2.0/` | in-repo; frozen. Do not use unless asked. |
-| `Insightful Product 3.0/` | in-repo; frozen. Nested remote `kylor-johnson/Insightful-2.0`. Passwords not committed. |
+| `_museums/` | Insightful 2.0/3.0, Health V2, Customer Intelligence, Pricing Migration v1, HPMKT 2.0. Nested remote `kylor-johnson/Insightful-2.0` under 3.0. Do not open unless asked. |
 
 The freeze is enforced by `.cursorignore` and `.cursor/rules/insightful-legacy-frozen.mdc`.
 
 - **Active Insightful work is `Insightful Product 4.0/`** in this repo (venv gitignored)
   plus `~/repos/agent-factory/agents/insightful_product`. A bare "run a report for X"
   means the 4.0 report (`insightful-report-4`), never 2.0.
-- The `insightful-report` skill targets frozen 2.0 — only invoke it when the
+- The `insightful-report` skill targets frozen 2.0 at `_museums/Insightful Product 2.0/` — only invoke it when the
   user explicitly says "2.0" or "legacy".
 - If it is ambiguous whether a request means 4.0 or a legacy version, ask once
   before touching a frozen path.
@@ -170,8 +171,8 @@ Also treat as low-trust rather than frozen: `_archive/`, `scratch/`, `files 2/`,
 `Scoping Build/`, `HTML System/`, and any `* 2.md` / `* 2.py` duplicate — copies,
 not sources of truth.
 
-Health V2 / V3 / V3 Backfill are tracked historical scoring. Read them when the
-user asks about health scoring or backfill; do not treat them as the Insightful 4.0 pipeline.
+Health V3 / V3 Backfill are current scoring. Health V2 is in `_museums/`. Do not
+treat health scoring as the Insightful 4.0 pipeline.
 
 ---
 

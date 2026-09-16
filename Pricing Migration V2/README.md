@@ -1,3 +1,5 @@
+> V2 is current. v1 lives in `_museums/Pricing Migration/`.
+
 # Pricing Migration V2
 
 SuperCat 2026 pricing migration — production HTML draft generator.

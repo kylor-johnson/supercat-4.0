@@ -54,7 +54,7 @@ Stale / do not treat as current: `agentic_operations`, old `insightful_product`,
 | TTFV | `ttfv/` |
 | Hang-tag spike | `hang-tag-spike/` |
 
-Museums (do not open unless asked): `_museums/` (Insightful 2.0/3.0, Health V2, pre-Insightful Customer Intelligence, old Pricing/HPMKT). Sibling `iCloud Drive/Insightful Product/` is also frozen.
+Museums (do not open unless asked): [`_museums/`](_museums/README.md) — `Insightful Product 2.0/`, `Insightful Product 3.0/` (nested remote `kylor-johnson/Insightful-2.0`), `Health V2/`, `Customer Intelligence/`, `Pricing Migration/` (v1), `HPMKT 2.0/`. Active counterparts stay at root: Insightful 4.0, Health V3, Pricing Migration V2, HPMKT 2026. Sibling `iCloud Drive/Insightful Product/` is also frozen. `HTML System/` and `Scoping Build/` are gitignored at root (not museumed).
 
 ## Secrets
 

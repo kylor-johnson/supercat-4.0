@@ -263,8 +263,9 @@ that specific legacy version in that conversation.
 | Folder | Location |
 |--------|----------|
 | `Insightful Product` (original) | `iCloud Drive/Insightful Product/` (sibling to SuperCat 4.0) |
-| `Insightful Product 2.0` | `SuperCat 4.0/Insightful Product 2.0/` |
-| `Insightful Product 3.0` | `SuperCat 4.0/Insightful Product 3.0/` |
+| `Insightful Product 2.0` | `SuperCat 4.0/_museums/Insightful Product 2.0/` |
+| `Insightful Product 3.0` | `SuperCat 4.0/_museums/Insightful Product 3.0/` |
+| Other museums | `SuperCat 4.0/_museums/` — Health V2, Customer Intelligence, Pricing Migration v1, HPMKT 2.0 |
 
 ## Active project
 
