@@ -79,8 +79,13 @@ def _latest_run_dir(root: Path) -> Path | None:
     runs = root / "runs"
     if not runs.is_dir():
         return None
+    # Only YYYY-MM-DD directories are canonical runs. runs/ also holds
+    # historical/, cohort/, cohort_v330/, _weighting_study/ and
+    # _engine_baseline_v3.2.13/ — a plain name sort picked "historical" as the
+    # newest run and failed four invariants against a file that never existed.
     candidates = sorted(
-        (p for p in runs.iterdir() if p.is_dir()),
+        (p for p in runs.iterdir()
+         if p.is_dir() and re.fullmatch(r"\d{4}-\d{2}-\d{2}", p.name)),
         key=lambda p: p.name,
     )
     return candidates[-1] if candidates else None

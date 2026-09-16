@@ -601,6 +601,19 @@ The composite narrative is built by `_build_composite_narrative()` in `health_op
 1. Populate `cache/{date}/` once, ideally close to midnight UTC of the score date.
 2. Run the operator with `--score-date {date}` and `--cache-dir cache/{date}`.
 3. Never modify the cache after the run. To rerun for the same date, point at the same cache.
+4. Record the interpreter alongside the SHA (see `ENVIRONMENT.md`).
+
+**The guarantee is interpreter-scoped.** Verified 2026-09-16: the V3.2.13
+canonical `b48e3a5f…` no longer reproduces. Running the *original* v3.2.x
+operator against its own immutable cache under Python 3.9.6 / numpy 2.0.2 yields
+`6a2f1d9f…` — three of 104 composites move by 0.1 (`all`, `bsc`, `gblx`), zero
+band changes. The cause is float summation order at a `.x5` rounding boundary
+under a different Python + NumPy, not a code change; the `.venv` that produced
+those canonicals targeted a `python@3.14` that no longer exists.
+
+So the contract is: **same cache + same `--score-date` + same interpreter →
+byte-identical.** A canonical SHA quoted without its interpreter is not a
+reproducibility claim. Pins live in `requirements.txt` / `.python-version`.
 
 ### Consistency checking
 
