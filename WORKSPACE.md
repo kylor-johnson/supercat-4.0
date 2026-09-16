@@ -9,28 +9,36 @@
 
 Pin **SuperCat (Workspace)** in **File → Open Recent** so it stays at the top.
 
-That iCloud folder **is** the `kylor-johnson/supercat-4.0` git working tree.
-`~/repos/supercat-4.0` does not exist on this Mac. Do not clone it here.
+That iCloud folder **is** the `kylor-johnson/supercat-4.0` git working tree
+(remote name `personal`). Location map: [`WHERE.md`](WHERE.md).
 
 ## What's in this workspace
 
 | Root | Path | Purpose |
 |------|------|---------|
-| **SuperCat Ops** | iCloud `SuperCat 4.0` | Skills, rules, onboarding-models, PM, foundation, reports |
-| **eCat Implementation** | `~/repos/ecat-onboarding-workspace` | Live client onboarding (`02_Implementation/`) |
+| **SuperCat Ops** | iCloud `SuperCat 4.0` | This git tree — skills, foundation, Insightful 4.0, Health V3 |
+| **eCat Implementation** | iCloud `SuperCat_Simple_Final` | Live client onboarding (`02_Implementation/`) = `kylor-johnson/ecat-onboarding-workspace` |
 | **supercat-code** | `~/supercat-code` | `supercat_server`, `sarreid_ios` |
 
-Hang-tag spike (tracked in this ops git): `SuperCat Ops/hang-tag-spike` — see `SPIKE.md`. Other Mac: `~/repos/supercat-4.0/hang-tag-spike` after pull, then `npm install`.
+Hang-tag spike is tracked in this ops git at `hang-tag-spike/` — see `SPIKE.md`.
+It is not a fourth workspace root. Other Mac: `~/repos/supercat-4.0/hang-tag-spike`
+after pull, then `npm install`.
 
-`SuperCat.macbook.code-workspace` keeps `~/repos/supercat-4.0` roots for the
-**other Mac** after it clones from GitHub. Do not use it on this Mac.
+Company factory is `~/repos/agent-factory` (`SuperCatSolutionsLLC/agent-factory`).
+Never open the nested copy inside SuperCat 4.0. Factory is not a workspace root
+on this Mac.
+
+`SuperCat.macbook.code-workspace` is for the **other Mac** after it clones from
+GitHub (ops = `~/repos/supercat-4.0`; live clients there =
+`~/repos/ecat-onboarding-workspace`). Do not use it on this Mac. This Mac's live
+clients are iCloud `SuperCat_Simple_Final`, not `~/repos/ecat-onboarding-workspace`.
 
 ## Do not
 
 - Open iCloud `SuperCat 4.0` as a plain **folder** (splits agent chat history) — open the `.code-workspace` file
 - Open `~/supercat-code` alone
 - Use **Add Folder to Workspace** without saving — creates ephemeral workspaces and orphans chats
-- Recreate live client folders under `eCat_Onboarding/` — those trees live in the private Implementation repo
+- Recreate live client folders under `eCat_Onboarding/` — those trees live in iCloud `SuperCat_Simple_Final`
 - `git add` Health / Insightful museums, nested `agent-factory/`, or `integrations/` keys
 
 ## Finding old agent chats

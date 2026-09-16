@@ -7,16 +7,30 @@ Orientation for any agent working in this repo. Read this first, then the
 
 **This file supersedes `README.md` for agent orientation.**
 
+There are **four trees**. If a path here disagrees with an older doc,
+[`WHERE.md`](WHERE.md) wins for *location*.
+
+| Work | Path on this Mac | GitHub |
+|---|---|---|
+| **Ops** — skills, foundation, Insightful 4.0, Health V3, hang-tag | iCloud `SuperCat 4.0` (this git working tree; remote name `personal`) | `kylor-johnson/supercat-4.0` |
+| **Live clients** — CSVs, `02_Implementation/<Client>/` | iCloud `SuperCat_Simple_Final` | `kylor-johnson/ecat-onboarding-workspace` |
+| **Product code** — Rails + iPad | `~/supercat-code` | `SuperCatSolutionsLLC/supercat_server`, `sarreid_ios` |
+| **Company agents** — CEO system, factory `context/` | `~/repos/agent-factory` (never the nested copy inside SuperCat 4.0) | `SuperCatSolutionsLLC/agent-factory` |
+
 **What this GitHub repo is:** the SuperCat operations subset — agent skills,
 business foundation docs, PM material, onboarding *models*, and tracked analysis
 trees. It is *not* the product codebase, *not* the live client-file tree, and
 *not* a mirror of every folder sitting on disk next to this working tree.
 
 Application source (`supercat_server`, `sarreid_ios`) lives at `~/supercat-code`.
-Live client onboarding lives in the **private** repo
-`~/repos/ecat-onboarding-workspace` (`02_Implementation/<Client>/`).
+Live client onboarding lives in iCloud **`SuperCat_Simple_Final`**
+(`02_Implementation/<Client>/`, GitHub `kylor-johnson/ecat-onboarding-workspace`).
 Company weekly agents live in `~/repos/agent-factory`
 (`SuperCatSolutionsLLC/agent-factory`).
+
+Personas (who is logged into the product): [`personas/00-PERSONA-GROUPS.md`](personas/00-PERSONA-GROUPS.md)
+(Admin / VP of sales / executive / sales rep / buyer). Phase 2 creates that file.
+Selling-motion cells stay in `Customer Segmentation/current/`.
 
 ### Copy map — this tree → agent-factory
 
@@ -28,19 +42,10 @@ Keep these folder names here. Map on copy; do not reshape this ops tree into L0�
 | `.cursor/skills/insightful-report-4/SKILL.md` | same hold |
 | `Health V3/health_operator_v3.py` (V3.3.0) | `agents/ceo_system/onboarding_reality/health_v3/health_operator_v3.py` |
 | `Health V3 Backfill/{README,METHODOLOGY,RUN_PROMPT,FRESH_RUN_GUIDE,CHANGELOG}` | same `health_v3/` folder |
-| Persona / JTBD (`foundation/sources/customer_segmentation/{personas,analytics,product,taxonomy}`) + splices in `foundation/00`–`02` and `CEO_SYSTEM_CONTEXT.md` | **Hold** — do not splice into factory `context/` (factory #347 closed) |
+| Persona / JTBD (`personas/` — `00-PERSONA-GROUPS.md`) + splices in `foundation/00`–`02` and `CEO_SYSTEM_CONTEXT.md` | **Hold** — do not splice into factory `context/` (factory #347 closed) |
 | `ttfv/` methodology + prompt (no result CSVs) | `agents/ceo_system/ttfv/` (factory PR #348, still open) |
 | `Insightful Product 2.0/` / `3.0/`, `Health V2/`, Implementation CSVs, `eCat_Onboarding/` | **Do not copy** — onboarding agent is unfinished local work |
 | `hang-tag-spike/` | **Do not copy** — hang-tag Next prototype stays in this ops repo |
-
-**This Mac — source of truth (edit here):**
-
-| Work | Path |
-|---|---|
-| Ops (this git working tree) | `~/Library/Mobile Documents/com~apple~CloudDocs/SuperCat 4.0` |
-| Live client implementation | `~/repos/ecat-onboarding-workspace` |
-| Product code | `~/supercat-code` |
-| Company agent-factory clone | `~/repos/agent-factory` (not the nested copy inside this folder) |
 
 Open **File → Open Workspace from File… →**
 `~/Library/Mobile Documents/com~apple~CloudDocs/SuperCat 4.0/SuperCat.code-workspace`.
@@ -49,7 +54,8 @@ That folder **is** `kylor-johnson/supercat-4.0` (remote name `personal`). There 
 no `~/repos/supercat-4.0` on this Mac. Do not recreate that clone here.
 
 The other Mac clones under `~/repos` — see `HANDOFF_OTHER_MACHINE.md` and
-`SuperCat.macbook.code-workspace`.
+`SuperCat.macbook.code-workspace`. On that Mac, live clients are
+`~/repos/ecat-onboarding-workspace`. Do not treat that path as this Mac's live tree.
 
 ---
 
@@ -108,14 +114,15 @@ Live MCP is `~/.cursor/mcp.json`. Credentials live in `~/.supercat/`.
 | Path | Purpose |
 |---|---|
 | `foundation/` | The socializable company context. `00`–`06` strategic pillar; `07` epistemic (how we establish truth); `08`–`09` operating pillar (how we build, agent factory); plus `CEO_SYSTEM_CONTEXT.md` and `PLATFORM_ANATOMY_CURRENT_STATE.md`. |
-| `foundation/sources/` | The **stamped sources** `foundation/` cites and summarizes — pricing constitution, monetization/competitive/install-base research, CEO-system artifact catalog, FY26 plan, BCF reference instance, segmentation README + buyer-type reads. **On conflict, the stamped source wins over `foundation/`.** Imported from the 2026-08-05 foundation pack. |
+| `foundation/sources/` | The **stamped sources** `foundation/` cites and summarizes — pricing constitution, monetization/competitive/install-base research, CEO-system artifact catalog, FY26 plan, BCF reference instance, segmentation README + buyer-type reads. **On conflict, the stamped source wins over `foundation/`.** Imported from the 2026-08-05 foundation pack. Not the home of the persona product. |
+| `personas/` | Five consumption roles (Admin / VP of sales / executive / sales rep / buyer). Canon: `personas/00-PERSONA-GROUPS.md` (Phase 2 creates this path). Orthogonal to `Customer Segmentation/current/`. |
 | `Supercat_CEO_system_README.md`, `QBO_Invoice_BigQuery_Dedup_Guide_README.md` | Root-level companions — operating-cadence overview, and the mandatory dedup pattern for `quickbooks__invoice` in BigQuery (read before any AR/balance/overdue query). |
 | `PM/` | Program material — Admin console, Sales Portal docs, eCat web rewrite estimates, agent starters. |
 
 ### Client onboarding
 | Path | Purpose |
 |---|---|
-| `eCat_Onboarding/` | **Pointers only** — kickoff, registry, `jcusa.md`. Live client folders are in `~/repos/ecat-onboarding-workspace/02_Implementation/`. **Never recreate client folders here.** |
+| `eCat_Onboarding/` | **Pointers only** — kickoff, registry, `jcusa.md`. Live client folders are in iCloud `SuperCat_Simple_Final/02_Implementation/`. **Never recreate client folders here.** |
 | `onboarding-models/` | Phase framework, output contracts, HTML artifact contract, questionnaire, rendering pipeline. |
 | `kb-articles/`, `KB - Net New/`, `documentation/` | Knowledge-base source and drafts. |
 
@@ -177,7 +184,7 @@ user asks about health scoring or backfill; do not treat them as the Insightful 
 **Naming**
 - Dated artifacts: `YYYY-MM-DD` prefix or suffix (`2026-07-16__name.md`).
 - Assessment / ground-truth is keyed by **org shortname** (`mali`, `libco`, `drf`, `pebl`, `leg`).
-  Live implementation folders use full client names in `ecat-onboarding-workspace`.
+  Live implementation folders use full client names in iCloud `SuperCat_Simple_Final`.
 - Reports commonly ship as a `.md` + `.html` pair with the same stem.
 - Docs carry a `> **Last updated**: YYYY-MM-DD` line near the top — **bump it when
   you change the file.** Several `foundation/` docs currently have edits that
@@ -188,7 +195,7 @@ user asks about health scoring or backfill; do not treat them as the Insightful 
 - `Ready_For_Import/*.csv` (staging payloads)
 - Transcript archives (`*transcript*.zip`)
 - Live client CSVs into *this* repo — they belong in the private
-  `kylor-johnson/ecat-onboarding-workspace` repo by intent
+  `kylor-johnson/ecat-onboarding-workspace` repo (this Mac: iCloud `SuperCat_Simple_Final`)
 - Recreated `eCat_Onboarding/<client>/` trees
 - Nested `agent-factory/`, `_archive/`, `Scoping Build/`
 - Venvs, `password_overrides.csv`, migration-kit secret dumps

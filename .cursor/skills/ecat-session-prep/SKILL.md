@@ -64,9 +64,23 @@ six recorded errors are that same shape. The label is the whole defence.
 
 | source | required? | reaches | gives |
 |---|---|---|---|
-| **BigQuery** — `onboarding_assessment.fathom_recent_meetings`, `Fathom.call-transcripts`, `onboarding_assessment.helpscout_tickets` | **REQUIRED** | anywhere (service-account key) | the conversation record: §§ 1–3 |
+| **Calendar** — the operator's calendar, or the meeting stated in the prompt | **REQUIRED to know a session exists** | this Mac / Google Calendar, once wired | source 0: a session is scheduled or happened, with attendees and time |
+| **BigQuery** — `onboarding_assessment.fathom_recent_meetings`, `Fathom.call-transcripts`, `onboarding_assessment.helpscout_tickets` | **REQUIRED for the conversation record** | anywhere (service-account key) | §§ 1–3 when the mail and recording exist |
 | **Postgres** — `supercat-postgres-vpn` MCP | **OPTIONAL** | VPN only | what actually moved in the org: the numbers in § 1 and most of § 4 |
 | harness / `ecat-config-check` output | optional | wherever it was run | findings to cite, never to re-derive |
+
+**Calendar is not optional for "was there a call."** Fathom is a transcript source, not a
+meeting source. HelpScout is the eCat support mailbox, not Kylor's inbox. Client Teams
+meetings routinely exclude the Fathom bot, and some working correspondence never hits
+HelpScout. Empty Fathom or a thin HelpScout thread is **not** evidence that no session
+happened.
+
+Until Google Calendar is wired, the meeting line in the prompt **is** the calendar:
+date, time, attendees, and "Fathom cannot join / mail may be off HelpScout" when true.
+Do not wait for a recording to build the brief. Header must say what was missing.
+
+Do **not** ingest the operator's whole Gmail. If mail off HelpScout is needed later,
+scope it to a label or to `org_domains` senders — never the inbox.
 
 **Postgres is optional and degrades loudly.** This skill is the first built to deploy on
 eve, and eve cannot reach Postgres — `mcp-postgres-tools.tools.supercatsolutions.com` is
@@ -132,15 +146,20 @@ Neither call is in Fathom at all — not under another title, not with empty dom
 re-stating three or four weeks of work the client had already been walked through, which
 is precisely the "read once and never again" failure.
 
-**So the anchor is `max(` of THREE sources, not two:**
+**So the anchor is `max(` of FOUR sources, not three:**
 
+0. **Calendar (or the meeting stated in the prompt).** This is source 0. A Teams/Zoom
+   event with the client's attendee domains is a session whether or not Fathom or
+   HelpScout saw it. Match attendees against `org_domains` (and the prompt). Never
+   conclude "no session" from empty Fathom.
 1. **Last deduped Fathom call.**
 2. **Last session-shaped email** — a thread from `@supercatsolutions.com` whose body opens
    with a recap frame: `good session`, `thanks for the time today`, `recap`, `here's where
    we landed`, `what we locked in`, `good progress today`, `good to meet you all today`.
    These are Kylor's own post-call notes and the highest-signal artifact in the corpus
    (see § 4). Match on the first ~400 characters; recap language appears at the top or not
-   at all.
+   at all. HelpScout only. Mail that stayed in the operator's inbox is invisible here
+   until a recap is forwarded to the eCat mailbox or a scoped Gmail label exists.
 3. **Last forward-looking session reference** — anyone, either side, pointing at a session
    about to happen: `prior to tomorrow's call`, `looking forward to seeing you tomorrow`,
    `ahead of our meeting`, `our meeting on <day>`, `we will walk through it together
@@ -164,7 +183,8 @@ Last conversation: 2026-09-04 — settings walkthrough (inferred, not confirmed)
 ```
 
 If Fathom missed a session, say so in the header — it tells the reader the transcript
-quotes in § 2 are from an *older* call than the one they actually last had:
+quotes in § 2 are from an *older* call than the one they actually last had. Client
+Teams tenants that refuse the Fathom bot are the common case, not an exception:
 
 ```
 > **Fathom has no recording of the 2026-08-28 session.** Anchor taken from Kylor's
@@ -231,7 +251,7 @@ as a client identity unless it is `@supercatsolutions.com`.
 
 **This is the deployment blocker, not the degradation.** Runtime domain resolution is a
 Postgres read, so off-VPN the skill falls back to the static registry below — which covers
-six clients. **A seventh client cannot be briefed on eve at all.** Before this ships to
+six clients. **RESOLVED 2026-09-09 — `onboarding_assessment.org_domains` now exists in BigQuery (6 rows) and `resolve_client` reads it, so a seventh client is one INSERT and no code change. The static registry below is retained as the offline fallback only.** Before this ships to
 eve, push an org → domain map to BigQuery (one small table: shortname, org name, domains,
 mention token). Everything else about the degraded path is a graceful loss of detail; this
 one is a hard stop.
