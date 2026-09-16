@@ -1,0 +1,423 @@
+/* ════════════════════════════════════════════════════════════════
+   SuperCat DS — Modal primitive  ·  .kmd
+   ────────────────────────────────────────────────────────────────
+   ▸ Class prefix: `.kmd` = "kit modal"
+   ▸ Four variants share the same shell:
+       .kmd-confirm   Compact confirmation dialog (~400 px wide).
+                      Apple-feel: tight padding, two-button row.
+                      Use the native <dialog> element.
+       .kmd-menu      Popover menu for three-dots / contextual
+                      actions. Vertical list, compact, dense.
+                      Use a positioned <div role="menu">.
+       .kmd-preview   Large preview dialog (~720 px) for contact /
+                      product / order detail. Head + scrollable body
+                      + action footer. Use <dialog>.
+       .kmd-marketing Marketing modal (~520 px) for newsletter,
+                      lead-magnet, announcement. Editorial — image
+                      slot, headline, CTA, dismiss.
+   ▸ Native <dialog> handles the backdrop + ESC-close + scroll lock
+     for free; we only style ::backdrop with blur + dark wash.
+   ────────────────────────────────────────────────────────────────
+   API
+
+     <dialog class="kmd kmd-confirm">
+       <header class="kmd-head">
+         <h2 class="kmd-title">Delete order?</h2>
+         <p class="kmd-body-copy">Order #136131-112625-10 will be permanently
+           removed. This can't be undone.</p>
+       </header>
+       <div class="kmd-actions">
+         <button class="kb kb-md kb-secondary" data-kmd-close>Cancel</button>
+         <button class="kb kb-md kb-danger">Delete</button>
+       </div>
+     </dialog>
+
+     <div class="kmd kmd-menu" role="menu">
+       <button class="kmd-menu-item" role="menuitem">
+         <svg class="kmd-menu-icon">…</svg>
+         <span class="kmd-menu-label">View details</span>
+         <span class="kmd-menu-key">⌘E</span>
+       </button>
+       <hr class="kmd-menu-sep"/>
+       <button class="kmd-menu-item is-danger">Delete</button>
+     </div>
+
+     <dialog class="kmd kmd-preview">
+       <header class="kmd-head kmd-head-bar">
+         <div class="kmd-head-lead">
+           <span class="kmd-eyebrow">Customer</span>
+           <h2 class="kmd-title">Caldera Mills</h2>
+         </div>
+         <button class="kmd-close" data-kmd-close>…close icon…</button>
+       </header>
+       <div class="kmd-body kmd-body-scroll">…content…</div>
+       <footer class="kmd-foot">
+         <button class="kb kb-md kb-secondary" data-kmd-close>Close</button>
+         <button class="kb kb-md kb-primary">Open in app</button>
+       </footer>
+     </dialog>
+
+   Tokens consumed:
+     --surface-{card,2}    --text-{primary,body,muted}
+     --border-{subtle,default}    --color-{crimson,gold}
+     --space-N    --radius-{md,lg,xl}    --shadow-{2,3,4}
+     --font-{sans,mono}    --duration-{base,medium}    --ease-{out,emph}
+   ════════════════════════════════════════════════════════════════ */
+
+
+:where(.kmd) {
+  --kmd-radius:        var(--radius-xl);
+  --kmd-bg:            var(--surface-card);
+  --kmd-border:        var(--border-subtle);
+  --kmd-shadow:        0 24px 48px -16px rgba(26, 22, 20, 0.18),
+                       0 4px 12px -2px rgba(26, 22, 20, 0.10);
+  --kmd-pad:           clamp(20px, 2.4vw, 32px);
+  --kmd-gap-actions:   var(--space-3);
+  --kmd-w-confirm:     400px;
+  --kmd-w-preview:     720px;
+  --kmd-w-marketing:   520px;
+  --kmd-menu-w:        240px;
+  --kmd-menu-item-h:   36px;
+}
+
+/* Native <dialog> base — neutralises browser default styling so the
+   element is purely a positioned card. Display flex/column for the
+   confirm + preview layouts. */
+dialog.kmd {
+  margin: auto;
+  border: 0;
+  padding: 0;
+  background: var(--kmd-bg);
+  color: var(--text-body);
+  border-radius: var(--kmd-radius);
+  box-shadow: var(--kmd-shadow);
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  max-width: calc(100vw - 32px);
+  max-height: calc(100vh - 32px);
+  overflow: hidden;
+  display: none;
+  flex-direction: column;
+}
+dialog.kmd[open] {
+  display: flex;
+  animation: kmd-in var(--duration-medium, 320ms) var(--ease-emph, cubic-bezier(0.22, 1, 0.36, 1));
+}
+dialog.kmd::backdrop {
+  background: color-mix(in oklch, var(--text-primary) 28%, transparent);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  animation: kmd-backdrop-in var(--duration-medium, 320ms) var(--ease-out);
+}
+@keyframes kmd-in {
+  from { opacity: 0; transform: translateY(8px) scale(0.985); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes kmd-backdrop-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+
+/* ── Head + body + foot — shared shell pieces ────────────────────── */
+
+.kmd-head {
+  padding: var(--kmd-pad);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  flex-shrink: 0;
+}
+.kmd-head-bar {
+  /* Preview/marketing variant — title on left, close button on right */
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  border-bottom: 1px solid var(--kmd-border);
+  padding-bottom: clamp(16px, 1.8vw, 20px);
+}
+.kmd-head-lead {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.kmd-eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.kmd-title {
+  margin: 0;
+  font-size: var(--text-xl);
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--tracking-tighter);
+  color: var(--text-primary);
+  line-height: var(--leading-tight);
+}
+.kmd-body-copy {
+  margin: 0;
+  color: var(--text-body);
+  font-size: var(--text-sm);
+  line-height: var(--leading-relaxed);
+}
+/* Body grows to fill available space + scrolls when content overflows
+   the dialog's max-height. Critical on mobile where the dialog is
+   capped to `100vh - 32px` and long forms (name + company + email +
+   summary + actions) easily exceed the viewport. Without overflow-y,
+   the fields get clipped by dialog.kmd's overflow:hidden and the user
+   can't reach them. */
+.kmd-body {
+  padding: var(--kmd-pad);
+  color: var(--text-body);
+  font-size: var(--text-sm);
+  line-height: var(--leading-relaxed);
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+/* When .kmd-body follows .kmd-head (not the .kmd-head-bar variant
+   with its own border-bottom), zero the body's top padding. Otherwise
+   head's padding-bottom + body's padding-top doubles the gap and the
+   space between description and form fields reads as a layout bug. */
+.kmd-head:not(.kmd-head-bar) + .kmd-body {
+  padding-top: 0;
+}
+.kmd-body-scroll {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.kmd-foot {
+  padding: clamp(14px, 1.6vw, 18px) var(--kmd-pad);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--kmd-gap-actions);
+  border-top: 1px solid var(--kmd-border);
+  background: var(--surface-2);
+  flex-shrink: 0;
+}
+.kmd-actions {
+  padding: 0 var(--kmd-pad) var(--kmd-pad);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--kmd-gap-actions);
+}
+
+/* Close button — sits in the top-right corner of preview/marketing
+   variants. Uses the .kb-ghost token surface so it sits flush. */
+.kmd-close {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-md);
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0;
+  transition: background var(--duration-base) var(--ease-out),
+              color var(--duration-base) var(--ease-out);
+}
+.kmd-close:hover {
+  background: var(--surface-2);
+  color: var(--text-primary);
+}
+.kmd-close:focus-visible {
+  outline: 0;
+  box-shadow: 0 0 0 3px color-mix(in oklch, var(--color-crimson) 22%, transparent);
+}
+.kmd-close svg {
+  width: 16px;
+  height: 16px;
+  display: block;
+}
+
+
+/* ── Variant: .kmd-confirm — compact Apple-feel confirmation ───── */
+
+.kmd.kmd-confirm {
+  width: var(--kmd-w-confirm);
+  --kmd-pad: 24px;
+}
+.kmd.kmd-confirm .kmd-head {
+  gap: 8px;
+  padding-bottom: 16px;
+}
+.kmd.kmd-confirm .kmd-title {
+  font-size: var(--text-lg);
+  letter-spacing: var(--tracking-tight);
+}
+.kmd.kmd-confirm .kmd-body-copy {
+  color: var(--text-muted);
+}
+.kmd.kmd-confirm .kmd-actions {
+  padding-top: 4px;
+}
+/* Optional stacked-actions variant for tighter mobile — set on the
+   .kmd-actions element via class or media query. */
+.kmd.kmd-confirm .kmd-actions.kmd-actions-stack {
+  flex-direction: column-reverse;
+  align-items: stretch;
+}
+
+
+/* ── Variant: .kmd-preview — big detail dialog ───────────────────── */
+
+.kmd.kmd-preview {
+  width: var(--kmd-w-preview);
+  max-height: min(720px, calc(100vh - 48px));
+}
+
+
+/* ── Variant: .kmd-marketing — editorial newsletter/announce ──── */
+
+.kmd.kmd-marketing {
+  width: var(--kmd-w-marketing);
+}
+.kmd.kmd-marketing .kmd-hero {
+  height: 180px;
+  background: linear-gradient(135deg,
+    color-mix(in oklch, var(--color-crimson) 12%, var(--surface-2)),
+    color-mix(in oklch, var(--color-crimson) 4%, var(--surface-2)));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-crimson);
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--kmd-border);
+}
+.kmd.kmd-marketing .kmd-hero svg {
+  width: 64px;
+  height: 64px;
+}
+.kmd.kmd-marketing .kmd-head {
+  padding-bottom: var(--space-3);
+  gap: var(--space-2);
+}
+.kmd.kmd-marketing .kmd-title {
+  font-size: clamp(22px, 2.4vw, 28px);
+  letter-spacing: var(--tracking-tight);
+  max-width: 22ch;
+}
+.kmd.kmd-marketing .kmd-body-copy {
+  font-size: var(--text-base);
+  color: var(--text-body);
+  max-width: 44ch;
+}
+.kmd.kmd-marketing .kmd-actions {
+  padding-top: var(--space-2);
+}
+
+
+/* ── Variant: .kmd-menu — three-dots popover ───────────────────── */
+
+.kmd.kmd-menu {
+  position: absolute;
+  z-index: 70;
+  width: var(--kmd-menu-w);
+  padding: var(--space-2);
+  background: var(--kmd-bg);
+  border: 1px solid var(--kmd-border);
+  border-radius: var(--radius-md);
+  box-shadow: 0 12px 32px -8px rgba(26, 22, 20, 0.20),
+              0 2px 6px -1px rgba(26, 22, 20, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  animation: kmd-menu-in 160ms var(--ease-out);
+}
+@keyframes kmd-menu-in {
+  from { opacity: 0; transform: translateY(-4px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.kmd-menu-item {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  width: 100%;
+  height: var(--kmd-menu-item-h);
+  padding: 0 10px;
+  display: grid;
+  grid-template-columns: 16px 1fr auto;
+  align-items: center;
+  gap: var(--space-3);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  color: var(--text-body);
+  font: inherit;
+  text-align: left;
+  transition: background var(--duration-fast, 120ms) var(--ease-out);
+}
+.kmd-menu-item:hover {
+  background: var(--surface-2);
+  color: var(--text-primary);
+}
+.kmd-menu-item:focus-visible {
+  outline: 0;
+  background: var(--surface-2);
+  box-shadow: inset 0 0 0 1px color-mix(in oklch, var(--color-crimson) 30%, transparent);
+}
+.kmd-menu-item.is-danger {
+  color: var(--text-crimson, var(--color-crimson));
+}
+.kmd-menu-item.is-danger:hover {
+  background: color-mix(in oklch, var(--color-crimson) 10%, transparent);
+  color: var(--color-crimson);
+}
+.kmd-menu-icon {
+  width: 16px;
+  height: 16px;
+  color: currentColor;
+  opacity: 0.7;
+}
+.kmd-menu-item:hover .kmd-menu-icon { opacity: 1; }
+.kmd-menu-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.kmd-menu-key {
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  color: var(--text-faint);
+  letter-spacing: 0.04em;
+}
+.kmd-menu-sep {
+  height: 1px;
+  border: 0;
+  background: var(--kmd-border);
+  margin: 4px 6px;
+}
+
+
+/* ── Dark theme — surfaces lift, shadows deepen ─────────────────── */
+[data-theme="dark"] :where(.kmd) {
+  --kmd-shadow: 0 24px 48px -16px rgba(0, 0, 0, 0.5),
+                0 4px 12px -2px rgba(0, 0, 0, 0.3);
+}
+[data-theme="dark"] dialog.kmd::backdrop {
+  background: color-mix(in oklch, #000 70%, transparent);
+}
+[data-theme="dark"] .kmd.kmd-marketing .kmd-hero {
+  background: linear-gradient(135deg,
+    color-mix(in oklch, var(--color-crimson) 22%, var(--surface-2)),
+    color-mix(in oklch, var(--color-crimson) 8%, var(--surface-2)));
+}
+
+
+/* ── Lightweight controller — opt-in via [data-kmd-close] + the
+      <dialog>'s native showModal() / close() methods. */

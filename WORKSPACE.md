@@ -1,6 +1,6 @@
 # SuperCat Cursor Workspace
 
-> **Last updated**: 2026-09-15
+> **Last updated**: 2026-09-16
 
 ## This Mac — always open this way
 
@@ -19,6 +19,8 @@ That iCloud folder **is** the `kylor-johnson/supercat-4.0` git working tree.
 | **SuperCat Ops** | iCloud `SuperCat 4.0` | Skills, rules, onboarding-models, PM, foundation, reports |
 | **eCat Implementation** | `~/repos/ecat-onboarding-workspace` | Live client onboarding (`02_Implementation/`) |
 | **supercat-code** | `~/supercat-code` | `supercat_server`, `sarreid_ios` |
+
+Hang-tag spike (tracked in this ops git): `SuperCat Ops/hang-tag-spike` — see `SPIKE.md`. Other Mac: `~/repos/supercat-4.0/hang-tag-spike` after pull, then `npm install`.
 
 `SuperCat.code.macbook-workspace` keeps `~/repos/supercat-4.0` roots for the
 **other Mac** after it clones from GitHub. Do not use it on this Mac.

@@ -1,0 +1,426 @@
+/* ══════════════════════════════════════════════════════════════════
+   SuperCat DS — Input primitive  ·  .kf-input
+   ──────────────────────────────────────────────────────────────────
+   ▸ Class prefix: `.kf-*` = "kit form" (input, check, switch, field, date)
+   ▸ Decorates native <input>, <select>, <textarea>. Browser semantics
+     preserved — labels, autofill, password managers all work.
+   ▸ Sizes: kf-sm (32px) | kf-md (40px, default) | kf-lg (48px)
+   ▸ States via [data-state="error|warn|success"] or `disabled` / `readonly`
+   ▸ Slots via .kf-input-wrap with .kf-input-lead / .kf-input-trail
+   ▸ Framework-agnostic. No JS required.
+   ──────────────────────────────────────────────────────────────────
+   .kf-input — Form input primitive
+   ──────────────────────────────────────────────────────────────────
+   API:
+     <input    class="kf-input kf-md" type="text" />
+     <input    class="kf-input kf-md" type="email" />
+     <input    class="kf-input kf-md" type="password" />
+     <input    class="kf-input kf-md" type="search" />
+     <textarea class="kf-input kf-md" rows="3"></textarea>
+     <select   class="kf-input kf-md"><option>…</option></select>
+
+   Sizes        : kf-sm (32px) | kf-md (40px) | kf-lg (48px)
+   States       : disabled | data-state="error|warn|success"
+                  data-force="hover|focus" (showcase only)
+   Chrome wrap  : <div class="kf-input-wrap kf-md">…<input>…</div>
+                    + .kf-lead     (16px lead icon, e.g. search)
+                    + .kf-trail    (trailing button or icon)
+                    + .kf-stepper  (number input ± stack)
+
+   Customization (per-instance overrides — override before/inline):
+     --kf-bg, --kf-bg-hover, --kf-bg-disabled
+     --kf-fg, --kf-fg-placeholder
+     --kf-border, --kf-border-hover, --kf-border-focus, --kf-border-state
+     --kf-ring-color
+     --kf-h, --kf-pad-x, --kf-radius
+     --kf-font-size
+
+   Framework-agnostic. Works with React, Vue, Svelte, vanilla.
+   No JavaScript required.
+   ────────────────────────────────────────────────────────────── */
+
+/* ── Base ──────────────────────────────────────────────────────── */
+.kf-input,
+:where(.kf-input) {
+  /* Defaults — overridable per instance via inline style or wrapper class. */
+  --kf-bg:            var(--surface-card);
+  --kf-bg-hover:      var(--surface-card);
+  --kf-bg-disabled:   var(--surface-3);
+  --kf-fg:            var(--text-primary);
+  --kf-fg-placeholder:var(--text-faint);
+
+  --kf-border:        var(--border-default);
+  --kf-border-hover:  var(--border-strong);
+  --kf-border-focus:  var(--text-primary);
+  --kf-ring-color:    var(--text-primary);
+  --kf-ring-alpha:    0.10;
+
+  --kf-radius:        var(--radius-md);
+  --kf-h:             40px;
+  --kf-pad-x:         var(--space-3);
+  --kf-font-size:     var(--text-sm);
+
+  /* Layout + reset */
+  box-sizing: border-box;
+  width: 100%;
+  height: var(--kf-h);
+  padding: 0 var(--kf-pad-x);
+  margin: 0;
+
+  background: var(--kf-bg);
+  color: var(--kf-fg);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius);
+
+  font-family: var(--font-sans);
+  font-size: var(--kf-font-size);
+  line-height: 1.4;
+  font-weight: var(--weight-regular);
+
+  appearance: none;
+  -webkit-appearance: none;
+  outline: none;
+
+  transition:
+    border-color    var(--duration-base) var(--ease-out),
+    background      var(--duration-base) var(--ease-out),
+    box-shadow      var(--duration-base) var(--ease-out),
+    color           var(--duration-base) var(--ease-out);
+}
+
+.kf-input::placeholder { color: var(--kf-fg-placeholder); opacity: 1; }
+
+/* ── Sizes ─────────────────────────────────────────────────────── */
+.kf-input.kf-sm { --kf-h: 32px; --kf-pad-x: var(--space-3); --kf-font-size: var(--text-xs);  }
+.kf-input.kf-md { --kf-h: 40px; --kf-pad-x: var(--space-3); --kf-font-size: var(--text-sm);  }
+.kf-input.kf-lg { --kf-h: 48px; --kf-pad-x: var(--space-4); --kf-font-size: var(--text-base);}
+
+/* Mobile sizing — two critical fixes:
+   1. Font-size 16px minimum to prevent iOS Safari auto-zoom on focus.
+      Anything smaller and iOS zooms the entire viewport when the input
+      gains focus, which feels broken and re-flows the page.
+   2. Height bumped so the tap target meets Apple's 44pt minimum + has
+      comfortable padding for thumb taps.
+   Readability + tap-target > visual density on mobile. */
+@media (max-width: 720px) {
+  .kf-input,
+  .kf-input.kf-sm,
+  .kf-input.kf-md { --kf-h: 52px; --kf-pad-x: var(--space-4); --kf-font-size: 16px; }
+  .kf-input.kf-lg { --kf-h: 56px; --kf-pad-x: var(--space-4); --kf-font-size: 16px; }
+}
+
+/* ── States ────────────────────────────────────────────────────── */
+.kf-input:hover:not(:disabled):not([data-state]),
+.kf-input[data-force="hover"] {
+  border-color: var(--kf-border-hover);
+}
+
+.kf-input:focus,
+.kf-input[data-force="focus"] {
+  border-color: var(--kf-border-focus);
+  box-shadow: 0 0 0 3px color-mix(in oklch, var(--kf-ring-color) 12%, transparent);
+}
+
+.kf-input:disabled,
+.kf-input[disabled] {
+  background: var(--kf-bg-disabled);
+  color: var(--text-faint);
+  cursor: not-allowed;
+  border-color: var(--border-subtle);
+}
+.kf-input:disabled::placeholder,
+.kf-input[disabled]::placeholder { color: var(--text-faint); }
+
+/* Validation states — error / warn / success.
+   Use [data-state="error|warn|success"] on the input itself.
+   Error uses --status-danger (orange-red) NOT crimson — crimson is the
+   brand primary, using it for errors creates dangerous ambiguity. */
+.kf-input[data-state="error"]   { --kf-border-state: var(--status-danger);    border-color: var(--kf-border-state); --kf-ring-color: var(--status-danger); }
+.kf-input[data-state="warn"]    { --kf-border-state: var(--color-gold);       border-color: var(--kf-border-state); --kf-ring-color: var(--color-gold); }
+.kf-input[data-state="success"] { --kf-border-state: var(--status-success);    border-color: var(--kf-border-state); --kf-ring-color: var(--status-success); }
+
+.kf-input[data-state]:hover:not(:disabled),
+.kf-input[data-state][data-force="hover"]   { border-color: var(--kf-border-state); }
+
+.kf-input[data-state]:focus,
+.kf-input[data-state][data-force="focus"]   {
+  border-color: var(--kf-border-state);
+  box-shadow: 0 0 0 3px color-mix(in oklch, var(--kf-ring-color) 16%, transparent);
+}
+
+/* Read-only — looks like default but can't be hovered/focused for editing */
+.kf-input[readonly] {
+  background: var(--surface-3);
+  cursor: default;
+}
+.kf-input[readonly]:focus { box-shadow: none; }
+
+/* ── Type-specific tweaks ──────────────────────────────────────── */
+
+/* Search — no native cancel button (we ship our own clear-button slot) */
+.kf-input[type="search"]::-webkit-search-decoration,
+.kf-input[type="search"]::-webkit-search-cancel-button,
+.kf-input[type="search"]::-webkit-search-results-button,
+.kf-input[type="search"]::-webkit-search-results-decoration {
+  -webkit-appearance: none;
+}
+
+/* Number — hide native steppers (we ship our own .kf-stepper) */
+.kf-input[type="number"]::-webkit-inner-spin-button,
+.kf-input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none; margin: 0;
+}
+.kf-input[type="number"] { -moz-appearance: textfield; }
+
+/* Date — line up native picker icon with our padding rhythm */
+.kf-input[type="date"]::-webkit-calendar-picker-indicator,
+.kf-input[type="time"]::-webkit-calendar-picker-indicator,
+.kf-input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0.55;
+  filter: var(--kf-picker-filter, none);
+}
+.kf-input[type="date"]:hover::-webkit-calendar-picker-indicator,
+.kf-input[type="time"]:hover::-webkit-calendar-picker-indicator,
+.kf-input[type="datetime-local"]:hover::-webkit-calendar-picker-indicator { opacity: 1; }
+
+/* ── Textarea ──────────────────────────────────────────────────── */
+textarea.kf-input {
+  height: auto;
+  min-height: calc(var(--kf-h) * 2);
+  padding-top:    var(--space-2);
+  padding-bottom: var(--space-2);
+  resize: vertical;
+  line-height: var(--leading-normal);
+}
+
+/* ── Select ────────────────────────────────────────────────────── */
+select.kf-input {
+  /* Ship a built-in chevron via inline SVG so consumers don't HAVE
+     to use kf-input-wrap. Real stroked chevron (1.4px) — same line
+     vocabulary as the rest of the icon set. Color is hard-coded to
+     --text-muted via a CSS var so dark theme picks it up. */
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none' stroke='%238A857D' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'><polyline points='3,4.5 6,7.5 9,4.5'/></svg>");
+  background-position: right var(--space-3) center;
+  background-size: 12px 12px;
+  background-repeat: no-repeat;
+  padding-right: calc(var(--space-3) * 2 + 12px);
+  cursor: pointer;
+}
+
+/* Dark theme — chevron stroke must lift since --text-muted shifts.
+   We swap the SVG entirely (data URIs can't reference CSS vars). */
+[data-theme="dark"] select.kf-input {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none' stroke='%237A7368' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'><polyline points='3,4.5 6,7.5 9,4.5'/></svg>");
+}
+
+/* When wrapped, the rendered svg chevron takes over and the gradient is removed */
+.kf-input-wrap.has-trail select.kf-input {
+  background-image: none;
+  padding-right: calc(var(--space-3) + 28px);
+}
+
+/* ── Wrap (for slots: lead icon, trail icon, trail button, stepper) ── */
+.kf-input-wrap {
+  position: relative;
+  width: 100%;
+  display: block;
+}
+
+.kf-input-wrap.has-lead  .kf-input { padding-left:  calc(var(--space-4) + 24px); }
+.kf-input-wrap.has-trail .kf-input { padding-right: calc(var(--space-4) + 28px); }
+
+/* Lead icon (purely decorative — non-interactive) */
+.kf-input-lead {
+  position: absolute;
+  left: var(--space-3); top: 50%;
+  transform: translateY(-50%);
+  display: flex; align-items: center;
+  color: var(--text-muted);
+  pointer-events: none;
+  line-height: 0;
+}
+.kf-input-lead svg { display: block; }
+
+/* Trail — text button (e.g. SHOW for password) */
+.kf-input-trail {
+  position: absolute;
+  right: var(--space-2); top: 50%;
+  transform: translateY(-50%);
+  height: calc(var(--kf-h, 40px) - 14px);
+  padding: 0 var(--space-3);
+
+  display: inline-flex; align-items: center; justify-content: center;
+
+  background: transparent;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+
+  cursor: pointer;
+  transition: color var(--duration-fast), border-color var(--duration-fast);
+}
+.kf-input-trail:hover { color: var(--text-primary); border-color: var(--text-primary); }
+.kf-input-trail:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* Trail — icon (purely decorative OR clickable button) */
+.kf-input-trail-icon {
+  position: absolute;
+  right: var(--space-3); top: 50%;
+  transform: translateY(-50%);
+  display: flex; align-items: center; justify-content: center;
+  width: 20px; height: 20px;
+  color: var(--text-muted);
+  pointer-events: none;
+  line-height: 0;
+}
+.kf-input-trail-icon svg { display: block; }
+
+/* When trail-icon is a button (e.g. clear ×), make it interactive */
+button.kf-input-trail-icon {
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  width: 24px; height: 24px;
+  cursor: pointer;
+  pointer-events: auto;
+  transition: color var(--duration-fast), background var(--duration-fast);
+}
+button.kf-input-trail-icon:hover {
+  color: var(--text-primary);
+  background: color-mix(in oklch, var(--text-primary) 6%, transparent);
+}
+
+/* Stepper — for number inputs (replaces native ± controls) */
+.kf-input-stepper {
+  position: absolute;
+  right: 4px; top: 50%;
+  transform: translateY(-50%);
+  display: flex; flex-direction: column; gap: 1px;
+}
+.kf-input-stepper button {
+  width: 22px; height: 16px;
+  padding: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  color: var(--text-muted);
+  font-family: var(--font-mono); font-size: 11px; font-weight: 600;
+  cursor: pointer; line-height: 1;
+  transition: color var(--duration-fast), border-color var(--duration-fast);
+}
+.kf-input-stepper button:hover { color: var(--text-primary); border-color: var(--text-primary); }
+.kf-input-stepper button:first-child { border-radius: var(--radius-sm) var(--radius-sm) 0 0; }
+.kf-input-stepper button:last-child  { border-radius: 0 0 var(--radius-sm) var(--radius-sm); }
+.kf-input-stepper button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* When the stepper is present, give the input room for it (28px). */
+.kf-input-wrap:has(.kf-input-stepper) > .kf-input {
+  padding-right: 32px;
+}
+/* Hide native number spinners — stepper buttons replace them. */
+.kf-input-wrap:has(.kf-input-stepper) input[type="number"]::-webkit-inner-spin-button,
+.kf-input-wrap:has(.kf-input-stepper) input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.kf-input-wrap:has(.kf-input-stepper) input[type="number"] {
+  -moz-appearance: textfield; /* Firefox */
+}
+
+/* ── Password eye toggle ──────────────────────────────────────────
+   Sits like .kf-input-trail-icon but its icon is injected by JS
+   (ds/primitives/input.js). Auto-pads the input on the right. */
+.kf-input-eye {
+  position: absolute;
+  right: var(--space-2);
+  top: 50%;
+  transform: translateY(-50%);
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color var(--duration-fast), background var(--duration-fast);
+}
+.kf-input-eye:hover {
+  color: var(--text-primary);
+  background: color-mix(in oklch, var(--text-primary) 6%, transparent);
+}
+.kf-input-eye:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in oklch, var(--text-crimson) 22%, transparent);
+}
+.kf-input-eye svg { display: block; }
+
+.kf-input-wrap:has(.kf-input-eye) > .kf-input {
+  padding-right: calc(var(--space-3) + 28px);
+}
+
+/* ── Async validation spinner ─────────────────────────────────────
+   When `data-kf-checking` is set on the wrap (by input.js), show a
+   small rotating ring on the right side. Cohabits with eye/stepper
+   by sitting just left of them — but the script only sets this on
+   wraps that don't already have a right-side affordance, since async
+   inputs typically don't pair with stepper/eye. */
+.kf-input-wrap[data-kf-checking]::after {
+  content: "";
+  position: absolute;
+  right: var(--space-3);
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  margin-top: -7px;
+  border: 1.6px solid var(--border-default);
+  border-top-color: var(--text-crimson);
+  border-radius: 50%;
+  animation: kf-spin 720ms linear infinite;
+  pointer-events: none;
+}
+.kf-input-wrap[data-kf-checking] > .kf-input {
+  padding-right: calc(var(--space-3) + 22px);
+}
+@keyframes kf-spin {
+  to { transform: rotate(360deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .kf-input-wrap[data-kf-checking]::after {
+    animation-duration: 1.6s;
+  }
+}
+
+/* When sm/lg sizes are on the wrap, propagate to trail button height */
+.kf-input-wrap.kf-sm .kf-input-trail { height: 22px; padding: 0 var(--space-2); }
+.kf-input-wrap.kf-lg .kf-input-trail { height: 32px; padding: 0 var(--space-3); }
+
+/* ── Dark theme — small inversions for legibility ──────────────── */
+[data-theme="dark"] .kf-input {
+  /* Inputs sit on the page surface, not on cards — use a translucent
+     ink overlay so the input feels recessed, not floating. */
+  --kf-bg:            color-mix(in oklch, var(--text-primary) 4%, transparent);
+  --kf-bg-hover:      color-mix(in oklch, var(--text-primary) 6%, transparent);
+  --kf-bg-disabled:   color-mix(in oklch, var(--text-primary) 2%, transparent);
+  --kf-border:        color-mix(in oklch, var(--text-primary) 22%, transparent);
+  --kf-border-hover:  color-mix(in oklch, var(--text-primary) 40%, transparent);
+}
+/* Dark — invert calendar picker icon so it's visible on dark inputs */
+[data-theme="dark"] .kf-input { --kf-picker-filter: invert(1) brightness(1.4); }
+
+/* ── Reduced motion ────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .kf-input,
+  .kf-input-trail,
+  .kf-input-stepper button { transition: none; }
+}

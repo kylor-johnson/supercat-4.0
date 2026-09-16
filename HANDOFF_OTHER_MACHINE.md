@@ -1,6 +1,6 @@
 # Other-machine setup — paste this into a fresh Cursor agent chat
 
-> **Last updated**: 2026-09-15
+> **Last updated**: 2026-09-16
 >
 > This prompt is for the **other Mac** (the one that is not already cloned).
 > It does not migrate iCloud. It makes that Mac work from GitHub clones
@@ -17,6 +17,24 @@
 
 On the other Mac, do **not** open iCloud `SuperCat 4.0` as the git working tree.
 Edit GitHub clones under `~/repos`. This Mac uses iCloud; the other Mac does not.
+
+**Do not iCloud-download** (leave cloud icons; never “Download Now”):
+
+- `SuperCat 4.0/repos/` and `SuperCat 4.0/repos 2/` (Finder duplicates; nested clones)
+- `node_modules`, `.next`, `.venv`, `.venv-renderer` anywhere under SuperCat 4.0
+- Nested clones inside those `repos` folders (`agent-factory`, `ecat-onboarding-workspace`, `supercat-4.0`, `agent-factory-lab`)
+- `cursor-to-claude-migration/`, `integrations/` secrets, Insightful 2.0/3.0 museums, Health venvs
+
+Hang-tag spike **is** in this private repo: `hang-tag-spike/` inside
+`kylor-johnson/supercat-4.0`. After clone/pull:
+
+```bash
+cd ~/repos/supercat-4.0/hang-tag-spike
+npm install
+npm run dev
+```
+
+See `hang-tag-spike/SPIKE.md`. Do not wait for iCloud to bring it.
 
 Copy everything below the line.
 
@@ -66,6 +84,14 @@ git pull
 
 If clone of `supercat-4.0` fails on `main`, the rename has not landed — clone
 `--branch ecat-onboarding-main` and report that.
+
+Hang-tag spike is a folder inside `supercat-4.0`, not its own clone:
+
+```bash
+cd ~/repos/supercat-4.0/hang-tag-spike
+npm install   # local only — never commit node_modules
+npm run dev   # http://localhost:3000
+```
 
 Product code (separate): confirm `~/supercat-code` exists. If missing, clone
 that repo the same way Kylor already does on the first Mac. Do not invent a
@@ -121,6 +147,7 @@ is the first Mac's iCloud path.
 | Work | Repo |
 |---|---|
 | Skills, rules, onboarding-models, PM, foundation, reports | `~/repos/supercat-4.0` |
+| Hang-tag Next spike (Kuzco / Avery) | `~/repos/supercat-4.0/hang-tag-spike` — pull, then `npm install` |
 | Live client onboarding (Legrand, jcusa, Fine Art, …) | `~/repos/ecat-onboarding-workspace` → `02_Implementation/` |
 | Company weekly agents / PRs | `~/repos/agent-factory` (branch `kjael/<topic>`) |
 
@@ -132,6 +159,9 @@ Switching Macs: pull, work, commit, push. Other Mac: pull.
 
 ## 6. Do not
 
+- Open iCloud `SuperCat 4.0` as the git tree or Cursor workspace on this Mac
+- **Download Now** on iCloud for: `repos/`, `repos 2/`, `node_modules`, `.next`, `.venv`, `.venv-renderer`, nested `agent-factory` / `ecat-onboarding-workspace` / `supercat-4.0` inside those folders, `cursor-to-claude-migration/`, `integrations/` keys, Insightful 2.0/3.0, Health venvs
+- Wait for hang-tag-spike via iCloud — it is `~/repos/supercat-4.0/hang-tag-spike` after pull; `npm install` locally
 - `git add .` on any iCloud tree (dataless files hydrate)
 - Commit `integrations/` HubSpot/Fathom/BigQuery service-account files (secrets)
 - Commit `_archive/`, Health museums, Insightful 2/3/4, `agent-factory/` into 4.0

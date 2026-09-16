@@ -1,0 +1,516 @@
+/* ════════════════════════════════════════════════════════════════
+   SuperCat DS — Tabs primitive  ·  .ktab
+   ────────────────────────────────────────────────────────────────
+   ▸ Class prefix: `.ktab` = "kit tab"
+   ▸ One primitive · three visual surfaces: underline (default),
+     pills (the Settings-screen pattern), segmented (iOS-style).
+     Vertical sidebar tabs ship as a fourth `.ktab-vertical` variant.
+   ▸ Framework-agnostic. Pure CSS for visuals; consumers wire the
+     active state via `aria-selected="true"` on the chosen item.
+   ────────────────────────────────────────────────────────────────
+   API
+
+     <nav class="ktab" role="tablist">
+       <button class="ktab-item" role="tab" aria-selected="true" aria-controls="p1">
+         Orders <span class="ktab-count">1,287</span>
+       </button>
+       <button class="ktab-item" role="tab" aria-controls="p2">Customers</button>
+       <button class="ktab-item" role="tab" aria-controls="p3" aria-disabled="true">Imports</button>
+     </nav>
+
+   Variants on .ktab : (default · underline) · ktab-pills · ktab-seg
+                      · ktab-vertical
+   Sizes on .ktab    : ktab-sm  ·  (default · md, 44 px)  ·  ktab-lg
+   Item slot         : ktab-item
+   Optional in item  : ktab-icon (left icon)  ·  ktab-count (right badge)
+   Active state      : aria-selected="true"
+   Disabled state    : aria-disabled="true"  OR  disabled attribute
+   Overflow          : .ktab is overflow-x: auto by default — narrow
+                       viewports scroll horizontally without breaking
+                       the row.
+
+   Tokens consumed (semantic layer only):
+     --text-{primary,strong,body,muted,faint}
+     --surface-{card,page,2,3}
+     --border-{subtle,default,strong}  --color-crimson
+     --font-{sans,mono}  --text-* (size ramp)
+     --space-N           --radius-{sm,md,lg,pill}
+     --shadow-{1,2}      --duration-{fast,base}  --ease-out
+   No legacy --k-* tokens are referenced here.
+
+   Relation to ds/sections/11-tabs.css
+   ───────────────────────────────────
+   The section file is the master-page SHOWCASE (renders inside
+   ds/master.html). It uses the verbose .ds-tabs-* / .ds-vtabs-*
+   namespace and consumes legacy --k-* tokens. This primitive
+   (.ktab) is the canonical production reference. Consumers
+   (App screens, marketing pages) use .ktab; the section's
+   inventory will be migrated to consume .ktab in a future pass.
+   ════════════════════════════════════════════════════════════════ */
+
+
+:where(.ktab) {
+  /* ── Component-local custom properties ──
+     Override per-instance with style="--ktab-active-fg: …" if needed. */
+
+  --ktab-h:                44px;          /* default — iPad-grade tap target */
+  --ktab-pad-x:            var(--space-4); /* 16px */
+  --ktab-gap:              var(--space-1); /* item gap (mostly 0 for underline) */
+
+  --ktab-fg:               var(--text-muted);
+  /* Hover + active both lift to crimson — tabs are navigation, so the
+     brand colour is the right wayfinding signal in every interactive
+     state. --text-crimson is the theme-tuned variant: brand crimson
+     in light, lifted #B83A3F in dark for WCAG AA on near-black. */
+  --ktab-fg-hover:         var(--text-crimson);
+  --ktab-fg-active:        var(--text-crimson);
+  --ktab-fg-disabled:      var(--text-faint);
+
+  --ktab-font:             var(--font-sans);
+  --ktab-size:             var(--text-sm);
+  --ktab-weight:           var(--weight-medium);
+  --ktab-weight-active:    var(--weight-semibold);
+
+  --ktab-track-color:      var(--border-default);
+  /* Indicator (underline bar · vertical left edge) — brand crimson.
+     Token flips per theme: #7A1218 light → #8C2A2F dark. */
+  --ktab-indicator:        var(--color-crimson);
+  --ktab-indicator-h:      3px;       /* confident bar · overlays the 1 px baseline */
+
+  /* Active item position, set by tabs.js. Pre-JS the indicator stays
+     at width: 0 (invisible); the controller measures and writes
+     --ktab-active-x / -w (underline) or -y / -h (vertical) on init
+     and on click. CSS handles the slide via transitions below. */
+
+  --ktab-ease:             var(--ease-out);
+  /* 200 ms for hover/active state crossfades — slow enough to feel
+     premium when a pill swaps from outline → crimson fill, fast
+     enough that color/text shifts still feel responsive. The sliding
+     indicator (above) uses --duration-medium 320 ms for the slide. */
+  --ktab-dur:              var(--duration-base);
+}
+
+
+/* ── Wrapper ──────────────────────────────────────────────────── */
+
+.ktab {
+  display: flex;
+  align-items: stretch;
+  gap: var(--ktab-gap);
+  position: relative;
+  /* Horizontal scroll for narrow viewports — never breaks the row.
+     overflow-y: clip (not visible) is critical: when one axis is
+     `auto`, the CSS spec coerces the other axis's `visible` into
+     `auto` too, which would silently introduce vertical scrolling
+     inside the tab row. `clip` prevents that without clipping the
+     sliding indicator — overflow-clip-margin lets it extend 4 px
+     past the bottom (it sits at -1 px to overlay the baseline). */
+  overflow-x: auto;
+  overflow-y: clip;
+  overflow-clip-margin: 4px;
+  scrollbar-width: none;            /* Firefox — hide the X scrollbar */
+  -webkit-overflow-scrolling: touch;
+}
+.ktab::-webkit-scrollbar { display: none; }  /* WebKit / Blink */
+
+
+/* ── Item base ────────────────────────────────────────────────── */
+
+.ktab-item {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  height: var(--ktab-h);
+  padding: 0 var(--ktab-pad-x);
+  font-family: var(--ktab-font);
+  font-size: var(--ktab-size);
+  font-weight: var(--ktab-weight);
+  line-height: 1;
+  letter-spacing: -0.005em;
+  color: var(--ktab-fg);
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+  text-decoration: none;
+  flex: 0 0 auto;
+  position: relative;
+  transition:
+    color            var(--ktab-dur) var(--ktab-ease),
+    background-color var(--ktab-dur) var(--ktab-ease),
+    border-color     var(--ktab-dur) var(--ktab-ease),
+    box-shadow       var(--ktab-dur) var(--ktab-ease);
+}
+
+.ktab-item:hover:not([aria-disabled="true"]):not(:disabled) {
+  color: var(--ktab-fg-hover);
+}
+.ktab-item[aria-selected="true"] {
+  color: var(--ktab-fg-active);
+  font-weight: var(--ktab-weight-active);
+}
+
+.ktab-item:focus-visible {
+  outline: 0;
+  box-shadow:
+    inset 0 0 0 2px var(--surface-card),
+    inset 0 0 0 4px color-mix(in oklch, var(--color-crimson) 35%, transparent);
+}
+
+.ktab-item[aria-disabled="true"],
+.ktab-item:disabled {
+  color: var(--ktab-fg-disabled);
+  cursor: not-allowed;
+}
+
+
+/* ── Item sub-slots ──────────────────────────────────────────── */
+
+/* Optional left icon — kept restrained, 14×14 inside the tab. */
+.ktab-icon {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+}
+.ktab-icon svg {
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Optional right count badge — mono caps, tabular numerals. */
+.ktab-count {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 var(--space-2);
+  min-width: 20px;
+  height: 18px;
+  margin-left: var(--space-1);
+  border-radius: var(--radius-pill);
+  background-color: var(--surface-2);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.02em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums lining-nums;
+  transition:
+    background-color var(--ktab-dur) var(--ktab-ease),
+    color            var(--ktab-dur) var(--ktab-ease);
+}
+/* Active count badge — crimson filled with cream text. Reads as a
+   small notification capsule attached to the active tab name. Works
+   in every variant where the surrounding context is paper (underline,
+   segmented, vertical). For pills (where the pill itself is already
+   crimson), the rule below uses --color-crimson-d for depth. */
+.ktab-item[aria-selected="true"] .ktab-count {
+  background-color: var(--color-crimson);
+  color: var(--text-on-crimson);
+}
+
+
+/* ════════════════════════════════════════════════════════════════
+   VARIANT 1 · Underline tabs  (default)
+   ────────────────────────────────────────────────────────────────
+   Hairline baseline across the whole row; the active indicator
+   is a SHARED ::after on the wrapper that SLIDES between items.
+   The bar's left/width are driven by --ktab-active-x / -w (set by
+   tabs.js on init + click). The bar's height (3 px) overlays the
+   1 px baseline so the active segment reads as crimson, not as a
+   bar floating above a gray line.
+   ════════════════════════════════════════════════════════════════ */
+
+.ktab:not(.ktab-pills):not(.ktab-seg):not(.ktab-vertical) {
+  border-bottom: 1px solid var(--ktab-track-color);
+}
+
+/* Items don't reserve underline space anymore — the wrapper indicator
+   sits OVER the baseline, no layout-shift to compensate for. */
+.ktab:not(.ktab-pills):not(.ktab-seg):not(.ktab-vertical) .ktab-item {
+  padding-bottom: 0;
+}
+
+/* The sliding indicator. Pre-JS, width: 0 (invisible). tabs.js sets
+   --ktab-active-x / -w on init + click; CSS handles the slide via
+   the medium-duration emphasized easing for that confident "move
+   along the path" feel. */
+/* The sliding indicator is a REAL DOM element (`.ktab-bar`) injected
+   by tabs.js, not a pseudo-element. Position changes animate via the
+   Web Animations API (tabs.js) — NOT via CSS transitions — because
+   CSS transitions silently fail to fire when the bar's style changes
+   coincide with a layout-shift (e.g. aria-selected toggling
+   font-weight on items). WAAPI is bulletproof: JS-controlled, runs
+   on the compositor where possible, immune to layout-shift contention.
+   The CSS below just sets the bar's static appearance; tabs.js does
+   the motion. */
+.ktab-bar {
+  position: absolute;
+  background-color: var(--ktab-indicator);
+  border-radius: 0;                 /* straight bar — editorial restraint */
+  pointer-events: none;
+  /* Pre-init: invisible. tabs.js positions on mount and on every click. */
+  width: 0;
+  height: 0;
+}
+
+/* Underline variant: bar sits along the bottom baseline, full underline-
+   indicator height. */
+.ktab:not(.ktab-pills):not(.ktab-seg):not(.ktab-vertical) > .ktab-bar {
+  bottom: -1px;                     /* overlaps the 1 px baseline */
+  height: var(--ktab-indicator-h);
+}
+
+
+/* ════════════════════════════════════════════════════════════════
+   VARIANT 2 · Pill tabs  ·  .ktab-pills
+   ────────────────────────────────────────────────────────────────
+   Wraps onto multiple rows. Unselected items are hairline-bordered
+   pills on transparent; the active item is filled with brand crimson
+   + cream text — strong wayfinding, matches the Settings-screen
+   pattern in the App. Hover lifts to crimson text on a faint paper
+   tint (stops short of the full active treatment).
+   ════════════════════════════════════════════════════════════════ */
+
+.ktab.ktab-pills {
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  border: 0;
+  overflow: visible;                  /* pills wrap, don't scroll */
+}
+.ktab.ktab-pills .ktab-item {
+  height: 36px;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--text-body);
+}
+/* Hover only applies to NON-active pills — otherwise the hover rule's
+   specificity (4 classes + 3 pseudo/attr selectors) outranks the active
+   rule and the crimson fill briefly flashes to paper-2 as you mouse
+   over the active pill. Excluding [aria-selected="true"] keeps active
+   pills visually stable on hover. */
+.ktab.ktab-pills .ktab-item:not([aria-selected="true"]):hover:not([aria-disabled="true"]):not(:disabled) {
+  color: var(--text-crimson);
+  border-color: color-mix(in oklch, var(--color-crimson) 40%, transparent);
+  background-color: var(--surface-2);
+}
+/* Active — use background-color (not the `background` shorthand) so it
+   participates in the .ktab-item transition list and the swap animates
+   smoothly. The shorthand resets unrelated properties and trips up the
+   transition. */
+.ktab.ktab-pills .ktab-item[aria-selected="true"] {
+  color: var(--ktab-pill-active-fg, var(--text-on-crimson));
+  background-color: var(--ktab-pill-active-bg, var(--color-crimson));
+  border-color: transparent;
+}
+/* Count badge inside an active pill — the pill itself is crimson,
+   so the badge uses the darker crimson variant (--color-crimson-d)
+   for visual depth. Reads as a sub-element layered on the pill. */
+.ktab.ktab-pills .ktab-item[aria-selected="true"] .ktab-count {
+  background-color: var(--color-crimson-d);
+  color: var(--text-on-crimson);
+}
+.ktab.ktab-pills .ktab-item:focus-visible {
+  outline: 0;
+  box-shadow: 0 0 0 3px color-mix(in oklch, var(--color-crimson) 22%, transparent);
+}
+
+
+/* ════════════════════════════════════════════════════════════════
+   VARIANT 3 · Segmented control  ·  .ktab-seg
+   ────────────────────────────────────────────────────────────────
+   iOS-style toggle group. Continuous bar with a paper-2 backdrop;
+   a card-on-paper "lift" SLIDES between active items — same wrapper-
+   level ::after pattern as the underline + vertical variants, just
+   sized to fill an entire segment instead of a 3 px bar.
+
+   Pre-JS, width: 0 (invisible). tabs.js writes --ktab-active-x / -w
+   on init + click. Items don't carry their own bg/shadow anymore —
+   the sliding card does all the visual work.
+   ════════════════════════════════════════════════════════════════ */
+
+.ktab.ktab-seg {
+  display: inline-flex;
+  gap: 0;
+  padding: 3px;
+  background: var(--surface-2);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid var(--border-subtle);
+}
+
+/* The sliding card — fills the active segment, sits between the
+   container background and the item text. tabs.js animates `transform`
+   (translateX) and `width` via Web Animations API. */
+.ktab.ktab-seg > .ktab-bar {
+  left: 0;
+  top: 3px;
+  height: 30px;                     /* matches kktab-seg item height */
+  background-color: var(--surface-card);
+  border-radius: calc(var(--radius-md) - 3px);
+  box-shadow: var(--shadow-1);
+  z-index: 0;
+}
+.ktab.ktab-seg.ktab-sm > .ktab-bar { height: 26px; }
+.ktab.ktab-seg.ktab-lg > .ktab-bar { height: 36px; }
+
+/* Dark mode — `--surface-card` (#1F1E1C) is darker than the segmented
+   track (`--surface-2` #2B2A27) so the active bar would VANISH into
+   the page. Lift it with a translucent white wash + soft inner border
+   so the active segment reads clearly on near-black. */
+[data-theme="dark"] .ktab.ktab-seg > .ktab-bar {
+  background-color: rgba(255, 255, 255, 0.08);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.06),
+    0 1px 2px rgba(0, 0, 0, 0.35);
+}
+
+.ktab.ktab-seg .ktab-item {
+  height: 30px;
+  padding: 0 var(--space-3);
+  border-radius: calc(var(--radius-md) - 3px);
+  font-size: var(--text-xs);
+  color: var(--text-body);
+  position: relative;             /* lift text above the sliding card */
+  z-index: 1;
+}
+.ktab.ktab-seg .ktab-item:not([aria-selected="true"]):hover:not([aria-disabled="true"]):not(:disabled) {
+  color: var(--text-primary);
+}
+/* Active = inherits the base text color/weight; the sliding card
+   provides the lift. Item itself stays transparent — no per-item
+   background or shadow that would interfere with the sliding card. */
+.ktab.ktab-seg .ktab-item[aria-selected="true"] {
+  color: var(--text-primary);
+  background-color: transparent;
+  box-shadow: none;
+}
+.ktab.ktab-seg .ktab-item:focus-visible {
+  outline: 0;
+  box-shadow:
+    inset 0 0 0 1px var(--surface-card),
+    0 0 0 3px color-mix(in oklch, var(--color-crimson) 22%, transparent);
+}
+
+/* ── Rich variant — 2-line items (name + spec) ─────────────────────
+   For preset pickers (tier, scenario, plan size) where each option
+   carries a short label + a sub-spec (e.g. "Mid-market" + "~$15M · 4 reps").
+   Item height grows so both lines breathe; the slider .ktab-bar grows
+   in lockstep. Stacks name above spec; spec uses mono + muted color.
+   Marketing tier pickers in roi.html + maxroi.html are the model.
+   ─────────────────────────────────────────────────────────────────── */
+.ktab.ktab-seg.ktab-rich .ktab-item {
+  height: auto;
+  min-height: 56px;
+  padding: 8px var(--space-3);
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+.ktab.ktab-seg.ktab-rich > .ktab-bar { height: 56px; }
+.ktab.ktab-seg.ktab-rich.ktab-sm .ktab-item { min-height: 48px; }
+.ktab.ktab-seg.ktab-rich.ktab-sm > .ktab-bar { height: 48px; }
+.ktab.ktab-seg.ktab-rich.ktab-lg .ktab-item { min-height: 64px; }
+.ktab.ktab-seg.ktab-rich.ktab-lg > .ktab-bar { height: 64px; }
+
+.ktab-item-name {
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  letter-spacing: -0.01em;
+  color: inherit;
+  line-height: 1.2;
+}
+.ktab-item-spec {
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: var(--text-muted);
+  line-height: 1.2;
+}
+.ktab.ktab-seg.ktab-rich .ktab-item[aria-selected="true"] .ktab-item-spec {
+  color: var(--text-body);
+}
+
+
+/* ════════════════════════════════════════════════════════════════
+   VARIANT 4 · Vertical tabs  ·  .ktab-vertical
+   ────────────────────────────────────────────────────────────────
+   Sidebar nav. Items stack; the indicator is on the left edge.
+   Used inside narrow rails (e.g. Settings sidebar, App secondary nav).
+   ════════════════════════════════════════════════════════════════ */
+
+.ktab.ktab-vertical {
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-1);
+  border: 0;
+  overflow: visible;
+  width: 100%;
+  max-width: 240px;
+  border-left: 1px solid var(--ktab-track-color);
+}
+.ktab.ktab-vertical .ktab-item {
+  justify-content: flex-start;
+  height: auto;
+  min-height: 36px;
+  padding: var(--space-2) var(--space-4);
+  border-radius: 0;
+}
+
+/* Sliding indicator — vertical edition. tabs.js positions the bar
+   with top/height (X stays fixed at -1px to sit on the left border). */
+.ktab.ktab-vertical > .ktab-bar {
+  left: -1px;
+  width: var(--ktab-indicator-h);
+}
+.ktab.ktab-vertical .ktab-item[aria-selected="true"] {
+  background: var(--surface-2);
+}
+
+
+/* ── Sizes ─────────────────────────────────────────────────────── */
+
+.ktab.ktab-sm {
+  --ktab-h:      32px;
+  --ktab-size:   var(--text-xs);
+  --ktab-pad-x:  var(--space-3);
+}
+.ktab.ktab-lg {
+  --ktab-h:      52px;
+  --ktab-size:   var(--text-base);
+  --ktab-pad-x:  var(--space-5);
+}
+
+/* Size variants for pills + segmented inherit but tweak height */
+.ktab.ktab-pills.ktab-sm .ktab-item { height: 28px; padding: 0 var(--space-3); }
+.ktab.ktab-pills.ktab-lg .ktab-item { height: 44px; padding: 0 var(--space-5); }
+.ktab.ktab-seg.ktab-sm .ktab-item { height: 26px; padding: 0 var(--space-3); }
+.ktab.ktab-seg.ktab-lg .ktab-item { height: 36px; padding: 0 var(--space-4); }
+
+
+/* ── Reduced motion ──────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .ktab,
+  .ktab::after,
+  .ktab-item,
+  .ktab-count { transition: none; }
+}

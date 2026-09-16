@@ -1,0 +1,706 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>SuperCat DS — Forms validation</title>
+
+<link rel="stylesheet" href="../tokens/index.css?v=12" />
+<link rel="stylesheet" href="../../nav/marketing-nav.css?v=15"/>
+<script src="../../nav/marketing-nav.js?v=13" defer></script>
+<link rel="stylesheet" href="./button.css?v=68" />
+<link rel="stylesheet" href="./input.css?v=15" />
+<link rel="stylesheet" href="./check.css?v=14" />
+<link rel="stylesheet" href="./switch.css?v=14" />
+<link rel="stylesheet" href="./field.css?v=13" />
+<link rel="stylesheet" href="./date.css?v=15" />
+<script src="./date.js?v=1" defer></script>
+<script src="./input.js?v=2" defer></script>
+
+<style>
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--surface-page);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1200px; margin: 0 auto; padding: var(--space-16) var(--space-8); }
+
+  h1 {
+    margin: 0 0 var(--space-2);
+    font-size: var(--text-3xl);
+    letter-spacing: var(--tracking-tighter);
+    font-weight: var(--weight-medium);
+  }
+  h1 code {
+    font-family: var(--font-mono);
+    font-size: 0.42em;
+    color: var(--text-muted);
+    letter-spacing: 0.08em;
+    margin-left: var(--space-2);
+    vertical-align: middle;
+  }
+  .lede {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-widest);
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin: 0 0 var(--space-12);
+  }
+
+  section { margin-bottom: var(--space-20); }
+  section h2 {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-widest);
+    text-transform: uppercase;
+    color: var(--text-muted);
+    font-weight: var(--weight-semibold);
+    margin: 0 0 var(--space-8);
+    padding-bottom: var(--space-3);
+    border-bottom: 1px solid var(--border-default);
+  }
+
+  .row {
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    gap: var(--space-6);
+    align-items: center;
+    padding: var(--space-6) 0;
+  }
+  .row + .row { border-top: 1px dashed var(--border-subtle); }
+  .row .label {
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    letter-spacing: var(--tracking-wider);
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--space-10) var(--space-8);
+  }
+
+  .toolbar {
+    position: fixed; top: var(--space-4); right: var(--space-4); z-index: 100;
+    display: flex; gap: var(--space-2);
+  }
+
+  .card {
+    background: var(--surface-card);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-lg);
+    padding: var(--space-8);
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-5);
+  }
+  .form-grid .full { grid-column: 1 / -1; }
+
+  .actions {
+    display: flex; gap: var(--space-3); justify-content: flex-end;
+    margin-top: var(--space-8); padding-top: var(--space-5);
+    border-top: 1px solid var(--border-subtle);
+  }
+</style>
+</head>
+<body>
+<sc-marketing-nav></sc-marketing-nav>
+
+<div class="toolbar">
+  <button class="kb kb-sm kb-secondary" onclick="document.documentElement.dataset.theme = document.documentElement.dataset.theme === 'dark' ? '' : 'dark'">
+    Toggle theme
+  </button>
+</div>
+
+<div class="wrap">
+
+  <p class="lede">SuperCat Design System · Form primitives</p>
+  <h1>Forms <code>.kf-input · .kf-check · .kf-switch · .kf-field</code></h1>
+
+  <!-- ───────────── INPUT ───────────── -->
+  <section>
+    <h2>01 · Input · types</h2>
+
+    <div class="grid">
+      <div class="kf-field">
+        <label class="kf-field-label" for="t-text">Text</label>
+        <input id="t-text" class="kf-input kf-md" type="text" placeholder="High Point, NC" />
+        <p class="kf-field-hint">Default — single line, any text.</p>
+      </div>
+
+      <div class="kf-field">
+        <label class="kf-field-label" for="t-email">Email <span class="kf-field-required" aria-hidden="true">*</span></label>
+        <input id="t-email" class="kf-input kf-md" type="email" placeholder="name@yourcompany.com" />
+        <p class="kf-field-hint">Email keyboard on mobile.</p>
+      </div>
+
+      <div class="kf-field">
+        <label class="kf-field-label" for="t-pw">Password</label>
+        <div class="kf-input-wrap kf-md">
+          <input id="t-pw" class="kf-input kf-md" type="password" value="examplevalue123" />
+          <button type="button" class="kf-input-eye" aria-label="Show password"></button>
+        </div>
+        <p class="kf-field-hint">Eye toggle reveals · type stays “password” for managers.</p>
+      </div>
+
+      <div class="kf-field">
+        <label class="kf-field-label" for="t-search">Search</label>
+        <div class="kf-input-wrap kf-md has-lead">
+          <span class="kf-input-lead">
+            <svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="7.5" cy="7.5" r="4.5"/><path d="m13 13-2.3-2.3"/>
+            </svg>
+          </span>
+          <input id="t-search" class="kf-input kf-md" type="search" placeholder="Search SKUs, dealers, vendors…" />
+        </div>
+        <p class="kf-field-hint">Leading icon slot.</p>
+      </div>
+
+      <div class="kf-field">
+        <label class="kf-field-label" for="t-num">Quantity</label>
+        <div class="kf-input-wrap kf-md">
+          <input id="t-num" class="kf-input kf-md" type="number" min="1" max="99" value="12" />
+          <span class="kf-input-stepper">
+            <button type="button" data-kf-step="+1" aria-label="Increase">+</button>
+            <button type="button" data-kf-step="-1" aria-label="Decrease">−</button>
+          </span>
+        </div>
+        <p class="kf-field-hint">Hold to repeat · accelerates after 1s.</p>
+      </div>
+
+      <div class="kf-field">
+        <label class="kf-field-label" for="t-date">Ship by</label>
+        <div class="kf-date kf-md">
+          <input id="t-date" class="kf-input kf-md" type="date" value="2026-05-22" />
+          <button type="button" class="kf-date-trigger" aria-label="Open calendar">
+            <svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+              <rect x="2" y="3" width="12" height="11" rx="1.5" />
+              <path d="M2 6h12M5 1.5v3M11 1.5v3" />
+            </svg>
+          </button>
+          <div class="kf-date-pop" role="dialog" aria-label="Pick a date" hidden></div>
+        </div>
+        <p class="kf-field-hint">Custom calendar · still typeable.</p>
+      </div>
+
+      <div class="kf-field">
+        <label class="kf-field-label" for="t-sel">Tier</label>
+        <select id="t-sel" class="kf-input kf-md">
+          <option>Tier 1 · MAP</option>
+          <option>Tier 2 · Wholesale</option>
+          <option>Tier 3 · Distributor</option>
+        </select>
+      </div>
+
+      <div class="kf-field">
+        <label class="kf-field-label" for="t-area">Order note <span class="kf-field-optional">Optional</span></label>
+        <textarea id="t-area" class="kf-input kf-md" rows="3" placeholder="Buyer notes…"></textarea>
+        <div class="kf-field-meta">
+          <p class="kf-field-hint">Visible to dealer + warehouse.</p>
+          <span class="kf-field-counter">0 / 500</span>
+        </div>
+      </div>
+
+      <div class="kf-field">
+        <label class="kf-field-label" for="t-clr">Clearable</label>
+        <div class="kf-input-wrap kf-md has-trail">
+          <input id="t-clr" class="kf-input kf-md" type="text" value="Hooker Furnishings" />
+          <button type="button" class="kf-input-trail-icon" aria-label="Clear" onclick="document.getElementById('t-clr').value=''">
+            <svg viewBox="0 0 16 16" width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+              <path d="M4 4l8 8M12 4l-8 8"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───────────── INPUT STATES ───────────── -->
+  <section>
+    <h2>02 · Input · states</h2>
+
+    <div class="row">
+      <span class="label">Default · empty</span>
+      <input class="kf-input kf-md" type="text" placeholder="Optional" />
+    </div>
+    <div class="row">
+      <span class="label">Hover</span>
+      <input class="kf-input kf-md" type="text" value="High Point, NC" data-force="hover" />
+    </div>
+    <div class="row">
+      <span class="label">Focus</span>
+      <input class="kf-input kf-md" type="text" value="High Point, NC" data-force="focus" />
+    </div>
+    <div class="row">
+      <span class="label">Filled</span>
+      <input class="kf-input kf-md" type="text" value="Hooker Furnishings · 18 SKUs" />
+    </div>
+    <div class="row">
+      <span class="label">Disabled</span>
+      <input class="kf-input kf-md" type="text" value="System-locked field" disabled />
+    </div>
+    <div class="row">
+      <span class="label">Read-only</span>
+      <input class="kf-input kf-md" type="text" value="Auto-filled · cannot edit" readonly />
+    </div>
+  </section>
+
+  <!-- ───────────── INPUT SIZES ───────────── -->
+  <section>
+    <h2>03 · Input · sizes</h2>
+
+    <div class="row">
+      <span class="label">sm · 32px</span>
+      <input class="kf-input kf-sm" type="text" value="Compact field" />
+    </div>
+    <div class="row">
+      <span class="label">md · 40px</span>
+      <input class="kf-input kf-md" type="text" value="Default field" />
+    </div>
+    <div class="row">
+      <span class="label">lg · 48px</span>
+      <input class="kf-input kf-lg" type="text" value="Touch-friendly field" />
+    </div>
+  </section>
+
+  <!-- ───────────── VALIDATION ───────────── -->
+  <section>
+    <h2>04 · Validation tones</h2>
+
+    <div class="grid">
+      <div class="kf-field" data-state="success">
+        <label class="kf-field-label" for="v-po">PO number</label>
+        <input id="v-po" class="kf-input kf-md" type="text" value="HP-2026-0541" data-state="success" />
+        <p class="kf-field-message">Looks good — checked against last 90 days.</p>
+      </div>
+
+      <div class="kf-field" data-state="warn">
+        <label class="kf-field-label" for="v-em">Dealer email</label>
+        <input id="v-em" class="kf-input kf-md" type="email" value="ap@coastal-furnishings.com" data-state="warn" />
+        <p class="kf-field-message">That email is on the do-not-contact list. Confirm before sending.</p>
+      </div>
+
+      <div class="kf-field" data-state="error">
+        <label class="kf-field-label" for="v-qty">Quantity <span class="kf-field-required" aria-hidden="true">*</span></label>
+        <input id="v-qty" class="kf-input kf-md" type="text" value="450" data-state="error" />
+        <p class="kf-field-message">Maximum order qty is 250. Split into multiple orders.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───────────── 04b · Async + shake ───────────── -->
+  <section>
+    <h2>04b · Async checks &middot; error shake &middot; <code style="font-family:var(--font-mono);font-size:0.85em;color:var(--text-muted);">data-kf-async</code></h2>
+
+    <div class="grid">
+      <div class="kf-field">
+        <label class="kf-field-label" for="a-email">Email <span class="kf-field-required" aria-hidden="true">*</span></label>
+        <div class="kf-input-wrap kf-md">
+          <input id="a-email" class="kf-input kf-md" type="email"
+                 placeholder="name@yourcompany.com" name="email"
+                 data-kf-async="email-available" autocomplete="off" />
+        </div>
+        <p class="kf-field-message"></p>
+        <p class="kf-field-hint">Try <code style="font-family:var(--font-mono);">taken@dealer.com</code> &mdash; spinner runs ~700ms then errors. Anything else passes.</p>
+      </div>
+
+      <div class="kf-field">
+        <label class="kf-field-label" for="a-handle">Username</label>
+        <div class="kf-input-wrap kf-md">
+          <input id="a-handle" class="kf-input kf-md" type="text"
+                 placeholder="dealer-handle" name="handle"
+                 data-kf-async="handle-check" autocomplete="off" />
+        </div>
+        <p class="kf-field-message"></p>
+        <p class="kf-field-hint">3+ chars required. Names containing &quot;admin&quot; reserved.</p>
+      </div>
+
+      <div class="kf-field">
+        <label class="kf-field-label" for="a-shake">Submit to shake</label>
+        <input id="a-shake" class="kf-input kf-md" type="text" value="too-short" data-state="error" />
+        <p class="kf-field-message">PO must be at least 10 characters.</p>
+        <div style="margin-top:var(--space-3);">
+          <button class="kb kb-primary kb-sm" type="button" id="shake-btn">Try submit</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    // ── Demo async validators ──────────────────────────────────────
+    window.kfAsync = window.kfAsync || {};
+    window.kfAsync['email-available'] = (value) => new Promise(resolve => {
+      setTimeout(() => {
+        if (!value) return resolve(null);
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+          return resolve({ state: 'error', message: 'That doesn\u2019t look like an email.' });
+        }
+        if (value.toLowerCase() === 'taken@dealer.com') {
+          return resolve({ state: 'error', message: 'Already taken \u2014 try signing in instead.' });
+        }
+        resolve({ state: 'success', message: 'Available.' });
+      }, 700);
+    });
+    window.kfAsync['handle-check'] = (value) => new Promise(resolve => {
+      setTimeout(() => {
+        if (!value) return resolve(null);
+        if (value.length < 3) return resolve({ state: 'warn', message: 'Keep typing\u2026 3 chars min.' });
+        if (/admin/i.test(value)) return resolve({ state: 'error', message: 'Reserved \u2014 pick another.' });
+        resolve({ state: 'success', message: 'Available.' });
+      }, 600);
+    });
+    // ── Shake demo button ──────────────────────────────────────────
+    document.getElementById('shake-btn')?.addEventListener('click', () => {
+      window.kfShake('#a-shake');
+      window.kfShake(document.getElementById('a-shake').closest('.kf-field'));
+    });
+  </script>
+
+  <!-- ───────────── CHECKBOX ───────────── -->
+  <section>
+    <h2>05 · Checkbox · <code style="font-family:var(--font-mono);font-size:0.85em;color:var(--text-muted);">.kf-check</code></h2>
+
+    <div class="row">
+      <span class="label">Default</span>
+      <label class="kf-check">
+        <input type="checkbox" />
+        <span class="kf-check-box"></span>
+        <span class="kf-check-label">Email me when this order ships</span>
+      </label>
+    </div>
+    <div class="row">
+      <span class="label">Checked</span>
+      <label class="kf-check">
+        <input type="checkbox" checked />
+        <span class="kf-check-box"></span>
+        <span class="kf-check-label">Auto-apply line discount</span>
+      </label>
+    </div>
+    <div class="row">
+      <span class="label">Indeterminate</span>
+      <label class="kf-check">
+        <input type="checkbox" id="indet-1" />
+        <span class="kf-check-box"></span>
+        <span class="kf-check-label">Select all (12 of 24 selected)</span>
+      </label>
+    </div>
+    <div class="row">
+      <span class="label">Disabled</span>
+      <label class="kf-check">
+        <input type="checkbox" disabled />
+        <span class="kf-check-box"></span>
+        <span class="kf-check-label">Locked — admin only</span>
+      </label>
+    </div>
+    <div class="row">
+      <span class="label">Disabled · checked</span>
+      <label class="kf-check">
+        <input type="checkbox" disabled checked />
+        <span class="kf-check-box"></span>
+        <span class="kf-check-label">Required by tier policy</span>
+      </label>
+    </div>
+    <div class="row">
+      <span class="label">Error</span>
+      <label class="kf-check" data-state="error">
+        <input type="checkbox" />
+        <span class="kf-check-box"></span>
+        <span class="kf-check-label">I confirm this order is final</span>
+      </label>
+    </div>
+    <div class="row">
+      <span class="label">Sizes</span>
+      <div class="kf-check-row">
+        <label class="kf-check kf-sm">
+          <input type="checkbox" checked /><span class="kf-check-box"></span><span class="kf-check-label">sm</span>
+        </label>
+        <label class="kf-check kf-md">
+          <input type="checkbox" checked /><span class="kf-check-box"></span><span class="kf-check-label">md</span>
+        </label>
+        <label class="kf-check kf-lg">
+          <input type="checkbox" checked /><span class="kf-check-box"></span><span class="kf-check-label">lg</span>
+        </label>
+      </div>
+    </div>
+
+    <div style="margin-top:var(--space-8);max-width:520px;">
+      <fieldset class="kf-fieldset">
+        <legend>Order options</legend>
+        <div class="kf-check-stack">
+          <label class="kf-check">
+            <input type="checkbox" checked /><span class="kf-check-box"></span>
+            <span>
+              <span class="kf-check-label">Auto-sync to Highpoint</span>
+              <span class="kf-check-hint">Sends order data to the rep's calendar within 5 minutes.</span>
+            </span>
+          </label>
+          <label class="kf-check">
+            <input type="checkbox" /><span class="kf-check-box"></span>
+            <span>
+              <span class="kf-check-label">Notify accounting</span>
+              <span class="kf-check-hint">CC the AP team on the dealer confirmation.</span>
+            </span>
+          </label>
+          <label class="kf-check">
+            <input type="checkbox" /><span class="kf-check-box"></span>
+            <span>
+              <span class="kf-check-label">Apply early-pay discount</span>
+              <span class="kf-check-hint">2% off if paid within 10 days of invoice.</span>
+            </span>
+          </label>
+        </div>
+      </fieldset>
+    </div>
+  </section>
+
+  <!-- ───────────── RADIO ───────────── -->
+  <section>
+    <h2>06 · Radio · <code style="font-family:var(--font-mono);font-size:0.85em;color:var(--text-muted);">.kf-check</code> + <code style="font-family:var(--font-mono);font-size:0.85em;color:var(--text-muted);">type="radio"</code></h2>
+
+    <fieldset class="kf-fieldset" style="max-width:520px;">
+      <legend>Pricing tier</legend>
+      <div class="kf-check-stack">
+        <label class="kf-check">
+          <input type="radio" name="tier-demo" value="1" checked />
+          <span class="kf-check-box"></span>
+          <span>
+            <span class="kf-check-label">Tier 1 · MAP</span>
+            <span class="kf-check-hint">Minimum advertised price. Honors retail floors across all channels.</span>
+          </span>
+        </label>
+        <label class="kf-check">
+          <input type="radio" name="tier-demo" value="2" />
+          <span class="kf-check-box"></span>
+          <span>
+            <span class="kf-check-label">Tier 2 · Wholesale</span>
+            <span class="kf-check-hint">Standard wholesale. 35–45% off MAP depending on volume.</span>
+          </span>
+        </label>
+        <label class="kf-check">
+          <input type="radio" name="tier-demo" value="3" />
+          <span class="kf-check-box"></span>
+          <span>
+            <span class="kf-check-label">Tier 3 · Distributor</span>
+            <span class="kf-check-hint">Distributor pricing. Requires signed distribution agreement.</span>
+          </span>
+        </label>
+        <label class="kf-check">
+          <input type="radio" name="tier-demo" value="4" disabled />
+          <span class="kf-check-box"></span>
+          <span>
+            <span class="kf-check-label">Tier 4 · Strategic <span style="color:var(--text-faint);font-weight:normal;">— invite only</span></span>
+            <span class="kf-check-hint">Bespoke pricing. Negotiated per program.</span>
+          </span>
+        </label>
+      </div>
+    </fieldset>
+
+    <div style="margin-top:var(--space-8);">
+      <p class="kf-field-label" style="margin-bottom:var(--space-3);">Inline radios</p>
+      <div class="kf-check-row">
+        <label class="kf-check"><input type="radio" name="ship" checked /><span class="kf-check-box"></span><span class="kf-check-label">Ground</span></label>
+        <label class="kf-check"><input type="radio" name="ship" /><span class="kf-check-box"></span><span class="kf-check-label">2-day</span></label>
+        <label class="kf-check"><input type="radio" name="ship" /><span class="kf-check-box"></span><span class="kf-check-label">Next-day</span></label>
+        <label class="kf-check"><input type="radio" name="ship" /><span class="kf-check-box"></span><span class="kf-check-label">Will call</span></label>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───────────── SWITCH ───────────── -->
+  <section>
+    <h2>07 · Switch · <code style="font-family:var(--font-mono);font-size:0.85em;color:var(--text-muted);">.kf-switch</code></h2>
+
+    <div class="row">
+      <span class="label">Off</span>
+      <label class="kf-switch">
+        <input type="checkbox" />
+        <span class="kf-switch-track"><span class="kf-switch-thumb"></span></span>
+        <span class="kf-switch-label">Auto-sync orders to Highpoint</span>
+      </label>
+    </div>
+    <div class="row">
+      <span class="label">On</span>
+      <label class="kf-switch">
+        <input type="checkbox" checked />
+        <span class="kf-switch-track"><span class="kf-switch-thumb"></span></span>
+        <span class="kf-switch-label">Email me daily order summary</span>
+      </label>
+    </div>
+    <div class="row">
+      <span class="label">Disabled · off</span>
+      <label class="kf-switch">
+        <input type="checkbox" disabled />
+        <span class="kf-switch-track"><span class="kf-switch-thumb"></span></span>
+        <span class="kf-switch-label">Locked by admin policy</span>
+      </label>
+    </div>
+    <div class="row">
+      <span class="label">Disabled · on</span>
+      <label class="kf-switch">
+        <input type="checkbox" disabled checked />
+        <span class="kf-switch-track"><span class="kf-switch-thumb"></span></span>
+        <span class="kf-switch-label">Required by tier program</span>
+      </label>
+    </div>
+    <div class="row">
+      <span class="label">Sizes</span>
+      <div style="display:flex;gap:var(--space-6);align-items:center;flex-wrap:wrap;">
+        <label class="kf-switch kf-sm">
+          <input type="checkbox" checked />
+          <span class="kf-switch-track"><span class="kf-switch-thumb"></span></span>
+          <span class="kf-switch-label">sm</span>
+        </label>
+        <label class="kf-switch kf-md">
+          <input type="checkbox" checked />
+          <span class="kf-switch-track"><span class="kf-switch-thumb"></span></span>
+          <span class="kf-switch-label">md</span>
+        </label>
+        <label class="kf-switch kf-lg">
+          <input type="checkbox" checked />
+          <span class="kf-switch-track"><span class="kf-switch-thumb"></span></span>
+          <span class="kf-switch-label">lg</span>
+        </label>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───────────── INLINE FIELD ───────────── -->
+  <section>
+    <h2>08 · Inline fields</h2>
+
+    <div class="card" style="max-width:640px;">
+      <div style="display:flex;flex-direction:column;gap:var(--space-5);">
+        <div class="kf-field kf-field-inline">
+          <label class="kf-field-label" for="i-1">Region</label>
+          <select id="i-1" class="kf-input kf-md">
+            <option>Southeast</option><option>Northeast</option><option>Midwest</option><option>West</option>
+          </select>
+        </div>
+        <div class="kf-field kf-field-inline">
+          <label class="kf-field-label" for="i-2">Sales rep</label>
+          <input id="i-2" class="kf-input kf-md" type="text" value="Marc Thurber" />
+        </div>
+        <div class="kf-field kf-field-inline">
+          <label class="kf-field-label" for="i-3">Ship by</label>
+          <div class="kf-date kf-md" style="flex:1;">
+            <input id="i-3" class="kf-input kf-md" type="date" value="2026-05-22" />
+            <button type="button" class="kf-date-trigger" aria-label="Open calendar">
+              <svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+                <rect x="2" y="3" width="12" height="11" rx="1.5" />
+                <path d="M2 6h12M5 1.5v3M11 1.5v3" />
+              </svg>
+            </button>
+            <div class="kf-date-pop" role="dialog" aria-label="Pick a date" hidden></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───────────── COMPOSITION ───────────── -->
+  <section>
+    <h2>09 · Real form composition</h2>
+    <p style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--text-muted);margin:0 0 var(--space-6);max-width:60ch;line-height:1.6;">
+      Inputs · checks · switches · field wrappers — paired with .kb buttons. The whole thing flips for dark theme via the toolbar toggle.
+    </p>
+
+    <div class="card" style="max-width:760px;">
+      <h3 style="margin:0 0 var(--space-2);font-size:var(--text-xl);font-weight:var(--weight-medium);">New order</h3>
+      <p style="margin:0 0 var(--space-6);color:var(--text-body);font-size:var(--text-sm);">Spring/Summer 2026 · all fields required unless marked optional.</p>
+
+      <div class="form-grid">
+        <div class="kf-field full">
+          <label class="kf-field-label" for="o-dealer">Dealer <span class="kf-field-required" aria-hidden="true">*</span></label>
+          <input id="o-dealer" class="kf-input kf-md" type="text" value="Hooker Furnishings · Charlotte" />
+        </div>
+
+        <div class="kf-field">
+          <label class="kf-field-label" for="o-buyer">Buyer <span class="kf-field-required" aria-hidden="true">*</span></label>
+          <input id="o-buyer" class="kf-input kf-md" type="text" value="Heather Lomax" />
+        </div>
+
+        <div class="kf-field">
+          <label class="kf-field-label" for="o-tier">Tier</label>
+          <select id="o-tier" class="kf-input kf-md">
+            <option>Tier 1 · MAP</option>
+            <option selected>Tier 2 · Wholesale</option>
+            <option>Tier 3 · Distributor</option>
+          </select>
+        </div>
+
+        <div class="kf-field">
+          <label class="kf-field-label" for="o-ship">Ship by <span class="kf-field-required" aria-hidden="true">*</span></label>
+          <div class="kf-date kf-md">
+            <input id="o-ship" class="kf-input kf-md" type="date" value="2026-05-22" />
+            <button type="button" class="kf-date-trigger" aria-label="Open calendar">
+              <svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+                <rect x="2" y="3" width="12" height="11" rx="1.5" />
+                <path d="M2 6h12M5 1.5v3M11 1.5v3" />
+              </svg>
+            </button>
+            <div class="kf-date-pop" role="dialog" aria-label="Pick a date" hidden></div>
+          </div>
+        </div>
+
+        <div class="kf-field">
+          <label class="kf-field-label" for="o-po">PO number <span class="kf-field-optional">Optional</span></label>
+          <input id="o-po" class="kf-input kf-md" type="text" placeholder="If known" />
+        </div>
+
+        <div class="kf-field full">
+          <label class="kf-field-label" for="o-note">Order note</label>
+          <textarea id="o-note" class="kf-input kf-md" rows="3">Pack with extra corner protection — last shipment had a scuff on the credenza.</textarea>
+          <div class="kf-field-meta">
+            <p class="kf-field-hint">Visible to dealer + warehouse.</p>
+            <span class="kf-field-counter">142 / 500</span>
+          </div>
+        </div>
+
+        <div class="full" style="display:flex;flex-direction:column;gap:var(--space-3);padding-top:var(--space-3);">
+          <label class="kf-check">
+            <input type="checkbox" checked />
+            <span class="kf-check-box"></span>
+            <span class="kf-check-label">Auto-apply early-pay discount (2% if paid within 10 days)</span>
+          </label>
+          <label class="kf-check">
+            <input type="checkbox" />
+            <span class="kf-check-box"></span>
+            <span class="kf-check-label">CC accounting on dealer confirmation</span>
+          </label>
+          <label class="kf-switch" style="margin-top:var(--space-2);">
+            <input type="checkbox" checked />
+            <span class="kf-switch-track"><span class="kf-switch-thumb"></span></span>
+            <span class="kf-switch-label">Sync to Highpoint immediately</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="kb kb-md kb-ghost">Cancel</button>
+        <button class="kb kb-md kb-secondary">Save draft</button>
+        <button class="kb kb-md kb-primary">Submit order</button>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+  // Indeterminate checkbox demo
+  document.addEventListener('DOMContentLoaded', () => {
+    const indet = document.getElementById('indet-1');
+    if (indet) indet.indeterminate = true;
+  });
+</script>
+
+</body>
+</html>

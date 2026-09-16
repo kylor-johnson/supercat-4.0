@@ -1,0 +1,286 @@
+/* ═════════════════════════════════════════════════════════════════
+   SuperCat DS — Check primitive  ·  .kf-check (checkbox + radio)
+   ─────────────────────────────────────────────────────────────────
+   ▸ Class prefix: `.kf-*` = "kit form".
+   ▸ One class for BOTH checkbox and radio — input[type] picks the shape.
+   ▸ Required structure: <label.kf-check> contains
+     <input> + .kf-check-box + .kf-check-label.
+   ▸ Sizes: kf-sm (14px) | kf-md (18px, default) | kf-lg (22px)
+   ▸ Framework-agnostic. Pure CSS. No JS.
+   ─────────────────────────────────────────────────────────────────
+   .kf-check — Checkbox + Radio primitive
+   ─────────────────────────────────────────────────────────────────
+   Framework-agnostic. Pure CSS. No JS. Single class for both —
+   the underlying <input type> drives shape (square vs circle).
+
+   Usage (the canonical pattern — works in any framework):
+
+     <label class="kf-check">
+       <input type="checkbox" />
+       <span class="kf-check-box"></span>
+       <span class="kf-check-label">Email me product updates</span>
+     </label>
+
+     <label class="kf-check">
+       <input type="radio" name="tier" value="1" />
+       <span class="kf-check-box"></span>
+       <span class="kf-check-label">Tier 1 · MAP</span>
+     </label>
+
+   The <input> stays in the DOM (form data, a11y, label-click → toggle
+   for free) but is visually hidden. .kf-check-box is the rendered chip;
+   :checked on the sibling input drives its state via CSS sibling selectors.
+
+   API
+   ───
+   Sizes        : kf-sm | kf-md (default) | kf-lg
+   States       : checked | indeterminate | disabled | data-state="error"
+   Layout       : add .kf-check-stack on a parent <div> for vertical group
+                  add .kf-check-row   on a parent <div> for horizontal group
+   Indeterminate: set <input>.indeterminate = true via JS (one line).
+                  CSS picks it up via :indeterminate.
+
+   Theming
+   ───────
+   Component-local custom properties (override per-instance):
+     --kfc-size           chip size in px
+     --kfc-bg             chip background (unchecked)
+     --kfc-bg-checked     chip background when :checked
+     --kfc-border         chip border (unchecked)
+     --kfc-border-checked chip border when :checked
+     --kfc-fg             check/dot color
+     --kfc-ring-color     focus ring tint
+   ─────────────────────────────────────────────────────────────── */
+
+/* ── Wrapper label ─────────────────────────────────────────────── */
+.kf-check,
+:where(.kf-check) {
+  /* Defaults */
+  --kfc-size:           18px;
+  --kfc-bg:             var(--surface-card);
+  --kfc-bg-checked:     var(--text-crimson);
+  --kfc-border:         var(--border-default);
+  --kfc-border-hover:   var(--text-muted);
+  --kfc-border-checked: var(--text-crimson);
+  --kfc-fg:             var(--text-on-crimson);
+  --kfc-ring-color:     var(--text-crimson);
+
+  position: relative;
+  display: inline-flex;
+  align-items: center; /* center label vertically with chip */
+  gap: var(--space-3);
+  cursor: pointer;
+  user-select: none;
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  line-height: var(--leading-snug);
+  color: var(--text-body);
+}
+
+/* When the control has a hint line under the label, top-align */
+.kf-check:has(.kf-check-hint) { align-items: flex-start; }
+
+/* The real input — hidden but present for forms + a11y */
+.kf-check > input[type="checkbox"],
+.kf-check > input[type="radio"] {
+  position: absolute;
+  width: var(--kfc-size);
+  height: var(--kfc-size);
+  margin: 0;
+  opacity: 0;
+  cursor: inherit;
+  /* Place under chip so click/tap on chip still hits it */
+  top: 1px;
+  left: 0;
+  z-index: 1;
+}
+
+/* The visible chip */
+.kf-check-box {
+  flex: 0 0 auto;
+  width: var(--kfc-size);
+  height: var(--kfc-size);
+  background: var(--kfc-bg);
+  border: 1.5px solid var(--kfc-border);
+  border-radius: var(--radius-sm);
+  position: relative;
+  transition:
+    background var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out);
+  color: var(--kfc-fg);
+}
+
+/* Stacked-with-hint: nudge chip down to align with cap-height */
+.kf-check:has(.kf-check-hint) > .kf-check-box { margin-top: 2px; }
+
+/* Radio: circular chip */
+.kf-check > input[type="radio"] ~ .kf-check-box {
+  border-radius: 50%;
+}
+
+/* The check glyph — drawn via CSS, no external SVG (truly zero-asset)
+   Checkbox uses an SVG mask (inline data URI), filled via `background:
+   currentColor`. This is zero-asset, takes the box's color token, and
+   rasterizes reliably across renderers (where rotated-border tricks
+   sometimes don't). Radio uses a CSS-drawn solid dot. */
+.kf-check-box::after {
+  content: "";
+  position: absolute;
+  opacity: 0;
+  transform: scale(0.6);
+  transition:
+    opacity var(--duration-fast) var(--ease-out),
+    transform var(--duration-base) var(--ease-spring);
+}
+
+/* Checkbox: SVG checkmark via mask. */
+.kf-check > input[type="checkbox"] ~ .kf-check-box::after {
+  width: calc(var(--kfc-size) * 0.7);
+  height: calc(var(--kfc-size) * 0.7);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.6);
+  background: currentColor;
+  -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='3.5,8.5 6.5,11.5 12.5,5'/></svg>");
+          mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='3.5,8.5 6.5,11.5 12.5,5'/></svg>");
+  -webkit-mask-size: contain;
+          mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+          mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+          mask-position: center;
+}
+
+/* Radio: solid dot — absolute-centered */
+.kf-check > input[type="radio"] ~ .kf-check-box::after {
+  width: calc(var(--kfc-size) * 0.4);
+  height: calc(var(--kfc-size) * 0.4);
+  border-radius: 50%;
+  background: currentColor;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.6);
+}
+
+/* The label text */
+.kf-check-label {
+  flex: 1 1 auto;
+  padding-top: 0; /* aligned via min-height */
+}
+
+.kf-check-hint {
+  display: block;
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  margin-top: var(--space-1);
+  line-height: var(--leading-snug);
+}
+
+/* ── Sizes ─────────────────────────────────────────────────────── */
+.kf-check.kf-sm { --kfc-size: 14px; font-size: var(--text-xs); }
+.kf-check.kf-md { --kfc-size: 18px; font-size: var(--text-sm); }
+.kf-check.kf-lg { --kfc-size: 22px; font-size: var(--text-base); }
+
+/* ── States ────────────────────────────────────────────────────── */
+.kf-check:hover > .kf-check-box {
+  border-color: var(--kfc-border-hover);
+}
+
+.kf-check > input:focus-visible ~ .kf-check-box {
+  box-shadow: 0 0 0 3px color-mix(in oklch, var(--kfc-ring-color) 22%, transparent);
+}
+
+.kf-check > input:checked ~ .kf-check-box {
+  background: var(--kfc-bg-checked);
+  border-color: var(--kfc-border-checked);
+}
+
+.kf-check > input:checked ~ .kf-check-box::after {
+  opacity: 1;
+}
+
+.kf-check > input[type="checkbox"]:checked ~ .kf-check-box::after {
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.kf-check > input[type="radio"]:checked ~ .kf-check-box::after {
+  transform: translate(-50%, -50%) scale(1);
+}
+
+/* Indeterminate (checkbox only): horizontal bar instead of check */
+.kf-check > input[type="checkbox"]:indeterminate ~ .kf-check-box {
+  background: var(--kfc-bg-checked);
+  border-color: var(--kfc-border-checked);
+}
+.kf-check > input[type="checkbox"]:indeterminate ~ .kf-check-box::after {
+  width: calc(var(--kfc-size) * 0.5);
+  height: 2px;
+  border: none;
+  background: currentColor;
+  border-radius: 1px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 1;
+  margin: 0;
+  /* Clear the checkmark mask so we get a solid bar */
+  -webkit-mask-image: none;
+          mask-image: none;
+}
+
+/* Disabled */
+.kf-check:has(> input:disabled),
+.kf-check.disabled {
+  cursor: not-allowed;
+  color: var(--text-faint);
+}
+.kf-check:has(> input:disabled) > .kf-check-box,
+.kf-check.disabled > .kf-check-box {
+  background: var(--surface-3);
+  border-color: var(--border-subtle);
+}
+.kf-check:has(> input:disabled:checked) > .kf-check-box,
+.kf-check.disabled > input:checked ~ .kf-check-box {
+  background: var(--text-faint);
+  border-color: var(--text-faint);
+}
+
+/* Validation state — error uses --status-danger (orange-red), distinct
+   from the crimson used for the checked state. So error+checked shows
+   crimson chip with an orange-red error border + ring on focus. */
+.kf-check[data-state="error"] {
+  --kfc-border:         var(--status-danger);
+  --kfc-border-hover:   var(--status-danger);
+  --kfc-ring-color:     var(--status-danger);
+}
+
+/* ── Group layouts ─────────────────────────────────────────────── */
+.kf-check-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.kf-check-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-5);
+}
+
+/* ── Reduced motion ────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .kf-check-box,
+  .kf-check-box::after { transition: none; }
+}
+
+/* ── Dark theme — chip surface inversion ────────────────────────
+   Checked fill uses --color-crimson, which is theme-aware:
+     light → #7A1218 (deep brand crimson)
+     dark  → #8C2A2F (lifted brand crimson for small chips on near-black) */
+[data-theme="dark"] .kf-check {
+  --kfc-bg: transparent;
+  --kfc-bg-checked:     var(--color-crimson);
+  --kfc-border-checked: var(--color-crimson);
+  --kfc-fg:             var(--text-on-crimson);
+  --kfc-ring-color:     var(--color-crimson);
+}

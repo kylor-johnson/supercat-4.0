@@ -1,0 +1,777 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>SuperCat DS — Card (.kc) validation</title>
+
+<link rel="stylesheet" href="../tokens/index.css?v=12" />
+<link rel="stylesheet" href="../../nav/marketing-nav.css?v=15"/>
+<script src="../../nav/marketing-nav.js?v=13" defer></script>
+<link rel="stylesheet" href="./button.css?v=68" />
+<link rel="stylesheet" href="./check.css?v=14" />
+<link rel="stylesheet" href="./input.css?v=15" />
+<link rel="stylesheet" href="./table.css?v=6" />
+<link rel="stylesheet" href="./card.css?v=10" />
+
+<style>
+  html, body { margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--surface-page);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: clamp(56px, 9vw, 120px) clamp(20px, 4vw, 56px);
+  }
+
+  .lede {
+    display: flex; align-items: center; gap: var(--space-3);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-widest);
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin: 0 0 var(--space-6);
+  }
+  .lede .dot {
+    width: 7px; height: 7px;
+    border-radius: var(--radius-full);
+    background: var(--color-crimson);
+    animation: lede-dot-pulse 2200ms cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  }
+  @keyframes lede-dot-pulse {
+    0%   { box-shadow: 0 0 0 0 color-mix(in oklch, var(--color-crimson) 45%, transparent); }
+    70%  { box-shadow: 0 0 0 8px color-mix(in oklch, var(--color-crimson) 0%, transparent); }
+    100% { box-shadow: 0 0 0 8px color-mix(in oklch, var(--color-crimson) 0%, transparent); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .lede .dot { animation: none; }
+  }
+
+  h1 {
+    margin: 0 0 var(--space-3);
+    font-size: clamp(34px, 5vw, 56px);
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-tightest);
+    font-weight: var(--weight-medium);
+  }
+  h1 code {
+    font-family: var(--font-mono);
+    font-size: 0.34em;
+    color: var(--text-muted);
+    letter-spacing: 0.06em;
+    margin-left: var(--space-3);
+    vertical-align: middle;
+    font-weight: var(--weight-regular);
+  }
+
+  .subhead {
+    font-size: var(--text-lg);
+    line-height: var(--leading-relaxed);
+    color: var(--text-body);
+    max-width: 68ch;
+    margin: 0 0 var(--space-16);
+  }
+  .subhead em { font-style: normal; color: var(--text-muted); }
+
+  section {
+    padding-top: var(--space-20);
+    margin-top: var(--space-12);
+    border-top: 1px dashed var(--border-subtle);
+  }
+  section:first-of-type {
+    padding-top: 0;
+    margin-top: 0;
+    border-top: 0;
+  }
+
+  .chap {
+    display: grid;
+    grid-template-columns: 56px 1fr;
+    gap: var(--space-4);
+    align-items: baseline;
+    margin: 0 0 var(--space-3);
+  }
+  .chap .ix {
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-widest);
+    text-transform: uppercase;
+    color: var(--text-faint);
+  }
+  .chap h2 {
+    margin: 0;
+    font-size: var(--text-2xl);
+    line-height: var(--leading-snug);
+    letter-spacing: var(--tracking-tighter);
+    font-weight: var(--weight-medium);
+  }
+  .chap h2 em { font-style: normal; color: var(--text-muted); }
+
+  .note {
+    margin: 0 0 var(--space-8) 60px;
+    max-width: 70ch;
+    font-size: var(--text-sm);
+    line-height: var(--leading-relaxed);
+    color: var(--text-body);
+  }
+  code.tk {
+    font-family: var(--font-mono);
+    font-size: 0.92em;
+    color: var(--text-strong);
+    letter-spacing: -0.005em;
+  }
+
+  .plate { margin-left: 60px; }
+  .plate-head {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    padding-bottom: var(--space-3);
+    border-bottom: 1px solid var(--border-default);
+    margin-bottom: var(--space-4);
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    letter-spacing: var(--tracking-widest);
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .plate-head .crumb { color: var(--text-strong); font-weight: var(--weight-semibold); }
+  .plate-head .meta { margin-left: auto; color: var(--text-faint); }
+  .plate + .plate { margin-top: var(--space-10); }
+
+  .toc {
+    display: flex; flex-wrap: wrap; gap: var(--space-2);
+    margin-bottom: var(--space-20);
+  }
+  .toc a {
+    display: inline-flex; align-items: center;
+    height: 30px;
+    padding: 0 var(--space-4);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-pill);
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    letter-spacing: var(--tracking-wider);
+    text-transform: uppercase;
+    color: var(--text-body);
+    text-decoration: none;
+    transition: color .15s var(--ease-out), border-color .15s var(--ease-out);
+  }
+  .toc a:hover { color: var(--text-primary); border-color: var(--border-strong); }
+
+  .toolbar {
+    position: fixed; top: var(--space-4); right: var(--space-4); z-index: 100;
+    display: flex; gap: var(--space-2);
+  }
+</style>
+</head>
+<body>
+<sc-marketing-nav></sc-marketing-nav>
+
+<div class="toolbar">
+  <button class="kb kb-sm kb-secondary"
+          onclick="document.documentElement.dataset.theme = document.documentElement.dataset.theme === 'dark' ? '' : 'dark'">
+    Toggle theme
+  </button>
+</div>
+
+<div class="wrap">
+
+  <p class="lede">
+    <span class="dot" aria-hidden="true"></span>
+    SuperCat Design System · Primitives · iPad-grade
+  </p>
+
+  <h1>Card <code>.kc</code></h1>
+
+  <p class="subhead">
+    A surface for grouping content. Slots own their padding, so cards
+    embed edge-to-edge tables and lists without fighting them. Every
+    card lifts a hair on hover with a soft shadow — interactive cards
+    take a slightly stronger shadow to read as clickable. <em>The
+    dashboard tiles, summary panels, and activity feeds you saw in
+    the App screenshots all compose from this primitive.</em>
+  </p>
+
+  <div class="toc">
+    <a href="#anatomy">01 · Anatomy</a>
+    <a href="#sizes">02 · Sizes</a>
+    <a href="#surfaces">03 · Surfaces</a>
+    <a href="#metric">04 · Metric tiles</a>
+    <a href="#metric-fit">04b · Auto-fit stress test</a>
+    <a href="#panels">05 · Panels with tables</a>
+    <a href="#lists">06 · Activity lists</a>
+    <a href="#interactive">07 · Interactive</a>
+    <a href="#empty">08 · Empty / dashed</a>
+  </div>
+
+
+  <!-- ─────────────────────────────────────────────────────────── ANATOMY -->
+  <section id="anatomy">
+    <div class="chap">
+      <span class="ix">01</span>
+      <h2>Anatomy — <em>head · body · foot</em></h2>
+    </div>
+    <p class="note">
+      Three slots, each with its own padding. Hairline dividers appear
+      automatically between adjacent slots. Use only the slots you need —
+      a card with just <code class="tk">.kc-body</code> is fully valid.
+    </p>
+
+    <div class="plate">
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap: var(--space-5)">
+
+        <article class="kc">
+          <header class="kc-head">
+            <div class="kc-head-lead">
+              <span class="kc-eyebrow">Anatomy</span>
+              <h3 class="kc-title">Card with all three slots</h3>
+            </div>
+            <div class="kc-head-actions">
+              <button class="kb kb-sm kb-secondary">Edit</button>
+            </div>
+          </header>
+          <div class="kc-body">
+            <p style="margin:0; color: var(--text-body); line-height: var(--leading-relaxed);">
+              Body content sits between hairlines. Use this slot for paragraphs,
+              forms, lists, charts, or nested tables. Padding scales with the
+              card size variant.
+            </p>
+          </div>
+          <footer class="kc-foot">
+            <span class="kc-foot-meta">Updated 14:39</span>
+            <span class="kc-foot-spacer"></span>
+            <button class="kb kb-sm kb-ghost">Discard</button>
+            <button class="kb kb-sm kb-primary">Save</button>
+          </footer>
+        </article>
+
+        <article class="kc">
+          <div class="kc-body">
+            <p style="margin:0; color: var(--text-body); line-height: var(--leading-relaxed);">
+              Body-only card — no head, no foot. Useful for callouts, single-
+              paragraph notices, or content where the title is implicit from
+              the surrounding context.
+            </p>
+          </div>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ─────────────────────────────────────────────────────────── SIZES -->
+  <section id="sizes">
+    <div class="chap">
+      <span class="ix">02</span>
+      <h2>Sizes — <em>sm · md · lg</em></h2>
+    </div>
+    <p class="note">
+      Three padding scales: 16, 24 (default), and 32 px. Radius scales
+      with the size — sm uses <code class="tk">--radius-md</code>, default
+      uses <code class="tk">--radius-lg</code>, lg uses
+      <code class="tk">--radius-xl</code>.
+    </p>
+
+    <div class="plate">
+      <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--space-4)">
+
+        <article class="kc kc-sm">
+          <header class="kc-head"><div class="kc-head-lead"><h3 class="kc-title">Small</h3></div></header>
+          <div class="kc-body">
+            <p style="margin:0; font-size: var(--text-sm); color: var(--text-body);">16 px padding · radius-md. For toolbars, sidebar groups, dense dashboards.</p>
+          </div>
+        </article>
+
+        <article class="kc">
+          <header class="kc-head"><div class="kc-head-lead"><h3 class="kc-title">Default (md)</h3></div></header>
+          <div class="kc-body">
+            <p style="margin:0; font-size: var(--text-sm); color: var(--text-body);">24 px padding · radius-lg. The everyday card.</p>
+          </div>
+        </article>
+
+        <article class="kc kc-lg">
+          <header class="kc-head"><div class="kc-head-lead"><h3 class="kc-title">Large</h3></div></header>
+          <div class="kc-body">
+            <p style="margin:0; font-size: var(--text-sm); color: var(--text-body);">32 px padding · radius-xl. For feature panels and hero sections.</p>
+          </div>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ─────────────────────────────────────────────────────────── SURFACES -->
+  <section id="surfaces">
+    <div class="chap">
+      <span class="ix">03</span>
+      <h2>Surfaces — <em>flat · feature · inverse · dashed</em></h2>
+    </div>
+    <p class="note">
+      Four orthogonal surface treatments. <code class="tk">.kc</code> alone is
+      the default (white card on cream paper). <code class="tk">.kc-feature</code>
+      drops the border in favor of a paper-2 fill. <code class="tk">.kc-inverse</code>
+      is ink-dark and theme-agnostic. <code class="tk">.kc-dashed</code> is for
+      empty slots and "drop here" affordances.
+    </p>
+
+    <div class="plate">
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap: var(--space-5)">
+
+        <article class="kc">
+          <header class="kc-head">
+            <div class="kc-head-lead">
+              <span class="kc-eyebrow">Default · flat</span>
+              <h3 class="kc-title">Surface card</h3>
+            </div>
+          </header>
+          <div class="kc-body">
+            <p style="margin:0; font-size: var(--text-sm); color: var(--text-body);">White card on cream paper, hairline border. Everyday content.</p>
+          </div>
+        </article>
+
+        <article class="kc kc-feature">
+          <header class="kc-head">
+            <div class="kc-head-lead">
+              <span class="kc-eyebrow">Feature</span>
+              <h3 class="kc-title">Heavier emphasis</h3>
+            </div>
+          </header>
+          <div class="kc-body">
+            <p style="margin:0; font-size: var(--text-sm); color: var(--text-body);">Paper-2 fill, no border. Use sparingly — the tint IS the chrome.</p>
+          </div>
+        </article>
+
+        <article class="kc kc-inverse">
+          <header class="kc-head">
+            <div class="kc-head-lead">
+              <span class="kc-eyebrow">Inverse</span>
+              <h3 class="kc-title">Stamped tone tile</h3>
+            </div>
+          </header>
+          <div class="kc-body">
+            <p style="margin:0; font-size: var(--text-sm); color: inherit; opacity: 0.7;">Ink-dark surface, cream text. Theme-agnostic — same in light and dark.</p>
+          </div>
+          <footer class="kc-foot">
+            <span class="kc-foot-meta">Hero · CTA · Feature</span>
+            <span class="kc-foot-spacer"></span>
+            <button class="kb kb-sm kb-ghost">Learn more</button>
+          </footer>
+        </article>
+
+        <article class="kc kc-dashed">
+          <div class="kc-body" style="text-align:center; padding: var(--space-10) var(--space-6);">
+            <div style="font-family: var(--font-mono); font-size: var(--text-2xs); letter-spacing: var(--tracking-widest); text-transform: uppercase; color: var(--text-faint); margin-bottom: var(--space-2);">Dashed</div>
+            <p style="margin:0; font-size: var(--text-sm); color: var(--text-muted);">Empty slot. Drop a file, add a widget,<br>or use as a "no content yet" placeholder.</p>
+          </div>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ─────────────────────────────────────────────────────────── METRIC -->
+  <section id="metric">
+    <div class="chap">
+      <span class="ix">04</span>
+      <h2>Metric tiles — <em>the dashboard pattern</em></h2>
+    </div>
+    <p class="note">
+      Direct replacement for the four stat tiles on the App's Dashboard
+      (Total products / eCat orders / Total customers / Active users).
+      Big tabular-numeral display, mono caps eyebrow, optional icon and
+      trend chip. Use <code class="tk">.kc-grid.kc-grid-4</code> for the
+      classic four-up layout.
+    </p>
+
+    <div class="plate">
+      <div class="plate-head"><span class="crumb">Opame Collective · Dashboard</span><span class="meta">past 30 days</span></div>
+
+      <div class="kc-grid kc-grid-4">
+
+        <article class="kc kc-metric">
+          <span class="kc-eyebrow">Total products</span>
+          <div class="kc-metric-row">
+            <span class="kc-metric-val">50</span>
+            <span class="kc-metric-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M3 7l9-4 9 4-9 4-9-4zM3 12l9 4 9-4M3 17l9 4 9-4"/></svg>
+            </span>
+          </div>
+          <span class="kc-metric-trend kc-trend-up">+ 4 this month</span>
+        </article>
+
+        <article class="kc kc-metric">
+          <span class="kc-eyebrow">eCat orders</span>
+          <div class="kc-metric-row">
+            <span class="kc-metric-val">1,287</span>
+            <span class="kc-metric-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M3 6h2l2 11h11l2-8H6"/><circle cx="9" cy="20" r="1.5"/><circle cx="17" cy="20" r="1.5"/></svg>
+            </span>
+          </div>
+          <span class="kc-metric-trend kc-trend-up">+ 12% vs last month</span>
+        </article>
+
+        <article class="kc kc-metric">
+          <span class="kc-eyebrow">Total customers</span>
+          <div class="kc-metric-row">
+            <span class="kc-metric-val">342</span>
+            <span class="kc-metric-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M4 21v-1a5 5 0 0 1 5-5h6a5 5 0 0 1 5 5v1"/><circle cx="12" cy="8" r="4"/></svg>
+            </span>
+          </div>
+          <span class="kc-metric-trend kc-trend-flat">no change</span>
+        </article>
+
+        <article class="kc kc-metric">
+          <span class="kc-eyebrow">Active users · 30d</span>
+          <div class="kc-metric-row">
+            <span class="kc-metric-val">4</span>
+            <span class="kc-metric-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v3M12 20v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M1 12h3M20 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg>
+            </span>
+          </div>
+          <span class="kc-metric-trend kc-trend-down">- 2 this week</span>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ─────────────────────────────────────────────────────────── METRIC FIT -->
+  <section id="metric-fit">
+    <div class="chap">
+      <span class="ix">04b</span>
+      <h2>Metric stress test — <em>numbers auto-fit the tile</em></h2>
+    </div>
+    <p class="note">
+      Each tile is its own CSS container (<code class="tk">container-type: inline-size</code>),
+      so the value's font scales with the tile's actual rendered width, not the viewport.
+      Drop the same metric into a 4-up grid, then a 2-up, then a 1-up — the number
+      shrinks or grows on its own. Long numbers in narrow tiles compress automatically
+      instead of overflowing.
+    </p>
+
+    <div class="plate">
+      <div class="plate-head"><span class="crumb">Same value · different grid widths</span><span class="meta">font: clamp(22 px, 8 cqw, 48 px)</span></div>
+
+      <div style="display: flex; flex-direction: column; gap: var(--space-5)">
+
+        <div>
+          <div style="font-family: var(--font-mono); font-size: var(--text-2xs); letter-spacing: var(--tracking-widest); text-transform: uppercase; color: var(--text-faint); margin-bottom: var(--space-2);">4-up · narrow tiles</div>
+          <div class="kc-grid kc-grid-4">
+            <article class="kc kc-metric"><span class="kc-eyebrow">Total revenue</span><div class="kc-metric-row"><span class="kc-metric-val">$1,287,432</span></div><span class="kc-metric-trend kc-trend-up">+ 12%</span></article>
+            <article class="kc kc-metric"><span class="kc-eyebrow">Orders YTD</span><div class="kc-metric-row"><span class="kc-metric-val">42,180</span></div><span class="kc-metric-trend kc-trend-up">+ 8%</span></article>
+            <article class="kc kc-metric"><span class="kc-eyebrow">Customers</span><div class="kc-metric-row"><span class="kc-metric-val">3,421</span></div><span class="kc-metric-trend kc-trend-flat">no change</span></article>
+            <article class="kc kc-metric"><span class="kc-eyebrow">Active users</span><div class="kc-metric-row"><span class="kc-metric-val">42</span></div><span class="kc-metric-trend kc-trend-down">- 2</span></article>
+          </div>
+        </div>
+
+        <div>
+          <div style="font-family: var(--font-mono); font-size: var(--text-2xs); letter-spacing: var(--tracking-widest); text-transform: uppercase; color: var(--text-faint); margin-bottom: var(--space-2);">2-up · medium tiles</div>
+          <div class="kc-grid kc-grid-2">
+            <article class="kc kc-metric"><span class="kc-eyebrow">Total revenue</span><div class="kc-metric-row"><span class="kc-metric-val">$1,287,432</span></div><span class="kc-metric-trend kc-trend-up">+ 12% vs last month</span></article>
+            <article class="kc kc-metric"><span class="kc-eyebrow">Orders YTD</span><div class="kc-metric-row"><span class="kc-metric-val">42,180</span></div><span class="kc-metric-trend kc-trend-up">+ 8% vs last month</span></article>
+          </div>
+        </div>
+
+        <div>
+          <div style="font-family: var(--font-mono); font-size: var(--text-2xs); letter-spacing: var(--tracking-widest); text-transform: uppercase; color: var(--text-faint); margin-bottom: var(--space-2);">1-up · single wide tile</div>
+          <article class="kc kc-metric" style="max-width: 600px;"><span class="kc-eyebrow">Total revenue</span><div class="kc-metric-row"><span class="kc-metric-val">$1,287,432</span><span class="kc-metric-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 2v20M5 12l7-7 7 7"/></svg></span></div><span class="kc-metric-trend kc-trend-up">+ 12% vs last month</span></article>
+        </div>
+
+      </div>
+    </div>
+
+    <p class="note">
+      Pathological inputs — say a 10-digit number in a 4-up grid — will hit the
+      clamp floor (22 px) and may still feel cramped. For values that long, format
+      to <code class="tk">"1.3M"</code> or use a wider grid (<code class="tk">.kc-grid-2</code>).
+      The card never breaks: parent <code class="tk">.kc</code> has
+      <code class="tk">overflow: hidden</code>.
+    </p>
+  </section>
+
+
+  <!-- ─────────────────────────────────────────────────────────── PANELS -->
+  <section id="panels">
+    <div class="chap">
+      <span class="ix">05</span>
+      <h2>Panels with tables — <em>the Best-Selling pattern</em></h2>
+    </div>
+    <p class="note">
+      A card with <code class="tk">.kc-body-flush</code> embeds a table edge
+      to edge. The card supplies the title and footer; the table runs the
+      data. Direct replacement for "Best Selling Products" and "Statistics"
+      panels on the App's Dashboard.
+    </p>
+
+    <div class="plate">
+      <article class="kc">
+        <header class="kc-head">
+          <div class="kc-head-lead">
+            <span class="kc-eyebrow">Past 30 days</span>
+            <h3 class="kc-title">Best selling products</h3>
+          </div>
+          <div class="kc-head-actions">
+            <a class="kb kb-link" href="#">Full report
+              <svg class="arr-svg" viewBox="0 0 16 16"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+            </a>
+          </div>
+        </header>
+        <div class="kc-body kc-body-flush">
+          <div class="kdt-wrap">
+            <table class="kdt">
+              <thead>
+                <tr>
+                  <th>Product</th>
+                  <th class="kdt-mono">SKU</th>
+                  <th>Vendor</th>
+                  <th class="kdt-num">Units</th>
+                  <th class="kdt-num">Revenue</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>Mantle dining table</td><td class="kdt-mono">MN-2210</td><td class="kdt-soft">Caldera Mills</td><td class="kdt-num">142</td><td class="kdt-num">$150,520.00</td></tr>
+                <tr><td>Ridgeline armchair</td><td class="kdt-mono">RD-1042</td><td class="kdt-soft">Caldera Mills</td><td class="kdt-num">88</td><td class="kdt-num">$109,120.00</td></tr>
+                <tr><td>Cane side table</td><td class="kdt-mono">CS-7732</td><td class="kdt-soft">Wovenway Co.</td><td class="kdt-num">412</td><td class="kdt-num">$24,720.00</td></tr>
+                <tr><td>Field bench</td><td class="kdt-mono">FB-3304</td><td class="kdt-soft">Field &amp; Frame</td><td class="kdt-num">298</td><td class="kdt-num">$17,880.00</td></tr>
+                <tr><td>Linen runner · oat</td><td class="kdt-mono">LR-0418</td><td class="kdt-soft">Atlas Linens</td><td class="kdt-num">181</td><td class="kdt-num">$362.00</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <footer class="kc-foot">
+          <span class="kc-foot-meta">5 of 47 SKUs</span>
+          <span class="kc-foot-spacer"></span>
+          <button class="kb kb-sm kb-secondary">Export CSV</button>
+        </footer>
+      </article>
+    </div>
+  </section>
+
+
+  <!-- ─────────────────────────────────────────────────────────── LISTS -->
+  <section id="lists">
+    <div class="chap">
+      <span class="ix">06</span>
+      <h2>Activity lists — <em>the Most-Active-Users pattern</em></h2>
+    </div>
+    <p class="note">
+      For non-tabular vertical data: avatar + name/meta + trailing value.
+      Lighter than a table, denser than free prose. Direct replacement for
+      "Most Active Users" on the App's Dashboard.
+    </p>
+
+    <div class="plate">
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap: var(--space-5)">
+
+        <article class="kc">
+          <header class="kc-head">
+            <div class="kc-head-lead">
+              <span class="kc-eyebrow">Past 30 days</span>
+              <h3 class="kc-title">Most active users</h3>
+            </div>
+            <div class="kc-head-actions">
+              <a class="kb kb-link" href="#">Full report
+                <svg class="arr-svg" viewBox="0 0 16 16"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+              </a>
+            </div>
+          </header>
+          <div class="kc-body">
+            <ul class="kc-list">
+              <li class="kc-list-item">
+                <span class="kc-list-avatar" aria-hidden="true">BS</span>
+                <div class="kc-list-main">
+                  <div class="kc-list-name">Brent Sanders</div>
+                  <div class="kc-list-meta">42 logins · 18 orders</div>
+                </div>
+                <span class="kc-list-trail">$84,320.00</span>
+              </li>
+              <li class="kc-list-item">
+                <span class="kc-list-avatar" aria-hidden="true">LP</span>
+                <div class="kc-list-main">
+                  <div class="kc-list-name">Lina Park</div>
+                  <div class="kc-list-meta">28 logins · 12 orders</div>
+                </div>
+                <span class="kc-list-trail">$56,180.00</span>
+              </li>
+              <li class="kc-list-item">
+                <span class="kc-list-avatar" aria-hidden="true">JH</span>
+                <div class="kc-list-main">
+                  <div class="kc-list-name">Jamie Hoang</div>
+                  <div class="kc-list-meta">21 logins · 9 orders</div>
+                </div>
+                <span class="kc-list-trail">$41,005.00</span>
+              </li>
+              <li class="kc-list-item">
+                <span class="kc-list-avatar" aria-hidden="true">RD</span>
+                <div class="kc-list-main">
+                  <div class="kc-list-name">Rae Donnelly</div>
+                  <div class="kc-list-meta">18 logins · 7 orders</div>
+                </div>
+                <span class="kc-list-trail">$29,440.00</span>
+              </li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="kc">
+          <header class="kc-head">
+            <div class="kc-head-lead">
+              <h3 class="kc-title">Statistics</h3>
+            </div>
+          </header>
+          <div class="kc-body">
+            <ul class="kc-list">
+              <li class="kc-list-item">
+                <div class="kc-list-main"><div class="kc-list-name">Billable users</div></div>
+                <span class="kc-list-trail">12</span>
+              </li>
+              <li class="kc-list-item">
+                <div class="kc-list-main"><div class="kc-list-name">Total users</div></div>
+                <span class="kc-list-trail">42</span>
+              </li>
+              <li class="kc-list-item">
+                <div class="kc-list-main"><div class="kc-list-name">Average order value</div></div>
+                <span class="kc-list-trail">$3,180.00</span>
+              </li>
+              <li class="kc-list-item">
+                <div class="kc-list-main"><div class="kc-list-name">Fulfillment rate</div></div>
+                <span class="kc-list-trail">94.2%</span>
+              </li>
+              <li class="kc-list-item">
+                <div class="kc-list-main"><div class="kc-list-name">Return rate</div></div>
+                <span class="kc-list-trail">1.8%</span>
+              </li>
+            </ul>
+          </div>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ─────────────────────────────────────────────────────────── INTERACTIVE -->
+  <section id="interactive">
+    <div class="chap">
+      <span class="ix">07</span>
+      <h2>Interactive cards — <em>hover lifts &amp; crimson edge</em></h2>
+    </div>
+    <p class="note">
+      Add <code class="tk">.kc-interactive</code> for hoverable cards.
+      On hover the card lifts <code class="tk">translateY(-1px)</code> and
+      a 3 px crimson left edge fades in — never a hard border. Use on
+      <code class="tk">&lt;a&gt;</code> for links or <code class="tk">&lt;button&gt;</code>
+      for actions; both are keyboard-focusable with a proper crimson ring.
+    </p>
+
+    <div class="plate">
+      <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--space-4)">
+
+        <a class="kc kc-interactive" href="#">
+          <header class="kc-head">
+            <div class="kc-head-lead">
+              <span class="kc-eyebrow">Catalog</span>
+              <h3 class="kc-title">Browse 50 products</h3>
+            </div>
+          </header>
+          <div class="kc-body">
+            <p style="margin:0; font-size: var(--text-sm); color: var(--text-body);">Open the product catalog and review pricing, SKUs, and vendors.</p>
+          </div>
+        </a>
+
+        <a class="kc kc-interactive" href="#">
+          <header class="kc-head">
+            <div class="kc-head-lead">
+              <span class="kc-eyebrow">Orders</span>
+              <h3 class="kc-title">View 1,287 orders</h3>
+            </div>
+          </header>
+          <div class="kc-body">
+            <p style="margin:0; font-size: var(--text-sm); color: var(--text-body);">Filter, export, or drill into individual order detail.</p>
+          </div>
+        </a>
+
+        <a class="kc kc-interactive" href="#">
+          <header class="kc-head">
+            <div class="kc-head-lead">
+              <span class="kc-eyebrow">Settings</span>
+              <h3 class="kc-title">Company &amp; preferences</h3>
+            </div>
+          </header>
+          <div class="kc-body">
+            <p style="margin:0; font-size: var(--text-sm); color: var(--text-body);">Manage company info, eCat behavior, sales portal, and templates.</p>
+          </div>
+        </a>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ─────────────────────────────────────────────────────────── EMPTY -->
+  <section id="empty">
+    <div class="chap">
+      <span class="ix">08</span>
+      <h2>Empty / dashed — <em>placeholder slots</em></h2>
+    </div>
+    <p class="note">
+      Dashed cards for empty states and "drop a widget here" affordances.
+      No fill, dashed hairline. Pair with a clear empty-state body — see
+      the table primitive's <code class="tk">.kdt-empty-board</code> for
+      a richer empty composition.
+    </p>
+
+    <div class="plate">
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap: var(--space-5)">
+
+        <article class="kc kc-dashed">
+          <div class="kc-body" style="text-align:center; padding: var(--space-12) var(--space-6); display:flex; flex-direction: column; gap: var(--space-3); align-items: center;">
+            <div style="width:48px; height:48px; border-radius: var(--radius-pill); background: var(--surface-2); display:grid; place-items:center; color: var(--text-muted);">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+            </div>
+            <div style="font-family: var(--font-sans); font-size: var(--text-lg); font-weight: var(--weight-medium); color: var(--text-primary);">Add a widget</div>
+            <p style="margin:0; font-size: var(--text-sm); color: var(--text-muted); max-width: 32ch;">Drop a metric tile, chart, or recent-activity feed into this slot.</p>
+          </div>
+        </article>
+
+        <article class="kc kc-dashed">
+          <div class="kc-body" style="text-align:center; padding: var(--space-12) var(--space-6); display:flex; flex-direction: column; gap: var(--space-3); align-items: center;">
+            <div style="width:48px; height:48px; border-radius: var(--radius-pill); background: var(--surface-2); display:grid; place-items:center; color: var(--text-muted);">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+            </div>
+            <div style="font-family: var(--font-sans); font-size: var(--text-lg); font-weight: var(--weight-medium); color: var(--text-primary);">Drop a CSV here</div>
+            <p style="margin:0; font-size: var(--text-sm); color: var(--text-muted); max-width: 32ch;">Or <a href="#" style="color: var(--color-crimson); text-decoration: underline;">browse</a> to import historical orders.</p>
+          </div>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+
+  <p class="lede" style="margin-top: var(--space-20); padding-top: var(--space-6); border-top: 1px solid var(--border-default)">
+    <span class="dot" aria-hidden="true"></span>
+    Next ·
+    <a href="./table.html" style="color:inherit; text-decoration: underline">.kdt table</a>
+    · <a href="./button.html" style="color:inherit; text-decoration: underline">.kb button</a>
+    · <a href="./forms.html" style="color:inherit; text-decoration: underline">.kf forms</a>
+    · App screens (next)
+  </p>
+
+</div>
+</body>
+</html>

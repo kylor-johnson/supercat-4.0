@@ -1,0 +1,568 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>SuperCat DS — Tabs (.ktab) validation</title>
+
+<link rel="stylesheet" href="../tokens/index.css?v=12" />
+<link rel="stylesheet" href="../../nav/marketing-nav.css?v=15"/>
+<script src="../../nav/marketing-nav.js?v=13" defer></script>
+<link rel="stylesheet" href="./button.css?v=68" />
+<link rel="stylesheet" href="./check.css?v=14" />
+<link rel="stylesheet" href="./table.css?v=6" />
+<link rel="stylesheet" href="./card.css?v=10" />
+<link rel="stylesheet" href="./tabs.css?v=13" />
+<script src="./tabs.js?v=8" defer></script>
+
+<style>
+  html, body { margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--surface-page);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: clamp(56px, 9vw, 120px) clamp(20px, 4vw, 56px);
+  }
+
+  .lede {
+    display: flex; align-items: center; gap: var(--space-3);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-widest);
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin: 0 0 var(--space-6);
+  }
+  .lede .dot {
+    width: 7px; height: 7px;
+    border-radius: var(--radius-full);
+    background: var(--color-crimson);
+    animation: lede-dot-pulse 2200ms cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  }
+  @keyframes lede-dot-pulse {
+    0%   { box-shadow: 0 0 0 0 color-mix(in oklch, var(--color-crimson) 45%, transparent); }
+    70%  { box-shadow: 0 0 0 8px color-mix(in oklch, var(--color-crimson) 0%, transparent); }
+    100% { box-shadow: 0 0 0 8px color-mix(in oklch, var(--color-crimson) 0%, transparent); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .lede .dot { animation: none; }
+  }
+
+  h1 {
+    margin: 0 0 var(--space-3);
+    font-size: clamp(34px, 5vw, 56px);
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-tightest);
+    font-weight: var(--weight-medium);
+  }
+  h1 code {
+    font-family: var(--font-mono);
+    font-size: 0.34em;
+    color: var(--text-muted);
+    letter-spacing: 0.06em;
+    margin-left: var(--space-3);
+    vertical-align: middle;
+    font-weight: var(--weight-regular);
+  }
+
+  .subhead {
+    font-size: var(--text-lg);
+    line-height: var(--leading-relaxed);
+    color: var(--text-body);
+    max-width: 68ch;
+    margin: 0 0 var(--space-16);
+  }
+  .subhead em { font-style: normal; color: var(--text-muted); }
+
+  section {
+    padding-top: var(--space-20);
+    margin-top: var(--space-12);
+    border-top: 1px dashed var(--border-subtle);
+  }
+  section:first-of-type { padding-top: 0; margin-top: 0; border-top: 0; }
+
+  .chap {
+    display: grid;
+    grid-template-columns: 56px 1fr;
+    gap: var(--space-4);
+    align-items: baseline;
+    margin: 0 0 var(--space-3);
+  }
+  .chap .ix {
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-widest);
+    text-transform: uppercase;
+    color: var(--text-faint);
+  }
+  .chap h2 {
+    margin: 0;
+    font-size: var(--text-2xl);
+    line-height: var(--leading-snug);
+    letter-spacing: var(--tracking-tighter);
+    font-weight: var(--weight-medium);
+  }
+  .chap h2 em { font-style: normal; color: var(--text-muted); }
+
+  .note {
+    margin: 0 0 var(--space-8) 60px;
+    max-width: 70ch;
+    font-size: var(--text-sm);
+    line-height: var(--leading-relaxed);
+    color: var(--text-body);
+  }
+  code.tk {
+    font-family: var(--font-mono);
+    font-size: 0.92em;
+    color: var(--text-strong);
+    letter-spacing: -0.005em;
+  }
+
+  .plate { margin-left: 60px; }
+  .plate-head {
+    display: flex; align-items: center; gap: var(--space-4);
+    padding-bottom: var(--space-3);
+    border-bottom: 1px solid var(--border-default);
+    margin-bottom: var(--space-4);
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    letter-spacing: var(--tracking-widest);
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .plate-head .crumb { color: var(--text-strong); font-weight: var(--weight-semibold); }
+  .plate-head .meta { margin-left: auto; color: var(--text-faint); }
+  .plate + .plate { margin-top: var(--space-10); }
+
+  .toc {
+    display: flex; flex-wrap: wrap; gap: var(--space-2);
+    margin-bottom: var(--space-20);
+  }
+  .toc a {
+    display: inline-flex; align-items: center;
+    height: 30px;
+    padding: 0 var(--space-4);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-pill);
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    letter-spacing: var(--tracking-wider);
+    text-transform: uppercase;
+    color: var(--text-body);
+    text-decoration: none;
+    transition: color .15s var(--ease-out), border-color .15s var(--ease-out);
+  }
+  .toc a:hover { color: var(--text-primary); border-color: var(--border-strong); }
+
+  .toolbar {
+    position: fixed; top: var(--space-4); right: var(--space-4); z-index: 100;
+    display: flex; gap: var(--space-2);
+  }
+</style>
+</head>
+<body>
+<sc-marketing-nav></sc-marketing-nav>
+
+<div class="toolbar">
+  <button class="kb kb-sm kb-secondary"
+          onclick="document.documentElement.dataset.theme = document.documentElement.dataset.theme === 'dark' ? '' : 'dark'">
+    Toggle theme
+  </button>
+</div>
+
+<div class="wrap">
+
+  <p class="lede">
+    <span class="dot" aria-hidden="true"></span>
+    SuperCat Design System · Primitives · iPad-grade
+  </p>
+
+  <h1>Tabs <code>.ktab</code></h1>
+
+  <p class="subhead">
+    One primitive, four variants. Underline tabs for primary view switching,
+    pill tabs for the Settings-screen pattern, segmented control for inline
+    toggles, vertical tabs for sidebar nav. <em>Tabs are navigation — hover
+    and active both lift to brand crimson. The underline bar slides between
+    items with a 320&nbsp;ms emphasized easing, overlaying the baseline.</em>
+  </p>
+
+  <div class="toc">
+    <a href="#underline">01 · Underline</a>
+    <a href="#pills">02 · Pills</a>
+    <a href="#segmented">03 · Segmented</a>
+    <a href="#vertical">04 · Vertical</a>
+    <a href="#sizes">05 · Sizes</a>
+    <a href="#composition">06 · Composition</a>
+    <a href="#functional">07 · Functional demo</a>
+  </div>
+
+
+  <!-- ─────────────────────────────────────────────────────────── UNDERLINE -->
+  <section id="underline">
+    <div class="chap">
+      <span class="ix">01</span>
+      <h2>Underline — <em>the default</em></h2>
+    </div>
+    <p class="note">
+      The everyday tab pattern for primary view switching. Hairline baseline
+      across the whole row; active item gets a 3&nbsp;px crimson bar that
+      slides between items, overlaying the baseline. Optional left icon and
+      right count badge per item.
+    </p>
+
+    <div class="plate">
+      <div class="plate-head"><span class="crumb">Plain</span><span class="meta">.ktab</span></div>
+      <nav class="ktab" role="tablist">
+        <button class="ktab-item" role="tab" aria-selected="true">Orders</button>
+        <button class="ktab-item" role="tab">Customers</button>
+        <button class="ktab-item" role="tab">Products</button>
+        <button class="ktab-item" role="tab">Reports</button>
+        <button class="ktab-item" role="tab" aria-disabled="true">Imports</button>
+      </nav>
+    </div>
+
+    <div class="plate">
+      <div class="plate-head"><span class="crumb">With count badges</span><span class="meta">.ktab-count</span></div>
+      <nav class="ktab" role="tablist">
+        <button class="ktab-item" role="tab" aria-selected="true">
+          Orders <span class="ktab-count">1,287</span>
+        </button>
+        <button class="ktab-item" role="tab">
+          Customers <span class="ktab-count">342</span>
+        </button>
+        <button class="ktab-item" role="tab">
+          Products <span class="ktab-count">50</span>
+        </button>
+        <button class="ktab-item" role="tab">
+          Returns <span class="ktab-count">4</span>
+        </button>
+      </nav>
+    </div>
+
+    <div class="plate">
+      <div class="plate-head"><span class="crumb">With icons</span><span class="meta">.ktab-icon</span></div>
+      <nav class="ktab" role="tablist">
+        <button class="ktab-item" role="tab" aria-selected="true">
+          <span class="ktab-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M3 6h2l2 11h11l2-8H6"/><circle cx="9" cy="20" r="1.2"/><circle cx="17" cy="20" r="1.2"/></svg>
+          </span>
+          Orders
+        </button>
+        <button class="ktab-item" role="tab">
+          <span class="ktab-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M4 21v-1a5 5 0 0 1 5-5h6a5 5 0 0 1 5 5v1"/><circle cx="12" cy="8" r="4"/></svg>
+          </span>
+          Customers
+        </button>
+        <button class="ktab-item" role="tab">
+          <span class="ktab-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M3 7l9-4 9 4-9 4-9-4zM3 12l9 4 9-4"/></svg>
+          </span>
+          Products
+        </button>
+      </nav>
+    </div>
+  </section>
+
+
+  <!-- ─────────────────────────────────────────────────────────── PILLS -->
+  <section id="pills">
+    <div class="chap">
+      <span class="ix">02</span>
+      <h2>Pills — <em>the Settings-screen pattern</em></h2>
+    </div>
+    <p class="note">
+      Wraps onto multiple rows; ideal for many-option tab strips. Active
+      pill is filled with brand crimson and cream text — strong wayfinding,
+      matches the Settings-screen pattern in the App. Hover lifts text to
+      crimson on a faint paper tint.
+    </p>
+
+    <div class="plate">
+      <div class="plate-head"><span class="crumb">Settings · 12 sections</span><span class="meta">.ktab.ktab-pills</span></div>
+      <nav class="ktab ktab-pills" role="tablist" aria-label="Settings">
+        <button class="ktab-item" role="tab" aria-selected="true">Company Information</button>
+        <button class="ktab-item" role="tab">Data Import</button>
+        <button class="ktab-item" role="tab">eCat App Behavior</button>
+        <button class="ktab-item" role="tab">Sales Portal</button>
+        <button class="ktab-item" role="tab">Product Preferences</button>
+        <button class="ktab-item" role="tab">Administrative</button>
+        <button class="ktab-item" role="tab">Product Fields &amp; Labels</button>
+        <button class="ktab-item" role="tab">Option Types</button>
+        <button class="ktab-item" role="tab">Order Preferences</button>
+        <button class="ktab-item" role="tab">OrderXpert</button>
+        <button class="ktab-item" role="tab">Required Order Headers</button>
+        <button class="ktab-item" role="tab">Email Templates</button>
+      </nav>
+    </div>
+
+    <div class="plate">
+      <div class="plate-head"><span class="crumb">Pills with count badges</span><span class="meta">.ktab-pills + .ktab-count</span></div>
+      <nav class="ktab ktab-pills" role="tablist" aria-label="Inbox">
+        <button class="ktab-item" role="tab" aria-selected="true">
+          Inbox <span class="ktab-count">12</span>
+        </button>
+        <button class="ktab-item" role="tab">
+          Drafts <span class="ktab-count">3</span>
+        </button>
+        <button class="ktab-item" role="tab">
+          Scheduled <span class="ktab-count">8</span>
+        </button>
+        <button class="ktab-item" role="tab">
+          Sent <span class="ktab-count">1,287</span>
+        </button>
+        <button class="ktab-item" role="tab">Archive</button>
+      </nav>
+    </div>
+  </section>
+
+
+  <!-- ─────────────────────────────────────────────────────────── SEGMENTED -->
+  <section id="segmented">
+    <div class="chap">
+      <span class="ix">03</span>
+      <h2>Segmented control — <em>inline toggle group</em></h2>
+    </div>
+    <p class="note">
+      Compact iOS-style. Paper-2 background, active item lifts to a card-on-paper
+      with a soft shadow. Use for view-mode switches, density toggles, narrow
+      sets of mutually exclusive choices.
+    </p>
+
+    <div class="plate">
+      <div class="plate-head"><span class="crumb">View mode</span><span class="meta">.ktab.ktab-seg</span></div>
+      <div style="display:flex; flex-wrap: wrap; gap: var(--space-4); align-items: center;">
+        <nav class="ktab ktab-seg" role="tablist">
+          <button class="ktab-item" role="tab" aria-selected="true">List</button>
+          <button class="ktab-item" role="tab">Grid</button>
+          <button class="ktab-item" role="tab">Cards</button>
+        </nav>
+
+        <nav class="ktab ktab-seg" role="tablist">
+          <button class="ktab-item" role="tab">Day</button>
+          <button class="ktab-item" role="tab" aria-selected="true">Week</button>
+          <button class="ktab-item" role="tab">Month</button>
+          <button class="ktab-item" role="tab">Quarter</button>
+        </nav>
+
+        <nav class="ktab ktab-seg ktab-sm" role="tablist">
+          <button class="ktab-item" role="tab" aria-selected="true">USD</button>
+          <button class="ktab-item" role="tab">EUR</button>
+          <button class="ktab-item" role="tab">GBP</button>
+        </nav>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ─────────────────────────────────────────────────────────── VERTICAL -->
+  <section id="vertical">
+    <div class="chap">
+      <span class="ix">04</span>
+      <h2>Vertical — <em>sidebar / secondary nav</em></h2>
+    </div>
+    <p class="note">
+      Items stack; the indicator is on the left edge. Used inside narrow
+      rails (Settings sidebar, App secondary nav). Active row also gets a
+      faint paper-2 fill for confident wayfinding.
+    </p>
+
+    <div class="plate">
+      <div class="plate-head"><span class="crumb">Settings nav</span><span class="meta">.ktab.ktab-vertical</span></div>
+      <div style="display: grid; grid-template-columns: 240px 1fr; gap: var(--space-8); align-items: flex-start;">
+        <nav class="ktab ktab-vertical" role="tablist">
+          <button class="ktab-item" role="tab">Company Information</button>
+          <button class="ktab-item" role="tab" aria-selected="true">Data Import</button>
+          <button class="ktab-item" role="tab">eCat App Behavior</button>
+          <button class="ktab-item" role="tab">Sales Portal</button>
+          <button class="ktab-item" role="tab">Email Templates</button>
+          <button class="ktab-item" role="tab" aria-disabled="true">Webhooks</button>
+        </nav>
+        <article class="kc" style="margin-top:0">
+          <header class="kc-head">
+            <div class="kc-head-lead">
+              <span class="kc-eyebrow">Data Import</span>
+              <h3 class="kc-title" style="margin:0;font-size:var(--text-lg);font-weight:var(--weight-medium);">Configure imports</h3>
+            </div>
+          </header>
+          <div class="kc-body" style="color:var(--text-body);font-size:var(--text-sm);line-height:var(--leading-relaxed);">The vertical-tab pattern is for tall, narrow nav contexts. The right pane updates based on the active tab.</div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ─────────────────────────────────────────────────────────── SIZES -->
+  <section id="sizes">
+    <div class="chap">
+      <span class="ix">05</span>
+      <h2>Sizes — <em>sm · default · lg</em></h2>
+    </div>
+    <p class="note">
+      Three heights: 32 (sm) · 44 (default, iPad-grade) · 52 (lg, for hero rows).
+      All three variants pick up the size modifier.
+    </p>
+
+    <div class="plate">
+      <div class="plate-head"><span class="crumb">Underline</span><span class="meta">.ktab-sm · default · .ktab-lg</span></div>
+      <div style="display: flex; flex-direction: column; gap: var(--space-5);">
+        <nav class="ktab ktab-sm" role="tablist">
+          <button class="ktab-item" role="tab" aria-selected="true">Orders</button>
+          <button class="ktab-item" role="tab">Customers</button>
+          <button class="ktab-item" role="tab">Products</button>
+        </nav>
+        <nav class="ktab" role="tablist">
+          <button class="ktab-item" role="tab" aria-selected="true">Orders</button>
+          <button class="ktab-item" role="tab">Customers</button>
+          <button class="ktab-item" role="tab">Products</button>
+        </nav>
+        <nav class="ktab ktab-lg" role="tablist">
+          <button class="ktab-item" role="tab" aria-selected="true">Orders</button>
+          <button class="ktab-item" role="tab">Customers</button>
+          <button class="ktab-item" role="tab">Products</button>
+        </nav>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ─────────────────────────────────────────────────────────── COMPOSITION -->
+  <section id="composition">
+    <div class="chap">
+      <span class="ix">06</span>
+      <h2>Composition — <em>tabs + card + table</em></h2>
+    </div>
+    <p class="note">
+      Real-world: tabs sit above a card, the card embeds a table edge-to-edge
+      via <code class="tk">.kc-body-flush</code>. One coherent surface.
+    </p>
+
+    <div class="plate">
+      <nav class="ktab" role="tablist" aria-label="Order view filter" style="margin-bottom: var(--space-6);">
+        <button class="ktab-item" role="tab" aria-selected="true">
+          All <span class="ktab-count">1,287</span>
+        </button>
+        <button class="ktab-item" role="tab">
+          Confirmed <span class="ktab-count">1,082</span>
+        </button>
+        <button class="ktab-item" role="tab">
+          Pending <span class="ktab-count">86</span>
+        </button>
+        <button class="ktab-item" role="tab">
+          Shipped <span class="ktab-count">115</span>
+        </button>
+        <button class="ktab-item" role="tab">
+          Returned <span class="ktab-count">4</span>
+        </button>
+      </nav>
+
+      <article class="kc">
+        <div class="kc-body kc-body-flush">
+          <div class="kdt-wrap">
+            <table class="kdt">
+              <thead>
+                <tr>
+                  <th>Order&nbsp;#</th>
+                  <th>Customer</th>
+                  <th>Submitted</th>
+                  <th>Status</th>
+                  <th class="kdt-num">Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td class="kdt-mono">112625-10</td><td>Brent Sanders</td><td class="kdt-mono">2025-11-26 · 14:39</td><td><span class="kdt-pill kdt-pill-success"><span class="kdt-pill-dot"></span> Confirmed</span></td><td class="kdt-num">$12,480.00</td></tr>
+                <tr><td class="kdt-mono">112625-9</td><td>Lina Park</td><td class="kdt-mono">2025-11-26 · 14:30</td><td><span class="kdt-pill kdt-pill-success"><span class="kdt-pill-dot"></span> Confirmed</span></td><td class="kdt-num">$8,940.50</td></tr>
+                <tr><td class="kdt-mono">112625-8</td><td>Howard &amp; Co.</td><td class="kdt-mono">2025-11-26 · 14:22</td><td><span class="kdt-pill kdt-pill-warning"><span class="kdt-pill-dot"></span> Pending</span></td><td class="kdt-num">$3,612.00</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+
+  <!-- ─────────────────────────────────────────────────────────── FUNCTIONAL -->
+  <section id="functional">
+    <div class="chap">
+      <span class="ix">07</span>
+      <h2>Functional demo — <em>click to switch</em></h2>
+    </div>
+    <p class="note">
+      Click the underline tabs below to switch panels. The primitive itself
+      is markup-only; this small script toggles
+      <code class="tk">aria-selected</code> and shows the right
+      <code class="tk">[role=tabpanel]</code>. Drop in any framework's state
+      bindings and it works the same way.
+    </p>
+
+    <div class="plate">
+      <nav class="ktab" role="tablist" aria-label="Demo panels" id="demo-tabs" style="margin-bottom: var(--space-6);">
+        <button class="ktab-item" role="tab" aria-selected="true" aria-controls="panel-overview" id="tab-overview">Overview</button>
+        <button class="ktab-item" role="tab" aria-controls="panel-stats" id="tab-stats">Statistics</button>
+        <button class="ktab-item" role="tab" aria-controls="panel-team" id="tab-team">Team</button>
+      </nav>
+
+      <div id="panel-overview" role="tabpanel" aria-labelledby="tab-overview">
+        <article class="kc">
+          <header class="kc-head">
+            <div class="kc-head-lead">
+              <span class="kc-eyebrow">Past 30 days</span>
+              <h3 class="kc-title" style="margin:0;font-size:var(--text-lg);font-weight:var(--weight-medium);">Overview</h3>
+            </div>
+          </header>
+          <div class="kc-body" style="color:var(--text-body);font-size:var(--text-sm);line-height:var(--leading-relaxed);">
+            Pipeline summary, win rate, recent activity. Switching tabs swaps this content with the matching panel below — the primitive doesn't care what's inside.
+          </div>
+        </article>
+      </div>
+
+      <div id="panel-stats" role="tabpanel" aria-labelledby="tab-stats" hidden>
+        <div class="kc-grid kc-grid-3">
+          <article class="kc kc-metric"><span class="kc-eyebrow">Total orders</span><div class="kc-metric-row"><span class="kc-metric-val">1,287</span></div><span class="kc-metric-trend kc-trend-up">+ 12% vs last month</span></article>
+          <article class="kc kc-metric"><span class="kc-eyebrow">Avg order value</span><div class="kc-metric-row"><span class="kc-metric-val">$3,180</span></div><span class="kc-metric-trend kc-trend-flat">no change</span></article>
+          <article class="kc kc-metric"><span class="kc-eyebrow">Win rate</span><div class="kc-metric-row"><span class="kc-metric-val">94.2%</span></div><span class="kc-metric-trend kc-trend-up">+ 1.4%</span></article>
+        </div>
+      </div>
+
+      <div id="panel-team" role="tabpanel" aria-labelledby="tab-team" hidden>
+        <article class="kc">
+          <header class="kc-head"><div class="kc-head-lead"><span class="kc-eyebrow">Most active</span><h3 class="kc-title" style="margin:0;font-size:var(--text-lg);font-weight:var(--weight-medium);">Team activity</h3></div></header>
+          <div class="kc-body">
+            <ul class="kc-list">
+              <li class="kc-list-item"><span class="kc-list-avatar">BS</span><div class="kc-list-main"><div class="kc-list-name">Brent Sanders</div><div class="kc-list-meta">42 logins · 18 orders</div></div><span class="kc-list-trail">$84,320.00</span></li>
+              <li class="kc-list-item"><span class="kc-list-avatar">LP</span><div class="kc-list-main"><div class="kc-list-name">Lina Park</div><div class="kc-list-meta">28 logins · 12 orders</div></div><span class="kc-list-trail">$56,180.00</span></li>
+              <li class="kc-list-item"><span class="kc-list-avatar">JH</span><div class="kc-list-main"><div class="kc-list-name">Jamie Hoang</div><div class="kc-list-meta">21 logins · 9 orders</div></div><span class="kc-list-trail">$41,005.00</span></li>
+            </ul>
+          </div>
+        </article>
+      </div>
+    </div>
+
+    <!-- No inline script needed — tabs.js auto-wires every .ktab on the
+         page. The aria-controls attributes already in the markup drive
+         panel toggling. -->
+  </section>
+
+
+  <p class="lede" style="margin-top: var(--space-20); padding-top: var(--space-6); border-top: 1px solid var(--border-default)">
+    <span class="dot" aria-hidden="true"></span>
+    Next ·
+    <a href="./table.html" style="color:inherit; text-decoration: underline">.kdt table</a>
+    · <a href="./card.html" style="color:inherit; text-decoration: underline">.kc card</a>
+    · <a href="./button.html" style="color:inherit; text-decoration: underline">.kb button</a>
+    · App screens (next)
+  </p>
+
+</div>
+</body>
+</html>

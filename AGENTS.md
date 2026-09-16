@@ -1,6 +1,6 @@
 # AGENTS.md — SuperCat 4.0 workspace
 
-> **Last updated**: 2026-09-15
+> **Last updated**: 2026-09-16
 
 Orientation for any agent working in this repo. Read this first, then the
 `.cursor/rules/*.mdc` files (auto-loaded) and `CLAUDE.md` (same rules, ported).
@@ -31,6 +31,7 @@ Keep these folder names here. Map on copy; do not reshape this ops tree into L0�
 | Persona / JTBD (`foundation/sources/customer_segmentation/{personas,analytics,product,taxonomy}`) + splices in `foundation/00`–`02` and `CEO_SYSTEM_CONTEXT.md` | **Hold** — do not splice into factory `context/` (factory #347 closed) |
 | `ttfv/` methodology + prompt (no result CSVs) | `agents/ceo_system/ttfv/` (factory PR #348, still open) |
 | `Insightful Product 2.0/` / `3.0/`, `Health V2/`, Implementation CSVs, `eCat_Onboarding/` | **Do not copy** — onboarding agent is unfinished local work |
+| `hang-tag-spike/` | **Do not copy** — hang-tag Next prototype stays in this ops repo |
 
 **This Mac — source of truth (edit here):**
 
@@ -67,7 +68,7 @@ EBR/HPMKT, eCat_Onboarding pointers, kb-articles, documentation, prompts,
 scripts (the tracked files), ttfv, validation-reports,
 `Health V2/` / `Health V3/` / `Health V3 Backfill/` (source + runs, no venv),
 `Insightful Product 2.0/` / `3.0/` / `4.0/` (source; 4.0 is the active pipeline),
-`Migration-Health Artifacts/`.
+`Migration-Health Artifacts/`, `hang-tag-spike/` (Next prototype; no `node_modules`).
 
 ### Local-only — do not copy into git
 
@@ -78,6 +79,7 @@ scripts (the tracked files), ttfv, validation-reports,
 | `.venv/`, `.venv-renderer/`, `.venv_broken*` | Python environments. Recreate locally. |
 | `chat-history/`, `scratch/`, `files 2/`, `_archive/`, `Scoping Build/`, `HTML System/` | Dumps, Finder dupes, empty skeleton (successor is `design-system/`). |
 | `Insightful Product 3.0/password_overrides.csv` | Hosted-report passwords. |
+| `repos/` / `repos 2/` | iCloud dump of nested clones. Hang-tag lives at `hang-tag-spike/`. |
 
 ### Never commit
 

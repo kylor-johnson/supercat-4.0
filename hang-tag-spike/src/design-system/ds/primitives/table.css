@@ -1,0 +1,818 @@
+/* ════════════════════════════════════════════════════════════════
+   SuperCat DS — Data-table primitive  ·  .kdt
+   ────────────────────────────────────────────────────────────────
+   ▸ Class prefix: `.kdt` = "kit data-table"
+   ▸ A framework-agnostic data table that reads like a piece of
+     editorial typography: hairlines, mono numerics, restraint.
+     iPad-grade: ≥44px tap targets in the default density.
+   ▸ All visual rules live in this file. The Master DS showcase
+     classes (.ds-table, .ds-tbl-anatomy) are LAYOUT containers
+     around .kdt; they do not style it.
+   ────────────────────────────────────────────────────────────────
+   API
+     <div class="kdt-wrap">
+       <table class="kdt">
+         <thead>
+           <tr>
+             <th class="kdt-check"><input type="checkbox" aria-label="Select all" /></th>
+             <th class="kdt-mono">Order #</th>
+             <th>Customer</th>
+             <th class="kdt-mono">Submitted</th>
+             <th class="kdt-status">Status</th>
+             <th class="kdt-num">Total</th>
+             <th class="kdt-actions" aria-label="Actions"></th>
+           </tr>
+         </thead>
+         <tbody>
+           <tr>
+             <td class="kdt-check"><input type="checkbox" aria-label="Select row" /></td>
+             <td class="kdt-mono">136131-112625-10</td>
+             <td>Brent Sanders</td>
+             <td class="kdt-mono">2025-11-26 14:39</td>
+             <td class="kdt-status">
+               <span class="kdt-pill kdt-pill-success">
+                 <span class="kdt-pill-dot" aria-hidden="true"></span> Confirmed
+               </span>
+             </td>
+             <td class="kdt-num">$12,480.00</td>
+             <td class="kdt-actions">
+               <button class="kdt-act" aria-label="Row actions" aria-haspopup="menu">…</button>
+             </td>
+           </tr>
+         </tbody>
+       </table>
+     </div>
+
+   Density   : kdt-compact (32px)  kdt-default ★ (44px iPad-grade)
+               kdt-cozy (56px)
+   Surface   : kdt-flat ★ (hairline rows)  kdt-zebra (alternating)
+               kdt-card (bordered wrapper, no row dividers)
+   Modifiers : kdt-sticky-head    sticky thead on scroll
+               kdt-sticky-first   first column sticky on horizontal scroll
+               kdt-fit            table-layout: fixed; columns share width
+   Cell type : kdt-mono · kdt-num · kdt-status · kdt-actions · kdt-check
+   Row state : tr[aria-selected="true"]    selected row
+               tr[data-row-state="muted"]  de-emphasized row
+   Header    : button.kdt-sort inside <th> for sortable columns;
+               <th aria-sort="ascending|descending|none">
+   States    : tbody[aria-busy="true"]     show skeleton rows
+               table[data-empty]           show empty state slot
+               .kdt-bulk shown when one or more rows selected
+
+   Tokens consumed (semantic layer only):
+     --text-{primary,strong,body,muted,faint}
+     --surface-{card,1,2,3,page,overlay}
+     --border-{subtle,default,strong}
+     --color-{crimson,crimson-l,gold,gold-l,clay}
+     --status-{success,warning,danger,info}  (+ -tint)
+     --action-primary  --action-primary-hover
+     --font-{sans,mono}  --text-* (size ramp)
+     --space-N  --radius-{sm,md,lg}  --shadow-{1,2}
+     --duration-{fast,base}  --ease-out
+   No legacy --k-* tokens are referenced here.
+   ════════════════════════════════════════════════════════════════ */
+
+
+:where(.kdt) {
+  /* ── Component-local custom properties ──
+     Override per-instance with style="--kdt-row-h: 56px" if needed.
+
+     Responsive strategy:
+       Tables are deliberately NOT pixel-fluid on row height — that would
+       cause column-width drift and break the data-density contract you
+       picked when you chose a density variant. Instead, the responsive
+       answer for tables is THREE LEVERS:
+         1. Density variants (kdt-compact / default / kdt-cozy) for
+            different surface contexts.
+         2. Body font-size scales subtly between viewports (13 → 15 px)
+            so text doesn't look tiny on 27"+ displays.
+         3. .kdt-stack on the wrapper collapses table → cards below
+            640 px. iPad-split-view + iPhone friendly out of the box.
+  */
+
+  /* Geometry — matches the .kf-input scale so tables feel cohesive
+     with the rest of the system. Default density is generous, iPad-
+     grade-plus. Use .kdt-compact only for power-user dense screens. */
+  --kdt-row-h:        52px;          /* premium default · sits above .kf-lg */
+  --kdt-cell-x:       var(--space-5);  /* 20px — editorial breathing room */
+  --kdt-cell-y:       var(--space-3);
+  --kdt-head-h:       44px;
+  --kdt-check-w:      52px;          /* full tap target column */
+  --kdt-actions-w:    52px;
+
+  /* Colors — neutral, editorial. Hover and selected are paper lifts;
+     crimson is reserved for the selected-row left edge, active sort,
+     and danger pills. No row backgrounds ever go pink. */
+  --kdt-fg:           var(--text-primary);
+  --kdt-fg-meta:      var(--text-body);
+  --kdt-fg-muted:     var(--text-muted);
+  --kdt-fg-faint:     var(--text-faint);
+
+  --kdt-bg:           transparent;
+  --kdt-bg-row:       transparent;
+  /* Light theme: card is white, page/paper-1 is cream. Hover drops
+     toward cream — a faint warm whisper, nothing more.
+     Selected steps to paper-2 (a hair more visible) + crimson edge. */
+  --kdt-bg-zebra:     color-mix(in oklch, var(--surface-card) 70%, var(--surface-page));
+  --kdt-bg-hover:     var(--surface-page);
+  --kdt-bg-selected:  var(--surface-2);
+
+  --kdt-head-fg:      var(--text-muted);
+  --kdt-head-bg:      var(--surface-card);
+  --kdt-head-line:    var(--border-default);
+
+  --kdt-row-line:     var(--border-subtle);
+
+  /* Type — body scales subtly on wide viewports so the table doesn't
+     read as tiny on 4K/5K displays. Floor at 12 px on phones / iPad /
+     most laptops; cap at 14 px on huge screens. Header caption stays
+     compact — it's a mono caps label, not body. */
+  --kdt-font:         var(--font-sans);
+  --kdt-mono:         var(--font-mono);
+  --kdt-size:         clamp(12px, 0.8vw, 14px);
+  --kdt-head-size:    var(--text-2xs);    /* 10px tracked-wide caps */
+  --kdt-head-track:   var(--tracking-widest);
+
+  /* Numeric features — tabular figures so columns line up */
+  --kdt-num-feature:  "tnum" 1, "lnum" 1;
+
+  /* Motion */
+  --kdt-ease:         var(--ease-out);
+  --kdt-dur:          var(--duration-fast);
+}
+
+
+/* ── Wrapper ──────────────────────────────────────────────────── */
+
+/* The wrapper handles horizontal scroll for wide tables, the sticky
+   thead frame, and the "card-style" container variant.
+   Always wrap your <table class="kdt"> in <div class="kdt-wrap">. */
+.kdt-wrap {
+  width: 100%;
+  position: relative;
+  overflow-x: auto;
+  overflow-y: visible;
+  background: var(--surface-card);
+  /* hide the scrollbar's track-color flash on iPad */
+  scrollbar-gutter: stable;
+  -webkit-overflow-scrolling: touch;
+}
+
+.kdt-wrap.kdt-card {
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  overflow: hidden;                /* clip rounded corners */
+  overflow-x: auto;                /* keep horizontal scroll */
+}
+
+/* shadow under sticky thead when content scrolls under it */
+.kdt-wrap.kdt-sticky-head .kdt > thead::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0;
+  bottom: 0;
+  height: 1px;
+  background: var(--border-default);
+  pointer-events: none;
+}
+
+
+/* ── Table base ───────────────────────────────────────────────── */
+
+.kdt {
+  width: 100%;
+  border-collapse: separate;        /* keeps hairlines crisp at sub-pixel zoom */
+  border-spacing: 0;
+  background: var(--kdt-bg);
+  color: var(--kdt-fg);
+  font-family: var(--kdt-font);
+  font-size: var(--kdt-size);
+  line-height: 1.35;
+  font-feature-settings: "ss01" off; /* leave special features off by default */
+}
+
+.kdt.kdt-fit { table-layout: fixed; }
+
+
+/* ── Header ──────────────────────────────────────────────────── */
+
+.kdt > thead > tr {
+  height: var(--kdt-head-h);
+  background: var(--kdt-head-bg);
+}
+
+.kdt > thead > tr > th {
+  position: relative;
+  text-align: left;
+  vertical-align: middle;
+  padding: 0 var(--kdt-cell-x);
+  font-family: var(--kdt-mono);
+  font-size: var(--kdt-head-size);
+  font-weight: var(--weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--kdt-head-track);
+  color: var(--kdt-head-fg);
+  white-space: nowrap;
+  border-bottom: 1px solid var(--kdt-head-line);
+  user-select: none;
+}
+
+.kdt-wrap.kdt-sticky-head .kdt > thead > tr > th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--kdt-head-bg);
+}
+
+.kdt > thead > tr > th.kdt-num     { text-align: right; }
+.kdt > thead > tr > th.kdt-actions { text-align: right; }
+/* Checkbox + actions columns: fixed-width, zero side padding so the
+   chip / kebab centers exactly on the column's mid-line. The label
+   inside the checkbox cell stretches to fill so the chip lands on the
+   row's vertical centerline regardless of density variant. */
+.kdt > thead > tr > th.kdt-check,
+.kdt > tbody > tr > td.kdt-check {
+  width: var(--kdt-check-w);
+  padding-left: 0;
+  padding-right: 0;
+  text-align: center;
+  vertical-align: middle;
+}
+/* Shoulder padding — when the fixed-width check / actions cell is
+   the first or last cell of its row, add a safe-edge inset so the
+   chip/kebab never butts the table's left/right edge on tight
+   viewports. Specificity (0,2,5) > the base (0,2,4) so this wins. */
+.kdt > thead > tr > th.kdt-check:first-child,
+.kdt > tbody > tr > td.kdt-check:first-child {
+  padding-left: var(--space-3);
+}
+.kdt > thead > tr > th.kdt-actions:last-child,
+.kdt > tbody > tr > td.kdt-actions:last-child {
+  padding-right: var(--space-3);
+}
+.kdt > thead > tr > th.kdt-actions,
+.kdt > tbody > tr > td.kdt-actions {
+  width: var(--kdt-actions-w);
+  padding-left: 0;
+  padding-right: var(--space-3);
+}
+
+
+/* Sortable headers — use a real <button> inside the <th> so the
+   click target is keyboard-focusable and screen-reader-readable. */
+.kdt-sort {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  -webkit-tap-highlight-color: transparent;
+  transition: color var(--kdt-dur) var(--kdt-ease);
+}
+.kdt-sort:hover { color: var(--text-strong); }
+.kdt-sort:focus-visible {
+  outline: 0;
+  box-shadow: 0 0 0 2px var(--surface-card), 0 0 0 4px var(--color-crimson-l);
+}
+.kdt-sort-ind {
+  display: inline-block;
+  width: 0; height: 0;
+  border-left: 3.5px solid transparent;
+  border-right: 3.5px solid transparent;
+  border-bottom: 4px solid currentColor;
+  opacity: 0.35;
+  transform: translateY(-1px);
+  transition: transform var(--kdt-dur) var(--kdt-ease), opacity var(--kdt-dur) var(--kdt-ease);
+}
+/* Active sort — neutral emphasis, not crimson. The text strengthens
+   from muted to primary and the chevron goes full-opacity. Crimson
+   is reserved for danger pills only. */
+.kdt > thead > tr > th[aria-sort="ascending"]  .kdt-sort,
+.kdt > thead > tr > th[aria-sort="descending"] .kdt-sort {
+  color: var(--text-primary);
+}
+.kdt > thead > tr > th[aria-sort="ascending"]  .kdt-sort-ind  { opacity: 1; }
+.kdt > thead > tr > th[aria-sort="descending"] .kdt-sort-ind  { opacity: 1; transform: rotate(180deg) translateY(-1px); }
+
+
+/* ── Body rows ───────────────────────────────────────────────── */
+
+.kdt > tbody > tr {
+  height: var(--kdt-row-h);
+  background: var(--kdt-bg-row);
+  transition:
+    background-color var(--kdt-dur) var(--kdt-ease),
+    box-shadow       var(--kdt-dur) var(--kdt-ease);
+}
+
+.kdt > tbody > tr + tr > td {
+  border-top: 1px solid var(--kdt-row-line);
+}
+
+.kdt > tbody > tr > td {
+  padding: 0 var(--kdt-cell-x);
+  vertical-align: middle;
+  color: var(--kdt-fg);
+  white-space: nowrap;            /* default; cells opt out with .kdt-wrap-cell */
+}
+
+/* Hover: a quiet, neutral paper lift. No crimson anywhere.
+   The row simply warms a half-step toward the page surface. */
+.kdt > tbody > tr:hover {
+  background: var(--kdt-bg-hover);
+}
+
+/* Selected: a one-step-stronger neutral lift. The chip in the
+   checkbox column (.kf-check :checked → crimson fill) carries the
+   selection signal; the row background stays editorial. */
+.kdt > tbody > tr[aria-selected="true"] {
+  background: var(--kdt-bg-selected);
+}
+
+/* Muted row (e.g. archived / inactive) */
+.kdt > tbody > tr[data-row-state="muted"] > td {
+  color: var(--kdt-fg-muted);
+}
+
+
+/* ── Cell types ──────────────────────────────────────────────── */
+
+/* Mono — IDs, timestamps, SKUs. Tabular numerals so columns scan. */
+.kdt .kdt-mono {
+  font-family: var(--kdt-mono);
+  font-feature-settings: var(--kdt-num-feature);
+  color: var(--kdt-fg-meta);
+  letter-spacing: -0.01em;
+}
+
+/* Numeric — right-aligned tabular figures for $$, counts, rates. */
+.kdt .kdt-num {
+  text-align: right;
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: var(--kdt-num-feature);
+}
+
+/* Status — center the chip vertically in a tight pill column. */
+.kdt > tbody > tr > td.kdt-status { padding-top: 0; padding-bottom: 0; }
+
+/* Soft secondary cell — for less-critical metadata (city, rep, etc) */
+.kdt .kdt-soft  { color: var(--kdt-fg-muted); }
+.kdt .kdt-faint { color: var(--kdt-fg-faint); }
+
+
+/* ── Wrap-cell escape hatch ──────────────────────────────────── */
+
+/* By default cells nowrap (keeps the table grid taut). Cells that
+   need to wrap (long descriptions, addresses) get .kdt-wrap-cell.
+   `.kdt-trunc` shows a single line with ellipsis instead. */
+.kdt .kdt-wrap-cell { white-space: normal; }
+.kdt .kdt-trunc {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: block;
+  max-width: 22ch;
+}
+
+
+/* ── Empty / missing-value renderer ──────────────────────────── */
+
+/* Render <span class="kdt-empty">—</span> in any cell where the
+   data is empty. The class enforces a consistent em-dash glyph
+   in --text-faint so empty cells whisper, don't shout. */
+.kdt .kdt-empty {
+  color: var(--kdt-fg-faint);
+  font-family: var(--kdt-mono);
+  letter-spacing: 0.02em;
+}
+
+
+/* ── Checkbox column ─────────────────────────────────────────────
+   The table doesn't ship its own checkbox styling — drop a real
+   .kf-check primitive in here. The cell sizes and centers it:
+
+     <td class="kdt-check">
+       <label class="kf-check kf-sm">
+         <input type="checkbox" aria-label="Select row"/>
+         <span class="kf-check-box"></span>
+       </label>
+     </td>
+
+   Centering pixel-perfectly takes two moves:
+     1. `vertical-align: middle` on the cell (default for body cells,
+        explicit here for the head).
+     2. `line-height: 0` on the cell AND the .kf-check label inside,
+        so the label's intrinsic height collapses to the chip's
+        height (14px at kf-sm). Without this, the label gets ~15px
+        of leading from --leading-snug (intended for adjacent
+        label text in forms, not for standalone row-selection chips)
+        and the chip drifts up by ~0.5px against the row mid-line.
+   ──────────────────────────────────────────────────────────── */
+
+.kdt .kdt-check {
+  text-align: center;
+  vertical-align: middle;
+  line-height: 0;
+}
+.kdt .kdt-check > .kf-check {
+  gap: 0;
+  line-height: 0;
+  vertical-align: middle;
+}
+
+
+/* ── Row actions cell ────────────────────────────────────────────
+   The action trigger is a real .kb kb-sm kb-ghost kb-icon button.
+   The cell handles hover-reveal so the row stays quiet at rest:
+
+     <td class="kdt-actions">
+       <button class="kb kb-sm kb-ghost kb-icon kdt-act" aria-label="…">
+         <svg …><circle/><circle/><circle/></svg>
+       </button>
+     </td>
+   ──────────────────────────────────────────────────────────── */
+
+.kdt .kdt-actions { text-align: right; }
+
+/* Hover-reveal — keep the row chrome silent until you mouse in or
+   focus a button inside the row. .kdt-act is a modifier on .kb. */
+.kdt .kdt-act {
+  opacity: 0;
+  transition: opacity var(--kdt-dur) var(--kdt-ease);
+}
+.kdt > tbody > tr:hover         .kdt-act,
+.kdt > tbody > tr:focus-within  .kdt-act,
+.kdt > tbody > tr[aria-selected="true"] .kdt-act {
+  opacity: 1;
+}
+.kdt .kdt-act:focus-visible { opacity: 1; }
+
+
+/* ── Status pills ─────────────────────────────────────────────
+   Inline-defined here so the table primitive has zero hard
+   dependencies. When the standalone Tag primitive (.kt-*) ships
+   you can swap to it without touching the table CSS — see table.md.
+   ──────────────────────────────────────────────────────────── */
+
+.kdt-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 3px var(--space-3) 3px var(--space-2);
+  border: 1px solid currentColor;
+  border-color: var(--kdt-pill-border, var(--border-default));
+  border-radius: var(--radius-pill);
+  background: var(--kdt-pill-bg, transparent);
+  color: var(--kdt-pill-fg, var(--text-body));
+  font-family: var(--kdt-mono);
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  vertical-align: middle;
+  line-height: 1;
+}
+.kdt-pill-dot {
+  width: 6px; height: 6px;
+  border-radius: var(--radius-full);
+  background: currentColor;
+  flex: 0 0 6px;
+}
+
+.kdt-pill-success {
+  --kdt-pill-fg:     var(--status-success);
+  --kdt-pill-bg:     color-mix(in oklch, var(--status-success) 12%, var(--surface-card));
+  --kdt-pill-border: color-mix(in oklch, var(--status-success) 30%, transparent);
+}
+.kdt-pill-warning {
+  /* Darker gold derived from --color-gold so the chip text passes contrast
+     against the gold-tint surface. Add --color-gold-d to tokens later and
+     swap this color-mix() out — same result, simpler resolution. */
+  --kdt-pill-fg:     color-mix(in oklch, var(--color-gold) 65%, var(--color-ink-1));
+  --kdt-pill-bg:     var(--color-gold-l);
+  --kdt-pill-border: color-mix(in oklch, var(--color-gold) 40%, transparent);
+}
+.kdt-pill-danger {
+  --kdt-pill-fg:     var(--status-danger);
+  --kdt-pill-bg:     var(--status-danger-tint);
+  --kdt-pill-border: color-mix(in oklch, var(--status-danger) 35%, transparent);
+}
+.kdt-pill-info {
+  --kdt-pill-fg:     var(--status-info);
+  --kdt-pill-bg:     color-mix(in oklch, var(--status-info) 10%, var(--surface-card));
+  --kdt-pill-border: color-mix(in oklch, var(--status-info) 30%, transparent);
+}
+.kdt-pill-neutral {
+  --kdt-pill-fg:     var(--text-muted);
+  --kdt-pill-bg:     var(--surface-2);
+  --kdt-pill-border: var(--border-default);
+}
+
+
+/* ── Density variants ─────────────────────────────────────────
+   The default is generous (52px). Use compact when the surface is
+   genuinely data-dense (admin / finance grids); use cozy for tablet-
+   landscape and forms-adjacent contexts.
+   ──────────────────────────────────────────────────────────── */
+
+.kdt.kdt-compact {
+  --kdt-row-h:    36px;
+  --kdt-head-h:   36px;
+  --kdt-cell-y:   var(--space-2);
+  --kdt-cell-x:   var(--space-4);
+  --kdt-size:     var(--text-xs);     /* 11px */
+}
+.kdt.kdt-cozy {
+  --kdt-row-h:    64px;
+  --kdt-head-h:   52px;
+  --kdt-cell-y:   var(--space-5);
+  --kdt-cell-x:   var(--space-6);
+  --kdt-size:     var(--text-base);   /* 15px */
+}
+
+
+/* ── Surface variants ─────────────────────────────────────────
+   kdt-flat   (default) — hairline row dividers, transparent rows
+   kdt-zebra  — alternating tint, no row dividers
+   kdt-card   — applied to the WRAPPER (.kdt-wrap.kdt-card), bordered
+                container with rounded corners
+   ──────────────────────────────────────────────────────────── */
+
+.kdt.kdt-zebra > tbody > tr + tr > td { border-top: 0; }
+.kdt.kdt-zebra > tbody > tr:nth-child(even) {
+  --kdt-bg-row: var(--kdt-bg-zebra);
+}
+
+
+/* ── Sticky first column ─────────────────────────────────────── */
+
+.kdt-wrap.kdt-sticky-first .kdt > thead > tr > th:first-child,
+.kdt-wrap.kdt-sticky-first .kdt > tbody > tr > td:first-child {
+  position: sticky;
+  left: 0;
+  background: var(--kdt-head-bg);
+  z-index: 1;
+}
+.kdt-wrap.kdt-sticky-first .kdt > thead > tr > th:first-child { z-index: 3; }
+.kdt-wrap.kdt-sticky-first .kdt > tbody > tr:hover > td:first-child {
+  background: var(--kdt-bg-hover);
+}
+.kdt-wrap.kdt-sticky-first .kdt > tbody > tr[aria-selected="true"] > td:first-child {
+  background: var(--kdt-bg-selected);
+}
+.kdt-wrap.kdt-sticky-first .kdt > thead > tr > th:first-child::after,
+.kdt-wrap.kdt-sticky-first .kdt > tbody > tr > td:first-child::after {
+  content: "";
+  position: absolute;
+  right: -1px; top: 0; bottom: 0;
+  width: 1px;
+  background: var(--border-default);
+}
+
+
+/* ── Bulk-actions strip ───────────────────────────────────────
+   Goes INSIDE the .kdt-wrap.kdt-card so the card's border-radius
+   and overflow:hidden clip the strip flush at the top — no
+   rounded/sharp-corner mismatch with the table.
+
+     <div class="kdt-wrap kdt-card">
+       <div class="kdt-bulk" hidden>
+         <span class="kdt-bulk-count"><strong>3</strong> selected</span>
+         <span class="kdt-bulk-spacer"></span>
+         <button class="kb kb-sm kb-secondary">Export</button>
+         <button class="kb kb-sm kb-secondary">Mark shipped</button>
+         <button class="kb kb-sm kb-ghost">Archive</button>
+       </div>
+       <table class="kdt">…</table>
+     </div>
+
+   Color: slightly darker than the table surface (--surface-3 in
+   light, also --surface-3 in dark — both read as a quiet "active
+   mode" lift, never inky-black). Hairline divides from the table
+   head so the seam reads clean.
+   ──────────────────────────────────────────────────────────── */
+
+.kdt-bulk {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-5);
+  min-height: 52px;
+  background: var(--surface-3);
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-default);
+}
+.kdt-bulk-count {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  font-weight: var(--weight-semibold);
+  color: var(--text-muted);
+}
+.kdt-bulk-count > strong {
+  color: var(--text-primary);
+  font-weight: var(--weight-semibold);
+  margin-right: var(--space-1);
+}
+.kdt-bulk-count::before {
+  content: "";
+  display: inline-block;
+  width: 6px; height: 6px;
+  border-radius: var(--radius-full);
+  background: var(--color-crimson);
+}
+.kdt-bulk-spacer { flex: 1; }
+
+
+/* ── Empty state slot ─────────────────────────────────────────
+   Render <tr class="kdt-empty-row"><td colspan="N">…</td></tr> in
+   tbody when there are no rows. Or place a sibling .kdt-empty-board
+   below the (empty) <tbody> for richer empty states.
+   ──────────────────────────────────────────────────────────── */
+
+.kdt-empty-board {
+  display: grid;
+  place-items: center;
+  gap: var(--space-3);
+  padding: var(--space-12) var(--space-6);
+  text-align: center;
+  color: var(--text-muted);
+  border-top: 1px solid var(--border-subtle);
+}
+.kdt-empty-board h3 {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--text-lg);
+  font-weight: var(--weight-medium);
+  color: var(--text-primary);
+  letter-spacing: var(--tracking-tight);
+}
+.kdt-empty-board p {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  max-width: 44ch;
+  line-height: var(--leading-relaxed);
+}
+.kdt-empty-board .kdt-empty-mark {
+  width: 56px; height: 56px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-2);
+  display: grid; place-items: center;
+  color: var(--text-muted);
+  margin-bottom: var(--space-2);
+}
+
+
+/* ── Loading state — skeleton rows ────────────────────────────
+   Set tbody[aria-busy="true"]. Render N <tr class="kdt-skel"> rows
+   with empty <td>s. Width on the inner span controls bar length. */
+
+@keyframes kdt-skel-shimmer {
+  0%   { background-position: -180% 0; }
+  100% { background-position: 180% 0; }
+}
+.kdt > tbody[aria-busy="true"] > tr.kdt-skel > td { color: transparent; }
+.kdt > tbody[aria-busy="true"] > tr.kdt-skel > td > .kdt-skel-bar {
+  display: inline-block;
+  height: 10px;
+  width: var(--w, 70%);
+  border-radius: var(--radius-pill);
+  background:
+    linear-gradient(90deg,
+      var(--surface-2) 0%,
+      color-mix(in oklch, var(--surface-2) 40%, var(--surface-3)) 50%,
+      var(--surface-2) 100%);
+  background-size: 200% 100%;
+  animation: kdt-skel-shimmer 1.4s ease-in-out infinite;
+  vertical-align: middle;
+}
+
+
+/* ── Pager (optional, ships in the same file for cohesion) ────
+   The pager is just a layout strip — the buttons themselves are
+   real .kb kb-sm kb-secondary instances; the strip provides the
+   info label and the border-top that ties it to the table. */
+
+.kdt-pager {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-5);
+  border-top: 1px solid var(--border-default);
+  background: var(--surface-card);
+}
+.kdt-pager-info {
+  flex: 1;
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+
+/* ── Dark theme overrides ─────────────────────────────────────
+   The semantic tokens already flip in dark; these are just the
+   per-primitive tweaks that aren't covered by token flipping.
+   Keep hover/selected NEUTRAL — never crimson-tinted. */
+
+[data-theme="dark"] :where(.kdt) {
+  /* In dark, card = paper-2 (#1F1E1C). Hover steps up to paper-3
+     (#2B2A27); selected steps a touch further and gets the crimson
+     left-edge. Row tints stay neutral. */
+  --kdt-bg-zebra:     color-mix(in oklch, var(--surface-card) 80%, var(--surface-3));
+  --kdt-bg-hover:     var(--surface-3);
+  --kdt-bg-selected:  color-mix(in oklch, var(--surface-3) 70%, var(--surface-card));
+}
+
+/* Bulk strip in dark theme — same surface-3 lift logic. The token
+   already flips for us; no per-rule override needed. */
+
+
+/* ── Responsive collapse — table → stacked cards ──────────────
+   Below 640px (iPhone / split-view iPad), tables can be opted
+   into a vertical "card list" layout by adding .kdt-stack to
+   the wrapper. Headers are hidden; each cell pairs with its
+   data-label="..." attribute, which is shown as the label.
+
+   <td data-label="Order #" class="kdt-mono">136131-112625-10</td>
+   ──────────────────────────────────────────────────────────── */
+
+@media (max-width: 640px) {
+  .kdt-wrap.kdt-stack .kdt,
+  .kdt-wrap.kdt-stack .kdt > thead,
+  .kdt-wrap.kdt-stack .kdt > tbody,
+  .kdt-wrap.kdt-stack .kdt > tbody > tr,
+  .kdt-wrap.kdt-stack .kdt > tbody > tr > td {
+    display: block;
+    width: 100%;
+  }
+  .kdt-wrap.kdt-stack .kdt > thead { display: none; }
+  .kdt-wrap.kdt-stack .kdt > tbody > tr {
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-lg);
+    margin-bottom: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    background: var(--surface-card);
+    height: auto;
+  }
+  .kdt-wrap.kdt-stack .kdt > tbody > tr + tr > td { border-top: 0; }
+  .kdt-wrap.kdt-stack .kdt > tbody > tr > td {
+    padding: var(--space-2) 0;
+    white-space: normal;
+    text-align: left;
+    border-top: 1px dashed var(--border-subtle);
+  }
+  .kdt-wrap.kdt-stack .kdt > tbody > tr > td:first-child { border-top: 0; padding-top: 0; }
+  .kdt-wrap.kdt-stack .kdt > tbody > tr > td:last-child  { padding-bottom: 0; }
+  .kdt-wrap.kdt-stack .kdt > tbody > tr > td::before {
+    content: attr(data-label);
+    display: block;
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    letter-spacing: var(--tracking-widest);
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: var(--space-1);
+  }
+  .kdt-wrap.kdt-stack .kdt > tbody > tr > td.kdt-num { text-align: left; }
+  .kdt-wrap.kdt-stack .kdt > tbody > tr > td.kdt-actions { display: none; }
+  .kdt-wrap.kdt-stack .kdt > tbody > tr > td.kdt-check {
+    width: auto;
+    display: inline-block;
+    margin-right: var(--space-2);
+  }
+  .kdt-wrap.kdt-stack .kdt > tbody > tr > td.kdt-check::before { display: none; }
+}
+
+
+/* ── Reduced motion ──────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .kdt > tbody > tr,
+  .kdt-sort,
+  .kdt .kdt-act,
+  .kdt .kdt-check input[type="checkbox"],
+  .kdt-pager button {
+    transition: none;
+  }
+  .kdt > tbody[aria-busy="true"] > tr.kdt-skel > td > .kdt-skel-bar {
+    animation: none;
+    background: var(--surface-2);
+  }
+}

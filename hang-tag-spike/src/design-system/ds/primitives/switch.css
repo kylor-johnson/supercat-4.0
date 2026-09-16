@@ -1,0 +1,198 @@
+/* ═════════════════════════════════════════════════════════════════
+   SuperCat DS — Switch primitive  ·  .kf-switch (toggle)
+   ─────────────────────────────────────────────────────────────────
+   ▸ Class prefix: `.kf-*` = "kit form".
+   ▸ Wraps a real <input type="checkbox"> — works as a form field.
+   ▸ Required structure: <label.kf-switch> contains
+     <input> + <span.kf-switch-track><span.kf-switch-thumb/></span>
+     + .kf-switch-label
+   ▸ Sizes: kf-sm (28×16) | kf-md (36×20, default) | kf-lg (44×26)
+   ▸ Framework-agnostic. Pure CSS. No JS.
+   ─────────────────────────────────────────────────────────────────
+   .kf-switch — Toggle switch primitive
+   ─────────────────────────────────────────────────────────────────
+   Framework-agnostic. Pure CSS. No JS. Wraps a real <input type="checkbox">
+   so it works as a form field with zero glue code.
+
+   Usage (canonical — works in React, Vue, Svelte, vanilla, anything):
+
+     <label class="kf-switch">
+       <input type="checkbox" />
+       <span class="kf-switch-track">
+         <span class="kf-switch-thumb"></span>
+       </span>
+       <span class="kf-switch-label">Auto-sync orders</span>
+     </label>
+
+   For label-on-left layout, just put the label span before the track.
+
+   API
+   ───
+   Sizes        : kf-sm | kf-md (default) | kf-lg
+   States       : checked | disabled | data-state="error"
+   On/Off label : add <span class="kf-switch-state">ON</span> inside the
+                  thumb if the switch needs an inline state badge
+
+   Theming (component-local custom properties)
+   ──────────────────────────────────────────
+     --kfs-w               track width
+     --kfs-h               track height
+     --kfs-thumb           thumb size
+     --kfs-pad             track inset for thumb
+     --kfs-bg-off          track background — off
+     --kfs-bg-on           track background — on
+     --kfs-thumb-bg        thumb background
+     --kfs-ring-color      focus ring tint
+   ─────────────────────────────────────────────────────────────── */
+
+.kf-switch,
+:where(.kf-switch) {
+  /* Defaults — md */
+  --kfs-w:           36px;
+  --kfs-h:           20px;
+  --kfs-thumb:       14px;
+  --kfs-pad:         3px;
+  --kfs-bg-off:      var(--border-strong);
+  --kfs-bg-on:       var(--text-crimson);
+  --kfs-thumb-bg:    var(--surface-card);
+  --kfs-ring-color:  var(--text-crimson);
+
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  cursor: pointer;
+  user-select: none;
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  color: var(--text-body);
+  line-height: var(--leading-snug);
+}
+
+/* The real input — visually hidden, functionally present */
+.kf-switch > input[type="checkbox"] {
+  position: absolute;
+  width: var(--kfs-w);
+  height: var(--kfs-h);
+  margin: 0;
+  opacity: 0;
+  cursor: inherit;
+  z-index: 1;
+}
+
+/* Track */
+.kf-switch-track {
+  flex: 0 0 auto;
+  width: var(--kfs-w);
+  height: var(--kfs-h);
+  background: var(--kfs-bg-off);
+  border-radius: 999px;
+  position: relative;
+  transition:
+    background var(--duration-base) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out);
+}
+
+/* Thumb */
+.kf-switch-thumb {
+  position: absolute;
+  top: var(--kfs-pad);
+  left: var(--kfs-pad);
+  width: var(--kfs-thumb);
+  height: var(--kfs-thumb);
+  background: var(--kfs-thumb-bg);
+  border-radius: 50%;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.15),
+    0 0 0 0.5px rgba(0, 0, 0, 0.06);
+  transition: transform var(--duration-base) var(--ease-spring);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Optional state badge inside thumb (for kf-lg with letters) */
+.kf-switch-state {
+  font-family: var(--font-mono);
+  font-size: 0.55em;
+  letter-spacing: var(--tracking-wider);
+  color: var(--text-primary);
+  font-weight: var(--weight-semibold);
+  opacity: 0;
+  transition: opacity var(--duration-fast);
+}
+
+.kf-switch-label {
+  flex: 1 1 auto;
+}
+
+.kf-switch-hint {
+  display: block;
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  margin-top: var(--space-1);
+}
+
+/* ── Sizes ─────────────────────────────────────────────────────── */
+.kf-switch.kf-sm {
+  --kfs-w: 28px;  --kfs-h: 16px;  --kfs-thumb: 12px;  --kfs-pad: 2px;
+  font-size: var(--text-xs);
+}
+.kf-switch.kf-md { /* defaults */ }
+.kf-switch.kf-lg {
+  --kfs-w: 44px;  --kfs-h: 26px;  --kfs-thumb: 20px;  --kfs-pad: 3px;
+  font-size: var(--text-base);
+}
+
+/* ── States ────────────────────────────────────────────────────── */
+.kf-switch > input:focus-visible ~ .kf-switch-track {
+  box-shadow: 0 0 0 3px color-mix(in oklch, var(--kfs-ring-color) 22%, transparent);
+}
+
+.kf-switch > input:checked ~ .kf-switch-track {
+  background: var(--kfs-bg-on);
+}
+
+.kf-switch > input:checked ~ .kf-switch-track .kf-switch-thumb {
+  transform: translateX(calc(var(--kfs-w) - var(--kfs-thumb) - var(--kfs-pad) * 2));
+}
+
+.kf-switch > input:checked ~ .kf-switch-track .kf-switch-state {
+  opacity: 1;
+}
+
+/* Disabled */
+.kf-switch:has(> input:disabled),
+.kf-switch.disabled {
+  cursor: not-allowed;
+  color: var(--text-faint);
+}
+.kf-switch:has(> input:disabled) .kf-switch-track,
+.kf-switch.disabled .kf-switch-track {
+  opacity: 0.5;
+}
+
+/* Validation state — error uses --status-danger (orange-red), distinct
+   from crimson which is the on-state primary. */
+.kf-switch[data-state="error"] {
+  --kfs-bg-off:     var(--status-danger);
+  --kfs-ring-color: var(--status-danger);
+}
+
+/* ── Reduced motion ────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .kf-switch-track,
+  .kf-switch-thumb { transition: none; }
+}
+
+/* ── Dark theme ────────────────────────────────────────────────── */
+/* "On" track uses --color-crimson (theme-aware: lifted in dark mode
+   for chip-scale legibility on near-black). Thumb uses --color-ink-1
+   which in dark mode resolves to the warm cream #EBE6D7 — so the
+   knob reads LIGHT against the dark track, not invisible. */
+[data-theme="dark"] .kf-switch {
+  --kfs-bg-off:     var(--color-ink-3);
+  --kfs-bg-on:      var(--color-crimson);
+  --kfs-thumb-bg:   var(--color-ink-1);
+  --kfs-ring-color: var(--color-crimson);
+}
