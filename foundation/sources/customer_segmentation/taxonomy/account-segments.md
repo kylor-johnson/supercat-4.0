@@ -55,7 +55,7 @@ follow from it:
 | Refreshing the numbers does not refresh the segments | A new quarter of order data does not re-segment anyone |
 
 The correction to the foundation docs that carry the wrong lineage claim is drafted and **held** in
-[`../FOUNDATION-CORRECTIONS.md`](../FOUNDATION-CORRECTIONS.md).
+[`../../../../personas/FOUNDATION-CORRECTIONS.md`](../../../../personas/FOUNDATION-CORRECTIONS.md).
 
 **Availability: POST-SALE ONLY.** Every field below requires a live SuperCat instance with
 loaded catalog, customer file, and order history. **No Account Segment can be assigned to a
@@ -232,5 +232,5 @@ threshold computed off Layer A, and never silently dropped (principle 6).
 ## 7. Open items
 
 - The §4 signature prose in the stamped document is inaccurate for SEG-01 and SEG-03 (§3.1). It is
-  stamped and is **not** edited here. Proposed correction is held in `../FOUNDATION-CORRECTIONS.md`.
+  stamped and is **not** edited here. Proposed correction is held in `../../../../personas/FOUNDATION-CORRECTIONS.md`.
 - No segment has been re-derived. This layer restates and constrains v4.0; it does not re-litigate it.

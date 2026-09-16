@@ -16,7 +16,7 @@ supersedes: v1.0 (2026-08-27) seat-register IDs (JTBD-0xx / PER-0x)
 
 Job IDs are `JOB-*` from [`../analytics/jtbd-register.md`](../analytics/jtbd-register.md). Seats
 (PER-01…08) are headcount, not the persona set — see
-[`../personas/00-PERSONA-GROUPS.md`](../personas/00-PERSONA-GROUPS.md).
+[`../00-PERSONA-GROUPS.md`](../00-PERSONA-GROUPS.md).
 
 Every claim below is either cited to a checked-in file or labelled `[SQL 2026-08-27]` for a
 read-only query run against production while writing this. Where something could not be verified it
@@ -51,7 +51,7 @@ is the **PG-01** pack, not the home screen for PG-05/PG-07.
 | JOB-HQ-1 Get one topline I can defend | PG-HQ (owner / VP) | Gated — a topline whose export disagrees is not defensible |
 | JOB-01-3 / JOB-03-3 See only my territory, and trust it | PG-01 / PG-03 | Secondary metric is export-to-UI reconciliation rate |
 
-`personas/PER-06-owner-exec.md` (seat evidence) states the dependency: *"three things must be true
+`../PER-06-owner-exec.md` (seat evidence) states the dependency: *"three things must be true
 before Intelligence is trustworthy: territory scopes the book; export reconciles to UI; quotes never
 counted as sales."* A6 is the second of those three.
 
@@ -186,7 +186,7 @@ There is no view anywhere that renders active reps against seats. Both inputs ex
 |---|---|---|
 | iPad last login | `org_users.last_ipad_login_at` | `[SQL 2026-08-27]` present |
 | eOL last login | `org_users.last_ecat_online_login_at` | `[SQL 2026-08-27]` present |
-| Rep vs buyer discriminator | `org_users.customer_number` blank ⇒ internal/rep | `personas/PER-00-persona-set.md` §1 |
+| Rep vs buyer discriminator | `org_users.customer_number` blank ⇒ internal/rep | `../PER-00-persona-set.md` §1 |
 | Orders per user | `orders` | `product/surface-mapping.md` |
 | Seats licensed | `subscription_plans.user_limit` via `subscriptions.subscription_plan_id` | `[SQL 2026-08-27]` present |
 

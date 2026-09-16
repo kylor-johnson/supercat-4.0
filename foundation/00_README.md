@@ -2,9 +2,11 @@
 
 > **What this is**: The shared, socializable foundational context for SuperCat. Seven Markdown files at the root of `foundation/` that every team member, advisor, partner, and incoming hire can read in under an hour to ground themselves in what we do, who we serve, how we make money, what market we're in, where we're going, and how we operate.
 >
-> **Last updated**: 2026-09-15 · **Owner**: CEO · **Review cadence**: Quarterly (or when a foundational fact changes)
+> **Last updated**: 2026-09-16 · **Owner**: CEO · **Review cadence**: Quarterly (or when a foundational fact changes)
 >
-> *2026-09-15: **Persona groups restored.** Selling motion × seat (PG-01…08 + HQ), not 7 login seats. Withdrawn: "build once / only 4 of 31 jobs vary / do not condition on segment." [`02_who_we_serve.md`](02_who_we_serve.md), [`01_what_we_do.md`](01_what_we_do.md), [`CEO_SYSTEM_CONTEXT.md`](CEO_SYSTEM_CONTEXT.md) updated. Canonical source: [`sources/customer_segmentation/personas/00-PERSONA-GROUPS.md`](sources/customer_segmentation/personas/00-PERSONA-GROUPS.md). Prior versions in [`_archive/`](_archive/). Lens 1, Lens 2 roster, D-001a and T1/T2/T3 unchanged.*
+> *2026-09-16: **Persona product rehomed** to [`../personas/00-PERSONA-GROUPS.md`](../personas/00-PERSONA-GROUPS.md). Lens 2 roster stays in `Customer Segmentation/current/`. `foundation/sources/customer_segmentation/` is no longer the persona home.*
+>
+> *2026-09-15: **Persona groups restored.** Selling motion × seat (PG-01…08 + HQ), not 7 login seats. Withdrawn: "build once / only 4 of 31 jobs vary / do not condition on segment." [`02_who_we_serve.md`](02_who_we_serve.md), [`01_what_we_do.md`](01_what_we_do.md), [`CEO_SYSTEM_CONTEXT.md`](CEO_SYSTEM_CONTEXT.md) updated. Canonical source: [`../personas/00-PERSONA-GROUPS.md`](../personas/00-PERSONA-GROUPS.md). Prior versions in [`_archive/`](_archive/). Lens 1, Lens 2 roster, D-001a and T1/T2/T3 unchanged.*
 >
 > *2026-08-26: Lens 2 (Selling Motion) lineage corrected in [`02_who_we_serve.md`](02_who_we_serve.md) and [`CEO_SYSTEM_CONTEXT.md`](CEO_SYSTEM_CONTEXT.md) — the v4.0 segments are stamped judgment corroborated by Postgres, not derived from it, and cannot be assigned to a prospect. Prior versions preserved in [`_archive/`](_archive/). Lens 1, D-001a and T1/T2/T3 unchanged.*
 
@@ -104,7 +106,7 @@ The single most-cited source files across the set are:
 - [`PRICING_CONSTITUTION.md`](../skills/monetization_refresh_2026/11_synthesis/PRICING_CONSTITUTION.md) — every pricing decision (T1/T2/T3, user expansion, implementation tiers, discount policy)
 - [`skills/insightful_product/01_bcf_instance_profile.md`](../skills/insightful_product/01_bcf_instance_profile.md) — the reference customer, source for any "what it looks like deployed" claim
 - [`skills/insightful_product/04_value_moment_catalog.md`](../skills/insightful_product/04_value_moment_catalog.md) — the value moments framework (canonical count in the catalog)
-- [`sources/customer_segmentation/personas/00-PERSONA-GROUPS.md`](sources/customer_segmentation/personas/00-PERSONA-GROUPS.md) and [`sources/customer_segmentation/analytics/jtbd-register.md`](sources/customer_segmentation/analytics/jtbd-register.md) — persona groups (motion × seat) and jobs; source for any "who uses it / what job / what to build" claim. Do not use PER-00…08 as that source.
+- [`../personas/00-PERSONA-GROUPS.md`](../personas/00-PERSONA-GROUPS.md) and [`../personas/analytics/jtbd-register.md`](../personas/analytics/jtbd-register.md) — SuperCat personas (who consumes which product) and jobs; source for any "who uses it / what job / what to build" claim. Do not use PER-00…08 as that source. Roster for selling motion is `Customer Segmentation/current/`.
 - [`reports/state_of_industry/state_of_industry_benchmarks_2026-01-21.md`](../reports/state_of_industry/state_of_industry_benchmarks_2026-01-21.md) — the TAM and industry-shape benchmarks
 - [`skills/monetization_refresh_2026/10_exec/2026-01-29__q425_customer_base_readout.md`](../skills/monetization_refresh_2026/10_exec/2026-01-29__q425_customer_base_readout.md) — the install-base baseline (n=110)
 - [`skills/monetization_refresh_2026/11_synthesis/2026-01-28__competitive_packaging_audit__m3_input__v1.md`](../skills/monetization_refresh_2026/11_synthesis/2026-01-28__competitive_packaging_audit__m3_input__v1.md) and [`2026-02-25__competitive_price_benchmarking__d004a_exercise2__v1.md`](../skills/monetization_refresh_2026/11_synthesis/2026-02-25__competitive_price_benchmarking__d004a_exercise2__v1.md) — competitive analysis

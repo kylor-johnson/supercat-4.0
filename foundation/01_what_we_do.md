@@ -1,6 +1,6 @@
 # 01 — What We Do
 
-> **Last updated**: 2026-09-15 (replaced the 2026-08-27 **build once, do not condition on segment**
+> **Last updated**: 2026-09-16 (persona surface-mapping cite moved to `personas/product/`. Previously: 2026-09-15 — replaced the 2026-08-27 **build once, do not condition on segment**
 > rule with: one iPad-EC *shell*, job pack by selling motion; buyer jobs on eOL with fit that follows
 > motion; HQ shared. Surfaces, gating layers, value moments and BCF unchanged. Prior version:
 > `_archive/01_what_we_do_2026-09-15_pre-persona-groups.md`. Previously: 2026-08-27 added the now-withdrawn
@@ -133,7 +133,7 @@ There is **no incumbent rep analytics surface** — Territory Dashboard is enabl
 organisations**. Field-rep analytics is greenfield and belongs in the iPad, because the unsolved
 constraint is offline.
 
-Detail: [`sources/customer_segmentation/product/surface-mapping.md`](sources/customer_segmentation/product/surface-mapping.md).
+Detail: [`../personas/product/surface-mapping.md`](../personas/product/surface-mapping.md).
 
 ---
 

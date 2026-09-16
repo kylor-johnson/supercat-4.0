@@ -131,7 +131,7 @@ Agency principal is still unservable this cycle (no agency entity).
 | What should a spec-rep's analytics panel show vs a volume-rep's? | Layer 2 job packs PG-01 vs PG-07 |
 | Should we sell eOL to this client? | Layer 2 eOL fit, from the roster |
 | Login headcounts / disjoint populations | [`PER-00-persona-set.md`](PER-00-persona-set.md) |
-| Jobs and build order | [`../analytics/jtbd-register.md`](../analytics/jtbd-register.md), [`../product/surface-mapping.md`](../product/surface-mapping.md) |
+| Jobs and build order | [`analytics/jtbd-register.md`](analytics/jtbd-register.md), [`product/surface-mapping.md`](product/surface-mapping.md) |
 
 `JOB-*` IDs stay. They are jobs, not personas. `PG-01…08` stay as **job-pack IDs**, not the persona set.
 
@@ -181,4 +181,4 @@ Exemplars: Abaline, Home Essentials, Kennedy International, Bulbrite.
 - **Not keeping PER-01…08 or PG-01…08 as the SuperCat persona set.** Seats and job packs, respectively.
 - **Not going back to "jobs don't differ / build once not on segment"** for field analytics or eOL targeting.
 
-Jobs and surfaces: [`../analytics/jtbd-register.md`](../analytics/jtbd-register.md), [`../product/surface-mapping.md`](../product/surface-mapping.md).
+Jobs and surfaces: [`analytics/jtbd-register.md`](analytics/jtbd-register.md), [`product/surface-mapping.md`](product/surface-mapping.md).

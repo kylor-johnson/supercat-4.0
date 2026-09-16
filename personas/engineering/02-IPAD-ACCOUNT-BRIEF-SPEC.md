@@ -19,7 +19,7 @@ supersedes: v1.0 (2026-08-27) which specified this as a universal PER-01 / JTBD-
 PG-05 (channel-mix, marketplace excluded), or PG-07 (skip an L panel). Same iPad-EC **shell**
 (WebView, extract pipeline, staleness UI, fail-closed sync). Different grain.
 
-Canonical groups: [`../personas/00-PERSONA-GROUPS.md`](../personas/00-PERSONA-GROUPS.md).
+Canonical groups: [`../00-PERSONA-GROUPS.md`](../00-PERSONA-GROUPS.md).
 Offline rules: [`../product/surface-mapping.md`](../product/surface-mapping.md) §3.
 
 **The job.** JOB-01-1:

@@ -62,4 +62,4 @@ Dropped as analytics seats (unchanged): IT/integrations (job status, not analyti
 
 The Aug 25 claim that **only 4 of 31 jobs vary by selling motion** and that **one surface serves everyone** is withdrawn as product doctrine. It treated seats as personas. Structure (price-code count, catalog size) still parameterises **HQ** jobs and extract size. It does not make a spec-rep and a volume-rep the same persona.
 
-Jobs: [`../analytics/jtbd-register.md`](../analytics/jtbd-register.md). Surfaces: [`../product/surface-mapping.md`](../product/surface-mapping.md).
+Jobs: [`analytics/jtbd-register.md`](analytics/jtbd-register.md). Surfaces: [`product/surface-mapping.md`](product/surface-mapping.md).

@@ -119,12 +119,12 @@ Implementation: Essentials included, Guided $2,500, Comprehensive $5,000.
 | Selling Motion (Lens 2) — model and methodology | `foundation/sources/customer_segmentation/README.md`, `Customer Segmentation/current/SuperCat_Client_Segmentation_v4.0.md` |
 | Selling Motion (Lens 2) — per-org roster and buyer-type evidence | `Customer Segmentation/current/SuperCat_Customer_Segmentation_v4.0_MASTER.csv`, `foundation/sources/customer_segmentation/account_buyer_type_reads.csv` |
 | Prospect Archetype (pre-sale) — never a segment label on a prospect | `foundation/sources/customer_segmentation/taxonomy/prospect-archetypes.md`, `taxonomy/segment-archetype-mapping.md` |
-| **Persona groups — who consumes which product** | `foundation/sources/customer_segmentation/personas/00-PERSONA-GROUPS.md` |
-| **Login seats / headcounts only** | `foundation/sources/customer_segmentation/personas/PER-00-persona-set.md` |
-| **JTBD — jobs per persona group** | `foundation/sources/customer_segmentation/analytics/jtbd-register.md` |
-| **Which surface a job lands on, build size, offline constraints** | `foundation/sources/customer_segmentation/product/surface-mapping.md` |
-| **What blocks a job — engineering backlog vs. client-data gaps** | `foundation/sources/customer_segmentation/product/data-gaps.md` |
-| The whole persona/JTBD picture in two pages | `foundation/sources/customer_segmentation/00-SYNTHESIS.md` |
+| **Persona groups — who consumes which product** | `personas/00-PERSONA-GROUPS.md` |
+| **Login seats / headcounts only** | `personas/PER-00-persona-set.md` |
+| **JTBD — jobs per persona group** | `personas/analytics/jtbd-register.md` |
+| **Which surface a job lands on, build size, offline constraints** | `personas/product/surface-mapping.md` |
+| **What blocks a job — engineering backlog vs. client-data gaps** | `personas/product/data-gaps.md` |
+| The whole persona/JTBD picture in two pages | `personas/00-SYNTHESIS.md` |
 | "What it looks like deployed" / reference customer | `foundation/sources/insightful_product/01_bcf_instance_profile.md` |
 | Value moments — the catalog itself | `Insightful Product 4.0/foundation/capability/value_moment_catalog.md` |
 | Truth/confidence rules (Tier 0 — wins over `foundation/07`) | `Insightful Product 4.0/foundation/provenance_spine.md` |

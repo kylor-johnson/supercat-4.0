@@ -11,6 +11,15 @@ depends_on: []
 
 # Changelog
 
+## 2026-09-16 — Persona product rehomed to `personas/`
+
+Moved the SuperCat persona / JTBD / surface tree out of
+`foundation/sources/customer_segmentation/` to top-level `personas/` so
+`00-PERSONA-GROUPS.md` is the canonical file. Selling-motion roster stays in
+`Customer Segmentation/current/`. Taxonomy, buyer-type reads, prospects, field-kit,
+and `_working/` stay in `foundation/sources/customer_segmentation/`. That folder's
+README is now a pointer only.
+
 ## 2026-08-25 — Phase 0 + Phase 1 (draft)
 
 ### Added

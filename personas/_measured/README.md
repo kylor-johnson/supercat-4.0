@@ -15,7 +15,7 @@ It is internally careful, but it **asserts** in a number of places where Postgre
 This directory replaces assertion with measurement wherever the database can settle it, and says
 explicitly where it cannot.
 
-**Scope note (2026-09-15):** this pack measured the Aug 25 *seat* register (PER-01…08, JTBD-0xx), which is now demoted. Headcounts, invoice-feed coverage, disjoint rep/buyer populations, and "PER-01 is not one behavioural persona" still stand — that last finding is why persona groups are motion × seat. Do not treat "only 4 of 31 jobs vary" as current doctrine; see [`../personas/00-PERSONA-GROUPS.md`](../personas/00-PERSONA-GROUPS.md).
+**Scope note (2026-09-15):** this pack measured the Aug 25 *seat* register (PER-01…08, JTBD-0xx), which is now demoted. Headcounts, invoice-feed coverage, disjoint rep/buyer populations, and "PER-01 is not one behavioural persona" still stand — that last finding is why persona groups are motion × seat. Do not treat "only 4 of 31 jobs vary" as current doctrine; see [`../00-PERSONA-GROUPS.md`](../00-PERSONA-GROUPS.md).
 
 **This is evidence, not prose.** A later pass rebuilds the CEO readout from what is here.
 

@@ -6,7 +6,7 @@ This is the **agent-optimized condensation** of the full foundation set
 (`foundation/01`–`07`). When you need depth, read the source doc named at the end
 of each section.
 
-**Last updated:** 2026-09-15 (**SuperCat personas = who consumes which product.** Buyer → eOL; rep analytics → iPad-EC. Motion is a job pack, not eight extra people. Withdrawn: "build once, only 4 of 31 jobs vary." Lineage still holds: Lens 2 is a stamped roster lookup, post-sale only; never label a prospect. Prior version: `_archive/CEO_SYSTEM_CONTEXT_2026-09-15_pre-persona-groups.md`.
+**Last updated:** 2026-09-16 (persona depth cites moved to `personas/`. Roster and taxonomy stay under `foundation/sources/customer_segmentation/` + `Customer Segmentation/current/`. Previously: 2026-09-15 — **SuperCat personas = who consumes which product.** Buyer → eOL; rep analytics → iPad-EC. Motion is a job pack, not eight extra people. Withdrawn: "build once, only 4 of 31 jobs vary." Lineage still holds: Lens 2 is a stamped roster lookup, post-sale only; never label a prospect. Prior version: `_archive/CEO_SYSTEM_CONTEXT_2026-09-15_pre-persona-groups.md`.
 Prior: 2026-08-27 persona added as a third axis — 7 personas / 31 jobs, orthogonal, plus the now-withdrawn build-once rule. Archive: `_archive/CEO_SYSTEM_CONTEXT_2026-08-27_pre-persona-axis.md`.
 Prior: 2026-08-26 Lens 2 corrected — selling-motion segments are a **stamped roster
 lookup, not a computation**, and are **post-sale only**; never label a prospect. Source pointer
@@ -350,8 +350,8 @@ rep/buyer, not eight SuperCat users. The persona set:
 
 Look the org's motion up in the v4.0 roster. Do not recompute it. Do not label a prospect.
 
-*Depth: `foundation/sources/customer_segmentation/personas/00-PERSONA-GROUPS.md`; jobs in
-`analytics/jtbd-register.md`; surfaces in `product/surface-mapping.md`.*
+*Depth: `personas/00-PERSONA-GROUPS.md`; jobs in
+`personas/analytics/jtbd-register.md`; surfaces in `personas/product/surface-mapping.md`.*
 
 ---
 
@@ -365,8 +365,8 @@ multi-channel long-tail, volume core never). **Do** build one **iPad-EC shell** 
 JOB-REP-1 pack from the stamped segment. **Do** keep admin / VP / exec on Admin / Portal /
 Insightful — they are three personas, not one HQ blob.
 
-*Source: `foundation/sources/customer_segmentation/analytics/jtbd-register.md`;
-`foundation/sources/customer_segmentation/product/surface-mapping.md`.*
+*Source: `personas/analytics/jtbd-register.md`;
+`personas/product/surface-mapping.md`.*
 
 ---
 

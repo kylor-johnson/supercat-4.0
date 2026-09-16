@@ -32,7 +32,7 @@ the manufacturer is one of several principals they represent.
 entity in the schema**. There is a boolean on a user type and a free-text `company_name` on a user
 record. Nothing joins a principal to their sub-reps, and nothing joins one agency across the several
 manufacturers it represents. **Every job below is capped by that gap** — see
-[`../product/data-gaps.md`](../product/data-gaps.md).
+[`product/data-gaps.md`](product/data-gaps.md).
 
 **Ranked jobs.** 4.
 

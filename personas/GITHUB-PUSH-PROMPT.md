@@ -1,5 +1,9 @@
 # Prompt — commit & push persona work, leave org-level v4.0 untouched
 
+> **2026-09-16:** this tree now lives at top-level `personas/` (see `00-PERSONA-GROUPS.md`).
+> Paths listed below are the **2026-09-15** commit set, when the files still sat under
+> `foundation/sources/customer_segmentation/`. Do not follow them as current locations.
+
 Paste everything below the line into a fresh agent. Do not edit the allowlist or the freeze list unless Kylor says so.
 
 ---

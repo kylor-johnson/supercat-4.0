@@ -1,6 +1,6 @@
 # 02 — Who We Serve
 
-> **Last updated**: 2026-09-15 (**SuperCat personas = who consumes which product**; motion is a job pack on rep/buyer. Withdrawn the 2026-08-27 "build once, only 4 of 31 jobs vary, do not condition on segment" product rule. D-001a, Lens 1, the v4.0 roster and the four buyer roles unchanged. Lineage still holds: segments are stamped judgment, not first-touch-knowable. Prior version: `_archive/02_who_we_serve_2026-09-15_pre-persona-groups.md`. Previously: 2026-08-27 added the persona axis as 7 seats / 31 jobs plus the now-withdrawn build-once finding. Prior: `_archive/02_who_we_serve_2026-08-27_pre-persona-axis.md`. Previously: 2026-08-26, corrected the Lens 2 lineage claim — the v4.0 segments are stamped judgment corroborated by Postgres, not derived from it — and struck the "knowable at first-touch" claim, which was tested and is false; D-001a and T1/T2/T3 unchanged. Prior version: `_archive/02_who_we_serve_2026-08-26_pre-segmentation-lineage-correction.md`. Previously: 2026-07-09, added the market-selling-motion lens as a candidate ICP input)
+> **Last updated**: 2026-09-16 (persona cites moved to `personas/`. Previously: 2026-09-15 — **SuperCat personas = who consumes which product**; motion is a job pack on rep/buyer. Withdrawn the 2026-08-27 "build once, only 4 of 31 jobs vary, do not condition on segment" product rule. D-001a, Lens 1, the v4.0 roster and the four buyer roles unchanged. Lineage still holds: segments are stamped judgment, not first-touch-knowable. Prior version: `_archive/02_who_we_serve_2026-09-15_pre-persona-groups.md`. Previously: 2026-08-27 added the persona axis as 7 seats / 31 jobs plus the now-withdrawn build-once finding. Prior: `_archive/02_who_we_serve_2026-08-27_pre-persona-axis.md`. Previously: 2026-08-26, corrected the Lens 2 lineage claim — the v4.0 segments are stamped judgment corroborated by Postgres, not derived from it — and struck the "knowable at first-touch" claim, which was tested and is false; D-001a and T1/T2/T3 unchanged. Prior version: `_archive/02_who_we_serve_2026-08-26_pre-segmentation-lineage-correction.md`. Previously: 2026-07-09, added the market-selling-motion lens as a candidate ICP input)
 > **Owner**: CEO
 > **Review cadence**: Quarterly (or when segment definitions, install-base composition, or M1 stamped decisions change)
 > **Primary sources**: [`skills/monetization_refresh_2026/11_synthesis/PRICING_CONSTITUTION.md`](../skills/monetization_refresh_2026/11_synthesis/PRICING_CONSTITUTION.md) D-001a (the **stamped, authoritative** segmentation — 2026-01-28), [`skills/monetization_refresh_2026/11_synthesis/2026-02-25__install_base_tier_mapping_wtp__d004a_exercise1__v1.md`](../skills/monetization_refresh_2026/11_synthesis/2026-02-25__install_base_tier_mapping_wtp__d004a_exercise1__v1.md) (segment → tier crosswalk), [`reports/state_of_industry/state_of_industry_benchmarks_2026-01-21.md`](../reports/state_of_industry/state_of_industry_benchmarks_2026-01-21.md) (market context), [`skills/insightful_product/01_bcf_instance_profile.md`](../skills/insightful_product/01_bcf_instance_profile.md) (deployed reference), [`Customer Segmentation/current/`](../Customer%20Segmentation/current/) (v4.0 client selling-motion segmentation, Kjael-stamped 2026-07-09 — a separate lens, see below)
@@ -234,7 +234,7 @@ Three enrichment axes ride alongside the four segments as **continuous dimension
   designer/showroom vs chain replenishment, are different analytics jobs. HQ work is mostly shared
   and can be parameterised (decline window, merch grain, catalog scale). Do not cite the withdrawn
   "only 4 of 31 jobs vary / one surface serves everyone" finding as product doctrine.
-  Detail: [`sources/customer_segmentation/personas/00-PERSONA-GROUPS.md`](sources/customer_segmentation/personas/00-PERSONA-GROUPS.md).
+  Detail: [`../personas/00-PERSONA-GROUPS.md`](../personas/00-PERSONA-GROUPS.md).
 - **It's a candidate input for messaging, not for pre-sale qualification.** An earlier version of
   this doc asserted that a prospect's market selling motion is "knowable at first-touch, before any
   SuperCat usage data exists." **That has been tested and is false.** Two methods were tried against
@@ -347,9 +347,9 @@ dealer / chain into one eOL bet.
 overlap; a buyer cannot reach rep views; no incumbent rep analytics surface. Agency principal is
 not servable this cycle.
 
-*Depth: [`sources/customer_segmentation/personas/00-PERSONA-GROUPS.md`](sources/customer_segmentation/personas/00-PERSONA-GROUPS.md);
-jobs [`sources/customer_segmentation/analytics/jtbd-register.md`](sources/customer_segmentation/analytics/jtbd-register.md);
-surfaces [`sources/customer_segmentation/product/surface-mapping.md`](sources/customer_segmentation/product/surface-mapping.md).*
+*Depth: [`../personas/00-PERSONA-GROUPS.md`](../personas/00-PERSONA-GROUPS.md);
+jobs [`../personas/analytics/jtbd-register.md`](../personas/analytics/jtbd-register.md);
+surfaces [`../personas/product/surface-mapping.md`](../personas/product/surface-mapping.md).*
 
 ---
 

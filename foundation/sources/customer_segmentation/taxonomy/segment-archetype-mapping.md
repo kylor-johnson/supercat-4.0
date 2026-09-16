@@ -111,7 +111,7 @@ The measured marker profile of SEG-04 is **absence**: 0/11 `REP_NETWORK`, 0/11 `
 unit price, which are Layer A fields and unavailable pre-sale.
 
 **This is a genuine discrepancy with an established input and is not resolved here.** It is logged
-in `../ASSUMPTIONS.md`.
+in `../../../../personas/ASSUMPTIONS.md`.
 
 ---
 

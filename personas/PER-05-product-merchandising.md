@@ -146,7 +146,7 @@ whom, so I know within weeks rather than at the next market.
 
 **Current state.** **Not served, and blocked on one missing field.** Everything else is computable;
 without a launch date "new" cannot be defined except by manual list. See
-[`../product/data-gaps.md`](../product/data-gaps.md).
+[`product/data-gaps.md`](product/data-gaps.md).
 
 ---
 

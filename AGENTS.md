@@ -29,7 +29,7 @@ Company weekly agents live in `~/repos/agent-factory`
 (`SuperCatSolutionsLLC/agent-factory`).
 
 Personas (who is logged into the product): [`personas/00-PERSONA-GROUPS.md`](personas/00-PERSONA-GROUPS.md)
-(Admin / VP of sales / executive / sales rep / buyer). Phase 2 creates that file.
+(Admin / VP of sales / executive / sales rep / buyer). Canonical after the 2026-09-16 rehome.
 Selling-motion cells stay in `Customer Segmentation/current/`.
 
 ### Copy map — this tree → agent-factory
@@ -115,7 +115,7 @@ Live MCP is `~/.cursor/mcp.json`. Credentials live in `~/.supercat/`.
 |---|---|
 | `foundation/` | The socializable company context. `00`–`06` strategic pillar; `07` epistemic (how we establish truth); `08`–`09` operating pillar (how we build, agent factory); plus `CEO_SYSTEM_CONTEXT.md` and `PLATFORM_ANATOMY_CURRENT_STATE.md`. |
 | `foundation/sources/` | The **stamped sources** `foundation/` cites and summarizes — pricing constitution, monetization/competitive/install-base research, CEO-system artifact catalog, FY26 plan, BCF reference instance, segmentation README + buyer-type reads. **On conflict, the stamped source wins over `foundation/`.** Imported from the 2026-08-05 foundation pack. Not the home of the persona product. |
-| `personas/` | Five consumption roles (Admin / VP of sales / executive / sales rep / buyer). Canon: `personas/00-PERSONA-GROUPS.md` (Phase 2 creates this path). Orthogonal to `Customer Segmentation/current/`. |
+| `personas/` | Five consumption roles (Admin / VP of sales / executive / sales rep / buyer). Canon: `personas/00-PERSONA-GROUPS.md`. Orthogonal to `Customer Segmentation/current/`. |
 | `Supercat_CEO_system_README.md`, `QBO_Invoice_BigQuery_Dedup_Guide_README.md` | Root-level companions — operating-cadence overview, and the mandatory dedup pattern for `quickbooks__invoice` in BigQuery (read before any AR/balance/overdue query). |
 | `PM/` | Program material — Admin console, Sales Portal docs, eCat web rewrite estimates, agent starters. |
 

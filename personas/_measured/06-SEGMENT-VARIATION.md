@@ -13,7 +13,7 @@ database: supercatprod
 > This file retested “only 4 of 31 jobs vary.” That claim is **withdrawn** as a build rule.
 > What still stands: org *shape* (product count, price-code tail, territory emptiness) varies and
 > should size extracts / paginate views. What does **not** stand: PG-01 and PG-07 sharing a home
-> screen. Canonical set: [`../personas/00-PERSONA-GROUPS.md`](../personas/00-PERSONA-GROUPS.md).
+> screen. Canonical set: [`../00-PERSONA-GROUPS.md`](../00-PERSONA-GROUPS.md).
 
 **Tagging:** every figure in this file is `MEASURED` via **Q040** unless marked otherwise. Interpretive
 readings are marked `JUDGMENT` inline.

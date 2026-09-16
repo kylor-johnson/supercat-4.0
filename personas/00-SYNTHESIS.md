@@ -41,7 +41,7 @@ That lineage correction was right. It is not a reason to treat a spec house and 
 
 Invoice feed still present for **38 of 109** orgs. Commercial-truth jobs suppress without it.
 
-Detail: [`personas/00-PERSONA-GROUPS.md`](personas/00-PERSONA-GROUPS.md) · [`analytics/jtbd-register.md`](analytics/jtbd-register.md) · [`product/surface-mapping.md`](product/surface-mapping.md).
+Detail: [`00-PERSONA-GROUPS.md`](00-PERSONA-GROUPS.md) · [`analytics/jtbd-register.md`](analytics/jtbd-register.md) · [`product/surface-mapping.md`](product/surface-mapping.md).
 
 ---
 
@@ -89,12 +89,12 @@ Stamp of the nested persona register is **yours** — this is the restored model
 
 | Layer | File |
 |---|---|
-| **Persona groups (start here)** | `personas/00-PERSONA-GROUPS.md` |
+| **Persona groups (start here)** | `00-PERSONA-GROUPS.md` |
 | Jobs | `analytics/jtbd-register.md` — `JOB-*` per group |
 | Product | `product/surface-mapping.md` · `product/data-gaps.md` (old JTBD-0xx ids, split still valid) |
 | Engineering | `engineering/01-NO-NEW-DATA-PACK.md` · `02-IPAD-ACCOUNT-BRIEF-SPEC.md` (PG-01 only) · `03-ROADMAP.md` |
 | Review HTML | `PERSONA-GROUPS-REVIEW.html` — stamp packet. August HTMLs are withdrawn stubs |
-| Login seats / headcounts | `personas/PER-00-persona-set.md` + PER-01…08 (banners: demoted) |
-| Taxonomy | `taxonomy/account-segments.md` · `prospect-archetypes.md` · `segment-archetype-mapping.md` |
+| Login seats / headcounts | `PER-00-persona-set.md` + PER-01…08 (banners: demoted) |
+| Taxonomy | `../foundation/sources/customer_segmentation/taxonomy/` — account-segments, prospect-archetypes, mapping |
 | Roster | `Customer Segmentation/current/` — do not duplicate |
-| Prospects / field kit | `prospects/` · `field-kit/` — separate track |
+| Prospects / field kit | `../foundation/sources/customer_segmentation/prospects/` · `field-kit/` — separate track |

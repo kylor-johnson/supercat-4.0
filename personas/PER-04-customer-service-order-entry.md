@@ -148,7 +148,7 @@ doesn't fail downstream and come back as a complaint.
 **Varies by segment?** **DOES NOT DIFFER.**
 
 **Current state.** **Not served.** Depends on the missing failure-reason field — see
-[`../product/data-gaps.md`](../product/data-gaps.md). Without it the metric above cannot be
+[`product/data-gaps.md`](product/data-gaps.md). Without it the metric above cannot be
 computed at all, only estimated from support tickets.
 
 ---

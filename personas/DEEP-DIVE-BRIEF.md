@@ -2,14 +2,14 @@
 
 > **2026-09-15 — historical prompt.** This brief measured the Aug 25 *seat* register. Do not re-run
 > it as if JTBD-0xx / “31 jobs” were current. Output lives in `_measured/` and is scoped there.
-> Canonical set: [`personas/00-PERSONA-GROUPS.md`](personas/00-PERSONA-GROUPS.md).
+> Canonical set: [`00-PERSONA-GROUPS.md`](00-PERSONA-GROUPS.md).
 
 **For:** Claude Code, with read-only Postgres MCP access to `supercatprod` and the foundation repo on disk.
 **Written:** 2026-08-31, after a first verification pass that reproduced most of the register's figures and found one wrong.
 
 ## The goal
 
-The persona / jobs-to-be-done / surface register in `foundation/sources/customer_segmentation/` was built
+The persona / jobs-to-be-done / surface register (now at `personas/`; built in `foundation/sources/customer_segmentation/`) was built
 from documents and a stamped CSV roster. It is internally careful but it **asserts** where the database
 could **measure**. Your job is to replace assertion with measurement wherever Postgres can settle it, and
 to say clearly and specifically where it cannot.
@@ -31,7 +31,7 @@ behind. Optimise for a later reader who needs to trust and re-run every number.
 6. **Reproduce before you extend.** Start by re-running the register's own headline figures as a calibration
    check. Failing to reproduce one is itself a finding.
 
-## Files to produce — all under `sources/customer_segmentation/_measured/`
+## Files to produce — all under `_measured/` (this tree; historically `sources/customer_segmentation/_measured/`)
 
 | Path | Contents |
 |---|---|

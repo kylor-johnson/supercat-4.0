@@ -15,7 +15,7 @@ jobs: [JTBD-081, JTBD-082, JTBD-083, JTBD-084, JTBD-085, JTBD-086]
 
 # PER-08 — Dealer buyer ⚠️ our customer's customer
 
-> **2026-09-15 — login seat, not the persona set.** Do **not** fold designer / dealer / chain buyer into one persona. Those are PG-02, PG-04, PG-06, PG-08 in [`00-PERSONA-GROUPS.md`](00-PERSONA-GROUPS.md). JTBD-0xx IDs below are retired. Use `JOB-02-*` … `JOB-08-*` in [`../analytics/jtbd-register.md`](../analytics/jtbd-register.md). Buyer jobs still land on **eCat Online**.
+> **2026-09-15 — login seat, not the persona set.** Do **not** fold designer / dealer / chain buyer into one persona. Those are PG-02, PG-04, PG-06, PG-08 in [`00-PERSONA-GROUPS.md`](00-PERSONA-GROUPS.md). JTBD-0xx IDs below are retired. Use `JOB-02-*` … `JOB-08-*` in [`analytics/jtbd-register.md`](analytics/jtbd-register.md). Buyer jobs still land on **eCat Online**.
 
 ## Read this first — the axis
 
