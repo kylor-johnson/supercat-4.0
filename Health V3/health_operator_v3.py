@@ -87,11 +87,19 @@ BEHAVIORAL_FLOOR_CAP = 40.0
 #
 # WEIGHTS is set from --weights at startup; module-level constants are the
 # live view used by composite().
+#
+# DEFAULT REVERTED TO "equal" IN V3.4.0 (2026-09-16) after the first validation
+# of §9 that was ever actually run. Against 11 real outcome labels (PG
+# subscriptions + login_events, observed 4 months past the last snapshot),
+# v330 matched equal on recall and lead time, came within +/-0.008 AUC where
+# §9 requires +0.05, and was LESS precise in all seven months. It added ~5
+# accounts to the CS worklist every month and caught nothing extra. See
+# runs/_weighting_study/2026-09-16/.
 WEIGHT_SCHEMES = {
     "equal": (0.25, 0.25, 0.25, 0.25),
     "v330":  (0.25, 0.20, 0.35, 0.20),
 }
-DEFAULT_WEIGHTS = "v330"
+DEFAULT_WEIGHTS = "equal"
 ENG_WEIGHT, ADO_WEIGHT, VAL_WEIGHT, OPS_WEIGHT = WEIGHT_SCHEMES[DEFAULT_WEIGHTS]
 
 

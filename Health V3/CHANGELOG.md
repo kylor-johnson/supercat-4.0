@@ -2,6 +2,112 @@
 
 All notable changes to the Health V3 operator and surrounding artifacts. Newest entries first.
 
+## 3.4.0 — 2026-09-16
+
+**Dimension weights reverted to equal (25/25/25/25). Folders consolidated. Canonical SHA changes.**
+
+- **Old canonical SHA (V3.3.x, weighted 25/20/35/20):** `e34552abe2232c630b088465a067c77a39d598cd6979e912717626598edafce9`
+- **New canonical SHA (V3.4.0, equal 25/25/25/25):** `6a2f1d9fc6c86ae58a6888386f83b0a9122ecc98cb5ae6f2195e89a8d4dd1bff`
+- Two-pass byte-identical determinism confirmed under the pinned interpreter (Python 3.9.6 / pandas 2.3.3 / numpy 2.0.2).
+
+### First, the V3.3.x arc this entry closes
+
+V3.3.0, V3.3.1 and V3.3.2 shipped without CHANGELOG entries, README updates, or
+METHODOLOGY updates. What is recoverable from the code and artifacts:
+
+- **V3.3.0 (2026-06-08)** replaced the equal composite with `ENG 0.25 / ADO 0.20 / VAL 0.35 / OPS 0.20`, justified by a four-line code comment: *"Validated against 7-month backfill. VD has strongest churn-separation signal (38pt gap between declining/stable orgs)."* No validation artifact was ever written. `outcomes.csv` was empty, so the README §9 gating test could not have run.
+- **V3.3.1 / V3.3.2** left no trace in code. `FOLDER_AUDIT_PROMPT.md` names V3.3.2 as current and references a `roadmap/` directory that does not exist. Both were doc/tooling-only.
+- The V3.3.x documentation layer, `trigger_engine_v1.py`, and `roadmap/` were lost — none had ever been committed to git.
+
+### Why the weights are reverted
+
+The §9 validation finally ran, against real outcomes rather than a proxy.
+`outcomes.csv` now carries 11 labels sourced from Postgres `subscriptions` and
+`login_events` as of 2026-09-16 — four months past the last snapshot: 2 churned
+(`hmjc`, `tel`), 5 downgraded, 4 functionally dark. Both schemes were run across
+all seven snapshots and scored against them (`runs/_weighting_study/2026-09-16/`).
+
+| Test | equal | v330 | §9 requirement |
+|---|---|---|---|
+| Forward AUC (6 deaths, 4–10 mo lead) | 0.933–0.992 | 0.904–0.991 | +0.05 improvement |
+| Best v330 margin in any month | — | **+0.008** | **FAIL** |
+| Deaths caught, every month | 5 of 6 | 5 of 6 | tie |
+| First-flag month, all 6 | identical | identical | tie |
+| Worklist precision, all 7 months | **higher in 7/7** | lower in 7/7 | — |
+| May worklist | 16 orgs | 21 orgs | — |
+
+v330 matched equal on recall and lead time, missed the AUC bar by 6x, and was
+less precise in every month — adding ~5 accounts per month to the CS worklist
+while catching nothing extra.
+
+**Mechanism.** Value Delivery scores SuperCat-submitted order volume. Per
+`02_who_we_serve.md`, Catalog-Focused is 54% of the base and is *defined* by
+"100% iPad orders, no eOL" at a median 24 orders/quarter. Weighting VAL up is
+therefore a digital-maturity tax, not a health signal: mean composite delta by
+bundle ran `Full` +0.68 versus `iPad+Catalog` −2.37. It also contradicts the
+LOCKED "selling instrument vs order consummation" doctrine, which forbids
+reading low SuperCat-submitted volume as failed adoption.
+
+The decisive case: `abol` (healthy, 169 logins/90d) and `hmjc` (churned) both
+have **zero** SuperCat orders. VAL cannot separate them; Engagement can.
+
+Caveat: 6 functional-death events is below §9's 30-outcome gate, so the AUC
+comparison is directional. The precision result rests on 16 orgs verified active
+today and does not depend on the event count.
+
+### Operator
+- `health_operator_v3.py`: hardcoded weights replaced by `WEIGHT_SCHEMES` + `--weights {equal,v330}`. `DEFAULT_WEIGHTS = "equal"`. `--weights v330` still reproduces `e34552ab…` byte-for-byte, so every V3.3.x canonical stays regenerable.
+- `composite()` takes the plain-mean path when all available weights are equal. `sum(s*w)/sum(w)` and `sum(s)/n` round differently at a `.x5` boundary; this keeps `--weights equal` bit-identical to the pre-V3.3.0 operator.
+
+### Distribution (104 orgs, 2026-05-13)
+
+| Band | V3.3.2 | V3.4.0 | Δ |
+|---|---|---|---|
+| Thriving | 56 | 57 | +1 |
+| Healthy | 27 | 31 | +4 |
+| Watch | 17 | 14 | −3 |
+| At Risk | 3 | 1 | −2 |
+| Critical | 1 | 1 | 0 |
+
+10 orgs change band ($105,778 ARR). CS worklist 21 → 16. Dimension scores are
+byte-identical across the change — only the composite moves. Behavioral floor
+(7), ghost (0) and support fire (9) counts unchanged.
+
+### Trigger engine
+- `trigger_engine_v1.py` rebuilt from `TRIGGER_ENGINE_V2_PATCH.md` plus the shipped outputs. Reproduces all 75 shipped triggers with zero field mismatches. `CHRONIC_MIN_MONTHS` and three `Immediate` action strings could not be recovered and are marked RECONSTRUCTED.
+- **Fixed: mixed-engine comparison.** The shipped engine built history from the unweighted `runs/historical/` CSVs while taking the latest month from the weighted canonical. Four of eleven 2026-05-13 triggers were artifacts — `swc` and `pw` had *zero* change on all four dimensions. The engine now infers each input's scheme and refuses a mixed series without `--allow-mixed-weights`.
+- **Fixed: `fire_duration` was dead**, reporting 0 against 4 qualifying cases (`shl` 26d and 39d, `vcg` 18d, `wwjc` 27d at $40k ARR).
+- Non-adjacent snapshot pairs are skipped (`prog` is absent Dec–Feb).
+- Canonical series excludes `cohort/`, `cohort_v330/`, `_weighting_study/`, `_engine_baseline_v3.2.13/` and `_archive/`.
+- Regenerated on the consistent equal series: 77 triggers (was 75). Shipped report preserved at `trigger_reports/_archive/`.
+
+### Dashboard
+- `dashboards/health_dashboard_2026-05-13.html`: the embedded `const DATA` blob matched the **unweighted** v3.2.13 canonical while the footer claimed V3.3.2 / `e34552ab…` — it had been rendering unweighted numbers under a weighted label since June. DATA regenerated from the new canonical; footer now reads V3.4.0 / `6a2f1d9f…`.
+
+### Consolidation
+- `Health V3 Backfill/` merged in: README, METHODOLOGY, CHANGELOG, `check_consistency.py`, the run guides, `outcomes.csv`, the 7-month backfill and the Aug cohort runs.
+- Canonical MAL copied out of the frozen `_museums/Health V2/inputs/` into `inputs/`.
+- `_archive/` lineage rescued from iCloud and un-gitignored. The V3.3.x loss happened because none of it was ever committed.
+
+### MAL
+- `inputs/master_account_list_2026-09-16_canonical.csv` — 114 orgs, $1.97M ARR. +12 since April (incl. the six Aug cohort orgs), −2 (`hmjc`, `tel`, both churned). Roster and stack derived first-party from `subscriptions` + `mobile_sites`; stack matches the independently-built Aug cohort MAL 6/6.
+- **`subscriptions.custom_price` is a mixed-unit field** — `mah` and `kii` are stored at exactly 12x their monthly rate. MRR is carried forward from the April HubSpot-sourced MAL for 102 of 114; PG fills only the 12 April never covered, with an annual→monthly correction on 3. Per-field provenance in `master_account_list_2026-09-16_provenance.csv`.
+- Not yet used for a canonical run — the 2026-05-13 canonical still uses the April MAL, as it must.
+
+### Environment
+- `requirements.txt`, `.python-version`, `ENVIRONMENT.md` added; README §6.6 rewritten.
+- **The determinism guarantee is interpreter-scoped.** The V3.2.13 canonical `b48e3a5f…` no longer reproduces: the *original* v3.2.x operator against its *own* immutable cache now emits `6a2f1d9f…` under Python 3.9.6 / numpy 2.0.2. Across all six historical months the drift is 17 composite cells at ±0.1 and one narrative digit, with **zero band changes**. Cause is float summation order at a `.x5` rounding boundary; the `.venv` that made those canonicals targeted a `python@3.14` that no longer exists. A SHA quoted without its interpreter is not a reproducibility claim.
+- Historical runs regenerated under the pinned interpreter so the whole series is self-consistent.
+
+### Tooling
+- `check_consistency.py`: `_latest_run_dir` now matches only `YYYY-MM-DD` directories. Consolidation added `historical/`, `cohort/` and `_weighting_study/` under `runs/`, and a plain name sort was selecting `historical` as the latest run, failing four invariants against a file that never existed.
+
+### Out of scope
+- README §9 is **not** yet closed. 11 labels is short of the 30-outcome gate; this entry records a directional result that reverts to the documented default, not a completed prospective validation.
+- The BigQuery `insightful_product.at_risk_accounts` view is a second, contradictory at-risk model (79 flagged accounts; `segment_classifier` returns 86/35/48 against the stamped 56/28/20). Not reconciled here.
+
+---
+
 ## 3.2.13 — 2026-05-13
 
 **Doc-only. Scoring math and canonical SHA unchanged: `b48e3a5f7354ee8d769b764e24ca6195a2424ec5f1416891da9877d6011efcb8`**

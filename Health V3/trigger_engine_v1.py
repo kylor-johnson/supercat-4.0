@@ -133,6 +133,10 @@ CS_ACTIONS = {
     },
 }
 
+# Subtrees under runs/ that are not part of the canonical monthly series.
+NON_CANONICAL_SUBTREES = {"_archive", "_weighting_study", "_engine_baseline_v3.2.13",
+                          "cohort", "cohort_v330"}
+
 OUTPUT_COLS = ["urgency", "trigger_type", "org_shortname", "org_name", "run_date",
                "prior_date", "arr", "arr_tier", "bundle", "score_now", "score_prior",
                "band_now", "band_prior", "eng_now", "ado_now", "val_now", "ops_now",
@@ -185,7 +189,16 @@ def load_series(history_dirs, production_csv=None):
     paths = []
     for d in history_dirs:
         for p in sorted(Path(d).rglob("client_health_scores_*.csv")):
-            if "formatted" in p.name or "_archive" in p.parts:
+            if "formatted" in p.name:
+                continue
+            # runs/ holds more than the canonical series: archived engine
+            # outputs, the six-org cohort runs (a different MAL), the weighting
+            # study and the engine baseline. Sweeping those in silently mixes
+            # populations and schemes. A canonical run lives in a YYYY-MM-DD
+            # directory and outside every excluded subtree.
+            if set(p.parts) & NON_CANONICAL_SUBTREES:
+                continue
+            if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", p.parent.name):
                 continue
             paths.append(p)
     if production_csv:

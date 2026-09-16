@@ -1,8 +1,8 @@
 # Health V3 — Scoring Specification
 
-**Version:** 3.2.13
-**Date:** 2026-05-13
-**Status:** Production-ready. Scoring math is unweighted (25/25/25/25). Cache-mode runs are deterministic — same cache + same `--score-date` always produces byte-identical output.
+**Version:** 3.4.0
+**Date:** 2026-09-16
+**Status:** Production-ready. Scoring math is equal-weighted (25/25/25/25), selectable via `--weights` (see §9 and CHANGELOG 3.4.0). Cache-mode runs are deterministic — same cache + same `--score-date` + same interpreter produces byte-identical output (see §6.6 and `ENVIRONMENT.md`).
 
 > **Producing the next monthly canonical?** Use `RUN_PROMPT.md` in this folder — copy-paste prompt that orchestrates the full Path B workflow (cache populate → operator → cold-read → CHANGELOG → archive).
 
@@ -685,7 +685,27 @@ This list is also used when building the HelpScout domain-to-org mapping. The li
 
 ## §9 Validation Plan
 
-V3.0 ships unweighted (equal 25% per dimension). The validation protocol below is the pre-committed test that determines whether weighting should be introduced. It is **documented now and run later** — the test cannot run until V3 has produced enough monthly snapshots to be combined with retention/ARR outcomes.
+V3.0 ships unweighted (equal 25% per dimension). The validation protocol below is the pre-committed test that determines whether weighting should be introduced.
+
+> **Status 2026-09-16 — run once, directionally, and it rejected weighting.**
+> V3.3.0 introduced `25/20/35/20` weights in code on 2026-06-08 *without* running
+> this test (`outcomes.csv` was empty). V3.4.0 reverted to equal weights after the
+> test was finally run against 11 real outcome labels. Result: v330 matched equal
+> on recall and lead time, improved AUC by at most **+0.008** against the **+0.05**
+> bar below, and was **less precise in all seven months**. Full study and rerunnable
+> evaluator: `runs/_weighting_study/2026-09-16/`.
+>
+> **This does not close §9.** 6 functional-death events is below the 30-outcome
+> trigger condition. The prospective test below remains the gating test; what ran
+> was the look-back option, which is directional only and cannot by itself justify
+> a weighting change — which is precisely why the default reverted to the
+> documented model rather than to a new weighting.
+>
+> The look-back also surfaced a structural finding that outlives the outcome count:
+> Value Delivery scores SuperCat-submitted order volume, and Catalog-Focused
+> accounts (54% of the base) are *defined* by ordering outside SuperCat. Weighting
+> VAL is therefore partly a bundle/segment proxy, which is exactly the confound the
+> stratification requirement below exists to prevent.
 
 ### When to run
 
@@ -726,7 +746,26 @@ V3 is a scoring model. Its purpose is to power downstream CS workflows. This sec
 | Schema migration, determinism hardening, consistency checker, dead-code cleanup | V3.2.x audit arc |
 | `support_fire_days_open` column | V3.2.12 |
 
-### What is next: trigger detection + save plays
+### What has shipped since (V3.3.x / V3.4.0)
+
+| Work | Delivered in |
+|------|-------------|
+| Dimension weighting introduced (`25/20/35/20`), undocumented | V3.3.0 |
+| Trigger engine + V2 quality pass (dedup, drivers, oscillation, `--current-only`) | V3.3.x |
+| §9 look-back run against real outcomes; weights reverted to equal | V3.4.0 |
+| Folder consolidation, interpreter pinning, MAL refresh, `outcomes.csv` populated | V3.4.0 |
+
+### What is next: save plays
+
+**Trigger detection has shipped** — `trigger_engine_v1.py`, outputs in
+`trigger_reports/`. Run it after each monthly canonical; it refuses to compare
+months scored under different weighting schemes. Trigger conditions in force:
+band transition (with a 3.0-pt minimum move), composite drop ≥ 10 pts, chronic
+distress, band oscillation, new ghost, and support fire open > 14 days.
+
+**Historical note.**
+
+The original trigger-detection spec, retained for reference:
 
 **Trigger detection (immediate next phase).** Month-over-month comparison against the prior canonical CSV, emitting a `triggers_{date}.csv` sidecar at `runs/{date}/triggers_{date}.csv`. Trigger conditions:
 
