@@ -25,6 +25,10 @@ Hang-tag spike (tracked in this ops git): `SuperCat Ops/hang-tag-spike` — see 
 `SuperCat.code.macbook-workspace` keeps `~/repos/supercat-4.0` roots for the
 **other Mac** after it clones from GitHub. Do not use it on this Mac.
 
+On the other Mac, iCloud `SuperCat 4.0` existing is not a substitute for
+`~/repos/supercat-4.0`. If an agent pulled hang-tag from iCloud, that was the
+trap — clone `~/repos` and open the macbook workspace.
+
 ## Do not
 
 - Open iCloud `SuperCat 4.0` as a plain **folder** (splits agent chat history) — open the `.code-workspace` file

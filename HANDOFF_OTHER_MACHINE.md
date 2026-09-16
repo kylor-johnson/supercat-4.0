@@ -2,9 +2,13 @@
 
 > **Last updated**: 2026-09-16
 >
-> This prompt is for the **other Mac** (the one that is not already cloned).
-> It does not migrate iCloud. It makes that Mac work from GitHub clones
-> under `~/repos`.
+> This prompt is for the **other Mac**. It does not migrate iCloud. It makes
+> that Mac work from GitHub clones under `~/repos`.
+>
+> **Known trap (2026-09-16):** an agent saw iCloud `SuperCat 4.0`, skipped
+> `~/repos/supercat-4.0`, pulled in iCloud, and ran hang-tag from there.
+> Hang-tag on :3000 is **not** success. Success is a clone whose
+> `git rev-parse --show-toplevel` is `/Users/<you>/repos/supercat-4.0`.
 
 ---
 
@@ -15,8 +19,8 @@
 | **This Mac (canonical)** | iCloud `SuperCat 4.0` **is** `kylor-johnson/supercat-4.0` | `SuperCat.code-workspace` (Ops root = iCloud path) |
 | **Other Mac** | `~/repos/supercat-4.0` clone | `SuperCat.code.macbook-workspace` (Ops root = `~/repos/supercat-4.0`) |
 
-On the other Mac, do **not** open iCloud `SuperCat 4.0` as the git working tree.
-Edit GitHub clones under `~/repos`. This Mac uses iCloud; the other Mac does not.
+iCloud `SuperCat 4.0` existing on the other Mac is **expected** (iCloud Drive).
+That folder is the first Mac’s tree. It is not a skip. Still clone to `~/repos`.
 
 **Do not iCloud-download** (leave cloud icons; never “Download Now”):
 
@@ -26,7 +30,7 @@ Edit GitHub clones under `~/repos`. This Mac uses iCloud; the other Mac does not
 - `cursor-to-claude-migration/`, `integrations/` secrets, Insightful 2.0/3.0 museums, Health venvs
 
 Hang-tag spike **is** in this private repo: `hang-tag-spike/` inside
-`kylor-johnson/supercat-4.0`. After clone/pull:
+`kylor-johnson/supercat-4.0`. Only after `~/repos/supercat-4.0` exists:
 
 ```bash
 cd ~/repos/supercat-4.0/hang-tag-spike
@@ -51,6 +55,28 @@ read. Do not `git add .` anywhere. Do not push to `company` /
 This computer edits GitHub clones under `~/repos`. The first Mac's ops tree is
 iCloud `SuperCat 4.0`, not `~/repos/supercat-4.0`.
 
+## 0. Hard fail (read before cloning)
+
+If **this Cursor chat** is opened on iCloud `SuperCat 4.0`, say so and still
+clone into `~/repos`. Do not `git pull` in the iCloud tree as a substitute.
+
+```bash
+git rev-parse --show-toplevel
+ls -ld ~/repos/supercat-4.0 2>/dev/null || echo "MISSING ~/repos/supercat-4.0"
+```
+
+| Result | Meaning |
+|---|---|
+| toplevel contains `CloudDocs` or `Mobile Documents` | You are in the first Mac’s iCloud tree. **Not done.** Clone `~/repos/supercat-4.0` anyway. |
+| `~/repos/supercat-4.0` missing | Clone it. iCloud SuperCat 4.0 does not count. |
+| toplevel is `/Users/<you>/repos/supercat-4.0` | Correct. Pull / npm install here. |
+
+Do **not** treat “hang-tag is running at localhost:3000” as done unless the
+server’s cwd is `~/repos/supercat-4.0/hang-tag-spike`.
+
+If you already ran hang-tag from iCloud: stop that `npm run dev`, leave any
+iCloud `git stash` alone (do not `stash pop`), then do section 2.
+
 ## 1. Auth
 
 Confirm GitHub works as `kylor-johnson`:
@@ -62,7 +88,9 @@ ssh -T git@github.com
 
 Fix auth before cloning if either fails.
 
-## 2. Clone (skip a repo if the folder already exists — pull instead)
+## 2. Clone
+
+“Already exists” means **`~/repos/<name>`** only — not iCloud SuperCat 4.0.
 
 ```bash
 mkdir -p ~/repos
@@ -72,6 +100,9 @@ git clone --branch main git@github.com:kylor-johnson/supercat-4.0.git supercat-4
 git clone --branch main git@github.com:kylor-johnson/ecat-onboarding-workspace.git ecat-onboarding-workspace
 git clone git@github.com:SuperCatSolutionsLLC/agent-factory.git agent-factory
 ```
+
+Skip a clone only if **that exact `~/repos/...` folder** already exists — then
+`git pull` **inside that folder**. Never pull the iCloud tree instead.
 
 If `supercat-4.0` already exists and is still on `ecat-onboarding-main`:
 
@@ -172,5 +203,18 @@ Switching Macs: pull, work, commit, push. Other Mac: pull.
 
 ## 7. Report back
 
-Paths, remotes, branches, and `git log -1 --oneline` for all three clones.
-Confirm the workspace file opened with three roots.
+Paste the output of:
+
+```bash
+git -C ~/repos/supercat-4.0 rev-parse --show-toplevel
+git -C ~/repos/supercat-4.0 remote -v
+git -C ~/repos/supercat-4.0 branch -vv
+git -C ~/repos/supercat-4.0 log -1 --oneline
+git -C ~/repos/ecat-onboarding-workspace log -1 --oneline
+git -C ~/repos/agent-factory log -1 --oneline
+ls -ld ~/repos/supercat-4.0/hang-tag-spike
+```
+
+Confirm `SuperCat.code.macbook-workspace` is open (three roots). Confirm
+toplevel is **not** under `Mobile Documents`. Hang-tag `:3000` is optional
+and only counts if cwd is `~/repos/supercat-4.0/hang-tag-spike`.
