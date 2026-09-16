@@ -24,12 +24,12 @@ Keep these folder names here. Map on copy; do not reshape this ops tree into L0�
 
 | SuperCat 4.0 | Factory |
 |---|---|
-| `Insightful Product 4.0/` source (no `outputs/`, no `.venv-renderer/`) | `agents/insightful_product/` |
-| `.cursor/skills/insightful-report-4/SKILL.md` | `agents/insightful_product/SKILL.md` |
+| `Insightful Product 4.0/` source (no `outputs/`, no `.venv-renderer/`) | **Hold** — do not copy until Kylor says the 4.0 pipeline is ready (factory #344 reverted) |
+| `.cursor/skills/insightful-report-4/SKILL.md` | same hold |
 | `Health V3/health_operator_v3.py` (V3.3.0) | `agents/ceo_system/onboarding_reality/health_v3/health_operator_v3.py` |
 | `Health V3 Backfill/{README,METHODOLOGY,RUN_PROMPT,FRESH_RUN_GUIDE,CHANGELOG}` | same `health_v3/` folder |
-| Persona / JTBD (`foundation/sources/customer_segmentation/{personas,analytics,product,taxonomy}`) + splices in `foundation/00`–`02` and `CEO_SYSTEM_CONTEXT.md` | `context/customer_segmentation_ref/` + `context/00`–`02`, `context/CEO_SYSTEM_CONTEXT.md` (factory PR #347) |
-| `ttfv/` methodology + prompt (no result CSVs) | `agents/ceo_system/ttfv/` (factory PR #348) |
+| Persona / JTBD (`foundation/sources/customer_segmentation/{personas,analytics,product,taxonomy}`) + splices in `foundation/00`–`02` and `CEO_SYSTEM_CONTEXT.md` | **Hold** — do not splice into factory `context/` (factory #347 closed) |
+| `ttfv/` methodology + prompt (no result CSVs) | `agents/ceo_system/ttfv/` (factory PR #348, still open) |
 | `Insightful Product 2.0/` / `3.0/`, `Health V2/`, Implementation CSVs, `eCat_Onboarding/` | **Do not copy** — onboarding agent is unfinished local work |
 
 **This Mac — source of truth (edit here):**
