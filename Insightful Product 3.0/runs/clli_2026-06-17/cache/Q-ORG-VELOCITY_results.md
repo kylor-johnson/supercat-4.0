@@ -1,0 +1,24 @@
+# Q-ORG-VELOCITY Results — Craftmade (clli, org_id=149)
+- **Query**: Q-ORG-VELOCITY — Account Quarterly Velocity Trajectory
+- **Period**: LTM (2025-06-17 to 2026-06-17)
+- **Row count**: 15
+- **Run date**: 2026-06-17
+
+
+| customer_code | customer_name | accel_quarters | peak_quarter_revenue | max_qoq | trajectory |
+| --- | --- | --- | --- | --- | --- |
+| 9996 |  | 3 | 622,311.85 | 179.90 | [{'quarter': '2025-07-01', 'revenue': 511637.4, 'qoq_pct': 87.1}, {'quarter': '2025-10-01', 'revenue': 152989.91, 'qoq_pct': -70.1}, {'quarter': '2026-01-01', 'revenue': 222322.9, 'qoq_pct': 45.3}, {'quarter': '2026-04-01', 'revenue': 622311.85, 'qoq_pct': 179.9}] |
+| 18755 |  | 2 | 122,883.26 | 6,048.80 | [{'quarter': '2025-07-01', 'revenue': 14014.9, 'qoq_pct': 6048.8}, {'quarter': '2025-10-01', 'revenue': 5070.15, 'qoq_pct': -63.8}, {'quarter': '2026-01-01', 'revenue': 122883.26, 'qoq_pct': 2323.7}, {'quarter': '2026-04-01', 'revenue': 1320.9, 'qoq_pct': -98.9}] |
+| 10102 |  | 2 | 118,617.94 | 49.30 | [{'quarter': '2025-07-01', 'revenue': 79468.63, 'qoq_pct': -45.1}, {'quarter': '2025-10-01', 'revenue': 118617.94, 'qoq_pct': 49.3}, {'quarter': '2026-01-01', 'revenue': 45721.59, 'qoq_pct': -61.5}, {'quarter': '2026-04-01', 'revenue': 60854.23, 'qoq_pct': 33.1}] |
+| 49325 |  | 3 | 108,009.14 | 2,905.70 | [{'quarter': '2025-07-01', 'revenue': 158.25, 'qoq_pct': None}, {'quarter': '2025-10-01', 'revenue': 843.0, 'qoq_pct': 432.7}, {'quarter': '2026-01-01', 'revenue': 25337.96, 'qoq_pct': 2905.7}, {'quarter': '2026-04-01', 'revenue': 108009.14, 'qoq_pct': 326.3}] |
+| 31900 |  | 2 | 106,274.74 | 46.50 | [{'quarter': '2025-07-01', 'revenue': 106274.74, 'qoq_pct': 25.9}, {'quarter': '2025-10-01', 'revenue': 32302.15, 'qoq_pct': -69.6}, {'quarter': '2026-01-01', 'revenue': 47321.87, 'qoq_pct': 46.5}, {'quarter': '2026-04-01', 'revenue': 69136.08, 'qoq_pct': 46.1}] |
+| 50017 |  | 2 | 104,277.60 | 593.50 | [{'quarter': '2025-07-01', 'revenue': 104277.6, 'qoq_pct': 512.0}, {'quarter': '2025-10-01', 'revenue': 12986.07, 'qoq_pct': -87.5}, {'quarter': '2026-01-01', 'revenue': 90054.94, 'qoq_pct': 593.5}, {'quarter': '2026-04-01', 'revenue': 17662.09, 'qoq_pct': -80.4}] |
+| 50200 |  | 2 | 102,376.70 | 67.30 | [{'quarter': '2025-07-01', 'revenue': 102376.7, 'qoq_pct': 66.7}, {'quarter': '2025-10-01', 'revenue': 37040.75, 'qoq_pct': -63.8}, {'quarter': '2026-01-01', 'revenue': 28946.24, 'qoq_pct': -21.9}, {'quarter': '2026-04-01', 'revenue': 48425.62, 'qoq_pct': 67.3}] |
+| 40000 |  | 2 | 97,493.13 | 35 | [{'quarter': '2025-07-01', 'revenue': 97493.13, 'qoq_pct': 1.4}, {'quarter': '2025-10-01', 'revenue': 27775.31, 'qoq_pct': -71.5}, {'quarter': '2026-01-01', 'revenue': 37496.72, 'qoq_pct': 35.0}, {'quarter': '2026-04-01', 'revenue': 49389.47, 'qoq_pct': 31.7}] |
+| 1120 |  | 2 | 87,277.28 | 163.70 | [{'quarter': '2025-07-01', 'revenue': 64622.9, 'qoq_pct': 163.7}, {'quarter': '2025-10-01', 'revenue': 66613.1, 'qoq_pct': 3.1}, {'quarter': '2026-01-01', 'revenue': 87277.28, 'qoq_pct': 31.0}, {'quarter': '2026-04-01', 'revenue': 63414.36, 'qoq_pct': -27.3}] |
+| 43971 |  | 2 | 83,117.62 | 490.10 | [{'quarter': '2025-07-01', 'revenue': 14086.22, 'qoq_pct': -83.8}, {'quarter': '2025-10-01', 'revenue': 83117.62, 'qoq_pct': 490.1}, {'quarter': '2026-01-01', 'revenue': 5890.92, 'qoq_pct': -92.9}, {'quarter': '2026-04-01', 'revenue': 26509.17, 'qoq_pct': 350.0}] |
+| 44027 |  | 2 | 76,514.14 | 26,550.70 | [{'quarter': '2025-07-01', 'revenue': 217.75, 'qoq_pct': -99.4}, {'quarter': '2025-10-01', 'revenue': 1151.54, 'qoq_pct': 428.8}, {'quarter': '2026-01-01', 'revenue': 287.1, 'qoq_pct': -75.1}, {'quarter': '2026-04-01', 'revenue': 76514.14, 'qoq_pct': 26550.7}] |
+| 44506 |  | 2 | 72,969.77 | 58.90 | [{'quarter': '2025-07-01', 'revenue': 72969.77, 'qoq_pct': 58.9}, {'quarter': '2025-10-01', 'revenue': 58320.31, 'qoq_pct': -20.1}, {'quarter': '2026-01-01', 'revenue': 50798.92, 'qoq_pct': -12.9}, {'quarter': '2026-04-01', 'revenue': 71720.62, 'qoq_pct': 41.2}] |
+| 43638 |  | 2 | 70,897.40 | 56.90 | [{'quarter': '2025-07-01', 'revenue': 45385.52, 'qoq_pct': -5.7}, {'quarter': '2025-10-01', 'revenue': 29639.3, 'qoq_pct': -34.7}, {'quarter': '2026-01-01', 'revenue': 45196.37, 'qoq_pct': 52.5}, {'quarter': '2026-04-01', 'revenue': 70897.4, 'qoq_pct': 56.9}] |
+| 40350 |  | 2 | 69,543.65 | 4,534.30 | [{'quarter': '2025-07-01', 'revenue': 7599.87, 'qoq_pct': 99.2}, {'quarter': '2025-10-01', 'revenue': 2498.75, 'qoq_pct': -67.1}, {'quarter': '2026-01-01', 'revenue': 1500.63, 'qoq_pct': -39.9}, {'quarter': '2026-04-01', 'revenue': 69543.65, 'qoq_pct': 4534.3}] |
+| 30055 |  | 2 | 58,054.30 | 7,785.10 | [{'quarter': '2025-07-01', 'revenue': 736.25, 'qoq_pct': 68.6}, {'quarter': '2026-01-01', 'revenue': 58054.3, 'qoq_pct': 7785.1}, {'quarter': '2026-04-01', 'revenue': 117.74, 'qoq_pct': -99.8}] |

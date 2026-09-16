@@ -1,0 +1,24 @@
+# Q-ORG-VELOCITY Results — Sarreid, Ltd. (fal, org_id=1)
+- **Query**: Q-ORG-VELOCITY — Account Quarterly Velocity Trajectory
+- **Period**: LTM (2025-06-17 to 2026-06-17)
+- **Row count**: 15
+- **Run date**: 2026-06-17
+
+
+| customer_code | customer_name | accel_quarters | peak_quarter_revenue | max_qoq | trajectory |
+| --- | --- | --- | --- | --- | --- |
+| 28973 | NETRETAILERS INC. | 2 | 141,678.50 | 20,808.50 | [{'quarter': '2025-07-01', 'revenue': 70921.5, 'qoq_pct': 20808.5}, {'quarter': '2025-10-01', 'revenue': 65149.8, 'qoq_pct': -8.1}, {'quarter': '2026-01-01', 'revenue': 141678.5, 'qoq_pct': 117.5}, {'quarter': '2026-04-01', 'revenue': 68521.8, 'qoq_pct': -51.6}] |
+| 27652 | SIMPLE THINGS | 2 | 46,031.50 | 296.50 | [{'quarter': '2025-07-01', 'revenue': 7095.0, 'qoq_pct': -70.8}, {'quarter': '2025-10-01', 'revenue': 28132.5, 'qoq_pct': 296.5}, {'quarter': '2026-01-01', 'revenue': 46031.5, 'qoq_pct': 63.6}, {'quarter': '2026-04-01', 'revenue': 17352.6, 'qoq_pct': -62.3}] |
+| 31651 | MC STUDIO | 2 | 38,891 | 265.10 | [{'quarter': '2025-07-01', 'revenue': 8418.0, 'qoq_pct': -33.0}, {'quarter': '2025-10-01', 'revenue': 30733.6, 'qoq_pct': 265.1}, {'quarter': '2026-01-01', 'revenue': 16931.0, 'qoq_pct': -44.9}, {'quarter': '2026-04-01', 'revenue': 38891.0, 'qoq_pct': 129.7}] |
+| 11077 | NELL HILLS CORPORATION | 2 | 31,923.70 | 224.40 | [{'quarter': '2025-07-01', 'revenue': 10396.0, 'qoq_pct': -49.9}, {'quarter': '2025-10-01', 'revenue': 30373.0, 'qoq_pct': 192.2}, {'quarter': '2026-01-01', 'revenue': 9841.5, 'qoq_pct': -67.6}, {'quarter': '2026-04-01', 'revenue': 31923.7, 'qoq_pct': 224.4}] |
+| 32563 | DECOR MARKET | 2 | 26,451 | 173.30 | [{'quarter': '2025-07-01', 'revenue': 6788.0, 'qoq_pct': None}, {'quarter': '2025-10-01', 'revenue': 9680.0, 'qoq_pct': 42.6}, {'quarter': '2026-01-01', 'revenue': 26451.0, 'qoq_pct': 173.3}, {'quarter': '2026-04-01', 'revenue': 9035.0, 'qoq_pct': -65.8}] |
+| 29362 | ENGLISH ELM | 2 | 25,599.10 | 100.30 | [{'quarter': '2025-07-01', 'revenue': 7398.0, 'qoq_pct': -52.8}, {'quarter': '2025-10-01', 'revenue': 12916.2, 'qoq_pct': 74.6}, {'quarter': '2026-01-01', 'revenue': 12782.5, 'qoq_pct': -1.0}, {'quarter': '2026-04-01', 'revenue': 25599.1, 'qoq_pct': 100.3}] |
+| 3254 | DAVIDS FURNITURE & INTERIORS | 2 | 23,405.70 | 214.10 | [{'quarter': '2025-07-01', 'revenue': 5120.0, 'qoq_pct': -84.7}, {'quarter': '2025-10-01', 'revenue': 16080.1, 'qoq_pct': 214.1}, {'quarter': '2026-01-01', 'revenue': 12020.0, 'qoq_pct': -25.2}, {'quarter': '2026-04-01', 'revenue': 23405.7, 'qoq_pct': 94.7}] |
+| 25172 | GARY RIGGS HOME / FORMERLY THE IRON BED | 2 | 20,416.90 | 3,261.60 | [{'quarter': '2025-07-01', 'revenue': 6635.0, 'qoq_pct': -45.7}, {'quarter': '2025-10-01', 'revenue': 20416.9, 'qoq_pct': 207.7}, {'quarter': '2026-01-01', 'revenue': 528.0, 'qoq_pct': -97.4}, {'quarter': '2026-04-01', 'revenue': 17749.0, 'qoq_pct': 3261.6}] |
+| 26316 | DESIGN COACH LLC / FORMERLY SASSANO DSN | 2 | 18,868 | 1,016.40 | [{'quarter': '2025-10-01', 'revenue': 1690.0, 'qoq_pct': 71.6}, {'quarter': '2026-01-01', 'revenue': 18868.0, 'qoq_pct': 1016.4}, {'quarter': '2026-04-01', 'revenue': 1385.0, 'qoq_pct': -92.7}] |
+| 20599 | MISTER ROBERT | 2 | 18,701 | 271.90 | [{'quarter': '2025-10-01', 'revenue': 18701.0, 'qoq_pct': 271.9}, {'quarter': '2026-01-01', 'revenue': 1725.0, 'qoq_pct': -90.8}, {'quarter': '2026-04-01', 'revenue': 2574.0, 'qoq_pct': 49.2}] |
+| 30126 | ALISON CRAIG HOME FURNISHINGS | 2 | 18,483.60 | 314 | [{'quarter': '2025-07-01', 'revenue': 4465.0, 'qoq_pct': 149.6}, {'quarter': '2025-10-01', 'revenue': 18483.6, 'qoq_pct': 314.0}, {'quarter': '2026-01-01', 'revenue': 14143.5, 'qoq_pct': -23.5}, {'quarter': '2026-04-01', 'revenue': 1950.0, 'qoq_pct': -86.2}] |
+| 32484 | MIDDLEBURG ANTIQUE GALLERY | 2 | 16,934 | 67 | [{'quarter': '2025-07-01', 'revenue': 16934.0, 'qoq_pct': -44.5}, {'quarter': '2025-10-01', 'revenue': 6070.0, 'qoq_pct': -64.2}, {'quarter': '2026-01-01', 'revenue': 10135.0, 'qoq_pct': 67.0}, {'quarter': '2026-04-01', 'revenue': 14917.5, 'qoq_pct': 47.2}] |
+| 30705 | ALEX INTERIORS INC. | 2 | 16,500.50 | 533.20 | [{'quarter': '2025-07-01', 'revenue': 5212.7, 'qoq_pct': 109.4}, {'quarter': '2025-10-01', 'revenue': 2605.7, 'qoq_pct': -50.0}, {'quarter': '2026-01-01', 'revenue': 16500.5, 'qoq_pct': 533.2}] |
+| 28882 | CRIMSON DESIGN GROUP | 2 | 16,370 | 276.80 | [{'quarter': '2025-07-01', 'revenue': 11245.0, 'qoq_pct': 240.5}, {'quarter': '2025-10-01', 'revenue': 6805.0, 'qoq_pct': -39.5}, {'quarter': '2026-01-01', 'revenue': 4344.7, 'qoq_pct': -36.2}, {'quarter': '2026-04-01', 'revenue': 16370.0, 'qoq_pct': 276.8}] |
+| 964 | CUSTOM HOME DECORATING | 2 | 15,966.50 | 1,008.80 | [{'quarter': '2025-07-01', 'revenue': 15966.5, 'qoq_pct': 1008.8}, {'quarter': '2025-10-01', 'revenue': 4580.0, 'qoq_pct': -71.3}, {'quarter': '2026-01-01', 'revenue': 10462.5, 'qoq_pct': 128.4}, {'quarter': '2026-04-01', 'revenue': 8823.1, 'qoq_pct': -15.7}] |

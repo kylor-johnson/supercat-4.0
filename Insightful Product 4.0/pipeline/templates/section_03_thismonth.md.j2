@@ -1,0 +1,142 @@
+{# §3 Do this month — three plays.
+   Reference: Sarreid PASS3 §3 (lines 51-91).
+
+   Plays are curated from top signals across sections — cross-sell,
+   second-year retention push, and pricing/discipline review. #}
+{% from '_macros.md.j2' import signal_cross_sell_pocket, signal_second_year_gap, signal_leakage_discipline, action_cross_sell_pocket, action_second_year_gap, action_leakage_discipline, dollars_k, dollars_m %}
+## Do this month — 3 plays{% if gather.cross_sell_gap is not none and gather.cross_sell_gap.count > 0 %}, with named upside{% endif %}
+{% if posture.commerce_confidence != "STRONG" %}
+> *All figures are directional — partial feed basis.*
+{% endif %}
+
+### 1. {% if gather.families and gather.products -%}
+{% set _growth_candidates = gather.families | selectattr("yoy_pct", "ne", none) | selectattr("yoy_pct", "gt", 0) | selectattr("ltm_revenue", "gt", 0) | sort(attribute="yoy_pct", reverse=True) | list -%}
+{% set _cs_target = _growth_candidates[0] if _growth_candidates else gather.families[0] -%}
+The {{ (gather.products[0].description | replace("  ", " ")) if gather.products else "top SKU" }} → {{ _cs_target.family_label }} cross-sell
+{%- elif gather.families -%}
+{% set _growth_candidates = gather.families | selectattr("yoy_pct", "ne", none) | selectattr("yoy_pct", "gt", 0) | selectattr("ltm_revenue", "gt", 0) | sort(attribute="yoy_pct", reverse=True) | list -%}
+{% set _cs_target = _growth_candidates[0] if _growth_candidates else gather.families[0] -%}
+Cross-sell play — {{ _cs_target.family_label }} family
+{%- elif gather.products -%}
+Item-level cross-sell off the top-12 list
+{%- else -%}
+Cross-sell play
+{%- endif %}
+
+{% if play_framing and play_framing[0] is defined -%}
+<!--slot:D-->
+{{ play_framing[0] }}
+<!--/slot:D-->
+{%- else -%}
+{% if gather.families and gather.products -%}
+{% set anchor = gather.products[0] -%}
+{% set _growth_candidates = gather.families | selectattr("yoy_pct", "ne", none) | selectattr("yoy_pct", "gt", 0) | selectattr("ltm_revenue", "gt", 0) | sort(attribute="yoy_pct", reverse=True) | list -%}
+{% set target = _growth_candidates[0] if _growth_candidates else gather.families[0] -%}
+{{ anchor.description | replace("  ", " ") }} is your most-distributed top SKU — ${{ "{:,.0f}".format(anchor.ltm_revenue / 1000) }}K invoiced (LTM) across {{ anchor.dealers }} dealers. The {{ target.family_label }} family is your {% if _growth_candidates %}fastest-growing line{% else %}largest line{% endif %} — ${{ "{:,.2f}".format(target.ltm_revenue / 1_000_000) }}M, {% if target.yoy_pct is not none %}{{ "{:+.0f}".format(target.yoy_pct) }}% YoY, {% endif %}{{ target.dealer_count }} dealers, {{ target.sku_count }} SKUs.
+
+{% if gather.cross_sell_gap is not none and gather.cross_sell_gap.count > 0 -%}
+**{{ gather.cross_sell_gap.count }} of {{ anchor.dealers }} anchor-SKU dealers have never bought from the {{ target.family_label }} family.** That is a pre-qualified list — same buyer profile, same floor, same end-customer base.
+{%- elif gather.cross_sell_gap is not none and gather.cross_sell_gap.count == 0 -%}
+Every anchor-SKU dealer already buys from the {{ target.family_label }} family — the cross-sell is already happening organically. The play shifts to **depth**: average units per dealer in {{ target.family_label }} vs. the anchor, and where that ratio is lowest.
+{%- else -%}
+The cross-sell overlap is not yet computed for this org.
+{%- endif %}
+
+Same buyer profile, same floor, same end-customer base. Push the overlap list to the field this week, ask for a quote inside 30 days on each, and the directional product upside is meaningful on a list that has already pre-qualified itself.
+
+*What would change this read:* if the overlap dealers share a meaningfully different end-buyer mix from those who already cross-bought — for example a contract-only book or a marketplace drop-ship — trim the list on the call before pushing.
+
+{{ action_cross_sell_pocket() }}
+{%- elif gather.families -%}
+{% set _growth_candidates = gather.families | selectattr("yoy_pct", "ne", none) | selectattr("yoy_pct", "gt", 0) | selectattr("ltm_revenue", "gt", 0) | sort(attribute="yoy_pct", reverse=True) | list -%}
+{% set target = _growth_candidates[0] if _growth_candidates else gather.families[0] -%}
+The {{ target.family_label }} family — ${{ "{:,.2f}".format(target.ltm_revenue / 1_000_000) }}M invoiced (LTM), {% if target.yoy_pct is not none %}{{ "{:+.0f}".format(target.yoy_pct) }}% YoY, {% endif %}{{ target.dealer_count }} dealers — is {% if _growth_candidates %}growing fast enough to warrant{% else %}the largest family and warrants{% endif %} a deliberate cross-sell push from the top-12 SKU buyer list.
+
+{# QUERY-NEEDED: Q-PROD-TOP not yet in cache — needed for the named cross-sell list. #}
+
+{{ action_cross_sell_pocket() }}
+{%- elif gather.products -%}
+{% set anchor = gather.products[0] -%}
+{{ anchor.description }} is your most-distributed top SKU — ${{ "{:,.0f}".format(anchor.ltm_revenue / 1000) }}K invoiced (LTM) across {{ anchor.dealers }} dealers. This catalog isn't grouped into branded families, so the play is item-to-item, not into a collection: take the {{ anchor.dealers }} dealers buying {{ anchor.description }} and pull the next-best-attached SKUs from the top-12 list that they are *not* yet carrying.
+
+That overlap gap is the pre-qualified list — same buyer, same floor — and it needs no new data to build: it comes straight off the item-level invoice history already in this report.
+
+{{ action_cross_sell_pocket() }}
+{%- else -%}
+{# QUERY-NEEDED: Q-PROD-TOP and Q-PROD-FAMILY not yet in cache — needed for cross-sell play. #}
+{%- endif %}
+{%- endif %}
+
+### 2. {% if gather.dealers and gather.dealers.second_year_return_rate is not none -%}
+A second-order push for new dealers
+{%- else -%}
+Second-year dealer retention push
+{%- endif %}
+
+{% if play_framing and play_framing[1] is defined -%}
+<!--slot:D-->
+{{ play_framing[1] }}
+<!--/slot:D-->
+{%- else -%}
+{% if gather.dealers and gather.dealers.second_year_return_rate is not none -%}
+| | |
+|---|---|
+| Dealers who ordered last year | **{{ "{:,}".format(gather.dealers.active_prior_ltm) }}** |
+| Ordered again this year | **{{ "{:,}".format(gather.dealers.returning) }}** |
+| Retention rate | **{{ "{:.1f}".format(gather.dealers.second_year_return_rate * 100) }}%** |
+| Same-dealer spend growth, for context | **{% if gather.dealers.same_base_lift_pct is not none %}{{ "{:+.0f}".format(gather.dealers.same_base_lift_pct) }}%{% else %}n/a{% endif %}** |
+
+{% if gather.dealers.same_base_lift_pct is not none and gather.dealers.same_base_lift_pct > 5 -%}
+The same-dealer base is healthy. **The new-dealer base is not.** You are acquiring dealers fine. You are not converting them into repeat business. Part of the {{ "{:.0f}".format((1 - gather.dealers.second_year_return_rate) * 100) }}% that didn't come back are designer/project buyers who by definition order once — the addressable subset is smaller than the headline count, and the lever sizes against that.
+{%- elif gather.dealers.same_base_lift_pct is not none -%}
+The same-dealer base is {% if gather.dealers.same_base_lift_pct < -5 %}contracting ({{ "{:+.0f}".format(gather.dealers.same_base_lift_pct) }}%){% else %}roughly flat ({{ "{:+.0f}".format(gather.dealers.same_base_lift_pct) }}%){% endif %}. The second-year return rate at {{ "{:.1f}".format(gather.dealers.second_year_return_rate * 100) }}% means new-dealer intake is producing, but conversion into repeat business has room to run.
+{%- else -%}
+{{ "{:.1f}".format(gather.dealers.second_year_return_rate * 100) }}% of first-time buyers returned. New-dealer intake is working; the conversion into lasting relationships is the lever.
+{%- endif %}
+
+Pick the play — a 60-day reorder check-in cadence, a "first reorder" incentive, a named-rep handoff at day 30 — and run it. It does not have to be expensive. It has to be **deliberate and measured**.
+
+{{ action_second_year_gap(gather.dealers) }}
+{%- else -%}
+
+Not enough order history to calculate a second-year return rate. This play becomes available when the invoice feed spans two full years.
+{%- endif %}
+{%- endif %}
+
+### 3. {% if gather.rep_risks -%}
+Pricing / discipline review
+{%- else -%}
+Third play — pricing discipline
+{%- endif %}
+
+{% if play_framing and play_framing[2] is defined -%}
+<!--slot:D-->
+{{ play_framing[2] }}
+<!--/slot:D-->
+{%- else -%}
+{% if gather.rep_risks -%}
+{% set total_leak = gather.rep_risks | sum(attribute='dollars_at_risk') -%}
+{% set top_leak_rep = (gather.rep_risks | selectattr("leak_pct", "ne", none) | sort(attribute="leak_pct", reverse=True) | first) -%}
+{% set bottom_leak_rep = (gather.rep_risks | selectattr("leak_pct", "ne", none) | sort(attribute="leak_pct") | first) -%}
+
+Total dollars at risk across the rep base: **${{ "{:,.0f}".format(total_leak / 1000) }}K** (trailing 6 months{% if posture.commerce_confidence != "STRONG" %}, directional{% endif %}).
+
+{% if top_leak_rep and bottom_leak_rep and top_leak_rep.leak_pct is not none and bottom_leak_rep.leak_pct is not none -%}
+{# LEAK_SPREAD_THRESHOLD = 3.0pp — below this spread, "no rep stands out" (policy not coaching) #}
+{% if (top_leak_rep.leak_pct - bottom_leak_rep.leak_pct) < 3.0 -%}
+**No rep stands out.** Top leak rate is {{ "{:.1f}".format(top_leak_rep.leak_pct) }}% ({{ top_leak_rep.rep_name_tier2 or ("rep " ~ top_leak_rep.rep_number) }}), bottom is {{ "{:.1f}".format(bottom_leak_rep.leak_pct) }}% — broadly distributed, not concentrated in one book. That makes this a **pricing-policy conversation, not a coaching one**.
+
+{{ action_leakage_discipline() }}
+{%- else -%}
+Leak rates range from {{ "{:.1f}".format(bottom_leak_rep.leak_pct) }}% to {{ "{:.1f}".format(top_leak_rep.leak_pct) }}%. {{ top_leak_rep.rep_name_tier2 or ("rep " ~ top_leak_rep.rep_number) }} at {{ "{:.1f}".format(top_leak_rep.leak_pct) }}% warrants a direct conversation on discount authority — that spread is wide enough to be a coaching question, not just a pricing-policy one.
+
+{{ action_leakage_discipline(has_outlier=(top_leak_rep.leak_pct > 10), outlier_rep=top_leak_rep.rep_name_tier2 or ("rep " ~ top_leak_rep.rep_number), outlier_pct=top_leak_rep.leak_pct) }}
+{%- endif %}
+{%- else -%}
+
+{{ action_leakage_discipline() }}
+{%- endif %}
+{%- else -%}
+{# QUERY-NEEDED: C2 rep-leak data not cached. Run: python -m pipeline.populate_cache --org <org> --queries C2 #}
+{%- endif %}
+{%- endif %}

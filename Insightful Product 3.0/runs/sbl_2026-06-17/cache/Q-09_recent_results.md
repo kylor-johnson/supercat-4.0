@@ -1,0 +1,2429 @@
+# Q-09-recent Results — Schonbek Lighting (sbl, org_id=182)
+- **Query**: Q-09-recent — Import Health — Recent Errors
+- **Period**: LTM (2025-06-17 to 2026-06-17)
+- **Row count**: 10
+- **Run date**: 2026-06-17
+
+
+| created_at | data |
+| --- | --- |
+| 2026-06-17T05:47:38.999411 | ---
+- - Inventory
+  - - - :warning
+      - 'Line 5: Product not found, record ignored., BaseItemCode=1239-22A'
+    - - :warning
+      - 'Line 8: Product not found, record ignored., BaseItemCode=1239-23A'
+    - - :warning
+      - 'Line 13: Product not found, record ignored., BaseItemCode=1239-40A'
+    - - :warning
+      - 'Line 16: Product not found, record ignored., BaseItemCode=1239-48A'
+    - - :warning
+      - 'Line 19: Product not found, record ignored., BaseItemCode=1239-76A'
+    - - :warning
+      - 'Line 25: Product not found, record ignored., BaseItemCode=1241-48S'
+    - - :warning
+      - 'Line 30: Product not found, record ignored., BaseItemCode=1243-22A'
+    - - :warning
+      - 'Line 31: Product not found, record ignored., BaseItemCode=1243-23S'
+    - - :warning
+      - 'Line 40: Product not found, record ignored., BaseItemCode=1558-48R'
+    - - :warning
+      - 'Line 69: Product not found, record ignored., BaseItemCode=1701U-76'
+    - - :warning
+      - 'Line 78: Product not found, record ignored., BaseItemCode=1702U-76'
+    - - :warning
+      - 'Line 87: Product not found, record ignored., BaseItemCode=1703U-76'
+    - - :warning
+      - 'Line 102: Product not found, record ignored., BaseItemCode=1716U-76'
+    - - :warning
+      - 'Line 110: Product not found, record ignored., BaseItemCode=1718U-76'
+    - - :warning
+      - 'Line 111: Product not found, record ignored., BaseItemCode=2124A'
+    - - :warning
+      - 'Line 112: Product not found, record ignored., BaseItemCode=2220A'
+    - - :warning
+      - 'Line 115: Product not found, record ignored., BaseItemCode=2224A'
+    - - :warning
+      - 'Line 406: Product not found, record ignored., BaseItemCode=5075-48S'
+    - - :warning
+      - 'Line 520: Product not found, record ignored., BaseItemCode=5685-80R'
+    - - :warning
+      - 'Line 600: Product not found, record ignored., BaseItemCode=6816-40A'
+    - - :warning
+      - 'Line 1100: Product not found, record ignored., BaseItemCode=CM8519N-401A'
+    - - :warning
+      - 'Line 1647: Product not found, record ignored., BaseItemCode=SF-RCBT-WT'
+    - - :warning
+      - 'Line 1648: Product not found, record ignored., BaseItemCode=SF-WCBT-WT'
+    - - :warning
+      - 'Line 1649: Product not found, record ignored., BaseItemCode=SFCK-26'
+    - - :warning
+      - 'Line 1650: Product not found, record ignored., BaseItemCode=SFCK-51'
+    - - :warning
+      - 'Line 1651: Product not found, record ignored., BaseItemCode=SFDR-12-26'
+    - - :warning
+      - 'Line 1652: Product not found, record ignored., BaseItemCode=SFDR-12-51'
+    - - :warning
+      - 'Line 1653: Product not found, record ignored., BaseItemCode=SFDR-18-26'
+    - - :warning
+      - 'Line 1654: Product not found, record ignored., BaseItemCode=SFDR-18-51'
+    - - :warning
+      - 'Line 1655: Product not found, record ignored., BaseItemCode=SFDR-24-26'
+    - - :warning
+      - 'Line 1656: Product not found, record ignored., BaseItemCode=SFDR-24-51'
+    - - :warning
+      - 'Line 1657: Product not found, record ignored., BaseItemCode=SFDR-48-26'
+    - - :warning
+      - 'Line 1658: Product not found, record ignored., BaseItemCode=SFDR-48-51'
+    - - :warning
+      - 'Line 1659: Product not found, record ignored., BaseItemCode=SFDR-I-26'
+    - - :warning
+      - 'Line 1660: Product not found, record ignored., BaseItemCode=SFDR-I-51'
+    - - :warning
+      - 'Line 1666: Product not found, record ignored., BaseItemCode=SJ1012T24-RBL702R'
+    - - :warning
+      - 'Line 1667: Product not found, record ignored., BaseItemCode=SJ1012T24-RGO702R'
+    - - :warning
+      - 'Line 1668: Product not found, record ignored., BaseItemCode=SJ1012T24-RRE702R'
+    - - :warning
+      - 'Line 1683: Product not found, record ignored., BaseItemCode=SJ2310T24-RBL702R'
+    - - :warning
+      - 'Line 1684: Product not found, record ignored., BaseItemCode=SJ2310T24-RGO702R'
+    - - :warning
+      - 'Line 1685: Product not found, record ignored., BaseItemCode=SJ2310T24-RRE702R'
+    - - :warning
+      - 'Line 1700: Product not found, record ignored., BaseItemCode=SJ3611T24-RBL702R'
+    - - :warning
+      - 'Line 1701: Product not found, record ignored., BaseItemCode=SJ3611T24-RGO702R'
+    - - :warning
+      - 'Line 1702: Product not found, record ignored., BaseItemCode=SJ3611T24-RRE702R'
+    - - :warning
+      - 'Line 1733: Product not found, record ignored., BaseItemCode=SJ4914T24-RBL702R'
+    - - :warning
+      - 'Line 1734: Product not found, record ignored., BaseItemCode=SJ4914T24-RGO702R'
+    - - :warning
+      - 'Line 1735: Product not found, record ignored., BaseItemCode=SJ4914T24-RRE702R'
+    - - :warning
+      - 'Line 1817: Product not found, record ignored., BaseItemCode=SJ8813T24-RBL702R'
+    - - :warning
+      - 'Line 1818: Product not found, record ignored., BaseItemCode=SJ8813T24-RGO702R'
+    - - :warning
+      - 'Line 1819: Product not found, record ignored., BaseItemCode=SJ8813T24-RRE702R'
+    - - :warning
+      - 'Line 1887: Product not found, record ignored., BaseItemCode=WH-WS-WT'
+- - Customers
+  - - - :error
+      - 'Line 1359: error=Validation failed: Shipping state can''t be blank: Customer
+        # = 13172787'
+- - Sales Data
+  - - - :error
+      - 'Line 45: Base item code SFCK-26 does not match an active product'
+    - - :error
+      - 'Line 46: Base item code SFDR-24-26 does not match an active product'
+    - - :error
+      - 'Line 108: Base item code 5685-80R does not match an active product'
+    - - :error
+      - 'Line 250: Base item code 1712U-76 does not match an active product'
+    - - :error
+      - 'Line 353: BillToCode (03983000) is invalid.'
+    - - :error
+      - 'Line 372: Base item code 2642L-211O does not match an active product'
+    - - :error
+      - 'Line 386: BillToCode (04561000) is invalid.'
+    - - :error
+      - 'Line 387: BillToCode (04561000) is invalid.'
+    - - :error
+      - 'Line 388: BillToCode (04561000) is invalid.'
+    - - :error
+      - 'Line 823: BillToCode (09115000) is invalid.'
+    - - :error
+      - 'Line 824: BillToCode (09115000) is invalid.'
+    - - :error
+      - 'Line 825: BillToCode (09115000) is invalid.'
+    - - :error
+      - 'Line 826: BillToCode (09115000) is invalid.'
+    - - :error
+      - 'Line 827: BillToCode (09115000) is invalid.'
+    - - :error
+      - 'Line 828: BillToCode (09115000) is invalid.'
+    - - :error
+      - 'Line 829: BillToCode (09115000) is invalid.'
+    - - :error
+      - 'Line 830: BillToCode (09371000) is invalid.'
+    - - :error
+      - 'Line 894: Base item code SF-RCBT-WT does not match an active product'
+    - - :error
+      - 'Line 895: Base item code SF-WCBT-WT does not match an active product'
+    - - :error
+      - 'Line 937: Base item code 1239-40A does not match an active product'
+    - - :error
+      - 'Line 986: Base item code 2642L-211O does not match an active product'
+    - - :error
+      - 'Line 1208: Base item code 1238N-48A does not match an active product'
+    - - :error
+      - 'Line 1209: Base item code 1240-48A does not match an active product'
+    - - :error
+      - 'Line 1415: Base item code 1243-23A does not match an active product'
+    - - :error
+      - 'Line 1419: Base item code 1248-22A does not match an active product'
+    - - :error
+      - 'Line 1452: Base item code 2124A does not match an active product'
+    - - :error
+      - 'Line 1454: Base item code 2995-40A does not match an active product'
+    - - :error
+      - 'Line 1455: Base item code 2998-40A does not match an active product'
+    - - :error
+      - 'Line 1457: Base item code 3601-40A does not match an active product'
+    - - :error
+      - 'Line 1631: Base item code 1246-22A does not match an active product'
+    - - :error
+      - 'Line 1796: Base item code 1238N-22A does not match an active product'
+    - - :error
+      - 'Line 1801: Base item code 1239-76A does not match an active product'
+    - - :error
+      - 'Line 1805: Base item code 1240-48A does not match an active product'
+    - - :error
+      - 'Line 1807: Base item code 1241-22A does not match an active product'
+    - - :error
+      - 'Line 1810: Base item code 1241-48S does not match an active product'
+    - - :error
+      - 'Line 1818: Base item code 1243-22A does not match an active product'
+    - - :error
+      - 'Line 1820: Base item code 1243-23A does not match an active product'
+    - - :error
+      - 'Line 1908: Base item code 2998-40A does not match an active product'
+    - - :error
+      - 'Line 2054: Base item code CM8519N-401A does not match an active product'
+    - - :error
+      - 'Line 2253: Base item code SFDR-18-26 does not match an active product'
+    - - :error
+      - 'Line 2254: Base item code SFDR-24-26 does not match an active product'
+    - - :error
+      - 'Line 2266: BillToCode (13170513) is invalid.'
+    - - :error
+      - 'Line 2328: BillToCode (13171071) is invalid.'
+    - - :error
+      - 'Line 2500: BillToCode (13171384) is invalid.'
+    - - :error
+      - 'Line 2501: BillToCode (13171384) is invalid.'
+    - - :error
+      - 'Line 2579: BillToCode (13171471) is invalid.'
+    - - :error
+      - 'Line 2731: BillToCode (13171732) is invalid.'
+    - - :error
+      - 'Line 2732: BillToCode (13171732) is invalid.'
+    - - :error
+      - 'Line 2761: Base item code CM8326N-401A does not match an active product'
+    - - :error
+      - 'Line 2877: BillToCode (13172412) is invalid.'
+    - - :warning
+      - "-213 more rows with invalid products"
+ |
+| 2026-06-16T05:46:29.377341 | ---
+- - Inventory
+  - - - :warning
+      - 'Line 2: Product not found, record ignored., BaseItemCode=1239-22A'
+    - - :warning
+      - 'Line 3: Product not found, record ignored., BaseItemCode=1239-23A'
+    - - :warning
+      - 'Line 5: Product not found, record ignored., BaseItemCode=1239-40A'
+    - - :warning
+      - 'Line 7: Product not found, record ignored., BaseItemCode=1239-48A'
+    - - :warning
+      - 'Line 9: Product not found, record ignored., BaseItemCode=1239-76A'
+    - - :warning
+      - 'Line 11: Product not found, record ignored., BaseItemCode=1240-22A'
+    - - :warning
+      - 'Line 13: Product not found, record ignored., BaseItemCode=1240-23A'
+    - - :warning
+      - 'Line 14: Product not found, record ignored., BaseItemCode=1240-40A'
+    - - :warning
+      - 'Line 15: Product not found, record ignored., BaseItemCode=1240-48A'
+    - - :warning
+      - 'Line 16: Product not found, record ignored., BaseItemCode=1240-76A'
+    - - :warning
+      - 'Line 18: Product not found, record ignored., BaseItemCode=1241-22A'
+    - - :warning
+      - 'Line 20: Product not found, record ignored., BaseItemCode=1241-23A'
+    - - :warning
+      - 'Line 21: Product not found, record ignored., BaseItemCode=1241-40A'
+    - - :warning
+      - 'Line 22: Product not found, record ignored., BaseItemCode=1241-48A'
+    - - :warning
+      - 'Line 23: Product not found, record ignored., BaseItemCode=1241-48S'
+    - - :warning
+      - 'Line 24: Product not found, record ignored., BaseItemCode=1241-76A'
+    - - :warning
+      - 'Line 29: Product not found, record ignored., BaseItemCode=1243-22A'
+    - - :warning
+      - 'Line 30: Product not found, record ignored., BaseItemCode=1243-23A'
+    - - :warning
+      - 'Line 31: Product not found, record ignored., BaseItemCode=1243-23S'
+    - - :warning
+      - 'Line 32: Product not found, record ignored., BaseItemCode=1243-40A'
+    - - :warning
+      - 'Line 34: Product not found, record ignored., BaseItemCode=1243-48A'
+    - - :warning
+      - 'Line 35: Product not found, record ignored., BaseItemCode=1243-76A'
+    - - :warning
+      - 'Line 49: Product not found, record ignored., BaseItemCode=2124A'
+    - - :warning
+      - 'Line 50: Product not found, record ignored., BaseItemCode=2220A'
+    - - :warning
+      - 'Line 51: Product not found, record ignored., BaseItemCode=2224A'
+    - - :warning
+      - 'Line 52: Product not found, record ignored., BaseItemCode=2274A'
+    - - :warning
+      - 'Line 56: Product not found, record ignored., BaseItemCode=2990-40A'
+    - - :warning
+      - 'Line 57: Product not found, record ignored., BaseItemCode=2991-40A'
+    - - :warning
+      - 'Line 59: Product not found, record ignored., BaseItemCode=2994-40A'
+    - - :warning
+      - 'Line 61: Product not found, record ignored., BaseItemCode=2999-40A'
+    - - :warning
+      - 'Line 91: Product not found, record ignored., BaseItemCode=5075-48S'
+    - - :warning
+      - 'Line 108: Product not found, record ignored., BaseItemCode=6816-40A'
+    - - :warning
+      - 'Line 389: Product not found, record ignored., BaseItemCode=CM8326N-401A'
+    - - :warning
+      - 'Line 390: Product not found, record ignored., BaseItemCode=CM8334N-401A'
+    - - :warning
+      - 'Line 391: Product not found, record ignored., BaseItemCode=CM8519N-401A'
+    - - :warning
+      - 'Line 653: Product not found, record ignored., BaseItemCode=SF-RCBT-WT'
+    - - :warning
+      - 'Line 654: Product not found, record ignored., BaseItemCode=SF-WCBT-WT'
+    - - :warning
+      - 'Line 655: Product not found, record ignored., BaseItemCode=SFCK-26'
+    - - :warning
+      - 'Line 656: Product not found, record ignored., BaseItemCode=SFCK-51'
+    - - :warning
+      - 'Line 657: Product not found, record ignored., BaseItemCode=SFDR-12-26'
+    - - :warning
+      - 'Line 658: Product not found, record ignored., BaseItemCode=SFDR-12-51'
+    - - :warning
+      - 'Line 659: Product not found, record ignored., BaseItemCode=SFDR-18-26'
+    - - :warning
+      - 'Line 660: Product not found, record ignored., BaseItemCode=SFDR-18-51'
+    - - :warning
+      - 'Line 661: Product not found, record ignored., BaseItemCode=SFDR-24-26'
+    - - :warning
+      - 'Line 662: Product not found, record ignored., BaseItemCode=SFDR-24-51'
+    - - :warning
+      - 'Line 663: Product not found, record ignored., BaseItemCode=SFDR-48-26'
+    - - :warning
+      - 'Line 664: Product not found, record ignored., BaseItemCode=SFDR-48-51'
+    - - :warning
+      - 'Line 665: Product not found, record ignored., BaseItemCode=SFDR-I-26'
+    - - :warning
+      - 'Line 666: Product not found, record ignored., BaseItemCode=SFDR-I-51'
+    - - :warning
+      - 'Line 714: Product not found, record ignored., BaseItemCode=WH-WS-WT'
+- - Customers
+  - - - :error
+      - 'Line 1359: error=Validation failed: Shipping state can''t be blank: Customer
+        # = 13172787'
+- - Sales Data
+  - - - :error
+      - 'Line 45: Base item code SFCK-26 does not match an active product'
+    - - :error
+      - 'Line 46: Base item code SFDR-24-26 does not match an active product'
+    - - :error
+      - 'Line 108: Base item code 5685-80R does not match an active product'
+    - - :error
+      - 'Line 248: Base item code 1712U-76 does not match an active product'
+    - - :error
+      - 'Line 351: BillToCode (03983000) is invalid.'
+    - - :error
+      - 'Line 370: Base item code 2642L-211O does not match an active product'
+    - - :error
+      - 'Line 384: BillToCode (04561000) is invalid.'
+    - - :error
+      - 'Line 385: BillToCode (04561000) is invalid.'
+    - - :error
+      - 'Line 386: BillToCode (04561000) is invalid.'
+    - - :error
+      - 'Line 826: BillToCode (09115000) is invalid.'
+    - - :error
+      - 'Line 827: BillToCode (09115000) is invalid.'
+    - - :error
+      - 'Line 828: BillToCode (09115000) is invalid.'
+    - - :error
+      - 'Line 829: BillToCode (09115000) is invalid.'
+    - - :error
+      - 'Line 830: BillToCode (09115000) is invalid.'
+    - - :error
+      - 'Line 831: BillToCode (09115000) is invalid.'
+    - - :error
+      - 'Line 832: BillToCode (09115000) is invalid.'
+    - - :error
+      - 'Line 833: BillToCode (09371000) is invalid.'
+    - - :error
+      - 'Line 897: Base item code SF-RCBT-WT does not match an active product'
+    - - :error
+      - 'Line 898: Base item code SF-WCBT-WT does not match an active product'
+    - - :error
+      - 'Line 941: Base item code 1239-40A does not match an active product'
+    - - :error
+      - 'Line 990: Base item code 2642L-211O does not match an active product'
+    - - :error
+      - 'Line 1215: Base item code 1238N-48A does not match an active product'
+    - - :error
+      - 'Line 1216: Base item code 1240-48A does not match an active product'
+    - - :error
+      - 'Line 1423: Base item code 1243-23A does not match an active product'
+    - - :error
+      - 'Line 1427: Base item code 1248-22A does not match an active product'
+    - - :error
+      - 'Line 1460: Base item code 2124A does not match an active product'
+    - - :error
+      - 'Line 1462: Base item code 2995-40A does not match an active product'
+    - - :error
+      - 'Line 1463: Base item code 2998-40A does not match an active product'
+    - - :error
+      - 'Line 1465: Base item code 3601-40A does not match an active product'
+    - - :error
+      - 'Line 1639: Base item code 1246-22A does not match an active product'
+    - - :error
+      - 'Line 1804: Base item code 1238N-22A does not match an active product'
+    - - :error
+      - 'Line 1809: Base item code 1239-76A does not match an active product'
+    - - :error
+      - 'Line 1813: Base item code 1240-48A does not match an active product'
+    - - :error
+      - 'Line 1815: Base item code 1241-22A does not match an active product'
+    - - :error
+      - 'Line 1818: Base item code 1241-48S does not match an active product'
+    - - :error
+      - 'Line 1826: Base item code 1243-22A does not match an active product'
+    - - :error
+      - 'Line 1828: Base item code 1243-23A does not match an active product'
+    - - :error
+      - 'Line 1916: Base item code 2998-40A does not match an active product'
+    - - :error
+      - 'Line 2061: Base item code CM8519N-401A does not match an active product'
+    - - :error
+      - 'Line 2260: Base item code SFDR-18-26 does not match an active product'
+    - - :error
+      - 'Line 2261: Base item code SFDR-24-26 does not match an active product'
+    - - :error
+      - 'Line 2273: BillToCode (13170513) is invalid.'
+    - - :error
+      - 'Line 2274: BillToCode (13170513) is invalid.'
+    - - :error
+      - 'Line 2336: BillToCode (13171071) is invalid.'
+    - - :error
+      - 'Line 2509: BillToCode (13171384) is invalid.'
+    - - :error
+      - 'Line 2510: BillToCode (13171384) is invalid.'
+    - - :error
+      - 'Line 2588: BillToCode (13171471) is invalid.'
+    - - :error
+      - 'Line 2740: BillToCode (13171732) is invalid.'
+    - - :error
+      - 'Line 2741: BillToCode (13171732) is invalid.'
+    - - :error
+      - 'Line 2770: Base item code CM8326N-401A does not match an active product'
+    - - :warning
+      - "-214 more rows with invalid products"
+ |
+| 2026-06-15T05:46:38.788436 | ---
+- - Inventory
+  - - - :warning
+      - 'Line 5: Product not found, record ignored., BaseItemCode=1239-22A'
+    - - :warning
+      - 'Line 8: Product not found, record ignored., BaseItemCode=1239-23A'
+    - - :warning
+      - 'Line 13: Product not found, record ignored., BaseItemCode=1239-40A'
+    - - :warning
+      - 'Line 16: Product not found, record ignored., BaseItemCode=1239-48A'
+    - - :warning
+      - 'Line 19: Product not found, record ignored., BaseItemCode=1239-76A'
+    - - :warning
+      - 'Line 24: Product not found, record ignored., BaseItemCode=1240-22A'
+    - - :warning
+      - 'Line 27: Product not found, record ignored., BaseItemCode=1240-23A'
+    - - :warning
+      - 'Line 32: Product not found, record ignored., BaseItemCode=1240-40A'
+    - - :warning
+      - 'Line 35: Product not found, record ignored., BaseItemCode=1240-48A'
+    - - :warning
+      - 'Line 38: Product not found, record ignored., BaseItemCode=1240-76A'
+    - - :warning
+      - 'Line 43: Product not found, record ignored., BaseItemCode=1241-22A'
+    - - :warning
+      - 'Line 46: Product not found, record ignored., BaseItemCode=1241-23A'
+    - - :warning
+      - 'Line 51: Product not found, record ignored., BaseItemCode=1241-40A'
+    - - :warning
+      - 'Line 54: Product not found, record ignored., BaseItemCode=1241-48A'
+    - - :warning
+      - 'Line 56: Product not found, record ignored., BaseItemCode=1241-48S'
+    - - :warning
+      - 'Line 58: Product not found, record ignored., BaseItemCode=1241-76A'
+    - - :warning
+      - 'Line 77: Product not found, record ignored., BaseItemCode=1243-22A'
+    - - :warning
+      - 'Line 80: Product not found, record ignored., BaseItemCode=1243-23A'
+    - - :warning
+      - 'Line 82: Product not found, record ignored., BaseItemCode=1243-23S'
+    - - :warning
+      - 'Line 86: Product not found, record ignored., BaseItemCode=1243-40A'
+    - - :warning
+      - 'Line 89: Product not found, record ignored., BaseItemCode=1243-48A'
+    - - :warning
+      - 'Line 92: Product not found, record ignored., BaseItemCode=1243-76A'
+    - - :warning
+      - 'Line 104: Product not found, record ignored., BaseItemCode=1558-48R'
+    - - :warning
+      - 'Line 133: Product not found, record ignored., BaseItemCode=1701U-76'
+    - - :warning
+      - 'Line 142: Product not found, record ignored., BaseItemCode=1702U-76'
+    - - :warning
+      - 'Line 151: Product not found, record ignored., BaseItemCode=1703U-76'
+    - - :warning
+      - 'Line 160: Product not found, record ignored., BaseItemCode=1704U-76'
+    - - :warning
+      - 'Line 173: Product not found, record ignored., BaseItemCode=1712-55'
+    - - :warning
+      - 'Line 174: Product not found, record ignored., BaseItemCode=1712U-76'
+    - - :warning
+      - 'Line 177: Product not found, record ignored., BaseItemCode=2124A'
+    - - :warning
+      - 'Line 179: Product not found, record ignored., BaseItemCode=2220A'
+    - - :warning
+      - 'Line 182: Product not found, record ignored., BaseItemCode=2224A'
+    - - :warning
+      - 'Line 193: Product not found, record ignored., BaseItemCode=2274A'
+    - - :warning
+      - 'Line 205: Product not found, record ignored., BaseItemCode=2642L-211O'
+    - - :warning
+      - 'Line 210: Product not found, record ignored., BaseItemCode=2990-40A'
+    - - :warning
+      - 'Line 213: Product not found, record ignored., BaseItemCode=2991-40A'
+    - - :warning
+      - 'Line 218: Product not found, record ignored., BaseItemCode=2994-40A'
+    - - :warning
+      - 'Line 221: Product not found, record ignored., BaseItemCode=2999-40A'
+    - - :warning
+      - 'Line 299: Product not found, record ignored., BaseItemCode=3608-40A'
+    - - :warning
+      - 'Line 560: Product not found, record ignored., BaseItemCode=5075-48S'
+    - - :warning
+      - 'Line 765: Product not found, record ignored., BaseItemCode=6816-40A'
+    - - :warning
+      - 'Line 834: Product not found, record ignored., BaseItemCode=AT1001N-23H'
+    - - :warning
+      - 'Line 1335: Product not found, record ignored., BaseItemCode=CM8326N-401A'
+    - - :warning
+      - 'Line 1337: Product not found, record ignored., BaseItemCode=CM8334N-401A'
+    - - :warning
+      - 'Line 1340: Product not found, record ignored., BaseItemCode=CM8519N-401A'
+    - - :warning
+      - 'Line 1452: Product not found, record ignored., BaseItemCode=MD1005N-51H'
+    - - :warning
+      - 'Line 1458: Product not found, record ignored., BaseItemCode=MD1006N-44H'
+    - - :warning
+      - 'Line 1509: Product not found, record ignored., BaseItemCode=RJ1003N-23H'
+    - - :warning
+      - 'Line 2419: Product not found, record ignored., BaseItemCode=SF-RCBT-WT'
+    - - :warning
+      - 'Line 2420: Product not found, record ignored., BaseItemCode=SF-WCBT-WT'
+    - - :warning
+      - 'Line 2421: Product not found, record ignored., BaseItemCode=SFCK-26'
+    - - :warning
+      - 'Line 2422: Product not found, record ignored., BaseItemCode=SFCK-51'
+    - - :warning
+      - 'Line 2423: Product not found, record ignored., BaseItemCode=SFDR-12-26'
+    - - :warning
+      - 'Line 2424: Product not found, record ignored., BaseItemCode=SFDR-12-51'
+    - - :warning
+      - 'Line 2425: Product not found, record ignored., BaseItemCode=SFDR-18-26'
+    - - :warning
+      - 'Line 2426: Product not found, record ignored., BaseItemCode=SFDR-18-51'
+    - - :warning
+      - 'Line 2427: Product not found, record ignored., BaseItemCode=SFDR-24-26'
+    - - :warning
+      - 'Line 2428: Product not found, record ignored., BaseItemCode=SFDR-24-51'
+    - - :warning
+      - 'Line 2429: Product not found, record ignored., BaseItemCode=SFDR-48-26'
+    - - :warning
+      - 'Line 2430: Product not found, record ignored., BaseItemCode=SFDR-48-51'
+    - - :warning
+      - 'Line 2431: Product not found, record ignored., BaseItemCode=SFDR-I-26'
+    - - :warning
+      - 'Line 2432: Product not found, record ignored., BaseItemCode=SFDR-I-51'
+    - - :warning
+      - 'Line 2438: Product not found, record ignored., BaseItemCode=SJ1012T24-RBL702R'
+    - - :warning
+      - 'Line 2439: Product not found, record ignored., BaseItemCode=SJ1012T24-RGO702R'
+    - - :warning
+      - 'Line 2440: Product not found, record ignored., BaseItemCode=SJ1012T24-RRE702R'
+    - - :warning
+      - 'Line 2456: Product not found, record ignored., BaseItemCode=SJ2310T24-RBL702R'
+    - - :warning
+      - 'Line 2457: Product not found, record ignored., BaseItemCode=SJ2310T24-RGO702R'
+    - - :warning
+      - 'Line 2458: Product not found, record ignored., BaseItemCode=SJ2310T24-RRE702R'
+    - - :warning
+      - 'Line 2473: Product not found, record ignored., BaseItemCode=SJ3611T24-RBL702R'
+    - - :warning
+      - 'Line 2474: Product not found, record ignored., BaseItemCode=SJ3611T24-RGO702R'
+    - - :warning
+      - 'Line 2475: Product not found, record ignored., BaseItemCode=SJ3611T24-RRE702R'
+    - - :warning
+      - 'Line 2506: Product not found, record ignored., BaseItemCode=SJ4914T24-RBL702R'
+    - - :warning
+      - 'Line 2507: Product not found, record ignored., BaseItemCode=SJ4914T24-RGO702R'
+    - - :warning
+      - 'Line 2508: Product not found, record ignored., BaseItemCode=SJ4914T24-RRE702R'
+    - - :warning
+      - 'Line 2594: Product not found, record ignored., BaseItemCode=SJ8813T24-RBL702R'
+    - - :warning
+      - 'Line 2595: Product not found, record ignored., BaseItemCode=SJ8813T24-RGO702R'
+    - - :warning
+      - 'Line 2596: Product not found, record ignored., BaseItemCode=SJ8813T24-RRE702R'
+    - - :warning
+      - 'Line 2783: Product not found, record ignored., BaseItemCode=WH-WS-WT'
+- - Customers
+  - - - :error
+      - 'Line 1359: error=Validation failed: Shipping state can''t be blank: Customer
+        # = 13172787'
+- - Sales Data
+  - - - :error
+      - 'Line 44: Base item code SFCK-26 does not match an active product'
+    - - :error
+      - 'Line 45: Base item code SFDR-24-26 does not match an active product'
+    - - :error
+      - 'Line 107: Base item code 5685-80R does not match an active product'
+    - - :error
+      - 'Line 247: Base item code 1712U-76 does not match an active product'
+    - - :error
+      - 'Line 350: BillToCode (03983000) is invalid.'
+    - - :error
+      - 'Line 369: Base item code 2642L-211O does not match an active product'
+    - - :error
+      - 'Line 383: BillToCode (04561000) is invalid.'
+    - - :error
+      - 'Line 384: BillToCode (04561000) is invalid.'
+    - - :error
+      - 'Line 385: BillToCode (04561000) is invalid.'
+    - - :error
+      - 'Line 823: BillToCode (09115000) is invalid.'
+    - - :error
+      - 'Line 824: BillToCode (09115000) is invalid.'
+    - - :error
+      - 'Line 825: BillToCode (09115000) is invalid.'
+    - - :error
+      - 'Line 826: BillToCode (09115000) is invalid.'
+    - - :error
+      - 'Line 827: BillToCode (09115000) is invalid.'
+    - - :error
+      - 'Line 828: BillToCode (09115000) is invalid.'
+    - - :error
+      - 'Line 829: BillToCode (09115000) is invalid.'
+    - - :error
+      - 'Line 830: BillToCode (09371000) is invalid.'
+    - - :error
+      - 'Line 894: Base item code SF-RCBT-WT does not match an active product'
+    - - :error
+      - 'Line 895: Base item code SF-WCBT-WT does not match an active product'
+    - - :error
+      - 'Line 938: Base item code 1239-40A does not match an active product'
+    - - :error
+      - 'Line 987: Base item code 2642L-211O does not match an active product'
+    - - :error
+      - 'Line 1212: Base item code 1238N-48A does not match an active product'
+    - - :error
+      - 'Line 1213: Base item code 1240-48A does not match an active product'
+    - - :error
+      - 'Line 1420: Base item code 1243-23A does not match an active product'
+    - - :error
+      - 'Line 1424: Base item code 1248-22A does not match an active product'
+    - - :error
+      - 'Line 1457: Base item code 2124A does not match an active product'
+    - - :error
+      - 'Line 1459: Base item code 2995-40A does not match an active product'
+    - - :error
+      - 'Line 1460: Base item code 2998-40A does not match an active product'
+    - - :error
+      - 'Line 1462: Base item code 3601-40A does not match an active product'
+    - - :error
+      - 'Line 1636: Base item code 1246-22A does not match an active product'
+    - - :error
+      - 'Line 1801: Base item code 1238N-22A does not match an active product'
+    - - :error
+      - 'Line 1806: Base item code 1239-76A does not match an active product'
+    - - :error
+      - 'Line 1810: Base item code 1240-48A does not match an active product'
+    - - :error
+      - 'Line 1812: Base item code 1241-22A does not match an active product'
+    - - :error
+      - 'Line 1815: Base item code 1241-48S does not match an active product'
+    - - :error
+      - 'Line 1823: Base item code 1243-22A does not match an active product'
+    - - :error
+      - 'Line 1825: Base item code 1243-23A does not match an active product'
+    - - :error
+      - 'Line 1912: Base item code 2998-40A does not match an active product'
+    - - :error
+      - 'Line 2057: Base item code CM8519N-401A does not match an active product'
+    - - :error
+      - 'Line 2255: Base item code SFDR-18-26 does not match an active product'
+    - - :error
+      - 'Line 2256: Base item code SFDR-24-26 does not match an active product'
+    - - :error
+      - 'Line 2268: BillToCode (13170513) is invalid.'
+    - - :error
+      - 'Line 2269: BillToCode (13170513) is invalid.'
+    - - :error
+      - 'Line 2331: BillToCode (13171071) is invalid.'
+    - - :error
+      - 'Line 2503: BillToCode (13171384) is invalid.'
+    - - :error
+      - 'Line 2504: BillToCode (13171384) is invalid.'
+    - - :error
+      - 'Line 2574: BillToCode (13171471) is invalid.'
+    - - :error
+      - 'Line 2727: BillToCode (13171732) is invalid.'
+    - - :error
+      - 'Line 2728: BillToCode (13171732) is invalid.'
+    - - :error
+      - 'Line 2757: Base item code CM8326N-401A does not match an active product'
+    - - :warning
+      - "-214 more rows with invalid products"
+ |
+| 2026-06-14T05:46:39.312768 | ---
+- - Inventory
+  - - - :warning
+      - 'Line 5: Product not found, record ignored., BaseItemCode=1239-22A'
+    - - :warning
+      - 'Line 8: Product not found, record ignored., BaseItemCode=1239-23A'
+    - - :warning
+      - 'Line 13: Product not found, record ignored., BaseItemCode=1239-40A'
+    - - :warning
+      - 'Line 16: Product not found, record ignored., BaseItemCode=1239-48A'
+    - - :warning
+      - 'Line 19: Product not found, record ignored., BaseItemCode=1239-76A'
+    - - :warning
+      - 'Line 24: Product not found, record ignored., BaseItemCode=1240-22A'
+    - - :warning
+      - 'Line 27: Product not found, record ignored., BaseItemCode=1240-23A'
+    - - :warning
+      - 'Line 32: Product not found, record ignored., BaseItemCode=1240-40A'
+    - - :warning
+      - 'Line 35: Product not found, record ignored., BaseItemCode=1240-48A'
+    - - :warning
+      - 'Line 38: Product not found, record ignored., BaseItemCode=1240-76A'
+    - - :warning
+      - 'Line 43: Product not found, record ignored., BaseItemCode=1241-22A'
+    - - :warning
+      - 'Line 46: Product not found, record ignored., BaseItemCode=1241-23A'
+    - - :warning
+      - 'Line 51: Product not found, record ignored., BaseItemCode=1241-40A'
+    - - :warning
+      - 'Line 54: Product not found, record ignored., BaseItemCode=1241-48A'
+    - - :warning
+      - 'Line 56: Product not found, record ignored., BaseItemCode=1241-48S'
+    - - :warning
+      - 'Line 58: Product not found, record ignored., BaseItemCode=1241-76A'
+    - - :warning
+      - 'Line 77: Product not found, record ignored., BaseItemCode=1243-22A'
+    - - :warning
+      - 'Line 80: Product not found, record ignored., BaseItemCode=1243-23A'
+    - - :warning
+      - 'Line 82: Product not found, record ignored., BaseItemCode=1243-23S'
+    - - :warning
+      - 'Line 86: Product not found, record ignored., BaseItemCode=1243-40A'
+    - - :warning
+      - 'Line 89: Product not found, record ignored., BaseItemCode=1243-48A'
+    - - :warning
+      - 'Line 92: Product not found, record ignored., BaseItemCode=1243-76A'
+    - - :warning
+      - 'Line 104: Product not found, record ignored., BaseItemCode=1558-48R'
+    - - :warning
+      - 'Line 133: Product not found, record ignored., BaseItemCode=1701U-76'
+    - - :warning
+      - 'Line 142: Product not found, record ignored., BaseItemCode=1702U-76'
+    - - :warning
+      - 'Line 151: Product not found, record ignored., BaseItemCode=1703U-76'
+    - - :warning
+      - 'Line 160: Product not found, record ignored., BaseItemCode=1704U-76'
+    - - :warning
+      - 'Line 173: Product not found, record ignored., BaseItemCode=1712-55'
+    - - :warning
+      - 'Line 174: Product not found, record ignored., BaseItemCode=1712U-76'
+    - - :warning
+      - 'Line 177: Product not found, record ignored., BaseItemCode=2124A'
+    - - :warning
+      - 'Line 179: Product not found, record ignored., BaseItemCode=2220A'
+    - - :warning
+      - 'Line 182: Product not found, record ignored., BaseItemCode=2224A'
+    - - :warning
+      - 'Line 193: Product not found, record ignored., BaseItemCode=2274A'
+    - - :warning
+      - 'Line 205: Product not found, record ignored., BaseItemCode=2642L-211O'
+    - - :warning
+      - 'Line 210: Product not found, record ignored., BaseItemCode=2990-40A'
+    - - :warning
+      - 'Line 213: Product not found, record ignored., BaseItemCode=2991-40A'
+    - - :warning
+      - 'Line 218: Product not found, record ignored., BaseItemCode=2994-40A'
+    - - :warning
+      - 'Line 221: Product not found, record ignored., BaseItemCode=2999-40A'
+    - - :warning
+      - 'Line 299: Product not found, record ignored., BaseItemCode=3608-40A'
+    - - :warning
+      - 'Line 560: Product not found, record ignored., BaseItemCode=5075-48S'
+    - - :warning
+      - 'Line 765: Product not found, record ignored., BaseItemCode=6816-40A'
+    - - :warning
+      - 'Line 834: Product not found, record ignored., BaseItemCode=AT1001N-23H'
+    - - :warning
+      - 'Line 1335: Product not found, record ignored., BaseItemCode=CM8326N-401A'
+    - - :warning
+      - 'Line 1337: Product not found, record ignored., BaseItemCode=CM8334N-401A'
+    - - :warning
+      - 'Line 1340: Product not found, record ignored., BaseItemCode=CM8519N-401A'
+    - - :warning
+      - 'Line 1452: Product not found, record ignored., BaseItemCode=MD1005N-51H'
+    - - :warning
+      - 'Line 1458: Product not found, record ignored., BaseItemCode=MD1006N-44H'
+    - - :warning
+      - 'Line 1509: Product not found, record ignored., BaseItemCode=RJ1003N-23H'
+    - - :warning
+      - 'Line 2419: Product not found, record ignored., BaseItemCode=SF-RCBT-WT'
+    - - :warning
+      - 'Line 2420: Product not found, record ignored., BaseItemCode=SF-WCBT-WT'
+    - - :warning
+      - 'Line 2421: Product not found, record ignored., BaseItemCode=SFCK-26'
+    - - :warning
+      - 'Line 2422: Product not found, record ignored., BaseItemCode=SFCK-51'
+    - - :warning
+      - 'Line 2423: Product not found, record ignored., BaseItemCode=SFDR-12-26'
+    - - :warning
+      - 'Line 2424: Product not found, record ignored., BaseItemCode=SFDR-12-51'
+    - - :warning
+      - 'Line 2425: Product not found, record ignored., BaseItemCode=SFDR-18-26'
+    - - :warning
+      - 'Line 2426: Product not found, record ignored., BaseItemCode=SFDR-18-51'
+    - - :warning
+      - 'Line 2427: Product not found, record ignored., BaseItemCode=SFDR-24-26'
+    - - :warning
+      - 'Line 2428: Product not found, record ignored., BaseItemCode=SFDR-24-51'
+    - - :warning
+      - 'Line 2429: Product not found, record ignored., BaseItemCode=SFDR-48-26'
+    - - :warning
+      - 'Line 2430: Product not found, record ignored., BaseItemCode=SFDR-48-51'
+    - - :warning
+      - 'Line 2431: Product not found, record ignored., BaseItemCode=SFDR-I-26'
+    - - :warning
+      - 'Line 2432: Product not found, record ignored., BaseItemCode=SFDR-I-51'
+    - - :warning
+      - 'Line 2438: Product not found, record ignored., BaseItemCode=SJ1012T24-RBL702R'
+    - - :warning
+      - 'Line 2439: Product not found, record ignored., BaseItemCode=SJ1012T24-RGO702R'
+    - - :warning
+      - 'Line 2440: Product not found, record ignored., BaseItemCode=SJ1012T24-RRE702R'
+    - - :warning
+      - 'Line 2456: Product not found, record ignored., BaseItemCode=SJ2310T24-RBL702R'
+    - - :warning
+      - 'Line 2457: Product not found, record ignored., BaseItemCode=SJ2310T24-RGO702R'
+    - - :warning
+      - 'Line 2458: Product not found, record ignored., BaseItemCode=SJ2310T24-RRE702R'
+    - - :warning
+      - 'Line 2473: Product not found, record ignored., BaseItemCode=SJ3611T24-RBL702R'
+    - - :warning
+      - 'Line 2474: Product not found, record ignored., BaseItemCode=SJ3611T24-RGO702R'
+    - - :warning
+      - 'Line 2475: Product not found, record ignored., BaseItemCode=SJ3611T24-RRE702R'
+    - - :warning
+      - 'Line 2506: Product not found, record ignored., BaseItemCode=SJ4914T24-RBL702R'
+    - - :warning
+      - 'Line 2507: Product not found, record ignored., BaseItemCode=SJ4914T24-RGO702R'
+    - - :warning
+      - 'Line 2508: Product not found, record ignored., BaseItemCode=SJ4914T24-RRE702R'
+    - - :warning
+      - 'Line 2594: Product not found, record ignored., BaseItemCode=SJ8813T24-RBL702R'
+    - - :warning
+      - 'Line 2595: Product not found, record ignored., BaseItemCode=SJ8813T24-RGO702R'
+    - - :warning
+      - 'Line 2596: Product not found, record ignored., BaseItemCode=SJ8813T24-RRE702R'
+    - - :warning
+      - 'Line 2783: Product not found, record ignored., BaseItemCode=WH-WS-WT'
+- - Customers
+  - - - :error
+      - 'Line 1359: error=Validation failed: Shipping state can''t be blank: Customer
+        # = 13172787'
+- - Sales Data
+  - - - :error
+      - 'Line 44: Base item code SFCK-26 does not match an active product'
+    - - :error
+      - 'Line 45: Base item code SFDR-24-26 does not match an active product'
+    - - :error
+      - 'Line 107: Base item code 5685-80R does not match an active product'
+    - - :error
+      - 'Line 247: Base item code 1712U-76 does not match an active product'
+    - - :error
+      - 'Line 350: BillToCode (03983000) is invalid.'
+    - - :error
+      - 'Line 369: Base item code 2642L-211O does not match an active product'
+    - - :error
+      - 'Line 383: BillToCode (04561000) is invalid.'
+    - - :error
+      - 'Line 384: BillToCode (04561000) is invalid.'
+    - - :error
+      - 'Line 385: BillToCode (04561000) is invalid.'
+    - - :error
+      - 'Line 823: BillToCode (09115000) is invalid.'
+    - - :error
+      - 'Line 824: BillToCode (09115000) is invalid.'
+    - - :error
+      - 'Line 825: BillToCode (09115000) is invalid.'
+    - - :error
+      - 'Line 826: BillToCode (09115000) is invalid.'
+    - - :error
+      - 'Line 827: BillToCode (09115000) is invalid.'
+    - - :error
+      - 'Line 828: BillToCode (09115000) is invalid.'
+    - - :error
+      - 'Line 829: BillToCode (09115000) is invalid.'
+    - - :error
+      - 'Line 830: BillToCode (09371000) is invalid.'
+    - - :error
+      - 'Line 894: Base item code SF-RCBT-WT does not match an active product'
+    - - :error
+      - 'Line 895: Base item code SF-WCBT-WT does not match an active product'
+    - - :error
+      - 'Line 938: Base item code 1239-40A does not match an active product'
+    - - :error
+      - 'Line 987: Base item code 2642L-211O does not match an active product'
+    - - :error
+      - 'Line 1212: Base item code 1238N-48A does not match an active product'
+    - - :error
+      - 'Line 1213: Base item code 1240-48A does not match an active product'
+    - - :error
+      - 'Line 1420: Base item code 1243-23A does not match an active product'
+    - - :error
+      - 'Line 1424: Base item code 1248-22A does not match an active product'
+    - - :error
+      - 'Line 1457: Base item code 2124A does not match an active product'
+    - - :error
+      - 'Line 1459: Base item code 2995-40A does not match an active product'
+    - - :error
+      - 'Line 1460: Base item code 2998-40A does not match an active product'
+    - - :error
+      - 'Line 1462: Base item code 3601-40A does not match an active product'
+    - - :error
+      - 'Line 1636: Base item code 1246-22A does not match an active product'
+    - - :error
+      - 'Line 1801: Base item code 1238N-22A does not match an active product'
+    - - :error
+      - 'Line 1806: Base item code 1239-76A does not match an active product'
+    - - :error
+      - 'Line 1810: Base item code 1240-48A does not match an active product'
+    - - :error
+      - 'Line 1812: Base item code 1241-22A does not match an active product'
+    - - :error
+      - 'Line 1815: Base item code 1241-48S does not match an active product'
+    - - :error
+      - 'Line 1823: Base item code 1243-22A does not match an active product'
+    - - :error
+      - 'Line 1825: Base item code 1243-23A does not match an active product'
+    - - :error
+      - 'Line 1912: Base item code 2998-40A does not match an active product'
+    - - :error
+      - 'Line 2057: Base item code CM8519N-401A does not match an active product'
+    - - :error
+      - 'Line 2255: Base item code SFDR-18-26 does not match an active product'
+    - - :error
+      - 'Line 2256: Base item code SFDR-24-26 does not match an active product'
+    - - :error
+      - 'Line 2268: BillToCode (13170513) is invalid.'
+    - - :error
+      - 'Line 2269: BillToCode (13170513) is invalid.'
+    - - :error
+      - 'Line 2331: BillToCode (13171071) is invalid.'
+    - - :error
+      - 'Line 2503: BillToCode (13171384) is invalid.'
+    - - :error
+      - 'Line 2504: BillToCode (13171384) is invalid.'
+    - - :error
+      - 'Line 2574: BillToCode (13171471) is invalid.'
+    - - :error
+      - 'Line 2727: BillToCode (13171732) is invalid.'
+    - - :error
+      - 'Line 2728: BillToCode (13171732) is invalid.'
+    - - :error
+      - 'Line 2757: Base item code CM8326N-401A does not match an active product'
+    - - :warning
+      - "-214 more rows with invalid products"
+ |
+| 2026-06-13T05:46:37.315559 | ---
+- - Inventory
+  - - - :warning
+      - 'Line 5: Product not found, record ignored., BaseItemCode=1239-22A'
+    - - :warning
+      - 'Line 8: Product not found, record ignored., BaseItemCode=1239-23A'
+    - - :warning
+      - 'Line 13: Product not found, record ignored., BaseItemCode=1239-40A'
+    - - :warning
+      - 'Line 16: Product not found, record ignored., BaseItemCode=1239-48A'
+    - - :warning
+      - 'Line 19: Product not found, record ignored., BaseItemCode=1239-76A'
+    - - :warning
+      - 'Line 24: Product not found, record ignored., BaseItemCode=1240-22A'
+    - - :warning
+      - 'Line 27: Product not found, record ignored., BaseItemCode=1240-23A'
+    - - :warning
+      - 'Line 32: Product not found, record ignored., BaseItemCode=1240-40A'
+    - - :warning
+      - 'Line 35: Product not found, record ignored., BaseItemCode=1240-48A'
+    - - :warning
+      - 'Line 38: Product not found, record ignored., BaseItemCode=1240-76A'
+    - - :warning
+      - 'Line 43: Product not found, record ignored., BaseItemCode=1241-22A'
+    - - :warning
+      - 'Line 46: Product not found, record ignored., BaseItemCode=1241-23A'
+    - - :warning
+      - 'Line 51: Product not found, record ignored., BaseItemCode=1241-40A'
+    - - :warning
+      - 'Line 54: Product not found, record ignored., BaseItemCode=1241-48A'
+    - - :warning
+      - 'Line 56: Product not found, record ignored., BaseItemCode=1241-48S'
+    - - :warning
+      - 'Line 58: Product not found, record ignored., BaseItemCode=1241-76A'
+    - - :warning
+      - 'Line 77: Product not found, record ignored., BaseItemCode=1243-22A'
+    - - :warning
+      - 'Line 80: Product not found, record ignored., BaseItemCode=1243-23A'
+    - - :warning
+      - 'Line 82: Product not found, record ignored., BaseItemCode=1243-23S'
+    - - :warning
+      - 'Line 86: Product not found, record ignored., BaseItemCode=1243-40A'
+    - - :warning
+      - 'Line 89: Product not found, record ignored., BaseItemCode=1243-48A'
+    - - :warning
+      - 'Line 92: Product not found, record ignored., BaseItemCode=1243-76A'
+    - - :warning
+      - 'Line 104: Product not found, record ignored., BaseItemCode=1558-48R'
+    - - :warning
+      - 'Line 133: Product not found, record ignored., BaseItemCode=1701U-76'
+    - - :warning
+      - 'Line 142: Product not found, record ignored., BaseItemCode=1702U-76'
+    - - :warning
+      - 'Line 151: Product not found, record ignored., BaseItemCode=1703U-76'
+    - - :warning
+      - 'Line 160: Product not found, record ignored., BaseItemCode=1704U-76'
+    - - :warning
+      - 'Line 173: Product not found, record ignored., BaseItemCode=1712-55'
+    - - :warning
+      - 'Line 174: Product not found, record ignored., BaseItemCode=1712U-76'
+    - - :warning
+      - 'Line 177: Product not found, record ignored., BaseItemCode=2124A'
+    - - :warning
+      - 'Line 179: Product not found, record ignored., BaseItemCode=2220A'
+    - - :warning
+      - 'Line 182: Product not found, record ignored., BaseItemCode=2224A'
+    - - :warning
+      - 'Line 193: Product not found, record ignored., BaseItemCode=2274A'
+    - - :warning
+      - 'Line 205: Product not found, record ignored., BaseItemCode=2642L-211O'
+    - - :warning
+      - 'Line 210: Product not found, record ignored., BaseItemCode=2990-40A'
+    - - :warning
+      - 'Line 213: Product not found, record ignored., BaseItemCode=2991-40A'
+    - - :warning
+      - 'Line 218: Product not found, record ignored., BaseItemCode=2994-40A'
+    - - :warning
+      - 'Line 221: Product not found, record ignored., BaseItemCode=2999-40A'
+    - - :warning
+      - 'Line 299: Product not found, record ignored., BaseItemCode=3608-40A'
+    - - :warning
+      - 'Line 560: Product not found, record ignored., BaseItemCode=5075-48S'
+    - - :warning
+      - 'Line 765: Product not found, record ignored., BaseItemCode=6816-40A'
+    - - :warning
+      - 'Line 834: Product not found, record ignored., BaseItemCode=AT1001N-23H'
+    - - :warning
+      - 'Line 1335: Product not found, record ignored., BaseItemCode=CM8326N-401A'
+    - - :warning
+      - 'Line 1337: Product not found, record ignored., BaseItemCode=CM8334N-401A'
+    - - :warning
+      - 'Line 1340: Product not found, record ignored., BaseItemCode=CM8519N-401A'
+    - - :warning
+      - 'Line 1452: Product not found, record ignored., BaseItemCode=MD1005N-51H'
+    - - :warning
+      - 'Line 1458: Product not found, record ignored., BaseItemCode=MD1006N-44H'
+    - - :warning
+      - 'Line 1509: Product not found, record ignored., BaseItemCode=RJ1003N-23H'
+    - - :warning
+      - 'Line 2419: Product not found, record ignored., BaseItemCode=SF-RCBT-WT'
+    - - :warning
+      - 'Line 2420: Product not found, record ignored., BaseItemCode=SF-WCBT-WT'
+    - - :warning
+      - 'Line 2421: Product not found, record ignored., BaseItemCode=SFCK-26'
+    - - :warning
+      - 'Line 2422: Product not found, record ignored., BaseItemCode=SFCK-51'
+    - - :warning
+      - 'Line 2423: Product not found, record ignored., BaseItemCode=SFDR-12-26'
+    - - :warning
+      - 'Line 2424: Product not found, record ignored., BaseItemCode=SFDR-12-51'
+    - - :warning
+      - 'Line 2425: Product not found, record ignored., BaseItemCode=SFDR-18-26'
+    - - :warning
+      - 'Line 2426: Product not found, record ignored., BaseItemCode=SFDR-18-51'
+    - - :warning
+      - 'Line 2427: Product not found, record ignored., BaseItemCode=SFDR-24-26'
+    - - :warning
+      - 'Line 2428: Product not found, record ignored., BaseItemCode=SFDR-24-51'
+    - - :warning
+      - 'Line 2429: Product not found, record ignored., BaseItemCode=SFDR-48-26'
+    - - :warning
+      - 'Line 2430: Product not found, record ignored., BaseItemCode=SFDR-48-51'
+    - - :warning
+      - 'Line 2431: Product not found, record ignored., BaseItemCode=SFDR-I-26'
+    - - :warning
+      - 'Line 2432: Product not found, record ignored., BaseItemCode=SFDR-I-51'
+    - - :warning
+      - 'Line 2438: Product not found, record ignored., BaseItemCode=SJ1012T24-RBL702R'
+    - - :warning
+      - 'Line 2439: Product not found, record ignored., BaseItemCode=SJ1012T24-RGO702R'
+    - - :warning
+      - 'Line 2440: Product not found, record ignored., BaseItemCode=SJ1012T24-RRE702R'
+    - - :warning
+      - 'Line 2456: Product not found, record ignored., BaseItemCode=SJ2310T24-RBL702R'
+    - - :warning
+      - 'Line 2457: Product not found, record ignored., BaseItemCode=SJ2310T24-RGO702R'
+    - - :warning
+      - 'Line 2458: Product not found, record ignored., BaseItemCode=SJ2310T24-RRE702R'
+    - - :warning
+      - 'Line 2473: Product not found, record ignored., BaseItemCode=SJ3611T24-RBL702R'
+    - - :warning
+      - 'Line 2474: Product not found, record ignored., BaseItemCode=SJ3611T24-RGO702R'
+    - - :warning
+      - 'Line 2475: Product not found, record ignored., BaseItemCode=SJ3611T24-RRE702R'
+    - - :warning
+      - 'Line 2506: Product not found, record ignored., BaseItemCode=SJ4914T24-RBL702R'
+    - - :warning
+      - 'Line 2507: Product not found, record ignored., BaseItemCode=SJ4914T24-RGO702R'
+    - - :warning
+      - 'Line 2508: Product not found, record ignored., BaseItemCode=SJ4914T24-RRE702R'
+    - - :warning
+      - 'Line 2594: Product not found, record ignored., BaseItemCode=SJ8813T24-RBL702R'
+    - - :warning
+      - 'Line 2595: Product not found, record ignored., BaseItemCode=SJ8813T24-RGO702R'
+    - - :warning
+      - 'Line 2596: Product not found, record ignored., BaseItemCode=SJ8813T24-RRE702R'
+    - - :warning
+      - 'Line 2783: Product not found, record ignored., BaseItemCode=WH-WS-WT'
+- - Customers
+  - - - :error
+      - 'Line 1359: error=Validation failed: Shipping state can''t be blank: Customer
+        # = 13172787'
+- - Sales Data
+  - - - :error
+      - 'Line 44: Base item code SFCK-26 does not match an active product'
+    - - :error
+      - 'Line 45: Base item code SFDR-24-26 does not match an active product'
+    - - :error
+      - 'Line 107: Base item code 5685-80R does not match an active product'
+    - - :error
+      - 'Line 247: Base item code 1712U-76 does not match an active product'
+    - - :error
+      - 'Line 350: BillToCode (03983000) is invalid.'
+    - - :error
+      - 'Line 369: Base item code 2642L-211O does not match an active product'
+    - - :error
+      - 'Line 383: BillToCode (04561000) is invalid.'
+    - - :error
+      - 'Line 384: BillToCode (04561000) is invalid.'
+    - - :error
+      - 'Line 385: BillToCode (04561000) is invalid.'
+    - - :error
+      - 'Line 825: BillToCode (09115000) is invalid.'
+    - - :error
+      - 'Line 826: BillToCode (09115000) is invalid.'
+    - - :error
+      - 'Line 827: BillToCode (09115000) is invalid.'
+    - - :error
+      - 'Line 828: BillToCode (09115000) is invalid.'
+    - - :error
+      - 'Line 829: BillToCode (09115000) is invalid.'
+    - - :error
+      - 'Line 830: BillToCode (09115000) is invalid.'
+    - - :error
+      - 'Line 831: BillToCode (09115000) is invalid.'
+    - - :error
+      - 'Line 832: BillToCode (09371000) is invalid.'
+    - - :error
+      - 'Line 896: Base item code SF-RCBT-WT does not match an active product'
+    - - :error
+      - 'Line 897: Base item code SF-WCBT-WT does not match an active product'
+    - - :error
+      - 'Line 940: Base item code 1239-40A does not match an active product'
+    - - :error
+      - 'Line 989: Base item code 2642L-211O does not match an active product'
+    - - :error
+      - 'Line 1214: Base item code 1238N-48A does not match an active product'
+    - - :error
+      - 'Line 1215: Base item code 1240-48A does not match an active product'
+    - - :error
+      - 'Line 1422: Base item code 1243-23A does not match an active product'
+    - - :error
+      - 'Line 1426: Base item code 1248-22A does not match an active product'
+    - - :error
+      - 'Line 1459: Base item code 2124A does not match an active product'
+    - - :error
+      - 'Line 1461: Base item code 2995-40A does not match an active product'
+    - - :error
+      - 'Line 1462: Base item code 2998-40A does not match an active product'
+    - - :error
+      - 'Line 1464: Base item code 3601-40A does not match an active product'
+    - - :error
+      - 'Line 1639: Base item code 1246-22A does not match an active product'
+    - - :error
+      - 'Line 1804: Base item code 1238N-22A does not match an active product'
+    - - :error
+      - 'Line 1809: Base item code 1239-76A does not match an active product'
+    - - :error
+      - 'Line 1813: Base item code 1240-48A does not match an active product'
+    - - :error
+      - 'Line 1815: Base item code 1241-22A does not match an active product'
+    - - :error
+      - 'Line 1818: Base item code 1241-48S does not match an active product'
+    - - :error
+      - 'Line 1826: Base item code 1243-22A does not match an active product'
+    - - :error
+      - 'Line 1828: Base item code 1243-23A does not match an active product'
+    - - :error
+      - 'Line 1915: Base item code 2998-40A does not match an active product'
+    - - :error
+      - 'Line 2061: Base item code CM8519N-401A does not match an active product'
+    - - :error
+      - 'Line 2259: Base item code SFDR-18-26 does not match an active product'
+    - - :error
+      - 'Line 2260: Base item code SFDR-24-26 does not match an active product'
+    - - :error
+      - 'Line 2272: BillToCode (13170513) is invalid.'
+    - - :error
+      - 'Line 2273: BillToCode (13170513) is invalid.'
+    - - :error
+      - 'Line 2335: BillToCode (13171071) is invalid.'
+    - - :error
+      - 'Line 2507: BillToCode (13171384) is invalid.'
+    - - :error
+      - 'Line 2508: BillToCode (13171384) is invalid.'
+    - - :error
+      - 'Line 2578: BillToCode (13171471) is invalid.'
+    - - :error
+      - 'Line 2731: BillToCode (13171732) is invalid.'
+    - - :error
+      - 'Line 2732: BillToCode (13171732) is invalid.'
+    - - :error
+      - 'Line 2761: Base item code CM8326N-401A does not match an active product'
+    - - :warning
+      - "-214 more rows with invalid products"
+ |
+| 2026-06-12T05:46:28.772038 | ---
+- - Inventory
+  - - - :warning
+      - 'Line 2: Product not found, record ignored., BaseItemCode=1239-22A'
+    - - :warning
+      - 'Line 3: Product not found, record ignored., BaseItemCode=1239-23A'
+    - - :warning
+      - 'Line 5: Product not found, record ignored., BaseItemCode=1239-40A'
+    - - :warning
+      - 'Line 7: Product not found, record ignored., BaseItemCode=1239-48A'
+    - - :warning
+      - 'Line 9: Product not found, record ignored., BaseItemCode=1239-76A'
+    - - :warning
+      - 'Line 11: Product not found, record ignored., BaseItemCode=1240-22A'
+    - - :warning
+      - 'Line 13: Product not found, record ignored., BaseItemCode=1240-23A'
+    - - :warning
+      - 'Line 14: Product not found, record ignored., BaseItemCode=1240-40A'
+    - - :warning
+      - 'Line 15: Product not found, record ignored., BaseItemCode=1240-48A'
+    - - :warning
+      - 'Line 16: Product not found, record ignored., BaseItemCode=1240-76A'
+    - - :warning
+      - 'Line 18: Product not found, record ignored., BaseItemCode=1241-22A'
+    - - :warning
+      - 'Line 20: Product not found, record ignored., BaseItemCode=1241-23A'
+    - - :warning
+      - 'Line 21: Product not found, record ignored., BaseItemCode=1241-40A'
+    - - :warning
+      - 'Line 22: Product not found, record ignored., BaseItemCode=1241-48A'
+    - - :warning
+      - 'Line 23: Product not found, record ignored., BaseItemCode=1241-48S'
+    - - :warning
+      - 'Line 24: Product not found, record ignored., BaseItemCode=1241-76A'
+    - - :warning
+      - 'Line 29: Product not found, record ignored., BaseItemCode=1243-22A'
+    - - :warning
+      - 'Line 30: Product not found, record ignored., BaseItemCode=1243-23A'
+    - - :warning
+      - 'Line 31: Product not found, record ignored., BaseItemCode=1243-23S'
+    - - :warning
+      - 'Line 32: Product not found, record ignored., BaseItemCode=1243-40A'
+    - - :warning
+      - 'Line 34: Product not found, record ignored., BaseItemCode=1243-48A'
+    - - :warning
+      - 'Line 35: Product not found, record ignored., BaseItemCode=1243-76A'
+    - - :warning
+      - 'Line 52: Product not found, record ignored., BaseItemCode=2124A'
+    - - :warning
+      - 'Line 53: Product not found, record ignored., BaseItemCode=2220A'
+    - - :warning
+      - 'Line 54: Product not found, record ignored., BaseItemCode=2224A'
+    - - :warning
+      - 'Line 55: Product not found, record ignored., BaseItemCode=2274A'
+    - - :warning
+      - 'Line 59: Product not found, record ignored., BaseItemCode=2990-40A'
+    - - :warning
+      - 'Line 60: Product not found, record ignored., BaseItemCode=2991-40A'
+    - - :warning
+      - 'Line 62: Product not found, record ignored., BaseItemCode=2994-40A'
+    - - :warning
+      - 'Line 64: Product not found, record ignored., BaseItemCode=2999-40A'
+    - - :warning
+      - 'Line 67: Product not found, record ignored., BaseItemCode=3608-40A'
+    - - :warning
+      - 'Line 96: Product not found, record ignored., BaseItemCode=5075-48S'
+    - - :warning
+      - 'Line 114: Product not found, record ignored., BaseItemCode=6816-40A'
+    - - :warning
+      - 'Line 394: Product not found, record ignored., BaseItemCode=CM8326N-401A'
+    - - :warning
+      - 'Line 395: Product not found, record ignored., BaseItemCode=CM8334N-401A'
+    - - :warning
+      - 'Line 396: Product not found, record ignored., BaseItemCode=CM8519N-401A'
+    - - :warning
+      - 'Line 658: Product not found, record ignored., BaseItemCode=SF-RCBT-WT'
+    - - :warning
+      - 'Line 659: Product not found, record ignored., BaseItemCode=SF-WCBT-WT'
+    - - :warning
+      - 'Line 660: Product not found, record ignored., BaseItemCode=SFCK-26'
+    - - :warning
+      - 'Line 661: Product not found, record ignored., BaseItemCode=SFCK-51'
+    - - :warning
+      - 'Line 662: Product not found, record ignored., BaseItemCode=SFDR-12-26'
+    - - :warning
+      - 'Line 663: Product not found, record ignored., BaseItemCode=SFDR-12-51'
+    - - :warning
+      - 'Line 664: Product not found, record ignored., BaseItemCode=SFDR-18-26'
+    - - :warning
+      - 'Line 665: Product not found, record ignored., BaseItemCode=SFDR-18-51'
+    - - :warning
+      - 'Line 666: Product not found, record ignored., BaseItemCode=SFDR-24-26'
+    - - :warning
+      - 'Line 667: Product not found, record ignored., BaseItemCode=SFDR-24-51'
+    - - :warning
+      - 'Line 668: Product not found, record ignored., BaseItemCode=SFDR-48-26'
+    - - :warning
+      - 'Line 669: Product not found, record ignored., BaseItemCode=SFDR-48-51'
+    - - :warning
+      - 'Line 670: Product not found, record ignored., BaseItemCode=SFDR-I-26'
+    - - :warning
+      - 'Line 671: Product not found, record ignored., BaseItemCode=SFDR-I-51'
+    - - :warning
+      - 'Line 718: Product not found, record ignored., BaseItemCode=WH-WS-WT'
+- - Customers
+  - - - :error
+      - 'Line 1359: error=Validation failed: Shipping state can''t be blank: Customer
+        # = 13172787'
+- - Sales Data
+  - - - :error
+      - 'Line 44: Base item code SFCK-26 does not match an active product'
+    - - :error
+      - 'Line 45: Base item code SFDR-24-26 does not match an active product'
+    - - :error
+      - 'Line 107: Base item code 5685-80R does not match an active product'
+    - - :error
+      - 'Line 247: Base item code 1712U-76 does not match an active product'
+    - - :error
+      - 'Line 351: BillToCode (03983000) is invalid.'
+    - - :error
+      - 'Line 370: Base item code 2642L-211O does not match an active product'
+    - - :error
+      - 'Line 384: BillToCode (04561000) is invalid.'
+    - - :error
+      - 'Line 385: BillToCode (04561000) is invalid.'
+    - - :error
+      - 'Line 386: BillToCode (04561000) is invalid.'
+    - - :error
+      - 'Line 825: BillToCode (09115000) is invalid.'
+    - - :error
+      - 'Line 826: BillToCode (09115000) is invalid.'
+    - - :error
+      - 'Line 827: BillToCode (09115000) is invalid.'
+    - - :error
+      - 'Line 828: BillToCode (09115000) is invalid.'
+    - - :error
+      - 'Line 829: BillToCode (09115000) is invalid.'
+    - - :error
+      - 'Line 830: BillToCode (09115000) is invalid.'
+    - - :error
+      - 'Line 831: BillToCode (09115000) is invalid.'
+    - - :error
+      - 'Line 832: BillToCode (09371000) is invalid.'
+    - - :error
+      - 'Line 896: Base item code SF-RCBT-WT does not match an active product'
+    - - :error
+      - 'Line 897: Base item code SF-WCBT-WT does not match an active product'
+    - - :error
+      - 'Line 940: Base item code 1239-40A does not match an active product'
+    - - :error
+      - 'Line 989: Base item code 2642L-211O does not match an active product'
+    - - :error
+      - 'Line 1217: Base item code 1238N-48A does not match an active product'
+    - - :error
+      - 'Line 1218: Base item code 1240-48A does not match an active product'
+    - - :error
+      - 'Line 1425: Base item code 1243-23A does not match an active product'
+    - - :error
+      - 'Line 1429: Base item code 1248-22A does not match an active product'
+    - - :error
+      - 'Line 1462: Base item code 2124A does not match an active product'
+    - - :error
+      - 'Line 1464: Base item code 2995-40A does not match an active product'
+    - - :error
+      - 'Line 1465: Base item code 2998-40A does not match an active product'
+    - - :error
+      - 'Line 1467: Base item code 3601-40A does not match an active product'
+    - - :error
+      - 'Line 1642: Base item code 1246-22A does not match an active product'
+    - - :error
+      - 'Line 1806: Base item code 1238N-22A does not match an active product'
+    - - :error
+      - 'Line 1811: Base item code 1239-76A does not match an active product'
+    - - :error
+      - 'Line 1815: Base item code 1240-48A does not match an active product'
+    - - :error
+      - 'Line 1817: Base item code 1241-22A does not match an active product'
+    - - :error
+      - 'Line 1820: Base item code 1241-48S does not match an active product'
+    - - :error
+      - 'Line 1828: Base item code 1243-22A does not match an active product'
+    - - :error
+      - 'Line 1830: Base item code 1243-23A does not match an active product'
+    - - :error
+      - 'Line 1917: Base item code 2998-40A does not match an active product'
+    - - :error
+      - 'Line 2063: Base item code CM8519N-401A does not match an active product'
+    - - :error
+      - 'Line 2261: Base item code SFDR-18-26 does not match an active product'
+    - - :error
+      - 'Line 2262: Base item code SFDR-24-26 does not match an active product'
+    - - :error
+      - 'Line 2274: BillToCode (13170513) is invalid.'
+    - - :error
+      - 'Line 2275: BillToCode (13170513) is invalid.'
+    - - :error
+      - 'Line 2337: BillToCode (13171071) is invalid.'
+    - - :error
+      - 'Line 2508: BillToCode (13171384) is invalid.'
+    - - :error
+      - 'Line 2509: BillToCode (13171384) is invalid.'
+    - - :error
+      - 'Line 2579: BillToCode (13171471) is invalid.'
+    - - :error
+      - 'Line 2731: BillToCode (13171732) is invalid.'
+    - - :error
+      - 'Line 2732: BillToCode (13171732) is invalid.'
+    - - :error
+      - 'Line 2761: Base item code CM8326N-401A does not match an active product'
+    - - :warning
+      - "-214 more rows with invalid products"
+ |
+| 2026-06-11T05:46:47.616670 | ---
+- - Inventory
+  - - - :warning
+      - 'Line 5: Product not found, record ignored., BaseItemCode=1239-22A'
+    - - :warning
+      - 'Line 8: Product not found, record ignored., BaseItemCode=1239-23A'
+    - - :warning
+      - 'Line 13: Product not found, record ignored., BaseItemCode=1239-40A'
+    - - :warning
+      - 'Line 16: Product not found, record ignored., BaseItemCode=1239-48A'
+    - - :warning
+      - 'Line 19: Product not found, record ignored., BaseItemCode=1239-76A'
+    - - :warning
+      - 'Line 24: Product not found, record ignored., BaseItemCode=1240-22A'
+    - - :warning
+      - 'Line 27: Product not found, record ignored., BaseItemCode=1240-23A'
+    - - :warning
+      - 'Line 32: Product not found, record ignored., BaseItemCode=1240-40A'
+    - - :warning
+      - 'Line 35: Product not found, record ignored., BaseItemCode=1240-48A'
+    - - :warning
+      - 'Line 38: Product not found, record ignored., BaseItemCode=1240-76A'
+    - - :warning
+      - 'Line 43: Product not found, record ignored., BaseItemCode=1241-22A'
+    - - :warning
+      - 'Line 46: Product not found, record ignored., BaseItemCode=1241-23A'
+    - - :warning
+      - 'Line 51: Product not found, record ignored., BaseItemCode=1241-40A'
+    - - :warning
+      - 'Line 54: Product not found, record ignored., BaseItemCode=1241-48A'
+    - - :warning
+      - 'Line 56: Product not found, record ignored., BaseItemCode=1241-48S'
+    - - :warning
+      - 'Line 58: Product not found, record ignored., BaseItemCode=1241-76A'
+    - - :warning
+      - 'Line 77: Product not found, record ignored., BaseItemCode=1243-22A'
+    - - :warning
+      - 'Line 80: Product not found, record ignored., BaseItemCode=1243-23A'
+    - - :warning
+      - 'Line 82: Product not found, record ignored., BaseItemCode=1243-23S'
+    - - :warning
+      - 'Line 86: Product not found, record ignored., BaseItemCode=1243-40A'
+    - - :warning
+      - 'Line 89: Product not found, record ignored., BaseItemCode=1243-48A'
+    - - :warning
+      - 'Line 92: Product not found, record ignored., BaseItemCode=1243-76A'
+    - - :warning
+      - 'Line 104: Product not found, record ignored., BaseItemCode=1558-48R'
+    - - :warning
+      - 'Line 133: Product not found, record ignored., BaseItemCode=1701U-76'
+    - - :warning
+      - 'Line 142: Product not found, record ignored., BaseItemCode=1702U-76'
+    - - :warning
+      - 'Line 151: Product not found, record ignored., BaseItemCode=1703U-76'
+    - - :warning
+      - 'Line 160: Product not found, record ignored., BaseItemCode=1704U-76'
+    - - :warning
+      - 'Line 173: Product not found, record ignored., BaseItemCode=1712-55'
+    - - :warning
+      - 'Line 174: Product not found, record ignored., BaseItemCode=1712U-76'
+    - - :warning
+      - 'Line 177: Product not found, record ignored., BaseItemCode=2124A'
+    - - :warning
+      - 'Line 179: Product not found, record ignored., BaseItemCode=2220A'
+    - - :warning
+      - 'Line 182: Product not found, record ignored., BaseItemCode=2224A'
+    - - :warning
+      - 'Line 193: Product not found, record ignored., BaseItemCode=2274A'
+    - - :warning
+      - 'Line 205: Product not found, record ignored., BaseItemCode=2642L-211O'
+    - - :warning
+      - 'Line 212: Product not found, record ignored., BaseItemCode=2990-40A'
+    - - :warning
+      - 'Line 217: Product not found, record ignored., BaseItemCode=2991-40A'
+    - - :warning
+      - 'Line 226: Product not found, record ignored., BaseItemCode=2994-40A'
+    - - :warning
+      - 'Line 231: Product not found, record ignored., BaseItemCode=2999-40A'
+    - - :warning
+      - 'Line 308: Product not found, record ignored., BaseItemCode=3608-40A'
+    - - :warning
+      - 'Line 571: Product not found, record ignored., BaseItemCode=5075-48S'
+    - - :warning
+      - 'Line 786: Product not found, record ignored., BaseItemCode=6816-40A'
+    - - :warning
+      - 'Line 853: Product not found, record ignored., BaseItemCode=AT1001N-23H'
+    - - :warning
+      - 'Line 1358: Product not found, record ignored., BaseItemCode=CM8326N-401A'
+    - - :warning
+      - 'Line 1360: Product not found, record ignored., BaseItemCode=CM8334N-401A'
+    - - :warning
+      - 'Line 1363: Product not found, record ignored., BaseItemCode=CM8519N-401A'
+    - - :warning
+      - 'Line 1475: Product not found, record ignored., BaseItemCode=MD1005N-51H'
+    - - :warning
+      - 'Line 1481: Product not found, record ignored., BaseItemCode=MD1006N-44H'
+    - - :warning
+      - 'Line 1526: Product not found, record ignored., BaseItemCode=RJ1003N-23H'
+    - - :warning
+      - 'Line 2435: Product not found, record ignored., BaseItemCode=SF-RCBT-WT'
+    - - :warning
+      - 'Line 2436: Product not found, record ignored., BaseItemCode=SF-WCBT-WT'
+    - - :warning
+      - 'Line 2437: Product not found, record ignored., BaseItemCode=SFCK-26'
+    - - :warning
+      - 'Line 2438: Product not found, record ignored., BaseItemCode=SFCK-51'
+    - - :warning
+      - 'Line 2439: Product not found, record ignored., BaseItemCode=SFDR-12-26'
+    - - :warning
+      - 'Line 2440: Product not found, record ignored., BaseItemCode=SFDR-12-51'
+    - - :warning
+      - 'Line 2441: Product not found, record ignored., BaseItemCode=SFDR-18-26'
+    - - :warning
+      - 'Line 2442: Product not found, record ignored., BaseItemCode=SFDR-18-51'
+    - - :warning
+      - 'Line 2443: Product not found, record ignored., BaseItemCode=SFDR-24-26'
+    - - :warning
+      - 'Line 2444: Product not found, record ignored., BaseItemCode=SFDR-24-51'
+    - - :warning
+      - 'Line 2445: Product not found, record ignored., BaseItemCode=SFDR-48-26'
+    - - :warning
+      - 'Line 2446: Product not found, record ignored., BaseItemCode=SFDR-48-51'
+    - - :warning
+      - 'Line 2447: Product not found, record ignored., BaseItemCode=SFDR-I-26'
+    - - :warning
+      - 'Line 2448: Product not found, record ignored., BaseItemCode=SFDR-I-51'
+    - - :warning
+      - 'Line 2454: Product not found, record ignored., BaseItemCode=SJ1012T24-RBL702R'
+    - - :warning
+      - 'Line 2455: Product not found, record ignored., BaseItemCode=SJ1012T24-RGO702R'
+    - - :warning
+      - 'Line 2456: Product not found, record ignored., BaseItemCode=SJ1012T24-RRE702R'
+    - - :warning
+      - 'Line 2469: Product not found, record ignored., BaseItemCode=SJ2310T24-RBL702R'
+    - - :warning
+      - 'Line 2470: Product not found, record ignored., BaseItemCode=SJ2310T24-RGO702R'
+    - - :warning
+      - 'Line 2471: Product not found, record ignored., BaseItemCode=SJ2310T24-RRE702R'
+    - - :warning
+      - 'Line 2486: Product not found, record ignored., BaseItemCode=SJ3611T24-RBL702R'
+    - - :warning
+      - 'Line 2487: Product not found, record ignored., BaseItemCode=SJ3611T24-RGO702R'
+    - - :warning
+      - 'Line 2488: Product not found, record ignored., BaseItemCode=SJ3611T24-RRE702R'
+    - - :warning
+      - 'Line 2519: Product not found, record ignored., BaseItemCode=SJ4914T24-RBL702R'
+    - - :warning
+      - 'Line 2520: Product not found, record ignored., BaseItemCode=SJ4914T24-RGO702R'
+    - - :warning
+      - 'Line 2521: Product not found, record ignored., BaseItemCode=SJ4914T24-RRE702R'
+    - - :warning
+      - 'Line 2607: Product not found, record ignored., BaseItemCode=SJ8813T24-RBL702R'
+    - - :warning
+      - 'Line 2608: Product not found, record ignored., BaseItemCode=SJ8813T24-RGO702R'
+    - - :warning
+      - 'Line 2609: Product not found, record ignored., BaseItemCode=SJ8813T24-RRE702R'
+    - - :warning
+      - 'Line 2806: Product not found, record ignored., BaseItemCode=WH-WS-WT'
+- - Customers
+  - - - :error
+      - 'Line 1359: error=Validation failed: Shipping state can''t be blank: Customer
+        # = 13172787'
+- - Sales Data
+  - - - :error
+      - 'Line 44: Base item code SFCK-26 does not match an active product'
+    - - :error
+      - 'Line 45: Base item code SFDR-24-26 does not match an active product'
+    - - :error
+      - 'Line 107: Base item code 5685-80R does not match an active product'
+    - - :error
+      - 'Line 247: Base item code 1712U-76 does not match an active product'
+    - - :error
+      - 'Line 352: BillToCode (03983000) is invalid.'
+    - - :error
+      - 'Line 371: Base item code 2642L-211O does not match an active product'
+    - - :error
+      - 'Line 385: BillToCode (04561000) is invalid.'
+    - - :error
+      - 'Line 386: BillToCode (04561000) is invalid.'
+    - - :error
+      - 'Line 387: BillToCode (04561000) is invalid.'
+    - - :error
+      - 'Line 826: BillToCode (09115000) is invalid.'
+    - - :error
+      - 'Line 827: BillToCode (09115000) is invalid.'
+    - - :error
+      - 'Line 828: BillToCode (09115000) is invalid.'
+    - - :error
+      - 'Line 829: BillToCode (09115000) is invalid.'
+    - - :error
+      - 'Line 830: BillToCode (09115000) is invalid.'
+    - - :error
+      - 'Line 831: BillToCode (09115000) is invalid.'
+    - - :error
+      - 'Line 832: BillToCode (09115000) is invalid.'
+    - - :error
+      - 'Line 833: BillToCode (09371000) is invalid.'
+    - - :error
+      - 'Line 897: Base item code SF-RCBT-WT does not match an active product'
+    - - :error
+      - 'Line 898: Base item code SF-WCBT-WT does not match an active product'
+    - - :error
+      - 'Line 941: Base item code 1239-40A does not match an active product'
+    - - :error
+      - 'Line 990: Base item code 2642L-211O does not match an active product'
+    - - :error
+      - 'Line 1218: Base item code 1238N-48A does not match an active product'
+    - - :error
+      - 'Line 1219: Base item code 1240-48A does not match an active product'
+    - - :error
+      - 'Line 1426: Base item code 1243-23A does not match an active product'
+    - - :error
+      - 'Line 1430: Base item code 1248-22A does not match an active product'
+    - - :error
+      - 'Line 1463: Base item code 2124A does not match an active product'
+    - - :error
+      - 'Line 1465: Base item code 2995-40A does not match an active product'
+    - - :error
+      - 'Line 1466: Base item code 2998-40A does not match an active product'
+    - - :error
+      - 'Line 1468: Base item code 3601-40A does not match an active product'
+    - - :error
+      - 'Line 1642: Base item code 1246-22A does not match an active product'
+    - - :error
+      - 'Line 1806: Base item code 1238N-22A does not match an active product'
+    - - :error
+      - 'Line 1811: Base item code 1239-76A does not match an active product'
+    - - :error
+      - 'Line 1815: Base item code 1240-48A does not match an active product'
+    - - :error
+      - 'Line 1817: Base item code 1241-22A does not match an active product'
+    - - :error
+      - 'Line 1820: Base item code 1241-48S does not match an active product'
+    - - :error
+      - 'Line 1828: Base item code 1243-22A does not match an active product'
+    - - :error
+      - 'Line 1830: Base item code 1243-23A does not match an active product'
+    - - :error
+      - 'Line 1917: Base item code 2998-40A does not match an active product'
+    - - :error
+      - 'Line 2063: Base item code CM8519N-401A does not match an active product'
+    - - :error
+      - 'Line 2261: Base item code SFDR-18-26 does not match an active product'
+    - - :error
+      - 'Line 2262: Base item code SFDR-24-26 does not match an active product'
+    - - :error
+      - 'Line 2274: BillToCode (13170513) is invalid.'
+    - - :error
+      - 'Line 2275: BillToCode (13170513) is invalid.'
+    - - :error
+      - 'Line 2337: BillToCode (13171071) is invalid.'
+    - - :error
+      - 'Line 2500: BillToCode (13171384) is invalid.'
+    - - :error
+      - 'Line 2501: BillToCode (13171384) is invalid.'
+    - - :error
+      - 'Line 2571: BillToCode (13171471) is invalid.'
+    - - :error
+      - 'Line 2724: BillToCode (13171732) is invalid.'
+    - - :error
+      - 'Line 2725: BillToCode (13171732) is invalid.'
+    - - :error
+      - 'Line 2754: Base item code CM8326N-401A does not match an active product'
+    - - :warning
+      - "-215 more rows with invalid products"
+ |
+| 2026-06-10T05:46:40.504512 | ---
+- - Inventory
+  - - - :warning
+      - 'Line 5: Product not found, record ignored., BaseItemCode=1239-22A'
+    - - :warning
+      - 'Line 8: Product not found, record ignored., BaseItemCode=1239-23A'
+    - - :warning
+      - 'Line 13: Product not found, record ignored., BaseItemCode=1239-40A'
+    - - :warning
+      - 'Line 16: Product not found, record ignored., BaseItemCode=1239-48A'
+    - - :warning
+      - 'Line 19: Product not found, record ignored., BaseItemCode=1239-76A'
+    - - :warning
+      - 'Line 24: Product not found, record ignored., BaseItemCode=1240-22A'
+    - - :warning
+      - 'Line 27: Product not found, record ignored., BaseItemCode=1240-23A'
+    - - :warning
+      - 'Line 32: Product not found, record ignored., BaseItemCode=1240-40A'
+    - - :warning
+      - 'Line 35: Product not found, record ignored., BaseItemCode=1240-48A'
+    - - :warning
+      - 'Line 38: Product not found, record ignored., BaseItemCode=1240-76A'
+    - - :warning
+      - 'Line 41: Product not found, record ignored., BaseItemCode=1241-22A'
+    - - :warning
+      - 'Line 45: Product not found, record ignored., BaseItemCode=1241-48A'
+    - - :warning
+      - 'Line 47: Product not found, record ignored., BaseItemCode=1241-48S'
+    - - :warning
+      - 'Line 49: Product not found, record ignored., BaseItemCode=1241-76A'
+    - - :warning
+      - 'Line 67: Product not found, record ignored., BaseItemCode=1243-22A'
+    - - :warning
+      - 'Line 69: Product not found, record ignored., BaseItemCode=1243-23S'
+    - - :warning
+      - 'Line 71: Product not found, record ignored., BaseItemCode=1243-48A'
+    - - :warning
+      - 'Line 74: Product not found, record ignored., BaseItemCode=1243-76A'
+    - - :warning
+      - 'Line 83: Product not found, record ignored., BaseItemCode=1558-48R'
+    - - :warning
+      - 'Line 112: Product not found, record ignored., BaseItemCode=1701U-76'
+    - - :warning
+      - 'Line 121: Product not found, record ignored., BaseItemCode=1702U-76'
+    - - :warning
+      - 'Line 130: Product not found, record ignored., BaseItemCode=1703U-76'
+    - - :warning
+      - 'Line 134: Product not found, record ignored., BaseItemCode=1704U-76'
+    - - :warning
+      - 'Line 143: Product not found, record ignored., BaseItemCode=1712U-76'
+    - - :warning
+      - 'Line 146: Product not found, record ignored., BaseItemCode=2124A'
+    - - :warning
+      - 'Line 148: Product not found, record ignored., BaseItemCode=2220A'
+    - - :warning
+      - 'Line 151: Product not found, record ignored., BaseItemCode=2224A'
+    - - :warning
+      - 'Line 162: Product not found, record ignored., BaseItemCode=2274A'
+    - - :warning
+      - 'Line 176: Product not found, record ignored., BaseItemCode=2990-40A'
+    - - :warning
+      - 'Line 181: Product not found, record ignored., BaseItemCode=2991-40A'
+    - - :warning
+      - 'Line 213: Product not found, record ignored., BaseItemCode=3608-40A'
+    - - :warning
+      - 'Line 389: Product not found, record ignored., BaseItemCode=5075-48S'
+    - - :warning
+      - 'Line 580: Product not found, record ignored., BaseItemCode=6816-40A'
+    - - :warning
+      - 'Line 645: Product not found, record ignored., BaseItemCode=AT1001N-23H'
+    - - :warning
+      - 'Line 1141: Product not found, record ignored., BaseItemCode=CM8326N-401A'
+    - - :warning
+      - 'Line 1143: Product not found, record ignored., BaseItemCode=CM8334N-401A'
+    - - :warning
+      - 'Line 1146: Product not found, record ignored., BaseItemCode=CM8519N-401A'
+    - - :warning
+      - 'Line 1251: Product not found, record ignored., BaseItemCode=MD1005N-51H'
+    - - :warning
+      - 'Line 2117: Product not found, record ignored., BaseItemCode=SF-RCBT-WT'
+    - - :warning
+      - 'Line 2118: Product not found, record ignored., BaseItemCode=SF-WCBT-WT'
+    - - :warning
+      - 'Line 2119: Product not found, record ignored., BaseItemCode=SFCK-26'
+    - - :warning
+      - 'Line 2120: Product not found, record ignored., BaseItemCode=SFCK-51'
+    - - :warning
+      - 'Line 2121: Product not found, record ignored., BaseItemCode=SFDR-12-26'
+    - - :warning
+      - 'Line 2122: Product not found, record ignored., BaseItemCode=SFDR-12-51'
+    - - :warning
+      - 'Line 2123: Product not found, record ignored., BaseItemCode=SFDR-18-26'
+    - - :warning
+      - 'Line 2124: Product not found, record ignored., BaseItemCode=SFDR-18-51'
+    - - :warning
+      - 'Line 2125: Product not found, record ignored., BaseItemCode=SFDR-24-26'
+    - - :warning
+      - 'Line 2126: Product not found, record ignored., BaseItemCode=SFDR-24-51'
+    - - :warning
+      - 'Line 2127: Product not found, record ignored., BaseItemCode=SFDR-48-26'
+    - - :warning
+      - 'Line 2128: Product not found, record ignored., BaseItemCode=SFDR-48-51'
+    - - :warning
+      - 'Line 2129: Product not found, record ignored., BaseItemCode=SFDR-I-26'
+    - - :warning
+      - 'Line 2130: Product not found, record ignored., BaseItemCode=SFDR-I-51'
+    - - :warning
+      - 'Line 2136: Product not found, record ignored., BaseItemCode=SJ1012T24-RBL702R'
+    - - :warning
+      - 'Line 2137: Product not found, record ignored., BaseItemCode=SJ1012T24-RGO702R'
+    - - :warning
+      - 'Line 2138: Product not found, record ignored., BaseItemCode=SJ1012T24-RRE702R'
+    - - :warning
+      - 'Line 2151: Product not found, record ignored., BaseItemCode=SJ2310T24-RBL702R'
+    - - :warning
+      - 'Line 2152: Product not found, record ignored., BaseItemCode=SJ2310T24-RGO702R'
+    - - :warning
+      - 'Line 2153: Product not found, record ignored., BaseItemCode=SJ2310T24-RRE702R'
+    - - :warning
+      - 'Line 2168: Product not found, record ignored., BaseItemCode=SJ3611T24-RBL702R'
+    - - :warning
+      - 'Line 2169: Product not found, record ignored., BaseItemCode=SJ3611T24-RGO702R'
+    - - :warning
+      - 'Line 2170: Product not found, record ignored., BaseItemCode=SJ3611T24-RRE702R'
+    - - :warning
+      - 'Line 2201: Product not found, record ignored., BaseItemCode=SJ4914T24-RBL702R'
+    - - :warning
+      - 'Line 2202: Product not found, record ignored., BaseItemCode=SJ4914T24-RGO702R'
+    - - :warning
+      - 'Line 2203: Product not found, record ignored., BaseItemCode=SJ4914T24-RRE702R'
+    - - :warning
+      - 'Line 2283: Product not found, record ignored., BaseItemCode=SJ8813T24-RBL702R'
+    - - :warning
+      - 'Line 2284: Product not found, record ignored., BaseItemCode=SJ8813T24-RGO702R'
+    - - :warning
+      - 'Line 2285: Product not found, record ignored., BaseItemCode=SJ8813T24-RRE702R'
+    - - :warning
+      - 'Line 2452: Product not found, record ignored., BaseItemCode=WH-WS-WT'
+- - Customers
+  - - - :error
+      - 'Line 1359: error=Validation failed: Shipping state can''t be blank: Customer
+        # = 13172787'
+- - Sales Data
+  - - - :error
+      - 'Line 42: Base item code SFCK-26 does not match an active product'
+    - - :error
+      - 'Line 43: Base item code SFDR-24-26 does not match an active product'
+    - - :error
+      - 'Line 105: Base item code 5685-80R does not match an active product'
+    - - :error
+      - 'Line 245: Base item code 1712U-76 does not match an active product'
+    - - :error
+      - 'Line 349: BillToCode (03983000) is invalid.'
+    - - :error
+      - 'Line 368: Base item code 2642L-211O does not match an active product'
+    - - :error
+      - 'Line 382: BillToCode (04561000) is invalid.'
+    - - :error
+      - 'Line 383: BillToCode (04561000) is invalid.'
+    - - :error
+      - 'Line 384: BillToCode (04561000) is invalid.'
+    - - :error
+      - 'Line 822: BillToCode (09115000) is invalid.'
+    - - :error
+      - 'Line 823: BillToCode (09115000) is invalid.'
+    - - :error
+      - 'Line 824: BillToCode (09115000) is invalid.'
+    - - :error
+      - 'Line 825: BillToCode (09115000) is invalid.'
+    - - :error
+      - 'Line 826: BillToCode (09115000) is invalid.'
+    - - :error
+      - 'Line 827: BillToCode (09115000) is invalid.'
+    - - :error
+      - 'Line 828: BillToCode (09115000) is invalid.'
+    - - :error
+      - 'Line 829: BillToCode (09371000) is invalid.'
+    - - :error
+      - 'Line 893: Base item code SF-RCBT-WT does not match an active product'
+    - - :error
+      - 'Line 894: Base item code SF-WCBT-WT does not match an active product'
+    - - :error
+      - 'Line 937: Base item code 1239-40A does not match an active product'
+    - - :error
+      - 'Line 986: Base item code 2642L-211O does not match an active product'
+    - - :error
+      - 'Line 1213: Base item code 1238N-48A does not match an active product'
+    - - :error
+      - 'Line 1214: Base item code 1240-48A does not match an active product'
+    - - :error
+      - 'Line 1423: Base item code 1243-23A does not match an active product'
+    - - :error
+      - 'Line 1427: Base item code 1248-22A does not match an active product'
+    - - :error
+      - 'Line 1460: Base item code 2124A does not match an active product'
+    - - :error
+      - 'Line 1462: Base item code 2995-40A does not match an active product'
+    - - :error
+      - 'Line 1463: Base item code 2998-40A does not match an active product'
+    - - :error
+      - 'Line 1465: Base item code 3601-40A does not match an active product'
+    - - :error
+      - 'Line 1639: Base item code 1246-22A does not match an active product'
+    - - :error
+      - 'Line 1803: Base item code 1238N-22A does not match an active product'
+    - - :error
+      - 'Line 1808: Base item code 1239-76A does not match an active product'
+    - - :error
+      - 'Line 1812: Base item code 1240-48A does not match an active product'
+    - - :error
+      - 'Line 1814: Base item code 1241-22A does not match an active product'
+    - - :error
+      - 'Line 1817: Base item code 1241-48S does not match an active product'
+    - - :error
+      - 'Line 1825: Base item code 1243-22A does not match an active product'
+    - - :error
+      - 'Line 1827: Base item code 1243-23A does not match an active product'
+    - - :error
+      - 'Line 1913: Base item code 2998-40A does not match an active product'
+    - - :error
+      - 'Line 2059: Base item code CM8519N-401A does not match an active product'
+    - - :error
+      - 'Line 2257: Base item code SFDR-18-26 does not match an active product'
+    - - :error
+      - 'Line 2258: Base item code SFDR-24-26 does not match an active product'
+    - - :error
+      - 'Line 2270: BillToCode (13170513) is invalid.'
+    - - :error
+      - 'Line 2271: BillToCode (13170513) is invalid.'
+    - - :error
+      - 'Line 2333: BillToCode (13171071) is invalid.'
+    - - :error
+      - 'Line 2496: BillToCode (13171384) is invalid.'
+    - - :error
+      - 'Line 2497: BillToCode (13171384) is invalid.'
+    - - :error
+      - 'Line 2567: BillToCode (13171471) is invalid.'
+    - - :error
+      - 'Line 2720: BillToCode (13171732) is invalid.'
+    - - :error
+      - 'Line 2721: BillToCode (13171732) is invalid.'
+    - - :error
+      - 'Line 2750: Base item code CM8326N-401A does not match an active product'
+    - - :warning
+      - "-216 more rows with invalid products"
+ |
+| 2026-06-09T05:47:37.941908 | ---
+- - Inventory
+  - - - :warning
+      - 'Line 5: Product not found, record ignored., BaseItemCode=1239-22A'
+    - - :warning
+      - 'Line 8: Product not found, record ignored., BaseItemCode=1239-23A'
+    - - :warning
+      - 'Line 13: Product not found, record ignored., BaseItemCode=1239-40A'
+    - - :warning
+      - 'Line 16: Product not found, record ignored., BaseItemCode=1239-48A'
+    - - :warning
+      - 'Line 19: Product not found, record ignored., BaseItemCode=1239-76A'
+    - - :warning
+      - 'Line 24: Product not found, record ignored., BaseItemCode=1240-22A'
+    - - :warning
+      - 'Line 27: Product not found, record ignored., BaseItemCode=1240-23A'
+    - - :warning
+      - 'Line 32: Product not found, record ignored., BaseItemCode=1240-40A'
+    - - :warning
+      - 'Line 35: Product not found, record ignored., BaseItemCode=1240-48A'
+    - - :warning
+      - 'Line 38: Product not found, record ignored., BaseItemCode=1240-76A'
+    - - :warning
+      - 'Line 41: Product not found, record ignored., BaseItemCode=1241-22A'
+    - - :warning
+      - 'Line 45: Product not found, record ignored., BaseItemCode=1241-48A'
+    - - :warning
+      - 'Line 48: Product not found, record ignored., BaseItemCode=1241-76A'
+    - - :warning
+      - 'Line 66: Product not found, record ignored., BaseItemCode=1243-22A'
+    - - :warning
+      - 'Line 69: Product not found, record ignored., BaseItemCode=1243-48A'
+    - - :warning
+      - 'Line 72: Product not found, record ignored., BaseItemCode=1243-76A'
+    - - :warning
+      - 'Line 81: Product not found, record ignored., BaseItemCode=1558-48R'
+    - - :warning
+      - 'Line 110: Product not found, record ignored., BaseItemCode=1701U-76'
+    - - :warning
+      - 'Line 119: Product not found, record ignored., BaseItemCode=1702U-76'
+    - - :warning
+      - 'Line 128: Product not found, record ignored., BaseItemCode=1703U-76'
+    - - :warning
+      - 'Line 133: Product not found, record ignored., BaseItemCode=1704U-76'
+    - - :warning
+      - 'Line 142: Product not found, record ignored., BaseItemCode=1712U-76'
+    - - :warning
+      - 'Line 145: Product not found, record ignored., BaseItemCode=2124A'
+    - - :warning
+      - 'Line 147: Product not found, record ignored., BaseItemCode=2220A'
+    - - :warning
+      - 'Line 150: Product not found, record ignored., BaseItemCode=2224A'
+    - - :warning
+      - 'Line 161: Product not found, record ignored., BaseItemCode=2274A'
+    - - :warning
+      - 'Line 175: Product not found, record ignored., BaseItemCode=2990-40A'
+    - - :warning
+      - 'Line 180: Product not found, record ignored., BaseItemCode=2991-40A'
+    - - :warning
+      - 'Line 212: Product not found, record ignored., BaseItemCode=3608-40A'
+    - - :warning
+      - 'Line 642: Product not found, record ignored., BaseItemCode=AT1001N-23H'
+    - - :warning
+      - 'Line 1111: Product not found, record ignored., BaseItemCode=CM8326N-401A'
+    - - :warning
+      - 'Line 1113: Product not found, record ignored., BaseItemCode=CM8334N-401A'
+    - - :warning
+      - 'Line 1116: Product not found, record ignored., BaseItemCode=CM8519N-401A'
+    - - :warning
+      - 'Line 1221: Product not found, record ignored., BaseItemCode=MD1005N-51H'
+    - - :warning
+      - 'Line 2087: Product not found, record ignored., BaseItemCode=SF-RCBT-WT'
+    - - :warning
+      - 'Line 2088: Product not found, record ignored., BaseItemCode=SF-WCBT-WT'
+    - - :warning
+      - 'Line 2089: Product not found, record ignored., BaseItemCode=SFCK-26'
+    - - :warning
+      - 'Line 2090: Product not found, record ignored., BaseItemCode=SFCK-51'
+    - - :warning
+      - 'Line 2091: Product not found, record ignored., BaseItemCode=SFDR-12-26'
+    - - :warning
+      - 'Line 2092: Product not found, record ignored., BaseItemCode=SFDR-12-51'
+    - - :warning
+      - 'Line 2093: Product not found, record ignored., BaseItemCode=SFDR-18-26'
+    - - :warning
+      - 'Line 2094: Product not found, record ignored., BaseItemCode=SFDR-18-51'
+    - - :warning
+      - 'Line 2095: Product not found, record ignored., BaseItemCode=SFDR-24-26'
+    - - :warning
+      - 'Line 2096: Product not found, record ignored., BaseItemCode=SFDR-24-51'
+    - - :warning
+      - 'Line 2097: Product not found, record ignored., BaseItemCode=SFDR-48-26'
+    - - :warning
+      - 'Line 2098: Product not found, record ignored., BaseItemCode=SFDR-48-51'
+    - - :warning
+      - 'Line 2099: Product not found, record ignored., BaseItemCode=SFDR-I-26'
+    - - :warning
+      - 'Line 2100: Product not found, record ignored., BaseItemCode=SFDR-I-51'
+    - - :warning
+      - 'Line 2106: Product not found, record ignored., BaseItemCode=SJ1012T24-RBL702R'
+    - - :warning
+      - 'Line 2107: Product not found, record ignored., BaseItemCode=SJ1012T24-RGO702R'
+    - - :warning
+      - 'Line 2108: Product not found, record ignored., BaseItemCode=SJ1012T24-RRE702R'
+    - - :warning
+      - 'Line 2122: Product not found, record ignored., BaseItemCode=SJ2310T24-RBL702R'
+    - - :warning
+      - 'Line 2123: Product not found, record ignored., BaseItemCode=SJ2310T24-RGO702R'
+    - - :warning
+      - 'Line 2124: Product not found, record ignored., BaseItemCode=SJ2310T24-RRE702R'
+    - - :warning
+      - 'Line 2139: Product not found, record ignored., BaseItemCode=SJ3611T24-RBL702R'
+    - - :warning
+      - 'Line 2140: Product not found, record ignored., BaseItemCode=SJ3611T24-RGO702R'
+    - - :warning
+      - 'Line 2141: Product not found, record ignored., BaseItemCode=SJ3611T24-RRE702R'
+    - - :warning
+      - 'Line 2172: Product not found, record ignored., BaseItemCode=SJ4914T24-RBL702R'
+    - - :warning
+      - 'Line 2173: Product not found, record ignored., BaseItemCode=SJ4914T24-RGO702R'
+    - - :warning
+      - 'Line 2174: Product not found, record ignored., BaseItemCode=SJ4914T24-RRE702R'
+    - - :warning
+      - 'Line 2254: Product not found, record ignored., BaseItemCode=SJ8813T24-RBL702R'
+    - - :warning
+      - 'Line 2255: Product not found, record ignored., BaseItemCode=SJ8813T24-RGO702R'
+    - - :warning
+      - 'Line 2256: Product not found, record ignored., BaseItemCode=SJ8813T24-RRE702R'
+    - - :warning
+      - 'Line 2423: Product not found, record ignored., BaseItemCode=WH-WS-WT'
+- - Customers
+  - - - :error
+      - 'Line 1359: error=Validation failed: Shipping state can''t be blank: Customer
+        # = 13172787'
+- - Sales Data
+  - - - :error
+      - 'Line 42: Base item code SFCK-26 does not match an active product'
+    - - :error
+      - 'Line 43: Base item code SFDR-24-26 does not match an active product'
+    - - :error
+      - 'Line 105: Base item code 5685-80R does not match an active product'
+    - - :error
+      - 'Line 244: Base item code 1712U-76 does not match an active product'
+    - - :error
+      - 'Line 349: BillToCode (03983000) is invalid.'
+    - - :error
+      - 'Line 368: Base item code 2642L-211O does not match an active product'
+    - - :error
+      - 'Line 382: BillToCode (04561000) is invalid.'
+    - - :error
+      - 'Line 383: BillToCode (04561000) is invalid.'
+    - - :error
+      - 'Line 384: BillToCode (04561000) is invalid.'
+    - - :error
+      - 'Line 821: BillToCode (09115000) is invalid.'
+    - - :error
+      - 'Line 822: BillToCode (09115000) is invalid.'
+    - - :error
+      - 'Line 823: BillToCode (09115000) is invalid.'
+    - - :error
+      - 'Line 824: BillToCode (09115000) is invalid.'
+    - - :error
+      - 'Line 825: BillToCode (09115000) is invalid.'
+    - - :error
+      - 'Line 826: BillToCode (09115000) is invalid.'
+    - - :error
+      - 'Line 827: BillToCode (09371000) is invalid.'
+    - - :error
+      - 'Line 891: Base item code SF-RCBT-WT does not match an active product'
+    - - :error
+      - 'Line 892: Base item code SF-WCBT-WT does not match an active product'
+    - - :error
+      - 'Line 935: Base item code 1239-40A does not match an active product'
+    - - :error
+      - 'Line 985: Base item code 2642L-211O does not match an active product'
+    - - :error
+      - 'Line 1211: Base item code 1238N-48A does not match an active product'
+    - - :error
+      - 'Line 1212: Base item code 1240-48A does not match an active product'
+    - - :error
+      - 'Line 1423: Base item code 1243-23A does not match an active product'
+    - - :error
+      - 'Line 1427: Base item code 1248-22A does not match an active product'
+    - - :error
+      - 'Line 1461: Base item code 2124A does not match an active product'
+    - - :error
+      - 'Line 1463: Base item code 2995-40A does not match an active product'
+    - - :error
+      - 'Line 1464: Base item code 2998-40A does not match an active product'
+    - - :error
+      - 'Line 1466: Base item code 3601-40A does not match an active product'
+    - - :error
+      - 'Line 1643: Base item code 1246-22A does not match an active product'
+    - - :error
+      - 'Line 1807: Base item code 1238N-22A does not match an active product'
+    - - :error
+      - 'Line 1812: Base item code 1239-76A does not match an active product'
+    - - :error
+      - 'Line 1816: Base item code 1240-48A does not match an active product'
+    - - :error
+      - 'Line 1818: Base item code 1241-22A does not match an active product'
+    - - :error
+      - 'Line 1828: Base item code 1243-22A does not match an active product'
+    - - :error
+      - 'Line 1830: Base item code 1243-23A does not match an active product'
+    - - :error
+      - 'Line 1916: Base item code 2998-40A does not match an active product'
+    - - :error
+      - 'Line 2064: Base item code CM8519N-401A does not match an active product'
+    - - :error
+      - 'Line 2259: Base item code SFDR-18-26 does not match an active product'
+    - - :error
+      - 'Line 2260: Base item code SFDR-24-26 does not match an active product'
+    - - :error
+      - 'Line 2272: BillToCode (13170513) is invalid.'
+    - - :error
+      - 'Line 2332: BillToCode (13171071) is invalid.'
+    - - :error
+      - 'Line 2495: BillToCode (13171384) is invalid.'
+    - - :error
+      - 'Line 2496: BillToCode (13171384) is invalid.'
+    - - :error
+      - 'Line 2566: BillToCode (13171471) is invalid.'
+    - - :error
+      - 'Line 2719: BillToCode (13171732) is invalid.'
+    - - :error
+      - 'Line 2720: BillToCode (13171732) is invalid.'
+    - - :error
+      - 'Line 2749: Base item code CM8326N-401A does not match an active product'
+    - - :error
+      - 'Line 2878: BillToCode (13172412) is invalid.'
+    - - :error
+      - 'Line 2879: BillToCode (13172412) is invalid.'
+    - - :error
+      - 'Line 2907: Base item code 1238N-48A does not match an active product'
+    - - :warning
+      - "-215 more rows with invalid products"
+ |
+| 2026-06-08T05:49:35.620771 | ---
+- - Inventory
+  - - - :warning
+      - 'Line 5: Product not found, record ignored., BaseItemCode=1239-22A'
+    - - :warning
+      - 'Line 8: Product not found, record ignored., BaseItemCode=1239-23A'
+    - - :warning
+      - 'Line 13: Product not found, record ignored., BaseItemCode=1239-40A'
+    - - :warning
+      - 'Line 16: Product not found, record ignored., BaseItemCode=1239-48A'
+    - - :warning
+      - 'Line 19: Product not found, record ignored., BaseItemCode=1239-76A'
+    - - :warning
+      - 'Line 24: Product not found, record ignored., BaseItemCode=1240-22A'
+    - - :warning
+      - 'Line 27: Product not found, record ignored., BaseItemCode=1240-23A'
+    - - :warning
+      - 'Line 32: Product not found, record ignored., BaseItemCode=1240-40A'
+    - - :warning
+      - 'Line 35: Product not found, record ignored., BaseItemCode=1240-48A'
+    - - :warning
+      - 'Line 38: Product not found, record ignored., BaseItemCode=1240-76A'
+    - - :warning
+      - 'Line 41: Product not found, record ignored., BaseItemCode=1241-22A'
+    - - :warning
+      - 'Line 45: Product not found, record ignored., BaseItemCode=1241-48A'
+    - - :warning
+      - 'Line 48: Product not found, record ignored., BaseItemCode=1241-76A'
+    - - :warning
+      - 'Line 66: Product not found, record ignored., BaseItemCode=1243-22A'
+    - - :warning
+      - 'Line 69: Product not found, record ignored., BaseItemCode=1243-48A'
+    - - :warning
+      - 'Line 72: Product not found, record ignored., BaseItemCode=1243-76A'
+    - - :warning
+      - 'Line 81: Product not found, record ignored., BaseItemCode=1558-48R'
+    - - :warning
+      - 'Line 110: Product not found, record ignored., BaseItemCode=1701U-76'
+    - - :warning
+      - 'Line 119: Product not found, record ignored., BaseItemCode=1702U-76'
+    - - :warning
+      - 'Line 128: Product not found, record ignored., BaseItemCode=1703U-76'
+    - - :warning
+      - 'Line 133: Product not found, record ignored., BaseItemCode=1704U-76'
+    - - :warning
+      - 'Line 142: Product not found, record ignored., BaseItemCode=1712U-76'
+    - - :warning
+      - 'Line 145: Product not found, record ignored., BaseItemCode=2124A'
+    - - :warning
+      - 'Line 147: Product not found, record ignored., BaseItemCode=2220A'
+    - - :warning
+      - 'Line 150: Product not found, record ignored., BaseItemCode=2224A'
+    - - :warning
+      - 'Line 161: Product not found, record ignored., BaseItemCode=2274A'
+    - - :warning
+      - 'Line 175: Product not found, record ignored., BaseItemCode=2990-40A'
+    - - :warning
+      - 'Line 180: Product not found, record ignored., BaseItemCode=2991-40A'
+    - - :warning
+      - 'Line 213: Product not found, record ignored., BaseItemCode=3608-40A'
+    - - :warning
+      - 'Line 643: Product not found, record ignored., BaseItemCode=AT1001N-23H'
+    - - :warning
+      - 'Line 1114: Product not found, record ignored., BaseItemCode=CM8326N-401A'
+    - - :warning
+      - 'Line 1116: Product not found, record ignored., BaseItemCode=CM8334N-401A'
+    - - :warning
+      - 'Line 1119: Product not found, record ignored., BaseItemCode=CM8519N-401A'
+    - - :warning
+      - 'Line 1224: Product not found, record ignored., BaseItemCode=MD1005N-51H'
+    - - :warning
+      - 'Line 2090: Product not found, record ignored., BaseItemCode=SF-RCBT-WT'
+    - - :warning
+      - 'Line 2091: Product not found, record ignored., BaseItemCode=SF-WCBT-WT'
+    - - :warning
+      - 'Line 2092: Product not found, record ignored., BaseItemCode=SFCK-26'
+    - - :warning
+      - 'Line 2093: Product not found, record ignored., BaseItemCode=SFCK-51'
+    - - :warning
+      - 'Line 2094: Product not found, record ignored., BaseItemCode=SFDR-12-26'
+    - - :warning
+      - 'Line 2095: Product not found, record ignored., BaseItemCode=SFDR-12-51'
+    - - :warning
+      - 'Line 2096: Product not found, record ignored., BaseItemCode=SFDR-18-26'
+    - - :warning
+      - 'Line 2097: Product not found, record ignored., BaseItemCode=SFDR-18-51'
+    - - :warning
+      - 'Line 2098: Product not found, record ignored., BaseItemCode=SFDR-24-26'
+    - - :warning
+      - 'Line 2099: Product not found, record ignored., BaseItemCode=SFDR-24-51'
+    - - :warning
+      - 'Line 2100: Product not found, record ignored., BaseItemCode=SFDR-48-26'
+    - - :warning
+      - 'Line 2101: Product not found, record ignored., BaseItemCode=SFDR-48-51'
+    - - :warning
+      - 'Line 2102: Product not found, record ignored., BaseItemCode=SFDR-I-26'
+    - - :warning
+      - 'Line 2103: Product not found, record ignored., BaseItemCode=SFDR-I-51'
+    - - :warning
+      - 'Line 2109: Product not found, record ignored., BaseItemCode=SJ1012T24-RBL702R'
+    - - :warning
+      - 'Line 2110: Product not found, record ignored., BaseItemCode=SJ1012T24-RGO702R'
+    - - :warning
+      - 'Line 2111: Product not found, record ignored., BaseItemCode=SJ1012T24-RRE702R'
+    - - :warning
+      - 'Line 2125: Product not found, record ignored., BaseItemCode=SJ2310T24-RBL702R'
+    - - :warning
+      - 'Line 2126: Product not found, record ignored., BaseItemCode=SJ2310T24-RGO702R'
+    - - :warning
+      - 'Line 2127: Product not found, record ignored., BaseItemCode=SJ2310T24-RRE702R'
+    - - :warning
+      - 'Line 2142: Product not found, record ignored., BaseItemCode=SJ3611T24-RBL702R'
+    - - :warning
+      - 'Line 2143: Product not found, record ignored., BaseItemCode=SJ3611T24-RGO702R'
+    - - :warning
+      - 'Line 2144: Product not found, record ignored., BaseItemCode=SJ3611T24-RRE702R'
+    - - :warning
+      - 'Line 2174: Product not found, record ignored., BaseItemCode=SJ4914T24-RBL702R'
+    - - :warning
+      - 'Line 2175: Product not found, record ignored., BaseItemCode=SJ4914T24-RGO702R'
+    - - :warning
+      - 'Line 2176: Product not found, record ignored., BaseItemCode=SJ4914T24-RRE702R'
+    - - :warning
+      - 'Line 2256: Product not found, record ignored., BaseItemCode=SJ8813T24-RBL702R'
+    - - :warning
+      - 'Line 2257: Product not found, record ignored., BaseItemCode=SJ8813T24-RGO702R'
+    - - :warning
+      - 'Line 2258: Product not found, record ignored., BaseItemCode=SJ8813T24-RRE702R'
+    - - :warning
+      - 'Line 2425: Product not found, record ignored., BaseItemCode=WH-WS-WT'
+- - Customers
+  - - - :error
+      - 'Line 1359: error=Validation failed: Shipping state can''t be blank: Customer
+        # = 13172787'
+- - Sales Data
+  - - - :error
+      - 'Line 41: Base item code SFCK-26 does not match an active product'
+    - - :error
+      - 'Line 42: Base item code SFDR-24-26 does not match an active product'
+    - - :error
+      - 'Line 104: Base item code 5685-80R does not match an active product'
+    - - :error
+      - 'Line 241: Base item code 1712U-76 does not match an active product'
+    - - :error
+      - 'Line 346: BillToCode (03983000) is invalid.'
+    - - :error
+      - 'Line 365: Base item code 2642L-211O does not match an active product'
+    - - :error
+      - 'Line 379: BillToCode (04561000) is invalid.'
+    - - :error
+      - 'Line 380: BillToCode (04561000) is invalid.'
+    - - :error
+      - 'Line 381: BillToCode (04561000) is invalid.'
+    - - :error
+      - 'Line 818: BillToCode (09115000) is invalid.'
+    - - :error
+      - 'Line 819: BillToCode (09115000) is invalid.'
+    - - :error
+      - 'Line 820: BillToCode (09115000) is invalid.'
+    - - :error
+      - 'Line 821: BillToCode (09115000) is invalid.'
+    - - :error
+      - 'Line 822: BillToCode (09115000) is invalid.'
+    - - :error
+      - 'Line 823: BillToCode (09115000) is invalid.'
+    - - :error
+      - 'Line 824: BillToCode (09371000) is invalid.'
+    - - :error
+      - 'Line 888: Base item code SF-RCBT-WT does not match an active product'
+    - - :error
+      - 'Line 889: Base item code SF-WCBT-WT does not match an active product'
+    - - :error
+      - 'Line 932: Base item code 1239-40A does not match an active product'
+    - - :error
+      - 'Line 982: Base item code 2642L-211O does not match an active product'
+    - - :error
+      - 'Line 1208: Base item code 1238N-48A does not match an active product'
+    - - :error
+      - 'Line 1209: Base item code 1240-48A does not match an active product'
+    - - :error
+      - 'Line 1420: Base item code 1243-23A does not match an active product'
+    - - :error
+      - 'Line 1424: Base item code 1248-22A does not match an active product'
+    - - :error
+      - 'Line 1458: Base item code 2124A does not match an active product'
+    - - :error
+      - 'Line 1460: Base item code 2995-40A does not match an active product'
+    - - :error
+      - 'Line 1461: Base item code 2998-40A does not match an active product'
+    - - :error
+      - 'Line 1463: Base item code 3601-40A does not match an active product'
+    - - :error
+      - 'Line 1640: Base item code 1246-22A does not match an active product'
+    - - :error
+      - 'Line 1804: Base item code 1238N-22A does not match an active product'
+    - - :error
+      - 'Line 1809: Base item code 1239-76A does not match an active product'
+    - - :error
+      - 'Line 1813: Base item code 1240-48A does not match an active product'
+    - - :error
+      - 'Line 1815: Base item code 1241-22A does not match an active product'
+    - - :error
+      - 'Line 1825: Base item code 1243-22A does not match an active product'
+    - - :error
+      - 'Line 1827: Base item code 1243-23A does not match an active product'
+    - - :error
+      - 'Line 1913: Base item code 2998-40A does not match an active product'
+    - - :error
+      - 'Line 2061: Base item code CM8519N-401A does not match an active product'
+    - - :error
+      - 'Line 2255: Base item code SFDR-18-26 does not match an active product'
+    - - :error
+      - 'Line 2256: Base item code SFDR-24-26 does not match an active product'
+    - - :error
+      - 'Line 2268: BillToCode (13170513) is invalid.'
+    - - :error
+      - 'Line 2328: BillToCode (13171071) is invalid.'
+    - - :error
+      - 'Line 2491: BillToCode (13171384) is invalid.'
+    - - :error
+      - 'Line 2492: BillToCode (13171384) is invalid.'
+    - - :error
+      - 'Line 2562: BillToCode (13171471) is invalid.'
+    - - :error
+      - 'Line 2715: BillToCode (13171732) is invalid.'
+    - - :error
+      - 'Line 2716: BillToCode (13171732) is invalid.'
+    - - :error
+      - 'Line 2745: Base item code CM8326N-401A does not match an active product'
+    - - :error
+      - 'Line 2874: BillToCode (13172412) is invalid.'
+    - - :error
+      - 'Line 2875: BillToCode (13172412) is invalid.'
+    - - :error
+      - 'Line 2903: Base item code 1238N-48A does not match an active product'
+    - - :warning
+      - "-214 more rows with invalid products"
+ |

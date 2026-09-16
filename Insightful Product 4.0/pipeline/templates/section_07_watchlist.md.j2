@@ -1,0 +1,44 @@
+{# §7 The full at-risk picture — tail of watchlist.
+   Reference: Sarreid PASS3 §7 (lines 172-199). Renders from gather.decay
+   (S1 exception layer output), positions after the "Do this week" top-7. #}
+{% from '_macros.md.j2' import action_real_decline, stale_historical_banner %}
+{% set thisweek_n = [gather.decay|length, 7] | min -%}
+{% set watchlist_dollars = (gather.decay | sum(attribute='ltm_rev')) if gather.decay else 0 -%}
+## Full risk watchlist{% if gather.decay %} — {{ gather.decay|length }} dealers, ${{ "{:,.2f}".format(watchlist_dollars / 1_000_000) }}M LTM at risk{% else %} — positions {{ thisweek_n + 1 }}–{{ [gather.decay|length, 25] | min }}{% endif %}
+
+{% if posture.is_stale and gather.decay -%}
+{{ stale_historical_banner(posture) }}
+
+{% endif -%}
+{% if gather.decay|length > thisweek_n -%}
+The top {{ thisweek_n }} are in "Do this week" above. The other {{ (gather.decay|length) - thisweek_n }} sit in the tail:
+
+| # | Account | Rep | LTM | Recent vs prior | Days silent |
+|---|---|---|---|---|---|
+{% for a in gather.decay[thisweek_n:25] -%}
+| {{ loop.index + thisweek_n }} | {{ a.bill_to_name or a.bill_to_number }} | {% if posture.rep_identity_tier == 2 %}{{ a.rep_label or a.rep_number or "—" }}{% else %}rep {{ a.rep_number or "—" }}{% endif %} | ${{ "{:,.0f}".format(a.ltm_rev / 1000) }}K | {% if a.recent_vs_prior_pct is none %}—{% elif a.recent_vs_prior_pct > 0 %}**{{ "{:+.1f}".format(a.recent_vs_prior_pct) }}%**{% else %}{{ "{:+.1f}".format(a.recent_vs_prior_pct) }}%{% endif %} | {{ a.days_silent }}{% if a.is_cadence_cliff %} *(beat-skip, growing)*{% endif %} |
+{% endfor %}
+
+{% set total_watchlist_dollars = gather.decay | sum(attribute='ltm_rev') -%}
+*Plus additional dealers at the threshold. **Total watchlist: {{ gather.decay|length }} dealers, ~${{ "{:,.2f}".format(total_watchlist_dollars / 1_000_000) }}M LTM at risk.***
+
+{% set ns = namespace(rep_list=[]) -%}
+{% for a in gather.decay[:25] -%}
+{% set _ = ns.rep_list.append(a.rep_label or a.rep_number or "unassigned") -%}
+{% endfor -%}
+{% set clustered = [] -%}
+{% for rep in ns.rep_list | unique -%}
+{% if ns.rep_list | select("eq", rep) | list | length >= 4 -%}
+{% set _ = clustered.append(rep) -%}
+{% endif -%}
+{% endfor -%}
+{% if clustered -%}
+**Pattern worth flagging:** {{ clustered | join(", ") }} {% if clustered | length == 1 %}carries{% else %}each carry{% endif %} 4+ accounts on this watchlist. A cluster on one book is a territory-level signal — worth a coverage review before working accounts one by one.
+{%- endif %}
+{%- else -%}
+{% if gather.decay -%}
+The watchlist is short — {{ gather.decay|length }} accounts total, all in the "Do this week" section above. A short S1 list on a material book is a good sign: the decay is not broad-based.
+{%- else -%}
+*This section requires invoiced ERP data. Connect the feed to unlock the at-risk account watchlist.*
+{%- endif %}
+{%- endif %}

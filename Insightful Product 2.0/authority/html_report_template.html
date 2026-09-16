@@ -1,0 +1,2104 @@
+<!DOCTYPE html>
+<!--
+  EXTERNAL REPORT TEMPLATE — Insightful Product 2.0
+  Version: 3.0 (single report form; profiles retired)
+  Derived from: _archive/reference-examples/example_target_report.html
+  Semantic authority: authority/value_moment_catalog.md
+  Assembly rules: authority/external_report_blueprint.md
+  VM index: authority/external_vm_index.md
+  Gold reference: authority/gold/clm_2026-04-14_deep_intelligence_report.html
+    → Clean, validated output. Active structural reference for HTML structure,
+      section shaping, and collapsible-card patterns. Delivery-safe.
+      For peer framing, follow Stage 4.7 of the operator and authority/peer_benchmark.md.
+
+  ══════════════════════════════════════════════════
+  SECTION ORDER — Mode 1 (Standard Intelligence Report)
+  ══════════════════════════════════════════════════
+  Single report form (profiles retired).
+    1. Executive Summary        — always open, written last; 5–6 highlights + 2–4 priority actions
+    2. Sales Team Performance   — conditional: 5+ reps with 10+ orders each
+    3. Customer & Buyer         — always
+    4. Product & Inventory      — conditional: inventories OR sales_data present
+    5. Commerce Analytics       — always
+    6. Demand Signal Intelligence — conditional: HAS_CLICKY = true ONLY (binary gate)
+    7. Peer Benchmarking        — conditional: peer data available + benchmark_eligible
+    8. Platform & Feature       — always
+    9. Appendix                 — always
+
+  ══════════════════════════════════════════════════
+  REPORT MODES — set {{REPORT_MODE}} before rendering
+  ══════════════════════════════════════════════════
+  Mode 1: standard      → Customer Intelligence Report (LTM commerce activity present)
+  Mode 2: activation    → Platform Activation Report (no commerce history at all)
+  Mode 3: reactivation  → Platform Reactivation Report (lapsed — no LTM activity but has history)
+
+  Only one mode is rendered per report. The operator selects the mode at Stage 0.
+  Modes 2 and 3 use their own section structures.
+  For Mode 1: render the full section set per the conditional logic.
+  For Mode 2: render §activation-summary, §platform-readiness, §peer (if eligible), §appendix ONLY.
+  For Mode 3: render §reactivation-summary, §historical-commerce, §platform-status, §peer (if eligible), §appendix ONLY.
+
+  SECTION ORDER — Mode 2 (Platform Activation Report):
+    1. Activation Summary       — replaces Executive Summary; written last; includes disclosure callout (not in Appendix)
+    2. Platform Readiness       — catalog health, data freshness, config status (from Q-08/09/10/11)
+    3. Peer Benchmarking        — conditional: peer data available
+    4. Appendix                 — attribution-only; data source rows for sources actually used
+
+  SECTION ORDER — Mode 3 (Platform Reactivation Report):
+    1. Reactivation Summary     — replaces Executive Summary; written last; includes disclosure callout (not in Appendix)
+    2. Historical Commerce      — lightweight all-time context + last active period
+    3. Platform Status          — same as §8 but with staleness emphasis for lapsed accounts
+    4. Peer Benchmarking        — conditional: peer data available (add lapsed caveat)
+    5. Appendix                 — attribution-only; data source rows for sources actually used
+
+  TEMPLATE PARAMETER REFERENCE:
+    {{CLIENT_NAME}}             — Display name of client
+    {{REPORT_DATE}}             — Report generation date (e.g., "April 6, 2026")
+    {{PERIOD_START}}            — Period start (e.g., "April 2025") — Mode 1 only
+    {{PERIOD_END}}              — Period end (e.g., "March 2026") — Mode 1 only
+    {{PERIOD_LABEL}}            — Period label (e.g., "Trailing 12 Months") — Mode 1; see mode overrides below
+    {{ORG_SHORTNAME}}           — Internal org shortname
+    {{BUNDLE_LABEL}}            — Client's plan name for display (e.g., "Full")
+    {{REPORT_MODE}}             — "standard" | "activation" | "reactivation"
+    {{REPORT_TYPE_LABEL}}       — Mode 1: "Customer Intelligence Report"
+                                   Mode 2: "Platform Activation Report"
+                                   Mode 3: "Platform Reactivation Report"
+    {{REPORT_STAGE_BADGE}}      — Mode 1: bundle label (e.g., "Full · iPad + eCat Online")
+                                   Mode 2: "Activation Stage · No eCat Commerce History"
+                                   Mode 3: "Reactivation Stage · Lapsed — No LTM Commerce Activity"
+    {{LAST_ACTIVE_DATE}}        — Mode 3 only: last eCat order date (e.g., "March 2024")
+    {{ALLTIME_ECAT_ORDERS}}     — Mode 3 only: all-time eCat order count
+    {{ALLTIME_ECAT_GMV}}        — Mode 3 only: all-time eCat GMV (mark [HISTORICAL])
+
+  PERIOD LABEL OVERRIDES BY MODE:
+    Mode 1: "{{PERIOD_START}} – {{PERIOD_END}} ({{PERIOD_LABEL}})"
+    Mode 2: "Platform Configuration as of {{REPORT_DATE}}"
+    Mode 3: "Platform Status as of {{REPORT_DATE}} · Last active: {{LAST_ACTIVE_DATE}}"
+
+  GATING FLAGS (Mode 1 — set by operator before rendering):
+    {{HAS_CLICKY}}              — true/false — gates Demand Signal Intelligence section
+    {{HAS_CART}}                — true/false — gates channel mix subsection
+    {{HAS_PORTAL_ORDERS}}       — true/false — gates ERP context and VM-45
+    {{HAS_INVENTORY}}           — true/false — gates Product & Inventory section
+    {{HAS_SALES_DATA}}          — true/false — gates sales_data-dependent subsections
+    {{HAS_PEER_DATA}}           — true/false — gates Peer Benchmarking section (all modes)
+    {{HAS_SALES_SECTION}}       — true/false — gates Sales Team Performance (5+ reps rule)
+
+  FORBIDDEN in this template (do not add):
+    - Health score, health band, health classification in any form
+    - Internal segment labels: Platform-Embedded, Commerce-Active, Catalog-Focused
+    - Risk/expansion flag appendix subsection
+    - Clicky references anywhere when HAS_CLICKY = false
+    - portal_orders framed as buyer self-service or portal ordering activity
+    - VM-27, VM-28, VM-29, VM-36, VM-48 content surfaced externally
+    - Commerce figures in Mode 2 (no commerce history)
+    - LTM commerce figures in Mode 3 (no LTM activity)
+    - benchmark_confidence values ("high", "medium", "low") anywhere in client-visible output
+    - peer_group_level / tier labels ("tier1", "tier2", "tier3") anywhere in client-visible output
+    - peer_group_n as a raw count in any client-visible output — never, regardless of size
+    - "steady-state peers" or internal peer-count methodology vocabulary in client output
+
+  ══════════════════════════════════════════════════
+  HTML COMMENT STRIPPING — MANDATORY BEFORE DELIVERY
+  ══════════════════════════════════════════════════
+  This template file contains <!-- ... --> authoring comments to guide the operator.
+  NONE of these comments may remain in the final delivered HTML file.
+
+  Before saving the delivered report, strip ALL HTML comment nodes, including:
+    - <!-- Operator: ... --> guidance comments
+    - <!-- BEGIN ... GATE --> / <!-- END ... GATE --> gating block markers
+    - <!-- HAS_CLICKY --> / <!-- HAS_CART --> / any <!-- HAS_* --> flag references
+    - <!-- EXAMPLE ROW ... --> and <!-- e.g., ... --> hint comments
+    - <!-- ═══ §N ... ═══ --> section banner comments
+    - Any other <!-- ... --> node
+
+  VERIFICATION: Search the delivered HTML output for "<!--". Any hit is a blocker.
+  A clean delivered HTML has zero HTML comment nodes.
+
+  APPENDIX CONTRACT — delivered Appendix is attribution-only:
+  The delivered Appendix must contain ONLY data source attribution rows.
+  The following must NEVER appear in the delivered Appendix:
+    - Report mode (standard / activation / reactivation)
+    - Run parameters, generation metadata, or platform bundle metadata
+    - Omitted-sections rationale (absent sections are omitted silently)
+    - Gating explanations (e.g., "HAS_CLICKY = false — Demand Signal Intelligence omitted")
+    - Partial-sync disclosure blocks or ERP-sync caveats
+    - Standing caveat blocks or data-quality disclaimers
+    - [ESTIMATED] explanation rows (the inline tag is the complete disclosure)
+    - Methodology notes or calculation documentation
+    - Any internal identifier: org IDs, table names, VM codes, query IDs, gate flags
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{CLIENT_NAME}} — {{REPORT_TYPE_LABEL}}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300..800;1,9..40,300..800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #FAFAF8;
+      --surface: #FFFFFF;
+      --panel: #F5F4F1;
+      --border: #E8E5DE;
+      --border-light: #F0EDE6;
+      --text: #2C2925;
+      --text-secondary: #6B6660;
+      --text-muted: #9B958C;
+      --accent: #C47A4A;
+      --accent-deep: #89523B;
+      --accent-glow: rgba(196,122,74,.08);
+      --accent-border: rgba(196,122,74,.2);
+      --ok: #4A8C5C;
+      --ok-bg: #EDF7F0;
+      --ok-border: rgba(74,140,92,.2);
+      --warn: #B8863A;
+      --warn-bg: #FDF6EC;
+      --warn-border: rgba(184,134,58,.2);
+      --danger: #C0524A;
+      --danger-bg: #FDF0EF;
+      --danger-border: rgba(192,82,74,.2);
+      --info: #4A7A8C;
+      --info-bg: #EDF4F7;
+      --info-border: rgba(74,122,140,.2);
+      --fd: 'DM Sans', system-ui, sans-serif;
+      --fm: 'IBM Plex Mono', ui-monospace, monospace;
+      --r: 10px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font: 400 14px/1.65 var(--fd); color: var(--text); background: var(--bg); -webkit-font-smoothing: antialiased; }
+
+    .page { max-width: 920px; margin: 0 auto; padding: 0 24px 40px; }
+
+    /* ── Header ── */
+    .header { padding: 48px 0 32px; border-bottom: 1px solid var(--border); margin-bottom: 32px; position: relative; }
+    .h-brand { display: flex; align-items: center; gap: 8px; margin-bottom: 20px; }
+    .h-brand span { font: 500 10px/1 var(--fm); letter-spacing: .12em; text-transform: uppercase; color: var(--text-muted); }
+    .h-customer { font: 700 36px/1.1 var(--fd); color: var(--text); letter-spacing: -.01em; margin-bottom: 4px; }
+    .h-type { font: 400 15px/1 var(--fd); color: var(--text-secondary); margin-bottom: 16px; }
+    .h-meta { font: 400 11px/1 var(--fm); color: var(--text-muted); letter-spacing: .02em; }
+    .h-accent { position: absolute; bottom: -1px; left: 0; width: 64px; height: 2px; background: var(--accent); }
+
+    /* ── Key Highlights ── */
+    .highlights { margin: 8px 0 28px; padding: 0; list-style: none; counter-reset: hl; }
+    .highlights li { counter-increment: hl; padding: 12px 0; border-bottom: 1px solid var(--border-light); font: 400 13.5px/1.65 var(--fd); color: var(--text-secondary); padding-left: 36px; position: relative; }
+    .highlights li:last-child { border-bottom: none; }
+    .highlights li::before { content: counter(hl); position: absolute; left: 0; top: 14px; display: flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: var(--accent-glow); border: 1px solid var(--accent-border); font: 600 10px/1 var(--fm); color: var(--accent-deep); }
+    .highlights li strong { color: var(--text); font-weight: 600; }
+    .highlights a { color: var(--accent-deep); text-decoration: none; font-weight: 500; border-bottom: 1px solid var(--accent-border); transition: border-color .12s; }
+    .highlights a:hover { border-bottom-color: var(--accent); }
+    .priority-title a { color: inherit; text-decoration: none; border-bottom: 1px solid transparent; transition: border-color .12s; }
+    .priority-title a:hover { border-bottom-color: var(--accent); color: var(--accent-deep); }
+
+    /* ── Sections ── */
+    .section { margin-bottom: 32px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 28px 32px; }
+    .section-title { font: 700 20px/1.2 var(--fd); color: var(--text); margin-bottom: 4px; padding-bottom: 12px; border-bottom: 1px solid var(--border-light); }
+    .section-sub { font: 400 13px/1 var(--fd); color: var(--text-muted); margin-bottom: 20px; margin-top: 8px; }
+    .subsection { margin-top: 24px; }
+    .subsection-title { font: 600 15px/1.3 var(--fd); color: var(--text); margin-bottom: 12px; }
+    .sub-label { font: 500 9px/1 var(--fm); letter-spacing: .08em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; }
+    .section-num { font: 500 11px/1 var(--fm); color: var(--text-muted); margin-right: 8px; }
+    .section-light { background: var(--panel); border-color: var(--border-light); }
+    .what-this-means { margin-top: 16px; padding: 14px 18px; background: var(--panel); border-left: 3px solid var(--accent); border-radius: 0 6px 6px 0; font: 400 13px/1.6 var(--fd); color: var(--text-secondary); }
+    .what-this-means strong { color: var(--text); font-weight: 600; }
+
+    /* ── Priority Actions ── */
+    .priorities { display: grid; gap: 12px; margin-bottom: 32px; }
+    .priority { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 16px 20px; display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: start; }
+    .priority-badge { font: 700 9px/1 var(--fm); letter-spacing: .06em; text-transform: uppercase; padding: 4px 8px; border-radius: 4px; white-space: nowrap; margin-top: 2px; }
+    .priority-badge.high { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-border); }
+    .priority-badge.medium { background: var(--warn-bg); color: var(--warn); border: 1px solid var(--warn-border); }
+    .priority-badge.low { background: var(--info-bg); color: var(--info); border: 1px solid var(--info-border); }
+    .priority-title { font: 600 13px/1.35 var(--fd); color: var(--text); margin-bottom: 3px; }
+    .priority-desc { font: 400 12px/1.5 var(--fd); color: var(--text-secondary); }
+    .priority-impact { font: 600 12px/1 var(--fm); color: var(--ok); white-space: nowrap; margin-top: 2px; }
+
+    /* ── Metric cards ── */
+    .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 16px 0; }
+    .metrics-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; margin: 16px 0; }
+    .metric { background: var(--panel); border-radius: 8px; padding: 14px 16px; }
+    .metric-card { background: var(--panel); border-radius: 8px; padding: 16px; }
+    .metric-label { font: 500 9px/1 var(--fm); letter-spacing: .08em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
+    .metric-value { font: 700 22px/1.2 var(--fd); color: var(--text); }
+    .metric-val { font: 600 24px/1 var(--fd); color: var(--text); margin-bottom: 4px; }
+    .metric-note { font: 400 11px/1.3 var(--fd); color: var(--text-muted); margin-top: 2px; }
+    .metric-note.ok { color: var(--ok); font-weight: 500; }
+    .metric-note.warn { color: var(--warn); font-weight: 500; }
+    .metric-note.danger { color: var(--danger); font-weight: 500; }
+
+    /* ── Tables ── */
+    table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
+    thead { background: var(--panel); }
+    th { padding: 8px 12px; text-align: left; font: 600 10px/1 var(--fm); letter-spacing: .05em; text-transform: uppercase; color: var(--text-muted); border-bottom: 1px solid var(--border); }
+    td { padding: 8px 12px; border-bottom: 1px solid var(--border-light); color: var(--text-secondary); }
+    tbody tr:hover { background: var(--accent-glow); }
+    td strong { color: var(--text); font-weight: 600; }
+    .row-highlight { background: var(--ok-bg); }
+    .row-warn { background: var(--warn-bg); }
+    .row-danger { background: var(--danger-bg); }
+    .row-total { font-weight: 600; background: var(--panel); }
+    .row-total td { color: var(--text); border-bottom: 2px solid var(--border); }
+    .prose { font: 400 13.5px/1.7 var(--fd); color: var(--text-secondary); margin-bottom: 16px; }
+    .prose strong { color: var(--text); }
+
+    /* ── Badges ── */
+    .badge { display: inline-block; padding: 3px 8px; border-radius: 4px; font: 600 10px/1 var(--fm); letter-spacing: .03em; text-transform: uppercase; }
+    .badge-ok { background: var(--ok-bg); color: var(--ok); border: 1px solid var(--ok-border); }
+    .badge-warn { background: var(--warn-bg); color: var(--warn); border: 1px solid var(--warn-border); }
+    .badge-danger { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-border); }
+    .badge-info { background: var(--info-bg); color: var(--info); border: 1px solid var(--info-border); }
+    .badge.ok { background: var(--ok-bg); color: var(--ok); border: 1px solid var(--ok-border); }
+    .badge.warn { background: var(--warn-bg); color: var(--warn); border: 1px solid var(--warn-border); }
+    .badge.danger { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-border); }
+    .badge.info { background: var(--info-bg); color: var(--info); border: 1px solid var(--info-border); }
+    .badge.muted { background: var(--panel); color: var(--text-muted); border: 1px solid var(--border); }
+
+    /* ── Callout boxes ── */
+    .callout { border-radius: 8px; padding: 16px 20px; margin: 16px 0; font-size: 13px; line-height: 1.6; }
+    .callout-title { font: 600 13px/1 var(--fd); margin-bottom: 6px; }
+    .callout.alert { background: var(--danger-bg); border-left: 3px solid var(--danger); }
+    .callout.alert .callout-title { color: var(--danger); }
+    .callout.opportunity { background: var(--ok-bg); border-left: 3px solid var(--ok); }
+    .callout.opportunity .callout-title { color: var(--ok); }
+    .callout.insight { background: var(--panel); border-left: 3px solid var(--accent); }
+    .callout.insight .callout-title { color: var(--accent-deep); }
+    .callout.note { background: var(--info-bg); border-left: 3px solid var(--info); }
+    .callout.note .callout-title { color: var(--info); }
+    .callout ul { margin: 8px 0 0 20px; }
+    .callout li { margin: 4px 0; }
+
+    /* ── Coaching cards ── */
+    .coaching-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 20px 24px; margin: 12px 0; border-top: 3px solid var(--warn); }
+    .coaching-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+    .coaching-name { font: 600 15px/1 var(--fd); color: var(--text); }
+    .coaching-body { font: 400 13px/1.6 var(--fd); color: var(--text-secondary); margin-bottom: 8px; }
+    .coaching-body strong { color: var(--text); }
+    .coaching-action { font: 500 13px/1.5 var(--fd); color: var(--text); margin-bottom: 6px; }
+    .coaching-impact { display: inline-block; font: 500 12px/1 var(--fm); color: var(--ok); background: var(--ok-bg); border: 1px solid var(--ok-border); padding: 5px 10px; border-radius: 5px; }
+
+    /* ── Progressive disclosure (subsection) ── */
+    details { margin: 12px 0; }
+    details > summary { display: flex; align-items: center; gap: 8px; font: 500 13px/1 var(--fd); color: var(--accent-deep); cursor: pointer; list-style: none; padding: 10px 14px; user-select: none; background: var(--panel); border: 1px solid var(--border); border-radius: 6px; transition: all .15s; }
+    details > summary::-webkit-details-marker { display: none; }
+    details > summary::before { content: '\25B8'; font-size: 10px; transition: transform .15s; display: inline-block; color: var(--accent); }
+    details[open] > summary::before { transform: rotate(90deg); }
+    details > summary:hover { background: var(--accent-glow); border-color: var(--accent-border); color: var(--accent); }
+    details[open] > summary { border-radius: 6px 6px 0 0; border-bottom-color: transparent; background: var(--accent-glow); }
+    details > summary::after { content: 'click to expand'; margin-left: auto; font: 400 10px/1 var(--fm); color: var(--text-muted); letter-spacing: .02em; }
+    details[open] > summary::after { content: 'click to collapse'; }
+
+    /* ── Section-level collapse ── */
+    details.section-collapse { margin: 0 0 32px; border: none; background: none; }
+    details.section-collapse > summary { display: block; background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 24px 32px; cursor: pointer; transition: all .15s; }
+    details.section-collapse > summary::before { content: none; }
+    details.section-collapse > summary::after { content: none; }
+    details.section-collapse > summary:hover { border-color: var(--accent-border); box-shadow: 0 2px 8px rgba(196,122,74,.08); }
+    details.section-collapse > summary .section-title { margin-bottom: 4px; padding-bottom: 0; border-bottom: none; }
+    details.section-collapse > summary .section-sub { margin-bottom: 0; }
+    details.section-collapse > summary .section-contents { font: 400 12px/1.4 var(--fd); color: var(--text-muted); margin-top: 6px; }
+    details.section-collapse > summary .expand-hint { display: inline-block; margin-top: 10px; font: 500 10px/1 var(--fm); letter-spacing: .04em; text-transform: uppercase; color: var(--accent); opacity: .7; transition: opacity .12s; }
+    details.section-collapse > summary:hover .expand-hint { opacity: 1; }
+    details.section-collapse[open] > summary { border-radius: var(--r) var(--r) 0 0; border-bottom-color: var(--border-light); background: var(--surface); }
+    details.section-collapse[open] > summary .expand-hint { display: none; }
+    details.section-collapse > .section { margin-bottom: 0; border-top: none; border-radius: 0 0 var(--r) var(--r); }
+    details.section-collapse.light > summary { background: var(--panel); }
+    details.section-collapse.light[open] > summary { background: var(--panel); }
+    details.section-collapse.light > .section { background: var(--panel); }
+
+    /* ── Peer benchmarking — base ── */
+    .peer-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 20px 24px; margin: 12px 0; }
+    .peer-cohort-label { font: 500 10px/1 var(--fm); letter-spacing: .08em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; }
+    .peer-cohort-value { font: 600 14px/1 var(--fd); color: var(--text); margin-bottom: 4px; }
+    .peer-cohort-sub { font: 400 11px/1.4 var(--fd); color: var(--text-muted); margin-bottom: 16px; }
+    .peer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 16px; margin-top: 12px; }
+    .peer-metric { text-align: center; padding: 12px; background: var(--panel); border-radius: 8px; }
+    .peer-label { font: 500 9px/1 var(--fm); letter-spacing: .08em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
+    .peer-value { font: 700 20px/1.2 var(--fd); color: var(--text); }
+    .peer-compare { font: 400 11px/1 var(--fm); margin-top: 2px; }
+    .peer-compare.above { color: var(--ok); }
+    .peer-compare.below { color: var(--warn); }
+    .peer-compare.on-par { color: var(--text-muted); }
+    .peer-confidence { font: 400 11px/1.5 var(--fd); color: var(--text-muted); margin-top: 12px; font-style: italic; }
+
+    /* ── Peer benchmarking — hero stat ── */
+    .peer-hero { background: var(--accent-glow); border: 1px solid var(--accent-border); border-radius: var(--r); padding: 22px 26px; margin-bottom: 20px; display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: center; }
+    .peer-hero-left { }
+    .peer-hero-eyebrow { font: 500 9px/1 var(--fm); letter-spacing: .1em; text-transform: uppercase; color: var(--accent-deep); margin-bottom: 8px; }
+    .peer-hero-stat { font: 700 32px/1.1 var(--fd); color: var(--text); letter-spacing: -.02em; margin-bottom: 4px; }
+    .peer-hero-context { font: 400 13px/1.55 var(--fd); color: var(--text-secondary); max-width: 440px; }
+    .peer-hero-context strong { color: var(--text); font-weight: 600; }
+    .peer-hero-context .delta-above { color: var(--ok); font-weight: 600; }
+    .peer-hero-context .delta-below { color: var(--warn); font-weight: 600; }
+    .peer-hero-right { text-align: center; flex-shrink: 0; }
+    .peer-hero-pctile { font: 600 13px/1 var(--fm); padding: 6px 12px; border-radius: 20px; white-space: nowrap; }
+    .peer-hero-pctile.above { background: var(--ok-bg); color: var(--ok); border: 1px solid var(--ok-border); }
+    .peer-hero-pctile.below { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-border); }
+    .peer-hero-pctile.on-par { background: var(--panel); color: var(--text-muted); border: 1px solid var(--border); }
+    .peer-hero-pctile-label { font: 400 9px/1.4 var(--fm); color: var(--text-muted); letter-spacing: .04em; text-transform: uppercase; margin-top: 4px; }
+    .peer-hero-metric { flex: 1; }
+    .peer-hero-label { font: 500 10px/1 var(--fm); color: var(--text-muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 6px; }
+    .peer-hero-value { font: 700 32px/1 var(--fd); color: var(--text); margin-bottom: 4px; }
+    .peer-hero-sentence { font: 400 13px/1.5 var(--fd); color: var(--text-secondary); }
+
+    /* ── Peer benchmarking — narrative metric rows ── */
+    .peer-metric-rows { margin-top: 8px; }
+    .peer-metric-row { display: grid; grid-template-columns: 1fr auto; gap: 16px; align-items: start; padding: 14px 0; border-bottom: 1px solid var(--border-light); }
+    .peer-metric-row:last-child { border-bottom: none; }
+    .peer-metric-title { font: 600 12px/1 var(--fm); letter-spacing: .03em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
+    .peer-metric-sentence { font: 400 13px/1.6 var(--fd); color: var(--text-secondary); }
+    .peer-metric-sentence strong { color: var(--text); font-weight: 600; }
+    .peer-metric-sentence .delta-above { color: var(--ok); font-weight: 600; }
+    .peer-metric-sentence .delta-below { color: var(--warn); font-weight: 600; }
+    .peer-metric-sentence .delta-par { color: var(--text-muted); font-weight: 500; }
+    .peer-range-bar { display: flex; align-items: center; gap: 6px; margin-top: 6px; }
+    .peer-range-label { font: 400 9px/1 var(--fm); color: var(--text-muted); white-space: nowrap; letter-spacing: .02em; }
+    .peer-range-track { flex: 1; height: 4px; background: var(--border); border-radius: 2px; position: relative; min-width: 80px; }
+    .peer-range-marker { position: absolute; top: 50%; width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--surface); box-shadow: 0 0 0 1.5px currentColor; transform: translate(-50%, -50%); }
+    .peer-range-marker.above { color: var(--ok); background: var(--ok); }
+    .peer-range-marker.below { color: var(--warn); background: var(--warn); }
+    .peer-range-marker.on-par { color: var(--text-muted); background: var(--text-muted); }
+    .peer-quartile-pill { font: 700 10px/1 var(--fm); letter-spacing: .04em; padding: 4px 9px; border-radius: 20px; white-space: nowrap; flex-shrink: 0; }
+    .peer-quartile-pill.q4 { background: var(--ok-bg); color: var(--ok); border: 1px solid var(--ok-border); }
+    .peer-quartile-pill.q3 { background: var(--info-bg); color: var(--info); border: 1px solid var(--info-border); }
+    .peer-quartile-pill.q2 { background: var(--warn-bg); color: var(--warn); border: 1px solid var(--warn-border); }
+    .peer-quartile-pill.q1 { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-border); }
+    .quartile-pill { font: 700 10px/1 var(--fm); letter-spacing: .04em; padding: 4px 9px; border-radius: 20px; white-space: nowrap; flex-shrink: 0; }
+    .quartile-pill.q4 { background: var(--ok-bg); color: var(--ok); border: 1px solid var(--ok-border); }
+    .quartile-pill.q3 { background: var(--info-bg); color: var(--info); border: 1px solid var(--info-border); }
+    .quartile-pill.q2 { background: var(--warn-bg); color: var(--warn); border: 1px solid var(--warn-border); }
+    .quartile-pill.q1 { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-border); }
+
+    /* ── Peer benchmarking — top performers ── */
+    .top-performer-list { margin-top: 4px; }
+    .top-performer-row { display: flex; gap: 12px; align-items: flex-start; padding: 11px 0; border-bottom: 1px solid var(--border-light); }
+    .top-performer-row:last-child { border-bottom: none; }
+    .top-performer-icon { width: 26px; height: 26px; border-radius: 6px; background: var(--accent-glow); border: 1px solid var(--accent-border); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 12px; margin-top: 1px; }
+    .top-performer-text { font: 400 13px/1.55 var(--fd); color: var(--text-secondary); }
+    .top-performer-text strong { color: var(--text); font-weight: 600; }
+
+    /* ── Data Confidence Footer ── */
+    .data-confidence { background: var(--info-bg, var(--panel)); border-left: 3px solid var(--info, var(--accent)); border-radius: var(--r); padding: 12px 16px; margin: 20px 0; font: 400 12px/1.6 var(--fd); color: var(--text-muted); }
+    .data-confidence.limited { background: var(--warn-bg); border-left-color: var(--warn); }
+    .data-confidence-label { display: inline-block; font: 600 9px/1 var(--fm); letter-spacing: .06em; text-transform: uppercase; padding: 2px 6px; border-radius: 3px; background: var(--panel); color: var(--text-muted); border: 1px solid var(--border); margin-right: 8px; vertical-align: middle; }
+    .data-confidence.limited .data-confidence-label { background: var(--warn-bg); border-color: var(--warn-border); color: var(--warn); }
+    .data-confidence-action { font: 500 12px/1.6 var(--fd); color: var(--text-secondary); }
+
+    /* ── TOC strip (sticky) ── */
+    .toc-strip { position: sticky; top: 0; z-index: 100; display: flex; flex-wrap: nowrap; gap: 5px; padding: 12px 0; margin-bottom: 28px; background: var(--bg); border-bottom: 1px solid var(--border); overflow-x: auto; transition: box-shadow .2s; }
+    .toc-strip.stuck { box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+    .toc-strip a { display: inline-block; padding: 4px 10px; font: 500 10.5px/1 var(--fd); color: var(--text-secondary); text-decoration: none; background: var(--panel); border: 1px solid var(--border-light); border-radius: 20px; transition: all .12s; white-space: nowrap; }
+    .toc-strip a:hover { color: var(--accent); background: var(--accent-glow); border-color: var(--accent-border); }
+    .toc-strip a.active { color: var(--accent-deep); font-weight: 600; background: var(--accent-glow); border-color: var(--accent-border); }
+
+    /* ── Appendix ── */
+    .appendix-row { display: grid; grid-template-columns: 200px 1fr; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border-light); font-size: 13px; }
+    .appendix-row:last-child { border-bottom: none; }
+    .appendix-label { font: 500 12px/1.5 var(--fd); color: var(--text); }
+    .appendix-value { font: 400 12px/1.5 var(--fd); color: var(--text-secondary); }
+    .data-tag { display: inline-block; font: 500 9px/1 var(--fm); letter-spacing: .04em; text-transform: uppercase; padding: 2px 6px; border-radius: 3px; background: var(--panel); color: var(--text-muted); border: 1px solid var(--border); margin-right: 4px; }
+
+    /* ── Report mode banner (activation / reactivation) ── */
+    .mode-banner { border-radius: 8px; padding: 10px 18px; margin-bottom: 20px; font: 500 12px/1.5 var(--fd); display: flex; align-items: center; gap: 10px; }
+    .mode-banner.activation { background: var(--ok-bg); border: 1px solid var(--ok-border); color: var(--ok); }
+    .mode-banner.reactivation { background: var(--warn-bg); border: 1px solid var(--warn-border); color: var(--warn); }
+    .mode-banner strong { font-weight: 600; }
+
+    /* ── Footer ── */
+    .footer { margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--border); text-align: center; }
+    .footer-brand { font: 600 10px/1 var(--fm); letter-spacing: .12em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
+    .footer-text { font: 400 11px/1.5 var(--fd); color: var(--text-muted); }
+
+    /* ── Responsive ── */
+    @media (max-width: 600px) {
+      .h-customer { font-size: 26px; }
+      .section { padding: 20px 16px; }
+      .metrics { grid-template-columns: repeat(2, 1fr); }
+      .priority { grid-template-columns: 1fr; }
+      .priority-impact { margin-top: 4px; }
+      .peer-grid { grid-template-columns: repeat(2, 1fr); }
+      .appendix-row { grid-template-columns: 1fr; }
+      th, td { padding: 6px 8px; font-size: 12px; }
+    }
+
+    @media print {
+      @page {
+        size: letter;
+        margin: 18mm 15mm 15mm 15mm;
+      }
+      body {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        background: #fff;
+        orphans: 3;
+        widows: 3;
+      }
+      .toc-strip { display: none; }
+      .page { max-width: 100%; margin: 0; padding: 0; }
+      details[open] > summary { display: none; }
+      details > div, details > table { display: block !important; }
+
+      .header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        padding: 4px 0 3px;
+        margin-bottom: 0;
+        border-bottom: 1.5px solid #C47A4A;
+        background: #fff;
+      }
+      .h-brand { margin-bottom: 2px; }
+      .h-brand span { font-size: 8px; }
+      .h-customer { font-size: 13px; margin-bottom: 0; }
+      .h-type { display: none; }
+      .h-meta { display: none; }
+      .h-accent { display: none; }
+
+      .section-title { break-after: avoid; }
+      .subsection-title { break-after: avoid; }
+      .sub-label { break-after: avoid; }
+      .callout-title { break-after: avoid; }
+      .coaching-header { break-after: avoid; }
+
+      .priority { break-inside: avoid; }
+      .metrics { break-inside: avoid; }
+      .metric { break-inside: avoid; }
+      .callout { break-inside: avoid; }
+      .coaching-card { break-inside: avoid; }
+      .what-this-means { break-inside: avoid; }
+      .highlights li { break-inside: avoid; }
+      .peer-metric { break-inside: avoid; }
+      .appendix-row { break-inside: avoid; }
+      .data-confidence { break-inside: avoid; }
+      table { break-inside: avoid; }
+      tr { break-inside: avoid; }
+
+      .footer { break-before: page; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- ═══ HEADER ═══
+    Operator: Use {{REPORT_TYPE_LABEL}} and {{REPORT_STAGE_BADGE}} for mode-correct header.
+    Use the correct period line per mode:
+      Mode 1: "{{PERIOD_START}} – {{PERIOD_END}} ({{PERIOD_LABEL}}) · Report Date: {{REPORT_DATE}}"
+      Mode 2: "Platform Configuration as of {{REPORT_DATE}}"
+      Mode 3: "Platform Status as of {{REPORT_DATE}} · Last active: {{LAST_ACTIVE_DATE}}"
+  -->
+  <header class="header" id="top">
+    <div class="h-brand">
+      <span>Insightful · Customer Intelligence</span>
+    </div>
+    <div class="h-customer">{{CLIENT_NAME}}</div>
+    <div class="h-type">{{REPORT_TYPE_LABEL}}</div>
+    <!-- Mode 1: -->  <div class="h-meta">{{PERIOD_START}} &ndash; {{PERIOD_END}} ({{PERIOD_LABEL}}) &middot; Report Date: {{REPORT_DATE}}</div>
+    <!-- Mode 2: <div class="h-meta">Platform Configuration as of {{REPORT_DATE}}</div> -->
+    <!-- Mode 3: <div class="h-meta">Platform Status as of {{REPORT_DATE}} &middot; Last active: {{LAST_ACTIVE_DATE}}</div> -->
+    <div class="h-meta" style="margin-top: 4px;">
+      <span class="badge badge-info">{{REPORT_STAGE_BADGE}}</span>
+    </div>
+    <div class="h-accent"></div>
+  </header>
+
+  <!-- ═══ STICKY TOC ═══
+    Operator: populate ONLY the links for sections actually included in this report.
+    The TOC must reflect the report mode.
+
+    MODE 1 (Standard) — include only sections rendered per conditional logic:
+      Always: Executive Summary, Customer & Buyer, Commerce Analytics, Platform & Utilization, Appendix
+      Conditional: Sales Team (HAS_SALES_SECTION), Product & Inventory (HAS_INVENTORY or HAS_SALES_DATA),
+                   Demand Signal Intelligence (HAS_CLICKY only), Peer Benchmarking (HAS_PEER_DATA only)
+
+    MODE 2 (Activation) — TOC contains only:
+      Activation Summary, Platform Readiness, [Peer Benchmarking if eligible], Appendix
+
+    MODE 3 (Reactivation) — TOC contains only:
+      Reactivation Summary, Historical Commerce, Platform Status, [Peer Benchmarking if eligible], Appendix
+  -->
+  <nav class="toc-strip" id="tocStrip">
+
+    <!-- ── Mode 1 TOC ── -->
+    <a href="#summary">Executive Summary</a>
+    <!-- Include if HAS_SALES_SECTION: <a href="#sales">Sales Team</a> -->
+    <a href="#customers">Customer &amp; Buyer</a>
+    <!-- Include if HAS_INVENTORY or HAS_SALES_DATA: <a href="#product">Product &amp; Inventory</a> -->
+    <a href="#commerce">Commerce Analytics</a>
+    <!-- Include ONLY if HAS_CLICKY = true: <a href="#portal">Demand Signal Intelligence</a> -->
+    <!-- Include if HAS_PEER_DATA: <a href="#peer">Peer Benchmarking</a> -->
+    <a href="#platform">Platform &amp; Utilization</a>
+    <a href="#appendix">Appendix</a>
+
+    <!-- ── Mode 2 TOC (activation — use instead of Mode 1 TOC):
+    <a href="#activation-summary">Activation Summary</a>
+    <a href="#platform-readiness">Platform Readiness</a>
+    [If HAS_PEER_DATA: <a href="#peer">Peer Benchmarking</a>]
+    <a href="#appendix">Appendix</a>
+    ── -->
+
+    <!-- ── Mode 3 TOC (reactivation — use instead of Mode 1 TOC):
+    <a href="#reactivation-summary">Reactivation Summary</a>
+    <a href="#historical-commerce">Historical Commerce</a>
+    <a href="#platform-status">Platform Status</a>
+    [If HAS_PEER_DATA: <a href="#peer">Peer Benchmarking</a>]
+    <a href="#appendix">Appendix</a>
+    ── -->
+
+  </nav>
+
+
+  <!-- ═══ §1 EXECUTIVE SUMMARY ═══
+    Always open (rendered as plain <section>, not collapsible). Always written last by the operator.
+
+    COMPACT PRESENTATION LOCK:
+    - The highlights list IS the executive summary. It must come first and be the dominant element.
+    - DO NOT write any <p class="prose"> paragraph before the highlights list.
+    - DO NOT write a narrative block summarizing the whole account above the numbered items.
+    - DO NOT write an introductory sentence framing the account or its performance before the highlights.
+    - FORBIDDEN: any prose before the highlights list — even a single sentence. The gold reference
+      (clm_2026-04-14_deep_intelligence_report.html) has ZERO prose before the highlights. Match it.
+    - Prose paragraphs above the highlights list = the regressed expanded state. Do not produce this.
+
+    RULES:
+      - 5–6 numbered highlights (<ul class="highlights"><li>). Synthesize — do not stat-dump.
+      - Each highlight: bold headline phrase + one sentence context + section link.
+      - At least one positive finding. At least one recommended action.
+      - Priority Actions: 2–4, highest urgency first; lower-priority may be in collapsed <details>
+  -->
+  <section class="section" id="summary">
+    <h2 class="section-title" style="font-size: 24px;">Executive Summary</h2>
+
+    <!-- ══ NO PROSE BEFORE THIS LIST. NOT EVEN ONE SENTENCE. ══
+         The <ul class="highlights"> is the FIRST content element after the section heading.
+         Do not insert any <p class="prose"> here. The gold reference has zero prose before highlights.
+         Any prose before the list is the regressed state and must be removed or not written. -->
+
+    <ul class="highlights">
+      <!-- Insert 5–6 numbered highlight items.
+           Example structure:
+           <li><strong>{{HIGHLIGHT_HEADLINE}}</strong> — {{HIGHLIGHT_BODY}} <a href="#{{SECTION_ANCHOR}}">See {{SECTION_NAME}} &rarr;</a></li>
+      -->
+      <li>{{HIGHLIGHT_1}}</li>
+      <li>{{HIGHLIGHT_2}}</li>
+      <li>{{HIGHLIGHT_3}}</li>
+      <!-- Add up to 3 more as needed (5–6 total) -->
+    </ul>
+
+    <div class="sub-label">Priority Actions</div>
+    <div class="priorities">
+      <!-- 2–4 priority actions, highest urgency first.
+           Use .priority-badge.high / .medium / .low classes.
+           Include section link in priority-title.
+           Include [HYPOTHETICAL] tag on any dollar impact projection.
+           Include [ESTIMATED] tag on any extrapolated figure.
+      -->
+      <div class="priority">
+        <span class="priority-badge high">Urgent</span>
+        <div>
+          <div class="priority-title"><a href="#{{SECTION_ANCHOR}}">{{PRIORITY_1_TITLE}}</a></div>
+          <div class="priority-desc">{{PRIORITY_1_DESC}}</div>
+        </div>
+        <div class="priority-impact">{{PRIORITY_1_IMPACT}}</div>
+      </div>
+      <!-- Repeat for additional priorities; wrap lower-priority in <details> -->
+    </div>
+  </section>
+
+
+  <!-- ═══ §2 SALES TEAM PERFORMANCE ═══
+    CONDITIONAL: Include only if 5+ active selling reps with 10+ eCat orders each.
+    If condition not met: omit section entirely — no note in delivered report.
+    Uses collapsible section-collapse pattern.
+    Section title "Sales Team Performance" at id="sales". All subsections included.
+      Subsections: Rep Activity Ladder · Behavioral Scorecard · Selling Archetypes ·
+                   Coaching Opportunities · Engagement Trajectory · Territory Coverage
+  -->
+  <!-- Operator: wrap entire block in conditional check — HAS_SALES_SECTION = true -->
+  <details class="section-collapse" id="sales">
+    <summary>
+      <h2 class="section-title">Sales Team Performance</h2>
+      <div class="section-sub">{{SALES_SUMMARY_LINE}}</div>
+      <!-- e.g., "{{ACTIVE_REP_COUNT}} active reps · {{IPAD_ORDER_COUNT}} iPad orders · ${{IPAD_GMV}} iPad GMV" -->
+      <div class="section-contents">Rep Activity Ladder &middot; Behavioral Scorecard &middot; Selling Archetypes &middot; Coaching Opportunities &middot; Engagement Trajectory</div>
+      <span class="expand-hint">&#9662; Click to expand</span>
+    </summary>
+  <section class="section" style="margin-bottom:0;border-top:none;border-radius:0 0 var(--r) var(--r);">
+
+    <!-- Key metrics row -->
+    <div class="metrics">
+      <div class="metric">
+        <div class="metric-label">Active Selling Reps</div>
+        <div class="metric-value">{{ACTIVE_REP_COUNT}}</div>
+        <div class="metric-note">of {{TOTAL_USER_COUNT}} total users</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">iPad Orders ({{PERIOD_LABEL}})</div>
+        <div class="metric-value">{{IPAD_ORDER_COUNT}}</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">eCat GMV ({{PERIOD_LABEL}})</div>
+        <div class="metric-value">${{ECAT_GMV_FORMATTED}}</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Team Avg AOV</div>
+        <div class="metric-value">${{TEAM_AOV}}</div>
+      </div>
+    </div>
+
+    <!-- Rep Activity Ladder -->
+    <div class="subsection">
+      <h3 class="subsection-title">Rep Activity Ladder</h3>
+      <table>
+        <thead><tr><th>Rep</th><th>eCat Orders</th><th>AOV</th><th>eCat GMV</th><th>Customers Served</th></tr></thead>
+        <tbody>
+          <!-- Operator: top 5 reps visible; wrap remaining in <details> -->
+          <!-- Use .row-highlight for top 3 performers -->
+          <!-- row format: <tr class="row-highlight"><td><strong>{{REP_NAME}}</strong></td><td>{{ORDERS}}</td><td>${{AOV}}</td><td><strong>${{GMV}}</strong></td><td>{{CUSTOMERS}}</td></tr> -->
+        </tbody>
+      </table>
+      <details>
+        <summary>Show all {{TOTAL_REP_COUNT}} reps</summary>
+        <table>
+          <thead><tr><th>Rep</th><th>eCat Orders</th><th>AOV</th><th>eCat GMV</th><th>Customers Served</th></tr></thead>
+          <tbody><!-- remaining reps --></tbody>
+        </table>
+      </details>
+    </div>
+
+    <!-- Behavioral Scorecard Spotlight (top 3 reps) -->
+    <div class="subsection">
+      <h3 class="subsection-title">Behavioral Scorecard Spotlight</h3>
+      <p style="font: 400 12px/1.5 var(--fd); color: var(--text-muted); margin-bottom: 12px;">Per-order behavioral ratios across six selling dimensions, benchmarked against team average. Ratios normalize for volume — compare a high-volume rep to a high-AOV rep on equal footing.</p>
+      <!-- Operator: one coaching-card per spotlight rep. Format: -->
+      <!--
+      <div class="coaching-card" style="border-top: 3px solid var(--accent);">
+        <div class="coaching-header">
+          <div class="coaching-name">{{REP_NAME}}</div>
+          <span class="badge" style="background:var(--accent-glow);color:var(--accent-deep);border:1px solid var(--accent-border);">{{BADGE_LABEL}}</span>
+        </div>
+        <div style="overflow-x:auto;margin-bottom:10px;">
+          <table style="margin-bottom:0;">
+            <thead><tr><th>Dimension</th><th>Per Order</th><th>Team Avg</th><th>Rating</th></tr></thead>
+            <tbody>
+              <tr><td>Customer Targeting</td><td>{{VAL}}</td><td>{{AVG}}</td><td><strong style="color:var(--ok);">Efficient</strong></td></tr>
+              ... (6 rows)
+            </tbody>
+          </table>
+        </div>
+        <div class="coaching-body"><strong>Outcome:</strong> {{ORDERS}} orders, ${{GMV}}, {{CUSTOMERS}} customers, ${{AOV}} AOV. {{NARRATIVE}}</div>
+      </div>
+      -->
+    </div>
+
+    <!-- Selling Archetypes -->
+    <div class="subsection">
+      <h3 class="subsection-title">Selling Archetypes</h3>
+      <p style="font: 400 12px/1.5 var(--fd); color: var(--text-muted); margin-bottom: 12px;">Cluster analysis on behavioral ratios identifies distinct selling styles. Coaching should adapt to archetype — match development to the style.</p>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead><tr><th>Archetype</th><th>Rep(s)</th><th>Signature</th><th>Coaching Implication</th></tr></thead>
+          <tbody>
+            <!-- Operator: populate from Q-02 archetype classification -->
+          </tbody>
+        </table>
+      </div>
+      <div class="callout insight">
+        <div class="callout-title">How to use archetypes</div>
+        Archetypes replace one-size-fits-all coaching. A Volume Coverage Seller needs AOV support, not breadth training. A Precision Closer needs frequency incentives, not configuration coaching. Match development to the style.
+      </div>
+    </div>
+
+    <!-- Coaching Opportunities (funnel gap analysis) -->
+    <div class="subsection">
+      <h3 class="subsection-title">Coaching Opportunities</h3>
+      <p style="font: 400 12px/1.5 var(--fd); color: var(--text-muted); margin-bottom: 12px;">Behavioral funnel analysis: Targeting &rarr; Discovery &rarr; Configuration &rarr; Presentation &rarr; Orders. Each card identifies where the rep's funnel leaks and the coaching opportunity.</p>
+      <!-- Operator: one coaching-card per coaching opportunity rep. Include [HYPOTHETICAL] on any upside dollar figure. Format:
+      <div class="coaching-card">
+        <div class="coaching-header">
+          <div class="coaching-name">{{REP_NAME}}</div>
+          <span class="badge badge-warn">Gap: {{GAP_DESCRIPTION}}</span>
+        </div>
+        <div class="coaching-body">{{BEHAVIOR_DESCRIPTION}}</div>
+        <div class="coaching-action"><strong>Action:</strong> {{COACHING_ACTION}}</div>
+        <div class="coaching-impact">{{UPSIDE}} [HYPOTHETICAL]</div>
+      </div>
+      -->
+    </div>
+
+    <!-- Rep Engagement Trajectory -->
+    <div class="subsection">
+      <h3 class="subsection-title">Rep Engagement Trajectory</h3>
+      <p style="font: 400 12px/1.5 var(--fd); color: var(--text-muted); margin-bottom: 12px;">Rolling 90-day comparison of login frequency and eCat ordering velocity. Declining engagement is a leading indicator — often precedes account-level churn by 60–90 days.</p>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead><tr><th>Rep</th><th>Logins (prev 90d)</th><th>Logins (curr 90d)</th><th>&Delta;</th><th>Orders (prev 90d)</th><th>Orders (curr 90d)</th><th>&Delta;</th></tr></thead>
+          <tbody>
+            <!-- Operator: use .row-warn for reps with >20% decline in either metric -->
+          </tbody>
+        </table>
+      </div>
+      <!-- Operator: if any rep has >20% decline, add alert callout:
+      <div class="callout alert">
+        <div class="callout-title">Engagement Alert</div>
+        {{DECLINING_REP_NARRATIVE}}
+      </div>
+      -->
+    </div>
+
+    <!-- Territory Coverage (VM-43 — include if territory data available) -->
+    <details class="subsection">
+      <summary>Territory Coverage Analysis</summary>
+      <div style="padding: 16px 0;">
+        <p style="font: 400 12px/1.5 var(--fd); color: var(--text-muted); margin-bottom: 12px;">Accounts assigned to reps but with no eCat order history represent activation headroom within your existing dealer network.</p>
+        <table>
+          <thead><tr><th>Territory</th><th>Assigned Accounts</th><th>eCat Active</th><th>Never Activated or Lapsed via eCat</th></tr></thead>
+          <tbody>
+            <!-- Operator: populate from Q-43 -->
+          </tbody>
+        </table>
+        <div class="what-this-means">
+          <strong>What this tells you:</strong> {{TERRITORY_COVERAGE_INSIGHT}}
+        </div>
+      </div>
+    </details>
+
+  </section>
+  </details>
+
+
+  <!-- ═══ §3 CUSTOMER & BUYER INTELLIGENCE ═══
+    Always included.
+    Subsections: Customer Activation & Network Health · Dormant Buyers ·
+                 At-Risk High-Value Accounts · Reorder Velocity · New eCat Buyers ·
+                 Geographic Distribution
+    NOTE: Enrollment funnel and onboarding velocity (VM-15, VM-44) are intentionally
+    excluded from the external report system. Do not add enrollment subsections here.
+
+    ⚠️ ERP LABEL PROHIBITION — applies to every HTML slot in this section:
+    The word "ERP" must not appear in metric-label, metric-note, section-sub, or prose text.
+    - section-sub example: "{{ACTIVE_12MO}} active eCat buyers · {{TOTAL_ACCOUNTS}} total accounts · {{RETENTION_RATE}}% eCat retention"
+      (NOT "ERP accounts" — use "total accounts" or "your full account base")
+    - metric-label: use "Total Accounts" (NOT "ERP Accounts")
+    - metric-note slots: use "all account records" or "your full account base" (NOT "all-time ERP records")
+    - percentage notes: use "% of total accounts" (NOT "% of ERP base")
+    - prose: use "accounts in your system" (NOT "ERP accounts")
+  -->
+  <details class="section-collapse" id="customers">
+    <summary>
+      <h2 class="section-title">Customer &amp; Buyer Intelligence</h2>
+      <div class="section-sub">{{CUSTOMER_SUMMARY_LINE}}</div>
+      <!-- e.g., "{{ACTIVE_12MO}} active eCat buyers · {{TOTAL_ACCOUNTS}} total accounts · {{RETENTION_RATE}}% eCat retention" -->
+      <!-- ⚠️ Do NOT write "ERP accounts" in section-sub — use "total accounts" -->
+      <div class="section-contents">Activation &amp; Retention &middot; Dormant Buyers &middot; At-Risk Accounts &middot; Reorder Velocity &middot; New Acquisition</div>
+      <span class="expand-hint">&#9662; Click to expand</span>
+    </summary>
+  <section class="section" style="margin-bottom:0;border-top:none;border-radius:0 0 var(--r) var(--r);">
+
+    <!-- Customer activation metrics -->
+    <div class="metrics">
+      <div class="metric">
+        <div class="metric-label">Total Accounts</div>
+        <!-- ⚠️ NEVER use "ERP Accounts" as the label here — use "Total Accounts" or "Your Account Base" -->
+        <div class="metric-value">{{TOTAL_ERP_CUSTOMERS}}</div>
+        <div class="metric-note">all account records</div>
+        <!-- ⚠️ metric-note: use "all account records" or "your full account base" — NEVER "all-time ERP records" -->
+      </div>
+      <div class="metric">
+        <div class="metric-label">eCat Buyers (LTM)</div>
+        <div class="metric-value">{{ACTIVE_12MO}}</div>
+        <div class="metric-note">of {{TOTAL_EVER_ORDERED}} ever ordered via eCat</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">eCat Retention Rate</div>
+        <div class="metric-value">{{RETENTION_RATE}}%</div>
+        <div class="metric-note">active LTM / all-time eCat buyers</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">New eCat Buyers (LTM)</div>
+        <div class="metric-value">{{NEW_ECAT_BUYERS}}</div>
+        <div class="metric-note">first-ever eCat order this period</div>
+      </div>
+    </div>
+
+    <!-- Dormant high-value buyers -->
+    <div class="subsection">
+      <h3 class="subsection-title">Dormant High-Value Accounts</h3>
+      <p style="font: 400 12px/1.5 var(--fd); color: var(--text-muted); margin-bottom: 12px;">Buyers who placed eCat orders in the past 12 months but not in the last 90 days, ranked by trailing GMV.</p>
+      <table>
+        <thead><tr><th>Account</th><th>State</th><th>eCat GMV (LTM)</th><th>Last eCat Order</th><th>Days Silent</th></tr></thead>
+        <tbody>
+          <!-- Operator: top dormant accounts from Q-17 at-risk sub-view. Use .row-warn for >90 days. -->
+        </tbody>
+      </table>
+      <div class="what-this-means">
+        <strong>What this tells you:</strong> {{DORMANT_INSIGHT}}
+      </div>
+    </div>
+
+    <!-- Reorder velocity & early warning -->
+    <div class="subsection">
+      <h3 class="subsection-title">Reorder Velocity &amp; Early Warning</h3>
+      <p style="font: 400 12px/1.5 var(--fd); color: var(--text-muted); margin-bottom: 12px;">eCat buyers ordering significantly less frequently than their historical baseline. Deceleration precedes dormancy.</p>
+      <table>
+        <thead><tr><th>Account</th><th>eCat Orders (LTM)</th><th>Avg Days Between Orders</th><th>Last eCat Order</th></tr></thead>
+        <tbody>
+          <!-- Operator: from Q-14, flag buyers whose last_order is >1.5x their avg_days_between_orders -->
+        </tbody>
+      </table>
+      <div class="what-this-means">
+        <strong>What this tells you:</strong> {{REORDER_VELOCITY_INSIGHT}}
+      </div>
+    </div>
+
+    <!-- New eCat buyer acquisition -->
+    <div class="subsection">
+      <h3 class="subsection-title">New eCat Buyer Acquisition</h3>
+      <p style="font: 400 12px/1.5 var(--fd); color: var(--text-muted); margin-bottom: 12px;">First-ever eCat orders by month, attributed to channel (rep-submitted iPad vs. eCat Online self-service).</p>
+      <table>
+        <!-- Operator: include eCat Online column ONLY if HAS_CART = true -->
+        <thead><tr><th>Month</th><th>Rep-Acquired (iPad)</th><!-- if HAS_CART: --><th>eCat Online-Acquired</th><th>Total</th></tr></thead>
+        <tbody>
+          <!-- Operator: from Q-41 -->
+        </tbody>
+      </table>
+      <div class="what-this-means">
+        <strong>What this tells you:</strong> {{NEW_BUYER_INSIGHT}}
+      </div>
+    </div>
+
+    <!-- Geographic distribution -->
+    <div class="subsection">
+      <h3 class="subsection-title">Geographic Distribution</h3>
+      <table>
+        <thead><tr><th>State</th><th>eCat Buyers</th><th>eCat Orders (LTM)</th><th>eCat GMV (LTM)</th></tr></thead>
+        <tbody>
+          <!-- Operator: top 10 states from Q-40 (eCat orders lens) -->
+        </tbody>
+      </table>
+      <div class="what-this-means">
+        <strong>What this tells you:</strong> {{GEOGRAPHIC_INSIGHT}}
+      </div>
+    </div>
+
+    <!-- ENROLLMENT / ONBOARDING: intentionally excluded from external report system.
+         VM-15 and VM-44 are non_runtime. Do not add enrollment subsections here.
+    -->
+
+  </section>
+  </details>
+
+
+  <!-- ═══ §4 PRODUCT & INVENTORY INTELLIGENCE ═══
+    CONDITIONAL: Include only if inventories OR sales_data present.
+    If neither present: omit section entirely. Note in Appendix.
+    Subsections: OOS Top Sellers (requires sales_data + inventories) ·
+                 Product Line Performance (requires sales_data) ·
+                 New Introduction Performance (requires new_item + sales_data) ·
+                 Product Velocity Trend (requires portal_order_items — VM-38a)
+  -->
+  <!-- Operator: wrap in conditional — HAS_INVENTORY or HAS_SALES_DATA -->
+  <details class="section-collapse" id="product">
+    <summary>
+      <h2 class="section-title">Product &amp; Inventory Intelligence</h2>
+      <div class="section-sub">{{PRODUCT_SUMMARY_LINE}}</div>
+      <div class="section-contents">Out-of-Stock Top Sellers &middot; Product Line Performance &middot; New Introduction Results</div>
+      <span class="expand-hint">&#9662; Click to expand</span>
+    </summary>
+  <section class="section" style="margin-bottom:0;border-top:none;border-radius:0 0 var(--r) var(--r);">
+
+    <!-- Out-of-stock top sellers — requires sales_data + inventories -->
+    <!-- Operator: include this subsection only if BOTH sales_data AND inventories present -->
+    <div class="subsection">
+      <h3 class="subsection-title">Top Sellers Currently Out of Stock</h3>
+      <div class="callout note">
+        <div class="callout-title">Data note</div>
+        Inventory figures reflect the most recent import only. We cannot determine how long items have been out of stock — this is a point-in-time snapshot.
+      </div>
+      <table>
+        <thead><tr><th>Item</th><th>Category</th><th>Historical ERP Sales</th><th>Qty Sold</th><th>Available</th><th>Next Receipt</th></tr></thead>
+        <tbody>
+          <!-- Operator: from Q-37. Use .row-danger for qty_available = 0 -->
+        </tbody>
+      </table>
+      <div class="what-this-means">
+        <strong>What this tells you:</strong> {{OOS_INSIGHT}}
+      </div>
+    </div>
+
+    <!-- Sales by category / collection — requires sales_data -->
+    <!-- Operator: include if HAS_SALES_DATA -->
+    <details class="subsection">
+      <summary>Product Line Performance by Category &amp; Collection</summary>
+      <div style="padding: 16px 0;">
+        <p style="font: 400 12px/1.5 var(--fd); color: var(--text-muted); margin-bottom: 12px;">Historical ERP sales by category and collection. Categories with high items-per-sale have strong product-market fit. Note: category codes are client-defined — opaque codes (e.g., CAT1) require your team's interpretation.</p>
+        <table>
+          <thead><tr><th>Category</th><th>ERP Sales</th><th>Items</th><th>Qty Sold</th><th>Sales / Item</th></tr></thead>
+          <tbody><!-- Operator: from Q-PI-03 --></tbody>
+        </table>
+      </div>
+    </details>
+
+    <!-- New introduction performance — requires new_item flag + sales_data -->
+    <!-- Operator: include if both conditions met -->
+    <div class="subsection">
+      <h3 class="subsection-title">New Introduction Performance</h3>
+      <p style="font: 400 12px/1.5 var(--fd); color: var(--text-muted); margin-bottom: 12px;">Sell-through by collection for items flagged as new introductions. Per-item variance reveals which collections are gaining traction vs. which need attention.</p>
+      <table>
+        <thead><tr><th>Collection</th><th>New Items</th><th>ERP Sales</th><th>Qty Sold</th><th>Sales / New Item</th></tr></thead>
+        <tbody>
+          <!-- Operator: from Q-42. Highlight top performers (.row-highlight) and near-zero (.row-warn) -->
+        </tbody>
+      </table>
+      <div class="what-this-means">
+        <strong>What this tells you:</strong> {{NEW_INTRO_INSIGHT}}
+      </div>
+    </div>
+
+    <!-- Product velocity trend — requires portal_order_items (VM-38a, ~52 orgs) -->
+    <!-- Operator: include only if portal_order_items confirmed present -->
+    <!--
+    <details class="subsection">
+      <summary>Product Velocity Trend (eCat Orders)</summary>
+      <div style="padding: 16px 0;">
+        <p style="font: 400 12px/1.5 var(--fd); color: var(--text-muted); margin-bottom: 12px;">Month-over-month eCat order velocity by item. Accelerating items may need replenishment before stockout.</p>
+        <table>
+          <thead><tr><th>Item</th><th>Description</th><th>Category</th><th>Prev 3mo Orders</th><th>Curr 3mo Orders</th><th>&Delta;</th></tr></thead>
+          <tbody><!-- Operator: from Q-38a --></tbody>
+        </table>
+      </div>
+    </details>
+    -->
+
+  </section>
+  </details>
+
+
+  <!-- ═══ §5 COMMERCE ANALYTICS ═══
+    Always included.
+    Subsections: eCat Order Trend · Channel Attribution ·
+                 AOV Analysis · Order Type & Workflow ·
+                 [ERP Total Business Context — conditional on HAS_PORTAL_ORDERS]
+                 [eCat Capture Rate — conditional on HAS_PORTAL_ORDERS]
+  -->
+  <details class="section-collapse" id="commerce">
+    <summary>
+      <h2 class="section-title">Commerce Analytics</h2>
+      <div class="section-sub">{{COMMERCE_SUMMARY_LINE}}</div>
+      <!-- e.g., "${{ECAT_GMV}} eCat GMV · {{ECAT_ORDERS}} orders · ${{ECAT_AOV}} AOV" -->
+      <div class="section-contents">eCat Order Trend &middot; Channel Attribution &middot; AOV Analysis &middot; Order Workflow</div>
+      <span class="expand-hint">&#9662; Click to expand</span>
+    </summary>
+  <section class="section" style="margin-bottom:0;border-top:none;border-radius:0 0 var(--r) var(--r);">
+
+    <!-- eCat order trend -->
+    <div class="subsection">
+      <h3 class="subsection-title">eCat Order Trend ({{PERIOD_LABEL}})</h3>
+      <div class="metrics">
+        <div class="metric">
+          <div class="metric-label">Total eCat Orders</div>
+          <div class="metric-value">{{TOTAL_ECAT_ORDERS}}</div>
+          <div class="metric-note">{{PERIOD_LABEL}}</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">eCat GMV</div>
+          <div class="metric-value">${{ECAT_GMV_FORMATTED}}</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">eCat AOV</div>
+          <div class="metric-value">${{ECAT_AOV}}</div>
+        </div>
+        <!-- Operator: show ERP share metrics only if HAS_PORTAL_ORDERS = true -->
+        <!-- <div class="metric"><div class="metric-label">eCat Share of Total Business</div><div class="metric-value">{{ECAT_CAPTURE_PCT}}%</div><div class="metric-note">by order count</div></div> -->
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Month</th>
+            <th>eCat Orders</th>
+            <th>iPad Orders</th>
+            <!-- Include ONLY if HAS_CART: <th>eCat Online Orders</th> -->
+            <th>eCat GMV</th>
+            <!-- Include if HAS_PORTAL_ORDERS: <th>ERP Total Orders</th><th>eCat Share</th> -->
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Operator: from Q-18. Merge Part A and Part B if HAS_PORTAL_ORDERS. -->
+        </tbody>
+      </table>
+      <div class="what-this-means">
+        <strong>What this tells you:</strong> {{ORDER_TREND_INSIGHT}}
+      </div>
+    </div>
+
+    <!-- Channel attribution — CONDITIONAL: HAS_CART only -->
+    <!-- Operator: include this subsection ONLY if HAS_CART = true AND server-source eCat orders confirmed -->
+    <!--
+    <div class="subsection">
+      <h3 class="subsection-title">eCat Ordering Channel Breakdown</h3>
+      <p style="font: 400 12px/1.5 var(--fd); color: var(--text-muted); margin-bottom: 12px;">iPad orders are rep-submitted; eCat Online orders are buyer self-service through your Online Ordering channel. Channel trend informs investment decisions — rep training vs. online catalog investment.</p>
+      <div class="callout insight">
+        <div class="callout-title">Channel Attribution</div>
+        All eCat orders originate from one of two channels: <strong>iPad</strong> (rep-submitted, order_source = 'ipad') or <strong>eCat Online</strong> (buyer self-service, order_source = 'server'). These are the only two eCat ordering channels.
+      </div>
+      <table>
+        <thead><tr><th>Month</th><th>iPad Orders</th><th>iPad GMV</th><th>eCat Online Orders</th><th>eCat Online GMV</th><th>Online Share %</th></tr></thead>
+        <tbody><!-- from Q-18 Part A ipad_orders / ecat_online_orders columns --></tbody>
+      </table>
+    </div>
+    -->
+
+    <!-- AOV analysis -->
+    <div class="subsection">
+      <h3 class="subsection-title">eCat Order Value Analysis</h3>
+      <table>
+        <thead><tr><th>Dimension</th><th>Orders</th><th>AOV</th><th>GMV</th></tr></thead>
+        <tbody>
+          <!-- Operator: from Q-20. All eCat / iPad / eCat Online / Quote rows. -->
+          <!-- For iPad-only clients: show only "All eCat Orders" and "iPad Orders" rows (both will be same). No eCat Online row. -->
+          <!-- Note: Quote row only if quote orders exist -->
+        </tbody>
+      </table>
+      <div class="what-this-means">
+        <strong>What this tells you:</strong> {{AOV_INSIGHT}}
+      </div>
+    </div>
+
+    <!-- Order type & workflow -->
+    <details class="subsection">
+      <summary>eCat Order Type &amp; Workflow</summary>
+      <div style="padding: 16px 0;">
+        <table>
+          <thead><tr><th>Order Type</th><th>Orders</th><th>%</th><th>GMV</th><th>Avg Value</th></tr></thead>
+          <tbody><!-- Operator: from Q-21 --></tbody>
+        </table>
+      </div>
+    </details>
+
+    <!-- ERP Total Business Context — CONDITIONAL: HAS_PORTAL_ORDERS only -->
+    <!-- IMPORTANT: portal_orders = ERP-synced total business. Never buyer self-service. Never "portal ordering." -->
+    <!-- Operator: include this subsection ONLY if HAS_PORTAL_ORDERS = true -->
+    <!--
+    <div class="subsection">
+      <h3 class="subsection-title">Total Business Overview (Sales Intelligence Dashboard)</h3>
+      <div class="callout note">
+        <div class="callout-title">About this data</div>
+        Your Sales Intelligence Dashboard syncs all order activity from your ERP — eCat, phone, EDI, trade shows, and showroom combined. This data shows the full picture of your business across all channels.
+      </div>
+      <table>
+        <thead><tr><th>Month</th><th>Total All-Channel Orders</th><th>Total All-Channel GMV</th><th>eCat-Originated Orders</th><th>Market / Trade Show Orders</th></tr></thead>
+        <!-- ⚠️ Table headers: use "Total All-Channel Orders" / "Total All-Channel GMV" — NEVER "Total ERP Orders" / "ERP GMV" -->
+        <tbody><!-- Operator: from Q-16, Q-18 Part B --></tbody>
+      </table>
+      <div class="what-this-means">
+        <strong>What this tells you:</strong> {{ERP_TOTAL_INSIGHT}}
+      </div>
+    </div>
+    -->
+
+    <!-- eCat Capture Rate — CONDITIONAL: HAS_PORTAL_ORDERS only, no denominator-less fallback -->
+    <!-- Operator: include ONLY if portal_orders confirmed present -->
+    <!--
+    <div class="subsection">
+      <h3 class="subsection-title">eCat Platform Penetration</h3>
+      <div class="metrics">
+        <div class="metric"><div class="metric-label">eCat Order Capture Rate</div><div class="metric-value">{{ECAT_ORDER_CAPTURE_PCT}}%</div><div class="metric-note">of total all-channel orders</div></div>
+        <!-- ⚠️ metric-note: use "of total all-channel orders" — NEVER "of total ERP order count" -->
+        <div class="metric"><div class="metric-label">eCat GMV Capture Rate</div><div class="metric-value">{{ECAT_GMV_CAPTURE_PCT}}%</div><div class="metric-note">of total all-channel sales</div></div>
+        <!-- ⚠️ metric-note: use "of total all-channel sales" — NEVER "of total ERP GMV" -->
+        <div class="metric"><div class="metric-label">Platform Posture</div><div class="metric-value">{{ECAT_POSTURE}}</div></div>
+      </div>
+      <div class="what-this-means">
+        <strong>What this tells you:</strong> {{CAPTURE_RATE_INSIGHT}}
+      </div>
+    </div>
+    -->
+
+  </section>
+  </details>
+
+
+  <!-- ═══ §6 DEMAND SIGNAL INTELLIGENCE ═══
+    ════════════════════════════════════════════════════════
+    CLICKY BINARY GATE — This ENTIRE section is absent if HAS_CLICKY = false.
+    Do NOT render the summary, section wrapper, or any content.
+    Do NOT reference Clicky, portal analytics, or portal traffic elsewhere in the report.
+    If HAS_CLICKY = false, move silently to §7 Peer Benchmarking.
+    ════════════════════════════════════════════════════════
+    Operator: wrap the ENTIRE details.section-collapse block below in:
+      if HAS_CLICKY == true: [render block]
+      else: [omit entirely — no placeholder, no "coming soon"]
+  -->
+  <!-- BEGIN CLICKY GATE — render only if HAS_CLICKY = true -->
+  <details class="section-collapse" id="portal">
+    <summary>
+      <h2 class="section-title">Demand Signal Intelligence</h2>
+      <div class="section-sub">{{PORTAL_SUMMARY_LINE}}</div>
+      <!-- e.g., "{{AVG_DAILY_VISITORS}} avg daily unique visitors · {{AVG_SESSION}}s avg session" -->
+      <!-- NOTE: bounce_rate is EXCLUDED — column scale unconfirmed in Clicky BigQuery pipeline. Do not add bounce_rate here. -->
+      <div class="section-contents">Engagement Depth &amp; Demand Signals &middot; Research Activity Trend &middot; Geographic Demand &middot; Traffic Sources</div>
+      <span class="expand-hint">&#9662; Click to expand</span>
+    </summary>
+  <section class="section" style="margin-bottom:0;border-top:none;border-radius:0 0 var(--r) var(--r);">
+
+    <!-- Portal traffic health metrics -->
+    <div class="metrics">
+      <div class="metric">
+        <div class="metric-label">Avg Daily Visitors</div>
+        <div class="metric-value">{{AVG_DAILY_VISITORS}}</div>
+        <div class="metric-note">{{VISITORS_VS_MEDIAN}}</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Avg Daily Pageviews</div>
+        <div class="metric-value">{{AVG_DAILY_PAGEVIEWS}}</div>
+      </div>
+      <!-- EXCLUDED: bounce_rate column scale is unconfirmed in the Clicky BigQuery pipeline.
+           Do not surface bounce rate in client output. See qa/known_limitations.md §4.2. -->
+      <div class="metric">
+        <div class="metric-label">Avg Session Duration</div>
+        <div class="metric-value">{{AVG_SESSION_MIN}} min</div>
+      </div>
+    </div>
+
+    <!-- Monthly traffic trend -->
+    <div class="subsection">
+      <h3 class="subsection-title">Monthly Traffic Trend</h3>
+      <table>
+        <!-- bounce_rate column excluded — scale unconfirmed (qa/known_limitations.md §4.2) -->
+        <thead><tr><th>Month</th><th>Avg Daily Visitors</th><th>Avg Daily Pageviews</th><th>Avg Session</th></tr></thead>
+        <tbody>
+          <!-- Operator: from Q-CL-01 -->
+        </tbody>
+      </table>
+      <div class="what-this-means">
+        <strong>What this tells you:</strong> {{PORTAL_TRAFFIC_INSIGHT}}
+      </div>
+    </div>
+
+    <!-- Geographic demand -->
+    <div class="subsection">
+      <h3 class="subsection-title">Geographic Demand</h3>
+      <p style="font: 400 12px/1.5 var(--fd); color: var(--text-muted); margin-bottom: 12px;">States where your online catalog is generating buyer attention. Compare against your eCat order geography to identify regions with demand but no conversion.</p>
+      <table>
+        <thead><tr><th>State</th><th>Portal Visitors (6mo)</th></tr></thead>
+        <tbody><!-- Operator: from Q-CL-03, top 10 states --></tbody>
+      </table>
+      <div class="what-this-means">
+        <strong>What this tells you:</strong> {{GEOGRAPHIC_DEMAND_INSIGHT}}
+      </div>
+    </div>
+
+    <!-- Traffic sources -->
+    <details class="subsection">
+      <summary>Traffic Source Breakdown</summary>
+      <div style="padding: 16px 0;">
+        <table>
+          <thead><tr><th>Source</th><th>Visitors (6mo)</th><th>Share %</th></tr></thead>
+          <tbody><!-- Operator: from Q-CL-05 --></tbody>
+        </table>
+        <div class="what-this-means">
+          <strong>What this tells you:</strong> {{TRAFFIC_SOURCE_INSIGHT}}
+        </div>
+      </div>
+    </details>
+
+    <!-- Top content / pages — CONDITIONAL: CL-02 page data available -->
+    <!--
+    <details class="subsection">
+      <summary>Top Pages &amp; Content Performance</summary>
+      <div style="padding: 16px 0;">
+        <table>
+          <thead><tr><th>Page</th><th>Pageviews</th><th>Unique Visitors</th></tr></thead>
+          <tbody><!-- from Q-CL-02 --></tbody>
+        </table>
+      </div>
+    </details>
+    -->
+
+  </section>
+  </details>
+  <!-- END CLICKY GATE -->
+
+
+  <!-- ═══ §7 PEER BENCHMARKING ═══
+    CONDITIONAL: Include only when HAS_PEER_DATA = true AND BENCHMARK_ELIGIBLE = true AND PEER_GROUP_LEVEL != 'tier4'.
+    If no peer data: omit section entirely. No note in delivered report (record in validation log only).
+    If benchmark_eligible = false: omit section entirely. No note in delivered report.
+
+    INTERNAL SIGNAL RULES (hard):
+      - benchmark_confidence, peer_group_level, peer_group_n are NEVER exposed in client output
+      - 'high'/'medium'/'low', 'tier1'/'tier2'/'tier3' must not appear anywhere in this section
+      - The peer group must be described using plain-language framing derived from peer_group_id_effective
+        (e.g., "Lighting manufacturers on the same platform bundle") — not the raw "{vertical} / {bundle}" label
+      - Internal segment labels (Platform-Embedded, Commerce-Active, Catalog-Focused) never appear here
+      - See authority/peer_benchmark.md §7 for all approved plain-language framing patterns
+      - Structural reference: authority/gold/clm_2026-04-14_deep_intelligence_report.html §7 shows HTML structure for the peer benchmarking section.
+        Follow the label and sentence rules defined in the EXAMPLE ROW comment below this section.
+
+    SUBSECTION ORDER:
+      1. Peer group header + optional plain-language framing note
+      2. Hero stat — the single most striking metric for this org (operator selects)
+      3. Narrative metric rows — all applicable metrics as sentences with range bars
+      4. What top performers on your plan do — PRIMARY block (not collapsed)
+      5. Feature adoption vs. peer group — table
+      6. [Growth trajectory — conditional: Q-CI-04, requires May 2026+]
+      7. What this tells you close
+
+    HERO STAT SELECTION (operator decision):
+      Pick the metric where this org's story is strongest — either a standout strength or a
+      specific gap worth calling out. Priority order: orders_per_user (most legible if applicable),
+      engagement_score, adoption_score, catalog_completeness, trajectory_score.
+      Never use health_score as hero. Never pick a metric with metric_applicable = false.
+
+    NOTE: This section was accidentally omitted from the reference HTML.
+    That omission is not precedent. Peer Benchmarking is always included when data is available.
+  -->
+  <!-- Operator: wrap in conditional — HAS_PEER_DATA = true AND BENCHMARK_ELIGIBLE = true AND PEER_GROUP_LEVEL != 'tier4' -->
+  <details class="section-collapse" id="peer">
+    <summary>
+      <h2 class="section-title">Peer Benchmarking</h2>
+      <div class="section-sub">{{PEER_SUMMARY_LINE}}</div>
+      <!-- e.g., "Compared to similar lighting accounts on the same platform bundle · Catalog completeness Top 5%"
+           Use plain-language framing, not the raw peer_group_id_effective label
+           Do NOT expose peer_group_n as a raw count. Do NOT include any confidence or tier label. -->
+      <div class="section-contents">Standout Metric &middot; Full Benchmark Breakdown &middot; What Top Performers Do &middot; Feature Adoption</div>
+      <span class="expand-hint">&#9662; Click to expand</span>
+    </summary>
+  <section class="section" style="margin-bottom:0;border-top:none;border-radius:0 0 var(--r) var(--r);">
+
+    <!-- ── Peer group header ── -->
+    <div style="margin-bottom: 20px;">
+      <div class="peer-cohort-label">Your Peer Group</div>
+      <div class="peer-cohort-value">{{PEER_GROUP_PLAIN_LANGUAGE}}</div>
+      <!-- Write plain-language cohort name here, e.g., "Lighting manufacturers on the same platform bundle"
+           Derived from peer_group_id_effective but NOT the raw label itself.
+           See deep-report gold reference §7 for the exact approved framing. -->
+      <div class="peer-cohort-sub">{{PEER_GROUP_DESCRIPTION}}</div>
+      <!-- Operator: write a 1-sentence plain-language description of the peer group.
+           Examples:
+             "Furniture manufacturers on the Full platform bundle — the closest comparable accounts in the network."
+             "Other accounts on the Full plan — platform-level benchmarks are directly comparable across this group."
+           If BENCHMARK_CONFIDENCE = low or medium, fold the framing note into this sentence using
+           approved language from authority/peer_benchmark.md §7. Do NOT add a separate "confidence" label.
+      -->
+    </div>
+
+    <!-- ── Hero stat ──
+      Operator: choose the single metric with the most striking story for this org.
+      Selection priority: orders_per_user (if HAS_CART) → engagement_score → adoption_score →
+                         catalog_completeness → trajectory_score.
+      Never use health_score. Never use a metric where metric_applicable = false.
+
+      For the percentile display: round to nearest whole number (e.g., 0.72 → "Top 28%").
+      For the stat value: use the org's raw metric value formatted appropriately.
+      For the context sentence: write it as a complete thought — see examples below.
+      Use class .above / .below / .on-par on .peer-hero-pctile based on Q4/Q3 vs Q2/Q1.
+    -->
+    <div class="peer-hero">
+      <div class="peer-hero-left">
+        <div class="peer-hero-eyebrow">{{HERO_METRIC_LABEL}}</div>
+        <!-- e.g., "Orders per active rep · Last 90 days" -->
+        <div class="peer-hero-stat">{{HERO_METRIC_VALUE}}</div>
+        <!-- e.g., "23 orders / rep" or "84 / 100" or "Top quartile" -->
+        <div class="peer-hero-context">{{HERO_METRIC_SENTENCE}}</div>
+        <!--
+          Write this as a complete sentence with specific numbers. Examples:
+          orders_per_user (above): "Your reps average <strong>23 orders each</strong> in the last 90 days — <span class='delta-above'>64% above the peer median of 14</span> among comparable Furniture manufacturers on the same platform."
+          engagement_score (below): "Rep engagement is running <span class='delta-below'>18 points below the peer median</span> — most similar accounts log in more frequently and submit more presentations per selling week."
+          adoption_score (above): "Feature adoption depth puts you in the <span class='delta-above'>top quartile</span> of your peer group — your team is using more of the platform than 3 in 4 comparable accounts."
+          trajectory_score (above): "Your trajectory score is <span class='delta-above'>improving faster than 72% of your peers</span> — momentum is heading in the right direction even if some absolute metrics lag."
+        -->
+      </div>
+      <div class="peer-hero-right">
+        <div class="peer-hero-pctile {{HERO_PCTILE_DIRECTION}}">{{HERO_PCTILE_DISPLAY}}</div>
+        <!-- Format: "Top 28%" (Q4), "Top 42%" (Q3), "Bottom 35%" (Q1), or percentile as "61st" -->
+        <!-- Use class .above for Q4/Q3, .below for Q1, .on-par for Q2 -->
+        <div class="peer-hero-pctile-label">among peers</div>
+      </div>
+    </div>
+
+    <!-- ── Narrative metric rows ──
+      One row per applicable benchmarked metric (excluding health_score and the hero metric).
+      Applicable metrics: orders_90d, orders_per_user (if HAS_CART), engagement_score,
+                         adoption_score, operational_health_score, trajectory_score,
+                         catalog_completeness (if HAS_INVENTORY or catalog bundle).
+      Skip metrics where metric_applicable = false in the long CSV.
+
+      For each row:
+        - Write a sentence, not just a number. Name the metric in plain English.
+        - Include the org value, the peer median, and the signed delta.
+        - Show the range bar: left anchor = peer p25, right anchor = peer p75, marker = org position.
+          Marker position % = (org_value - p25) / (p75 - p25) * 100, clamped to 0–100%.
+          Use marker class .above / .below / .on-par based on quartile.
+        - Quartile pill: use .q4 / .q3 / .q2 / .q1 class matching the metric's quartile.
+
+      Range bar anchor labels: show p25 value on left, p75 value on right (formatted same as org value).
+      The range bar is a visual impression of where the org sits in the middle 50% of peers.
+      Orgs outside p25–p75 will have the marker at 0% or 100% — that's fine and honest.
+    -->
+    <div class="subsection">
+      <h3 class="subsection-title">Full Benchmark Breakdown</h3>
+      <div class="peer-metric-rows">
+
+        <!-- EXAMPLE ROW — orders_90d (Cart/Full only):
+        <div class="peer-metric-row">
+          <div>
+            <div class="peer-metric-title">eCat Order Volume · Last 90 Days</div>
+            <div class="peer-metric-sentence">
+              <strong>{{ORDERS_90D_ORG}} orders submitted</strong> — peer median is {{ORDERS_90D_MEDIAN}}.
+              Your team is <span class="delta-below">{{ORDERS_90D_DELTA}} below the midpoint</span> of similar accounts.
+            </div>
+            <div class="peer-range-bar">
+              <span class="peer-range-label">{{ORDERS_90D_P25}}</span>
+              <div class="peer-range-track">
+                <div class="peer-range-marker below" style="left: {{ORDERS_90D_MARKER_PCT}}%;"></div>
+              </div>
+              <span class="peer-range-label">{{ORDERS_90D_P75}}</span>
+            </div>
+          </div>
+          <span class="peer-quartile-pill q2">Q2</span>
+        </div>
+        -->
+
+        <!-- EXAMPLE ROW — orders_per_user (Cart/Full only):
+        <div class="peer-metric-row">
+          <div>
+            <div class="peer-metric-title">Orders per Active Rep · Last 90 Days</div>
+            <div class="peer-metric-sentence">
+              Each active rep on your team submitted an average of <strong>{{ORDERS_PER_USER_ORG}} orders</strong>.
+              The peer median is {{ORDERS_PER_USER_MEDIAN}} — your team is
+              <span class="delta-above">{{ORDERS_PER_USER_DELTA}} above the midpoint</span>, normalized for team size.
+            </div>
+            <div class="peer-range-bar">
+              <span class="peer-range-label">{{ORDERS_PER_USER_P25}}</span>
+              <div class="peer-range-track">
+                <div class="peer-range-marker above" style="left: {{ORDERS_PER_USER_MARKER_PCT}}%;"></div>
+              </div>
+              <span class="peer-range-label">{{ORDERS_PER_USER_P75}}</span>
+            </div>
+          </div>
+          <span class="peer-quartile-pill q4">Top Quartile</span>
+        </div>
+        -->
+
+        <!-- EXAMPLE ROW — engagement_score:
+        <div class="peer-metric-row">
+          <div>
+            <div class="peer-metric-title">Rep Engagement Intensity</div>
+            <div class="peer-metric-sentence">
+              Rep engagement score is <strong>{{ENGAGEMENT_ORG}}</strong> out of 100.
+              The peer median among {{PEER_GROUP_LABEL}} accounts is {{ENGAGEMENT_MEDIAN}} —
+              your team is <span class="delta-above">{{ENGAGEMENT_DELTA}} points ahead</span>.
+            </div>
+            <div class="peer-range-bar">
+              <span class="peer-range-label">{{ENGAGEMENT_P25}}</span>
+              <div class="peer-range-track">
+                <div class="peer-range-marker above" style="left: {{ENGAGEMENT_MARKER_PCT}}%;"></div>
+              </div>
+              <span class="peer-range-label">{{ENGAGEMENT_P75}}</span>
+            </div>
+          </div>
+          <span class="peer-quartile-pill q3">Above Median</span>
+        </div>
+        -->
+
+        <!-- EXAMPLE ROW — adoption_score:
+        <div class="peer-metric-row">
+          <div>
+            <div class="peer-metric-title">Feature Adoption Depth</div>
+            <div class="peer-metric-sentence">
+              Your platform adoption score is <strong>{{ADOPTION_ORG}}</strong>.
+              Peers on the same bundle score a median of {{ADOPTION_MEDIAN}} —
+              <span class="delta-below">{{ADOPTION_DELTA}} points of headroom</span> to reach the midpoint.
+            </div>
+            <div class="peer-range-bar">
+              <span class="peer-range-label">{{ADOPTION_P25}}</span>
+              <div class="peer-range-track">
+                <div class="peer-range-marker below" style="left: {{ADOPTION_MARKER_PCT}}%;"></div>
+              </div>
+              <span class="peer-range-label">{{ADOPTION_P75}}</span>
+            </div>
+          </div>
+          <span class="peer-quartile-pill q2">Below Median</span>
+        </div>
+        -->
+
+        <!-- EXAMPLE ROW — operational_health_score:
+             ⚠️ CRITICAL LABEL RULE — READ BEFORE POPULATING THIS ROW:
+             The peer-metric-title for this metric MUST be "Data &amp; Operational Health".
+             NEVER use "Operational Health Score" — that phrase is internal Health V2 vocabulary and is FORBIDDEN in client-facing HTML.
+             NEVER use the internal key "operational_health_score" in any rendered text.
+             NEVER use the phrase "health score" or "health scores" anywhere in this row — not in the title, not in the sentence.
+             Describe the metric using: "catalog freshness and import health", "data freshness and configuration reliability",
+             or "data pipeline and configuration health" — never "... health score at X".
+             This row is external-safe; the restrictions are on the label AND the sentence wording.
+        <div class="peer-metric-row">
+          <div>
+            <div class="peer-metric-title">Data &amp; Operational Health</div>
+            <div class="peer-metric-sentence">
+              Catalog freshness and import health at <strong>{{OP_HEALTH_ORG}}</strong> — peer median is {{OP_HEALTH_MEDIAN}}.
+              <span class="delta-above">{{OP_HEALTH_DELTA}} above</span> the midpoint, meaning your data pipeline and configuration are in better shape than most comparable accounts.
+            </div>
+            <div class="peer-range-bar">
+              <span class="peer-range-label">{{OP_HEALTH_P25}}</span>
+              <div class="peer-range-track">
+                <div class="peer-range-marker above" style="left: {{OP_HEALTH_MARKER_PCT}}%;"></div>
+              </div>
+              <span class="peer-range-label">{{OP_HEALTH_P75}}</span>
+            </div>
+          </div>
+          <span class="peer-quartile-pill q4">Top Quartile</span>
+        </div>
+        -->
+
+        <!-- EXAMPLE ROW — trajectory_score:
+        <div class="peer-metric-row">
+          <div>
+            <div class="peer-metric-title">Platform Trajectory · Recent vs. Prior Period</div>
+            <div class="peer-metric-sentence">
+              Your trajectory score is <strong>{{TRAJECTORY_ORG}}</strong>, reflecting recent vs. prior-period performance.
+              The peer median is {{TRAJECTORY_MEDIAN}} —
+              <span class="delta-above">momentum is improving faster than {{TRAJECTORY_PCTILE_READABLE}}% of your peers</span>.
+            </div>
+            <div class="peer-range-bar">
+              <span class="peer-range-label">{{TRAJECTORY_P25}}</span>
+              <div class="peer-range-track">
+                <div class="peer-range-marker above" style="left: {{TRAJECTORY_MARKER_PCT}}%;"></div>
+              </div>
+              <span class="peer-range-label">{{TRAJECTORY_P75}}</span>
+            </div>
+          </div>
+          <span class="peer-quartile-pill q3">Above Median</span>
+        </div>
+        -->
+
+        <!-- EXAMPLE ROW — catalog_completeness (catalog bundles only):
+        <div class="peer-metric-row">
+          <div>
+            <div class="peer-metric-title">Catalog Completeness</div>
+            <div class="peer-metric-sentence">
+              <strong>{{CATALOG_ORG}}%</strong> of visible products have complete data (images, pricing, descriptions).
+              The peer median for {{PEER_GROUP_LABEL}} accounts is {{CATALOG_MEDIAN}}% —
+              <span class="delta-below">a {{CATALOG_DELTA}}% gap</span> to the midpoint.
+            </div>
+            <div class="peer-range-bar">
+              <span class="peer-range-label">{{CATALOG_P25}}%</span>
+              <div class="peer-range-track">
+                <div class="peer-range-marker below" style="left: {{CATALOG_MARKER_PCT}}%;"></div>
+              </div>
+              <span class="peer-range-label">{{CATALOG_P75}}%</span>
+            </div>
+          </div>
+          <span class="peer-quartile-pill q2">Below Median</span>
+        </div>
+        -->
+
+        <!-- Operator: populate the rows above with real data from peer_benchmark long CSV.
+             Range bar marker position formula:
+               marker_pct = clamp((org_value - p25) / (p75 - p25) * 100, 0, 100)
+             Quartile pill label guide:
+               Q4 → "Top Quartile"   Q3 → "Above Median"
+               Q2 → "Below Median"   Q1 → "Bottom Quartile"
+             Sentence delta phrasing:
+               positive delta → use class delta-above, phrase as "X above"
+               negative delta → use class delta-below, phrase as "X below" (use absolute value)
+               near-zero (|delta| < 5% of median) → use class delta-par, phrase as "at the midpoint"
+        -->
+
+      </div>
+    </div>
+
+    <!-- ── What top performers on your plan do ──
+      This block is PRIMARY — not collapsed. It's the most actionable benchmark content.
+      Source: Q-CI-05/06 from top_performers_by_segment. 3–5 observations. Anonymized.
+      Frame each pattern as a concrete behavior, not a vague aspiration.
+      Good: "Submit 90%+ of their orders as confirmed (not draft) — reducing back-and-forth by removing the quote step."
+      Bad: "They use the platform more effectively."
+      Never name specific accounts. Never use internal segment labels.
+      Icon column: pick a single emoji or leave the icon div empty — it's decorative only.
+    -->
+    <div class="subsection">
+      <h3 class="subsection-title">What Top-Performing {{PEER_GROUP_LABEL}} Accounts Have in Common</h3>
+      <p style="font: 400 12px/1.5 var(--fd); color: var(--text-muted); margin-bottom: 14px;">Behavioral patterns shared by accounts in your peer group with the strongest platform metrics. All benchmarks are anonymized — no individual account data is disclosed.</p>
+      <div class="top-performer-list">
+
+        <!-- Operator: 3–5 rows from Q-CI-05/06. One concrete behavioral pattern each.
+             Example rows:
+        <div class="top-performer-row">
+          <div class="top-performer-icon">↑</div>
+          <div class="top-performer-text"><strong>High rep-to-order conversion:</strong> Top performers submit {{TOP_ORDERS_PER_REP}}+ orders per active rep per quarter — roughly {{TOP_VS_MEDIAN_MULTIPLE}}× the peer median. The consistent pattern is daily platform use during market and showroom weeks, not occasional bulk submission.</div>
+        </div>
+        <div class="top-performer-row">
+          <div class="top-performer-icon">◎</div>
+          <div class="top-performer-text"><strong>Catalog completeness above {{TOP_CATALOG_PCT}}%:</strong> Every top performer maintains images and pricing on their full visible catalog. Incomplete items correlate with lower buyer engagement in the Digital Library.</div>
+        </div>
+        <div class="top-performer-row">
+          <div class="top-performer-icon">▸</div>
+          <div class="top-performer-text"><strong>Confirmed order workflow:</strong> {{TOP_CONFIRMED_PCT}}%+ of orders submitted as confirmed (not draft). Accounts that rely heavily on draft/quote workflow show lower buyer reorder rates in the same cohort.</div>
+        </div>
+        <div class="top-performer-row">
+          <div class="top-performer-icon">◈</div>
+          <div class="top-performer-text"><strong>All active reps ordering:</strong> Top accounts have fewer than {{TOP_INACTIVE_REP_PCT}}% of enabled reps with zero orders in the trailing 90 days. Breadth of adoption — not just depth from top performers — is the distinguishing factor.</div>
+        </div>
+        -->
+
+      </div>
+    </div>
+
+    <!-- ── Feature adoption vs. peer group ── -->
+    <div class="subsection">
+      <h3 class="subsection-title">Feature Adoption vs. Your Peer Group</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>Your Account</th>
+            <th>Peer Adoption Rate</th>
+            <th>Your Rate</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Operator: from Q-CI-03 / segment_benchmarks_monthly.
+               "Your Rate" = whether this org has the feature active / their usage level.
+               "Peer Adoption Rate" = % of accounts in peer group with this feature active.
+               Never list CPQ as a gap if client doesn't have CPQ — that's an expansion conversation.
+               Example rows:
+          <tr>
+            <td>Digital Library</td>
+            <td>Active &mdash; {{LIBRARY_VIEWS}} views (LTM)</td>
+            <td>100% of peers</td>
+            <td>Active</td>
+            <td><span class="badge badge-ok">At Norm</span></td>
+          </tr>
+          <tr>
+            <td>eCat Online Ordering</td>
+            <td>Active</td>
+            <td>{{ONLINE_ORDER_PEER_PCT}}% of peers</td>
+            <td>Active</td>
+            <td><span class="badge badge-ok">Above Most Peers</span></td>
+          </tr>
+          <tr>
+            <td>Portal Analytics (Clicky)</td>
+            <td>{{CLICKY_STATUS}}</td>
+            <td>{{CLICKY_PEER_PCT}}% of peers</td>
+            <td>{{CLICKY_YOUR_PCT}}</td>
+            <td><span class="badge badge-warn">Opportunity</span></td>
+          </tr>
+          <tr>
+            <td>Sales Intelligence Portal</td>
+            <td>{{PORTAL_STATUS}}</td>
+            <td>{{PORTAL_PEER_PCT}}% of peers</td>
+            <td>{{PORTAL_YOUR_LOGINS}} logins (90d)</td>
+            <td><span class="badge badge-info">{{PORTAL_STATUS_LABEL}}</span></td>
+          </tr>
+          -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ── Growth trajectory (Q-CI-04) ── CONDITIONAL: requires May 2026+ (2+ monthly snapshots) -->
+    <!--
+    <div class="subsection">
+      <h3 class="subsection-title">Platform Trajectory vs. Peer Group</h3>
+      <p style="font: 400 12px/1.5 var(--fd); color: var(--text-muted); margin-bottom: 12px;">Month-over-month trend in key metrics relative to your peer group median. A rising line means your position in the peer distribution is improving.</p>
+      <table>
+        <thead><tr><th>Month</th><th>Your Score</th><th>Peer Median</th><th>Your Percentile</th></tr></thead>
+        <tbody>
+          <!-- Operator: from Q-CI-04 / segment_benchmarks_monthly. Show last 3–6 months.
+               Only include if 2+ monthly snapshots exist (available May 2026+). -->
+        </tbody>
+      </table>
+    </div>
+    -->
+
+    <div class="what-this-means">
+      <strong>What this tells you:</strong> {{PEER_BENCHMARK_INSIGHT}}
+    </div>
+
+  </section>
+  </details>
+
+
+  <!-- ═══ §8 PLATFORM & FEATURE UTILIZATION ═══
+    Always included.
+    Subsections: Catalog Health · Data Freshness · Import Pipeline ·
+                 Feature Usage Depth · Configuration Completeness ·
+                 Seat Utilization · [Smart Stack performance — conditional] ·
+                 [Library engagement — conditional]
+  -->
+  <details class="section-collapse" id="platform">
+    <summary>
+      <h2 class="section-title">Platform &amp; Feature Utilization</h2>
+      <div class="section-sub">{{PLATFORM_SUMMARY_LINE}}</div>
+      <div class="section-contents">Catalog Health &middot; Data Freshness &middot; Import Pipeline &middot; Feature Usage &middot; Configuration Status</div>
+      <span class="expand-hint">&#9662; Click to expand</span>
+    </summary>
+  <section class="section" style="margin-bottom:0;border-top:none;border-radius:0 0 var(--r) var(--r);">
+
+    <!-- Catalog completeness -->
+    <div class="subsection">
+      <h3 class="subsection-title">Catalog Health</h3>
+      <div class="metrics">
+        <div class="metric">
+          <div class="metric-label">Visible Products</div>
+          <div class="metric-value">{{VISIBLE_PRODUCT_COUNT}}</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Completeness Score</div>
+          <div class="metric-value">{{VISIBLE_COMPLETENESS_PCT}}%</div>
+          <div class="metric-note {{COMPLETENESS_STATUS}}">{{COMPLETENESS_LABEL}}</div>
+          <!-- .ok if >=80%, .warn if 60-79%, .danger if <60% -->
+        </div>
+        <div class="metric">
+          <div class="metric-label">Missing Images (Visible)</div>
+          <div class="metric-value">{{MISSING_IMAGES}}</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Missing Price (Visible)</div>
+          <div class="metric-value">{{MISSING_PRICE}}</div>
+        </div>
+      </div>
+      <div class="what-this-means">
+        <strong>What this tells you:</strong> {{CATALOG_INSIGHT}}
+      </div>
+    </div>
+
+    <!-- Data freshness — 3-label system: Fresh / Monitor / Stale ONLY -->
+    <div class="subsection">
+      <h3 class="subsection-title">Data Health Report</h3>
+      <table>
+        <thead><tr><th>Entity</th><th>Last Updated</th><th>Age</th><th>Status</th></tr></thead>
+        <tbody>
+          <!-- Operator: from Q-08. Three status values ONLY: Fresh (≤30d) / Monitor (31–180d) / Stale (>180d).
+               Use: <span class="badge badge-ok">Fresh</span>
+                    <span class="badge badge-warn">Monitor</span>
+                    <span class="badge badge-danger">Stale</span>
+          -->
+        </tbody>
+      </table>
+      <div class="what-this-means">
+        <strong>What this tells you:</strong> {{DATA_FRESHNESS_INSIGHT}}
+      </div>
+    </div>
+
+    <!-- Import pipeline health -->
+    <div class="subsection">
+      <h3 class="subsection-title">Data Pipeline Health</h3>
+      <!-- Operator: if no import_events found for org, note as N/A (Admin Console-only management) -->
+      <table>
+        <thead><tr><th>Month</th><th>Import Count</th></tr></thead>
+        <tbody><!-- Operator: from Q-09 --></tbody>
+      </table>
+      <!-- Operator: if recent imports have error arrays, show alert callout -->
+      <div class="what-this-means">
+        <strong>What this tells you:</strong> {{IMPORT_HEALTH_INSIGHT}}
+      </div>
+    </div>
+
+    <!-- Configuration completeness -->
+    <div class="subsection">
+      <h3 class="subsection-title">Platform Configuration Alerts</h3>
+      <p style="font: 400 12px/1.5 var(--fd); color: var(--text-muted); margin-bottom: 12px;">Features that are enabled but have stale or unpopulated data may create confusion for reps or buyers.</p>
+      <table>
+        <thead><tr><th>Entity</th><th>Last Updated</th><th>Days Stale</th><th>Records</th><th>Recommendation</th></tr></thead>
+        <tbody>
+          <!-- Operator: from Q-11, entities with >30 days stale AND related records present -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Seat utilization -->
+    <div class="subsection">
+      <h3 class="subsection-title">Platform Adoption Summary</h3>
+      <div class="metrics">
+        <div class="metric">
+          <div class="metric-label">Active Users (enabled)</div>
+          <div class="metric-value">{{ACTIVE_ORG_USERS}}</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Logged In (90d)</div>
+          <div class="metric-value">{{LOGGED_IN_90D}}</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">eCat Ordering Users (90d)</div>
+          <div class="metric-value">{{ORDERING_USERS_90D}}</div>
+        </div>
+      </div>
+      <div class="what-this-means">
+        <strong>What this tells you:</strong> {{SEAT_UTILIZATION_INSIGHT}}
+      </div>
+    </div>
+
+    <!-- Feature usage depth (org-level Mixpanel) -->
+    <details class="subsection">
+      <summary>Feature Usage Intensity</summary>
+      <div style="padding: 16px 0;">
+        <p style="font: 400 12px/1.5 var(--fd); color: var(--text-muted); margin-bottom: 12px;">Platform feature event counts from the trailing period, compared to accounts on your plan type.</p>
+        <table>
+          <thead><tr><th>Feature</th><th>Your Activity</th><th>Signal</th></tr></thead>
+          <tbody>
+            <!-- Operator: from Q-22. Notable features only — omit features with zero activity that are not in the client's plan.
+                 Never list CPQ, Online Ordering, or other features as "gaps" if the client doesn't have that product. -->
+          </tbody>
+        </table>
+      </div>
+    </details>
+
+    <!-- Smart stack effectiveness — CONDITIONAL: smart_stacks > 0 -->
+    <!--
+    <details class="subsection">
+      <summary>Curated List (Smart Stack) Performance</summary>
+      <div style="padding: 16px 0;">
+        <div class="metrics">
+          <div class="metric"><div class="metric-label">Total Smart Stacks</div><div class="metric-value">{{TOTAL_STACKS}}</div></div>
+          <div class="metric"><div class="metric-label">Stale (not updated 90d+)</div><div class="metric-value">{{STALE_STACKS}}</div></div>
+        </div>
+      </div>
+    </details>
+    -->
+
+  </section>
+  </details>
+
+
+  <!-- ═══ §9 APPENDIX ═══
+    The Appendix contains DATA SOURCE ATTRIBUTION ONLY.
+
+    PURPOSE: Tell the client where the data in this report came from, what period it covers,
+    and when it was last updated. Nothing more.
+
+    ALLOWED — one row per data source used:
+      — eCat Orders: submitted orders, current as of [DATE]
+      — Total Business (All Channels): if portal_orders used — clarify it is all-channel total business, not buyer portal activity
+      — Customer Data: account records, as of [DATE]
+      — Product Catalog: as of [DATE], visible products only
+      — Inventory Data: if VM-37 used — point-in-time snapshot, note we cannot determine OOS duration
+      — Historical Sales Data: if sales_data used — all-time cumulative, no invoice date available
+      — Rep Engagement Data: if Mixpanel used — "platform engagement event data" — do NOT say "Mixpanel"
+      — Portal Traffic Data: if Clicky used — eCat Online analytics, period covered — do NOT use Clicky table names or paths
+      — Peer Benchmark Data: if peer section included — anonymized medians from [PEER_GROUP_LABEL] cohort; no individual data disclosed; run date
+
+    FORBIDDEN — never in the delivered Appendix:
+      — Omitted-sections tables or rationale (omit absent sections silently — no note in delivered HTML)
+      — Methodology notes
+      — Calculation documentation ([HYPOTHETICAL] formulas, [ESTIMATED] methodology)
+      — Org identity blocks
+      — Internal org IDs, table/column names, VM codes, query IDs, gate flags, row counts, dataset paths
+      — Package/tooling language, validation commentary, operator notes
+      — Import pipeline status or error details
+      — Risk/expansion flags, health score, internal segment labels, enrollment references
+      — "Clicky," "Mixpanel," internal dataset names, or any internal brand/tool names
+      — Technical code literals (e.g., portal_orders, is_marked_deleted, order_source = 'ipad')
+  -->
+  <div class="section section-light" id="appendix">
+    <h2 class="section-title" style="font-size: 16px;">Appendix</h2>
+
+    <div class="subsection">
+      <h3 class="subsection-title" style="font-size: 13px;">Data Sources &amp; Attribution</h3>
+      <!-- Operator: one row per data source actually used. Plain language only.
+           Add/remove rows based on which data sources were used for this report.
+           Do NOT add omitted-sections notes, methodology notes, or any non-attribution content. -->
+      <div class="appendix-row">
+        <div class="appendix-label">eCat Orders</div>
+        <div class="appendix-value">Submitted eCat orders from the platform database. Data current as of {{REPORT_DATE}}.</div>
+      </div>
+      <div class="appendix-row">
+        <div class="appendix-label">Customer Data</div>
+        <div class="appendix-value">Account records from {{CLIENT_NAME}}'s business system as of {{REPORT_DATE}}.</div>
+      </div>
+      <div class="appendix-row">
+        <div class="appendix-label">Product Catalog</div>
+        <div class="appendix-value">Product catalog as of {{REPORT_DATE}}. Completeness score applies to visible products only.</div>
+      </div>
+
+      <!-- Total Business (All Channels) — include ONLY if HAS_PORTAL_ORDERS = true -->
+      <!--
+      <div class="appendix-row">
+        <div class="appendix-label">Total Business (All Channels)</div>
+        <div class="appendix-value">Orders synced from {{CLIENT_NAME}}'s business system — includes all channels: eCat, phone, EDI, trade shows, showroom, and any other origin. Total all-channel business, not buyer self-service activity. Data current as of {{REPORT_DATE}}.</div>
+      </div>
+      -->
+
+      <!-- Inventory Data — include ONLY if VM-37 used (inventories present) -->
+      <!--
+      <div class="appendix-row">
+        <div class="appendix-label">Inventory Data</div>
+        <div class="appendix-value">Point-in-time inventory snapshot as of {{REPORT_DATE}}. We cannot determine how long any item has been out of stock.</div>
+      </div>
+      -->
+
+      <!-- Historical Sales Data — include ONLY if sales_data used -->
+      <!--
+      <div class="appendix-row">
+        <div class="appendix-label">Historical Sales Data</div>
+        <div class="appendix-value">All-time invoiced sales history from {{CLIENT_NAME}}'s business system. No invoice date available — figures are all-time cumulative, not period-specific.</div>
+      </div>
+      -->
+
+      <!-- Rep Engagement Data — include ONLY if Mixpanel data used. Do NOT say "Mixpanel." -->
+      <!--
+      <div class="appendix-row">
+        <div class="appendix-label">Rep Engagement Data</div>
+        <div class="appendix-value">Platform engagement event data aggregated per user. All-time cumulative totals as of {{REPORT_DATE}}.</div>
+      </div>
+      -->
+
+      <!-- Portal Traffic Data — include ONLY if HAS_CLICKY = true. Do NOT use Clicky table names or paths. -->
+      <!--
+      <div class="appendix-row">
+        <div class="appendix-label">Portal Traffic Data</div>
+        <div class="appendix-value">eCat Online portal analytics covering {{CLICKY_PERIOD}}. Includes daily unique visitors, pageviews, session duration, geographic traffic, and traffic sources.</div>
+      </div>
+      -->
+
+      <!-- Peer Benchmark Data — include ONLY if peer section included.
+           Do NOT include peer_group_n, benchmark_confidence, peer_group_level, or tier labels.
+           If confidence is low/medium, add one plain-language directional framing sentence per authority/peer_benchmark.md §7. -->
+      <!--
+      <div class="appendix-row">
+        <div class="appendix-label">Peer Benchmark Data</div>
+        <div class="appendix-value">Anonymized median and percentile data from {{PEER_GROUP_LABEL}} accounts. No individual account data is disclosed. Run date: {{PEER_RUN_DATE}}.</div>
+      </div>
+      -->
+
+      <!-- Platform Configuration — always include -->
+      <!--
+      <div class="appendix-row">
+        <div class="appendix-label">Platform Configuration</div>
+        <div class="appendix-value">Platform feature and configuration data as of {{REPORT_DATE}}.</div>
+      </div>
+      -->
+    </div>
+
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════════════
+       MODE 2 — PLATFORM ACTIVATION REPORT SECTIONS
+       Use INSTEAD OF the standard §1–§9 sections above when REPORT_MODE = activation.
+       Remove the standard sections entirely. Render only the sections below.
+       ══════════════════════════════════════════════════════════════════════════ -->
+  <!--
+  <section class="section" id="activation-summary" style="border-top: 3px solid var(--ok);">
+    <h2 class="section-title" style="font-size: 24px;">Activation Summary</h2>
+    <p class="section-sub">Platform configuration as of {{REPORT_DATE}}</p>
+
+    <!-- Operator: 3–4 highlights about what is configured and ready.
+         1 highlight about peer context (if available).
+         1–2 Priority Actions focused on first activation steps.
+         Do NOT include commerce figures. Do NOT include health score or segment labels.
+    -->
+    <ol class="highlights">
+      <li>{{ACTIVATION_HIGHLIGHT_1}}</li>
+      <li>{{ACTIVATION_HIGHLIGHT_2}}</li>
+      <li>{{ACTIVATION_HIGHLIGHT_3}}</li>
+      <!-- Add peer context highlight if HAS_PEER_DATA: -->
+      <!-- <li>{{ACTIVATION_PEER_HIGHLIGHT}}</li> -->
+    </ol>
+
+    <div class="sub-label">Priority Actions — First Activation Steps</div>
+    <div class="priorities">
+      <div class="priority">
+        <span class="priority-badge high">High</span>
+        <div>
+          <div class="priority-title">{{ACTIVATION_ACTION_1_TITLE}}</div>
+          <div class="priority-desc">{{ACTIVATION_ACTION_1_DESC}}</div>
+        </div>
+      </div>
+      <!-- Add 1–2 more actions as needed -->
+    </div>
+
+    <div class="callout note" style="margin-top: 20px;">
+      <div class="callout-title">About this report</div>
+      This report reflects platform configuration and readiness context. Commerce sections are not included as no eCat ordering activity has been recorded for this account.
+    </div>
+  </section>
+
+  <section class="section" id="platform-readiness">
+    <h2 class="section-title">Platform Readiness</h2>
+    <p class="section-sub">Catalog health, data freshness, and configuration status</p>
+    <div class="section-contents">
+      <!-- Operator: populate using the same Q-08, Q-09, Q-10, Q-11 queries as §8.
+           Emphasis here is on what needs to be in place BEFORE the first order.
+           Surface: catalog completeness score, import health, seat utilization, configuration gaps.
+           Frame as "what's ready" and "what needs to be set up before activating."
+      -->
+      {{PLATFORM_READINESS_CONTENT}}
+    </div>
+    <div class="what-this-means">
+      <strong>What this tells you:</strong> {{PLATFORM_READINESS_CLOSE}}
+    </div>
+  </section>
+  -->
+  <!-- Mode 2: §peer-benchmarking renders here if HAS_PEER_DATA = true.
+       Use the same Peer Benchmarking section markup as Mode 1 (see §7 above).
+       Add framing: "How similar accounts at this stage compare on catalog readiness and feature setup."
+  -->
+  <!-- Mode 2: Appendix renders here.
+       Required note: "This report reflects platform configuration and readiness context.
+       Commerce sections are not included as no eCat ordering activity has been recorded for this account."
+       Include: platform data sources, data freshness attribution, configuration methodology.
+       Omit: portal_orders definition, OOS caveat, [HYPOTHETICAL] calculations.
+  -->
+
+
+  <!-- ══════════════════════════════════════════════════════════════════════════
+       MODE 3 — PLATFORM REACTIVATION REPORT SECTIONS
+       Use INSTEAD OF the standard §1–§9 sections above when REPORT_MODE = reactivation.
+       Remove the standard sections entirely. Render only the sections below.
+       ══════════════════════════════════════════════════════════════════════════ -->
+  <!--
+  <section class="section" id="reactivation-summary" style="border-top: 3px solid var(--warn);">
+    <h2 class="section-title" style="font-size: 24px;">Reactivation Summary</h2>
+    <p class="section-sub">Platform status as of {{REPORT_DATE}} &middot; Last active: {{LAST_ACTIVE_DATE}}</p>
+
+    <!-- Operator: Highlights should cover:
+         1. The lapsed period (honest, direct): "No eCat orders in the trailing 12 months. Last activity: {{LAST_ACTIVE_DATE}}."
+         1–2. Current platform state (what's configured, what's stale, what needs refresh).
+         1. Peer context (if available).
+         1–2 Priority Actions focused on re-engagement (data refresh, rep re-training, pilot outreach).
+         Do NOT include LTM commerce figures. Do NOT include health score or segment labels.
+    -->
+    <div class="callout alert" style="margin-bottom: 20px;">
+      <div class="callout-title">Lapsed Account</div>
+      No eCat ordering activity has been recorded in the trailing 12 months. Last recorded eCat activity: <strong>{{LAST_ACTIVE_DATE}}</strong>.
+    </div>
+
+    <ol class="highlights">
+      <li>{{REACTIVATION_HIGHLIGHT_1}}</li>
+      <li>{{REACTIVATION_HIGHLIGHT_2}}</li>
+      <!-- Add peer and staleness highlights as needed -->
+    </ol>
+
+    <div class="sub-label">Priority Actions — Re-Engagement Steps</div>
+    <div class="priorities">
+      <div class="priority">
+        <span class="priority-badge high">High</span>
+        <div>
+          <div class="priority-title">{{REACTIVATION_ACTION_1_TITLE}}</div>
+          <div class="priority-desc">{{REACTIVATION_ACTION_1_DESC}}</div>
+        </div>
+      </div>
+      <!-- Add 1–2 more actions as needed -->
+    </div>
+  </section>
+
+  <section class="section" id="historical-commerce">
+    <h2 class="section-title">Historical Commerce Context</h2>
+    <p class="section-sub">All-time eCat activity through {{LAST_ACTIVE_DATE}} — for context only</p>
+
+    <!-- Operator: 2–4 metric cards showing all-time figures only.
+         Label all figures as [HISTORICAL — all-time through {{LAST_ACTIVE_DATE}}].
+         Do NOT show monthly trends. Do NOT show LTM figures (they are zero).
+         Include: all-time order count, all-time GMV, last active period, channel split if known.
+    -->
+    <div class="metrics">
+      <div class="metric">
+        <div class="metric-label">All-Time eCat Orders</div>
+        <div class="metric-value">{{ALLTIME_ECAT_ORDERS}}</div>
+        <div class="metric-note warn">[HISTORICAL — through {{LAST_ACTIVE_DATE}}]</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">All-Time eCat GMV</div>
+        <div class="metric-value">{{ALLTIME_ECAT_GMV}}</div>
+        <div class="metric-note warn">[HISTORICAL — through {{LAST_ACTIVE_DATE}}]</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Last Active Period</div>
+        <div class="metric-value">{{LAST_ACTIVE_DATE}}</div>
+        <div class="metric-note">No activity since</div>
+      </div>
+    </div>
+
+    <div class="what-this-means">
+      <strong>What this tells you:</strong> {{HISTORICAL_COMMERCE_CLOSE}}
+    </div>
+  </section>
+
+  <section class="section" id="platform-status">
+    <h2 class="section-title">Platform Status</h2>
+    <p class="section-sub">Current configuration and data health — emphasis on staleness for lapsed account</p>
+
+    <!-- Operator: Populate using the same Q-08, Q-09, Q-10, Q-11 queries as §8.
+         For lapsed accounts, staleness is expected and must be called out.
+         If products, inventories, or customers are Stale (>180 days):
+           — Flag this explicitly (callout.alert is appropriate).
+           — Note that re-activating on stale catalog data is a prerequisite issue.
+         Use the 3-label freshness scale (Fresh / Monitor / Stale) as normal.
+    -->
+    {{PLATFORM_STATUS_CONTENT}}
+
+    <div class="what-this-means">
+      <strong>What this tells you:</strong> {{PLATFORM_STATUS_CLOSE}}
+    </div>
+  </section>
+  -->
+  <!-- Mode 3: §peer-benchmarking renders here if HAS_PEER_DATA = true.
+       Use the same Peer Benchmarking section markup as Mode 1 (see §7 above).
+       Add caveat note: "Peer benchmarks reflect current platform activity among active accounts
+       and may not reflect conditions during this account's last active period."
+  -->
+  <!-- Mode 3: Appendix renders here.
+       Required note: "This report reflects platform configuration and historical activity context.
+       Commerce sections are not included as no eCat ordering activity has been recorded in the
+       trailing 12 months. Last recorded eCat activity: {{LAST_ACTIVE_DATE}}."
+       Include: platform data sources, freshness attribution, last-active date.
+       Omit: portal_orders definition, OOS caveat, LTM-based [HYPOTHETICAL] calculations.
+  -->
+
+
+  <!-- ═══ FOOTER ═══ -->
+  <footer class="footer">
+    <div class="footer-brand">Insightful · Customer Intelligence</div>
+    <div class="footer-text">Generated {{REPORT_DATE}} &middot; {{CLIENT_NAME}} &middot; Confidential — prepared for {{CLIENT_NAME}} use only</div>
+  </footer>
+
+</div><!-- .page -->
+
+<script>
+  // Sticky TOC active state
+  (function() {
+    const strip = document.getElementById('tocStrip');
+    if (!strip) return;
+    window.addEventListener('scroll', function() {
+      strip.classList.toggle('stuck', window.scrollY > 40);
+    });
+    const links = strip.querySelectorAll('a');
+    const sections = [];
+    links.forEach(function(a) {
+      const id = a.getAttribute('href').replace('#', '');
+      const el = document.getElementById(id);
+      if (el) sections.push({ el, a });
+    });
+    window.addEventListener('scroll', function() {
+      let current = sections[0];
+      sections.forEach(function(s) {
+        if (window.scrollY >= s.el.offsetTop - 80) current = s;
+      });
+      links.forEach(function(a) { a.classList.remove('active'); });
+      if (current) current.a.classList.add('active');
+    }, { passive: true });
+  })();
+
+  function openAndScroll(id) {
+    const target = document.getElementById(id);
+    if (!target) return;
+    const details = target.closest('details');
+    if (details && !details.open) details.open = true;
+    setTimeout(() => target.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+  }
+  document.querySelectorAll('.toc-strip a, .highlights a, .priority-title a').forEach(link => {
+    link.addEventListener('click', function(e) {
+      const href = this.getAttribute('href');
+      if (href && href.startsWith('#')) {
+        e.preventDefault();
+        openAndScroll(href.substring(1));
+      }
+    });
+  });
+</script>
+
+</body>
+</html>

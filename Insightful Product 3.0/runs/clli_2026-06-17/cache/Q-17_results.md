@@ -1,0 +1,34 @@
+# Q-17 Results — Craftmade (clli, org_id=149)
+- **Query**: Q-17 — Dormant eCat Customers — Lapsed
+- **Period**: LTM (2025-06-17 to 2026-06-17)
+- **Row count**: 25
+- **Run date**: 2026-06-17
+
+
+| customer_num | customer_name | billing_state | last_ecat_order_date | historical_ecat_orders | historical_ecat_gmv |
+| --- | --- | --- | --- | --- | --- |
+| 2 | Craftmade Sample Account | TX | 2025-12-18 15:44:52 | 3 | $183,193 |
+| 93510 | ROYAUME LUMINAIRE LANDAUDIERE | QC | 2026-01-12 15:07:08 | 1 | $43,518 |
+| 44169 | LADY HOME | TX | 2025-07-29 22:20:42 | 3 | $43,442 |
+| 94530 | ROYAUME LUMINAIRE SHERBROOKE | QC | 2026-01-12 15:06:43 | 1 | $22,506 |
+| 44515 | FORT WORTH LIGHTING | TX | 2025-06-23 17:04:10 | 1 | $20,576 |
+| 93011 | ROYAUME LUMINAIRE DRUMMONDVILL | QC | 2026-01-12 15:11:22 | 1 | $20,293 |
+| 93512 | ROYAUME LUMINAIRE BEAUPORT INC | QC | 2026-01-12 15:12:02 | 1 | $19,180 |
+| 1 | Craftmade Warranty Account | TX | 2025-06-20 14:10:28 | 1 | $17,765 |
+| 93511 | ROYAUME LUMINAIRE J D INC | QC | 2026-01-12 15:08:43 | 1 | $17,066 |
+| 4023 | ROYAUME LUMINAIRE-TROIS | QC | 2026-01-12 15:12:07 | 1 | $16,375 |
+| 93515 | ROYAUME LUMINAIRE STE JULIE | QC | 2026-01-12 15:11:05 | 1 | $14,430 |
+| 30800 | COASTAL LIGHTING, LLC | TX | 2026-01-15 01:05:40 | 3 | $14,184 |
+| 20501 | PINE GROVE ELEC SPLY | LA | 2026-01-23 16:12:22 | 3 | $13,910 |
+| 20328 | HOUSE OF CARPETS INC | LA | 2026-01-13 22:50:10 | 2 | $12,687 |
+| 50900 | HAJOCA CORP | LA | 2026-01-11 19:04:14 | 3 | $10,786 |
+| 42179 | FAN DEPOT | DN | 2025-11-20 20:06:47 | 1 | $9,916 |
+| 34381 | GRAND RAPIDS LIGHTING CTR INC | MI | 2026-01-14 13:26:28 | 1 | $9,727 |
+| 50891 | GW KEETER LIGHTING & HOME | AR | 2026-01-29 21:14:29 | 3 | $9,670 |
+| 43128 | WHITE OAK COTTAGE | FL | 2025-11-24 13:50:19 | 5 | $9,554 |
+| 2473 | LIGHTSTYLE OF ORLANDO | FL | 2025-06-20 13:38:36 | 3 | $9,133 |
+| 18720 | METRO LIGHTING | MO | 2026-01-10 21:31:46 | 2 | $9,060 |
+| 70056 | INLINE ELECTRIC SUPPLY | AL | 2026-01-11 21:14:37 | 2 | $8,272 |
+| 1017 | Q E D | CO | 2026-01-11 21:37:03 | 1 | $7,178 |
+| 4029 | HEARTH & HOME | AR | 2026-01-11 16:17:26 | 1 | $7,112 |
+| 43564 | 4 U LIGHTING & DESIGN | FL | 2026-01-11 22:07:26 | 3 | $6,944 |

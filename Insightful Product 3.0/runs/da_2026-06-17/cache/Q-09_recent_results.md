@@ -1,0 +1,589 @@
+# Q-09-recent Results — Dainolite Ltd. (da, org_id=62)
+- **Query**: Q-09-recent — Import Health — Recent Errors
+- **Period**: LTM (2025-06-17 to 2026-06-17)
+- **Row count**: 10
+- **Run date**: 2026-06-17
+
+
+| created_at | data |
+| --- | --- |
+| 2026-06-16 20:36:37 | ---
+- - Images
+  - - - :information
+      - 'The following images were imported: ORA-1110LEDFH-MB.jpg, ORA-1110LEDFH-AGB.jpg,
+        ORA-75LEDFH-MB.jpg, ORA-75LEDFH-AGB.jpg'
+ |
+| 2026-06-16 17:01:21 | ---
+- - Inventory
+  - []
+ |
+| 2026-06-16 09:32:15 | ---
+- - Inventory
+  - []
+ |
+| 2026-06-16 08:02:15 | ---
+- - Sales Data
+  - - - :error
+      - 'Line 2146: baseitemcode is required'
+    - - :error
+      - 'Line 2170: baseitemcode is required'
+    - - :error
+      - 'Line 3103: baseitemcode is required'
+    - - :error
+      - 'Line 3429: baseitemcode is required'
+    - - :error
+      - 'Line 4202: baseitemcode is required'
+    - - :error
+      - 'Line 4488: baseitemcode is required'
+    - - :error
+      - 'Line 5224: baseitemcode is required'
+    - - :error
+      - 'Line 7844: baseitemcode is required'
+    - - :error
+      - 'Line 10519: baseitemcode is required'
+    - - :error
+      - 'Line 11382: baseitemcode is required'
+    - - :error
+      - 'Line 14065: baseitemcode is required'
+    - - :error
+      - 'Line 15837: baseitemcode is required'
+    - - :error
+      - 'Line 15838: baseitemcode is required'
+    - - :error
+      - 'Line 15895: baseitemcode is required'
+    - - :error
+      - 'Line 18257: baseitemcode is required'
+    - - :error
+      - 'Line 19077: baseitemcode is required'
+    - - :error
+      - 'Line 19079: baseitemcode is required'
+    - - :error
+      - 'Line 20369: baseitemcode is required'
+    - - :error
+      - 'Line 20388: baseitemcode is required'
+    - - :error
+      - 'Line 20392: baseitemcode is required'
+    - - :error
+      - 'Line 20394: baseitemcode is required'
+    - - :error
+      - 'Line 22484: baseitemcode is required'
+    - - :error
+      - 'Line 22890: baseitemcode is required'
+    - - :error
+      - 'Line 22928: BillToCode (USCEDLA) is invalid.'
+    - - :error
+      - 'Line 22929: BillToCode (USCEDLI) is invalid.'
+    - - :error
+      - 'Line 22933: BillToCode (USCEDMI) is invalid.'
+    - - :error
+      - 'Line 22946: BillToCode (USCEDSA) is invalid.'
+    - - :error
+      - 'Line 22947: BillToCode (USCEDSE) is invalid.'
+    - - :error
+      - 'Line 22948: BillToCode (USCEDSE) is invalid.'
+    - - :error
+      - 'Line 22953: BillToCode (USCEDTEX) is invalid.'
+    - - :error
+      - 'Line 22954: BillToCode (USCEDTN) is invalid.'
+    - - :error
+      - 'Line 22965: BillToCode (USCESFL) is invalid.'
+    - - :error
+      - 'Line 22983: baseitemcode is required'
+    - - :error
+      - 'Line 23031: baseitemcode is required'
+    - - :error
+      - 'Line 23033: baseitemcode is required'
+    - - :error
+      - 'Line 23751: baseitemcode is required'
+    - - :error
+      - 'Line 23957: baseitemcode is required'
+    - - :error
+      - 'Line 23958: baseitemcode is required'
+    - - :error
+      - 'Line 24003: baseitemcode is required'
+    - - :error
+      - 'Line 24040: baseitemcode is required'
+    - - :error
+      - 'Line 24087: baseitemcode is required'
+    - - :error
+      - 'Line 24622: BillToCode (USFOCA) is invalid.'
+    - - :error
+      - 'Line 24623: BillToCode (USFOCA) is invalid.'
+    - - :error
+      - 'Line 24624: BillToCode (USFOCA) is invalid.'
+    - - :error
+      - 'Line 24625: BillToCode (USFOCA) is invalid.'
+    - - :error
+      - 'Line 24626: BillToCode (USFOCA) is invalid.'
+    - - :error
+      - 'Line 24627: BillToCode (USFOCA) is invalid.'
+    - - :error
+      - 'Line 24628: BillToCode (USFOCA) is invalid.'
+    - - :error
+      - 'Line 24629: BillToCode (USFOCA) is invalid.'
+    - - :error
+      - 'Line 24630: BillToCode (USFOCA) is invalid.'
+    - - :error
+      - 'Line 24631: BillToCode (USFOCA) is invalid.'
+    - - :error
+      - 'Line 24632: BillToCode (USFOCA) is invalid.'
+    - - :error
+      - 'Line 24633: BillToCode (USFOCA) is invalid.'
+    - - :error
+      - 'Line 24634: BillToCode (USFOCA) is invalid.'
+    - - :error
+      - 'Line 24635: BillToCode (USFOCA) is invalid.'
+    - - :error
+      - 'Line 24636: BillToCode (USFOCA) is invalid.'
+    - - :error
+      - 'Line 24637: BillToCode (USFOCA) is invalid.'
+    - - :error
+      - 'Line 24638: BillToCode (USFOCA) is invalid.'
+    - - :error
+      - 'Line 24639: baseitemcode is required'
+    - - :error
+      - 'Line 24647: baseitemcode is required'
+    - - :error
+      - 'Line 25418: baseitemcode is required'
+    - - :error
+      - 'Line 25420: baseitemcode is required'
+    - - :error
+      - 'Line 25438: baseitemcode is required'
+    - - :error
+      - 'Line 25439: baseitemcode is required'
+    - - :error
+      - 'Line 26422: baseitemcode is required'
+    - - :error
+      - 'Line 26457: BillToCode (USLGTC) is invalid.'
+    - - :error
+      - 'Line 26458: BillToCode (USLGTC) is invalid.'
+    - - :error
+      - 'Line 26459: baseitemcode is required'
+    - - :error
+      - 'Line 27765: baseitemcode is required'
+    - - :error
+      - 'Line 28100: baseitemcode is required'
+    - - :error
+      - 'Line 28101: baseitemcode is required'
+    - - :error
+      - 'Line 28106: baseitemcode is required'
+    - - :error
+      - 'Line 28288: baseitemcode is required'
+    - - :error
+      - 'Line 28289: baseitemcode is required'
+    - - :error
+      - 'Line 28563: baseitemcode is required'
+    - - :error
+      - 'Line 28599: baseitemcode is required'
+    - - :error
+      - 'Line 28616: baseitemcode is required'
+    - - :error
+      - 'Line 28623: baseitemcode is required'
+    - - :error
+      - 'Line 28660: baseitemcode is required'
+    - - :error
+      - 'Line 28660: BillToCode (USREFL) is invalid.'
+    - - :error
+      - 'Line 28674: baseitemcode is required'
+    - - :error
+      - 'Line 28675: baseitemcode is required'
+    - - :error
+      - 'Line 28712: baseitemcode is required'
+    - - :error
+      - 'Line 28923: baseitemcode is required'
+    - - :error
+      - 'Line 28972: baseitemcode is required'
+    - - :error
+      - 'Line 29610: baseitemcode is required'
+    - - :error
+      - 'Line 29611: baseitemcode is required'
+    - - :error
+      - 'Line 30930: BillToCode (WESBRO) is invalid.'
+    - - :error
+      - 'Line 30948: baseitemcode is required'
+ |
+| 2026-06-15 20:26:55 | ---
+- - Images
+  - - - :information
+      - 'The following images were imported: DAL-233P-MB-510.jpg, 571-143SF-AGB-510.jpg,
+        DAL-243P-MB-510.jpg, DAL-243P-AGB-510.jpg, DAL-243P-MB-511.jpg, FTS-1222LEDFH-MB.jpg,
+        DAL-233P-AGB-511.jpg, DAL-243P-AGB-511.jpg, CTY-2430LEDC-AGB-AGB.jpg, FTS-1222LEDFH-MW.jpg,
+        CTY-2430LEDC-SV-SV.jpg, CTY-3250LEDC-MB-MB.jpg, FTS-510LEDFH-MB.jpg, CTY-3250LEDC-AGB-AGB.jpg,
+        FTS-510LEDFH-MW.jpg, CTY-2430LEDC-MB-MB.jpg, FTS-715LEDFH-MB.jpg, DAL-233P-MB-511.jpg,
+        FTS-715LEDFH-MW.jpg, DAL-233P-AGB-510.jpg, CTY-3250LEDC-SV-SV.jpg'
+ |
+| 2026-06-15 20:21:37 | ---
+- - Images
+  - - - :information
+      - 'The following images were imported: PBO-161P-MW-GLD.jpg'
+ |
+| 2026-06-15 17:01:20 | ---
+- - Inventory
+  - []
+ |
+| 2026-06-15 09:31:16 | ---
+- - Inventory
+  - []
+ |
+| 2026-06-15 08:02:14 | ---
+- - Sales Data
+  - - - :error
+      - 'Line 2132: baseitemcode is required'
+    - - :error
+      - 'Line 2156: baseitemcode is required'
+    - - :error
+      - 'Line 3088: baseitemcode is required'
+    - - :error
+      - 'Line 3412: baseitemcode is required'
+    - - :error
+      - 'Line 4184: baseitemcode is required'
+    - - :error
+      - 'Line 4470: baseitemcode is required'
+    - - :error
+      - 'Line 5202: baseitemcode is required'
+    - - :error
+      - 'Line 7815: baseitemcode is required'
+    - - :error
+      - 'Line 10487: baseitemcode is required'
+    - - :error
+      - 'Line 11345: baseitemcode is required'
+    - - :error
+      - 'Line 14022: baseitemcode is required'
+    - - :error
+      - 'Line 15794: baseitemcode is required'
+    - - :error
+      - 'Line 15795: baseitemcode is required'
+    - - :error
+      - 'Line 15851: baseitemcode is required'
+    - - :error
+      - 'Line 18211: baseitemcode is required'
+    - - :error
+      - 'Line 19031: baseitemcode is required'
+    - - :error
+      - 'Line 19033: baseitemcode is required'
+    - - :error
+      - 'Line 20318: baseitemcode is required'
+    - - :error
+      - 'Line 20337: baseitemcode is required'
+    - - :error
+      - 'Line 20341: baseitemcode is required'
+    - - :error
+      - 'Line 20343: baseitemcode is required'
+    - - :error
+      - 'Line 22430: baseitemcode is required'
+    - - :error
+      - 'Line 22835: baseitemcode is required'
+    - - :error
+      - 'Line 22873: BillToCode (USCEDLA) is invalid.'
+    - - :error
+      - 'Line 22874: BillToCode (USCEDLI) is invalid.'
+    - - :error
+      - 'Line 22878: BillToCode (USCEDMI) is invalid.'
+    - - :error
+      - 'Line 22891: BillToCode (USCEDSA) is invalid.'
+    - - :error
+      - 'Line 22892: BillToCode (USCEDSE) is invalid.'
+    - - :error
+      - 'Line 22893: BillToCode (USCEDSE) is invalid.'
+    - - :error
+      - 'Line 22898: BillToCode (USCEDTEX) is invalid.'
+    - - :error
+      - 'Line 22899: BillToCode (USCEDTN) is invalid.'
+    - - :error
+      - 'Line 22910: BillToCode (USCESFL) is invalid.'
+    - - :error
+      - 'Line 22928: baseitemcode is required'
+    - - :error
+      - 'Line 22976: baseitemcode is required'
+    - - :error
+      - 'Line 22978: baseitemcode is required'
+    - - :error
+      - 'Line 23695: baseitemcode is required'
+    - - :error
+      - 'Line 23901: baseitemcode is required'
+    - - :error
+      - 'Line 23902: baseitemcode is required'
+    - - :error
+      - 'Line 23947: baseitemcode is required'
+    - - :error
+      - 'Line 23984: baseitemcode is required'
+    - - :error
+      - 'Line 24030: baseitemcode is required'
+    - - :error
+      - 'Line 24565: BillToCode (USFOCA) is invalid.'
+    - - :error
+      - 'Line 24566: BillToCode (USFOCA) is invalid.'
+    - - :error
+      - 'Line 24567: BillToCode (USFOCA) is invalid.'
+    - - :error
+      - 'Line 24568: BillToCode (USFOCA) is invalid.'
+    - - :error
+      - 'Line 24569: BillToCode (USFOCA) is invalid.'
+    - - :error
+      - 'Line 24570: BillToCode (USFOCA) is invalid.'
+    - - :error
+      - 'Line 24571: BillToCode (USFOCA) is invalid.'
+    - - :error
+      - 'Line 24572: BillToCode (USFOCA) is invalid.'
+    - - :error
+      - 'Line 24573: BillToCode (USFOCA) is invalid.'
+    - - :error
+      - 'Line 24574: BillToCode (USFOCA) is invalid.'
+    - - :error
+      - 'Line 24575: BillToCode (USFOCA) is invalid.'
+    - - :error
+      - 'Line 24576: BillToCode (USFOCA) is invalid.'
+    - - :error
+      - 'Line 24577: BillToCode (USFOCA) is invalid.'
+    - - :error
+      - 'Line 24578: BillToCode (USFOCA) is invalid.'
+    - - :error
+      - 'Line 24579: BillToCode (USFOCA) is invalid.'
+    - - :error
+      - 'Line 24580: BillToCode (USFOCA) is invalid.'
+    - - :error
+      - 'Line 24581: BillToCode (USFOCA) is invalid.'
+    - - :error
+      - 'Line 24582: baseitemcode is required'
+    - - :error
+      - 'Line 24590: baseitemcode is required'
+    - - :error
+      - 'Line 25361: baseitemcode is required'
+    - - :error
+      - 'Line 25363: baseitemcode is required'
+    - - :error
+      - 'Line 25381: baseitemcode is required'
+    - - :error
+      - 'Line 25382: baseitemcode is required'
+    - - :error
+      - 'Line 26364: baseitemcode is required'
+    - - :error
+      - 'Line 26399: BillToCode (USLGTC) is invalid.'
+    - - :error
+      - 'Line 26400: BillToCode (USLGTC) is invalid.'
+    - - :error
+      - 'Line 26401: baseitemcode is required'
+    - - :error
+      - 'Line 27699: baseitemcode is required'
+    - - :error
+      - 'Line 28031: baseitemcode is required'
+    - - :error
+      - 'Line 28032: baseitemcode is required'
+    - - :error
+      - 'Line 28037: baseitemcode is required'
+    - - :error
+      - 'Line 28219: baseitemcode is required'
+    - - :error
+      - 'Line 28220: baseitemcode is required'
+    - - :error
+      - 'Line 28494: baseitemcode is required'
+    - - :error
+      - 'Line 28530: baseitemcode is required'
+    - - :error
+      - 'Line 28547: baseitemcode is required'
+    - - :error
+      - 'Line 28554: baseitemcode is required'
+    - - :error
+      - 'Line 28590: baseitemcode is required'
+    - - :error
+      - 'Line 28590: BillToCode (USREFL) is invalid.'
+    - - :error
+      - 'Line 28604: baseitemcode is required'
+    - - :error
+      - 'Line 28605: baseitemcode is required'
+    - - :error
+      - 'Line 28642: baseitemcode is required'
+    - - :error
+      - 'Line 28853: baseitemcode is required'
+    - - :error
+      - 'Line 28902: baseitemcode is required'
+    - - :error
+      - 'Line 29537: baseitemcode is required'
+    - - :error
+      - 'Line 29538: baseitemcode is required'
+    - - :error
+      - 'Line 30857: BillToCode (WESBRO) is invalid.'
+    - - :error
+      - 'Line 30875: baseitemcode is required'
+ |
+| 2026-06-14 08:02:18 | ---
+- - Sales Data
+  - - - :error
+      - 'Line 2132: baseitemcode is required'
+    - - :error
+      - 'Line 2156: baseitemcode is required'
+    - - :error
+      - 'Line 3088: baseitemcode is required'
+    - - :error
+      - 'Line 3412: baseitemcode is required'
+    - - :error
+      - 'Line 4184: baseitemcode is required'
+    - - :error
+      - 'Line 4470: baseitemcode is required'
+    - - :error
+      - 'Line 5202: baseitemcode is required'
+    - - :error
+      - 'Line 7815: baseitemcode is required'
+    - - :error
+      - 'Line 10487: baseitemcode is required'
+    - - :error
+      - 'Line 11345: baseitemcode is required'
+    - - :error
+      - 'Line 14022: baseitemcode is required'
+    - - :error
+      - 'Line 15794: baseitemcode is required'
+    - - :error
+      - 'Line 15795: baseitemcode is required'
+    - - :error
+      - 'Line 15851: baseitemcode is required'
+    - - :error
+      - 'Line 18211: baseitemcode is required'
+    - - :error
+      - 'Line 19031: baseitemcode is required'
+    - - :error
+      - 'Line 19033: baseitemcode is required'
+    - - :error
+      - 'Line 20318: baseitemcode is required'
+    - - :error
+      - 'Line 20337: baseitemcode is required'
+    - - :error
+      - 'Line 20341: baseitemcode is required'
+    - - :error
+      - 'Line 20343: baseitemcode is required'
+    - - :error
+      - 'Line 22430: baseitemcode is required'
+    - - :error
+      - 'Line 22835: baseitemcode is required'
+    - - :error
+      - 'Line 22873: BillToCode (USCEDLA) is invalid.'
+    - - :error
+      - 'Line 22874: BillToCode (USCEDLI) is invalid.'
+    - - :error
+      - 'Line 22878: BillToCode (USCEDMI) is invalid.'
+    - - :error
+      - 'Line 22891: BillToCode (USCEDSA) is invalid.'
+    - - :error
+      - 'Line 22892: BillToCode (USCEDSE) is invalid.'
+    - - :error
+      - 'Line 22893: BillToCode (USCEDSE) is invalid.'
+    - - :error
+      - 'Line 22898: BillToCode (USCEDTEX) is invalid.'
+    - - :error
+      - 'Line 22899: BillToCode (USCEDTN) is invalid.'
+    - - :error
+      - 'Line 22910: BillToCode (USCESFL) is invalid.'
+    - - :error
+      - 'Line 22928: baseitemcode is required'
+    - - :error
+      - 'Line 22976: baseitemcode is required'
+    - - :error
+      - 'Line 22978: baseitemcode is required'
+    - - :error
+      - 'Line 23695: baseitemcode is required'
+    - - :error
+      - 'Line 23901: baseitemcode is required'
+    - - :error
+      - 'Line 23902: baseitemcode is required'
+    - - :error
+      - 'Line 23947: baseitemcode is required'
+    - - :error
+      - 'Line 23984: baseitemcode is required'
+    - - :error
+      - 'Line 24030: baseitemcode is required'
+    - - :error
+      - 'Line 24565: BillToCode (USFOCA) is invalid.'
+    - - :error
+      - 'Line 24566: BillToCode (USFOCA) is invalid.'
+    - - :error
+      - 'Line 24567: BillToCode (USFOCA) is invalid.'
+    - - :error
+      - 'Line 24568: BillToCode (USFOCA) is invalid.'
+    - - :error
+      - 'Line 24569: BillToCode (USFOCA) is invalid.'
+    - - :error
+      - 'Line 24570: BillToCode (USFOCA) is invalid.'
+    - - :error
+      - 'Line 24571: BillToCode (USFOCA) is invalid.'
+    - - :error
+      - 'Line 24572: BillToCode (USFOCA) is invalid.'
+    - - :error
+      - 'Line 24573: BillToCode (USFOCA) is invalid.'
+    - - :error
+      - 'Line 24574: BillToCode (USFOCA) is invalid.'
+    - - :error
+      - 'Line 24575: BillToCode (USFOCA) is invalid.'
+    - - :error
+      - 'Line 24576: BillToCode (USFOCA) is invalid.'
+    - - :error
+      - 'Line 24577: BillToCode (USFOCA) is invalid.'
+    - - :error
+      - 'Line 24578: BillToCode (USFOCA) is invalid.'
+    - - :error
+      - 'Line 24579: BillToCode (USFOCA) is invalid.'
+    - - :error
+      - 'Line 24580: BillToCode (USFOCA) is invalid.'
+    - - :error
+      - 'Line 24581: BillToCode (USFOCA) is invalid.'
+    - - :error
+      - 'Line 24582: baseitemcode is required'
+    - - :error
+      - 'Line 24590: baseitemcode is required'
+    - - :error
+      - 'Line 25361: baseitemcode is required'
+    - - :error
+      - 'Line 25363: baseitemcode is required'
+    - - :error
+      - 'Line 25381: baseitemcode is required'
+    - - :error
+      - 'Line 25382: baseitemcode is required'
+    - - :error
+      - 'Line 26364: baseitemcode is required'
+    - - :error
+      - 'Line 26399: BillToCode (USLGTC) is invalid.'
+    - - :error
+      - 'Line 26400: BillToCode (USLGTC) is invalid.'
+    - - :error
+      - 'Line 26401: baseitemcode is required'
+    - - :error
+      - 'Line 27699: baseitemcode is required'
+    - - :error
+      - 'Line 28031: baseitemcode is required'
+    - - :error
+      - 'Line 28032: baseitemcode is required'
+    - - :error
+      - 'Line 28037: baseitemcode is required'
+    - - :error
+      - 'Line 28219: baseitemcode is required'
+    - - :error
+      - 'Line 28220: baseitemcode is required'
+    - - :error
+      - 'Line 28494: baseitemcode is required'
+    - - :error
+      - 'Line 28530: baseitemcode is required'
+    - - :error
+      - 'Line 28547: baseitemcode is required'
+    - - :error
+      - 'Line 28554: baseitemcode is required'
+    - - :error
+      - 'Line 28590: baseitemcode is required'
+    - - :error
+      - 'Line 28590: BillToCode (USREFL) is invalid.'
+    - - :error
+      - 'Line 28604: baseitemcode is required'
+    - - :error
+      - 'Line 28605: baseitemcode is required'
+    - - :error
+      - 'Line 28642: baseitemcode is required'
+    - - :error
+      - 'Line 28853: baseitemcode is required'
+    - - :error
+      - 'Line 28902: baseitemcode is required'
+    - - :error
+      - 'Line 29537: baseitemcode is required'
+    - - :error
+      - 'Line 29538: baseitemcode is required'
+    - - :error
+      - 'Line 30857: BillToCode (WESBRO) is invalid.'
+    - - :error
+      - 'Line 30875: baseitemcode is required'
+ |

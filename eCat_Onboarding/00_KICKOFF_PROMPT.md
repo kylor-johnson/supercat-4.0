@@ -5,7 +5,7 @@ the agent at the always-on rules, the right skill, and the client profile — so
 don't reload KB articles, field specs, or client context every time.
 
 > Always-on rules (`ecat-ground-truth`, `ecat-import-ops`, `ecat-data-model`) and
-> `.cursor/skills/ecat-*` live in **SuperCat Ops** (`~/repos/supercat-4.0`).
+> `.cursor/skills/ecat-*` live in **SuperCat Ops** (`~/Library/Mobile Documents/com~apple~CloudDocs/SuperCat 4.0`).
 > Live client files live in **eCat Implementation**
 > (`~/repos/ecat-onboarding-workspace` / iCloud `SuperCat_Simple_Final`)
 > under `02_Implementation/<Client>/`.

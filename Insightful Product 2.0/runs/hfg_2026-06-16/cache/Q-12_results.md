@@ -1,0 +1,10 @@
+# Q-12 Results — Hubbardton Forge (hfg, org_id=165)
+- **Query**: Q-12 — Customer Activation & ERP Penetration
+- **Period**: LTM (2025-06-16 to 2026-06-16)
+- **Row count**: 1
+- **Run date**: 2026-06-16
+
+
+| total_erp_customers | total_ever_ordered_via_ecat | active_12mo | active_6mo | active_3mo |
+| --- | --- | --- | --- | --- |
+| 9,026 | 1,359 | 496 | 327 | 191 |

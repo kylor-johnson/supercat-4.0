@@ -1,0 +1,64 @@
+{# §11 = "What this report can't see" + "How to trust these numbers" + Appendix.
+   Client-facing voice pass 2026-07-13: no Preflight posture / Q-ID ledger /
+   surgical-edit footer in the body. Internal query IDs stay in Jinja comments. #}
+{% from '_macros.md.j2' import confidence_header %}
+## What this report can't see — and what to add next
+
+Each of these arrives the day the data does:
+
+- **True margin (gross/net profit).** No cost data. We can tell you who's growing and who's fading — we can't tell you who's profitable.
+- **Returns / credit memos.** {% if posture.credit_memos_ltm and posture.credit_memos_ltm > 0 %}Present ({{ "{:,}".format(posture.credit_memos_ltm) }} credit memos LTM) but not decomposed into a returns view.{% else %}Not in the data — not assumed zero, just not visible.{% endif %}
+- **AR and collections.** Terms billed, not collected.
+- **Stock-outs.** Backorder field is unpopulated.
+- **Confirmed competitive losses.** Need a second booking source.
+- **The "why" behind any decline.** The data shows the slope. The cause is a phone call.
+
+{% if profile_text -%}
+**Two specific upgrades worth queuing:**
+
+- **A cost feed (any channel).** Adds margin to every finding in this report. Lets us tell you not just who's growing in revenue, but who's growing in profit dollars — by account, by rep, by SKU. The single biggest unlock available.
+- **An item-level invoice-date series.** Calls the seasonal shape of your growth families — which SKU peaks at which market, which dealers reorder within 90 days — and turns a static cross-sell list into a calendared play.
+{%- else -%}
+**Upgrades worth queuing:** a cost feed (adds margin to every finding), and an item-level date series (turns the cross-sell list into a calendared play).
+{%- endif %}
+
+---
+
+## How to trust these numbers
+
+{{ confidence_header(posture) }}
+
+{% if posture.report_through_date and posture.inv_ltm_net > 0 -%}
+Every dollar in this report was pulled live from {{ org_display_name }}'s ERP invoice data on **{{ posture.report_through_date }}** (read-only). Topline figures are billed-not-collected and cover the trailing 12 months vs the same prior 12-month window — the only calendar-neutral comparison in a market-driven industry.
+{%- else -%}
+This report carries **no invoiced dollar figures**: {{ org_display_name }} has no ERP invoice data connected for this window. Every metric above is owned platform data — eCat orders and in-app activity — read live and current through today. That is the honest ceiling until invoice data arrives; see "What an invoiced ERP feed would unlock."
+{%- endif %}
+
+Two things worth your knowing:
+
+- **One view of your business.** {% if posture.feed_completeness == "UNVERIFIED-SINGLE-FEED" -%}
+  Invoice data is the single canonical source; cross-channel completeness cannot be claimed from one source alone. "Your invoiced business" is the honest framing, not "your total business."
+{%- elif posture.feed_completeness == "PROVABLY-INCOMPLETE" -%}
+  Confirmed eCat orders (${{ "{:,.0f}".format(posture.ecat_ltm_confirmed_gmv) }}) exceed invoiced LTM (${{ "{:,.0f}".format(posture.inv_ltm_net) }}) — the invoice number is provably a subset of your business. Every dollar here is capped at the partial confidence level.
+{%- elif posture.feed_completeness == "STALE" -%}
+  Invoice data last updated {{ posture.days_since_last_invoice }} days ago (> 45d threshold). Every dollar here is a snapshot of stale data; refresh before shipping.
+{%- else -%}
+  {{ posture.feed_completeness }} completeness state — see the notes below.
+{%- endif %}
+
+- **Rep identity is {% if posture.rep_identity_tier == 2 %}clean{% elif posture.rep_identity_tier == 1 %}partial{% else %}absent — behavior-only report, no rep-to-revenue{% endif %}.** {% if posture.rep_identity_tier == 2 -%}
+  {{ posture.distinct_repnum }} of {{ posture.distinct_repnum }} invoice reps were named via the order-rep bridge ({{ posture.name_bridge_pct }}%). Every coaching card uses a named person, not a code.
+{%- elif posture.rep_identity_tier == 1 -%}
+  {{ (posture.distinct_repnum * (posture.name_bridge_pct or 0) / 100) | int }} of {{ posture.distinct_repnum }} invoice reps ({{ posture.name_bridge_pct }}%) bridge to names — below the 82% threshold, so coaching cards do not render; the leaderboard uses rep-code labels for the unbridged.
+{%- else -%}
+  No rep-code-to-name bridge available. Rep-side rendering is suppressed entirely; behavior-only paths only.
+{%- endif %}
+
+**Directional figures are flagged where they appear.** Every other dollar in the report is a direct query result. Same data, same method, reproduces this report exactly.
+
+{#- Appendix ("Data readiness" table) and the `[org · date · profile]` ledger
+   stamp were intentionally dropped from the client-facing brief (owner call,
+   2026-07-13): both are internal build-QA chrome. The report now ends on "How
+   to trust these numbers", matching the north star. Internal query IDs for
+   builders (not rendered): Q-ECON-00 Q-CHAN-00 RP-2 S1 RS-01 C2 Q-ECON-NRR
+   Q-ECON-LEAK Q-CHAN-10 Q-CHAN-05 Q-ECON-CONC Q-ECON-CONTRIB Q-08/09/10/11 -#}

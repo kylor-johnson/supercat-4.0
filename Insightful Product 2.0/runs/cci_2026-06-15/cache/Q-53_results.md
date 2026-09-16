@@ -1,0 +1,29 @@
+# Q-53 Results — Currey & Company (cci, org_id=161)
+- **Query**: Q-53 — Unactivated High-Value ERP Accounts
+- **Period**: LTM (2025-06-15 to 2026-06-15)
+- **Row count**: 20
+- **Run date**: 2026-06-15
+
+
+| customer_code | customer_name | state | erp_orders | erp_gmv |
+| --- | --- | --- | --- | --- |
+| WAYFAIR | WAYFAIR | MA | 8,489 | $4.7M |
+| BENNING | LUMENS | CA | 1,684 | $1.3M |
+| IMPROV | FERGUSON HOME | CA | 1,238 | $1.1M |
+| NY LITE | LIGHTING NEW YORK | PA | 1,362 | $1.0M |
+| LAMPS + | LAMPS PLUS | CA | 1,519 | $979,348 |
+| CL BOCA | CAPITOL LIGHTING - BOCA RATON | FL | 936 | $947,100 |
+| LGTOLGY | LIGHTOLOGY | IL | 374 | $395,661 |
+| KAT KUO | KATHY KUO DESIGNS | NY | 569 | $371,331 |
+| LIGHTOP | LIGHTOPIA | CA | 408 | $362,411 |
+| 0005698 | POTTERY BARN | MS | 460 | $349,581 |
+| FOUNDRY | FOUNDRY LIGHTING | NY | 420 | $328,612 |
+| 0011923 | LULU AND GEORGIA | CA | 640 | $327,820 |
+| CROMWEL | CROMWELL AUSTRALIA PTY LTD | AU | 45 | $261,188 |
+| THETREA | THE TREASURE CHEST | FL | 1 | $215,418 |
+| 0010221 | IVY HOME | VA | 188 | $204,293 |
+| GOFRAN | GOODFORM FRANCE AND SON | NY | 218 | $200,141 |
+| 0009681 | DANIEL HOUSE CLUB | OR | 250 | $199,242 |
+| HAV 001 | HAVERTY'S FURNITURE COMPANIES | GA | 333 | $176,324 |
+| GLOBE | GLOBE LIGHTING | OR | 102 | $171,594 |
+| BCI LLC | BYRON CHANDLER INTERIORS, LLC | FL | 2 | $153,833 |

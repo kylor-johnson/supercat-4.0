@@ -1,0 +1,28 @@
+# Q-14 Results — Palecek (pf, org_id=32)
+- **Query**: Customer Reorder Frequency & Velocity (≥3 orders LTM)
+- **Period**: Trailing 12 months
+- **Run date**: 2026-04-21
+- **Row count**: 20
+
+| Customer # | Company Name | eCat Orders | eCat GMV | First Order | Last Order | Avg Days Between Orders |
+|-----------|-------------|-------------|----------|-------------|-----------|------------------------|
+| 70238 | PURE SALT INTERIORS | 32 | $70,945.69 | 2025-05-05 | 2026-04-13 | 11.1 |
+| 70720 | SOUTH SHORE DESIGN CENTER | 31 | $67,545.66 | 2025-05-13 | 2026-04-17 | 11.3 |
+| 42894 | LADCO | 25 | $51,060.37 | 2025-04-30 | 2026-04-14 | 14.6 |
+| 35436 | ALDER & TWEED | 24 | $61,916.40 | 2025-04-22 | 2026-02-26 | 13.5 |
+| 73367 | ARIZONA RETAIL HOLDINGS | 22 | $123,271.30 | 2025-04-24 | 2026-04-13 | 16.9 |
+| 77872 | SARAH HOLLINGSWORTH DESIGNS | 21 | $184,556.12 | 2025-04-22 | 2026-03-26 | 16.9 |
+| 53576 | BARCLAY BUTERA INC | 21 | $69,520.48 | 2025-04-29 | 2026-03-25 | 16.5 |
+| 38052 | GUIDED HOME DESIGN | 20 | $53,855.94 | 2025-05-01 | 2026-04-16 | 18.5 |
+| 35238 | A WELL DRESSED HOME | 20 | $93,687.92 | 2025-04-21 | 2026-04-20 | 19.2 |
+| 39438 | HOUSE OF MORRISON | 19 | $84,127.20 | 2025-05-19 | 2026-03-06 | 16.2 |
+| 27295 | ROOM AT THE BEACH | 18 | $84,168.83 | 2025-04-21 | 2026-04-14 | 21.1 |
+| 35302 | DIGS DESIGN COMPANY | 18 | $56,606.79 | 2025-04-27 | 2026-04-20 | 21.1 |
+| 17810 | NATIVA-SUR TRADING INC | 17 | $58,822.61 | 2025-04-28 | 2026-03-11 | 19.8 |
+| 72137 | OC DESIGN COLLECTIVE | 17 | $77,619.15 | 2025-04-30 | 2026-03-03 | 19.2 |
+| 75502 | KB PATIO & HOME | 16 | $756,279.92 | 2025-05-06 | 2026-04-20 | 23.3 |
+| 35729 | TRACY PEARCE INTERIOR DESIGN | 15 | $93,920.43 | 2025-05-02 | 2026-04-06 | 24.2 |
+| 27788 | ARENA'S | 14 | $81,513.69 | 2025-12-11 | 2026-03-23 | 7.8 |
+| 51254 | JAIMEE ROSE STYLE | 14 | $41,571.20 | 2025-04-29 | 2026-02-09 | 22.0 |
+| 14681 | KAREN ARPINO INTERIORS LLC | 13 | $21,573.71 | 2025-06-21 | 2026-04-20 | 25.2 |
+| 79415 | PRICKLY PEAR INTERIOR DESIGN | 13 | $48,413.38 | 2025-08-07 | 2026-04-01 | 19.8 |

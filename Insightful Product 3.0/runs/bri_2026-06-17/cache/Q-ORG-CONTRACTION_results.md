@@ -1,0 +1,34 @@
+# Q-ORG-CONTRACTION Results — Bulbrite (bri, org_id=222)
+- **Query**: Q-ORG-CONTRACTION — Account Spending Contraction & Displacement
+- **Period**: LTM (2025-06-17 to 2026-06-17)
+- **Row count**: 25
+- **Run date**: 2026-06-17
+
+
+| customer_code | customer_name | state | total_ltm | total_prior | total_yoy_pct | ecat_ltm | ecat_prior | ecat_yoy_pct | signal_type |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 128745 | LUMENS LIGHT & LIVING *** | — | 397,623.40 | 841,148.26 | -52.70 | 0 | 0 | — | CONTRACTING |
+| 163820 | PROGRESSIVE | — | 113,256.33 | 394,530.81 | -71.30 | 0 | 0 | — | CONTRACTING |
+| 038017 | WAYFAIR, LLC -CASTLEGATE | — | 358,953.21 | 524,670.66 | -31.60 | 0 | 0 | — | CONTRACTING |
+| 125240 | LIGHTING DESIGN LLC | — | 349,364.73 | 480,965.96 | -27.40 | 0 | 0 | — | CONTRACTING |
+| 130075 | M & M LIGHTING-HOUSTON ** | — | 145,326.96 | 263,766.65 | -44.90 | 121,928.17 | 0 | — | CONTRACTING |
+| 126740 | LIGHTING SPECIALISTS, INC | — | 35,878.81 | 143,845.52 | -75.10 | 0 | 0 | — | CONTRACTING |
+| 037221 | CRAWFORD ELECTRIC SUPPLY CO. | — | 36,169.27 | 143,633.54 | -74.80 | 0 | 0 | — | CONTRACTING |
+| 032190 | CE TANG YUK & CO., LTD. ** | — | 41,646.43 | 128,042.74 | -67.50 | 39,513.06 | 92,442.28 | -57.30 | CONTRACTING |
+| 211850 | URBAN AMBIANCE INC | — | 30,053.90 | 114,581.42 | -73.80 | 0 | 0 | — | CONTRACTING |
+| 038019 | WAYFAIR, LLC *** | — | 265,782.12 | 342,963.98 | -22.50 | 0 | 0 | — | CONTRACTING |
+| 128603 | Low Country Lighting Inc | — | 120,719.94 | 192,561.93 | -37.30 | 0 | 0 | — | CONTRACTING |
+| 034890 | COFFMAN HOME DECOR | — | 70,483.71 | 137,812.95 | -48.90 | 0 | 0 | — | CONTRACTING |
+| 220210 | SERVICE LIGHTING (MN) *** | — | 194,252.78 | 257,977.32 | -24.70 | 0 | 0 | — | CONTRACTING |
+| 192650 | SHADES OF LIGHT | — | 152,929.58 | 214,500.01 | -28.70 | 0 | 0 | — | CONTRACTING |
+| 161335 | PDI- PLUMBING DISTRIBUTORS INC. (PDI) *** | — | 645,154.38 | 593,588.61 | 8.70 | 0 | 1,249.74 | -100 | COMPETITIVE_DISPLACEMENT |
+| 076000 | GW KEETER LIGHTING & HOME | — | 30,611.33 | 68,617.15 | -55.40 | 32,444.06 | 27,780.38 | 16.80 | CONTRACTING |
+| 024508 | BRAND NAME LIGHTING | — | 107,488.39 | 145,155.38 | -25.90 | 40,378.28 | 20,257.63 | 99.30 | CONTRACTING |
+| 061942 | FERGUSON-TX 1563,66,64,2751,2812 | — | 64,112.45 | 100,333.89 | -36.10 | 0 | 0 | — | CONTRACTING |
+| 101255 | JAMES & COMPANY LIGHTING | — | 56,646.38 | 90,696.75 | -37.50 | 0 | 0 | — | CONTRACTING |
+| 121890 | LEGEND LIGHTING INC. | — | 50,181.58 | 82,732.34 | -39.30 | 0 | 0 | — | CONTRACTING |
+| 190422 | CHL LIGHTING INC | — | 45,474.45 | 76,222.96 | -40.30 | 0 | 0 | — | CONTRACTING |
+| 038018 | WAYFAIR B2B | — | 71,244.57 | 100,992.03 | -29.50 | 0 | 0 | — | CONTRACTING |
+| 082725 | HOLDER ELECTRIC CO | — | 44,950.08 | 74,484.22 | -39.70 | 0 | 0 | — | CONTRACTING |
+| 074216 | GROSS ELECTRIC, INC. | — | 62,123.55 | 88,040.46 | -29.40 | 0 | 0 | — | CONTRACTING |
+| 130645 | MADISON LIGHTING | — | 61,473.59 | 87,034.66 | -29.40 | 55,550.53 | 83,692.49 | -33.60 | CONTRACTING |

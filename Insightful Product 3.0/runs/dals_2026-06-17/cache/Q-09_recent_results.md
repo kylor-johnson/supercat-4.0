@@ -1,0 +1,337 @@
+# Q-09-recent Results — DALS Lighting (dals, org_id=220)
+- **Query**: Q-09-recent — Import Health — Recent Errors
+- **Period**: LTM (2025-06-17 to 2026-06-17)
+- **Row count**: 10
+- **Run date**: 2026-06-17
+
+
+| created_at | data |
+| --- | --- |
+| 2026-02-26 17:14:46 | ---
+- - Products
+  - - - :warning
+      - 'Line 1: Field name Price_usdcertified is unknown.'
+    - - :warning
+      - 'Line 153: Related item: ''COBTP-REEL-4K'' not found, BaseItemCode=COBTP-REEL'
+    - - :warning
+      - 'Line 174: Related item: ''DCP-HUB'' not found, BaseItemCode=DCP-BLBA21'
+    - - :warning
+      - 'Line 175: Related item: ''DCP-HUB'' not found, BaseItemCode=DCP-BLBBR30'
+    - - :warning
+      - 'Line 176: Related item: ''DCP-EXT20FT'' not found, BaseItemCode=DCP-BRK12-BK'
+    - - :warning
+      - 'Line 176: Related item: ''DCP-EXT2FT'' not found, BaseItemCode=DCP-BRK12-BK'
+    - - :warning
+      - 'Line 176: Related item: ''DCP-EXT6FT'' not found, BaseItemCode=DCP-BRK12-BK'
+    - - :warning
+      - 'Line 176: Related item: ''DCP-EXT-T'' not found, BaseItemCode=DCP-BRK12-BK'
+    - - :warning
+      - 'Line 178: Related item: ''DCP-EXT20FT'' not found, BaseItemCode=DCP-CPL24-BK'
+    - - :warning
+      - 'Line 178: Related item: ''DCP-EXT2FT'' not found, BaseItemCode=DCP-CPL24-BK'
+    - - :warning
+      - 'Line 178: Related item: ''DCP-EXT6FT'' not found, BaseItemCode=DCP-CPL24-BK'
+    - - :warning
+      - 'Line 178: Related item: ''DCP-EXT-T'' not found, BaseItemCode=DCP-CPL24-BK'
+    - - :warning
+      - 'Line 179: Related item: ''DCP-HUB'' not found, BaseItemCode=DCP-DDP4WH'
+    - - :warning
+      - 'Line 180: Related item: ''DCP-HUB'' not found, BaseItemCode=DCP-DDP6WH'
+    - - :warning
+      - 'Line 182: Related item: ''DCP-EXT20FT'' not found, BaseItemCode=DCP-FLD30-BK'
+    - - :warning
+      - 'Line 182: Related item: ''DCP-EXT2FT'' not found, BaseItemCode=DCP-FLD30-BK'
+    - - :warning
+      - 'Line 182: Related item: ''DCP-EXT6FT'' not found, BaseItemCode=DCP-FLD30-BK'
+    - - :warning
+      - 'Line 182: Related item: ''DCP-EXT-T'' not found, BaseItemCode=DCP-FLD30-BK'
+    - - :warning
+      - 'Line 185: Related item: ''DCP-HUB'' not found, BaseItemCode=DCP-GBR35-BK'
+    - - :warning
+      - 'Line 186: Related item: ''DCP-HUB'' not found, BaseItemCode=DCP-GBR35-WH'
+    - - :warning
+      - 'Line 189: Related item: ''DCP-HUB'' not found, BaseItemCode=DCP-LNPD48-BK'
+    - - :warning
+      - 'Line 190: Related item: ''DCP-HUB'' not found, BaseItemCode=DCP-LNR24-WH'
+    - - :warning
+      - 'Line 191: Related item: ''DCP-HUB'' not found, BaseItemCode=DCP-LNR48-WH'
+    - - :error
+      - 'Line 192: BaseItemCode: DCP-MTR300: Invalid collection code: ''139'''
+    - - :error
+      - 'Line 193: BaseItemCode: DCP-MTR60: Invalid collection code: ''139'''
+    - - :warning
+      - 'Line 195: Related item: ''DCP-HUB'' not found, BaseItemCode=DCP-PNL4-TRIM-BK'
+    - - :warning
+      - 'Line 196: Related item: ''DCP-HUB'' not found, BaseItemCode=DCP-PNL4WH'
+    - - :error
+      - 'Line 197: BaseItemCode: DCP-PNL6-TRIM-BK: Invalid collection code: ''125'''
+    - - :warning
+      - 'Line 198: Related item: ''DCP-HUB'' not found, BaseItemCode=DCP-PNL6WH'
+    - - :warning
+      - 'Line 203: Related item: ''DCP-EXT20FT'' not found, BaseItemCode=DCP-SPT6-BK'
+    - - :warning
+      - 'Line 203: Related item: ''DCP-EXT2FT'' not found, BaseItemCode=DCP-SPT6-BK'
+    - - :warning
+      - 'Line 203: Related item: ''DCP-EXT6FT'' not found, BaseItemCode=DCP-SPT6-BK'
+    - - :warning
+      - 'Line 203: Related item: ''DCP-EXT-T'' not found, BaseItemCode=DCP-SPT6-BK'
+    - - :error
+      - 'Line 211: BaseItemCode: DCP-TAP10FT: Invalid collection code: ''137'''
+    - - :error
+      - 'Line 212: BaseItemCode: DCP-TAP20FT: Invalid collection code: ''137'''
+    - - :error
+      - 'Line 213: BaseItemCode: DCP-TAP50FT: Invalid collection code: ''137'''
+    - - :warning
+      - 'Line 232: Related item: ''DRR4-TRIM-SBA'' not found, BaseItemCode=DRR4-CC-BK'
+    - - :warning
+      - 'Line 233: Related item: ''DRR4-TRIM-SBA'' not found, BaseItemCode=DRR4-CC-V-WH'
+    - - :warning
+      - 'Line 234: Related item: ''DRR4-TRIM-SBA'' not found, BaseItemCode=DRR4-CC-WH'
+    - - :warning
+      - 'Line 235: Related item: ''DRR4-TRIM-SBA'' not found, BaseItemCode=DRR4-TRIM-BK'
+    - - :error
+      - 'Line 260: BaseItemCode: FGM4-CC-DUO-V-WH: Invalid collection code: ''121'''
+    - - :warning
+      - 'Line 373: Related item: ''LEDDOWNG3-CC-SN'' not found, BaseItemCode=LEDDOWNG3-CC-BK'
+    - - :warning
+      - 'Line 374: Related item: ''LEDDOWNG3-CC-SN'' not found, BaseItemCode=LEDDOWNG3-CC-WH'
+    - - :warning
+      - 'Line 402: Related item: ''LEDVAN002-CC-24BK'' not found, BaseItemCode=LEDVAN002-CC-24CH'
+    - - :warning
+      - 'Line 403: Related item: ''LEDVAN002-CC-24BK'' not found, BaseItemCode=LEDVAN002-CC-24SN'
+    - - :error
+      - 'Line 459: BaseItemCode: LSKIT-001: Invalid category code: ''0'''
+    - - :error
+      - 'Line 460: BaseItemCode: LSKIT-002: Invalid category code: ''0'''
+    - - :error
+      - 'Line 461: BaseItemCode: LSKIT-003: Invalid category code: ''0'''
+    - - :error
+      - 'Line 462: BaseItemCode: LSKIT-004: Invalid category code: ''0'''
+    - - :error
+      - 'Line 463: BaseItemCode: LSKIT-005: Invalid category code: ''0'''
+    - - :error
+      - 'Line 464: BaseItemCode: LSKIT-006: Invalid category code: ''0'''
+    - - :warning
+      - 'Line 519: Related item: ''PDLED120-36-BK'' not found, BaseItemCode=PDLED120-36-WH'
+    - - :error
+      - 'Line 845: BaseItemCode: RFP-01: Invalid collection code: ''141'''
+    - - :error
+      - 'Line 846: BaseItemCode: RFP-23: Invalid collection code: ''141'''
+    - - :error
+      - 'Line 847: BaseItemCode: RFP-35: Invalid collection code: ''141'''
+    - - :error
+      - 'Line 848: BaseItemCode: RFP-46: Invalid collection code: ''141'''
+    - - :error
+      - 'Line 849: BaseItemCode: RFP-58: Invalid collection code: ''141'''
+    - - :error
+      - 'Line 863: BaseItemCode: RFP-UNI: Invalid collection code: ''141'''
+    - - :warning
+      - 'Line 877: Related item: ''RGR2-CC-SN'' not found, BaseItemCode=RGR2-CC-WH'
+    - - :warning
+      - 'Line 877: Related item: ''RGR2-CC-BK'' not found, BaseItemCode=RGR2-CC-WH'
+ |
+| 2025-10-16 15:55:38 | ---
+- - Inventory
+  - - - :warning
+      - 'Line 541: Product not found, record ignored., BaseItemCode=FGM4-CC-V-SN'
+ |
+| 2025-08-07 12:42:44 | ---
+- - Inventory
+  - - - :warning
+      - 'Line 464: Product not found, record ignored., BaseItemCode=FGM4-CC-V-SN'
+ |
+| 2025-08-07 00:21:24 | ---
+- - Inventory
+  - - - :warning
+      - 'Line 534: Product not found, record ignored., BaseItemCode=FGM4-CC-V-SN'
+ |
+| 2025-08-06 19:51:21 | ---
+- - Inventory
+  - - - :warning
+      - 'Line 395: Product not found, record ignored., BaseItemCode=FGM4-CC-V-SN'
+ |
+| 2025-08-06 16:34:07 | ---
+- - Inventory
+  - - - :warning
+      - 'Line 395: Product not found, record ignored., BaseItemCode=FGM4-CC-V-SN'
+ |
+| 2025-05-08 20:22:50 | ---
+- - Inventory
+  - - - :warning
+      - 'Line 400: Product not found, record ignored., BaseItemCode=RGM6-CC-V-BK'
+ |
+| 2025-04-30 18:03:51 | ---
+- - Products
+  - - - :warning
+      - 'Line 171: Related item: ''COBTP-REEL-4K'' not found, BaseItemCode=COBTP-REEL'
+    - - :warning
+      - 'Line 190: Related item: ''DCP-HUB'' not found, BaseItemCode=DCP-BLBA21'
+    - - :warning
+      - 'Line 191: Related item: ''DCP-HUB'' not found, BaseItemCode=DCP-BLBBR30'
+    - - :warning
+      - 'Line 192: Related item: ''DCP-EXT20FT'' not found, BaseItemCode=DCP-BRK12-BK'
+    - - :warning
+      - 'Line 192: Related item: ''DCP-EXT2FT'' not found, BaseItemCode=DCP-BRK12-BK'
+    - - :warning
+      - 'Line 192: Related item: ''DCP-EXT6FT'' not found, BaseItemCode=DCP-BRK12-BK'
+    - - :warning
+      - 'Line 192: Related item: ''DCP-EXT-T'' not found, BaseItemCode=DCP-BRK12-BK'
+    - - :warning
+      - 'Line 194: Related item: ''DCP-EXT20FT'' not found, BaseItemCode=DCP-CPL24-BK'
+    - - :warning
+      - 'Line 194: Related item: ''DCP-EXT2FT'' not found, BaseItemCode=DCP-CPL24-BK'
+    - - :warning
+      - 'Line 194: Related item: ''DCP-EXT6FT'' not found, BaseItemCode=DCP-CPL24-BK'
+    - - :warning
+      - 'Line 194: Related item: ''DCP-EXT-T'' not found, BaseItemCode=DCP-CPL24-BK'
+    - - :warning
+      - 'Line 195: Related item: ''DCP-HUB'' not found, BaseItemCode=DCP-DDP4WH'
+    - - :warning
+      - 'Line 196: Related item: ''DCP-HUB'' not found, BaseItemCode=DCP-DDP6WH'
+    - - :warning
+      - 'Line 198: Related item: ''DCP-EXT20FT'' not found, BaseItemCode=DCP-FLD30-BK'
+    - - :warning
+      - 'Line 198: Related item: ''DCP-EXT2FT'' not found, BaseItemCode=DCP-FLD30-BK'
+    - - :warning
+      - 'Line 198: Related item: ''DCP-EXT6FT'' not found, BaseItemCode=DCP-FLD30-BK'
+    - - :warning
+      - 'Line 198: Related item: ''DCP-EXT-T'' not found, BaseItemCode=DCP-FLD30-BK'
+    - - :warning
+      - 'Line 201: Related item: ''DCP-HUB'' not found, BaseItemCode=DCP-GBR35-BK'
+    - - :warning
+      - 'Line 202: Related item: ''DCP-HUB'' not found, BaseItemCode=DCP-GBR35-WH'
+    - - :warning
+      - 'Line 205: Related item: ''DCP-HUB'' not found, BaseItemCode=DCP-LNPD48-BK'
+    - - :warning
+      - 'Line 206: Related item: ''DCP-HUB'' not found, BaseItemCode=DCP-LNR24-WH'
+    - - :warning
+      - 'Line 207: Related item: ''DCP-HUB'' not found, BaseItemCode=DCP-LNR48-WH'
+    - - :warning
+      - 'Line 208: Related item: ''DCP-HUB'' not found, BaseItemCode=DCP-LWS19'
+    - - :warning
+      - 'Line 210: Related item: ''DCP-HUB'' not found, BaseItemCode=DCP-PNL4-TRIM-BK'
+    - - :warning
+      - 'Line 211: Related item: ''DCP-HUB'' not found, BaseItemCode=DCP-PNL4WH'
+    - - :error
+      - 'Line 212: BaseItemCode: DCP-PNL6-TRIM-BK: Invalid collection code: ''125'''
+    - - :warning
+      - 'Line 213: Related item: ''DCP-HUB'' not found, BaseItemCode=DCP-PNL6WH'
+    - - :warning
+      - 'Line 218: Related item: ''DCP-EXT20FT'' not found, BaseItemCode=DCP-SPT6-BK'
+    - - :warning
+      - 'Line 218: Related item: ''DCP-EXT2FT'' not found, BaseItemCode=DCP-SPT6-BK'
+    - - :warning
+      - 'Line 218: Related item: ''DCP-EXT6FT'' not found, BaseItemCode=DCP-SPT6-BK'
+    - - :warning
+      - 'Line 218: Related item: ''DCP-EXT-T'' not found, BaseItemCode=DCP-SPT6-BK'
+    - - :error
+      - 'Line 226: BaseItemCode: DCP-TAP10FT: Invalid collection code: ''137'''
+    - - :error
+      - 'Line 227: BaseItemCode: DCP-TAP20FT: Invalid collection code: ''137'''
+    - - :error
+      - 'Line 228: BaseItemCode: DCP-TAP50FT: Invalid collection code: ''137'''
+    - - :error
+      - 'Line 280: BaseItemCode: FGM4-CC-DUO-BK: Invalid collection code: ''121'''
+    - - :error
+      - 'Line 282: BaseItemCode: FGM4-CC-DUO-V-WH: Invalid collection code: ''121'''
+    - - :error
+      - 'Line 334: BaseItemCode: GBR35-CC-DUO-BK: Invalid collection code: ''119'''
+    - - :error
+      - 'Line 337: BaseItemCode: GBR35-CC-DUO-WH: Invalid collection code: ''119'''
+    - - :error
+      - 'Line 517: BaseItemCode: LSKIT-002: Invalid category code: ''0'''
+    - - :error
+      - 'Line 518: BaseItemCode: LSKIT-003: Invalid category code: ''0'''
+- - Inventory
+  - []
+ |
+| 2025-02-27 21:15:32 | ---
+- - Products
+  - - - :warning
+      - 'Line 185: Related item: ''DCP-EXT20FT'' not found, BaseItemCode=DCP-BRK12-BK'
+    - - :warning
+      - 'Line 185: Related item: ''DCP-EXT2FT'' not found, BaseItemCode=DCP-BRK12-BK'
+    - - :warning
+      - 'Line 185: Related item: ''DCP-EXT6FT'' not found, BaseItemCode=DCP-BRK12-BK'
+    - - :warning
+      - 'Line 185: Related item: ''DCP-EXT-T'' not found, BaseItemCode=DCP-BRK12-BK'
+    - - :warning
+      - 'Line 187: Related item: ''DCP-EXT20FT'' not found, BaseItemCode=DCP-CPL24-BK'
+    - - :warning
+      - 'Line 187: Related item: ''DCP-EXT2FT'' not found, BaseItemCode=DCP-CPL24-BK'
+    - - :warning
+      - 'Line 187: Related item: ''DCP-EXT6FT'' not found, BaseItemCode=DCP-CPL24-BK'
+    - - :warning
+      - 'Line 187: Related item: ''DCP-EXT-T'' not found, BaseItemCode=DCP-CPL24-BK'
+    - - :warning
+      - 'Line 191: Related item: ''DCP-EXT20FT'' not found, BaseItemCode=DCP-FLD30-BK'
+    - - :warning
+      - 'Line 191: Related item: ''DCP-EXT2FT'' not found, BaseItemCode=DCP-FLD30-BK'
+    - - :warning
+      - 'Line 191: Related item: ''DCP-EXT6FT'' not found, BaseItemCode=DCP-FLD30-BK'
+    - - :warning
+      - 'Line 191: Related item: ''DCP-EXT-T'' not found, BaseItemCode=DCP-FLD30-BK'
+    - - :warning
+      - 'Line 208: Related item: ''DCP-EXT20FT'' not found, BaseItemCode=DCP-SPT6-BK'
+    - - :warning
+      - 'Line 208: Related item: ''DCP-EXT2FT'' not found, BaseItemCode=DCP-SPT6-BK'
+    - - :warning
+      - 'Line 208: Related item: ''DCP-EXT6FT'' not found, BaseItemCode=DCP-SPT6-BK'
+    - - :warning
+      - 'Line 208: Related item: ''DCP-EXT-T'' not found, BaseItemCode=DCP-SPT6-BK'
+    - - :error
+      - 'Line 264: BaseItemCode: FGM4-CC-DUO-BK: Invalid collection code: ''121'''
+    - - :error
+      - 'Line 266: BaseItemCode: FGM4-CC-DUO-V-WH: Invalid collection code: ''121'''
+    - - :error
+      - 'Line 318: BaseItemCode: GBR35-CC-DUO-BK: Invalid collection code: ''119'''
+    - - :error
+      - 'Line 321: BaseItemCode: GBR35-CC-DUO-WH: Invalid collection code: ''119'''
+- - Inventory
+  - []
+ |
+| 2025-01-29 20:28:16 | ---
+- - Products
+  - - - :warning
+      - 'Line 188: Related item: ''DCP-EXT20FT'' not found, BaseItemCode=DCP-BRK12-BK'
+    - - :warning
+      - 'Line 188: Related item: ''DCP-EXT2FT'' not found, BaseItemCode=DCP-BRK12-BK'
+    - - :warning
+      - 'Line 188: Related item: ''DCP-EXT6FT'' not found, BaseItemCode=DCP-BRK12-BK'
+    - - :warning
+      - 'Line 188: Related item: ''DCP-EXT-T'' not found, BaseItemCode=DCP-BRK12-BK'
+    - - :warning
+      - 'Line 190: Related item: ''DCP-EXT20FT'' not found, BaseItemCode=DCP-CPL24-BK'
+    - - :warning
+      - 'Line 190: Related item: ''DCP-EXT2FT'' not found, BaseItemCode=DCP-CPL24-BK'
+    - - :warning
+      - 'Line 190: Related item: ''DCP-EXT6FT'' not found, BaseItemCode=DCP-CPL24-BK'
+    - - :warning
+      - 'Line 190: Related item: ''DCP-EXT-T'' not found, BaseItemCode=DCP-CPL24-BK'
+    - - :warning
+      - 'Line 194: Related item: ''DCP-EXT20FT'' not found, BaseItemCode=DCP-FLD30-BK'
+    - - :warning
+      - 'Line 194: Related item: ''DCP-EXT2FT'' not found, BaseItemCode=DCP-FLD30-BK'
+    - - :warning
+      - 'Line 194: Related item: ''DCP-EXT6FT'' not found, BaseItemCode=DCP-FLD30-BK'
+    - - :warning
+      - 'Line 194: Related item: ''DCP-EXT-T'' not found, BaseItemCode=DCP-FLD30-BK'
+    - - :warning
+      - 'Line 211: Related item: ''DCP-EXT20FT'' not found, BaseItemCode=DCP-SPT6-BK'
+    - - :warning
+      - 'Line 211: Related item: ''DCP-EXT2FT'' not found, BaseItemCode=DCP-SPT6-BK'
+    - - :warning
+      - 'Line 211: Related item: ''DCP-EXT6FT'' not found, BaseItemCode=DCP-SPT6-BK'
+    - - :warning
+      - 'Line 211: Related item: ''DCP-EXT-T'' not found, BaseItemCode=DCP-SPT6-BK'
+    - - :error
+      - 'Line 267: BaseItemCode: FGM4-CC-DUO-BK: Invalid collection code: ''121'''
+    - - :error
+      - 'Line 269: BaseItemCode: FGM4-CC-DUO-V-WH: Invalid collection code: ''121'''
+    - - :error
+      - 'Line 321: BaseItemCode: GBR35-CC-DUO-BK: Invalid collection code: ''119'''
+    - - :error
+      - 'Line 324: BaseItemCode: GBR35-CC-DUO-WH: Invalid collection code: ''119'''
+- - Inventory
+  - []
+ |

@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>DALS Lighting — Customer Intelligence Report</title>
+<style>
+    :root {
+      --bg: #FAFAF8;
+      --surface: #FFFFFF;
+      --panel: #F5F4F1;
+      --border: #E8E5DE;
+      --border-light: #F0EDE6;
+      --text: #2C2925;
+      --text-secondary: #6B6660;
+      --text-muted: #9B958C;
+      --accent: #C47A4A;
+      --accent-deep: #89523B;
+      --accent-glow: rgba(196,122,74,.08);
+      --accent-border: rgba(196,122,74,.2);
+      --ok: #4A8C5C;
+      --ok-bg: #EDF7F0;
+      --ok-border: rgba(74,140,92,.2);
+      --warn: #B8863A;
+      --warn-bg: #FDF6EC;
+      --warn-border: rgba(184,134,58,.2);
+      --danger: #C0524A;
+      --danger-bg: #FDF0EF;
+      --danger-border: rgba(192,82,74,.2);
+      --info: #4A7A8C;
+      --info-bg: #EDF4F7;
+      --info-border: rgba(74,122,140,.2);
+      --fd: 'DM Sans', system-ui, sans-serif;
+      --fm: 'IBM Plex Mono', ui-monospace, monospace;
+      --r: 10px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font: 400 14px/1.65 var(--fd); color: var(--text); background: var(--bg); -webkit-font-smoothing: antialiased; }
+
+    .page { max-width: 920px; margin: 0 auto; padding: 0 24px 40px; }
+
+    /* ── Header ── */
+    .header { padding: 48px 0 32px; border-bottom: 1px solid var(--border); margin-bottom: 32px; position: relative; }
+    .h-brand { display: flex; align-items: center; gap: 8px; margin-bottom: 20px; }
+    .h-brand span { font: 500 10px/1 var(--fm); letter-spacing: .12em; text-transform: uppercase; color: var(--text-muted); }
+    .h-customer { font: 700 36px/1.1 var(--fd); color: var(--text); letter-spacing: -.01em; margin-bottom: 4px; }
+    .h-type { font: 400 15px/1 var(--fd); color: var(--text-secondary); margin-bottom: 16px; }
+    .h-meta { font: 400 11px/1 var(--fm); color: var(--text-muted); letter-spacing: .02em; }
+    .h-accent { position: absolute; bottom: -1px; left: 0; width: 64px; height: 2px; background: var(--accent); }
+
+    /* ── Key Highlights ── */
+    .highlights { margin: 8px 0 28px; padding: 0; list-style: none; counter-reset: hl; }
+    .highlights li { counter-increment: hl; padding: 12px 0; border-bottom: 1px solid var(--border-light); font: 400 13.5px/1.65 var(--fd); color: var(--text-secondary); padding-left: 36px; position: relative; }
+    .highlights li:last-child { border-bottom: none; }
+    .highlights li::before { content: counter(hl); position: absolute; left: 0; top: 14px; display: flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: var(--accent-glow); border: 1px solid var(--accent-border); font: 600 10px/1 var(--fm); color: var(--accent-deep); }
+    .highlights li strong { color: var(--text); font-weight: 600; }
+    .highlights a { color: var(--accent-deep); text-decoration: none; font-weight: 500; border-bottom: 1px solid var(--accent-border); transition: border-color .12s; }
+    .highlights a:hover { border-bottom-color: var(--accent); }
+    .priority-title a { color: inherit; text-decoration: none; border-bottom: 1px solid transparent; transition: border-color .12s; }
+    .priority-title a:hover { border-bottom-color: var(--accent); color: var(--accent-deep); }
+
+    /* ── Sections ── */
+    .section { margin-bottom: 32px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 28px 32px; }
+    .section-title { font: 700 20px/1.2 var(--fd); color: var(--text); margin-bottom: 4px; padding-bottom: 12px; border-bottom: 1px solid var(--border-light); }
+    .section-sub { font: 400 13px/1 var(--fd); color: var(--text-muted); margin-bottom: 20px; margin-top: 8px; }
+    .subsection { margin-top: 24px; }
+    .subsection-title { font: 600 15px/1.3 var(--fd); color: var(--text); margin-bottom: 12px; }
+    .sub-label { font: 500 9px/1 var(--fm); letter-spacing: .08em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; }
+    .section-num { font: 500 11px/1 var(--fm); color: var(--text-muted); margin-right: 8px; }
+    .section-light { background: var(--panel); border-color: var(--border-light); }
+    .what-this-means { margin-top: 16px; padding: 14px 18px; background: var(--panel); border-left: 3px solid var(--accent); border-radius: 0 6px 6px 0; font: 400 13px/1.6 var(--fd); color: var(--text-secondary); }
+    .what-this-means strong { color: var(--text); font-weight: 600; }
+
+    /* ── Priority Actions ── */
+    .priorities { display: grid; gap: 12px; margin-bottom: 32px; }
+    .priority { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 16px 20px; display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: start; }
+    .priority-badge { font: 700 9px/1 var(--fm); letter-spacing: .06em; text-transform: uppercase; padding: 4px 8px; border-radius: 4px; white-space: nowrap; margin-top: 2px; }
+    .priority-badge.high { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-border); }
+    .priority-badge.medium { background: var(--warn-bg); color: var(--warn); border: 1px solid var(--warn-border); }
+    .priority-badge.low { background: var(--info-bg); color: var(--info); border: 1px solid var(--info-border); }
+    .priority-title { font: 600 13px/1.35 var(--fd); color: var(--text); margin-bottom: 3px; }
+    .priority-desc { font: 400 12px/1.5 var(--fd); color: var(--text-secondary); }
+    .priority-impact { font: 600 12px/1 var(--fm); color: var(--ok); white-space: nowrap; margin-top: 2px; }
+
+    /* ── Metric cards ── */
+    .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 16px 0; }
+    .metrics-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; margin: 16px 0; }
+    .metric { background: var(--panel); border-radius: 8px; padding: 14px 16px; }
+    .metric-card { background: var(--panel); border-radius: 8px; padding: 16px; }
+    .metric-label { font: 500 9px/1 var(--fm); letter-spacing: .08em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
+    .metric-value { font: 700 22px/1.2 var(--fd); color: var(--text); }
+    .metric-val { font: 600 24px/1 var(--fd); color: var(--text); margin-bottom: 4px; }
+    .metric-note { font: 400 11px/1.3 var(--fd); color: var(--text-muted); margin-top: 2px; }
+    .metric-note.ok { color: var(--ok); font-weight: 500; }
+    .metric-note.warn { color: var(--warn); font-weight: 500; }
+    .metric-note.danger { color: var(--danger); font-weight: 500; }
+
+    /* ── Tables ── */
+    table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
+    thead { background: var(--panel); }
+    th { padding: 8px 12px; text-align: left; font: 600 10px/1 var(--fm); letter-spacing: .05em; text-transform: uppercase; color: var(--text-muted); border-bottom: 1px solid var(--border); }
+    td { padding: 8px 12px; border-bottom: 1px solid var(--border-light); color: var(--text-secondary); }
+    tbody tr:hover { background: var(--accent-glow); }
+    td strong { color: var(--text); font-weight: 600; }
+    .row-highlight { background: var(--ok-bg); }
+    .row-warn { background: var(--warn-bg); }
+    .row-danger { background: var(--danger-bg); }
+    .row-total { font-weight: 600; background: var(--panel); }
+    .row-total td { color: var(--text); border-bottom: 2px solid var(--border); }
+    .prose { font: 400 13.5px/1.7 var(--fd); color: var(--text-secondary); margin-bottom: 16px; }
+    .prose strong { color: var(--text); }
+
+    /* ── Badges ── */
+    .badge { display: inline-block; padding: 3px 8px; border-radius: 4px; font: 600 10px/1 var(--fm); letter-spacing: .03em; text-transform: uppercase; }
+    .badge-ok { background: var(--ok-bg); color: var(--ok); border: 1px solid var(--ok-border); }
+    .badge-warn { background: var(--warn-bg); color: var(--warn); border: 1px solid var(--warn-border); }
+    .badge-danger { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-border); }
+    .badge-info { background: var(--info-bg); color: var(--info); border: 1px solid var(--info-border); }
+    .badge.ok { background: var(--ok-bg); color: var(--ok); border: 1px solid var(--ok-border); }
+    .badge.warn { background: var(--warn-bg); color: var(--warn); border: 1px solid var(--warn-border); }
+    .badge.danger { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-border); }
+    .badge.info { background: var(--info-bg); color: var(--info); border: 1px solid var(--info-border); }
+    .badge.muted { background: var(--panel); color: var(--text-muted); border: 1px solid var(--border); }
+
+    /* ── Callout boxes ── */
+    .callout { border-radius: 8px; padding: 16px 20px; margin: 16px 0; font-size: 13px; line-height: 1.6; }
+    .callout-title { font: 600 13px/1 var(--fd); margin-bottom: 6px; }
+    .callout.alert { background: var(--danger-bg); border-left: 3px solid var(--danger); }
+    .callout.alert .callout-title { color: var(--danger); }
+    .callout.opportunity { background: var(--ok-bg); border-left: 3px solid var(--ok); }
+    .callout.opportunity .callout-title { color: var(--ok); }
+    .callout.insight { background: var(--panel); border-left: 3px solid var(--accent); }
+    .callout.insight .callout-title { color: var(--accent-deep); }
+    .callout.note { background: var(--info-bg); border-left: 3px solid var(--info); }
+    .callout.note .callout-title { color: var(--info); }
+    .callout ul { margin: 8px 0 0 20px; }
+    .callout li { margin: 4px 0; }
+
+    /* ── Coaching cards ── */
+    .coaching-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 20px 24px; margin: 12px 0; border-top: 3px solid var(--warn); }
+    .coaching-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+    .coaching-name { font: 600 15px/1 var(--fd); color: var(--text); }
+    .coaching-body { font: 400 13px/1.6 var(--fd); color: var(--text-secondary); margin-bottom: 8px; }
+    .coaching-body strong { color: var(--text); }
+    .coaching-action { font: 500 13px/1.5 var(--fd); color: var(--text); margin-bottom: 6px; }
+    .coaching-impact { display: inline-block; font: 500 12px/1 var(--fm); color: var(--ok); background: var(--ok-bg); border: 1px solid var(--ok-border); padding: 5px 10px; border-radius: 5px; }
+
+    /* ── Progressive disclosure (subsection) ── */
+    details { margin: 12px 0; }
+    details > summary { display: flex; align-items: center; gap: 8px; font: 500 13px/1 var(--fd); color: var(--accent-deep); cursor: pointer; list-style: none; padding: 10px 14px; user-select: none; background: var(--panel); border: 1px solid var(--border); border-radius: 6px; transition: all .15s; }
+    details > summary::-webkit-details-marker { display: none; }
+    details > summary::before { content: '\25B8'; font-size: 10px; transition: transform .15s; display: inline-block; color: var(--accent); }
+    details[open] > summary::before { transform: rotate(90deg); }
+    details > summary:hover { background: var(--accent-glow); border-color: var(--accent-border); color: var(--accent); }
+    details[open] > summary { border-radius: 6px 6px 0 0; border-bottom-color: transparent; background: var(--accent-glow); }
+    details > summary::after { content: 'click to expand'; margin-left: auto; font: 400 10px/1 var(--fm); color: var(--text-muted); letter-spacing: .02em; }
+    details[open] > summary::after { content: 'click to collapse'; }
+
+    /* ── Section-level collapse ── */
+    details.section-collapse { margin: 0 0 32px; border: none; background: none; }
+    details.section-collapse > summary { display: block; background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 24px 32px; cursor: pointer; transition: all .15s; }
+    details.section-collapse > summary::before { content: none; }
+    details.section-collapse > summary::after { content: none; }
+    details.section-collapse > summary:hover { border-color: var(--accent-border); box-shadow: 0 2px 8px rgba(196,122,74,.08); }
+    details.section-collapse > summary .section-title { margin-bottom: 4px; padding-bottom: 0; border-bottom: none; }
+    details.section-collapse > summary .section-sub { margin-bottom: 0; }
+    details.section-collapse > summary .section-contents { font: 400 12px/1.4 var(--fd); color: var(--text-muted); margin-top: 6px; }
+    details.section-collapse > summary .expand-hint { display: inline-block; margin-top: 10px; font: 500 10px/1 var(--fm); letter-spacing: .04em; text-transform: uppercase; color: var(--accent); opacity: .7; transition: opacity .12s; }
+    details.section-collapse > summary:hover .expand-hint { opacity: 1; }
+    details.section-collapse[open] > summary { border-radius: var(--r) var(--r) 0 0; border-bottom-color: var(--border-light); background: var(--surface); }
+    details.section-collapse[open] > summary .expand-hint { display: none; }
+    details.section-collapse > .section { margin-bottom: 0; border-top: none; border-radius: 0 0 var(--r) var(--r); }
+    details.section-collapse.light > summary { background: var(--panel); }
+    details.section-collapse.light[open] > summary { background: var(--panel); }
+    details.section-collapse.light > .section { background: var(--panel); }
+
+    /* ── Peer benchmarking — base ── */
+    .peer-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 20px 24px; margin: 12px 0; }
+    .peer-cohort-label { font: 500 10px/1 var(--fm); letter-spacing: .08em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; }
+    .peer-cohort-value { font: 600 14px/1 var(--fd); color: var(--text); margin-bottom: 4px; }
+    .peer-cohort-sub { font: 400 11px/1.4 var(--fd); color: var(--text-muted); margin-bottom: 16px; }
+    .peer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 16px; margin-top: 12px; }
+    .peer-metric { text-align: center; padding: 12px; background: var(--panel); border-radius: 8px; }
+    .peer-label { font: 500 9px/1 var(--fm); letter-spacing: .08em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
+    .peer-value { font: 700 20px/1.2 var(--fd); color: var(--text); }
+    .peer-compare { font: 400 11px/1 var(--fm); margin-top: 2px; }
+    .peer-compare.above { color: var(--ok); }
+    .peer-compare.below { color: var(--warn); }
+    .peer-compare.on-par { color: var(--text-muted); }
+    .peer-confidence { font: 400 11px/1.5 var(--fd); color: var(--text-muted); margin-top: 12px; font-style: italic; }
+
+    /* ── Peer benchmarking — hero stat ── */
+    .peer-hero { background: var(--accent-glow); border: 1px solid var(--accent-border); border-radius: var(--r); padding: 22px 26px; margin-bottom: 20px; display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: center; }
+    .peer-hero-left { }
+    .peer-hero-eyebrow { font: 500 9px/1 var(--fm); letter-spacing: .1em; text-transform: uppercase; color: var(--accent-deep); margin-bottom: 8px; }
+    .peer-hero-stat { font: 700 32px/1.1 var(--fd); color: var(--text); letter-spacing: -.02em; margin-bottom: 4px; }
+    .peer-hero-context { font: 400 13px/1.55 var(--fd); color: var(--text-secondary); max-width: 440px; }
+    .peer-hero-context strong { color: var(--text); font-weight: 600; }
+    .peer-hero-context .delta-above { color: var(--ok); font-weight: 600; }
+    .peer-hero-context .delta-below { color: var(--warn); font-weight: 600; }
+    .peer-hero-right { text-align: center; flex-shrink: 0; }
+    .peer-hero-pctile { font: 600 13px/1 var(--fm); padding: 6px 12px; border-radius: 20px; white-space: nowrap; }
+    .peer-hero-pctile.above { background: var(--ok-bg); color: var(--ok); border: 1px solid var(--ok-border); }
+    .peer-hero-pctile.below { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-border); }
+    .peer-hero-pctile.on-par { background: var(--panel); color: var(--text-muted); border: 1px solid var(--border); }
+    .peer-hero-pctile-label { font: 400 9px/1.4 var(--fm); color: var(--text-muted); letter-spacing: .04em; text-transform: uppercase; margin-top: 4px; }
+    .peer-hero-metric { flex: 1; }
+    .peer-hero-label { font: 500 10px/1 var(--fm); color: var(--text-muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 6px; }
+    .peer-hero-value { font: 700 32px/1 var(--fd); color: var(--text); margin-bottom: 4px; }
+    .peer-hero-sentence { font: 400 13px/1.5 var(--fd); color: var(--text-secondary); }
+
+    /* ── Peer benchmarking — narrative metric rows ── */
+    .peer-metric-rows { margin-top: 8px; }
+    .peer-metric-row { display: grid; grid-template-columns: 1fr auto; gap: 16px; align-items: start; padding: 14px 0; border-bottom: 1px solid var(--border-light); }
+    .peer-metric-row:last-child { border-bottom: none; }
+    .peer-metric-title { font: 600 12px/1 var(--fm); letter-spacing: .03em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
+    .peer-metric-sentence { font: 400 13px/1.6 var(--fd); color: var(--text-secondary); }
+    .peer-metric-sentence strong { color: var(--text); font-weight: 600; }
+    .peer-metric-sentence .delta-above { color: var(--ok); font-weight: 600; }
+    .peer-metric-sentence .delta-below { color: var(--warn); font-weight: 600; }
+    .peer-metric-sentence .delta-par { color: var(--text-muted); font-weight: 500; }
+    .peer-range-bar { display: flex; align-items: center; gap: 6px; margin-top: 6px; }
+    .peer-range-label { font: 400 9px/1 var(--fm); color: var(--text-muted); white-space: nowrap; letter-spacing: .02em; }
+    .peer-range-track { flex: 1; height: 4px; background: var(--border); border-radius: 2px; position: relative; min-width: 80px; }
+    .peer-range-marker { position: absolute; top: 50%; width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--surface); box-shadow: 0 0 0 1.5px currentColor; transform: translate(-50%, -50%); }
+    .peer-range-marker.above { color: var(--ok); background: var(--ok); }
+    .peer-range-marker.below { color: var(--warn); background: var(--warn); }
+    .peer-range-marker.on-par { color: var(--text-muted); background: var(--text-muted); }
+    .peer-quartile-pill { font: 700 10px/1 var(--fm); letter-spacing: .04em; padding: 4px 9px; border-radius: 20px; white-space: nowrap; flex-shrink: 0; }
+    .peer-quartile-pill.q4 { background: var(--ok-bg); color: var(--ok); border: 1px solid var(--ok-border); }
+    .peer-quartile-pill.q3 { background: var(--info-bg); color: var(--info); border: 1px solid var(--info-border); }
+    .peer-quartile-pill.q2 { background: var(--warn-bg); color: var(--warn); border: 1px solid var(--warn-border); }
+    .peer-quartile-pill.q1 { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-border); }
+    .quartile-pill { font: 700 10px/1 var(--fm); letter-spacing: .04em; padding: 4px 9px; border-radius: 20px; white-space: nowrap; flex-shrink: 0; }
+    .quartile-pill.q4 { background: var(--ok-bg); color: var(--ok); border: 1px solid var(--ok-border); }
+    .quartile-pill.q3 { background: var(--info-bg); color: var(--info); border: 1px solid var(--info-border); }
+    .quartile-pill.q2 { background: var(--warn-bg); color: var(--warn); border: 1px solid var(--warn-border); }
+    .quartile-pill.q1 { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-border); }
+
+    /* ── Peer benchmarking — top performers ── */
+    .top-performer-list { margin-top: 4px; }
+    .top-performer-row { display: flex; gap: 12px; align-items: flex-start; padding: 11px 0; border-bottom: 1px solid var(--border-light); }
+    .top-performer-row:last-child { border-bottom: none; }
+    .top-performer-icon { width: 26px; height: 26px; border-radius: 6px; background: var(--accent-glow); border: 1px solid var(--accent-border); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 12px; margin-top: 1px; }
+    .top-performer-text { font: 400 13px/1.55 var(--fd); color: var(--text-secondary); }
+    .top-performer-text strong { color: var(--text); font-weight: 600; }
+
+    /* ── Data Confidence Footer ── */
+    .data-confidence { background: var(--info-bg, var(--panel)); border-left: 3px solid var(--info, var(--accent)); border-radius: var(--r); padding: 12px 16px; margin: 20px 0; font: 400 12px/1.6 var(--fd); color: var(--text-muted); }
+    .data-confidence.limited { background: var(--warn-bg); border-left-color: var(--warn); }
+    .data-confidence-label { display: inline-block; font: 600 9px/1 var(--fm); letter-spacing: .06em; text-transform: uppercase; padding: 2px 6px; border-radius: 3px; background: var(--panel); color: var(--text-muted); border: 1px solid var(--border); margin-right: 8px; vertical-align: middle; }
+    .data-confidence.limited .data-confidence-label { background: var(--warn-bg); border-color: var(--warn-border); color: var(--warn); }
+    .data-confidence-action { font: 500 12px/1.6 var(--fd); color: var(--text-secondary); }
+
+    /* ── TOC strip (sticky) ── */
+    .toc-strip { position: sticky; top: 0; z-index: 100; display: flex; flex-wrap: nowrap; gap: 5px; padding: 12px 0; margin-bottom: 28px; background: var(--bg); border-bottom: 1px solid var(--border); overflow-x: auto; transition: box-shadow .2s; }
+    .toc-strip.stuck { box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+    .toc-strip a { display: inline-block; padding: 4px 10px; font: 500 10.5px/1 var(--fd); color: var(--text-secondary); text-decoration: none; background: var(--panel); border: 1px solid var(--border-light); border-radius: 20px; transition: all .12s; white-space: nowrap; }
+    .toc-strip a:hover { color: var(--accent); background: var(--accent-glow); border-color: var(--accent-border); }
+    .toc-strip a.active { color: var(--accent-deep); font-weight: 600; background: var(--accent-glow); border-color: var(--accent-border); }
+
+    /* ── Appendix ── */
+    .appendix-row { display: grid; grid-template-columns: 200px 1fr; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border-light); font-size: 13px; }
+    .appendix-row:last-child { border-bottom: none; }
+    .appendix-label { font: 500 12px/1.5 var(--fd); color: var(--text); }
+    .appendix-value { font: 400 12px/1.5 var(--fd); color: var(--text-secondary); }
+    .data-tag { display: inline-block; font: 500 9px/1 var(--fm); letter-spacing: .04em; text-transform: uppercase; padding: 2px 6px; border-radius: 3px; background: var(--panel); color: var(--text-muted); border: 1px solid var(--border); margin-right: 4px; }
+
+    /* ── Report mode banner (activation / reactivation) ── */
+    .mode-banner { border-radius: 8px; padding: 10px 18px; margin-bottom: 20px; font: 500 12px/1.5 var(--fd); display: flex; align-items: center; gap: 10px; }
+    .mode-banner.activation { background: var(--ok-bg); border: 1px solid var(--ok-border); color: var(--ok); }
+    .mode-banner.reactivation { background: var(--warn-bg); border: 1px solid var(--warn-border); color: var(--warn); }
+    .mode-banner strong { font-weight: 600; }
+
+    /* ── Footer ── */
+    .footer { margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--border); text-align: center; }
+    .footer-brand { font: 600 10px/1 var(--fm); letter-spacing: .12em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
+    .footer-text { font: 400 11px/1.5 var(--fd); color: var(--text-muted); }
+
+    /* ── Responsive ── */
+    @media (max-width: 600px) {
+      .h-customer { font-size: 26px; }
+      .section { padding: 20px 16px; }
+      .metrics { grid-template-columns: repeat(2, 1fr); }
+      .priority { grid-template-columns: 1fr; }
+      .priority-impact { margin-top: 4px; }
+      .peer-grid { grid-template-columns: repeat(2, 1fr); }
+      .appendix-row { grid-template-columns: 1fr; }
+      th, td { padding: 6px 8px; font-size: 12px; }
+    }
+
+    @media print {
+      @page {
+        size: letter;
+        margin: 18mm 15mm 15mm 15mm;
+      }
+      body {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        background: #fff;
+        orphans: 3;
+        widows: 3;
+      }
+      .toc-strip { display: none; }
+      .page { max-width: 100%; margin: 0; padding: 0; }
+      details[open] > summary { display: none; }
+      details > div, details > table { display: block !important; }
+
+      .header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        padding: 4px 0 3px;
+        margin-bottom: 0;
+        border-bottom: 1.5px solid #C47A4A;
+        background: #fff;
+      }
+      .h-brand { margin-bottom: 2px; }
+      .h-brand span { font-size: 8px; }
+      .h-customer { font-size: 13px; margin-bottom: 0; }
+      .h-type { display: none; }
+      .h-meta { display: none; }
+      .h-accent { display: none; }
+
+      .section-title { break-after: avoid; }
+      .subsection-title { break-after: avoid; }
+      .sub-label { break-after: avoid; }
+      .callout-title { break-after: avoid; }
+      .coaching-header { break-after: avoid; }
+
+      .priority { break-inside: avoid; }
+      .metrics { break-inside: avoid; }
+      .metric { break-inside: avoid; }
+      .callout { break-inside: avoid; }
+      .coaching-card { break-inside: avoid; }
+      .what-this-means { break-inside: avoid; }
+      .highlights li { break-inside: avoid; }
+      .peer-metric { break-inside: avoid; }
+      .appendix-row { break-inside: avoid; }
+      .data-confidence { break-inside: avoid; }
+      table { break-inside: avoid; }
+      tr { break-inside: avoid; }
+
+      .footer { break-before: page; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+<header class="header" id="top">
+    <div class="h-brand"><span>Insightful &middot; Customer Intelligence</span></div>
+    <div class="h-customer">DALS Lighting</div>
+    <div class="h-type">Customer Intelligence Report</div>
+    <div class="h-meta">June 2025 &ndash; June 2026 (Trailing 12 Months) &middot; Report Date: June 17, 2026</div>
+    <div class="h-meta" style="margin-top: 4px;"><span class="badge badge-info">Full · iPad</span></div>
+    <div class="h-accent"></div>
+  </header>
+  <nav class="toc-strip" id="tocStrip">
+    <a href="#signals">Signal Summary</a>
+    <a href="#team">Team Intelligence</a>
+    <a href="#accounts">Account Intelligence</a>
+    <a href="#commerce">Commerce Patterns</a>
+    <a href="#product">Product Intelligence</a>
+    <a href="#platform">Platform Context</a>
+    <a href="#appendix">Appendix</a>
+  </nav>
+
+<section class="section" id="signals">
+  <h2 class="section-title"><span class="section-num">&sect;1</span> Signal Summary</h2>
+
+  <ol class="highlights">
+    <li><strong>Your team logged 7,539 app selling events across 35 users in 12 months</strong> &mdash; engagement is real and consistent, with Philip Todoroff more than doubling his usage quarter-over-quarter (+152%) to become the clearest internal champion for app-driven selling. A live, daily-active sales team. <a href="#team">Team Intelligence &rarr;</a></li>
+    <li><strong>eCat is already producing high-value project orders</strong> &mdash; the 7 eCat orders placed in the last 12 months averaged $2,695 apiece, showing the app is being used for substantial project purchases, not just small reorders. $18,866 in eCat sales over the trailing 12 months. <a href="#commerce">Commerce Patterns &rarr;</a></li>
+    <li><strong>Rep-led onboarding is your proven eCat acquisition channel</strong> &mdash; Martin Leguerrier personally onboarded 2 of this year's first-time eCat buyers, and only 9 of 630 accounts have ever ordered digitally, leaving 621 accounts (99%) as open whitespace for the same motion. 621 untapped accounts is the entire growth runway. <a href="#accounts">Account Intelligence &rarr;</a></li>
+    <li><strong>421 new items are launched and ready to activate</strong> &mdash; a catalog refresh of 421 new items shipped across 25 collections this year, with 289 concentrated in a single collection that currently has zero tracked orders &mdash; the single most efficient place to focus a rep push. ~$50,000 estimated near-term opportunity. <a href="#product">Product Intelligence &rarr;</a></li>
+    <li><strong>Both of your eCat-active accounts have gone quiet</strong> &mdash; Park Lighting (153 days silent) and Wesco Distribution Canada LP (343 days silent) are the only two accounts to order through eCat in the prior year, and both have now lapsed against their cadence. $4,076 in all-time eCat relationship at risk of full lapse. <a href="#accounts">Account Intelligence &rarr;</a></li>
+    <li><strong>The import pipeline that feeds the app has stalled since February</strong> &mdash; only 1 import has run in 12 months, freezing 18 data sources and leaving customer, pricing, and inventory data up to 313 days old, so reps may be quoting 10-month-old prices and stock. A single import cycle this week clears all 18 freshness alerts. <a href="#platform">Platform Context &rarr;</a></li>
+  </ol>
+
+  <div class="priorities">
+    <div class="priority">
+      <span class="priority-badge high">HIGH</span>
+      <div>
+        <div class="priority-title"><a href="#platform">Restart the import job to refresh customer, pricing, and inventory data</a></div>
+        <div class="priority-desc">Core data is 313 days stale (customers and pricing) and 244 days stale (inventory), which undermines every customer-, price-, and availability-related finding in this report. A single import cycle clears all 18 freshness alerts and lets reps quote with confidence.</div>
+      </div>
+      <div class="priority-impact">Restores data integrity</div>
+    </div>
+    <div class="priority">
+      <span class="priority-badge medium">MEDIUM</span>
+      <div>
+        <div class="priority-title"><a href="#accounts">Re-engage Park Lighting before the 153-day gap hardens into a lapse</a></div>
+        <div class="priority-desc">Park Lighting is your most recently active eCat account and the lowest-friction reactivation in the book, while Wesco Distribution Canada LP (343 days silent) is a colder but still eCat-capable check-in. Recovering both protects the only proven digital relationships you have.</div>
+      </div>
+      <div class="priority-impact">$4,076 eCat relationship</div>
+    </div>
+    <div class="priority">
+      <span class="priority-badge growth">GROWTH</span>
+      <div>
+        <div class="priority-title"><a href="#product">Activate the new-item launch through a focused rep push</a></div>
+        <div class="priority-desc">Feature the 289 new items in Collection 136 in rep-facing lists and the next sales meeting to convert a 421-item catalog investment into first orders. Pairing this with the rep-led onboarding motion that already won your first eCat buyers turns engaged app users into digital orderers.</div>
+      </div>
+      <div class="priority-impact">~$50,000 est. opportunity</div>
+    </div>
+  </div>
+
+  <div class="callout insight">
+    <div class="callout-title">Patterns That Warrant a Conversation</div>
+    <ol>
+      <li>We see 7,539 app selling events from 35 users but only 7 eCat orders from 2 buyers in 12 months &mdash; is the gap between heavy app engagement and digital ordering a workflow friction we can remove, or are reps deliberately closing these orders through other channels?</li>
+      <li>Martin Leguerrier's rep-led onboarding produced your only new eCat buyers this year, yet 621 of 630 accounts have never ordered digitally &mdash; what would it take to make that onboarding motion a repeatable team play rather than a one-rep effort?</li>
+      <li>The import pipeline has run just once in 12 months, leaving core data up to 313 days stale &mdash; is this a one-time integration break, or has the feed quietly fallen out of someone's ownership since February?</li>
+    </ol>
+  </div>
+</section>
+
+
+<details class="section-collapse" id="team">
+  <summary>
+    <div class="section-title">Team Intelligence</div>
+    <div class="section-sub">17 active reps &middot; ~7,500 app selling events LTM &middot; behavioral patterns from app usage data</div>
+    <div class="section-contents">Rep leaderboard, behavioral archetypes, engagement trajectory, selling vs admin time</div>
+    <span class="expand-hint">Expand section</span>
+  </summary>
+  <div class="section">
+
+    <div class="data-confidence">
+      <span class="data-confidence-label">Partial View</span>
+      This team is actively presenting and searching through the app while eCat ordering is still ramping, so the view below reflects selling engagement rather than order volume. App usage behavioral data is complete for all 35 users; eCat order and all-channel sales feeds are not yet connected.
+    </div><div class="subsection">
+      <div class="subsection-title">Rep Leaderboard</div>
+      <div class="sub-label">Ranked by app selling activity (LTM)</div>
+      <table>
+        <thead>
+          <tr><th>#</th><th>Rep</th><th>Days Active</th><th>Customer Selections</th><th>Product Searches</th><th>Presentations</th><th>Total Events</th></tr>
+        </thead>
+        <tbody>
+          <tr class="row-highlight"><td>1</td><td><strong>Philip Todoroff</strong></td><td>190</td><td>0</td><td>638</td><td>23</td><td>1,054</td></tr>
+          <tr class="row-highlight"><td>2</td><td><strong>Jose Gutierrez</strong></td><td>124</td><td>86</td><td>550</td><td>1</td><td>983</td></tr>
+          <tr class="row-highlight"><td>3</td><td><strong>Tim Gietz</strong></td><td>164</td><td>1</td><td>382</td><td>32</td><td>827</td></tr>
+          <tr class="row-highlight"><td>4</td><td><strong>Liz Normore</strong></td><td>200</td><td>22</td><td>410</td><td>0</td><td>763</td></tr>
+          <tr class="row-highlight"><td>5</td><td><strong>Clint Hardy</strong></td><td>110</td><td>25</td><td>349</td><td>52</td><td>711</td></tr>
+        </tbody>
+      </table>
+
+      <details>
+        <summary>20 additional reps &middot; combined ~2,200 app events</summary>
+        <table>
+          <thead>
+            <tr><th>#</th><th>Rep</th><th>Days Active</th><th>Customer Selections</th><th>Product Searches</th><th>Presentations</th><th>Total Events</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>6</td><td>Laura Ford</td><td>77</td><td>0</td><td>119</td><td>22</td><td>479</td></tr>
+            <tr><td>7</td><td>Kelly Casagrande</td><td>67</td><td>9</td><td>112</td><td>21</td><td>361</td></tr>
+            <tr><td>8</td><td>Rose Davis</td><td>159</td><td>0</td><td>101</td><td>0</td><td>345</td></tr>
+            <tr><td>9</td><td>Blake Ellestad</td><td>13</td><td>14</td><td>32</td><td>0</td><td>217</td></tr>
+            <tr><td>10</td><td>Martin Leguerrier</td><td>31</td><td>16</td><td>83</td><td>0</td><td>204</td></tr>
+            <tr><td>11</td><td>David Burton</td><td>63</td><td>13</td><td>50</td><td>0</td><td>193</td></tr>
+            <tr><td>12</td><td>Megan Young</td><td>44</td><td>1</td><td>47</td><td>1</td><td>160</td></tr>
+            <tr><td>13</td><td>Audrey Blackburn</td><td>34</td><td>1</td><td>24</td><td>1</td><td>159</td></tr>
+            <tr><td>14</td><td>Ron Iversen</td><td>21</td><td>9</td><td>33</td><td>2</td><td>155</td></tr>
+            <tr><td>15</td><td>Aaron Harvey</td><td>38</td><td>0</td><td>44</td><td>0</td><td>137</td></tr>
+            <tr><td>16</td><td>Donna S.</td><td>34</td><td>10</td><td>30</td><td>0</td><td>122</td></tr>
+            <tr><td>17</td><td>Christophe Vivet</td><td>22</td><td>0</td><td>49</td><td>0</td><td>109</td></tr>
+            <tr><td>18</td><td>Amiee</td><td>22</td><td>12</td><td>5</td><td>0</td><td>97</td></tr>
+            <tr><td>19</td><td>Jason Randall</td><td>14</td><td>3</td><td>23</td><td>2</td><td>89</td></tr>
+            <tr><td>20</td><td>Veruska Ellestad</td><td>8</td><td>7</td><td>49</td><td>0</td><td>86</td></tr>
+            <tr><td>21</td><td>Mitchell Kraus</td><td>23</td><td>0</td><td>17</td><td>0</td><td>59</td></tr>
+            <tr><td>22</td><td>John Monkowski</td><td>5</td><td>1</td><td>1</td><td>0</td><td>50</td></tr>
+            <tr><td>23</td><td>Jennifer Eastman</td><td>4</td><td>4</td><td>4</td><td>0</td><td>48</td></tr>
+            <tr><td>24</td><td>John Howard</td><td>6</td><td>2</td><td>22</td><td>0</td><td>42</td></tr>
+            <tr><td>25</td><td>Albert Maldonado</td><td>10</td><td>0</td><td>15</td><td>3</td><td>42</td></tr>
+            <tr><td>26</td><td>Easoyuf</td><td>2</td><td>0</td><td>0</td><td>0</td><td>13</td></tr>
+            <tr><td>27</td><td>Amorin</td><td>2</td><td>1</td><td>1</td><td>0</td><td>10</td></tr>
+            <tr><td>28</td><td>Darlene</td><td>1</td><td>0</td><td>0</td><td>0</td><td>5</td></tr>
+            <tr><td>29</td><td>Lela A.</td><td>3</td><td>0</td><td>0</td><td>0</td><td>5</td></tr>
+            <tr><td>30</td><td>SWT</td><td>2</td><td>0</td><td>0</td><td>0</td><td>5</td></tr>
+          </tbody>
+        </table>
+      </details>
+
+      <div class="sub-label" style="margin-top:16px;">Bottom 5 by app activity</div>
+      <table>
+        <thead>
+          <tr><th>#</th><th>Rep</th><th>Days Active</th><th>Customer Selections</th><th>Product Searches</th><th>Presentations</th><th>Total Events</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>31</td><td>Charles Dufour</td><td>1</td><td>0</td><td>3</td><td>0</td><td>5</td></tr>
+          <tr><td>32</td><td>David Hibbs</td><td>2</td><td>0</td><td>0</td><td>0</td><td>4</td></tr>
+          <tr><td>33</td><td>Stacie Simmons</td><td>1</td><td>0</td><td>0</td><td>0</td><td>2</td></tr>
+          <tr><td>34</td><td>Chuck</td><td>1</td><td>0</td><td>0</td><td>0</td><td>1</td></tr>
+          <tr><td>35</td><td>C. Warnock</td><td>1</td><td>0</td><td>0</td><td>0</td><td>1</td></tr>
+        </tbody>
+      </table>
+    </div><div class="subsection">
+      <div class="subsection-title">Behavioral Archetypes</div>
+      <div class="sub-label">Based on app usage patterns over the trailing 12 months</div>
+      <div class="callout insight">
+        <div class="callout-title">Three distinct usage patterns among your active app users</div>
+        <p>Your team&rsquo;s usage patterns show heavy product research but light customer-facing presentation work. Most active reps spend the bulk of their app time on product searches, while only a handful build catalogs or email items to customers &mdash; the step that turns browsing into a sale.</p>
+      </div>
+      <table>
+        <thead>
+          <tr><th>Rep</th><th>Archetype</th><th>Total Events</th><th>Product Searches</th><th>Presentations</th><th>Key Gap</th></tr>
+        </thead>
+        <tbody>
+          <tr class="row-highlight"><td><strong>Philip Todoroff</strong></td><td><span class="badge warn">High Activity / Low Presentation</span></td><td>1,054</td><td>638</td><td>23</td><td>638 searches, 0 customer selections &mdash; researching, not selling to named accounts</td></tr>
+          <tr><td><strong>Clint Hardy</strong></td><td><span class="badge ok">Discovery-Driven Presenter</span></td><td>711</td><td>349</td><td>52</td><td>Most presentations on the team; balanced search-to-share ratio</td></tr>
+          <tr><td><strong>Tim Gietz</strong></td><td><span class="badge ok">Discovery-Driven Presenter</span></td><td>827</td><td>382</td><td>32</td><td>Emails items frequently; turns research into customer touches</td></tr>
+          <tr><td>Jose Gutierrez</td><td><span class="badge warn">High Activity / Low Presentation</span></td><td>983</td><td>550</td><td>1</td><td>86 customer selections but only 1 presentation &mdash; selects accounts, rarely shares</td></tr>
+          <tr><td>Liz Normore</td><td><span class="badge warn">High Activity / Low Presentation</span></td><td>763</td><td>410</td><td>0</td><td>410 searches, zero presentations &mdash; pure browsing</td></tr>
+          <tr><td>Rose Davis</td><td><span class="badge warn">High Activity / Low Presentation</span></td><td>345</td><td>101</td><td>0</td><td>159 active days, still no customer-facing output</td></tr>
+          <tr><td>Blake Ellestad</td><td><span class="badge info">Order-Direct Pattern</span></td><td>217</td><td>32</td><td>0</td><td>4 orders submitted with little browse or presentation activity</td></tr>
+          <tr><td>Veruska Ellestad</td><td><span class="badge info">Order-Direct Pattern</span></td><td>86</td><td>49</td><td>0</td><td>3 orders with no presentations &mdash; uses eCat for order entry only</td></tr>
+        </tbody>
+      </table>
+      <div class="what-this-means">
+        <strong>Action:</strong> Five of your most active reps &mdash; Philip Todoroff (638 searches), Jose Gutierrez (550), and Liz Normore (410) among them &mdash; do heavy product research but create almost no customer-facing presentations, while Clint Hardy and Tim Gietz alone account for 84 of the team&rsquo;s catalog/email shares. The research habit is already there; pairing those high-search reps with Hardy&rsquo;s presentation workflow is the lowest-friction way to convert app time into shared catalogs and, eventually, eCat orders.
+      </div>
+    </div><div class="subsection">
+      <div class="subsection-title">Engagement Trajectory</div>
+      <div class="sub-label">Quarter-over-quarter app session trend</div>
+
+      <div class="callout opportunity">
+        <div class="callout-title">Accelerating Reps</div>
+      </div>
+      <table>
+        <thead>
+          <tr><th>Rep</th><th>Prior 90d Sessions</th><th>Current 90d Sessions</th><th>QoQ Change</th></tr>
+        </thead>
+        <tbody>
+          <tr class="row-highlight"><td><strong>Philip Todoroff</strong></td><td>21</td><td>53</td><td><span class="badge ok">+152.4%</span></td></tr>
+          <tr><td><strong>David Burton</strong></td><td>11</td><td>12</td><td><span class="badge ok">+9.1%</span></td></tr>
+          <tr><td><strong>John Howard</strong></td><td>0</td><td>1</td><td><span class="badge ok">New activity</span></td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout insight">
+        <div class="callout-title">Reps Needing Attention</div>
+      </div>
+      <table>
+        <thead>
+          <tr><th>Rep</th><th>Prior 90d Sessions</th><th>Current 90d Sessions</th><th>QoQ Change</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Liz Normore</strong></td><td>26</td><td>0</td><td><span class="badge danger">&minus;100%</span></td></tr>
+          <tr><td><strong>Clint Hardy</strong></td><td>20</td><td>8</td><td><span class="badge danger">&minus;60%</span></td></tr>
+          <tr><td><strong>Tim Gietz</strong></td><td>9</td><td>1</td><td><span class="badge danger">&minus;88.9%</span></td></tr>
+          <tr><td><strong>Aaron Harvey</strong></td><td>14</td><td>4</td><td><span class="badge danger">&minus;71.4%</span></td></tr>
+          <tr><td><strong>Rose Davis</strong></td><td>25</td><td>20</td><td><span class="badge warn">&minus;20%</span></td></tr>
+        </tbody>
+      </table>
+
+      <div class="what-this-means">
+        <strong>Action:</strong> Liz Normore went from 26 sessions to zero and Tim Gietz dropped from 9 to 1 &mdash; both were top-5 app users, so this is lost momentum, not low engagement. Reconnect with them before the habit fully lapses; meanwhile Philip Todoroff&rsquo;s jump from 21 to 53 sessions makes him the natural internal champion to model the workflow for the rest of the team.
+      </div>
+    </div><div class="subsection">
+      <div class="subsection-title">How Reps Spend Their Time in the App</div>
+      <div class="sub-label">Every session is classified as &ldquo;selling&rdquo; (searching products, building presentations, placing orders) or &ldquo;admin&rdquo; (looking up customers, checking history). Here&rsquo;s the split for reps with enough recent activity to measure.</div>
+      <div class="callout insight">
+        <div class="callout-title">A 39-point gap separates your most and least selling-focused reps</div>
+        <p>Your most selling-focused rep spends 61% of app time on customer-facing activities; the least spends just 22%, with the rest going to lookups and navigation. That 39-point spread points to a workflow difference, not an effort difference.</p>
+      </div>
+      <table>
+        <thead>
+          <tr><th>Rep</th><th>Total Activity</th><th>Selling</th><th>Admin</th><th>Selling %</th></tr>
+        </thead>
+        <tbody>
+          <tr class="row-highlight"><td><strong>Philip Todoroff</strong></td><td>175</td><td>107</td><td>68</td><td><span class="badge warn">61.1%</span></td></tr>
+          <tr><td>Rose Davis</td><td>34</td><td>13</td><td>21</td><td><span class="badge danger">38.2%</span></td></tr>
+          <tr><td>Clint Hardy</td><td>27</td><td>6</td><td>21</td><td><span class="badge danger">22.2%</span></td></tr>
+          <tr><td>David Burton</td><td>23</td><td>5</td><td>18</td><td><span class="badge danger">21.7%</span></td></tr>
+        </tbody>
+      </table>
+      <div class="what-this-means">
+        <strong>Action:</strong> Clint Hardy and David Burton spend roughly 78% of their app time on lookups rather than selling &mdash; not a motivation problem, but a sign they lack saved lists and pre-built views that let reps jump straight to selling. A 30-minute session setting up their top accounts as saved lists would shift that ratio toward customer-facing work, the same pattern Philip Todoroff already runs at 61%.
+      </div>
+    </div>
+
+    <div class="what-this-means" style="margin-top:24px;">
+      <strong>Action:</strong> Your highest-ROI move is converting heavy researchers into presenters: reps like Philip Todoroff, Jose Gutierrez, and Liz Normore run hundreds of product searches but build almost no catalogs, while Clint Hardy and Tim Gietz show the share-and-sell workflow that turns app time into customer touches. Engagement is concentrated in a handful of users &mdash; if Todoroff (your only accelerating top user) disengages, the team loses its clearest internal model for app-driven selling. Connecting eCat order and all-channel sales feeds would let us tie this engagement directly to revenue and quantify the upside.
+    </div>
+
+    <div class="callout note" style="margin-top:20px;">
+      <div class="callout-title">With Connected Data</div>
+      Connecting your eCat order feed and all-channel sales would let us link each rep&rsquo;s app activity to actual orders &mdash; showing which presentation habits convert to sales and putting a dollar figure on the coaching opportunities above.
+    </div>
+
+  </div>
+</details>
+
+
+<details class="section-collapse" id="accounts">
+  <summary>
+    <div class="section-title">Account Intelligence</div>
+    <div class="section-sub">630 accounts in your system &middot; 2 active in the last 12 months &middot; 9 have ever ordered through eCat</div>
+    <div class="section-contents">Account portfolio snapshot &middot; dormant high-value accounts &middot; reorder velocity</div>
+    <span class="expand-hint">Expand section</span>
+  </summary>
+  <div class="section">
+
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-val">630</div>
+        <div class="metric-label">Total Accounts</div>
+        <div class="metric-note">All account records in your system</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-val">2</div>
+        <div class="metric-label">Active Accounts</div>
+        <div class="metric-note">Ordered through eCat in trailing 12 months</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-val">1</div>
+        <div class="metric-label">Active Accounts</div>
+        <div class="metric-note">Ordered through eCat in last 90 days</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-val">9</div>
+        <div class="metric-label">Ever Adopted eCat</div>
+        <div class="metric-note">Placed at least 1 eCat order, all-time</div>
+      </div>
+    </div>
+
+    <div class="data-confidence">
+      <span class="data-confidence-label">Strong View</span>
+      <span class="data-confidence-action">This view is built from eCat order activity across your 630 accounts; all-channel order history is not yet connected, so trajectory and wallet-share signals are limited. Connecting your full order feed would surface reorder velocity and category whitespace for every account.</span>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Top Accounts by Signal Density</div>
+      <p class="prose">No account in your 630-account base currently shows the multi-signal density (acceleration, reorder decay, stock-out exposure, or displacement) needed to generate a pre-meeting brief. Only 2 accounts placed an eCat order in the last 12 months, so there is not yet enough ordering history to detect account-level patterns.</p>
+      <div class="what-this-means">
+        <strong>Action:</strong> Focus on getting more of your 630 accounts placing eCat orders through rep-led onboarding &mdash; Martin Leguerrier already onboarded 2 first-time eCat buyers this year. Once a handful of accounts build a repeat-order history, this section will produce the account-by-account briefs that drive pre-call prep.
+      </div>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Reorder Velocity &amp; Early Warning</div>
+      <p class="prose">Reorder cadence requires at least two eCat orders from the same account; with only 9 accounts ever ordering and 2 active in the last 12 months, no account yet has a repeat-order interval to measure. This view activates as ordering history accumulates.</p>
+      <div class="what-this-means">
+        <strong>Action:</strong> Drive a second order from Park Lighting (last ordered 2026-01-15) to establish your first measurable reorder interval. A single repeat order from an active account is the seed that turns this into a working early-warning view.
+      </div>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Dormant High-Value Accounts</div>
+      <p class="prose">Both accounts that ordered through eCat in the prior year have since gone quiet relative to their established cadence.</p>
+      <table>
+        <thead>
+          <tr><th>Customer</th><th>Province</th><th>Last Order</th><th>Historical GMV</th><th>Silence vs Normal</th></tr>
+        </thead>
+        <tbody>
+          <tr class="row-highlight"><td><strong>Park Lighting</strong></td><td>AB</td><td>2026-01-15</td><td>$2,759 (all-time eCat)</td><td>153 days silent</td></tr>
+          <tr><td>Wesco Distribution Canada LP</td><td>QC</td><td>2025-07-08</td><td>$1,317 (all-time eCat)</td><td>343 days silent</td></tr>
+        </tbody>
+      </table>
+      <div class="what-this-means">
+        <strong>Action:</strong> Have the rep call Park Lighting first &mdash; at 153 days silent against a single prior eCat order, a re-engagement now protects your most recently active digital relationship. Wesco Distribution Canada LP (343 days silent) is a colder reactivation but still proven eCat-capable, so a check-in costs nothing and may recover the $1,317 cadence.
+      </div>
+    </div>
+
+    <div class="what-this-means" style="margin-top:20px;">
+      <strong>Action:</strong> Your immediate lever is eCat adoption: only 9 of 630 accounts have ever ordered digitally and just 2 did so this year, so rep-led onboarding (the channel that won your last 2 buyers) is where account intelligence compounds. Each new repeat-ordering account unlocks the reorder-velocity, trajectory, and whitespace signals this section is built to surface. Connecting your all-channel order feed would let these briefs cover the full 630-account base instead of the eCat-active handful.
+    </div>
+
+    <div class="callout note" style="margin-top:16px;">
+      <div class="callout-title">With Connected Data</div>
+      Connecting your full order history would add all-channel revenue, reorder cadence, and category whitespace for every account &mdash; turning this from an eCat-adoption view into a complete account-by-account intelligence map.
+    </div>
+
+  </div>
+</details>
+
+
+<details class="section-collapse" id="commerce">
+  <summary>
+    <div class="section-title">Commerce Patterns</div>
+    <div class="section-sub">$18,866 eCat sales LTM &middot; 7 orders across 2 buyers &middot; all iPad-submitted</div>
+    <div class="section-contents">eCat Order Trend, Top Buyers &amp; Concentration, Order Type &amp; Workflow</div>
+    <span class="expand-hint">Expand section</span>
+  </summary>
+  <div class="section">
+
+    <div class="data-confidence limited">
+      <span class="data-confidence-label">Limited View</span>
+      Commerce analysis draws from eCat order data only (all iPad-submitted this period). All-channel order sync is not yet connected, so eCat footprint, channel migration, and pricing trends are unavailable.
+    </div><div class="subsection">
+      <div class="subsection-title">eCat Order Trend</div>
+      <table>
+        <thead>
+          <tr><th>Period</th><th>eCat Orders</th><th>eCat GMV</th><th>Avg Order Value</th></tr>
+        </thead>
+        <tbody>
+          <tr class="row-highlight"><td>Jun 2025</td><td>4</td><td>$12,047</td><td>$3,012</td></tr>
+          <tr><td>Jul 2025</td><td>1</td><td>$1,317</td><td>$1,317</td></tr>
+          <tr><td>Jan 2026</td><td>2</td><td>$5,502</td><td>$2,751</td></tr>
+        </tbody>
+      </table>
+      <div class="what-this-means">
+        <strong>Action:</strong> eCat ordering is early-stage and intermittent &mdash; 7 orders worth $18,866 over the trailing 12 months, concentrated in a single June 2025 spike. The high $2,695 average order value shows these are substantial project orders, so the priority is frequency: get Park Lighting and Wesco placing through eCat on a recurring cadence rather than one-off.
+      </div>
+    </div><div class="subsection">
+      <div class="subsection-title">Top Buyers &amp; Concentration</div>
+      <table>
+        <thead>
+          <tr><th>Customer</th><th>Orders</th><th>GMV (eCat)</th><th>% of eCat GMV</th></tr>
+        </thead>
+        <tbody>
+          <tr class="row-highlight"><td><strong>Park Lighting</strong></td><td>1</td><td>$2,759</td><td>68%</td></tr>
+          <tr class="row-highlight"><td><strong>Wesco Distribution Canada LP</strong></td><td>1</td><td>$1,317</td><td>32%</td></tr>
+        </tbody>
+      </table>
+      <div class="what-this-means">
+        <strong>Action:</strong> Only two accounts &mdash; Park Lighting and Wesco Distribution Canada LP &mdash; have placed eCat orders, so the entire digital channel rests on two relationships. Widening the active-buyer base is the single highest-leverage move here: onboarding even 5&ndash;10 existing rep-managed accounts onto eCat would de-risk this concentration and build a repeatable digital order stream.
+      </div>
+    </div><div class="subsection">
+      <div class="subsection-title">Order Type &amp; Workflow</div>
+      <div class="callout insight">
+        <div class="callout-title">Every eCat Order Is a Confirmed Order</div>
+        <p>All 7 eCat orders this period were Confirmed orders averaging $2,695 &mdash; there is no quote activity to convert. Introducing eCat quoting would give reps a low-friction way to capture project interest before it firms up into an order.</p>
+      </div>
+      <details>
+        <summary>View order type breakdown</summary>
+        <table>
+          <thead>
+            <tr><th>Order Type</th><th>Orders</th><th>Share</th><th>Avg Order Value</th></tr>
+          </thead>
+          <tbody>
+            <tr class="row-highlight"><td>Confirmed</td><td>7</td><td>100%</td><td>$2,695</td></tr>
+          </tbody>
+        </table>
+      </details>
+      <div class="what-this-means">
+        <strong>Action:</strong> A 100% Confirmed mix means your buyers come to eCat only when they already know what they want &mdash; there is no top-of-funnel quoting captured digitally. Turning on eCat quotes for reps working accounts like Park Lighting would surface project interest earlier and create a pipeline you can measure, rather than only seeing orders once they close.
+      </div>
+    </div>
+
+    <div class="what-this-means">
+      <strong>Action:</strong> eCat is live and producing real $2,695-AOV project orders, but adoption is the gating factor &mdash; 7 orders from 2 buyers over 12 months. The fastest path to growth is breadth: onboard more of your rep-managed accounts onto eCat and enable digital quoting, which would convert the existing high-value, low-frequency pattern into a steady order stream. Connecting all-channel order data would also unlock eCat footprint and pricing-trend analysis not possible today.
+    </div>
+
+  </div>
+</details>
+
+
+<details class="section-collapse" id="product">
+  <summary>
+    <div class="section-title">Product Intelligence</div>
+    <div class="section-sub">1,150 visible catalog products &middot; catalog completeness, new item launch &amp; adoption</div>
+    <div class="section-contents">Catalog completeness, new introduction performance &amp; adoption gap</div>
+    <span class="expand-hint">Expand section</span>
+  </summary>
+  <div class="section">
+
+    <div class="data-confidence limited">
+      <span class="data-confidence-label">Limited View</span>
+      Product analysis covers your catalog (1,150 visible products) and new item launches. Order-level demand, inventory, and category-sales detail were not available this cycle, so velocity, stock-out, and top-seller views are not shown.
+    </div><div class="subsection">
+      <div class="subsection-title">Catalog Completeness</div>
+      <table>
+        <thead>
+          <tr><th>Visibility</th><th>Products</th><th>Missing Images</th><th>Missing Price</th><th>Complete %</th></tr>
+        </thead>
+        <tbody>
+          <tr class="row-warn"><td><strong>Visible</strong></td><td>1,150</td><td>184</td><td>0</td><td>84%</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout alert">
+        <div class="callout-title">Catalog Below 90% Complete</div>
+        <p>184 visible products are missing images. Incomplete products are products reps can&rsquo;t confidently present &mdash; that&rsquo;s potential revenue left on the table from items your team can&rsquo;t effectively sell.</p>
+      </div>
+
+      <div class="what-this-means">
+        <strong>Action:</strong> 184 of your 1,150 visible products are missing images, which means reps may skip them in presentations &mdash; that&rsquo;s potential revenue left on the table from products your team can&rsquo;t effectively sell. Pricing is fully populated, so completing the missing images is the lowest-effort improvement available to lift your catalog from 84% to near-complete.
+      </div>
+    </div><div class="subsection">
+      <div class="subsection-title">New Introduction Performance &amp; Adoption</div>
+
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-value">421</div>
+          <div class="metric-label">New Items Launched</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value">$0</div>
+          <div class="metric-label">Revenue from new items (trailing 12 months)</div>
+        </div>
+      </div>
+
+      <div class="callout insight">
+        <div class="callout-title">A large catalog refresh awaiting activation</div>
+        <p>You launched 421 new items across 25 collections in the trailing 12 months &mdash; a substantial catalog investment. None have generated tracked orders yet, including a single collection (code 136) holding 289 of the new items. That concentration makes it the most efficient place to focus rep awareness and first-order activation.</p>
+      </div>
+
+      <table>
+        <thead>
+          <tr><th>Collection</th><th>New Items</th><th>Revenue (Trailing 12 Mo)</th><th>Units Sold</th></tr>
+        </thead>
+        <tbody>
+          <tr class="row-highlight"><td><strong>Collection 136</strong></td><td>289</td><td>$0</td><td>0</td></tr>
+          <tr class="row-highlight"><td><strong>Uncoded (0)</strong></td><td>44</td><td>$0</td><td>0</td></tr>
+          <tr><td><strong>Collection 17</strong></td><td>13</td><td>$0</td><td>0</td></tr>
+          <tr><td><strong>Collection 134</strong></td><td>12</td><td>$0</td><td>0</td></tr>
+          <tr><td><strong>Collection 91</strong></td><td>10</td><td>$0</td><td>0</td></tr>
+        </tbody>
+        <tbody>
+          <tr><td colspan="4">
+            <details class="table-collapse">
+              <summary>Remaining collections (20 more)</summary>
+              <table>
+                <thead>
+                  <tr><th>Collection</th><th>New Items</th><th>Revenue (Trailing 12 Mo)</th><th>Units Sold</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>Collection 129</td><td>6</td><td>$0</td><td>0</td></tr>
+                  <tr><td>Collection 130</td><td>6</td><td>$0</td><td>0</td></tr>
+                  <tr><td>Collection 131</td><td>4</td><td>$0</td><td>0</td></tr>
+                  <tr><td>Collection 138</td><td>4</td><td>$0</td><td>0</td></tr>
+                  <tr><td>Collection 60</td><td>4</td><td>$0</td><td>0</td></tr>
+                  <tr><td>Collection 61</td><td>4</td><td>$0</td><td>0</td></tr>
+                  <tr><td>Collection 7</td><td>4</td><td>$0</td><td>0</td></tr>
+                  <tr><td>Collection 108</td><td>3</td><td>$0</td><td>0</td></tr>
+                  <tr><td>Collection 12</td><td>3</td><td>$0</td><td>0</td></tr>
+                  <tr><td>Collection 128</td><td>2</td><td>$0</td><td>0</td></tr>
+                  <tr><td>Collection 133</td><td>2</td><td>$0</td><td>0</td></tr>
+                  <tr><td>Collection 51</td><td>2</td><td>$0</td><td>0</td></tr>
+                  <tr><td>Collection 6</td><td>2</td><td>$0</td><td>0</td></tr>
+                  <tr><td>Collection 117</td><td>1</td><td>$0</td><td>0</td></tr>
+                  <tr><td>Collection 132</td><td>1</td><td>$0</td><td>0</td></tr>
+                  <tr><td>Collection 135</td><td>1</td><td>$0</td><td>0</td></tr>
+                  <tr><td>Collection 28</td><td>1</td><td>$0</td><td>0</td></tr>
+                  <tr><td>Collection 67</td><td>1</td><td>$0</td><td>0</td></tr>
+                  <tr><td>Collection 8</td><td>1</td><td>$0</td><td>0</td></tr>
+                  <tr><td>Collection 89</td><td>1</td><td>$0</td><td>0</td></tr>
+                </tbody>
+              </table>
+            </details>
+          </td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout warn">
+        <div class="callout-title">Zero-Traction New Items</div>
+        <p>All 421 new items have zero tracked orders in the trailing 12 months. These may need rep attention, merchandising updates, or pricing review. High-list-price items with no traction represent the largest opportunity cost.</p>
+      </div>
+
+      <div class="what-this-means">
+        <strong>Action:</strong> A 421-item launch with no tracked orders points to an awareness gap, not a product problem &mdash; reps can&rsquo;t sell what they haven&rsquo;t seen. Start with collection 136, which alone holds 289 of the new items, and feature it in rep-facing lists and the next sales meeting. Order-channel data next cycle would let us attribute first orders to specific reps and accounts so activation can be targeted.
+      </div>
+    </div>
+
+    <div class="what-this-means">
+      <strong>Action:</strong> Your most actionable product lever this cycle is activation: 421 newly launched items have not yet reached a first order, with 289 of them concentrated in a single collection that can be promoted as one push. The companion lever is finishing the catalog &mdash; 184 visible products still lack images, leaving them effectively unsellable in rep presentations. Connecting order-channel data next cycle would unlock velocity, top-seller, and stock-out intelligence that this view cannot yet show.
+    </div>
+
+  </div>
+</details>
+
+
+<details class="section-collapse" id="platform">
+  <summary>
+    <div class="section-title">Platform Context</div>
+    <div class="section-sub">Actionable items only &middot; data freshness, feature adoption, import health</div>
+    <div class="section-contents">Platform Health Status &middot; Action Required &middot; Feature Utilization &middot; Import Pipeline</div>
+    <span class="expand-hint">Expand section</span>
+  </summary>
+  <div class="section">
+    <div class="subsection">
+      <div class="subsection-title">Platform Health Status</div>
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-val"><span class="badge danger">Stalled</span></div>
+          <div class="metric-label">Core Pipeline</div>
+          <div class="metric-note">1 import in the trailing 12 months; no import since Feb 2026</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-val"><span class="badge danger">18 Stale</span></div>
+          <div class="metric-label">Data Freshness</div>
+          <div class="metric-note">18 data sources past 90 days; 17 untouched for 313 days</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-val"><span class="badge ok">Active</span></div>
+          <div class="metric-label">Feature Adoption</div>
+          <div class="metric-note">10 of 11 tracked features in active use over the last 12 months</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-val"><span class="badge warn">Search-Heavy</span></div>
+          <div class="metric-label">Usage Pattern</div>
+          <div class="metric-note">Product search drives 42% of all app activity; SmartPicks unused</div>
+        </div>
+      </div>
+      <div class="prose">Your team is on the app every day &mdash; 35 users generated 7,539 actions over the last 12 months, led by 3,193 product searches. The problem is upstream: the import pipeline that feeds the app has effectively stopped, leaving customer records, pricing, and option data frozen since August 2025.</div>
+      <div class="what-this-means">
+        <strong>Action:</strong> Adoption is strong, so the fix is operational, not behavioral &mdash; restart the import feed for customers, price levels, and inventory. A single refresh cycle would re-validate every customer-, pricing-, and stock-dependent finding in this report, which today rests on data up to 313 days old.
+      </div>
+    </div>
+    <div class="subsection">
+      <div class="subsection-title">Action Required</div>
+      <div class="callout alert">
+        <div class="callout-title">18 data sources need a refresh</div>
+      </div>
+      <table>
+        <thead>
+          <tr><th>Data Source</th><th>Status</th><th>Last Updated</th><th>Impact</th><th>Fix</th></tr>
+        </thead>
+        <tbody>
+          <tr class="row-danger"><td><strong>Customer Master</strong></td><td><span class="badge danger">Critical</span></td><td>Aug 7, 2025 &middot; 313 days</td><td>New ship-to locations and account changes from the last 10 months aren&rsquo;t in the app &mdash; reps hit order-entry friction</td><td>Re-import customers.csv via FTP</td></tr>
+          <tr class="row-danger"><td><strong>Price Levels &amp; Contract Prices</strong></td><td><span class="badge danger">Critical</span></td><td>Aug 7, 2025 &middot; 313 days</td><td>Reps may quote stale pricing; negotiated contract rates from the last 10 months aren&rsquo;t reflected</td><td>Re-import price and contract files</td></tr>
+          <tr class="row-danger"><td><strong>Inventory</strong></td><td><span class="badge danger">Critical</span></td><td>Oct 16, 2025 &middot; 244 days</td><td>Stock quantities are 8 months old &mdash; reps can&rsquo;t trust availability before quoting</td><td>Re-import inventory.csv via FTP</td></tr>
+          <tr class="row-danger"><td><strong>Categories, Collections &amp; Trade Names</strong></td><td><span class="badge danger">Critical</span></td><td>Aug 7, 2025 &middot; 313 days</td><td>Catalog navigation and brand grouping don&rsquo;t reflect the last 10 months of merchandising changes</td><td>Re-import taxonomy files</td></tr>
+          <tr class="row-danger"><td><strong>Options, Option Groups &amp; Matrix Options</strong></td><td><span class="badge danger">Critical</span></td><td>Aug 7, 2025 &middot; 313 days</td><td>Configurable-product choices are frozen &mdash; new finishes or sizes can&rsquo;t be ordered through the app</td><td>Re-import option files</td></tr>
+          <tr class="row-danger"><td><strong>Customer Favorites &amp; Groups</strong></td><td><span class="badge danger">Critical</span></td><td>Aug 7, 2025 &middot; 313 days</td><td>Saved lists and account groupings reps rely on for reorders are 10 months out of date</td><td>Re-import favorites and groups</td></tr>
+        </tbody>
+      </table>
+      <div class="what-this-means">
+        <strong>Action:</strong> The Customer Master and Inventory feeds are the two to fix first &mdash; both gate everyday rep workflows, and at 313 and 244 days stale they undermine every customer- and stock-related finding in this report. Restarting the FTP import job that last ran in February would clear all 18 alerts in a single cycle. Enabled-but-stale data is worse than no data: reps see outdated prices and stock, then stop trusting the app.
+      </div>
+    </div>
+    <details class="subsection-collapse"><summary class="subsection-summary">Feature Utilization</summary>
+    <div class="subsection">
+      <div class="subsection-title">Feature Utilization</div>
+      <div class="callout insight">
+        <div class="callout-title">10 of 11 tracked features show active usage over the last 12 months</div>
+        <p>Product search dominates at 3,193 events &mdash; 42% of all app activity &mdash; with customer selection and item-info emails as the strongest secondary features. SmartPicks is the one tracked feature with zero usage despite being available.</p>
+      </div>
+      <table>
+        <thead>
+          <tr><th>Feature</th><th>Events (LTM)</th><th>% of Activity</th><th>Intensity</th></tr>
+        </thead>
+        <tbody>
+          <tr class="row-highlight"><td><strong>Product Search</strong></td><td>3,193</td><td>42.4%</td><td><span class="badge ok">Heavy</span></td></tr>
+          <tr><td>Select a Customer</td><td>237</td><td>3.1%</td><td><span class="badge muted">Moderate</span></td></tr>
+          <tr><td>Search for Customer</td><td>155</td><td>2.1%</td><td><span class="badge muted">Moderate</span></td></tr>
+          <tr><td>View Library Entry</td><td>128</td><td>1.7%</td><td><span class="badge warn">Light</span></td></tr>
+          <tr><td>Email Item Info</td><td>100</td><td>1.3%</td><td><span class="badge warn">Light</span></td></tr>
+          <tr><td>Search Collections</td><td>73</td><td>1.0%</td><td><span class="badge warn">Light</span></td></tr>
+          <tr><td>Create PDF Catalog</td><td>60</td><td>0.8%</td><td><span class="badge warn">Light</span></td></tr>
+          <tr><td>Filter Products</td><td>39</td><td>0.5%</td><td><span class="badge warn">Light</span></td></tr>
+          <tr><td>Order Submission</td><td>15</td><td>0.2%</td><td><span class="badge warn">Light</span></td></tr>
+          <tr><td>Share My List</td><td>1</td><td>0.0%</td><td><span class="badge warn">Light</span></td></tr>
+          <tr><td>SmartPicks</td><td>0</td><td>0.0%</td><td><span class="badge danger">Zero</span></td></tr>
+        </tbody>
+      </table>
+      <div class="callout opportunity">
+        <div class="callout-title">SmartPicks Coaching Opportunity</div>
+        <p>Your reps search for products 3,193 times a year but have never opened SmartPicks. SmartPicks surfaces personalized recommendations from each customer&rsquo;s purchase history &mdash; it&rsquo;s the difference between reps browsing the catalog and being guided to the right product for the account in front of them.</p>
+      </div>
+      <div class="what-this-means">
+        <strong>Action:</strong> The heavy product-search habit shows reps are engaged but doing manual discovery that SmartPicks could automate. Turn on SmartPicks for your top searchers first and demo it against a real account&rsquo;s reorder history &mdash; once reps see relevant suggestions appear, adoption follows the search behavior that&rsquo;s already there.
+      </div>
+    </div>
+    </details>
+    <details class="subsection-collapse"><summary class="subsection-summary">Import Pipeline</summary>
+    <div class="subsection">
+      <div class="subsection-title">Import Pipeline</div>
+      <table>
+        <thead>
+          <tr><th>Month</th><th>Imports</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Jun 2026</td><td>0</td></tr>
+          <tr><td>May 2026</td><td>0</td></tr>
+          <tr><td>Apr 2026</td><td>0</td></tr>
+          <tr><td>Mar 2026</td><td>0</td></tr>
+          <tr class="row-danger"><td>Feb 2026</td><td>1</td></tr>
+        </tbody>
+      </table>
+      <div class="what-this-means">
+        <strong>Action:</strong> Only one import ran in the entire trailing 12 months, and none since February &mdash; this stalled pipeline is the root cause of every freshness alert above. Re-establishing the scheduled FTP import job is the single fix that clears the staleness across customers, pricing, inventory, and options in one pass.
+      </div>
+    </div>
+    </details>
+  </div>
+</details>
+
+
+<section class="section appendix" id="appendix">
+  <h2 class="section-title"><span class="section-num">Appendix</span> Data Sources</h2>
+  <table class="data-sources">
+    <thead>
+    <tr><th>Source</th><th>Coverage</th><th>Used For</th></tr>
+    </thead>
+    <tbody>
+    <tr><td>eCat iPad Orders</td><td>Full LTM</td><td>Rep performance, order velocity, customer activity</td></tr>
+    <tr><td>All-Channel Business Data</td><td>Full LTM</td><td>Total business context, order channel mix, digital enablement</td></tr>
+    <tr><td>App Usage Analytics</td><td>Full LTM</td><td>Behavioral patterns, engagement scoring, archetype classification</td></tr>
+    <tr><td>Product Catalog</td><td>Current</td><td>Catalog completeness, new item tracking</td></tr>
+    <tr><td>Inventory System</td><td>Current</td><td>Stock-out detection, fill rate analysis</td></tr>
+    <tr><td>Customer Master</td><td>Current</td><td>Territory mapping, customer segmentation</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<footer class="footer">
+    <div class="footer-brand">Insightful &middot; Customer Intelligence</div>
+    <div class="footer-text">Generated June 17, 2026 &middot; DALS Lighting &middot; Confidential &mdash; prepared for DALS Lighting use only</div>
+  </footer>
+</div>
+<script>
+  // Sticky TOC active state
+  (function() {
+    const strip = document.getElementById('tocStrip');
+    if (!strip) return;
+    window.addEventListener('scroll', function() {
+      strip.classList.toggle('stuck', window.scrollY > 40);
+    });
+    const links = strip.querySelectorAll('a');
+    const sections = [];
+    links.forEach(function(a) {
+      const id = a.getAttribute('href').replace('#', '');
+      const el = document.getElementById(id);
+      if (el) sections.push({ el, a });
+    });
+    window.addEventListener('scroll', function() {
+      let current = sections[0];
+      sections.forEach(function(s) {
+        if (window.scrollY >= s.el.offsetTop - 80) current = s;
+      });
+      links.forEach(function(a) { a.classList.remove('active'); });
+      if (current) current.a.classList.add('active');
+    }, { passive: true });
+  })();
+
+  function openAndScroll(id) {
+    const target = document.getElementById(id);
+    if (!target) return;
+    const details = target.closest('details');
+    if (details && !details.open) details.open = true;
+    setTimeout(() => target.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+  }
+  document.querySelectorAll('.toc-strip a, .highlights a, .priority-title a').forEach(link => {
+    link.addEventListener('click', function(e) {
+      const href = this.getAttribute('href');
+      if (href && href.startsWith('#')) {
+        e.preventDefault();
+        openAndScroll(href.substring(1));
+      }
+    });
+  });
+</script>
+</body>
+</html>

@@ -1,9 +1,21 @@
 # Open Recent Cleanup
 
-**Status (2026-06-09):** Workspace/folder entries below were removed programmatically.
+**Status (2026-09-15):** Keep using the iCloud workspace file on this Mac.
 `SuperCat (Workspace)` is pinned and first in the list.
 
 This only hides menu entries. **No folders or files are deleted.**
+
+## Use going forward (this Mac)
+
+```
+~/Library/Mobile Documents/com~apple~CloudDocs/SuperCat 4.0/SuperCat.code-workspace
+```
+
+That iCloud folder **is** the `kylor-johnson/supercat-4.0` git working tree.
+Open the **workspace file**, not the `SuperCat 4.0` folder — a plain-folder
+open splits agent chat history.
+
+Pin **SuperCat (Workspace)** in File → Open Recent.
 
 ## macOS: right-click does NOT work in the menu bar
 
@@ -18,7 +30,7 @@ They don't split agent chat history; only workspace/folder entries do.
 
 ---
 
-## Remove — splits SuperCat agent chat history (done)
+## Remove — splits SuperCat agent chat history
 
 | Menu label | Why remove |
 |------------|------------|
@@ -43,24 +55,25 @@ They don't split agent chat history; only workspace/folder entries do.
 | `KB Automation` | Separate project |
 | `KB Creation (Workspace)` | Separate project |
 
-## Pin after cleanup (done)
+## Pin after cleanup
 
-`SuperCat (Workspace)` is already pinned. To verify or re-pin:
+`SuperCat (Workspace)` should stay pinned. To verify or re-pin:
 
 1. `Cmd+Shift+P` → **Open Recent**
 2. Find `SuperCat (Workspace)` → click the **pin** icon on the right
 
-Or: **File → Open Workspace from File…** → `SuperCat 4.0/SuperCat.code-workspace`
+Or: **File → Open Workspace from File… →**
+`~/Library/Mobile Documents/com~apple~CloudDocs/SuperCat 4.0/SuperCat.code-workspace`
 
 ---
 
 ## Full paths (for reference)
 
-**Remove:**
+**Remove from Open Recent (do not delete these folders):**
 ```
 ~/Library/Mobile Documents/com~apple~CloudDocs/SuperCat 4.0/6-3.code-workspace
-~/Library/Mobile Documents/com~apple~CloudDocs/SuperCat 4.0
-~/supercat-code
+~/Library/Mobile Documents/com~apple~CloudDocs/SuperCat 4.0   ← folder open only
+~/supercat-code   ← folder open only
 ~/Library/Mobile Documents/com~apple~CloudDocs/SuperCat - Cursor 2.0
 ~/Library/Mobile Documents/com~apple~CloudDocs/SuperCat - Cursor 3.0
 ~/Library/Mobile Documents/com~apple~CloudDocs/SuperCat - Cursor

@@ -1,0 +1,24 @@
+# Q-13 Results — Matteo Lighting (mlc, org_id=221)
+- **Query**: Q-13 — Customer Concentration Risk
+- **Period**: LTM (2025-06-17 to 2026-06-17)
+- **Row count**: 15
+- **Run date**: 2026-06-17
+
+
+| customer_num | bill_to_company_name | orders | gmv | pct_of_ecat_gmv |
+| --- | --- | --- | --- | --- |
+| ROYAUME SHERBRO | ROYAUME LUMINAIRE SHERBROOKE | 1 | $36,314 | $8 |
+| ROYAUME TERREBO | ROYAUME LUMINAIRE TERREBONNE | 1 | $36,061 | $8 |
+| ROYAUME LUMINIA | ROYAUME LUMINAIRE DRUMMONDVILLE | 4 | $31,190 | $7 |
+| ROYAUME LUMINAI | ROYAUME LUMINAIRE BEAUPORT | 1 | $29,318 | $6 |
+| REY LIGHTING | REY LIGHTING & ACCESSORIES | 37 | $25,973 | $6 |
+| VIVA LIFESTYLE | VIVA LIFESTYLE INC | 1 | $23,655 | $5 |
+| Royaume St Basile | Royaume St Basile | 1 | $19,794 | $4 |
+| WASATCH LIGHTIN | WASATCH LIGHTING | 3 | $16,875 | $4 |
+| DESIGNER`S MART | DESIGNS BY ANN, INC dba  EL PASO DESIGNER`S MART | 3 | $15,447 | $3 |
+| FINKLE ELECTRIC | FINKLE ELECTRIC | 1 | $11,460 | $2 |
+| ROYAL LIGHTING | ROYAL LIGHTING | 1 | $8,930 | $2 |
+| 4U LIGHTING & D | BEST LIGHT LLC DBA 4U LIGHTING & DESIGN | 2 | $8,766 | $2 |
+| ROYAUME SAINTE- | ROYAUME LUMINAIRE SAINTE-JULIE | 1 | $8,604 | $2 |
+| AURA INTERIORS | AURA INTERIORS INC | 1 | $7,755 | $2 |
+| PARADISE LIGHTI | PARADISE LIGHTING | 2 | $7,687 | $2 |

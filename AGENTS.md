@@ -1,31 +1,78 @@
 # AGENTS.md — SuperCat 4.0 workspace
 
+> **Last updated**: 2026-09-15
+
 Orientation for any agent working in this repo. Read this first, then the
 `.cursor/rules/*.mdc` files (auto-loaded) and `CLAUDE.md` (same rules, ported).
 
 **This file supersedes `README.md` for agent orientation.**
 
-**What this repo is:** the SuperCat operations workspace — agent skills,
-business foundation docs, reporting pipelines, PM material, and onboarding
-*models*. It is *not* the product codebase and *not* the live client-file tree.
+**What this GitHub repo is:** the SuperCat operations subset — agent skills,
+business foundation docs, PM material, onboarding *models*, and tracked analysis
+trees. It is *not* the product codebase, *not* the live client-file tree, and
+*not* a mirror of every folder sitting on disk next to this working tree.
 
 Application source (`supercat_server`, `sarreid_ios`) lives at `~/supercat-code`.
 Live client onboarding lives in the **private** repo
 `~/repos/ecat-onboarding-workspace` (`02_Implementation/<Client>/`).
+Company weekly agents live in `~/repos/agent-factory`
+(`SuperCatSolutionsLLC/agent-factory`).
 
-**Source of truth (edit here):**
+**This Mac — source of truth (edit here):**
 
 | Work | Path |
 |---|---|
-| Ops (this repo) | `~/repos/supercat-4.0` |
+| Ops (this git working tree) | `~/Library/Mobile Documents/com~apple~CloudDocs/SuperCat 4.0` |
 | Live client implementation | `~/repos/ecat-onboarding-workspace` |
 | Product code | `~/supercat-code` |
+| Company agent-factory clone | `~/repos/agent-factory` (not the nested copy inside this folder) |
 
-Open **File → Open Workspace from File… → `~/repos/supercat-4.0/SuperCat.code-workspace`**.
-Do not open iCloud `SuperCat 4.0` as the working folder.
+Open **File → Open Workspace from File… →**
+`~/Library/Mobile Documents/com~apple~CloudDocs/SuperCat 4.0/SuperCat.code-workspace`.
 
-iCloud `SuperCat 4.0` and `SuperCat_Simple_Final` still exist as leftover sync.
-If you must touch them, quote paths (spaces and `~` characters).
+That folder **is** `kylor-johnson/supercat-4.0` (remote name `personal`). There is
+no `~/repos/supercat-4.0` on this Mac. Do not recreate that clone here.
+
+The other Mac clones under `~/repos` — see `HANDOFF_OTHER_MACHINE.md` and
+`SuperCat.code.macbook-workspace`.
+
+---
+
+## What GitHub tracks vs what stays local
+
+`git status` against `personal/main` is the GitHub tree. Venvs, secrets, and the
+nested company `agent-factory/` clone stay gitignored. Health and Insightful
+**source** (not venvs) are tracked here so they can be copied into
+`SuperCatSolutionsLLC/agent-factory`.
+
+### Tracked in `kylor-johnson/supercat-4.0`
+
+Skills, rules, foundation, onboarding-models, PM, reports, design-system,
+Customer Intelligence/Segmentation, Peer Benchmark, Pricing Migration,
+EBR/HPMKT, eCat_Onboarding pointers, kb-articles, documentation, prompts,
+scripts (the tracked files), ttfv, validation-reports,
+`Health V2/` / `Health V3/` / `Health V3 Backfill/` (source + runs, no venv),
+`Insightful Product 2.0/` / `3.0/` / `4.0/` (source; 4.0 is the active pipeline),
+`Migration-Health Artifacts/`.
+
+### Local-only — do not copy into git
+
+| Folder | Why |
+|---|---|
+| `agent-factory/` (nested) | Already `SuperCatSolutionsLLC/agent-factory`. Use `~/repos/agent-factory`. |
+| `cursor-to-claude-migration/` and `-macbook/` | Live secrets (BQ keys, Fathom, VPN, MCP passwords). |
+| `.venv/`, `.venv-renderer/`, `.venv_broken*` | Python environments. Recreate locally. |
+| `chat-history/`, `scratch/`, `files 2/`, `_archive/`, `Scoping Build/`, `HTML System/` | Dumps, Finder dupes, empty skeleton (successor is `design-system/`). |
+| `Insightful Product 3.0/password_overrides.csv` | Hosted-report passwords. |
+
+### Never commit
+
+Secrets, keys, tokens, VPN profiles — including
+`cursor-to-claude-migration/`, `cursor-to-claude-migration-macbook/`,
+`integrations/bigquery/`, `integrations/fathom/`, `integrations/hubspot/`,
+`mcp-config/`, Notion helper scripts under `scripts/`, and
+`password_overrides.csv`.
+Live MCP is `~/.cursor/mcp.json`. Credentials live in `~/.supercat/`.
 
 ---
 
@@ -34,12 +81,11 @@ If you must touch them, quote paths (spaces and `~` characters).
 ### Agent infrastructure
 | Path | Purpose |
 |---|---|
-| `.claude/skills/` | Claude Code project skills (in-repo). Loaded automatically by Claude Code. See skill index below. |
-| `.cursor/skills/` | 22 Cursor agent skills (in-repo, git-tracked). See skill index below. |
+| `.claude/skills/` | Claude Code project skills (in-repo): `supercat-foundation`, `truth-discipline`. |
+| `.cursor/skills/` | 31 Cursor agent skills (in-repo, git-tracked). See skill index below. |
 | `.cursor/rules/` | 8 always-on rules (`.mdc`) — import ground truth, data model, Jira read-only, canvas ban, legacy freeze. |
 | `CLAUDE.md` | The `alwaysApply` rules ported for Claude Code. Generated from `.cursor/rules/`. |
-| `.cursorignore` | Excludes frozen Insightful folders from indexing. |
-| `mcp-config/`, `integrations/` | MCP and external-service config (BigQuery, Craft CMS, Fathom, HubSpot, Notion). |
+| `.cursorignore` | Excludes frozen Insightful 2.0/3.0, Health museums, and migration attics from indexing. Insightful 4.0 stays indexed. |
 | `prompts/`, `KB Creation prompts/` | Reusable prompt material. |
 
 ### Business foundation
@@ -57,29 +103,23 @@ If you must touch them, quote paths (spaces and `~` characters).
 | `onboarding-models/` | Phase framework, output contracts, HTML artifact contract, questionnaire, rendering pipeline. |
 | `kb-articles/`, `KB - Net New/`, `documentation/` | Knowledge-base source and drafts. |
 
-### Analysis & reporting
+### Analysis & reporting (tracked)
 | Path | Purpose |
 |---|---|
-| `Insightful Product 4.0/` | **Active** Insightful work — pipeline, `CANON.md`, knowledge, handoffs. |
 | `reports/` | Generated client reports (EBR, closed deals, feature analysis) in `.md` + `.html`. |
 | `Customer Intelligence/`, `Customer Segmentation/`, `Peer Benchmark/` | Segmentation and benchmarking analysis. |
-| `Health V2/`, `Health V3/`, `Health V3 Backfill/`, `Migration-Health Artifacts/` | Account-health scoring generations. |
 | `Pricing Migration/`, `Pricing Migration V2/` | Pricing migration program. |
 | `EBR 2.0/`, `HPMKT 2.0/`, `HPMKT 2026/` | Business-review and High Point Market material. |
-| `ttfv/`, `Data Scoping/`, `Scoping Build/`, `validation-reports/` | Time-to-first-value, scoping, and validation datasets. |
-| `scripts/`, `bigquery/` | Analysis scripts and BigQuery service-account config. |
+| `ttfv/`, `Data Scoping/`, `validation-reports/` | Time-to-first-value, scoping, and validation datasets. |
+| `scripts/` | Tracked analysis scripts only. Untracked dumps and Notion helpers stay local. |
+| `Health V2/`, `Health V3/`, `Health V3 Backfill/` | Account-health scoring source + runs (venvs gitignored). |
+| `Insightful Product 4.0/` | Active CEO-intelligence pipeline (`CANON.md`, `run.sh`, `pipeline/`). |
+| `Migration-Health Artifacts/` | Pricing-migration health brief templates. |
 
 ### Presentation
 | Path | Purpose |
 |---|---|
-| `design-system/`, `HTML System/` | Shared design system, templates, data contracts for HTML deliverables. |
-
-### Housekeeping
-| Path | Purpose |
-|---|---|
-| `_archive/`, `chat-history/`, `AGENT_CHAT_INDEX.md` | Archived material and agent transcript index. |
-| `scratch/`, `files 2/` | Scratch space — not authoritative. |
-| `cursor-to-claude-migration/`, `cursor-to-claude-migration-macbook/` | Tooling migration notes. |
+| `design-system/` | Shared design system, templates, data contracts for HTML deliverables. |
 
 ---
 
@@ -89,21 +129,26 @@ If you must touch them, quote paths (spaces and `~` characters).
 
 | Folder | Location |
 |---|---|
-| `Insightful Product` (original) | `iCloud Drive/Insightful Product/` — sibling to this repo |
-| `Insightful Product 2.0/` | in-repo |
-| `Insightful Product 3.0/` | in-repo |
+| `Insightful Product` (original) | `iCloud Drive/Insightful Product/` — sibling to this folder |
+| `Insightful Product 2.0/` | in-repo; frozen. Do not use unless asked. |
+| `Insightful Product 3.0/` | in-repo; frozen. Nested remote `kylor-johnson/Insightful-2.0`. Passwords not committed. |
 
 The freeze is enforced by `.cursorignore` and `.cursor/rules/insightful-legacy-frozen.mdc`.
 
-- **Active Insightful work is `Insightful Product 4.0/`.** A bare "run a report
-  for X" means the 4.0 report (`insightful-report-4`), never 2.0.
+- **Active Insightful work is `Insightful Product 4.0/`** in this repo (venv gitignored)
+  plus `~/repos/agent-factory/agents/insightful_product`. A bare "run a report for X"
+  means the 4.0 report (`insightful-report-4`), never 2.0.
 - The `insightful-report` skill targets frozen 2.0 — only invoke it when the
   user explicitly says "2.0" or "legacy".
 - If it is ambiguous whether a request means 4.0 or a legacy version, ask once
   before touching a frozen path.
 
 Also treat as low-trust rather than frozen: `_archive/`, `scratch/`, `files 2/`,
-and any `* 2.md` / `* 2.py` duplicate — these are copies, not sources of truth.
+`Scoping Build/`, `HTML System/`, and any `* 2.md` / `* 2.py` duplicate — copies,
+not sources of truth.
+
+Health V2 / V3 / V3 Backfill are tracked historical scoring. Read them when the
+user asks about health scoring or backfill; do not treat them as the Insightful 4.0 pipeline.
 
 ---
 
@@ -123,25 +168,27 @@ and any `* 2.md` / `* 2.py` duplicate — these are copies, not sources of truth
   were made without bumping the stamp; do not add to that.
 
 **Never commit**
-- Secrets — `.env`, `bigquery/service-account/`, `*service-account*.json`, HubSpot/Fathom keys under `integrations/`
+- Secrets — `.env`, `*service-account*.json`, HubSpot/Fathom/BigQuery keys under `integrations/`, Notion/Craft tokens, `mcp-config/`
 - `Ready_For_Import/*.csv` (staging payloads)
 - Transcript archives (`*transcript*.zip`)
 - Live client CSVs into *this* repo — they belong in the private
   `kylor-johnson/ecat-onboarding-workspace` repo by intent
 - Recreated `eCat_Onboarding/<client>/` trees
+- Nested `agent-factory/`, `_archive/`, `Scoping Build/`
+- Venvs, `password_overrides.csv`, migration-kit secret dumps
 
 **Skills live in three places.**
 
 | Location | Holds | Read by |
 |---|---|---|
-| `.cursor/skills/` | the 22 eCat/Insightful/Rails skills, in-repo, tracked | Cursor |
-| `~/.claude/skills/` | independent copies of those same 22, outside the repo | Claude Code (user scope) |
+| `.cursor/skills/` | 31 skills, in-repo, tracked | Cursor |
+| `~/.claude/skills/` | independent copies of the same skill set, outside the repo | Claude Code (user scope) |
 | `.claude/skills/` | `supercat-foundation`, `truth-discipline` — in-repo, tracked | Claude Code (project scope) |
 
-The first two are **copies, not symlinks**. As of 2026-08-11 all 22 `SKILL.md`
-files are byte-identical — **when you edit one of those 22, update both copies**
-or they drift. `.claude/skills/` is the in-repo home for new Claude Code skills;
-add there rather than deepening the two-copy split.
+The first two are **copies, not symlinks**. **When you edit a skill that exists
+in both, update both copies** or they drift. `.claude/skills/` is the in-repo
+home for new Claude Code skills; add there rather than deepening the two-copy
+split.
 
 ---
 
@@ -161,21 +208,25 @@ restated here.
 
 ## Skill index
 
-24 skills — 22 in `.cursor/skills/` + `~/.claude/skills/`, and 2 in
-`.claude/skills/`.
+31 skills in `.cursor/skills/`. Two of those (`supercat-foundation`,
+`truth-discipline`) are also copied under `.claude/skills/`.
 
-### Company context (`.claude/skills/`)
+### Company context
 | Skill | Use it for |
 |---|---|
 | `supercat-foundation` | **Before** answering anything about what SuperCat is, who we serve, pricing/ACV/tiers, competitors, strategic bets, or FY26 targets — including in customer-, investor-, or board-facing drafts. A router: it holds no figures, it points at `foundation/` and `foundation/sources/`. Never answer these from memory; the figures move quarterly. |
 | `truth-discipline` | **Whenever an output will state a figure** about customers, revenue, GMV, orders, reps, adoption, health, or market size — reports, charts, decks, a Slack answer, a number dropped mid-sentence. Confidence tiers, capture vs. attribution, billed ≠ collected, suppress-rather-than-guess, and the QuickBooks invoice dedup trap. Binds on the output, not the question. |
+| `finish-the-job` | Standing working agreement — finish the whole request in one pass; decide instead of asking when a default exists; verify instead of assuming. |
 
 ### Onboarding orchestration
 | Skill | Use it for |
 |---|---|
 | `ecat-onboarding-orchestrator` | Drive an onboarding end to end — read client state, determine phase, route to the right skill, enforce the phase gate. **Start here** when unsure which skill applies. |
 | `ecat-session-handoff` | End-of-session handoff so the next chat starts with full context. |
+| `ecat-session-prep` | Ten-minute pre-call brief: what moved, what we committed to, what is still unanswered, what to show. |
 | `ecat-support-triage` | One-off ticket or client email — diagnose, route, ground in live state, draft a reply. Use instead of the orchestrator for ad-hoc issues. |
+| `ecat-correspondence` | Inbox loop: decide what needs a reply, route to triage, draft, gate whether it is safe to send. Drafts only — never sends. |
+| `ecat-config-check` | Read-only Admin Console config audit by shortname — wrong, missing, or contradictory settings. |
 
 ### eCat build & configuration
 | Skill | Use it for |
@@ -195,6 +246,8 @@ restated here.
 | `ecat-online` | eCat Online (eOL) — web catalog, Cart, buyer enrollment, My Account markup pricing. |
 | `ecat-sales-portal-onboarding` | Net-new Sales Portal builds — `order_data.csv`, `invoice_data.csv`, territories, ERP history. |
 | `ecat-postgres-audit` | Read-only Postgres audits by shortname — counts, imports, image matching, config. |
+| `ecat-admin-write` | Apply a live-org change through Admin Console HTTP as a logged-in user. Postgres MCP is read-only; this is the write path. |
+| `supercat-mcp-access` | Capability map for live-org writes (`~/.supercat/mcp-credentials.json`) and wedged-session diagnosis. |
 
 ### Client communication
 | Skill | Use it for |
@@ -208,6 +261,7 @@ restated here.
 | `supercat-data-routing` | **Consult before any org/data question or customer-facing draft.** |
 | `insightful-report-4` | **Default** Insightful 4.0 CEO Intelligence Report. |
 | `insightful-report` | Legacy 2.0 report — targets a frozen folder. Explicit request only. |
+| `supercat-jira` | Search Jira before proposing engineering work; write tickets in house format. Duplicate search before any draft. |
 
 ### Engineering (targets `~/supercat-code`)
 | Skill | Use it for |

@@ -1,0 +1,2086 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Ciana Varaluz LLC — Customer Intelligence Report</title>
+<style>
+    :root {
+      --bg: #FAFAF8;
+      --surface: #FFFFFF;
+      --panel: #F5F4F1;
+      --border: #E8E5DE;
+      --border-light: #F0EDE6;
+      --text: #2C2925;
+      --text-secondary: #6B6660;
+      --text-muted: #9B958C;
+      --accent: #C47A4A;
+      --accent-deep: #89523B;
+      --accent-glow: rgba(196,122,74,.08);
+      --accent-border: rgba(196,122,74,.2);
+      --ok: #4A8C5C;
+      --ok-bg: #EDF7F0;
+      --ok-border: rgba(74,140,92,.2);
+      --warn: #B8863A;
+      --warn-bg: #FDF6EC;
+      --warn-border: rgba(184,134,58,.2);
+      --danger: #C0524A;
+      --danger-bg: #FDF0EF;
+      --danger-border: rgba(192,82,74,.2);
+      --info: #4A7A8C;
+      --info-bg: #EDF4F7;
+      --info-border: rgba(74,122,140,.2);
+      --fd: 'DM Sans', system-ui, sans-serif;
+      --fm: 'IBM Plex Mono', ui-monospace, monospace;
+      --r: 10px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font: 400 14px/1.65 var(--fd); color: var(--text); background: var(--bg); -webkit-font-smoothing: antialiased; }
+
+    .page { max-width: 920px; margin: 0 auto; padding: 0 24px 40px; }
+
+    /* ── Header ── */
+    .header { padding: 48px 0 32px; border-bottom: 1px solid var(--border); margin-bottom: 32px; position: relative; }
+    .h-brand { display: flex; align-items: center; gap: 8px; margin-bottom: 20px; }
+    .h-brand span { font: 500 10px/1 var(--fm); letter-spacing: .12em; text-transform: uppercase; color: var(--text-muted); }
+    .h-customer { font: 700 36px/1.1 var(--fd); color: var(--text); letter-spacing: -.01em; margin-bottom: 4px; }
+    .h-type { font: 400 15px/1 var(--fd); color: var(--text-secondary); margin-bottom: 16px; }
+    .h-meta { font: 400 11px/1 var(--fm); color: var(--text-muted); letter-spacing: .02em; }
+    .h-accent { position: absolute; bottom: -1px; left: 0; width: 64px; height: 2px; background: var(--accent); }
+
+    /* ── Key Highlights ── */
+    .highlights { margin: 8px 0 28px; padding: 0; list-style: none; counter-reset: hl; }
+    .highlights li { counter-increment: hl; padding: 12px 0; border-bottom: 1px solid var(--border-light); font: 400 13.5px/1.65 var(--fd); color: var(--text-secondary); padding-left: 36px; position: relative; }
+    .highlights li:last-child { border-bottom: none; }
+    .highlights li::before { content: counter(hl); position: absolute; left: 0; top: 14px; display: flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: var(--accent-glow); border: 1px solid var(--accent-border); font: 600 10px/1 var(--fm); color: var(--accent-deep); }
+    .highlights li strong { color: var(--text); font-weight: 600; }
+    .highlights a { color: var(--accent-deep); text-decoration: none; font-weight: 500; border-bottom: 1px solid var(--accent-border); transition: border-color .12s; }
+    .highlights a:hover { border-bottom-color: var(--accent); }
+    .priority-title a { color: inherit; text-decoration: none; border-bottom: 1px solid transparent; transition: border-color .12s; }
+    .priority-title a:hover { border-bottom-color: var(--accent); color: var(--accent-deep); }
+
+    /* ── Sections ── */
+    .section { margin-bottom: 32px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 28px 32px; }
+    .section-title { font: 700 20px/1.2 var(--fd); color: var(--text); margin-bottom: 4px; padding-bottom: 12px; border-bottom: 1px solid var(--border-light); }
+    .section-sub { font: 400 13px/1 var(--fd); color: var(--text-muted); margin-bottom: 20px; margin-top: 8px; }
+    .subsection { margin-top: 24px; }
+    .subsection-title { font: 600 15px/1.3 var(--fd); color: var(--text); margin-bottom: 12px; }
+    .sub-label { font: 500 9px/1 var(--fm); letter-spacing: .08em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; }
+    .section-num { font: 500 11px/1 var(--fm); color: var(--text-muted); margin-right: 8px; }
+    .section-light { background: var(--panel); border-color: var(--border-light); }
+    .what-this-means { margin-top: 16px; padding: 14px 18px; background: var(--panel); border-left: 3px solid var(--accent); border-radius: 0 6px 6px 0; font: 400 13px/1.6 var(--fd); color: var(--text-secondary); }
+    .what-this-means strong { color: var(--text); font-weight: 600; }
+
+    /* ── Priority Actions ── */
+    .priorities { display: grid; gap: 12px; margin-bottom: 32px; }
+    .priority { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 16px 20px; display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: start; }
+    .priority-badge { font: 700 9px/1 var(--fm); letter-spacing: .06em; text-transform: uppercase; padding: 4px 8px; border-radius: 4px; white-space: nowrap; margin-top: 2px; }
+    .priority-badge.high { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-border); }
+    .priority-badge.medium { background: var(--warn-bg); color: var(--warn); border: 1px solid var(--warn-border); }
+    .priority-badge.low { background: var(--info-bg); color: var(--info); border: 1px solid var(--info-border); }
+    .priority-title { font: 600 13px/1.35 var(--fd); color: var(--text); margin-bottom: 3px; }
+    .priority-desc { font: 400 12px/1.5 var(--fd); color: var(--text-secondary); }
+    .priority-impact { font: 600 12px/1 var(--fm); color: var(--ok); white-space: nowrap; margin-top: 2px; }
+
+    /* ── Metric cards ── */
+    .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 16px 0; }
+    .metrics-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; margin: 16px 0; }
+    .metric { background: var(--panel); border-radius: 8px; padding: 14px 16px; }
+    .metric-card { background: var(--panel); border-radius: 8px; padding: 16px; }
+    .metric-label { font: 500 9px/1 var(--fm); letter-spacing: .08em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
+    .metric-value { font: 700 22px/1.2 var(--fd); color: var(--text); }
+    .metric-val { font: 600 24px/1 var(--fd); color: var(--text); margin-bottom: 4px; }
+    .metric-note { font: 400 11px/1.3 var(--fd); color: var(--text-muted); margin-top: 2px; }
+    .metric-note.ok { color: var(--ok); font-weight: 500; }
+    .metric-note.warn { color: var(--warn); font-weight: 500; }
+    .metric-note.danger { color: var(--danger); font-weight: 500; }
+
+    /* ── Tables ── */
+    table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
+    thead { background: var(--panel); }
+    th { padding: 8px 12px; text-align: left; font: 600 10px/1 var(--fm); letter-spacing: .05em; text-transform: uppercase; color: var(--text-muted); border-bottom: 1px solid var(--border); }
+    td { padding: 8px 12px; border-bottom: 1px solid var(--border-light); color: var(--text-secondary); }
+    tbody tr:hover { background: var(--accent-glow); }
+    td strong { color: var(--text); font-weight: 600; }
+    .row-highlight { background: var(--ok-bg); }
+    .row-warn { background: var(--warn-bg); }
+    .row-danger { background: var(--danger-bg); }
+    .row-total { font-weight: 600; background: var(--panel); }
+    .row-total td { color: var(--text); border-bottom: 2px solid var(--border); }
+    .prose { font: 400 13.5px/1.7 var(--fd); color: var(--text-secondary); margin-bottom: 16px; }
+    .prose strong { color: var(--text); }
+
+    /* ── Badges ── */
+    .badge { display: inline-block; padding: 3px 8px; border-radius: 4px; font: 600 10px/1 var(--fm); letter-spacing: .03em; text-transform: uppercase; }
+    .badge-ok { background: var(--ok-bg); color: var(--ok); border: 1px solid var(--ok-border); }
+    .badge-warn { background: var(--warn-bg); color: var(--warn); border: 1px solid var(--warn-border); }
+    .badge-danger { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-border); }
+    .badge-info { background: var(--info-bg); color: var(--info); border: 1px solid var(--info-border); }
+    .badge.ok { background: var(--ok-bg); color: var(--ok); border: 1px solid var(--ok-border); }
+    .badge.warn { background: var(--warn-bg); color: var(--warn); border: 1px solid var(--warn-border); }
+    .badge.danger { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-border); }
+    .badge.info { background: var(--info-bg); color: var(--info); border: 1px solid var(--info-border); }
+    .badge.muted { background: var(--panel); color: var(--text-muted); border: 1px solid var(--border); }
+
+    /* ── Callout boxes ── */
+    .callout { border-radius: 8px; padding: 16px 20px; margin: 16px 0; font-size: 13px; line-height: 1.6; }
+    .callout-title { font: 600 13px/1 var(--fd); margin-bottom: 6px; }
+    .callout.alert { background: var(--danger-bg); border-left: 3px solid var(--danger); }
+    .callout.alert .callout-title { color: var(--danger); }
+    .callout.opportunity { background: var(--ok-bg); border-left: 3px solid var(--ok); }
+    .callout.opportunity .callout-title { color: var(--ok); }
+    .callout.insight { background: var(--panel); border-left: 3px solid var(--accent); }
+    .callout.insight .callout-title { color: var(--accent-deep); }
+    .callout.note { background: var(--info-bg); border-left: 3px solid var(--info); }
+    .callout.note .callout-title { color: var(--info); }
+    .callout ul { margin: 8px 0 0 20px; }
+    .callout li { margin: 4px 0; }
+
+    /* ── Coaching cards ── */
+    .coaching-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 20px 24px; margin: 12px 0; border-top: 3px solid var(--warn); }
+    .coaching-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+    .coaching-name { font: 600 15px/1 var(--fd); color: var(--text); }
+    .coaching-body { font: 400 13px/1.6 var(--fd); color: var(--text-secondary); margin-bottom: 8px; }
+    .coaching-body strong { color: var(--text); }
+    .coaching-action { font: 500 13px/1.5 var(--fd); color: var(--text); margin-bottom: 6px; }
+    .coaching-impact { display: inline-block; font: 500 12px/1 var(--fm); color: var(--ok); background: var(--ok-bg); border: 1px solid var(--ok-border); padding: 5px 10px; border-radius: 5px; }
+
+    /* ── Progressive disclosure (subsection) ── */
+    details { margin: 12px 0; }
+    details > summary { display: flex; align-items: center; gap: 8px; font: 500 13px/1 var(--fd); color: var(--accent-deep); cursor: pointer; list-style: none; padding: 10px 14px; user-select: none; background: var(--panel); border: 1px solid var(--border); border-radius: 6px; transition: all .15s; }
+    details > summary::-webkit-details-marker { display: none; }
+    details > summary::before { content: '\25B8'; font-size: 10px; transition: transform .15s; display: inline-block; color: var(--accent); }
+    details[open] > summary::before { transform: rotate(90deg); }
+    details > summary:hover { background: var(--accent-glow); border-color: var(--accent-border); color: var(--accent); }
+    details[open] > summary { border-radius: 6px 6px 0 0; border-bottom-color: transparent; background: var(--accent-glow); }
+    details > summary::after { content: 'click to expand'; margin-left: auto; font: 400 10px/1 var(--fm); color: var(--text-muted); letter-spacing: .02em; }
+    details[open] > summary::after { content: 'click to collapse'; }
+
+    /* ── Section-level collapse ── */
+    details.section-collapse { margin: 0 0 32px; border: none; background: none; }
+    details.section-collapse > summary { display: block; background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 24px 32px; cursor: pointer; transition: all .15s; }
+    details.section-collapse > summary::before { content: none; }
+    details.section-collapse > summary::after { content: none; }
+    details.section-collapse > summary:hover { border-color: var(--accent-border); box-shadow: 0 2px 8px rgba(196,122,74,.08); }
+    details.section-collapse > summary .section-title { margin-bottom: 4px; padding-bottom: 0; border-bottom: none; }
+    details.section-collapse > summary .section-sub { margin-bottom: 0; }
+    details.section-collapse > summary .section-contents { font: 400 12px/1.4 var(--fd); color: var(--text-muted); margin-top: 6px; }
+    details.section-collapse > summary .expand-hint { display: inline-block; margin-top: 10px; font: 500 10px/1 var(--fm); letter-spacing: .04em; text-transform: uppercase; color: var(--accent); opacity: .7; transition: opacity .12s; }
+    details.section-collapse > summary:hover .expand-hint { opacity: 1; }
+    details.section-collapse[open] > summary { border-radius: var(--r) var(--r) 0 0; border-bottom-color: var(--border-light); background: var(--surface); }
+    details.section-collapse[open] > summary .expand-hint { display: none; }
+    details.section-collapse > .section { margin-bottom: 0; border-top: none; border-radius: 0 0 var(--r) var(--r); }
+    details.section-collapse.light > summary { background: var(--panel); }
+    details.section-collapse.light[open] > summary { background: var(--panel); }
+    details.section-collapse.light > .section { background: var(--panel); }
+
+    /* ── Peer benchmarking — base ── */
+    .peer-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 20px 24px; margin: 12px 0; }
+    .peer-cohort-label { font: 500 10px/1 var(--fm); letter-spacing: .08em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; }
+    .peer-cohort-value { font: 600 14px/1 var(--fd); color: var(--text); margin-bottom: 4px; }
+    .peer-cohort-sub { font: 400 11px/1.4 var(--fd); color: var(--text-muted); margin-bottom: 16px; }
+    .peer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 16px; margin-top: 12px; }
+    .peer-metric { text-align: center; padding: 12px; background: var(--panel); border-radius: 8px; }
+    .peer-label { font: 500 9px/1 var(--fm); letter-spacing: .08em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
+    .peer-value { font: 700 20px/1.2 var(--fd); color: var(--text); }
+    .peer-compare { font: 400 11px/1 var(--fm); margin-top: 2px; }
+    .peer-compare.above { color: var(--ok); }
+    .peer-compare.below { color: var(--warn); }
+    .peer-compare.on-par { color: var(--text-muted); }
+    .peer-confidence { font: 400 11px/1.5 var(--fd); color: var(--text-muted); margin-top: 12px; font-style: italic; }
+
+    /* ── Peer benchmarking — hero stat ── */
+    .peer-hero { background: var(--accent-glow); border: 1px solid var(--accent-border); border-radius: var(--r); padding: 22px 26px; margin-bottom: 20px; display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: center; }
+    .peer-hero-left { }
+    .peer-hero-eyebrow { font: 500 9px/1 var(--fm); letter-spacing: .1em; text-transform: uppercase; color: var(--accent-deep); margin-bottom: 8px; }
+    .peer-hero-stat { font: 700 32px/1.1 var(--fd); color: var(--text); letter-spacing: -.02em; margin-bottom: 4px; }
+    .peer-hero-context { font: 400 13px/1.55 var(--fd); color: var(--text-secondary); max-width: 440px; }
+    .peer-hero-context strong { color: var(--text); font-weight: 600; }
+    .peer-hero-context .delta-above { color: var(--ok); font-weight: 600; }
+    .peer-hero-context .delta-below { color: var(--warn); font-weight: 600; }
+    .peer-hero-right { text-align: center; flex-shrink: 0; }
+    .peer-hero-pctile { font: 600 13px/1 var(--fm); padding: 6px 12px; border-radius: 20px; white-space: nowrap; }
+    .peer-hero-pctile.above { background: var(--ok-bg); color: var(--ok); border: 1px solid var(--ok-border); }
+    .peer-hero-pctile.below { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-border); }
+    .peer-hero-pctile.on-par { background: var(--panel); color: var(--text-muted); border: 1px solid var(--border); }
+    .peer-hero-pctile-label { font: 400 9px/1.4 var(--fm); color: var(--text-muted); letter-spacing: .04em; text-transform: uppercase; margin-top: 4px; }
+    .peer-hero-metric { flex: 1; }
+    .peer-hero-label { font: 500 10px/1 var(--fm); color: var(--text-muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 6px; }
+    .peer-hero-value { font: 700 32px/1 var(--fd); color: var(--text); margin-bottom: 4px; }
+    .peer-hero-sentence { font: 400 13px/1.5 var(--fd); color: var(--text-secondary); }
+
+    /* ── Peer benchmarking — narrative metric rows ── */
+    .peer-metric-rows { margin-top: 8px; }
+    .peer-metric-row { display: grid; grid-template-columns: 1fr auto; gap: 16px; align-items: start; padding: 14px 0; border-bottom: 1px solid var(--border-light); }
+    .peer-metric-row:last-child { border-bottom: none; }
+    .peer-metric-title { font: 600 12px/1 var(--fm); letter-spacing: .03em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
+    .peer-metric-sentence { font: 400 13px/1.6 var(--fd); color: var(--text-secondary); }
+    .peer-metric-sentence strong { color: var(--text); font-weight: 600; }
+    .peer-metric-sentence .delta-above { color: var(--ok); font-weight: 600; }
+    .peer-metric-sentence .delta-below { color: var(--warn); font-weight: 600; }
+    .peer-metric-sentence .delta-par { color: var(--text-muted); font-weight: 500; }
+    .peer-range-bar { display: flex; align-items: center; gap: 6px; margin-top: 6px; }
+    .peer-range-label { font: 400 9px/1 var(--fm); color: var(--text-muted); white-space: nowrap; letter-spacing: .02em; }
+    .peer-range-track { flex: 1; height: 4px; background: var(--border); border-radius: 2px; position: relative; min-width: 80px; }
+    .peer-range-marker { position: absolute; top: 50%; width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--surface); box-shadow: 0 0 0 1.5px currentColor; transform: translate(-50%, -50%); }
+    .peer-range-marker.above { color: var(--ok); background: var(--ok); }
+    .peer-range-marker.below { color: var(--warn); background: var(--warn); }
+    .peer-range-marker.on-par { color: var(--text-muted); background: var(--text-muted); }
+    .peer-quartile-pill { font: 700 10px/1 var(--fm); letter-spacing: .04em; padding: 4px 9px; border-radius: 20px; white-space: nowrap; flex-shrink: 0; }
+    .peer-quartile-pill.q4 { background: var(--ok-bg); color: var(--ok); border: 1px solid var(--ok-border); }
+    .peer-quartile-pill.q3 { background: var(--info-bg); color: var(--info); border: 1px solid var(--info-border); }
+    .peer-quartile-pill.q2 { background: var(--warn-bg); color: var(--warn); border: 1px solid var(--warn-border); }
+    .peer-quartile-pill.q1 { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-border); }
+    .quartile-pill { font: 700 10px/1 var(--fm); letter-spacing: .04em; padding: 4px 9px; border-radius: 20px; white-space: nowrap; flex-shrink: 0; }
+    .quartile-pill.q4 { background: var(--ok-bg); color: var(--ok); border: 1px solid var(--ok-border); }
+    .quartile-pill.q3 { background: var(--info-bg); color: var(--info); border: 1px solid var(--info-border); }
+    .quartile-pill.q2 { background: var(--warn-bg); color: var(--warn); border: 1px solid var(--warn-border); }
+    .quartile-pill.q1 { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-border); }
+
+    /* ── Peer benchmarking — top performers ── */
+    .top-performer-list { margin-top: 4px; }
+    .top-performer-row { display: flex; gap: 12px; align-items: flex-start; padding: 11px 0; border-bottom: 1px solid var(--border-light); }
+    .top-performer-row:last-child { border-bottom: none; }
+    .top-performer-icon { width: 26px; height: 26px; border-radius: 6px; background: var(--accent-glow); border: 1px solid var(--accent-border); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 12px; margin-top: 1px; }
+    .top-performer-text { font: 400 13px/1.55 var(--fd); color: var(--text-secondary); }
+    .top-performer-text strong { color: var(--text); font-weight: 600; }
+
+    /* ── Data Confidence Footer ── */
+    .data-confidence { background: var(--info-bg, var(--panel)); border-left: 3px solid var(--info, var(--accent)); border-radius: var(--r); padding: 12px 16px; margin: 20px 0; font: 400 12px/1.6 var(--fd); color: var(--text-muted); }
+    .data-confidence.limited { background: var(--warn-bg); border-left-color: var(--warn); }
+    .data-confidence-label { display: inline-block; font: 600 9px/1 var(--fm); letter-spacing: .06em; text-transform: uppercase; padding: 2px 6px; border-radius: 3px; background: var(--panel); color: var(--text-muted); border: 1px solid var(--border); margin-right: 8px; vertical-align: middle; }
+    .data-confidence.limited .data-confidence-label { background: var(--warn-bg); border-color: var(--warn-border); color: var(--warn); }
+    .data-confidence-action { font: 500 12px/1.6 var(--fd); color: var(--text-secondary); }
+
+    /* ── TOC strip (sticky) ── */
+    .toc-strip { position: sticky; top: 0; z-index: 100; display: flex; flex-wrap: nowrap; gap: 5px; padding: 12px 0; margin-bottom: 28px; background: var(--bg); border-bottom: 1px solid var(--border); overflow-x: auto; transition: box-shadow .2s; }
+    .toc-strip.stuck { box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+    .toc-strip a { display: inline-block; padding: 4px 10px; font: 500 10.5px/1 var(--fd); color: var(--text-secondary); text-decoration: none; background: var(--panel); border: 1px solid var(--border-light); border-radius: 20px; transition: all .12s; white-space: nowrap; }
+    .toc-strip a:hover { color: var(--accent); background: var(--accent-glow); border-color: var(--accent-border); }
+    .toc-strip a.active { color: var(--accent-deep); font-weight: 600; background: var(--accent-glow); border-color: var(--accent-border); }
+
+    /* ── Appendix ── */
+    .appendix-row { display: grid; grid-template-columns: 200px 1fr; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border-light); font-size: 13px; }
+    .appendix-row:last-child { border-bottom: none; }
+    .appendix-label { font: 500 12px/1.5 var(--fd); color: var(--text); }
+    .appendix-value { font: 400 12px/1.5 var(--fd); color: var(--text-secondary); }
+    .data-tag { display: inline-block; font: 500 9px/1 var(--fm); letter-spacing: .04em; text-transform: uppercase; padding: 2px 6px; border-radius: 3px; background: var(--panel); color: var(--text-muted); border: 1px solid var(--border); margin-right: 4px; }
+
+    /* ── Report mode banner (activation / reactivation) ── */
+    .mode-banner { border-radius: 8px; padding: 10px 18px; margin-bottom: 20px; font: 500 12px/1.5 var(--fd); display: flex; align-items: center; gap: 10px; }
+    .mode-banner.activation { background: var(--ok-bg); border: 1px solid var(--ok-border); color: var(--ok); }
+    .mode-banner.reactivation { background: var(--warn-bg); border: 1px solid var(--warn-border); color: var(--warn); }
+    .mode-banner strong { font-weight: 600; }
+
+    /* ── Footer ── */
+    .footer { margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--border); text-align: center; }
+    .footer-brand { font: 600 10px/1 var(--fm); letter-spacing: .12em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
+    .footer-text { font: 400 11px/1.5 var(--fd); color: var(--text-muted); }
+
+    /* ── Responsive ── */
+    @media (max-width: 600px) {
+      .h-customer { font-size: 26px; }
+      .section { padding: 20px 16px; }
+      .metrics { grid-template-columns: repeat(2, 1fr); }
+      .priority { grid-template-columns: 1fr; }
+      .priority-impact { margin-top: 4px; }
+      .peer-grid { grid-template-columns: repeat(2, 1fr); }
+      .appendix-row { grid-template-columns: 1fr; }
+      th, td { padding: 6px 8px; font-size: 12px; }
+    }
+
+    @media print {
+      @page {
+        size: letter;
+        margin: 18mm 15mm 15mm 15mm;
+      }
+      body {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        background: #fff;
+        orphans: 3;
+        widows: 3;
+      }
+      .toc-strip { display: none; }
+      .page { max-width: 100%; margin: 0; padding: 0; }
+      details[open] > summary { display: none; }
+      details > div, details > table { display: block !important; }
+
+      .header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        padding: 4px 0 3px;
+        margin-bottom: 0;
+        border-bottom: 1.5px solid #C47A4A;
+        background: #fff;
+      }
+      .h-brand { margin-bottom: 2px; }
+      .h-brand span { font-size: 8px; }
+      .h-customer { font-size: 13px; margin-bottom: 0; }
+      .h-type { display: none; }
+      .h-meta { display: none; }
+      .h-accent { display: none; }
+
+      .section-title { break-after: avoid; }
+      .subsection-title { break-after: avoid; }
+      .sub-label { break-after: avoid; }
+      .callout-title { break-after: avoid; }
+      .coaching-header { break-after: avoid; }
+
+      .priority { break-inside: avoid; }
+      .metrics { break-inside: avoid; }
+      .metric { break-inside: avoid; }
+      .callout { break-inside: avoid; }
+      .coaching-card { break-inside: avoid; }
+      .what-this-means { break-inside: avoid; }
+      .highlights li { break-inside: avoid; }
+      .peer-metric { break-inside: avoid; }
+      .appendix-row { break-inside: avoid; }
+      .data-confidence { break-inside: avoid; }
+      table { break-inside: avoid; }
+      tr { break-inside: avoid; }
+
+      .footer { break-before: page; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+<header class="header" id="top">
+    <div class="h-brand"><span>Insightful &middot; Customer Intelligence</span></div>
+    <div class="h-customer">Ciana Varaluz LLC</div>
+    <div class="h-type">Customer Intelligence Report</div>
+    <div class="h-meta">June 2025 &ndash; June 2026 (Trailing 12 Months) &middot; Report Date: June 17, 2026</div>
+    <div class="h-meta" style="margin-top: 4px;"><span class="badge badge-info">Full · iPad</span></div>
+    <div class="h-accent"></div>
+  </header>
+  <nav class="toc-strip" id="tocStrip">
+    <a href="#signals">Signal Summary</a>
+    <a href="#team">Team Intelligence</a>
+    <a href="#accounts">Account Intelligence</a>
+    <a href="#commerce">Commerce Patterns</a>
+    <a href="#product">Product Intelligence</a>
+    <a href="#platform">Platform Context</a>
+    <a href="#appendix">Appendix</a>
+  </nav>
+
+<section class="section" id="signals">
+  <h2 class="section-title"><span class="section-num">&sect;1</span> Signal Summary</h2>
+
+  <ol class="highlights">
+    <li><strong>Beautiful Things Lighting is accelerating 315% QoQ on eCat</strong> &mdash; quarterly eCat spend jumped $759 &rarr; $5,706, the fastest growth among your top accounts, and they now run nearly all of their trackable business through the app. A textbook example of an account leaning fully into your digital catalog. $58,792 LTM eCat revenue. <a href="#accounts">&rarr; &sect;2</a></li>
+    <li><strong>The new line has real pull &mdash; Downpour & High Tide pendants drew 54 buyers between them</strong>, proving the latest range lands with customers even at 3% overall SKU adoption and pointing to where the next reorder wave comes from. $70,079 combined LTM revenue across the two top new items. <a href="#product">&rarr; &sect;3</a></li>
+    <li><strong>Your team is already selling daily in eCat &mdash; 38 reps drove $1.3M with the entry workflow as the last gap</strong>: Dean Coxworth (1,869 events) and Garrett Passmore (1,131) lead app activity and Libby Hancock's logins surged +533% QoQ, so the order-entry coaching wins land on an engaged team. $1.3M eCat sales over the trailing 12 months. <a href="#team">&rarr; &sect;5</a></li>
+    <li><strong>eCat is your dominant order channel &mdash; 92.9% of total business already flows through it</strong>, a genuine strength most suppliers never reach; the enablement upside is the small remaining ~$89K LTM of rep-, phone-, and email-entered orders that could move onto a digital path for less manual entry and order-level visibility. $1.3M eCat GMV, trailing 12 months. <a href="#commerce">&rarr; &sect;4</a></li>
+    <li><strong>Ten of your top-selling items are out of stock right now &mdash; act this week</strong>, led by the Social Club 25 Light ($30,355 LTM) and Kye 22x40 Mirror ($23,748 LTM); in-stock same-collection alternatives exist for proactive outreach before customers source elsewhere. $169,277 LTM demand sitting at zero availability. <a href="#product">&rarr; &sect;3</a></li>
+    <li><strong>Your two largest eCat accounts, LBX Lighting and Valley Light Gallery, have both gone quiet</strong> &mdash; 140+ days without an order and Valley now at 4.2x its normal cadence, so these are recovery conversations against proven demand, not cold pitches. $286,623 combined LTM eCat revenue to reclaim. <a href="#accounts">&rarr; &sect;2</a></li>
+    <li><strong>Top 5 accounts generate 64% of eCat GMV &mdash; healthy concentration, but worth de-risking</strong> with two of those accounts currently dormant; broadening the mid-tier digital buyer base is the hedge against key-account dependency. $419,032 LTM across the top 5. <a href="#commerce">&rarr; &sect;4</a></li>
+  </ol>
+
+  <div class="priorities">
+    <div class="priority">
+      <span class="priority-badge high">HIGH</span>
+      <div>
+        <div class="priority-title"><a href="#product">Pull forward the Morgan 2 Light Sconce restock and bridge with the in-stock Morgan 3 Light</a></div>
+        <div class="priority-desc">A proven seller (199 units, $21,664 LTM) sits at zero availability with no receipt scheduled until mid-October &mdash; the longest gap among your top sellers. Wholesale Lighting alone has $16,303 riding on it. Offer the in-stock Morgan 3 Light Sconce as the bridge this week.</div>
+      </div>
+      <div class="priority-impact">$169K LTM at risk</div>
+    </div>
+    <div class="priority">
+      <span class="priority-badge high">HIGH</span>
+      <div>
+        <div class="priority-title"><a href="#accounts">Re-engage LBX Lighting and Valley Light Gallery before the lapse hardens</a></div>
+        <div class="priority-desc">Your two largest eCat accounts have each gone 140+ days without an order and Valley is at 4.2x its normal cadence. Open with what they last bought rather than a cold pitch &mdash; the demand history is proven and recoverable.</div>
+      </div>
+      <div class="priority-impact">$287K LTM to reclaim</div>
+    </div>
+    <div class="priority">
+      <span class="priority-badge medium">MEDIUM</span>
+      <div>
+        <div class="priority-title"><a href="#team">Coach Garrett Passmore on in-app order entry</a></div>
+        <div class="priority-desc">A highly active rep &mdash; 59 presentations, 1,131 events &mdash; who converts none to in-app orders against a 5.3% benchmark. A single same-visit order-entry step closes the entire gap with zero new customer acquisition.</div>
+      </div>
+      <div class="priority-impact">+$52K est. annual</div>
+    </div>
+    <div class="priority">
+      <span class="priority-badge low">GROWTH</span>
+      <div>
+        <div class="priority-title"><a href="#product">Take the new Matrix linear pendants to your deepest Matrix buyers</a></div>
+        <div class="priority-desc">Valley Light Gallery ($26,710) and Superlite Lighting ($17,898) buy heavily in Matrix &mdash; your largest collection at $731,799 LTM &mdash; yet have ordered zero of the new Matrix linear pendants. Rep activation here is the fastest lever on new-item adoption.</div>
+      </div>
+      <div class="priority-impact">+$50K est. opportunity</div>
+    </div>
+  </div>
+
+  <div class="outreach-list">
+    <div class="outreach-title">This Week's Outreach List</div>
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Account</th>
+          <th>Rep</th>
+          <th>Action</th>
+          <th>Talking Point</th>
+          <th>By When</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td><strong>Wholesale Lighting</strong></td>
+          <td>&mdash;</td>
+          <td>Call</td>
+          <td>"The Morgan 2 Light Sconce you rely on is out of stock until mid-October &mdash; I can set you up on the in-stock Morgan 3 Light so your projects don't stall."</td>
+          <td>This week</td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td><strong>LBX Lighting</strong></td>
+          <td>&mdash;</td>
+          <td>Call</td>
+          <td>"It's been over 140 days since your last order &mdash; anything we can help with? I'd love to get your usual line back in front of you."</td>
+          <td>This week</td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td><strong>Valley Light Gallery</strong></td>
+          <td>&mdash;</td>
+          <td>Schedule review</td>
+          <td>"Your ordering has stretched to about 4x your normal cadence &mdash; can we do a quick account review? I also want to show you the new Matrix linear pendants."</td>
+          <td>This week</td>
+        </tr>
+        <tr>
+          <td>4</td>
+          <td><strong>Superlite Lighting</strong></td>
+          <td>&mdash;</td>
+          <td>Visit</td>
+          <td>"You buy deeply in Matrix &mdash; I want to walk you through the new Matrix linear pendants that pair with what you already stock."</td>
+          <td>This month</td>
+        </tr>
+        <tr>
+          <td>5</td>
+          <td><strong>Colonial Electric</strong></td>
+          <td>&mdash;</td>
+          <td>Call</td>
+          <td>"Your orders are running well below your own historical peak &mdash; what's changed on your end, and how can we win that volume back?"</td>
+          <td>This month</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="priority-desc" style="margin-top:10px;">Rep assignments would strengthen this list &mdash; territory mapping enables direct routing to the right salesperson. No rep-to-account territory data was available for this run.</div>
+  </div>
+
+  <div class="callout insight">
+    <div class="callout-title">Patterns That Warrant a Conversation</div>
+    <ol>
+      <li>Two of your five largest eCat accounts &mdash; LBX Lighting and Valley Light Gallery, $286,623 combined LTM &mdash; have gone quiet at the same time the top 5 still drive 64% of GMV. Is this a coincidence of timing, a shared competitor making a move, or a project cycle that paused?</li>
+      <li>Garrett Passmore runs 59 presentations and 1,131 app events yet closes nothing in-app, while John Howard &mdash; your one above-benchmark closer &mdash; has cut logins 77% QoQ. Are we losing in-app order entry to a workflow gap, or is order capture happening off-app where we can't see it?</li>
+      <li>eCat already carries 92.9% of your total business, leaving roughly $89K still keyed in by reps, phone, or email &mdash; is that remaining slice a deliberate handling preference for certain accounts, or orders we could move onto a digital path to cut manual entry?</li>
+    </ol>
+  </div>
+</section>
+
+
+<details class="section-collapse" id="team">
+  <summary>
+    <div class="section-title">Team Intelligence</div>
+    <div class="section-sub">38 active reps &middot; ranked by app selling activity LTM &middot; behavioral patterns from app usage data</div>
+    <div class="section-contents">Rep leaderboard, behavioral archetypes, presentation-to-close conversion, engagement trajectory, coaching opportunities, selling vs admin time, engagement depth</div>
+    <span class="expand-hint">Expand section</span>
+  </summary>
+  <div class="section">
+
+    <div class="data-confidence">
+      <span class="data-confidence-label">Full Picture</span>
+      This team is actively presenting and selling through eCat while order entry through the app is still ramping, so the leaderboard reflects app engagement, not yet order volume. Some rows are shared showroom and admin logins (CS/HP Varaluz, support accounts) rather than individual field reps; rep-level digital-ordering share and territory views are omitted until more orders flow through eCat.
+    </div><div class="subsection">
+      <div class="subsection-title">Rep Leaderboard</div>
+      <div class="sub-label">Ranked by app selling activity (LTM)</div>
+      <table>
+        <thead>
+          <tr><th>#</th><th>Rep</th><th>Days Active</th><th>Customer Selections</th><th>Product Searches</th><th>Presentations</th><th>Total Events</th></tr>
+        </thead>
+        <tbody>
+          <tr class="row-highlight"><td>1</td><td><strong>Dean Coxworth</strong></td><td>217</td><td>20</td><td>31</td><td>41</td><td>1,869</td></tr>
+          <tr class="row-highlight"><td>2</td><td><strong>Garrett Passmore</strong></td><td>114</td><td>61</td><td>297</td><td>43</td><td>1,131</td></tr>
+          <tr class="row-highlight"><td>3</td><td><strong>Angela Smith</strong></td><td>95</td><td>5</td><td>497</td><td>41</td><td>1,058</td></tr>
+          <tr class="row-highlight"><td>4</td><td><strong>Robert Parker</strong></td><td>192</td><td>48</td><td>287</td><td>0</td><td>879</td></tr>
+          <tr class="row-highlight"><td>5</td><td><strong>John Howard</strong></td><td>56</td><td>82</td><td>395</td><td>35</td><td>861</td></tr>
+        </tbody>
+      </table>
+
+      <details>
+        <summary>30 additional reps &middot; ranks 6&ndash;35</summary>
+        <table>
+          <thead>
+            <tr><th>#</th><th>Rep</th><th>Days Active</th><th>Customer Selections</th><th>Product Searches</th><th>Presentations</th><th>Total Events</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>6</td><td>Kelly York</td><td>101</td><td>50</td><td>85</td><td>29</td><td>838</td></tr>
+            <tr><td>7</td><td>Scott Fellner</td><td>119</td><td>50</td><td>304</td><td>3</td><td>838</td></tr>
+            <tr><td>8</td><td>Kellee Hollenback</td><td>98</td><td>6</td><td>89</td><td>10</td><td>815</td></tr>
+            <tr><td>9</td><td>CS Varaluz</td><td>24</td><td>16</td><td>40</td><td>13</td><td>738</td></tr>
+            <tr><td>10</td><td>Tom Wright</td><td>104</td><td>65</td><td>48</td><td>0</td><td>732</td></tr>
+            <tr><td>11</td><td>Collin Framburg</td><td>61</td><td>7</td><td>368</td><td>6</td><td>711</td></tr>
+            <tr><td>12</td><td>Brad Buntz</td><td>73</td><td>34</td><td>421</td><td>0</td><td>669</td></tr>
+            <tr><td>13</td><td>Jon Reibel</td><td>434</td><td>4</td><td>30</td><td>1</td><td>583</td></tr>
+            <tr><td>14</td><td>Shelly Orban</td><td>90</td><td>12</td><td>78</td><td>15</td><td>531</td></tr>
+            <tr><td>15</td><td>Kelley H.</td><td>133</td><td>19</td><td>83</td><td>0</td><td>516</td></tr>
+            <tr><td>16</td><td>CS4 Varaluz</td><td>17</td><td>22</td><td>182</td><td>0</td><td>454</td></tr>
+            <tr><td>17</td><td>CS3 Varaluz</td><td>19</td><td>12</td><td>221</td><td>0</td><td>430</td></tr>
+            <tr><td>18</td><td>Libby Hancock</td><td>35</td><td>2</td><td>41</td><td>10</td><td>417</td></tr>
+            <tr><td>19</td><td>HP1 Varaluz</td><td>15</td><td>15</td><td>165</td><td>0</td><td>396</td></tr>
+            <tr><td>20</td><td>Mitchell Winston</td><td>62</td><td>22</td><td>52</td><td>9</td><td>383</td></tr>
+            <tr><td>21</td><td>CS5 Varaluz</td><td>19</td><td>19</td><td>70</td><td>0</td><td>375</td></tr>
+            <tr><td>22</td><td>Tammy Martin Design</td><td>35</td><td>27</td><td>126</td><td>0</td><td>346</td></tr>
+            <tr><td>23</td><td>Judy Rubino</td><td>74</td><td>1</td><td>23</td><td>0</td><td>330</td></tr>
+            <tr><td>24</td><td>Starry Lights Support</td><td>56</td><td>17</td><td>78</td><td>3</td><td>322</td></tr>
+            <tr><td>25</td><td>Dunn Lighting</td><td>78</td><td>23</td><td>31</td><td>1</td><td>319</td></tr>
+            <tr><td>26</td><td>Amy Poindexter</td><td>106</td><td>3</td><td>56</td><td>10</td><td>300</td></tr>
+            <tr><td>27</td><td>Darla Pritchard</td><td>77</td><td>9</td><td>53</td><td>0</td><td>289</td></tr>
+            <tr><td>28</td><td>Blake Coxworth</td><td>76</td><td>4</td><td>4</td><td>0</td><td>282</td></tr>
+            <tr><td>29</td><td>CS7 Varaluz</td><td>12</td><td>9</td><td>37</td><td>0</td><td>271</td></tr>
+            <tr><td>30</td><td>Todd Martin</td><td>44</td><td>22</td><td>3</td><td>1</td><td>267</td></tr>
+            <tr><td>31</td><td>Mary McKey</td><td>46</td><td>14</td><td>78</td><td>1</td><td>256</td></tr>
+            <tr><td>32</td><td>Rob Azimi</td><td>48</td><td>12</td><td>44</td><td>3</td><td>205</td></tr>
+            <tr><td>33</td><td>CS6 Varaluz</td><td>11</td><td>7</td><td>43</td><td>0</td><td>204</td></tr>
+            <tr><td>34</td><td>HP4 Varaluz</td><td>13</td><td>14</td><td>60</td><td>0</td><td>203</td></tr>
+            <tr><td>35</td><td>Charles Walsh</td><td>39</td><td>3</td><td>11</td><td>2</td><td>189</td></tr>
+          </tbody>
+        </table>
+      </details>
+
+      <div class="sub-label" style="margin-top:16px;">Bottom 5 by app activity</div>
+      <table>
+        <thead>
+          <tr><th>#</th><th>Rep</th><th>Days Active</th><th>Customer Selections</th><th>Product Searches</th><th>Presentations</th><th>Total Events</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>36</td><td>Jessica K.</td><td>31</td><td>8</td><td>67</td><td>1</td><td>184</td></tr>
+          <tr><td>37</td><td>Stan Terry</td><td>26</td><td>1</td><td>46</td><td>18</td><td>183</td></tr>
+          <tr><td>38</td><td>Angie Schaefer</td><td>27</td><td>9</td><td>32</td><td>7</td><td>178</td></tr>
+          <tr><td>39</td><td>Nick Brown</td><td>27</td><td>4</td><td>17</td><td>6</td><td>176</td></tr>
+          <tr><td>40</td><td>Krista Swiss</td><td>12</td><td>8</td><td>43</td><td>0</td><td>164</td></tr>
+        </tbody>
+      </table>
+    </div><div class="subsection">
+      <div class="subsection-title">Coaching Opportunities</div>
+      <div class="sub-label">Reps with highest estimated upside from targeted intervention</div>
+
+      <div class="callout opportunity">
+        <div class="callout-title">Combined coaching upside across 1 priority rep: $52,474 in potential annual incremental eCat sales</div>
+        <p>That&rsquo;s roughly 4% of your current $1.3M in eCat sales from coaching a single rep &mdash; with zero new customer acquisition required.</p>
+      </div>
+
+      <div class="coaching-card">
+        <div class="coaching-header">
+          <div class="coaching-name">Garrett Passmore</div>
+          <span class="badge warn">High Activity / Low Close</span>
+        </div>
+        <div class="coaching-body">
+          Garrett is one of your most active users &mdash; 1,131 app events, 297 product searches, and 59 customer presentations across 3 accounts &mdash; but none of those presentations converted to an order, against a team benchmark of 5.3%. He is doing the hard part (engagement and presentation) without the closing step.
+        </div>
+        <div class="coaching-action"><strong>Coaching action:</strong> Sit with Garrett on his next two presentations and add a same-visit order-entry step in eCat before leaving the account; his $16,781 average order value means even a handful of closes moves the number quickly.</div>
+        <div class="coaching-impact">$52,474 estimated annual upside</div>
+      </div>
+    </div><div class="subsection">
+      <div class="subsection-title">Behavioral Archetypes</div>
+      <div class="sub-label">Based on app usage patterns over the trailing 12 months</div>
+      <div class="callout insight">
+        <div class="callout-title">Three distinct selling patterns across your most active reps</div>
+        <p>Your reps&rsquo; eCat usage shows not just what they sell but how they sell. Several high-activity reps present heavily but rarely close in-app, while a smaller group searches and selects customers with almost no presentation step &mdash; using eCat as a lookup tool rather than a selling tool.</p>
+      </div>
+      <table>
+        <thead>
+          <tr><th>Rep</th><th>Archetype</th><th>Total Events</th><th>Presentations</th><th>Searches</th><th>Key Gap</th></tr>
+        </thead>
+        <tbody>
+          <tr class="row-highlight"><td><strong>Garrett Passmore</strong></td><td><span class="badge warn">High Activity / Low Close</span></td><td>1,131</td><td>43</td><td>297</td><td>Presents and searches heavily; 0 in-app closes</td></tr>
+          <tr><td><strong>John Howard</strong></td><td><span class="badge ok">Discovery-Driven Closer</span></td><td>861</td><td>35</td><td>395</td><td>Highest search-to-close ratio; converts above peers</td></tr>
+          <tr><td><strong>Angela Smith</strong></td><td><span class="badge muted">Volume Searcher</span></td><td>1,058</td><td>41</td><td>497</td><td>Heaviest search volume; mostly catalog/library support</td></tr>
+          <tr><td><strong>Dean Coxworth</strong></td><td><span class="badge info">Order-Direct Pattern</span></td><td>1,869</td><td>41</td><td>31</td><td>Most engaged overall; light on product search</td></tr>
+          <tr><td><strong>Robert Parker</strong></td><td><span class="badge muted">Volume Searcher</span></td><td>879</td><td>0</td><td>287</td><td>High search activity, no presentations built</td></tr>
+        </tbody>
+      </table>
+      <div class="what-this-means">
+        <strong>Action:</strong> Your team splits between heavy presenters who do not close in-app (Garrett Passmore, 59 presentations / 0 orders) and search-only users who never build a presentation (Robert Parker, 287 searches / 0 presentations). The fastest lift is pairing John Howard &mdash; your one Discovery-Driven Closer who converts above the 5.3% benchmark &mdash; with those two reps to model how an in-app presentation turns into a same-visit order.
+      </div>
+    </div><div class="subsection">
+      <div class="subsection-title">Presentation-to-Close Conversion</div>
+      <div class="callout insight">
+        <div class="callout-title">2 reps with heavy presentation activity but below-peer conversion</div>
+        <p>Your most active presenter, Garrett Passmore, built 59 customer presentations but closed 0 in eCat. John Howard built a comparable 57 presentations and converted 5.3% into orders &mdash; the same effort, materially different outcomes.</p>
+      </div>
+      <table>
+        <thead>
+          <tr><th>Rep</th><th>Accounts Engaged</th><th>Presentations</th><th>Orders</th><th>Conversion Rate</th><th>Team Benchmark</th><th>Estimated Upside</th></tr>
+        </thead>
+        <tbody>
+          <tr class="row-highlight"><td><strong>Garrett Passmore</strong></td><td>3</td><td>59</td><td>0</td><td>0.0%</td><td>5.3%</td><td>$52,474</td></tr>
+          <tr><td><strong>John Howard</strong></td><td>4</td><td>57</td><td>3</td><td>5.3%</td><td>5.3%</td><td>&mdash;</td></tr>
+        </tbody>
+      </table>
+      <div class="what-this-means">
+        <strong>Action:</strong> The gap between Garrett Passmore (0% on 59 presentations) and John Howard (5.3% on 57) is a workflow problem, not a talent problem &mdash; Garrett engages accounts but stops short of entering the order in eCat. A standing post-presentation order-entry habit closes that gap faster than any new lead, with an estimated $52,474 in annual upside at his $16,781 order value.
+      </div>
+    </div><div class="subsection">
+      <div class="subsection-title">Engagement Trajectory</div>
+      <div class="sub-label">Quarter-over-quarter activity trend</div>
+
+      <div class="callout opportunity">
+        <div class="callout-title">Accelerating Reps</div>
+      </div>
+      <table>
+        <thead>
+          <tr><th>Rep</th><th>Prior 90d Logins</th><th>Current 90d Logins</th><th>QoQ Change</th><th>Current 90d eCat GMV</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Libby Hancock</strong></td><td>6</td><td>38</td><td><span class="badge ok">+533%</span></td><td>&mdash;</td></tr>
+          <tr><td><strong>Blake Coxworth</strong></td><td>46</td><td>73</td><td><span class="badge ok">+59%</span></td><td>&mdash;</td></tr>
+          <tr><td><strong>Stan Terry</strong></td><td>7</td><td>35</td><td><span class="badge ok">+400%</span></td><td>$719</td></tr>
+          <tr><td><strong>Tom Wright</strong></td><td>41</td><td>54</td><td><span class="badge ok">+32%</span></td><td>&mdash;</td></tr>
+          <tr><td><strong>HP1 Varaluz</strong></td><td>0</td><td>8</td><td><span class="badge ok">New</span></td><td>$30,321</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout insight">
+        <div class="callout-title">Reps Needing Attention</div>
+      </div>
+      <table>
+        <thead>
+          <tr><th>Rep</th><th>Prior 90d Logins</th><th>Current 90d Logins</th><th>QoQ Change</th><th>Current 90d eCat GMV</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>John Howard</strong></td><td>30</td><td>7</td><td><span class="badge danger">&minus;77%</span></td><td>$33,580</td></tr>
+          <tr><td><strong>Robert Parker</strong></td><td>57</td><td>17</td><td><span class="badge danger">&minus;70%</span></td><td>$0</td></tr>
+          <tr><td><strong>Dean Coxworth</strong></td><td>157</td><td>92</td><td><span class="badge danger">&minus;41%</span></td><td>$0</td></tr>
+          <tr><td><strong>Scott Fellner</strong></td><td>55</td><td>27</td><td><span class="badge danger">&minus;51%</span></td><td>$0</td></tr>
+          <tr><td><strong>Mitchell Winston</strong></td><td>32</td><td>5</td><td><span class="badge danger">&minus;84%</span></td><td>$0</td></tr>
+        </tbody>
+      </table>
+
+      <div class="what-this-means">
+        <strong>Action:</strong> John Howard is your most concerning trajectory &mdash; logins down 77% and orders down 80% QoQ while still carrying $33,580 in current-quarter eCat sales, your highest among active reps. A conversation now protects the team&rsquo;s single best converter before that volume migrates back offline; meanwhile Libby Hancock&rsquo;s +533% surge is the momentum to reinforce with recognition.
+      </div>
+    </div><div class="subsection">
+      <div class="subsection-title">How Reps Spend Their Time in the App</div>
+      <div class="sub-label">Every app session is classified as &ldquo;selling&rdquo; (showing products, building presentations, placing orders) or &ldquo;admin&rdquo; (looking up accounts, checking history). Here is the split over the trailing 12 months.</div>
+      <table>
+        <thead>
+          <tr><th>Rep</th><th>Total Activity</th><th>Selling</th><th>Admin</th><th>Selling %</th></tr>
+        </thead>
+        <tbody>
+          <tr class="row-highlight"><td><strong>John Howard</strong></td><td>114</td><td>81</td><td>33</td><td><span class="badge ok">71.1%</span></td></tr>
+          <tr><td><strong>Garrett Passmore</strong></td><td>143</td><td>84</td><td>59</td><td><span class="badge warn">58.7%</span></td></tr>
+          <tr><td>Krista Swiss</td><td>163</td><td>120</td><td>43</td><td><span class="badge ok">73.6%</span></td></tr>
+          <tr><td>Stan Terry</td><td>134</td><td>59</td><td>75</td><td><span class="badge danger">44.0%</span></td></tr>
+          <tr><td>Scott Fellner</td><td>104</td><td>43</td><td>61</td><td><span class="badge danger">41.3%</span></td></tr>
+        </tbody>
+      </table>
+      <details>
+        <summary>All remaining reps (10) &#9662;</summary>
+        <table>
+          <thead>
+            <tr><th>Rep</th><th>Total Activity</th><th>Selling</th><th>Admin</th><th>Selling %</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Angie Schaefer</td><td>120</td><td>49</td><td>71</td><td><span class="badge danger">40.8%</span></td></tr>
+            <tr><td>Robert Parker</td><td>41</td><td>15</td><td>26</td><td><span class="badge danger">36.6%</span></td></tr>
+            <tr><td>Kelley H.</td><td>95</td><td>32</td><td>63</td><td><span class="badge danger">33.7%</span></td></tr>
+            <tr><td>Angela Smith</td><td>204</td><td>63</td><td>141</td><td><span class="badge danger">30.9%</span></td></tr>
+            <tr><td>Charles Walsh</td><td>58</td><td>13</td><td>45</td><td><span class="badge danger">22.4%</span></td></tr>
+            <tr><td>Shelly Orban</td><td>72</td><td>16</td><td>56</td><td><span class="badge danger">22.2%</span></td></tr>
+            <tr><td>Kelly York</td><td>63</td><td>13</td><td>50</td><td><span class="badge danger">20.6%</span></td></tr>
+          </tbody>
+        </table>
+      </details>
+      <div class="what-this-means">
+        <strong>Action:</strong> The 57pp gap between John Howard (71% selling) and Kelly York (21%) is a process gap, not a motivation gap &mdash; the bottom reps spend two-thirds of their app time looking things up rather than presenting or ordering. Building saved customer lists and reorder templates for Kelly York, Shelly Orban, and Angela Smith would shift their time toward customer-facing selling without adding a single account.
+      </div>
+    </div><details class="inner-collapse">
+      <summary>Rep Engagement vs Account Revenue &#9662;</summary>
+      <div class="subsection">
+        <div class="subsection-title">Engagement Depth by Rep</div>
+        <div class="callout insight">
+          <div class="callout-title">Engagement Distribution</div>
+          <p>John Howard averages 11.4 interactions across 8 accounts with 4 deeply engaged (8+ touches); Garrett Passmore averages 13.6 across 8 accounts. By contrast, several reps spread thin contact across many accounts &mdash; Rob Azimi touches 12 accounts but 5 receive fewer than 3 interactions.</p>
+        </div>
+        <table>
+          <thead>
+            <tr><th>Rep</th><th>Accounts Touched</th><th>Avg Touches/Acct</th><th>High Engagement</th><th>Low Engagement</th></tr>
+          </thead>
+          <tbody>
+            <tr class="row-highlight"><td><strong>Tom Wright</strong></td><td>13</td><td>7.7</td><td>5</td><td>5</td></tr>
+            <tr><td><strong>Rob Azimi</strong></td><td>12</td><td>4.5</td><td>4</td><td>5</td></tr>
+            <tr><td><strong>Kelley H.</strong></td><td>11</td><td>5.9</td><td>5</td><td>6</td></tr>
+            <tr><td><strong>Garrett Passmore</strong></td><td>8</td><td>13.6</td><td>3</td><td>2</td></tr>
+            <tr><td><strong>John Howard</strong></td><td>8</td><td>11.4</td><td>4</td><td>3</td></tr>
+          </tbody>
+        </table>
+        <details>
+          <summary>All remaining reps (9) &#9662;</summary>
+          <table>
+            <thead>
+              <tr><th>Rep</th><th>Accounts Touched</th><th>Avg Touches/Acct</th><th>High Engagement</th><th>Low Engagement</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Angie Schaefer</td><td>7</td><td>12.6</td><td>3</td><td>4</td></tr>
+              <tr><td>Libby Hancock</td><td>7</td><td>12.0</td><td>2</td><td>3</td></tr>
+              <tr><td>HP4 Varaluz</td><td>6</td><td>6.3</td><td>3</td><td>1</td></tr>
+              <tr><td>Scott Fellner</td><td>5</td><td>7.2</td><td>3</td><td>2</td></tr>
+              <tr><td>Krista Swiss</td><td>5</td><td>14.4</td><td>1</td><td>1</td></tr>
+              <tr><td>Kelly York</td><td>4</td><td>4.8</td><td>1</td><td>2</td></tr>
+              <tr><td>HP1 Varaluz</td><td>4</td><td>8.8</td><td>2</td><td>0</td></tr>
+              <tr><td>Charles Walsh</td><td>1</td><td>29.0</td><td>1</td><td>0</td></tr>
+              <tr><td>Jon Reibel</td><td>1</td><td>4.0</td><td>0</td><td>0</td></tr>
+            </tbody>
+          </table>
+        </details>
+        <div class="what-this-means">
+          <strong>Action:</strong> Engagement depth correlates with conversion here &mdash; John Howard concentrates 11.4 touches across 8 accounts and is your only above-benchmark closer, while Rob Azimi&rsquo;s 12 accounts at 4.5 touches each leave 5 under-served. Reps spreading thin contact across many accounts are the ones to coach toward deeper, fewer relationships before adding territory.
+        </div>
+      </div>
+    </details>
+
+    <div class="what-this-means" style="margin-top:24px;">
+      <strong>Action:</strong> Your team is genuinely active in eCat &mdash; 38 reps presenting and searching daily &mdash; but the value is leaking at the close: Garrett Passmore built 59 presentations with zero in-app orders, and John Howard, your one above-benchmark closer, is carrying $33,580 in current-quarter eCat sales while his logins fall 77% QoQ. Coaching in-app order entry behind existing presentations is the highest-ROI move; connecting more rep ordering through eCat would also unlock the rep-level digital-share and territory views currently omitted from this section.
+    </div>
+
+    <div class="callout note" style="margin-top:20px;">
+      <div class="callout-title">With Connected Data</div>
+      As more reps place orders through eCat, we can show each rep&rsquo;s digital-ordering share against their total business and surface dormant territory accounts &mdash; views held back this run because order entry through the app is still ramping.
+    </div>
+
+  </div>
+</details>
+
+
+<details class="section-collapse" id="accounts">
+  <summary>
+    <div class="section-title">Account Intelligence</div>
+    <div class="section-sub">66 active buyers (12mo) &middot; 1,851 total accounts &middot; top accounts with actionable briefs</div>
+    <div class="section-contents">Top account briefs &middot; eCat penetration &middot; geographic revenue trends &middot; new decision-makers &middot; onboarding targets &middot; geographic distribution &middot; reorder velocity &middot; dormant high-value accounts &middot; spending contraction</div>
+    <span class="expand-hint">Expand section</span>
+  </summary>
+  <div class="section">
+
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-val">1,851</div>
+        <div class="metric-label">Total Accounts</div>
+        <div class="metric-note">All accounts in your system</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-val">66</div>
+        <div class="metric-label">Active Accounts (12mo)</div>
+        <div class="metric-note">&ge;1 eCat order, trailing 12 months</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-val">5</div>
+        <div class="metric-label">Active Accounts (90d)</div>
+        <div class="metric-note">&ge;1 eCat order, last 90 days</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-val">$19,838</div>
+        <div class="metric-label">Avg eCat Revenue / Active Account</div>
+        <div class="metric-note">$1.3M LTM eCat &divide; 66 active (12mo)</div>
+      </div>
+    </div>
+
+    <div class="data-confidence">
+      <span class="data-confidence-label">Full Picture</span>
+      <span class="data-confidence-action">Account intelligence draws on eCat orders, all-channel invoices, inventory availability, and app usage across your 1,851 accounts (last order synced 2026-06-16). Revenue figures combine eCat and all-channel data for a complete view of each relationship.</span>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">1. Beautiful Things Lighting</div>
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-val">Beautiful Things Lighting</div>
+          <div class="metric-label">Florida</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-val">2026-03-05</div>
+          <div class="metric-label">Last Order</div>
+          <div class="metric-note warn">104 days ago</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-val">$58,792</div>
+          <div class="metric-label">eCat Revenue (LTM)</div>
+          <div class="metric-note ok">5 orders, fastest-growing top account</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-val"><span class="badge ok">80</span></div>
+          <div class="metric-label">Engagement Score</div>
+          <div class="metric-note">Champion</div>
+        </div>
+      </div>
+      <div class="callout insight">
+        <div class="callout-title">Spending Trajectory</div>
+        <p>Quarterly eCat trend: $759 &rarr; $1,570 &rarr; $1,373 &rarr; $5,706</p>
+        <p>Accelerating at 315% quarter-over-quarter in the most recent quarter &mdash; the strongest momentum among your top accounts.</p>
+      </div>
+      <div class="callout insight">
+        <div class="callout-title">Reorder Pattern Change</div>
+        <p><strong>Account-level:</strong> 104 days since their last order &mdash; about 2.5x their normal 42-day eCat cadence. Worth a check-in while momentum is still warm.</p>
+      </div>
+      <p class="prose"><strong>Priority:</strong> Call Beautiful Things Lighting this week &mdash; they were your fastest-accelerating top account (+315% QoQ to $5,706) but have now gone 104 days quiet against a 42-day cadence; re-engage before the momentum cools.</p>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">2. LBX Lighting Inc.</div>
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-val">LBX Lighting Inc.</div>
+          <div class="metric-label">Texas</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-val">2026-01-26</div>
+          <div class="metric-label">Last Order</div>
+          <div class="metric-note danger">141 days ago</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-val">$149,661</div>
+          <div class="metric-label">eCat Revenue (LTM)</div>
+          <div class="metric-note warn">Highest eCat account; now silent</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-val"><span class="badge muted">57</span></div>
+          <div class="metric-label">Engagement Score</div>
+          <div class="metric-note">Moderate</div>
+        </div>
+      </div>
+      <div class="callout insight">
+        <div class="callout-title">Reorder Pattern Change</div>
+        <p><strong>Account-level:</strong> 141 days since their last order &mdash; roughly 1.3x their 110-day eCat cadence, but on your single largest eCat account this gap matters most.</p>
+        <p><strong>Predicted next order window:</strong> Based on their historical cadence, the next order was expected around mid-May 2026 &mdash; now about a month past due.</p>
+      </div>
+      <p class="prose"><strong>Priority:</strong> LBX Lighting is your #1 eCat account at $149,661 LTM and has been silent 141 days &mdash; have their rep make personal contact this week to confirm the relationship is healthy before this slips into dormancy.</p>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">3. Valley Light Gallery</div>
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-val">Valley Light Gallery</div>
+          <div class="metric-label">Arizona</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-val">2026-01-12</div>
+          <div class="metric-label">Last Order</div>
+          <div class="metric-note danger">155 days ago</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-val">$136,962</div>
+          <div class="metric-label">eCat Revenue (LTM)</div>
+          <div class="metric-note warn">2nd-largest eCat account</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-val"><span class="badge muted">59</span></div>
+          <div class="metric-label">Engagement Score</div>
+          <div class="metric-note">Moderate</div>
+        </div>
+      </div>
+      <div class="callout insight">
+        <div class="callout-title">Reorder Pattern Change</div>
+        <p><strong>Account-level:</strong> 155 days since their last order, well beyond their ~37-day eCat cadence on 4 orders. A high-value account quieting this long warrants a direct conversation.</p>
+      </div>
+      <p class="prose"><strong>Priority:</strong> Valley Light Gallery is your second-largest eCat account ($136,962 LTM) and has gone 155 days without ordering &mdash; the assigned rep should reach out to understand what changed and re-open the buying cadence.</p>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">4. Black Whale Lighting</div>
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-val">Black Whale Lighting</div>
+          <div class="metric-label">California</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-val">$9,656</div>
+          <div class="metric-label">Total Business (LTM)</div>
+          <div class="metric-note">13 all-channel orders</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-val">$3,258</div>
+          <div class="metric-label">eCat Revenue (LTM)</div>
+          <div class="metric-note ok">34% eCat penetration</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-val"><span class="badge muted">53</span></div>
+          <div class="metric-label">Engagement Score</div>
+          <div class="metric-note">Moderate</div>
+        </div>
+      </div>
+      <div class="callout insight">
+        <div class="callout-title">Spending Trajectory</div>
+        <p>Quarterly eCat trend: $2,199 &rarr; $682 &rarr; $950 &rarr; $5,825</p>
+        <p>Accelerating at 513% quarter-over-quarter across three consecutive growth quarters &mdash; a rebounding relationship gaining steam on eCat.</p>
+      </div>
+      <div class="callout opportunity">
+        <div class="callout-title">Products Frequently Bought Together</div>
+        <p><strong>14</strong> customers who buy the <strong>Aurora 8 Light Pendant</strong> (item 557P08HG) also buy the <strong>High Tide 6 Light Linear Pendant</strong> (item 561N06FG) &mdash; Black Whale buys the Aurora but hasn&rsquo;t added the High Tide.</p>
+        <p>Estimated opportunity: this companion pairing represents an estimated $135,185 in combined demand across the 14-customer pattern.</p>
+      </div>
+      <p class="prose"><strong>Priority:</strong> Black Whale is accelerating fast on eCat (+513% QoQ across three quarters) &mdash; their rep should present the High Tide 6 Light Linear Pendant as a companion to the Aurora pendant they already buy, the clearest cross-sell opening in your top accounts.</p>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">5. Sun Lighting</div>
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-val">Sun Lighting</div>
+          <div class="metric-label">Arizona</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-val">2026-01-23</div>
+          <div class="metric-label">Last Order</div>
+          <div class="metric-note danger">144 days ago</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-val">$32,209</div>
+          <div class="metric-label">eCat Revenue (LTM)</div>
+          <div class="metric-note ok">6-day reorder cadence when active</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-val"><span class="badge muted">55</span></div>
+          <div class="metric-label">Engagement Score</div>
+          <div class="metric-note">Moderate</div>
+        </div>
+      </div>
+      <div class="callout insight">
+        <div class="callout-title">Reorder Pattern Change</div>
+        <p><strong>Account-level:</strong> When active, Sun Lighting reordered every ~6 days &mdash; one of your tightest cadences &mdash; but they have now been quiet for 144 days, a sharp break from that rhythm.</p>
+      </div>
+      <p class="prose"><strong>Priority:</strong> Sun Lighting placed three eCat orders just six days apart in January then went silent for 144 days &mdash; their rep should call to find out whether a project ended or a fulfillment issue stalled them, since the prior cadence shows real appetite.</p>
+    </div>
+
+    <details>
+      <summary>Accounts 6&ndash;10 &#9662;</summary>
+      <div style="padding: 16px 0;">
+        <div class="subsection">
+          <div class="subsection-title">6. Dulles Electric Supply Corp</div>
+          <div class="metrics-grid">
+            <div class="metric-card"><div class="metric-val">Dulles Electric Supply Corp</div><div class="metric-label">Virginia</div></div>
+            <div class="metric-card"><div class="metric-val">2026-01-12</div><div class="metric-label">Last Order</div><div class="metric-note danger">155 days ago</div></div>
+            <div class="metric-card"><div class="metric-val">$33,254</div><div class="metric-label">eCat Revenue (LTM)</div><div class="metric-note warn">3 orders</div></div>
+          </div>
+          <p class="prose"><strong>Priority:</strong> Dulles drove $33,254 in eCat orders but has been silent 155 days against a ~104-day cadence &mdash; the rep should confirm whether their Virginia supply demand is being met elsewhere.</p>
+        </div>
+
+        <div class="subsection">
+          <div class="subsection-title">7. PDI</div>
+          <div class="metrics-grid">
+            <div class="metric-card"><div class="metric-val">PDI</div><div class="metric-label">Georgia</div></div>
+            <div class="metric-card"><div class="metric-val">2026-01-11</div><div class="metric-label">Last Order</div><div class="metric-note danger">156 days ago</div></div>
+            <div class="metric-card"><div class="metric-val">$37,768</div><div class="metric-label">eCat Revenue (LTM)</div><div class="metric-note warn">Single large order</div></div>
+          </div>
+          <p class="prose"><strong>Priority:</strong> PDI placed a single $37,768 eCat order then went quiet for 156 days &mdash; their rep should follow up to convert a one-time buyer into a repeat account.</p>
+        </div>
+
+        <div class="subsection">
+          <div class="subsection-title">8. Ferguson Enterprises</div>
+          <div class="metrics-grid">
+            <div class="metric-card"><div class="metric-val">Ferguson Enterprises</div><div class="metric-label">Virginia</div></div>
+            <div class="metric-card"><div class="metric-val">2026-02-03</div><div class="metric-label">Last Order</div><div class="metric-note danger">134 days ago</div></div>
+            <div class="metric-card"><div class="metric-val">$35,849</div><div class="metric-label">eCat Revenue (LTM)</div><div class="metric-note warn">Multi-location buyer</div></div>
+          </div>
+          <p class="prose"><strong>Priority:</strong> Ferguson Enterprises drove $35,849 through eCat on a single order and appears across many of your stock-out and new-buyer signals &mdash; their rep should treat them as a strategic multi-location relationship and re-engage the lapsed VA buyer.</p>
+        </div>
+
+        <div class="subsection">
+          <div class="subsection-title">9. Lighting Instyle</div>
+          <div class="metrics-grid">
+            <div class="metric-card"><div class="metric-val">Lighting Instyle</div><div class="metric-label">California</div></div>
+            <div class="metric-card"><div class="metric-val">2026-01-15</div><div class="metric-label">Last Order</div><div class="metric-note danger">153 days ago</div></div>
+            <div class="metric-card"><div class="metric-val">$25,241</div><div class="metric-label">eCat Revenue (LTM)</div><div class="metric-note warn">New buyer detected</div></div>
+          </div>
+          <p class="prose"><strong>Priority:</strong> Lighting Instyle shows a new buyer placing a $6,123 first order within the account &mdash; their rep should introduce themselves to the new contact while vendor preferences are still forming.</p>
+        </div>
+
+        <div class="subsection">
+          <div class="subsection-title">10. Southern Lights</div>
+          <div class="metrics-grid">
+            <div class="metric-card"><div class="metric-val">Southern Lights</div><div class="metric-label">Minnesota</div></div>
+            <div class="metric-card"><div class="metric-val">$19,865</div><div class="metric-label">Total Business (LTM)</div><div class="metric-note danger">2.3x slower reorder cadence</div></div>
+            <div class="metric-card"><div class="metric-val">$0</div><div class="metric-label">eCat Revenue (LTM)</div><div class="metric-note warn">All-channel only, no eCat yet</div></div>
+          </div>
+          <p class="prose"><strong>Priority:</strong> Southern Lights does $19,865 in all-channel business but $0 through eCat, and their reorder cadence has stretched to 2.3x normal &mdash; their rep should get them ordering through the app to both onboard them and tighten their slipping cadence.</p>
+        </div>
+      </div>
+    </details>
+
+    <div class="subsection">
+      <div class="subsection-title">eCat Penetration of Total Business</div>
+      <table>
+        <thead>
+          <tr><th>Customer</th><th>State</th><th>Total Orders</th><th>Total GMV</th><th>eCat Orders</th><th>eCat GMV</th><th>Penetration</th></tr>
+        </thead>
+        <tbody>
+          <tr class="row-highlight"><td><strong>Beautiful Things Lighting</strong></td><td>FL</td><td>13</td><td>$9,408</td><td>5</td><td>$58,792</td><td>100%+</td></tr>
+          <tr class="row-highlight"><td><strong>Lighting Instyle</strong></td><td>CA</td><td>6</td><td>$9,126</td><td>1</td><td>$25,241</td><td>100%+</td></tr>
+          <tr class="row-highlight"><td><strong>Hobrecht Lighting</strong></td><td>CA</td><td>17</td><td>$11,116</td><td>2</td><td>$17,533</td><td>100%+</td></tr>
+          <tr class="row-highlight"><td><strong>Georgia Lighting</strong></td><td>GA</td><td>16</td><td>$18,160</td><td>1</td><td>$16,954</td><td>93%</td></tr>
+          <tr><td>Connecticut Lighting Center</td><td>CT</td><td>26</td><td>$8,485</td><td>1</td><td>$4,163</td><td>49%</td></tr>
+        </tbody>
+      </table>
+      <details>
+        <summary>More accounts by total business &#9662;</summary>
+        <table>
+          <thead>
+            <tr><th>Customer</th><th>State</th><th>Total Orders</th><th>Total GMV</th><th>eCat Orders</th><th>eCat GMV</th><th>Penetration</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Black Whale Lighting</td><td>CA</td><td>13</td><td>$9,656</td><td>1</td><td>$3,258</td><td>34%</td></tr>
+            <tr><td>LED Capstone Inc</td><td>FL</td><td>10</td><td>$9,003</td><td>1</td><td>$1,034</td><td>11%</td></tr>
+            <tr><td>Light Source Lighting</td><td>IL</td><td>28</td><td>$25,119</td><td>0</td><td>$0</td><td>0%</td></tr>
+            <tr><td>Ferguson &mdash; Grand Prairie</td><td>TX</td><td>19</td><td>$23,153</td><td>0</td><td>$0</td><td>0%</td></tr>
+            <tr><td>Southern Lights</td><td>MN</td><td>29</td><td>$19,865</td><td>0</td><td>$0</td><td>0%</td></tr>
+            <tr><td>Superlite Lighting</td><td>MB</td><td>3</td><td>$18,522</td><td>0</td><td>$0</td><td>0%</td></tr>
+            <tr><td>Fort Worth Lighting</td><td>TX</td><td>31</td><td>$17,758</td><td>0</td><td>$0</td><td>0%</td></tr>
+            <tr><td>Metro Lighting</td><td>MO</td><td>15</td><td>$17,364</td><td>0</td><td>$0</td><td>0%</td></tr>
+            <tr><td>We Got Lites, Inc.</td><td>NY</td><td>28</td><td>$15,574</td><td>0</td><td>$0</td><td>0%</td></tr>
+          </tbody>
+        </table>
+      </details>
+      <div class="what-this-means"><strong>Action:</strong> Your Arizona and Texas accounts already run nearly all their business through eCat ($202K and $226K in eCat orders), while high-volume accounts like Light Source Lighting (28 orders, $25,119) and Fort Worth Lighting (31 orders) order entirely off-app. Getting your top three zero-penetration accounts onboarded onto eCat would convert proven, repeat all-channel demand into trackable digital orders with no new customer acquisition required.</div>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Geographic Revenue Trends</div>
+      <div class="callout insight">
+        <div class="callout-title">Geographic Revenue Shifts</div>
+        <p>North Carolina grew 112% quarter-over-quarter ($17,421&rarr;$36,910) and Ontario grew 162% ($6,283&rarr;$16,457), while Missouri contracted 81% ($36,750&rarr;$6,986) and Arizona fell 79% ($78,111&rarr;$16,668). Your reps added net new customers in growing states like California (+7) and Florida (+4) &mdash; market share being won in real time.</p>
+      </div>
+      <table>
+        <thead>
+          <tr><th>State</th><th>Current Quarter</th><th>Prior Quarter</th><th>QoQ Change</th><th>Customers</th></tr>
+        </thead>
+        <tbody>
+          <tr class="row-highlight"><td><strong>FL</strong></td><td>$77,939</td><td>$104,141</td><td><span class="badge danger">&minus;25.2%</span></td><td>43 (+4)</td></tr>
+          <tr class="row-highlight"><td><strong>TX</strong></td><td>$74,191</td><td>$135,466</td><td><span class="badge danger">&minus;45.2%</span></td><td>40 (0)</td></tr>
+          <tr class="row-highlight"><td><strong>CA</strong></td><td>$52,209</td><td>$53,130</td><td><span class="badge warn">&minus;1.7%</span></td><td>27 (+7)</td></tr>
+          <tr class="row-highlight"><td><strong>NC</strong></td><td>$36,910</td><td>$17,421</td><td><span class="badge ok">+111.9%</span></td><td>21 (+2)</td></tr>
+          <tr class="row-highlight"><td><strong>GA</strong></td><td>$27,760</td><td>$37,049</td><td><span class="badge danger">&minus;25.1%</span></td><td>14 (+3)</td></tr>
+          <tr><td>AZ</td><td>$16,668</td><td>$78,111</td><td><span class="badge danger">&minus;78.7%</span></td><td>10 (+2)</td></tr>
+          <tr><td>ON</td><td>$16,457</td><td>$6,283</td><td><span class="badge ok">+161.9%</span></td><td>6 (+1)</td></tr>
+          <tr><td>CO</td><td>$14,186</td><td>$17,830</td><td><span class="badge danger">&minus;20.4%</span></td><td>11 (&minus;1)</td></tr>
+          <tr><td>LA</td><td>$13,775</td><td>$13,559</td><td><span class="badge ok">+1.6%</span></td><td>8 (+3)</td></tr>
+          <tr><td>OH</td><td>$12,912</td><td>$8,334</td><td><span class="badge ok">+54.9%</span></td><td>7 (0)</td></tr>
+        </tbody>
+      </table>
+      <details>
+        <summary>More states &#9662;</summary>
+        <table>
+          <thead>
+            <tr><th>State</th><th>Current Quarter</th><th>Prior Quarter</th><th>QoQ Change</th><th>Customers</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>VA</td><td>$12,226</td><td>$14,772</td><td><span class="badge danger">&minus;17.2%</span></td><td>10 (0)</td></tr>
+            <tr><td>NY</td><td>$11,842</td><td>$18,075</td><td><span class="badge danger">&minus;34.5%</span></td><td>12 (+4)</td></tr>
+            <tr><td>IL</td><td>$11,556</td><td>$7,553</td><td><span class="badge ok">+53.0%</span></td><td>9 (+1)</td></tr>
+            <tr><td>PA</td><td>$11,542</td><td>$10,703</td><td><span class="badge ok">+7.8%</span></td><td>9 (0)</td></tr>
+            <tr><td>TN</td><td>$10,710</td><td>$11,577</td><td><span class="badge warn">&minus;7.5%</span></td><td>9 (+3)</td></tr>
+            <tr><td>MN</td><td>$8,565</td><td>$17,818</td><td><span class="badge danger">&minus;51.9%</span></td><td>10 (+3)</td></tr>
+            <tr><td>WI</td><td>$8,307</td><td>$5,896</td><td><span class="badge ok">+40.9%</span></td><td>7 (0)</td></tr>
+            <tr><td>MO</td><td>$6,986</td><td>$36,750</td><td><span class="badge danger">&minus;81.0%</span></td><td>8 (&minus;4)</td></tr>
+            <tr><td>KS</td><td>$6,465</td><td>$14,532</td><td><span class="badge danger">&minus;55.5%</span></td><td>6 (+3)</td></tr>
+            <tr><td>AB</td><td>$5,371</td><td>$10,334</td><td><span class="badge danger">&minus;48.0%</span></td><td>2 (0)</td></tr>
+          </tbody>
+        </table>
+      </details>
+      <div class="what-this-means"><strong>Action:</strong> North Carolina and Ontario are winning momentum (+112% and +162% QoQ) and deserve doubled-down rep coverage, while Missouri lost both revenue and four customers (&minus;81% QoQ) and warrants investigation into whether a key account left or a competitor moved in. Arizona's 79% drop is the most urgent flag given it held $202K in eCat orders earlier in the year &mdash; check whether your two largest AZ accounts (Valley Light Gallery, Sun Lighting) going quiet explains the swing.</div>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Buyer-Within-Account Intelligence</div>
+      <div class="callout insight">
+        <div class="callout-title">New Decision-Maker Detection</div>
+        <p>20 of your accounts show a new buyer placing orders in the last 90 days. The highest-impact: Serenhaus Studio added a new contact who placed $12,182 in their first engagement.</p>
+      </div>
+      <table>
+        <thead>
+          <tr><th>Account</th><th>New Buyers</th><th>Existing Buyers</th><th>New Buyer Orders</th><th>New Buyer Revenue</th></tr>
+        </thead>
+        <tbody>
+          <tr class="row-highlight"><td><strong>Serenhaus Studio</strong></td><td>1</td><td>0</td><td>1</td><td>$12,182</td></tr>
+          <tr class="row-highlight"><td><strong>Environs Residential Design and Construction LLC</strong></td><td>1</td><td>0</td><td>1</td><td>$10,294</td></tr>
+          <tr class="row-highlight"><td><strong>Matchez International dba Parkyn Design</strong></td><td>1</td><td>0</td><td>2</td><td>$7,432</td></tr>
+          <tr class="row-highlight"><td><strong>Ferguson &mdash; Lincoln NE</strong></td><td>1</td><td>0</td><td>2</td><td>$6,863</td></tr>
+          <tr class="row-highlight"><td><strong>Lighting Instyle</strong></td><td>1</td><td>0</td><td>1</td><td>$6,123</td></tr>
+        </tbody>
+      </table>
+      <details>
+        <summary>More accounts with new buyers &#9662;</summary>
+        <table>
+          <thead>
+            <tr><th>Account</th><th>New Buyers</th><th>Existing Buyers</th><th>New Buyer Orders</th><th>New Buyer Revenue</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Lando Lighting</td><td>1</td><td>0</td><td>1</td><td>$5,760</td></tr>
+            <tr><td>Light Bulbs Unlimited - Naples</td><td>1</td><td>0</td><td>3</td><td>$5,637</td></tr>
+            <tr><td>Crest Lighting : Paramont EO - New Lenox</td><td>1</td><td>0</td><td>3</td><td>$5,362</td></tr>
+            <tr><td>Village Lighting and Supply, Inc.</td><td>1</td><td>0</td><td>2</td><td>$5,308</td></tr>
+            <tr><td>FanCo</td><td>1</td><td>0</td><td>1</td><td>$4,747</td></tr>
+            <tr><td>Starlight Lighting Centre</td><td>1</td><td>0</td><td>1</td><td>$4,619</td></tr>
+            <tr><td>Light Gallery Plus</td><td>1</td><td>0</td><td>1</td><td>$4,347</td></tr>
+            <tr><td>Light Bulbs Unlimited</td><td>1</td><td>0</td><td>1</td><td>$4,229</td></tr>
+            <tr><td>Wasatch Lighting</td><td>1</td><td>0</td><td>2</td><td>$4,201</td></tr>
+            <tr><td>L Davis Design</td><td>1</td><td>0</td><td>1</td><td>$3,985</td></tr>
+          </tbody>
+        </table>
+      </details>
+      <div class="what-this-means"><strong>Action:</strong> Twenty accounts have a brand-new name placing orders &mdash; have the assigned reps personally welcome the top five (starting with Serenhaus Studio's $12,182 first order and Environs Residential's $10,294) while vendor preferences are still forming. A new buyer is the clearest signal that a relationship is either expanding or changing hands, and early relationship-building is the highest-ROI move available.</div>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Unactivated High-Value Accounts</div>
+      <table>
+        <thead>
+          <tr><th>Customer</th><th>State</th><th>Total Business GMV (LTM)</th><th>Total Orders</th><th>eCat Orders</th></tr>
+        </thead>
+        <tbody>
+          <tr class="row-highlight"><td><strong>Light Source Lighting</strong></td><td>IL</td><td>$25,119</td><td>28</td><td>0</td></tr>
+          <tr class="row-highlight"><td><strong>Ferguson &mdash; Grand Prairie</strong></td><td>TX</td><td>$23,153</td><td>19</td><td>0</td></tr>
+          <tr class="row-highlight"><td><strong>Fort Worth Lighting</strong></td><td>TX</td><td>$17,758</td><td>31</td><td>0</td></tr>
+          <tr class="row-highlight"><td><strong>We Got Lites, Inc.</strong></td><td>NY</td><td>$15,574</td><td>28</td><td>0</td></tr>
+          <tr class="row-highlight"><td><strong>Ferguson #452</strong></td><td>&mdash;</td><td>$15,006</td><td>12</td><td>0</td></tr>
+        </tbody>
+      </table>
+      <details>
+        <summary>More unactivated accounts &#9662;</summary>
+        <table>
+          <thead>
+            <tr><th>Customer</th><th>State</th><th>Total Business GMV (LTM)</th><th>Total Orders</th><th>eCat Orders</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Villa Lighting</td><td>MO</td><td>$13,083</td><td>7</td><td>0</td></tr>
+            <tr><td>Serenhaus Studio</td><td>NC</td><td>$11,418</td><td>1</td><td>0</td></tr>
+            <tr><td>Progressive Lighting : TDC</td><td>GA</td><td>$11,373</td><td>9</td><td>0</td></tr>
+            <tr><td>Legacy Lighting, LLC</td><td>GA</td><td>$11,240</td><td>2</td><td>0</td></tr>
+            <tr><td>Danielhouse Studios Inc</td><td>OR</td><td>$10,401</td><td>21</td><td>0</td></tr>
+            <tr><td>Southern Lighting Source</td><td>GA</td><td>$10,297</td><td>4</td><td>0</td></tr>
+            <tr><td>Lighting First</td><td>FL</td><td>$9,072</td><td>9</td><td>0</td></tr>
+            <tr><td>Lighting Star</td><td>CA</td><td>$8,630</td><td>18</td><td>0</td></tr>
+            <tr><td>Urban Lights</td><td>CO</td><td>$8,505</td><td>13</td><td>0</td></tr>
+            <tr><td>Cleveland Lighting One</td><td>OH</td><td>$8,389</td><td>14</td><td>0</td></tr>
+          </tbody>
+        </table>
+      </details>
+      <div class="what-this-means"><strong>Action:</strong> These accounts represent proven, repeat demand flowing entirely through other channels &mdash; Fort Worth Lighting alone placed 31 all-channel orders without a single eCat order. Prioritize onboarding the high-frequency buyers (Fort Worth, Light Source Lighting at 28 orders, Danielhouse at 21) first, since their order cadence shows they'll adopt the app quickly with zero acquisition cost.</div>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Geographic Distribution</div>
+      <table>
+        <thead>
+          <tr><th>State</th><th>Accounts</th><th>eCat Orders</th><th>eCat GMV (LTM)</th><th>% of eCat Total</th></tr>
+        </thead>
+        <tbody>
+          <tr class="row-highlight"><td><strong>TX</strong></td><td>7</td><td>10</td><td>$225,598</td><td>17.4%</td></tr>
+          <tr class="row-highlight"><td><strong>AZ</strong></td><td>4</td><td>9</td><td>$202,360</td><td>15.6%</td></tr>
+          <tr class="row-highlight"><td><strong>FL</strong></td><td>12</td><td>19</td><td>$149,250</td><td>11.5%</td></tr>
+          <tr class="row-highlight"><td><strong>VA</strong></td><td>7</td><td>9</td><td>$106,872</td><td>8.2%</td></tr>
+          <tr class="row-highlight"><td><strong>CA</strong></td><td>8</td><td>10</td><td>$101,109</td><td>7.8%</td></tr>
+        </tbody>
+      </table>
+      <details>
+        <summary>More states &#9662;</summary>
+        <table>
+          <thead>
+            <tr><th>State</th><th>Accounts</th><th>eCat Orders</th><th>eCat GMV (LTM)</th><th>% of eCat Total</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>GA</td><td>5</td><td>5</td><td>$83,206</td><td>6.4%</td></tr>
+            <tr><td>NC</td><td>3</td><td>3</td><td>$23,710</td><td>1.8%</td></tr>
+            <tr><td>PA</td><td>1</td><td>2</td><td>$21,831</td><td>1.7%</td></tr>
+            <tr><td>TN</td><td>1</td><td>1</td><td>$18,946</td><td>1.5%</td></tr>
+            <tr><td>LA</td><td>1</td><td>1</td><td>$16,652</td><td>1.3%</td></tr>
+            <tr><td>MS</td><td>2</td><td>2</td><td>$15,730</td><td>1.2%</td></tr>
+            <tr><td>KS</td><td>1</td><td>2</td><td>$14,354</td><td>1.1%</td></tr>
+            <tr><td>IL</td><td>2</td><td>3</td><td>$14,330</td><td>1.1%</td></tr>
+            <tr><td>ON</td><td>2</td><td>2</td><td>$12,204</td><td>0.9%</td></tr>
+            <tr><td>NJ</td><td>2</td><td>2</td><td>$11,888</td><td>0.9%</td></tr>
+          </tbody>
+        </table>
+      </details>
+      <div class="what-this-means"><strong>Action:</strong> Texas and Arizona together drive a third of your eCat sales ($428K) on just 11 accounts, so the silence from Valley Light Gallery and Sun Lighting (both AZ) is an outsized risk to your most concentrated territory. Diversifying eCat depth into your high-account-count, lower-GMV states like Florida (12 accounts) would reduce dependence on a handful of large Southwest buyers.</div>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Reorder Velocity &amp; Early Warning</div>
+      <table>
+        <thead>
+          <tr><th>Account</th><th>eCat Orders (LTM)</th><th>Avg Interval (days)</th><th>eCat Revenue (LTM)</th></tr>
+        </thead>
+        <tbody>
+          <tr class="row-highlight"><td><strong>Beautiful Things Lighting</strong></td><td>5</td><td>42</td><td>$58,792</td></tr>
+          <tr class="row-highlight"><td><strong>Valley Light Gallery</strong></td><td>4</td><td>37</td><td>$136,962</td></tr>
+          <tr class="row-highlight"><td><strong>Sun Lighting</strong></td><td>3</td><td>6</td><td>$32,209</td></tr>
+          <tr><td>LBX Lighting Inc.</td><td>3</td><td>110</td><td>$149,661</td></tr>
+          <tr><td>Dulles Electric Supply Corp</td><td>3</td><td>104</td><td>$33,254</td></tr>
+        </tbody>
+      </table>
+      <div class="callout alert">
+        <div class="callout-title">Deceleration Alert</div>
+        <table>
+          <thead>
+            <tr><th>Account</th><th>Historical Avg</th><th>Recent Avg</th><th>Deceleration</th><th>Annual Value</th></tr>
+          </thead>
+          <tbody>
+            <tr class="row-highlight"><td><strong>Southern Lights</strong></td><td>9 days</td><td>21 days</td><td><span class="badge danger">2.3x</span></td><td>$19,865</td></tr>
+            <tr class="row-highlight"><td><strong>Progressive Lighting : TDC</strong></td><td>20 days</td><td>47 days</td><td><span class="badge danger">2.4x</span></td><td>$11,373</td></tr>
+            <tr class="row-highlight"><td><strong>Danielhouse Studios Inc</strong></td><td>12 days</td><td>23 days</td><td><span class="badge warn">2.0x</span></td><td>$10,401</td></tr>
+            <tr class="row-highlight"><td><strong>LED Capstone Inc</strong></td><td>18 days</td><td>53 days</td><td><span class="badge danger">3.0x</span></td><td>$9,003</td></tr>
+            <tr class="row-highlight"><td><strong>Lighting Star</strong></td><td>13 days</td><td>41 days</td><td><span class="badge danger">3.0x</span></td><td>$8,630</td></tr>
+          </tbody>
+        </table>
+        <details>
+          <summary>More decelerating accounts &#9662;</summary>
+          <table>
+            <thead>
+              <tr><th>Account</th><th>Historical Avg</th><th>Recent Avg</th><th>Deceleration</th><th>Annual Value</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Cleveland Lighting One</td><td>11 days</td><td>44 days</td><td><span class="badge danger">4.1x</span></td><td>$8,389</td></tr>
+              <tr><td>Lighting World Decorator</td><td>16 days</td><td>49 days</td><td><span class="badge danger">3.0x</span></td><td>$8,272</td></tr>
+              <tr><td>Wilson Lighting - Overland Park KS</td><td>42 days</td><td>63 days</td><td><span class="badge warn">1.5x</span></td><td>$6,975</td></tr>
+              <tr><td>Focal Point Hardware</td><td>13 days</td><td>30 days</td><td><span class="badge danger">2.3x</span></td><td>$6,952</td></tr>
+              <tr><td>Lighting Etc</td><td>14 days</td><td>80 days</td><td><span class="badge danger">5.6x</span></td><td>$6,548</td></tr>
+              <tr><td>Capital Lighting &amp; Supply, LLC</td><td>37 days</td><td>100 days</td><td><span class="badge danger">2.7x</span></td><td>$6,102</td></tr>
+              <tr><td>Lighting Design Company</td><td>28 days</td><td>78 days</td><td><span class="badge danger">2.8x</span></td><td>$5,606</td></tr>
+              <tr><td>Progressive Lighting : RDC Lee Lighting</td><td>26 days</td><td>42 days</td><td><span class="badge warn">1.6x</span></td><td>$5,550</td></tr>
+              <tr><td>Rensen House of Lights</td><td>25 days</td><td>60 days</td><td><span class="badge danger">2.4x</span></td><td>$5,138</td></tr>
+              <tr><td>1800Lighting - Capitol Lighting (Boca Raton FL)</td><td>24 days</td><td>53 days</td><td><span class="badge danger">2.2x</span></td><td>$5,115</td></tr>
+            </tbody>
+          </table>
+        </details>
+        <div class="callout-summary">15 accounts show order frequency stretching beyond 1.5x their historical average. Combined annual value at risk: approximately $123,000.</div>
+      </div>
+      <div class="what-this-means"><strong>Action:</strong> These 15 accounts are ordering far less frequently than their established pattern &mdash; Lighting Etc has stretched from a 14-day to an 80-day cadence (5.6x). If this trend continues, projected at-risk revenue is approximately $123,000 annually. Proactive outreach to understand the cause &mdash; whether seasonal, competitive, or operational &mdash; is the highest-leverage retention action for your team right now.</div>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Dormant High-Value Accounts</div>
+      <table>
+        <thead>
+          <tr><th>Customer</th><th>State</th><th>Last Order</th><th>Historical eCat GMV</th><th>Silence vs Normal</th></tr>
+        </thead>
+        <tbody>
+          <tr class="row-highlight"><td><strong>LBX Lighting Inc.</strong></td><td>TX</td><td>2026-01-26</td><td>$149,661</td><td>141 days &mdash; 1.3x normal</td></tr>
+          <tr class="row-highlight"><td><strong>Valley Light Gallery</strong></td><td>AZ</td><td>2026-01-12</td><td>$136,962</td><td>155 days &mdash; 4.2x normal</td></tr>
+          <tr class="row-highlight"><td><strong>Beautiful Things Lighting</strong></td><td>FL</td><td>2026-03-05</td><td>$58,792</td><td>104 days &mdash; 2.5x normal</td></tr>
+          <tr class="row-highlight"><td><strong>PDI</strong></td><td>GA</td><td>2026-01-11</td><td>$37,768</td><td>156 days silent</td></tr>
+          <tr class="row-highlight"><td><strong>Ferguson Enterprises</strong></td><td>VA</td><td>2026-02-03</td><td>$35,849</td><td>134 days silent</td></tr>
+        </tbody>
+      </table>
+      <details>
+        <summary>More dormant high-value accounts &#9662;</summary>
+        <table>
+          <thead>
+            <tr><th>Customer</th><th>State</th><th>Last Order</th><th>Historical eCat GMV</th><th>Silence vs Normal</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Dulles Electric Supply Corp</td><td>VA</td><td>2026-01-12</td><td>$33,254</td><td>155 days &mdash; 1.5x normal</td></tr>
+            <tr><td>Sun Lighting</td><td>AZ</td><td>2026-01-23</td><td>$32,209</td><td>144 days silent</td></tr>
+            <tr><td>Lighting Instyle</td><td>CA</td><td>2026-01-15</td><td>$25,241</td><td>153 days silent</td></tr>
+            <tr><td>Premier Lighting</td><td>AZ</td><td>2026-01-10</td><td>$24,803</td><td>157 days silent</td></tr>
+            <tr><td>City Lights</td><td>CA</td><td>2026-03-03</td><td>$23,884</td><td>105 days silent</td></tr>
+            <tr><td>Home Lighting</td><td>PA</td><td>2026-02-02</td><td>$21,831</td><td>135 days silent</td></tr>
+            <tr><td>Ellen Lighting and Hardware</td><td>TX</td><td>2026-01-13</td><td>$20,404</td><td>154 days silent</td></tr>
+            <tr><td>Light Bulbs Unlimited</td><td>FL</td><td>2026-03-17</td><td>$19,983</td><td>92 days silent</td></tr>
+            <tr><td>Brookes On Main</td><td>TN</td><td>2026-01-12</td><td>$18,946</td><td>156 days silent</td></tr>
+            <tr><td>La Campana Store</td><td>TX</td><td>2026-01-10</td><td>$17,581</td><td>157 days silent</td></tr>
+          </tbody>
+        </table>
+      </details>
+      <div class="what-this-means"><strong>Action:</strong> Your two largest eCat relationships &mdash; LBX Lighting ($149,661) and Valley Light Gallery ($136,962) &mdash; have both gone silent for over 140 days, and Valley is at 4.2x its normal cadence. Have their reps make personal contact this week; recovering even these two accounts protects roughly $287,000 in proven annual eCat demand, and the cluster of January-quiet Arizona and Texas accounts suggests a territory-wide pattern worth investigating.</div>
+    </div>
+
+    <details class="subsection collapsed">
+      <summary class="subsection-title">Spending Contraction Detection &#9662;</summary>
+      <div class="callout insight">
+        <div class="callout-title">Spending Contraction: Accounts Below Their Peak</div>
+        <p>20 accounts are spending below their historical peak. The combined gap between current and peak spend represents approximately $819,000 in demonstrated capacity that has not been recaptured.</p>
+      </div>
+      <p class="prose">We compare each account's trailing-12-month spend to their own historical peak &mdash; the highest rolling 12-month total in their order history. This surfaces accounts with a demonstrated spending capacity that has contracted. These are accounts that have spent more in the past, making re-engagement a recovery conversation rather than a cold growth pitch.</p>
+      <table>
+        <thead>
+          <tr><th>Account</th><th>State</th><th>Current Annual Spend</th><th>Historical Peak</th><th>Contraction</th><th>Current vs Peak</th></tr>
+        </thead>
+        <tbody>
+          <tr class="row-highlight"><td><strong>Varaluz LLC</strong></td><td>&mdash;</td><td>$4,024</td><td>$131,263</td><td><span class="badge warn">$127,238</span></td><td>3% of peak</td></tr>
+          <tr class="row-highlight"><td><strong>Colonial Electric Supply Company, Inc</strong></td><td>PA</td><td>$5,406</td><td>$82,205</td><td><span class="badge warn">$76,799</span></td><td>7% of peak</td></tr>
+          <tr class="row-highlight"><td><strong>Southern Lighting Source</strong></td><td>GA</td><td>$10,297</td><td>$65,615</td><td><span class="badge warn">$55,318</span></td><td>16% of peak</td></tr>
+          <tr class="row-highlight"><td><strong>Lando Lighting</strong></td><td>ON</td><td>$5,760</td><td>$55,644</td><td><span class="badge warn">$49,884</span></td><td>10% of peak</td></tr>
+          <tr class="row-highlight"><td><strong>Progressive Lighting : TDC</strong></td><td>TX</td><td>$12,208</td><td>$57,915</td><td><span class="badge warn">$45,707</span></td><td>21% of peak</td></tr>
+          <tr class="row-highlight"><td><strong>Ferguson &mdash; Knoxville TN</strong></td><td>TN</td><td>$3,569</td><td>$44,504</td><td><span class="badge warn">$40,935</span></td><td>8% of peak</td></tr>
+          <tr class="row-highlight"><td><strong>Ethan and Associates</strong></td><td>TX</td><td>$6,732</td><td>$47,564</td><td><span class="badge warn">$40,833</span></td><td>14% of peak</td></tr>
+          <tr class="row-highlight"><td><strong>Illuminations</strong></td><td>OK</td><td>$2,183</td><td>$39,434</td><td><span class="badge warn">$37,251</span></td><td>6% of peak</td></tr>
+        </tbody>
+      </table>
+      <details>
+        <summary>More contracting accounts &#9662;</summary>
+        <table>
+          <thead>
+            <tr><th>Account</th><th>State</th><th>Current Annual Spend</th><th>Historical Peak</th><th>Contraction</th><th>Current vs Peak</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Muska Lighting Center</td><td>MN</td><td>$6,306</td><td>$43,335</td><td><span class="badge warn">$37,029</span></td><td>15% of peak</td></tr>
+            <tr><td>Progressive Lighting</td><td>GA</td><td>$3,469</td><td>$40,462</td><td><span class="badge warn">$36,993</span></td><td>9% of peak</td></tr>
+            <tr><td>Lighting First</td><td>OH</td><td>$12,521</td><td>$45,210</td><td><span class="badge warn">$32,689</span></td><td>28% of peak</td></tr>
+            <tr><td>Ellen Lighting and Hardware</td><td>TX</td><td>$12,989</td><td>$44,518</td><td><span class="badge warn">$31,528</span></td><td>29% of peak</td></tr>
+            <tr><td>Old North State Imports</td><td>TN</td><td>$2,483</td><td>$33,443</td><td><span class="badge warn">$30,960</span></td><td>7% of peak</td></tr>
+            <tr><td>Ferguson &mdash; Tulsa OK</td><td>OK</td><td>$3,937</td><td>$34,273</td><td><span class="badge warn">$30,336</span></td><td>11% of peak</td></tr>
+            <tr><td>Wiseway Supply</td><td>OH</td><td>$4,131</td><td>$33,257</td><td><span class="badge warn">$29,125</span></td><td>12% of peak</td></tr>
+            <tr><td>Cregger Company, Inc</td><td>SC</td><td>$3,032</td><td>$32,136</td><td><span class="badge warn">$29,103</span></td><td>9% of peak</td></tr>
+            <tr><td>Mahlander's</td><td>SD</td><td>$2,706</td><td>$31,789</td><td><span class="badge warn">$29,082</span></td><td>9% of peak</td></tr>
+            <tr><td>Lumen Nation</td><td>VA</td><td>$1,088</td><td>$29,984</td><td><span class="badge warn">$28,896</span></td><td>4% of peak</td></tr>
+            <tr><td>Ferguson &mdash; Brookshire TX</td><td>TX</td><td>$1,390</td><td>$28,004</td><td><span class="badge warn">$26,615</span></td><td>5% of peak</td></tr>
+            <tr><td>Progressive Lighting : RDC Lee Lighting</td><td>NC</td><td>$6,780</td><td>$33,300</td><td><span class="badge warn">$26,519</span></td><td>20% of peak</td></tr>
+          </tbody>
+        </table>
+      </details>
+      <div class="callout insight">
+        <div class="callout-title">Decline Investigation: Southern Lighting Source</div>
+        <p><strong>The pattern:</strong> $65,615 historical peak &rarr; $10,297 current (84% decline, $55,318 in lost annual volume)</p>
+        <p><strong>Hypotheses:</strong></p>
+        <ol>
+          <li>The account may have consolidated vendors or shifted this category to direct-import sourcing.</li>
+          <li>A competitor may have captured the relationship with better pricing or service terms.</li>
+          <li>As a Georgia reseller, they may have lost a key downstream project or exited a market segment, reducing their reorder volume.</li>
+        </ol>
+        <p><strong>Next step:</strong> The rep assigned to Southern Lighting Source should ask directly &mdash; an 84% drop from a demonstrated $65K peak is almost never accidental, and the cause determines whether this is a winnable recovery.</p>
+      </div>
+      <div class="what-this-means"><strong>Action:</strong> These accounts have proven they can buy at their peak amount and something changed &mdash; Colonial Electric Supply collapsed from $82,205 to $5,406 (7% of peak). The rep conversation here isn't "you should spend more," it's "you used to spend $82K, what changed?" &mdash; a fundamentally more productive recovery dialogue, and the $819,000 combined gap is the single largest re-engagement pool in this section.</div>
+    </details>
+
+    <div class="what-this-means" style="margin-top:20px;">
+      <strong>Action:</strong> Your two largest eCat accounts, LBX Lighting ($149,661) and Valley Light Gallery ($136,962), have both gone quiet for over 140 days &mdash; reclaiming them is the single highest-value retention move available and protects roughly $287,000 in proven annual demand. Pair that with onboarding your highest-frequency off-app buyers (Fort Worth Lighting at 31 orders, Light Source Lighting at 28) to convert proven all-channel demand into trackable eCat volume. Adding CRM contact data would let us tell you who within each account placed these orders and who went silent &mdash; turning account-level alerts into person-level outreach.
+    </div>
+
+  </div>
+</details>
+
+
+<details class="section-collapse" id="commerce">
+  <summary>
+    <div class="section-title">Commerce Patterns</div>
+    <div class="section-sub">$1.3M eCat sales LTM &middot; eCat carries 93.6% of total-business GMV &middot; channel, quote and pricing analysis</div>
+    <div class="section-contents">Order channel mix, eCat footprint, eCat order trend, top buyers, order type, quote economics, new buyer acquisition, pricing trends</div>
+    <span class="expand-hint">Expand section</span>
+  </summary>
+  <div class="section">
+
+    <div class="data-confidence">
+      <span class="data-confidence-label">Strong View</span>
+      <span class="data-confidence-action">Commerce analysis draws from eCat order data, all-channel invoices synced from your systems, and quote activity. Your order feed doesn&rsquo;t yet tag how non-eCat orders were placed, so channel-mix detail is limited.</span>
+    </div><div class="subsection">
+      <div class="subsection-title">Order Channel Mix</div>
+      <p class="prose">Your order feed doesn&rsquo;t yet break out how each order is placed, so we&rsquo;re showing eCat ordering on its own below. The orders that don&rsquo;t come through eCat run through your reps and back office &mdash; and, for many distributors, their own web or B2B channels &mdash; but this feed can&rsquo;t separate them yet. Connecting richer order-origin data would let us show your full channel mix and position eCat precisely within it.</p>
+      <div class="what-this-means">
+        <strong>Action:</strong> eCat is already your dominant channel &mdash; it carries $1.3M of your $1.4M in total-business GMV over the trailing 12 months. The remaining rep- and back-office-entered volume (roughly $89K LTM) is the digital-enablement opportunity: moving those orders into eCat or your own web removes hand-keying and errors. Adding order-origin tagging to your feed would let us pinpoint exactly which orders to target.
+      </div>
+    </div><div class="subsection">
+      <div class="subsection-title">eCat Footprint</div>
+      <div class="metrics">
+        <div class="metric">
+          <div class="metric-label">Orders Placed Through eCat</div>
+          <div class="metric-value">$1.3M</div>
+          <div class="metric-note">Trailing 12 months &middot; 116 orders</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Of Total-Business GMV</div>
+          <div class="metric-value">93.6%</div>
+          <div class="metric-note">eCat is your primary transaction system</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">All-Channel Total Business</div>
+          <div class="metric-value">$1.4M</div>
+          <div class="metric-note">Trailing 12 months</div>
+        </div>
+      </div>
+      <div class="what-this-means">
+        <strong>Action:</strong> eCat isn&rsquo;t a side channel for you &mdash; it already handles 93.6% of your total-business dollars, concentrated in rep-assisted iPad orders. The opportunity isn&rsquo;t a bigger eCat number for its own sake; it&rsquo;s the small remaining slice (about $89K LTM) still entered by reps or the back office that eCat or your own web could absorb, cutting entry time and errors. eCat&rsquo;s strength is visual, rep-assisted and field selling &mdash; keep it as the front door for those orders.
+      </div>
+    </div><div class="subsection">
+      <div class="subsection-title">eCat Order Trend</div>
+      <table>
+        <thead>
+          <tr><th>Period</th><th>eCat Orders</th><th>eCat GMV</th><th>Avg Order Value</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Q3 2025 (Jul&ndash;Sep)</td><td>6</td><td>$37,609</td><td>$6,268</td></tr>
+          <tr><td>Q4 2025 (Oct&ndash;Dec)</td><td>6</td><td>$45,375</td><td>$7,562</td></tr>
+          <tr class="row-highlight"><td><strong>Q1 2026 (Jan&ndash;Mar)</strong></td><td>81</td><td>$1,042,325</td><td>$12,868</td></tr>
+          <tr><td>Q2 2026 (Apr&ndash;Jun, partial)</td><td>9</td><td>$53,689</td><td>$5,965</td></tr>
+        </tbody>
+      </table>
+      <div class="what-this-means">
+        <strong>Action:</strong> Q1 2026 was a step-change &mdash; 81 eCat orders and $1.04M, driven by a January surge of 55 orders ($784K) as accounts ordered against new collections. The Q2 figure is a partial quarter (April&ndash;June, with June barely started), so the drop reflects data truncation, not falling demand. The pattern is concentrated rather than steady: protect it by making sure new-collection launches keep landing in eCat where reps already place these large project orders.
+      </div>
+    </div><div class="subsection">
+      <div class="subsection-title">Top Buyers &amp; Concentration</div>
+      <div class="callout insight">
+        <div class="callout-title">Revenue Concentration</div>
+        <p>Your top 5 eCat buyers account for 64% of eCat GMV ($419,032 of approximately $655K across named buyers). LBX Lighting and Valley Light Gallery alone are 44% &mdash; a strong-relationships story, but one that leaves you exposed if either pulls back.</p>
+      </div>
+      <table>
+        <thead>
+          <tr><th>Customer</th><th>Orders</th><th>GMV</th><th>% of eCat GMV</th><th>Total Business</th><th>eCat Share</th></tr>
+        </thead>
+        <tbody>
+          <tr class="row-highlight"><td><strong>LBX Lighting Inc.</strong></td><td>3</td><td>$149,661</td><td>22.9%</td><td>&mdash;</td><td>&mdash;</td></tr>
+          <tr class="row-highlight"><td><strong>Valley Light Gallery</strong></td><td>4</td><td>$136,962</td><td>20.9%</td><td>&mdash;</td><td>&mdash;</td></tr>
+          <tr class="row-highlight"><td><strong>Beautiful Things Lighting</strong></td><td>5</td><td>$58,792</td><td>9.0%</td><td>$9,408</td><td>eCat-led</td></tr>
+          <tr class="row-highlight"><td><strong>PDI</strong></td><td>1</td><td>$37,768</td><td>5.8%</td><td>&mdash;</td><td>&mdash;</td></tr>
+          <tr class="row-highlight"><td><strong>Ferguson Enterprises</strong></td><td>1</td><td>$35,849</td><td>5.5%</td><td>&mdash;</td><td>&mdash;</td></tr>
+          <tr><td>Dulles Electric Supply Corp</td><td>3</td><td>$33,254</td><td>5.1%</td><td>&mdash;</td><td>&mdash;</td></tr>
+          <tr><td>Sun Lighting</td><td>3</td><td>$32,209</td><td>4.9%</td><td>&mdash;</td><td>&mdash;</td></tr>
+          <tr><td>Lighting Instyle</td><td>1</td><td>$25,241</td><td>3.9%</td><td>$9,126</td><td>eCat-led</td></tr>
+          <tr><td>Premier Lighting</td><td>1</td><td>$24,803</td><td>3.8%</td><td>&mdash;</td><td>&mdash;</td></tr>
+          <tr><td>City Lights</td><td>2</td><td>$23,884</td><td>3.6%</td><td>&mdash;</td><td>&mdash;</td></tr>
+        </tbody>
+      </table>
+      <div class="what-this-means">
+        <strong>Action:</strong> With 44% of eCat GMV in LBX Lighting and Valley Light Gallery, your eCat revenue is key-account dependent &mdash; broadening the base of mid-tier buyers ordering digitally is the way to de-risk it. For the accounts where we can match total business (Beautiful Things, Lighting Instyle), nearly all of their recorded business already flows through eCat, confirming these are deeply digital relationships. (Total-business figures match only on accounts whose all-channel records align in the feed; blanks reflect feed coverage, not zero spend.)
+      </div>
+    </div><div class="subsection">
+      <div class="subsection-title">Order Type &amp; Workflow</div>
+      <div class="callout insight">
+        <div class="callout-title">Quote Premium</div>
+        <p>Your quote orders average $10,901 &mdash; 1.4x the standard confirmed order value ($7,900). Quotes are your highest-value entry point, which makes quote follow-up your highest-leverage volume opportunity.</p>
+      </div>
+      <details>
+        <summary>View order type breakdown</summary>
+        <table>
+          <thead>
+            <tr><th>Order Type</th><th>Orders</th><th>Share</th><th>Avg Order Value</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Wish List</td><td>59</td><td>50.9%</td><td>$13,849</td></tr>
+            <tr><td>Confirmed</td><td>47</td><td>40.5%</td><td>$7,900</td></tr>
+            <tr><td>Quote</td><td>10</td><td>8.6%</td><td>$10,901</td></tr>
+          </tbody>
+        </table>
+      </details>
+      <div class="what-this-means">
+        <strong>Action:</strong> The 1.4x AOV premium on quotes means each converted quote is worth nearly one-and-a-half standard orders &mdash; and the even larger Wish List orders ($13,849 avg) show your reps are building big project carts in eCat before they firm up. If even two more of your ten quotes converted, that&rsquo;s an estimated $22K in added eCat GMV. Route rep follow-up to the open quotes and the largest Wish List carts first.
+      </div>
+    </div><div class="subsection">
+      <div class="subsection-title">Quote Economics</div>
+      <div class="metrics">
+        <div class="metric">
+          <div class="metric-label">Avg Quote Value</div>
+          <div class="metric-value">$10,901</div>
+          <div class="metric-note">10 quotes, trailing 12 months</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Avg Confirmed Order Value</div>
+          <div class="metric-value">$7,900</div>
+          <div class="metric-note">47 orders, trailing 12 months</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">AOV Spread</div>
+          <div class="metric-value">$3,001</div>
+          <div class="metric-note">Quotes higher than confirmed</div>
+        </div>
+      </div>
+      <p class="prose">If quote-to-confirmed conversion improved by 10 percentage points, that&rsquo;s an estimated $11K in incremental annual revenue.</p>
+      <div class="what-this-means">
+        <strong>Action:</strong> Your quotes run $3,001 higher than confirmed orders, which means your largest opportunities are the ones most likely to sit unconfirmed. Focus rep follow-up on the open quotes above $10K &mdash; these are the top of your pipeline. Treat the projection above as directional, not a commitment.
+      </div>
+    </div><div class="subsection">
+      <div class="subsection-title">New Buyer Acquisition &amp; Growth</div>
+      <div class="metrics">
+        <div class="metric">
+          <div class="metric-label">Avg New Buyers / Month</div>
+          <div class="metric-value">2.7</div>
+          <div class="metric-note">Across 10 active months (LTM)</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Acquisition Channel</div>
+          <div class="metric-value">100% iPad</div>
+          <div class="metric-note">All first orders rep-acquired</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Peak Month</div>
+          <div class="metric-value">10 buyers</div>
+          <div class="metric-note">January 2026</div>
+        </div>
+      </div>
+      <table>
+        <thead>
+          <tr><th>Month</th><th>New eCat Buyers</th><th>Acquisition Channel</th></tr>
+        </thead>
+        <tbody>
+          <tr class="row-highlight"><td><strong>January 2026</strong></td><td>10</td><td>Rep-acquired (iPad)</td></tr>
+          <tr><td>March 2026</td><td>4</td><td>Rep-acquired (iPad)</td></tr>
+          <tr><td>June 2025</td><td>3</td><td>Rep-acquired (iPad)</td></tr>
+          <tr><td>February 2026</td><td>3</td><td>Rep-acquired (iPad)</td></tr>
+          <tr><td>August 2025</td><td>2</td><td>Rep-acquired (iPad)</td></tr>
+        </tbody>
+      </table>
+      <div class="what-this-means">
+        <strong>Action:</strong> Every new eCat buyer this year came through a rep on iPad, peaking with 10 first-time buyers in January 2026 alongside your Q1 order surge &mdash; your reps are the engine that gets accounts onto digital ordering. Outside that January push the run rate is thin (1&ndash;4 a month), so the question is whether you&rsquo;re onboarding enough new accounts each month. Account-level first-order trajectories would let us name which new buyers are growing fastest &mdash; request customer-level first-order detail for the next cycle.
+      </div>
+    </div><div class="subsection">
+      <div class="subsection-title">Product Mix &amp; Pricing Trends</div>
+      <div class="callout insight">
+        <div class="callout-title">Product Mix Shift</div>
+        <p>3 accounts show declining average unit prices quarter-over-quarter &mdash; combined current-quarter business: $11,823. This may indicate a shift toward lower-priced product tiers, changing buyer mix, or competitive pressure.</p>
+      </div>
+      <table>
+        <thead>
+          <tr><th>Account</th><th>Prior Avg Price</th><th>Current Avg Price</th><th>Change</th><th>Current Quarter GMV</th><th>Orders</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Southern Lights</td><td>$726</td><td>$400</td><td><span class="badge danger">&minus;44.9%</span></td><td>$2,912</td><td>5</td></tr>
+          <tr><td>Fort Worth Lighting</td><td>$438</td><td>$330</td><td><span class="badge danger">&minus;24.8%</span></td><td>$5,729</td><td>7</td></tr>
+          <tr><td>Valley Light Gallery</td><td>$764</td><td>$581</td><td><span class="badge danger">&minus;24.0%</span></td><td>$3,182</td><td>5</td></tr>
+        </tbody>
+      </table>
+      <div class="callout insight">
+        <div class="callout-title">Investigative Context</div>
+        <p>Declining unit prices may reflect several dynamics: competitive pricing pressure driving discount requests, a natural shift toward lower-priced product tiers, changing buyer mix within an account, or seasonal promotional activity. These patterns warrant individual account review &mdash; they are signals to investigate, not conclusions to act on.</p>
+      </div>
+      <div class="what-this-means">
+        <strong>Action:</strong> Valley Light Gallery is the one to look at first &mdash; it&rsquo;s a top-2 eCat buyer ($136,962 LTM) yet its current-quarter average unit price fell 24%, suggesting the mix it&rsquo;s ordering is shifting even as the relationship stays active. This could reflect a move to lower-priced tiers or a discount conversation, not a lost account. A focused product-mix review with these three accounts would show whether to defend price or lean into the higher-volume, lower-price items they&rsquo;re choosing.
+      </div>
+    </div>
+
+    <div class="what-this-means">
+      <strong>Action:</strong> eCat is already the backbone of your commerce &mdash; 93.6% of your $1.4M total-business GMV flows through it, led by high-value rep-assisted project orders, with the top 5 buyers holding 64% of eCat GMV. The growth lever isn&rsquo;t a bigger eCat share; it&rsquo;s converting more of your $10,901-average quotes and broadening the digital buyer base beyond LBX and Valley Light Gallery. Adding order-origin tagging to your feed would let us map the full channel mix and target the remaining rep- and back-office-entered orders precisely.
+    </div>
+
+    <div class="callout note" style="margin-top:16px;">
+      <div class="callout-title">With Connected Data</div>
+      Connecting order-origin detail to your order feed would let us separate eCat, your own web, EDI, and rep- or back-office-entered orders &mdash; turning today&rsquo;s eCat-only view into a full channel-mix map and showing exactly where digital enablement adds the most value.
+    </div>
+
+  </div>
+</details>
+
+
+<details class="section-collapse" id="product">
+  <summary>
+    <div class="section-title">Product Intelligence</div>
+    <div class="section-sub">814 catalog products &middot; $3.2M LTM product sales &middot; top-seller supply gaps, new item adoption, stock-out impact</div>
+    <div class="section-contents">Top sellers &amp; inventory position &middot; category &amp; collection breakdown &middot; catalog completeness &middot; new introduction adoption &middot; fill rate &amp; revenue impact &middot; stock-out impact board</div>
+    <span class="expand-hint">Expand section</span>
+  </summary>
+  <div class="section">
+
+    <div class="data-confidence">
+      <span class="data-confidence-label">Full Picture</span>
+      Product analysis combines your full catalog (814 products), trailing-12-month order history, and a current inventory feed (refreshed today) &mdash; the complete intersection of what's selling and what's in stock.
+    </div><div class="subsection">
+      <div class="subsection-title">Top Sellers &amp; Inventory Position</div>
+      <div class="sub-label">Your highest-revenue products and their current supply position.</div>
+      <table>
+        <thead>
+          <tr><th>Item</th><th>Category</th><th>LTM Revenue</th><th>Units Sold</th><th>Qty Available</th><th>On Hand</th><th>Backorder</th><th>Next Receipt</th></tr>
+        </thead>
+        <tbody>
+          <tr class="row-highlight"><td><strong>Social Club 25 Light 5-Tier &mdash; Havana Gold (297P25HG)</strong></td><td>CAT3</td><td>$30,355</td><td>12</td><td><span class="badge danger">0</span></td><td>0</td><td>0</td><td>Jul 17, 2026</td></tr>
+          <tr class="row-highlight"><td><strong>Kye 22x40 Rounded Rectangular Wall Mirror &mdash; Gold (4DMI0108)</strong></td><td>CAT11</td><td>$23,748</td><td>104</td><td><span class="badge danger">0</span></td><td>0</td><td>0</td><td>Jun 24, 2026</td></tr>
+          <tr class="row-highlight"><td><strong>Morgan 2 Light Sconce &mdash; Brushed Nickel (376W02BN)</strong></td><td>CAT1</td><td>$21,664</td><td>197</td><td><span class="badge danger">0</span></td><td>0</td><td>0</td><td>Oct 16, 2026</td></tr>
+          <tr class="row-highlight"><td><strong>Matrix 3 Light Pendant &mdash; Havana Gold (309P03HG)</strong></td><td>CAT3</td><td>$19,915</td><td>40</td><td><span class="badge danger">0</span></td><td>0</td><td>0</td><td>Jun 26, 2026</td></tr>
+          <tr class="row-highlight"><td><strong>Estela 5 Light Pendant &mdash; Matte Black/French Gold (380P05MBFG)</strong></td><td>CAT3</td><td>$15,067</td><td>40</td><td><span class="badge danger">0</span></td><td>0</td><td>0</td><td>Jun 29, 2026</td></tr>
+          <tr><td>Kato 6 Light Oval Pendant &mdash; Havana Gold (348N06HG)</td><td>CAT3</td><td>$13,334</td><td>18</td><td><span class="badge danger">0</span></td><td>0</td><td>0</td><td>Jul 31, 2026</td></tr>
+          <tr><td>Social Club 19 Light 4-Tier &mdash; Havana Gold (297P19HG)</td><td>CAT3</td><td>$12,092</td><td>7</td><td><span class="badge danger">0</span></td><td>0</td><td>0</td><td>Jun 26, 2026</td></tr>
+          <tr><td>Blonde Moment 6 Light Pendant &mdash; Matte Black/Honey/Medium Oak (389P06MBHN)</td><td>CAT3</td><td>$11,456</td><td>18</td><td><span class="badge danger">0</span></td><td>0</td><td>0</td><td>Jul 30, 2026</td></tr>
+          <tr><td>Windsor 21 Light 4-Tier Crystal Chandelier &mdash; Carbon/Havana Gold (345C21CBHG)</td><td>CAT2</td><td>$10,797</td><td>2</td><td><span class="badge danger">0</span></td><td>0</td><td>0</td><td>Jul 17, 2026</td></tr>
+          <tr><td>Capsule 22x40 Mirror &mdash; Chrome (434MI22CH)</td><td>CAT11</td><td>$9,975</td><td>45</td><td><span class="badge danger">0</span></td><td>0</td><td>0</td><td>Sep 15, 2026</td></tr>
+        </tbody>
+      </table>
+      <details class="table-collapse">
+        <summary>Remaining top sellers (10 more)</summary>
+        <table>
+          <thead>
+            <tr><th>Item</th><th>Category</th><th>LTM Revenue</th><th>Units Sold</th><th>Qty Available</th><th>Next Receipt</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Cosmos 3 Light Bath &mdash; Havana Gold (370B03HG)</td><td>CAT5</td><td>$8,029</td><td>24</td><td><span class="badge danger">0</span></td><td>Jul 31, 2026</td></tr>
+            <tr><td>Carlton 24x50 Mirror &mdash; Gold (431MI24GO)</td><td>CAT11</td><td>$7,686</td><td>23</td><td><span class="badge danger">0</span></td><td>Jun 15, 2026</td></tr>
+            <tr><td>Park Row 14 Light 2-Tier Chandelier &mdash; Matte Black/French Gold (393C14MBFG)</td><td>CAT2</td><td>$6,984</td><td>5</td><td><span class="badge danger">0</span></td><td>Jul 31, 2026</td></tr>
+            <tr><td>Flow 4 Light Oval Linear Pendant w/Fabric Shade &mdash; Hammered Ore (247N04HO)</td><td>CAT8</td><td>$6,578</td><td>10</td><td><span class="badge danger">0</span></td><td>Jun 22, 2026</td></tr>
+            <tr><td>Scribble 6 Light Linear Pendant &mdash; Matte Black/Artifact (381N06MBAR)</td><td>CAT8</td><td>$5,915</td><td>7</td><td><span class="badge danger">0</span></td><td>Jul 31, 2026</td></tr>
+            <tr><td>Capsule 22x40 Mirror &mdash; Gold (434MI22GO)</td><td>CAT11</td><td>$5,906</td><td>25</td><td><span class="badge danger">0</span></td><td>Sep 15, 2026</td></tr>
+            <tr><td>Ethereal Rose 3 Light Inverted Semi-Flush &mdash; Havana Gold Ombre (500S03HGOB)</td><td>CAT7</td><td>$5,893</td><td>17</td><td><span class="badge danger">0</span></td><td>Jul 31, 2026</td></tr>
+            <tr><td>Ethereal Rose 6 Light Chandelier &mdash; Havana Gold Ombre (500C06HGOB)</td><td>CAT2</td><td>$5,505</td><td>18</td><td><span class="badge danger">0</span></td><td>Dec 6, 2025</td></tr>
+            <tr><td>Flow 1 Light Left Sconce &mdash; Hammered Ore (240K01HO)</td><td>CAT1</td><td>$5,189</td><td>22</td><td><span class="badge danger">0</span></td><td>Oct 9, 2026</td></tr>
+            <tr><td>Orbital Large 16 Light Pendant &mdash; Carbon (311P16CB)</td><td>CAT3</td><td>$4,742</td><td>6</td><td><span class="badge danger">0</span></td><td>Jul 31, 2026</td></tr>
+          </tbody>
+        </table>
+      </details>
+      <div class="what-this-means">
+        <strong>Action:</strong> These are proven sellers &mdash; the top 10 alone generated $168K in trailing-12-month revenue &mdash; yet every one currently shows zero available inventory, so demand is outrunning supply across your whole best-seller list. The Morgan 2 Light Sconce in Brushed Nickel (197 units sold) has no restock scheduled until mid-October, making it your most urgent replenishment gap; pulling that receipt forward protects revenue you've already earned the demand for.
+      </div>
+    </div><div class="subsection">
+      <div class="subsection-title">What's Selling &mdash; Category &amp; Collection Breakdown</div>
+
+      <div class="callout insight">
+        <div class="callout-title">CAT3 drives 34% of product sales</div>
+        <p>The CAT3 category accounts for $1.1M of $3.2M trailing-12-month product sales (34%) across 190 items, while CAT2 follows at 26% with the highest sales-per-item of any major category ($11,846). Concentration in two categories means most of your revenue rides on a focused product story.</p>
+      </div>
+
+      <table>
+        <thead>
+          <tr><th>Category</th><th>Qty Sold</th><th>Sales (LTM)</th><th>Items</th><th>Sales/Item</th></tr>
+        </thead>
+        <tbody>
+          <tr class="row-highlight"><td><strong>CAT3</strong></td><td>1,911</td><td>$1.1M</td><td>190</td><td>$5,906</td></tr>
+          <tr><td><strong>CAT2</strong></td><td>538</td><td>$829,246</td><td>70</td><td>$11,846</td></tr>
+          <tr><td><strong>CAT11</strong></td><td>1,433</td><td>$336,188</td><td>69</td><td>$4,872</td></tr>
+          <tr><td><strong>CAT8</strong></td><td>304</td><td>$326,249</td><td>28</td><td>$11,652</td></tr>
+          <tr><td><strong>CAT1</strong></td><td>1,562</td><td>$276,356</td><td>100</td><td>$2,764</td></tr>
+          <tr><td>CAT5</td><td>589</td><td>$124,020</td><td>42</td><td>$2,953</td></tr>
+          <tr><td>CAT7</td><td>179</td><td>$85,379</td><td>25</td><td>$3,415</td></tr>
+          <tr><td>FOYER</td><td>96</td><td>$70,109</td><td>16</td><td>$4,382</td></tr>
+          <tr><td>CAT9</td><td>220</td><td>$31,251</td><td>5</td><td>$6,250</td></tr>
+          <tr><td>CAT6</td><td>116</td><td>$24,031</td><td>13</td><td>$1,848</td></tr>
+          <tr><td>CAT4</td><td>13</td><td>$16,526</td><td>5</td><td>$3,305</td></tr>
+          <tr><td>CAT12</td><td>16</td><td>$10,092</td><td>3</td><td>$3,364</td></tr>
+          <tr><td>CAT10</td><td>63</td><td>$9,048</td><td>8</td><td>$1,131</td></tr>
+          <tr><td>CAT14</td><td>23</td><td>$6,194</td><td>2</td><td>$3,097</td></tr>
+        </tbody>
+      </table>
+
+      <details class="table-collapse">
+        <summary>Collection Breakdown (25 collections)</summary>
+        <table>
+          <thead>
+            <tr><th>Collection</th><th>Items</th><th>Qty Sold</th><th>Sales (LTM)</th></tr>
+          </thead>
+          <tbody>
+            <tr class="row-highlight"><td><strong>Matrix (COL1)</strong></td><td>36</td><td>625</td><td>$731,799</td></tr>
+            <tr><td><strong>Flow</strong></td><td>37</td><td>519</td><td>$286,728</td></tr>
+            <tr><td><strong>Windsor (COL7)</strong></td><td>23</td><td>172</td><td>$151,465</td></tr>
+            <tr><td><strong>Cosmos (COL9)</strong></td><td>14</td><td>213</td><td>$143,063</td></tr>
+            <tr><td><strong>Kye</strong></td><td>11</td><td>636</td><td>$137,536</td></tr>
+            <tr><td>Basket (BASK)</td><td>16</td><td>139</td><td>$123,390</td></tr>
+            <tr><td>Kato</td><td>18</td><td>141</td><td>$103,210</td></tr>
+            <tr><td>COL2</td><td>16</td><td>254</td><td>$91,617</td></tr>
+            <tr><td>Park Row (COL39)</td><td>12</td><td>123</td><td>$83,917</td></tr>
+            <tr><td>COL95</td><td>18</td><td>125</td><td>$77,125</td></tr>
+            <tr><td>COL66</td><td>9</td><td>185</td><td>$62,648</td></tr>
+            <tr><td>Morgan (COL6)</td><td>15</td><td>458</td><td>$61,353</td></tr>
+            <tr><td>COL48</td><td>6</td><td>35</td><td>$59,927</td></tr>
+            <tr><td>Orbital (COL18)</td><td>17</td><td>90</td><td>$57,507</td></tr>
+            <tr><td>COL76</td><td>8</td><td>258</td><td>$54,475</td></tr>
+            <tr><td>COL8</td><td>18</td><td>127</td><td>$54,056</td></tr>
+            <tr><td>Social Club (COL15)</td><td>10</td><td>52</td><td>$52,937</td></tr>
+            <tr><td>COL13</td><td>5</td><td>42</td><td>$51,538</td></tr>
+            <tr><td>COL3</td><td>2</td><td>52</td><td>$43,895</td></tr>
+            <tr><td>COL14</td><td>7</td><td>72</td><td>$41,377</td></tr>
+            <tr><td>Estela (COL62)</td><td>9</td><td>65</td><td>$41,355</td></tr>
+            <tr><td>Coco (COCO)</td><td>9</td><td>84</td><td>$39,571</td></tr>
+            <tr><td>Urchin (COL19)</td><td>22</td><td>162</td><td>$38,102</td></tr>
+            <tr><td>Ethereal Rose (COL55)</td><td>9</td><td>96</td><td>$38,077</td></tr>
+            <tr><td>COL97</td><td>7</td><td>281</td><td>$33,525</td></tr>
+          </tbody>
+        </table>
+      </details>
+
+      <div class="what-this-means">
+        <strong>Action:</strong> Your revenue concentration in CAT3 and CAT2 is a clear strength &mdash; you have a defined product identity buyers respond to &mdash; but it also means a supply disruption in either category hits a third of your business at once. The Matrix collection ($731,799 LTM, your single largest collection) and CAT2's $11,846 sales-per-item show where rep confidence and customer pull are strongest; protect inventory there first and use those proven lines as the anchor for new-item attachment.
+      </div>
+    </div><div class="subsection">
+      <div class="subsection-title">Catalog Completeness</div>
+      <table>
+        <thead>
+          <tr><th>Visibility</th><th>Products</th><th>Missing Images</th><th>Missing Price</th><th>Complete %</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Visible</td><td>814</td><td>2</td><td>356</td><td><span class="badge danger">56.3%</span></td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout alert">
+        <div class="callout-title">Catalog Below 90% Complete</div>
+        <p>356 of 814 visible products are missing pricing in the trailing-12-month catalog. Incomplete products are products reps can't confidently present &mdash; that's potential revenue left on the table from items your team can't effectively sell.</p>
+      </div>
+
+      <div class="what-this-means">
+        <strong>Action:</strong> Only 56.3% of your visible catalog is complete &mdash; 356 products are missing pricing, which means reps may skip them in presentations and customers can't self-serve a quote. Images are nearly done (just 2 gaps), so closing the pricing gap is the single highest-leverage, lowest-effort improvement available; see the Platform Health Check for specific catalog remediation steps.
+      </div>
+    </div><div class="subsection">
+      <div class="subsection-title">New Introduction Performance &amp; Adoption</div>
+
+      <div class="metrics">
+        <div class="metric">
+          <div class="metric-label">New Items Launched</div>
+          <div class="metric-value">996</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Revenue from new items (trailing 12 months)</div>
+          <div class="metric-value">$301,605</div>
+        </div>
+      </div>
+
+      <div class="callout insight">
+        <div class="callout-title">New Introduction Adoption</div>
+        <p>You launched 996 new items in the trailing 12 months. 30 have been ordered by at least one account (3% adoption), generating $301,605 in trailing-12-month revenue. 966 items have zero traction so far.</p>
+      </div>
+
+      <table>
+        <thead>
+          <tr><th>Item</th><th>Category</th><th>Buyers</th><th>Qty Sold</th><th>Revenue (LTM)</th></tr>
+        </thead>
+        <tbody>
+          <tr class="row-highlight"><td><strong>Downpour 12 Light Dimmable Pendant</strong></td><td>CAT3</td><td>26</td><td>28</td><td>$39,483</td></tr>
+          <tr class="row-highlight"><td><strong>High Tide 6 Light Linear Pendant</strong></td><td>CAT3</td><td>28</td><td>36</td><td>$30,596</td></tr>
+          <tr class="row-highlight"><td><strong>Golden Thicket 9 Light Dimmable Pendant</strong></td><td>CAT3</td><td>22</td><td>26</td><td>$22,259</td></tr>
+          <tr class="row-highlight"><td><strong>High Tide 8 Light Pendant</strong></td><td>CAT3</td><td>19</td><td>24</td><td>$18,008</td></tr>
+          <tr class="row-highlight"><td><strong>Mojave 12 Light Pendant</strong></td><td>CAT3</td><td>8</td><td>12</td><td>$15,326</td></tr>
+          <tr><td>Aurora 8 Light Pendant</td><td>CAT3</td><td>20</td><td>23</td><td>$14,339</td></tr>
+          <tr><td>Botanic Panic 13 Light Medium Pendant</td><td>CAT3</td><td>21</td><td>23</td><td>$13,956</td></tr>
+          <tr><td>Petal Court 9 Light Chandelier</td><td>CAT2</td><td>12</td><td>17</td><td>$13,386</td></tr>
+        </tbody>
+      </table>
+
+      <details class="table-collapse">
+        <summary>Remaining adopted new items (22 more)</summary>
+        <table>
+          <thead>
+            <tr><th>Item</th><th>Category</th><th>Buyers</th><th>Qty Sold</th><th>Revenue (LTM)</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Aurora 14 Light 2-Tier Pendant</td><td>CAT3</td><td>7</td><td>8</td><td>$11,886</td></tr>
+            <tr><td>Ain't She Grand 24 Light Chandelier</td><td>CAT3</td><td>1</td><td>3</td><td>$11,418</td></tr>
+            <tr><td>Park Row 14 Light 2-Tier Chandelier &mdash; Matte Black/French Gold</td><td>CAT2</td><td>5</td><td>7</td><td>$10,442</td></tr>
+            <tr><td>Botanic Panic 13 Light Pendant</td><td>CAT3</td><td>12</td><td>14</td><td>$9,727</td></tr>
+            <tr><td>Park Row 18 Light 3-Tier Chandelier &mdash; Matte Black/French Gold</td><td>CAT2</td><td>4</td><td>6</td><td>$9,168</td></tr>
+            <tr><td>Matrix 10 Light Linear &mdash; Havana Gold</td><td>CAT4</td><td>6</td><td>6</td><td>$8,511</td></tr>
+            <tr><td>Petal Court 9+3 Light Chandelier</td><td>CAT2</td><td>7</td><td>7</td><td>$7,078</td></tr>
+            <tr><td>Mojave 9 Light Pendant</td><td>CAT3</td><td>8</td><td>8</td><td>$6,118</td></tr>
+            <tr><td>Aurora 4 Light Convertible Semi-Flush</td><td>CAT14</td><td>14</td><td>15</td><td>$5,852</td></tr>
+            <tr><td>Mingle 3 Light Pendant &mdash; Satin Brass</td><td>CAT3</td><td>3</td><td>8</td><td>$5,450</td></tr>
+            <tr><td>Panelist 5 Light Pendant</td><td>CAT3</td><td>7</td><td>10</td><td>$5,276</td></tr>
+            <tr><td>Petal Court 9 Light Pendant</td><td>CAT3</td><td>3</td><td>5</td><td>$4,688</td></tr>
+            <tr><td>Hope 1 Light Table Lamp &mdash; Malouf Foundation Partnership &mdash; Heritage Bronze</td><td>CAT10</td><td>27</td><td>46</td><td>$4,282</td></tr>
+            <tr><td>Aurora 4 Light Sconce</td><td>CAT1</td><td>11</td><td>22</td><td>$4,206</td></tr>
+            <tr><td>Rockford 8 Light Chandelier</td><td>CAT2</td><td>9</td><td>13</td><td>$4,173</td></tr>
+            <tr><td>Brass Tax 8 Light Chandelier</td><td>CAT2</td><td>8</td><td>11</td><td>$3,957</td></tr>
+            <tr><td>Park Row 3 Light Sconce &mdash; Matte Black/French Gold</td><td>CAT1</td><td>8</td><td>19</td><td>$3,809</td></tr>
+            <tr><td>Matrix 12 Light Linear &mdash; Havana Gold</td><td>CAT4</td><td>1</td><td>3</td><td>$3,779</td></tr>
+            <tr><td>Aurora 9 Light Pendant</td><td>CAT3</td><td>5</td><td>6</td><td>$3,756</td></tr>
+            <tr><td>Double Standard 60-in Dimmable LED Linear Pendant</td><td>CAT4</td><td>2</td><td>3</td><td>$3,584</td></tr>
+            <tr><td>Cannery 5 Light Pendant &mdash; Ombre Galvanized Steel</td><td>CAT3</td><td>6</td><td>8</td><td>$3,550</td></tr>
+            <tr><td>Aristocrat 6 Light Pendant</td><td>CAT3</td><td>7</td><td>9</td><td>$3,540</td></tr>
+          </tbody>
+        </table>
+      </details>
+
+      <div class="callout warn">
+        <div class="callout-title">Zero-Traction New Items</div>
+        <p>966 new items have zero orders in the trailing 12 months. These may need rep attention, merchandising updates, or pricing review. High-list-price items with no traction represent the largest opportunity cost.</p>
+      </div>
+
+      <p class="prose"><strong>Matrix (COL1):</strong> 3 new Matrix items have reached only a single account each despite the collection being your largest by revenue. Customers who buy deeply in Matrix but haven't been shown the new linear pendants:</p>
+      <table>
+        <thead>
+          <tr><th>Customer</th><th>Collection Spend (LTM)</th><th>New Items Purchased</th></tr>
+        </thead>
+        <tbody>
+          <tr class="row-highlight"><td><strong>Valley Light Gallery</strong></td><td>$26,710</td><td>0</td></tr>
+          <tr class="row-highlight"><td><strong>Superlite Lighting</strong></td><td>$17,898</td><td>0</td></tr>
+          <tr class="row-highlight"><td><strong>Fort Worth Lighting</strong></td><td>$14,921</td><td>0</td></tr>
+          <tr class="row-highlight"><td><strong>Capital Lighting &amp; Supply, LLC</strong></td><td>$14,100</td><td>0</td></tr>
+          <tr class="row-highlight"><td><strong>Light Source Lighting</strong></td><td>$13,503</td><td>0</td></tr>
+        </tbody>
+      </table>
+      <details class="table-collapse">
+        <summary>More Matrix-active accounts without new items (5 more)</summary>
+        <table>
+          <thead>
+            <tr><th>Customer</th><th>Collection Spend (LTM)</th><th>New Items Purchased</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Georgia Lighting</td><td>$10,932</td><td>0</td></tr>
+            <tr><td>1800Lighting &mdash; Capitol Lighting</td><td>$11,264</td><td>0</td></tr>
+            <tr><td>B. de Vine Interiors</td><td>$10,866</td><td>0</td></tr>
+            <tr><td>IBS Lighting</td><td>$10,833</td><td>0</td></tr>
+            <tr><td>Ferguson Enterprises</td><td>$15,588</td><td>0</td></tr>
+          </tbody>
+        </table>
+      </details>
+
+      <div class="what-this-means">
+        <strong>Action:</strong> A 3% adoption rate means 966 new items haven't reached a single buyer yet &mdash; but the top performers (Downpour and High Tide pendants, $39K and $31K) prove the new line has real appeal, so the gap is awareness and rep activation, not product fit. Your warmest leads are already in the data: Valley Light Gallery ($26,710 in Matrix) and Superlite Lighting ($17,898) buy deeply in your biggest collection but have ordered none of the new Matrix linears &mdash; putting those into rep rotation with those accounts is the fastest path to lifting adoption.
+      </div>
+    </div><div class="subsection">
+      <div class="subsection-title">Fill Rate &amp; Revenue Impact</div>
+      <div class="sub-label">Items with active backorders, ranked by total exposure (units waiting &times; unit price).</div>
+      <table>
+        <thead>
+          <tr><th>Item</th><th>Category</th><th>Qty Backordered</th><th>Customers Affected</th><th>Avg Unit Price</th><th>Exposure</th><th>Annual Revenue</th></tr>
+        </thead>
+        <tbody>
+          <tr class="row-danger"><td><strong>Downpour 12 Light Dimmable Pendant (590S12SG)</strong></td><td>CAT3</td><td>432</td><td>26</td><td>$1,383</td><td>$597,326</td><td>$39,483</td></tr>
+          <tr class="row-danger"><td><strong>Kato 33-in Round Mirror &mdash; Havana Gold (348MI33HG)</strong></td><td>CAT11</td><td>1,980</td><td>41</td><td>$249</td><td>$492,747</td><td>$12,448</td></tr>
+          <tr class="row-warn"><td><strong>Golden Thicket 9 Light Dimmable Pendant (585P08PG)</strong></td><td>CAT3</td><td>400</td><td>22</td><td>$830</td><td>$332,109</td><td>$22,259</td></tr>
+          <tr class="row-warn"><td><strong>Botanic Panic 13 Light Medium Pendant (567P13MDBFG)</strong></td><td>CAT3</td><td>506</td><td>21</td><td>$591</td><td>$299,266</td><td>$13,956</td></tr>
+          <tr class="row-warn"><td><strong>Botanic Panic 13 Light Pendant (567P13DBFG)</strong></td><td>CAT3</td><td>168</td><td>12</td><td>$695</td><td>$116,718</td><td>$9,727</td></tr>
+        </tbody>
+      </table>
+      <details class="table-collapse">
+        <summary>Remaining backordered items (11 more)</summary>
+        <table>
+          <thead>
+            <tr><th>Item</th><th>Category</th><th>Qty Backordered</th><th>Customers Affected</th><th>Exposure</th><th>Annual Revenue</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Kato 33-in Round Mirror &mdash; Carbon (348MI33CB)</td><td>CAT11</td><td>325</td><td>25</td><td>$83,636</td><td>$7,112</td></tr>
+            <tr><td>Rockford 8 Light Chandelier (576C08BG)</td><td>CAT2</td><td>154</td><td>9</td><td>$44,321</td><td>$4,173</td></tr>
+            <tr><td>Mojave 2 Light Sconce (562W02HG)</td><td>CAT1</td><td>234</td><td>12</td><td>$35,659</td><td>$3,110</td></tr>
+            <tr><td>Aristocrat 6 Light Pendant (570P06DBFG)</td><td>CAT3</td><td>72</td><td>7</td><td>$25,624</td><td>$3,540</td></tr>
+            <tr><td>Park Row 14 Light 2-Tier Chandelier &mdash; Matte Black/French Gold (393C14MBFG)</td><td>CAT2</td><td>15</td><td>5</td><td>$23,655</td><td>$10,442</td></tr>
+            <tr><td>Capsule 22x40 Mirror &mdash; Gold (434MI22GO)</td><td>CAT11</td><td>117</td><td>11</td><td>$23,079</td><td>$10,078</td></tr>
+            <tr><td>Aristocrat 2 Light Sconce (570W02DBFG)</td><td>CAT1</td><td>280</td><td>13</td><td>$22,976</td><td>$1,759</td></tr>
+            <tr><td>Brasserie 1 Light Mini Pendant &mdash; Blackened Zinc/Heritage Bronze (536M01ZNCBRZ)</td><td>CAT3</td><td>168</td><td>9</td><td>$22,638</td><td>$2,117</td></tr>
+            <tr><td>Botanic Panic 1 Light Wall or Ceiling Flush Mount (567W01DBFG)</td><td>CAT14</td><td>171</td><td>6</td><td>$22,525</td><td>$2,503</td></tr>
+            <tr><td>Aurora 4 Light Sconce (557W04HG)</td><td>CAT1</td><td>126</td><td>11</td><td>$20,323</td><td>$4,206</td></tr>
+            <tr><td>Mood Swings 1 Light Round Pendant &mdash; Heritage Black/Heritage Bronze (540P01ABLKBRZ)</td><td>CAT3</td><td>40</td><td>5</td><td>$19,190</td><td>$4,302</td></tr>
+          </tbody>
+        </table>
+      </details>
+
+      <div class="callout alert">
+        <div class="callout-title">Revenue at Risk from Fulfillment Gaps</div>
+        <p>These 16 backordered items have customers waiting across as many as 41 accounts each. Persistent backorders correlate with longer reorder intervals &mdash; clearing the top two (Downpour and the Kato 33-in Mirror) addresses the majority of the exposure and an estimated $52K in annualized revenue if those backorder patterns persist.</p>
+      </div>
+
+      <div class="what-this-means">
+        <strong>Action:</strong> The Downpour 12 Light Dimmable Pendant has 432 units backordered against 26 waiting accounts &mdash; the single largest fulfillment gap on the list &mdash; and the Kato 33-in Round Mirror in Havana Gold has 1,980 units owed to 41 customers. Persistent stockouts train buyers to look elsewhere, so prioritizing the restock and proactively updating those two customer lists protects the relationships behind your highest-exposure items.
+      </div>
+    </div><div class="subsection">
+      <div class="subsection-title">Stock-Out Impact Board</div>
+      <div class="callout alert">
+        <div class="callout-title">10 top-selling items at zero availability &mdash; hundreds of accounts exposed</div>
+        <p>These items generated $169,277 in trailing-12-month revenue. The intelligence value isn't the stockout itself &mdash; it's knowing which customers to call this week with an in-stock alternative before they source it elsewhere.</p>
+      </div>
+      <table>
+        <thead>
+          <tr><th>Item</th><th>Collection</th><th>LTM Revenue</th><th>Units Sold</th><th>Qty Available</th><th>Next Receipt</th><th>Top Customers Impacted</th><th>Alternatives (in-stock)</th></tr>
+        </thead>
+        <tbody>
+          <tr class="row-danger"><td><strong>Social Club 25 Light 5-Tier &mdash; Havana Gold (297P25HG)</strong></td><td>Social Club</td><td>$30,355</td><td>12</td><td><span class="badge danger">0</span></td><td>Jul 17, 2026</td><td>Ferguson Enterprises ($7,216), Epiphany ($6,014), Illuminations &mdash; McAllen TX ($3,922)</td><td>Social Club 15 Light 3-Tier Crystal Pendant (297P15HG, 6 avail); Social Club 9 Light 2-Tier Crystal Pendant (297P09HG, 7 avail)</td></tr>
+          <tr class="row-danger"><td><strong>Kye 22x40 Rounded Rectangular Wall Mirror &mdash; Gold (4DMI0108)</strong></td><td>Kye</td><td>$23,748</td><td>104</td><td><span class="badge danger">0</span></td><td>Jun 24, 2026</td><td>Studio 41 ($3,697), Southern Lights ($1,976), Ferguson Enterprises ($1,317)</td><td>Kye 22x40 Rounded Rectangular Mirror &mdash; Polished Nickel (4DMI0109, 70 avail); Kye 24x30 Rectangular Mirror &mdash; Gold (407A02GO, 46 avail)</td></tr>
+          <tr class="row-warn"><td><strong>Morgan 2 Light Sconce &mdash; Brushed Nickel (376W02BN)</strong></td><td>Morgan</td><td>$21,664</td><td>199</td><td><span class="badge danger">0</span></td><td>Oct 16, 2026</td><td>Wholesale Lighting ($16,303), Luxury Design Inc. ($1,716), Ferguson &mdash; Knoxville TN ($793)</td><td>Morgan 3 Light Sconce &mdash; Brushed Nickel (376W03BN, 94 avail); Morgan 2 Light Sconce &mdash; Satin Brass (376W02SB, 41 avail)</td></tr>
+          <tr class="row-warn"><td><strong>Matrix 3 Light Pendant &mdash; Havana Gold (309P03HG)</strong></td><td>Matrix</td><td>$19,915</td><td>40</td><td><span class="badge danger">0</span></td><td>Jun 26, 2026</td><td>Light Source Lighting ($3,417), Beautiful Things Lighting ($2,848), N&amp;S Electric Supply ($1,424)</td><td>Matrix 6 Light Pendant &mdash; Havana Gold (309P06HG, 17 avail); Matrix 2 Light Sconce &mdash; Havana Gold (309W02HG, 24 avail)</td></tr>
+          <tr class="row-warn"><td><strong>Estela 5 Light Pendant &mdash; Matte Black/French Gold (380P05MBFG)</strong></td><td>Estela</td><td>$15,067</td><td>19</td><td><span class="badge danger">0</span></td><td>Jun 29, 2026</td><td>Carmel Color House ($3,233), Georgia Lighting ($2,759), Wilson Lighting &mdash; Overland Park KS ($2,294)</td><td>Estela 3 Light Convertible Pendant/Semi-Flush (380P03MBFG, 6 avail); Estela 1 Light Mini Pendant (380M01MBFG, 13 avail)</td></tr>
+        </tbody>
+      </table>
+      <details class="table-collapse">
+        <summary>Remaining stocked-out top sellers (5 more)</summary>
+        <table>
+          <thead>
+            <tr><th>Item</th><th>Collection</th><th>LTM Revenue</th><th>Next Receipt</th><th>Top Customers Impacted</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Kato 6 Light Oval Pendant &mdash; Havana Gold (348N06HG)</td><td>Kato</td><td>$13,334</td><td>Jul 31, 2026</td><td>Lighting First ($2,795), Light Source Lighting ($1,641), Hills Lighting ($1,609)</td></tr>
+            <tr><td>Social Club 19 Light 4-Tier &mdash; Havana Gold (297P19HG)</td><td>Social Club</td><td>$12,092</td><td>Jun 26, 2026</td><td>Hunzicker Brothers ($2,095), Versallies ($1,845), Cleveland Lighting One ($1,845)</td></tr>
+            <tr><td>Blonde Moment 6 Light Pendant &mdash; Matte Black/Honey/Medium Oak (389P06MBHN)</td><td>Blonde Moment</td><td>$11,456</td><td>Jul 30, 2026</td><td>Lyteworks ($1,709), PDI ($1,139), IBS Lighting Ltd ($829)</td></tr>
+            <tr><td>Windsor 21 Light 4-Tier Crystal Chandelier &mdash; Carbon/Havana Gold (345C21CBHG)</td><td>Windsor</td><td>$10,797</td><td>Jul 17, 2026</td><td>Frost Interiors Inc ($5,997), Texas Lighting &amp; More ($4,800)</td></tr>
+            <tr><td>Capsule 22x40 Mirror &mdash; Chrome (434MI22CH)</td><td>Capsule</td><td>$9,975</td><td>Sep 15, 2026</td><td>Cleveland Lighting One ($1,976), Dominion Electric Supply ($1,497), Lights of Oconee ($499)</td></tr>
+          </tbody>
+        </table>
+      </details>
+
+      <div class="callout opportunity">
+        <div class="callout-title">Proactive Outreach Script</div>
+        <p>For each stocked-out item, your reps have a ready-made conversation: "I noticed the Social Club 25 Light is temporarily out of stock and I know you've ordered it before. We have the Social Club 15 Light 3-Tier Crystal Pendant available now, and I'll flag you for priority fulfillment when the original restocks around mid-July." This protects the relationship and demonstrates attention.</p>
+      </div>
+
+      <div class="what-this-means">
+        <strong>Action:</strong> Every one of these proven sellers is generating demand you can't fulfill right now, and same-collection alternatives are in stock for the top items &mdash; so the rep play is outreach, not waiting on the warehouse. Wholesale Lighting ($16,303 in the Morgan sconce) and Ferguson Enterprises ($7,216 in Social Club) are your priority calls; offering the in-stock Morgan 3 Light or Social Club 15 Light protects those relationships, while the Morgan's October restock makes the substitute the only real option for that account.
+      </div>
+    </div>
+
+    <div class="what-this-means">
+      <strong>Action:</strong> Your fastest revenue protection is supply, not strategy &mdash; all ten of your top sellers and your highest-exposure backorders (Downpour, the Kato 33-in Mirror) are at zero availability, putting an estimated $169K in proven trailing-12-month demand at risk if restocks slip and buyers find substitutes elsewhere. In parallel, completing pricing on the 356 incomplete catalog items and steering Matrix-heavy accounts like Valley Light Gallery into the new linear pendants converts the 3% new-item adoption rate from a gap into growth. Item-level reorder-interval history would let us flag which backordered accounts are already lengthening their cycles, turning this from a watch list into an early-warning system.
+    </div>
+
+  </div>
+</details>
+
+
+<details class="section-collapse" id="platform">
+  <summary>
+    <div class="section-title">Platform Context</div>
+    <div class="section-sub">Actionable items only &middot; data freshness, feature adoption gaps</div>
+    <div class="section-contents">Platform Health Status &middot; Action Required &middot; Feature Utilization &middot; Catalog Remediation</div>
+    <span class="expand-hint">Expand section</span>
+  </summary>
+  <div class="section">
+    <div class="subsection">
+      <div class="subsection-title">Platform Health Status</div>
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-val"><span class="badge ok">Healthy</span></div>
+          <div class="metric-label">Core Pipeline</div>
+          <div class="metric-note">~86 imports/month over the trailing 7 months &mdash; consistent cadence</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-val"><span class="badge danger">Stale</span></div>
+          <div class="metric-label">Data Freshness</div>
+          <div class="metric-note">10 configuration data sources last refreshed 301 days ago (Aug 2025)</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-val"><span class="badge danger">Incomplete</span></div>
+          <div class="metric-label">Catalog</div>
+          <div class="metric-note">56% complete by per-product price; only 2 of 814 items missing images</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-val"><span class="badge ok">Active</span></div>
+          <div class="metric-label">Feature Adoption</div>
+          <div class="metric-note">10+ app features in active use over the last 12 months</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-val"><span class="badge ok">Configured</span></div>
+          <div class="metric-label">Smart Stacks</div>
+          <div class="metric-note">4 published and live in the app</div>
+        </div>
+      </div>
+      <div class="prose">Your import pipeline and core catalog feeds are in good shape &mdash; products, inventory, and customers all refreshed within the last day, and Smart Stacks are live. The one real problem is a cluster of 10 configuration data sources (options, contract prices, price levels and related tables) that haven&rsquo;t been refreshed since August 2025, and a catalog that reads as 56% complete because most products price off price levels rather than per-product prices.</div>
+      <div class="what-this-means">
+        <strong>Action:</strong> Everything that powers daily selling &mdash; products, inventory, customers &mdash; is fresh, so reps are working from current data. The gap is 10 configuration tables (Options, Option Groups, Contract Prices and related) frozen at August 2025, which means any configured-item or contract pricing logic the app applies may be 10 months out of date. A single configuration re-import would close that gap and is the highest-value maintenance action on this page.
+      </div>
+    </div>
+    <div class="subsection">
+      <div class="subsection-title">Action Required</div>
+      <div class="callout alert">
+        <div class="callout-title">2 items need attention</div>
+      </div>
+      <table>
+        <thead>
+          <tr><th>Data Source</th><th>Status</th><th>Last Updated</th><th>Impact</th><th>Fix</th></tr>
+        </thead>
+        <tbody>
+          <tr class="row-danger"><td><strong>Options, Option Groups, Matrix Options &amp; Contract Prices</strong></td><td><span class="badge danger">Critical</span></td><td>Aug 20, 2025 &middot; 301 days</td><td>Configured-item options and contract pricing reflect setup from 10 months ago &mdash; reps quoting configured products may show outdated choices or prices</td><td>Re-import the options and contract-price files via FTP</td></tr>
+          <tr class="row-warn"><td><strong>Customer Import Records</strong></td><td><span class="badge warn">Recurring errors</span></td><td>Jun 17, 2026 &middot; daily</td><td>~13 customer rows fail each nightly sync on missing billing address/state/city (e.g., Light&amp;Day, ProsourceSC, LightLabNY) &mdash; those accounts won&rsquo;t appear or order cleanly in the app</td><td>Fill in billing address fields for the flagged customer numbers, then re-import customers.csv</td></tr>
+        </tbody>
+      </table>
+      <div class="what-this-means">
+        <strong>Action:</strong> The 10 frozen configuration tables undermine any configured-item or contract-pricing logic the app runs &mdash; a single re-import of the options and contract-price files brings them current. Separately, about 13 customer records (Light&amp;Day, ProsourceSC, LightLabNY and others) fail your nightly sync because billing address fields are blank, so those accounts silently never make it into the app. Cleaning those rows recovers accounts that are invisible to your reps today.
+      </div>
+    </div>
+    <div class="subsection">
+      <div class="subsection-title">Feature Utilization</div>
+      <div class="callout insight">
+        <div class="callout-title">10 of 11 tracked features show active usage</div>
+        <p>Product Search dominates at 5,010 events over the last 12 months (22% of all feature activity), followed by Library views at 2,537. Customer lookup, app access, and PDF catalog creation form a solid secondary tier. SmartPicks is the one tracked feature with zero usage despite being available.</p>
+      </div>
+      <table>
+        <thead>
+          <tr><th>Feature</th><th>Events (LTM)</th><th>% of Activity</th><th>Intensity</th></tr>
+        </thead>
+        <tbody>
+          <tr class="row-highlight"><td><strong>Product Search</strong></td><td>5,010</td><td>22.4%</td><td><span class="badge ok">Heavy</span></td></tr>
+          <tr class="row-highlight"><td><strong>Library Views</strong></td><td>2,537</td><td>11.4%</td><td><span class="badge ok">Heavy</span></td></tr>
+          <tr><td>Customer Search</td><td>1,086</td><td>4.9%</td><td><span class="badge muted">Moderate</span></td></tr>
+          <tr><td>Customer Selection</td><td>852</td><td>3.8%</td><td><span class="badge muted">Moderate</span></td></tr>
+          <tr><td>App Access</td><td>653</td><td>2.9%</td><td><span class="badge muted">Moderate</span></td></tr>
+          <tr><td>Collection Search</td><td>366</td><td>1.6%</td><td><span class="badge warn">Light</span></td></tr>
+          <tr><td>PDF Catalog Creation</td><td>235</td><td>1.1%</td><td><span class="badge warn">Light</span></td></tr>
+          <tr><td>Product Filtering</td><td>235</td><td>1.1%</td><td><span class="badge warn">Light</span></td></tr>
+          <tr><td>Order Submission</td><td>160</td><td>0.7%</td><td><span class="badge warn">Light</span></td></tr>
+          <tr><td>Email Item Info</td><td>102</td><td>0.5%</td><td><span class="badge warn">Light</span></td></tr>
+          <tr><td>SmartPicks</td><td>0</td><td>0.0%</td><td><span class="badge danger">Zero</span></td></tr>
+        </tbody>
+      </table>
+      <div class="callout opportunity">
+        <div class="callout-title">SmartPicks Coaching Opportunity</div>
+        <p>Your reps search for products 5,000+ times a year but have used SmartPicks zero times. SmartPicks surfaces personalized recommendations from each customer&rsquo;s own purchase history &mdash; it&rsquo;s the difference between a rep browsing the catalog and being guided straight to the item that account is most likely to reorder.</p>
+      </div>
+      <div class="what-this-means">
+        <strong>Action:</strong> Heavy product search with zero SmartPicks usage means your reps are doing manual browsing the app could do for them &mdash; especially relevant given the strong companion-buying patterns surfaced in product intelligence. Turning SmartPicks on and demoing it to your top reps would shorten catalog time and put proven reorder candidates in front of accounts automatically.
+      </div>
+    </div>
+    <div class="subsection">
+      <div class="subsection-title">Catalog Remediation</div>
+      <table>
+        <thead>
+          <tr><th>Visibility</th><th>Products</th><th>Missing Images</th><th>Missing Per-Product Price</th><th>Complete %</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Visible in app</td><td>814</td><td>2</td><td>356</td><td>56.3%</td></tr>
+        </tbody>
+      </table>
+      <div class="what-this-means">
+        <strong>Action:</strong> The 56% completeness figure is largely a configuration artifact &mdash; 356 products carry no per-product price because they price off price levels, which is a valid setup, not a gap. The genuine fix is small: only 2 of 814 visible products are missing images. Upload those 2 product photos to FTP /images and your catalog is visually complete within roughly 30&ndash;45 minutes of processing.
+      </div>
+    </div>
+  </div>
+</details>
+
+
+<section class="section appendix" id="appendix">
+  <h2 class="section-title"><span class="section-num">Appendix</span> Data Sources</h2>
+  <table class="data-sources">
+    <thead>
+    <tr><th>Source</th><th>Coverage</th><th>Used For</th></tr>
+    </thead>
+    <tbody>
+    <tr><td>eCat iPad Orders</td><td>Full LTM</td><td>Rep performance, order velocity, customer activity</td></tr>
+    <tr><td>All-Channel Business Data</td><td>Full LTM</td><td>Total business context, order channel mix, digital enablement</td></tr>
+    <tr><td>App Usage Analytics</td><td>Full LTM</td><td>Behavioral patterns, engagement scoring, archetype classification</td></tr>
+    <tr><td>Product Catalog</td><td>Current</td><td>Catalog completeness, new item tracking</td></tr>
+    <tr><td>Inventory System</td><td>Current</td><td>Stock-out detection, fill rate analysis</td></tr>
+    <tr><td>Customer Master</td><td>Current</td><td>Territory mapping, customer segmentation</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<footer class="footer">
+    <div class="footer-brand">Insightful &middot; Customer Intelligence</div>
+    <div class="footer-text">Generated June 17, 2026 &middot; Ciana Varaluz LLC &middot; Confidential &mdash; prepared for Ciana Varaluz LLC use only</div>
+  </footer>
+</div>
+<script>
+  // Sticky TOC active state
+  (function() {
+    const strip = document.getElementById('tocStrip');
+    if (!strip) return;
+    window.addEventListener('scroll', function() {
+      strip.classList.toggle('stuck', window.scrollY > 40);
+    });
+    const links = strip.querySelectorAll('a');
+    const sections = [];
+    links.forEach(function(a) {
+      const id = a.getAttribute('href').replace('#', '');
+      const el = document.getElementById(id);
+      if (el) sections.push({ el, a });
+    });
+    window.addEventListener('scroll', function() {
+      let current = sections[0];
+      sections.forEach(function(s) {
+        if (window.scrollY >= s.el.offsetTop - 80) current = s;
+      });
+      links.forEach(function(a) { a.classList.remove('active'); });
+      if (current) current.a.classList.add('active');
+    }, { passive: true });
+  })();
+
+  function openAndScroll(id) {
+    const target = document.getElementById(id);
+    if (!target) return;
+    const details = target.closest('details');
+    if (details && !details.open) details.open = true;
+    setTimeout(() => target.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+  }
+  document.querySelectorAll('.toc-strip a, .highlights a, .priority-title a').forEach(link => {
+    link.addEventListener('click', function(e) {
+      const href = this.getAttribute('href');
+      if (href && href.startsWith('#')) {
+        e.preventDefault();
+        openAndScroll(href.substring(1));
+      }
+    });
+  });
+</script>
+</body>
+</html>

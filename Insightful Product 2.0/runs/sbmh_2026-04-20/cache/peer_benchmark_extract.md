@@ -1,0 +1,49 @@
+Peer Benchmark Extract — Somerset Bay and Modern History (sbmh) | Source: peer_benchmark_2026-04-14.csv | Run: 2026-04-20
+
+| Field | Value |
+|---|---|
+| org_shortname | sbmh |
+| bundle | Full |
+| vertical | Furniture |
+| peer_group_id_effective | Furniture / Full |
+| peer_group_level | tier1 |
+| peer_group_n | 6 |
+| benchmark_eligible | True |
+| benchmark_confidence | medium |
+| health_score_org | 63.0 |
+| health_score_peer_median | 69.0 |
+| health_score_pctile | 0.167 |
+| health_score_quartile | Q1 |
+| value_delivery_score_org | 80.0 |
+| value_delivery_score_peer_median | 72.5 |
+| value_delivery_score_pctile | 0.5 |
+| value_delivery_score_quartile | Q3 |
+| adoption_score_org | 100.0 |
+| adoption_score_peer_median | 90.0 |
+| adoption_score_pctile | 1.0 |
+| adoption_score_quartile | Q4 |
+| engagement_score_org | 20.0 |
+| engagement_score_peer_median | 40.0 |
+| engagement_score_pctile | 0.0 |
+| engagement_score_quartile | Q1 |
+| operational_health_score_org | 60.0 |
+| operational_health_score_peer_median | 85.0 |
+| operational_health_score_pctile | 0.167 |
+| operational_health_score_quartile | Q1 |
+| orders_90d_org | 845 |
+| orders_90d_peer_median | 807.5 |
+| orders_90d_pctile | 0.5 |
+| orders_90d_quartile | Q3 |
+| orders_per_user_org | 0.251 |
+| orders_per_user_peer_median | 1.12 |
+| orders_per_user_quartile | Q1 |
+| catalog_completeness_org | 0.9923 |
+| catalog_completeness_peer_median | 0.87 |
+| catalog_completeness_pctile | 1.0 |
+| catalog_completeness_quartile | Q4 |
+| primary_value_metric_org | 845.0 |
+| primary_value_metric_peer_median | 807.5 |
+| primary_value_metric_pctile | 0.5 |
+| primary_value_metric_quartile | Q3 |
+| hv2_pbg_primary_value_metric_id | orders_90d |
+| hv2_pbg_composite_gap | 33 |

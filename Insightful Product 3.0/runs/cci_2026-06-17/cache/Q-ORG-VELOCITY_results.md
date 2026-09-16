@@ -1,0 +1,24 @@
+# Q-ORG-VELOCITY Results — Currey & Company (cci, org_id=161)
+- **Query**: Q-ORG-VELOCITY — Account Quarterly Velocity Trajectory
+- **Period**: LTM (2025-06-17 to 2026-06-17)
+- **Row count**: 15
+- **Run date**: 2026-06-17
+
+
+| customer_code | customer_name | accel_quarters | peak_quarter_revenue | max_qoq | trajectory |
+| --- | --- | --- | --- | --- | --- |
+| FURLAND | FURNITURELAND SOUTH | 2 | 139,458.28 | 97.80 | [{'quarter': '2025-07-01', 'revenue': 139458.28, 'qoq_pct': 70.2}, {'quarter': '2025-10-01', 'revenue': 52229.4, 'qoq_pct': -62.5}, {'quarter': '2026-01-01', 'revenue': 103300.04, 'qoq_pct': 97.8}, {'quarter': '2026-04-01', 'revenue': 126422.8, 'qoq_pct': 22.4}] |
+| CAI | CAI DESIGNS | 2 | 133,300.78 | 104.60 | [{'quarter': '2025-07-01', 'revenue': 61333.09, 'qoq_pct': -44.0}, {'quarter': '2025-10-01', 'revenue': 103610.67, 'qoq_pct': 68.9}, {'quarter': '2026-01-01', 'revenue': 65149.39, 'qoq_pct': -37.1}, {'quarter': '2026-04-01', 'revenue': 133300.78, 'qoq_pct': 104.6}] |
+| PARK CO | WESTEND PROPERTIES LTD | 2 | 112,800.97 | 403.70 | [{'quarter': '2025-07-01', 'revenue': 22666.97, 'qoq_pct': 184.2}, {'quarter': '2025-10-01', 'revenue': 22284.96, 'qoq_pct': -1.7}, {'quarter': '2026-01-01', 'revenue': 112245.56, 'qoq_pct': 403.7}, {'quarter': '2026-04-01', 'revenue': 112800.97, 'qoq_pct': 0.5}] |
+| 0018034 | LILLIAN JAMES DESIGN GROUP | 4 | 110,380.16 | 934.30 | [{'quarter': '2025-07-01', 'revenue': 2329.32, 'qoq_pct': 307.0}, {'quarter': '2025-10-01', 'revenue': 4620.48, 'qoq_pct': 98.4}, {'quarter': '2026-01-01', 'revenue': 10671.78, 'qoq_pct': 131.0}, {'quarter': '2026-04-01', 'revenue': 110380.16, 'qoq_pct': 934.3}] |
+| THE CAR | THE CARROLL COMPANIES | 2 | 107,670.30 | 43,496.50 | [{'quarter': '2025-10-01', 'revenue': 47768.25, 'qoq_pct': 1943.7}, {'quarter': '2026-01-01', 'revenue': 246.97, 'qoq_pct': -99.5}, {'quarter': '2026-04-01', 'revenue': 107670.3, 'qoq_pct': 43496.5}] |
+| 0016744 | MELISSA FISCHER INTERIORS | 2 | 103,962.72 | 5,381 | [{'quarter': '2025-07-01', 'revenue': 103962.72, 'qoq_pct': 5381.0}, {'quarter': '2025-10-01', 'revenue': 1019.52, 'qoq_pct': -99.0}, {'quarter': '2026-01-01', 'revenue': 23477.28, 'qoq_pct': 2202.8}] |
+| CROMWEL | CROMWELL AUSTRALIA PTY LTD | 2 | 100,867.84 | 418.20 | [{'quarter': '2025-07-01', 'revenue': 19463.64, 'qoq_pct': -79.4}, {'quarter': '2025-10-01', 'revenue': 100867.84, 'qoq_pct': 418.2}, {'quarter': '2026-01-01', 'revenue': 34355.42, 'qoq_pct': -65.9}, {'quarter': '2026-04-01', 'revenue': 96668.63, 'qoq_pct': 181.4}] |
+| WYNNDES | WYNN DESIGN & DEVELOPMENT | 2 | 99,534 | 1,773.90 | [{'quarter': '2026-01-01', 'revenue': 19334.0, 'qoq_pct': 1773.9}, {'quarter': '2026-04-01', 'revenue': 99534.0, 'qoq_pct': 414.8}] |
+| RS INTL | ROBB & STUCKY INTERNATIONAL | 2 | 96,623 | 187 | [{'quarter': '2025-07-01', 'revenue': 33671.0, 'qoq_pct': 109.2}, {'quarter': '2025-10-01', 'revenue': 96623.0, 'qoq_pct': 187.0}, {'quarter': '2026-01-01', 'revenue': 70869.38, 'qoq_pct': -26.7}, {'quarter': '2026-04-01', 'revenue': 72265.16, 'qoq_pct': 2.0}] |
+| SAFAVIE | SAFAVIEH HOME & CARPET | 2 | 91,187.70 | 128.10 | [{'quarter': '2025-07-01', 'revenue': 19378.65, 'qoq_pct': -64.1}, {'quarter': '2025-10-01', 'revenue': 44200.87, 'qoq_pct': 128.1}, {'quarter': '2026-01-01', 'revenue': 54935.84, 'qoq_pct': 24.3}, {'quarter': '2026-04-01', 'revenue': 91187.7, 'qoq_pct': 66.0}] |
+| BENWEST | RYMAN HOSPITALITY PROPERTIES, INC | 2 | 85,705.31 | 1,915.30 | [{'quarter': '2025-07-01', 'revenue': 4252.69, 'qoq_pct': 193.0}, {'quarter': '2025-10-01', 'revenue': 85705.31, 'qoq_pct': 1915.3}, {'quarter': '2026-01-01', 'revenue': 21507.3, 'qoq_pct': -74.9}, {'quarter': '2026-04-01', 'revenue': 12253.73, 'qoq_pct': -43.0}] |
+| LEX FUR | LEXINGTON FURNITURE | 2 | 81,451.22 | 4,196 | [{'quarter': '2025-07-01', 'revenue': 81451.22, 'qoq_pct': 4196.0}, {'quarter': '2025-10-01', 'revenue': 1138.48, 'qoq_pct': -98.6}, {'quarter': '2026-01-01', 'revenue': 4448.0, 'qoq_pct': 290.7}] |
+| HOS PUR | HOSPITALITY PURVEYORS LLC | 2 | 80,327.68 | 1,084.50 | [{'quarter': '2025-07-01', 'revenue': 14041.0, 'qoq_pct': -60.8}, {'quarter': '2025-10-01', 'revenue': 1363.0, 'qoq_pct': -90.3}, {'quarter': '2026-01-01', 'revenue': 16144.88, 'qoq_pct': 1084.5}, {'quarter': '2026-04-01', 'revenue': 80327.68, 'qoq_pct': 397.5}] |
+| BAY DES | BAY DESIGN | 3 | 78,912.68 | 924.90 | [{'quarter': '2025-07-01', 'revenue': 824.0, 'qoq_pct': -72.7}, {'quarter': '2025-10-01', 'revenue': 8444.8, 'qoq_pct': 924.9}, {'quarter': '2026-01-01', 'revenue': 12753.4, 'qoq_pct': 51.0}, {'quarter': '2026-04-01', 'revenue': 78912.68, 'qoq_pct': 518.8}] |
+| WILSON | WILSON LIGHTING - OVERLAND PRK | 2 | 77,581.30 | 616.10 | [{'quarter': '2025-07-01', 'revenue': 24936.53, 'qoq_pct': -11.3}, {'quarter': '2025-10-01', 'revenue': 39301.18, 'qoq_pct': 57.6}, {'quarter': '2026-01-01', 'revenue': 10833.32, 'qoq_pct': -72.4}, {'quarter': '2026-04-01', 'revenue': 77581.3, 'qoq_pct': 616.1}] |

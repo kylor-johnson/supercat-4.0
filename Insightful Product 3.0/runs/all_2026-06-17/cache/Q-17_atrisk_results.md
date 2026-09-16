@@ -1,0 +1,21 @@
+# Q-17-atrisk Results — Accord Lighting (all, org_id=223)
+- **Query**: Q-17-atrisk — Dormant eCat Customers — At-Risk
+- **Period**: LTM (2025-06-17 to 2026-06-17)
+- **Row count**: 12
+- **Run date**: 2026-06-17
+
+
+| customer_num | customer_name | billing_state | ecat_gmv_12mo | last_ecat_order_date | days_since_last_ecat_order |
+| --- | --- | --- | --- | --- | --- |
+| 0117 | 0117. LUMINATI CORP. | PUERTO RICO | $16,821 | 2026-02-09 17:55:27 | 127 |
+| 0649 | 0649. THE LIGHTING WAREHOUSE | BRITISH COLUMBIA | $11,229 | 2026-02-12 00:01:44 | 125 |
+| 0000 | 0000. ACCORD LIGHTING TEST | FLORIDA | $10,280 | 2026-03-16 12:58:54 | 92 |
+| 1101 | 1101. LUXUR LIGHTING - ST. GEORGE | UTAH | $6,016 | 2025-06-20 14:02:08 | 361 |
+| 0293 | 0293. SUPER-LITE LIGHTING LTD | MANITOBA | $5,098 | 2026-01-11 15:05:14 | 156 |
+| 0721 | 0721. ILLUMINATIONS LIGHTING - OKLAHOMA | OKLAHOMA | $4,799 | 2026-01-22 22:41:41 | 145 |
+| 0338 | 0338. HOBRECHT LIGHTING | CALIFORNIA | $4,444 | 2025-06-20 15:59:53 | 361 |
+| 0357 | 0357. SOUTHERN LIGHTS | MINNESOTA | $3,186 | 2026-01-12 22:33:30 | 155 |
+| 0427 | 0427. LUMENAREA | COLORADO | $2,378 | 2025-06-20 13:31:45 | 361 |
+| 0485 | 0485. CASALÚ | PUERTO RICO | $1,761 | 2025-07-09 19:23:36 | 342 |
+| 0100 | 0100. LIGHTING PALACE | NEW YORK | $1,168 | 2026-01-12 20:17:48 | 155 |
+| 0758 | 0758. JUDITH NORMAN COLLECTION | FLORIDA | $941 | 2025-11-05 20:53:47 | 223 |

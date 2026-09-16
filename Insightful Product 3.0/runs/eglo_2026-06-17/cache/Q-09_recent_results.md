@@ -1,0 +1,1469 @@
+# Q-09-recent Results — Eglo USA Inc. (eglo, org_id=168)
+- **Query**: Q-09-recent — Import Health — Recent Errors
+- **Period**: LTM (2025-06-17 to 2026-06-17)
+- **Row count**: 10
+- **Run date**: 2026-06-17
+
+
+| created_at | data |
+| --- | --- |
+| 2026-06-17T19:33:21.528291 | ---
+- - Customers
+  - - - :error
+      - 'Line 405: Default price code ''10'' must be a valid price level code'
+    - - :error
+      - 'Line 1319: Default price code ''01'' must be a valid price level code'
+- - Sales Data
+  - - - :error
+      - 'Line 89: Base item code GA000051W4 does not match an active product'
+    - - :error
+      - 'Line 234: Base item code 202501A does not match an active product'
+    - - :error
+      - 'Line 266: Base item code 3DIV does not match an active product'
+    - - :error
+      - 'Line 286: Either quantity invoiced or quantity on order is required'
+    - - :error
+      - 'Line 287: Either quantity invoiced or quantity on order is required'
+    - - :error
+      - 'Line 410: Base item code THESIS26 does not match an active product'
+    - - :error
+      - 'Line 463: Base item code THESIS26 does not match an active product'
+    - - :error
+      - 'Line 468: Base item code THESIS26 does not match an active product'
+    - - :error
+      - 'Line 469: Base item code THESIS26 does not match an active product'
+    - - :error
+      - 'Line 470: Base item code 3DIV does not match an active product'
+    - - :error
+      - 'Line 479: error=Parse exception: field=amountinvoiced, value=''50.00-'',
+        error=invalid floating point value'
+    - - :error
+      - 'Line 479: Either quantity invoiced or quantity on order is required'
+    - - :error
+      - 'Line 480: Base item code PB04047101 does not match an active product'
+    - - :error
+      - 'Line 481: Base item code PB04047201 does not match an active product'
+    - - :error
+      - 'Line 482: Base item code PB04047301 does not match an active product'
+    - - :error
+      - 'Line 483: Base item code PB04047401 does not match an active product'
+    - - :error
+      - 'Line 484: Base item code PB04047501 does not match an active product'
+    - - :error
+      - 'Line 485: Base item code PB04047601 does not match an active product'
+    - - :error
+      - 'Line 493: Base item code THESIS26 does not match an active product'
+    - - :error
+      - 'Line 512: Base item code 3DIV does not match an active product'
+    - - :error
+      - 'Line 542: Base item code 3DIV does not match an active product'
+    - - :error
+      - 'Line 611: Base item code 3DIV does not match an active product'
+    - - :error
+      - 'Line 614: Base item code GA00047901 does not match an active product'
+    - - :error
+      - 'Line 630: Base item code EG02001202-R does not match an active product'
+    - - :error
+      - 'Line 675: Base item code GC00010601 does not match an active product'
+    - - :error
+      - 'Line 677: Base item code GE00015601 does not match an active product'
+    - - :error
+      - 'Line 725: Either quantity invoiced or quantity on order is required'
+    - - :error
+      - 'Line 726: Base item code 3DIV does not match an active product'
+    - - :error
+      - 'Line 727: Base item code ET4437 does not match an active product'
+    - - :error
+      - 'Line 731: Base item code 3DIV does not match an active product'
+    - - :error
+      - 'Line 732: Base item code 3DIV does not match an active product'
+    - - :error
+      - 'Line 845: Base item code 48848 does not match an active product'
+    - - :error
+      - 'Line 872: Either quantity invoiced or quantity on order is required'
+    - - :error
+      - 'Line 879: Base item code 82813A does not match an active product'
+    - - :error
+      - 'Line 888: Base item code ET4312 does not match an active product'
+    - - :error
+      - 'Line 902: Base item code THESIS26 does not match an active product'
+    - - :error
+      - 'Line 957: Base item code KATFANUS26 does not match an active product'
+    - - :error
+      - 'Line 958: Base item code KATLCA54_EN does not match an active product'
+    - - :error
+      - 'Line 959: Base item code KATLCAES01 does not match an active product'
+    - - :error
+      - 'Line 960: Base item code KATLCASOL25 does not match an active product'
+    - - :error
+      - 'Line 961: Base item code KATNCA26/01 does not match an active product'
+    - - :error
+      - 'Line 962: Base item code THESIS26 does not match an active product'
+    - - :error
+      - 'Line 970: Base item code KATFANUS26 does not match an active product'
+    - - :error
+      - 'Line 971: Base item code KATLCA54_EN does not match an active product'
+    - - :error
+      - 'Line 972: Base item code KATLCAES01 does not match an active product'
+    - - :error
+      - 'Line 973: Base item code KATNCA26/01 does not match an active product'
+    - - :error
+      - 'Line 974: Base item code THESIS26 does not match an active product'
+    - - :error
+      - 'Line 988: Base item code GA000439W4 does not match an active product'
+    - - :error
+      - 'Line 1033: Base item code 3DIV does not match an active product'
+    - - :error
+      - 'Line 1087: Base item code 3DIV does not match an active product'
+    - - :error
+      - 'Line 1115: Base item code 3DIV does not match an active product'
+    - - :error
+      - 'Line 1142: Base item code 3DIV does not match an active product'
+    - - :error
+      - 'Line 1161: Base item code GA000476W0 does not match an active product'
+    - - :error
+      - 'Line 1165: Base item code KATFANUS26 does not match an active product'
+    - - :error
+      - 'Line 1166: Base item code KATLCA54_EN does not match an active product'
+    - - :error
+      - 'Line 1167: Base item code KATLCAES01 does not match an active product'
+    - - :error
+      - 'Line 1612: Either quantity invoiced or quantity on order is required'
+    - - :error
+      - 'Line 1613: Either quantity invoiced or quantity on order is required'
+    - - :error
+      - 'Line 1614: Either quantity invoiced or quantity on order is required'
+    - - :error
+      - 'Line 1739: Either quantity invoiced or quantity on order is required'
+    - - :warning
+      - "-73 more rows with invalid products"
+ |
+| 2026-06-17T15:06:32.750930 | ---
+- - Inventory
+  - - - :warning
+      - 'Line 21: Product not found, record ignored., BaseItemCode=203523A'
+    - - :warning
+      - 'Line 101: Product not found, record ignored., BaseItemCode=31613A'
+    - - :warning
+      - 'Line 267: Product not found, record ignored., BaseItemCode=202262A'
+    - - :warning
+      - 'Line 277: Product not found, record ignored., BaseItemCode=202316A'
+    - - :warning
+      - 'Line 289: Product not found, record ignored., BaseItemCode=202501A'
+    - - :warning
+      - 'Line 325: Product not found, record ignored., BaseItemCode=203676A'
+    - - :warning
+      - 'Line 328: Product not found, record ignored., BaseItemCode=203743A'
+    - - :warning
+      - 'Line 357: Product not found, record ignored., BaseItemCode=204001A'
+    - - :warning
+      - 'Line 393: Product not found, record ignored., BaseItemCode=204234A'
+    - - :warning
+      - 'Line 394: Product not found, record ignored., BaseItemCode=204235A'
+    - - :warning
+      - 'Line 395: Product not found, record ignored., BaseItemCode=204236A'
+    - - :warning
+      - 'Line 396: Product not found, record ignored., BaseItemCode=204237A'
+    - - :warning
+      - 'Line 426: Product not found, record ignored., BaseItemCode=204444A'
+    - - :warning
+      - 'Line 429: Product not found, record ignored., BaseItemCode=204615A'
+    - - :warning
+      - 'Line 430: Product not found, record ignored., BaseItemCode=204616A'
+    - - :warning
+      - 'Line 431: Product not found, record ignored., BaseItemCode=204617A'
+    - - :warning
+      - 'Line 432: Product not found, record ignored., BaseItemCode=204618A'
+    - - :warning
+      - 'Line 433: Product not found, record ignored., BaseItemCode=204619A'
+    - - :warning
+      - 'Line 434: Product not found, record ignored., BaseItemCode=204621A'
+    - - :warning
+      - 'Line 435: Product not found, record ignored., BaseItemCode=204632A'
+    - - :warning
+      - 'Line 436: Product not found, record ignored., BaseItemCode=204633A'
+    - - :warning
+      - 'Line 437: Product not found, record ignored., BaseItemCode=204634A'
+    - - :warning
+      - 'Line 438: Product not found, record ignored., BaseItemCode=204635A'
+    - - :warning
+      - 'Line 441: Product not found, record ignored., BaseItemCode=204729A'
+    - - :warning
+      - 'Line 535: Product not found, record ignored., BaseItemCode=205978A'
+    - - :warning
+      - 'Line 1078: Product not found, record ignored., BaseItemCode=207801A'
+    - - :warning
+      - 'Line 1079: Product not found, record ignored., BaseItemCode=207802A'
+    - - :warning
+      - 'Line 1080: Product not found, record ignored., BaseItemCode=207803A'
+    - - :warning
+      - 'Line 1081: Product not found, record ignored., BaseItemCode=207804A'
+    - - :warning
+      - 'Line 1082: Product not found, record ignored., BaseItemCode=207805A'
+    - - :warning
+      - 'Line 1083: Product not found, record ignored., BaseItemCode=207806A'
+    - - :warning
+      - 'Line 1084: Product not found, record ignored., BaseItemCode=207807A'
+    - - :warning
+      - 'Line 1085: Product not found, record ignored., BaseItemCode=207808A'
+    - - :warning
+      - 'Line 1086: Product not found, record ignored., BaseItemCode=207809A'
+    - - :warning
+      - 'Line 1087: Product not found, record ignored., BaseItemCode=207811A'
+    - - :warning
+      - 'Line 1088: Product not found, record ignored., BaseItemCode=207812A'
+    - - :warning
+      - 'Line 1089: Product not found, record ignored., BaseItemCode=207813A'
+    - - :warning
+      - 'Line 1090: Product not found, record ignored., BaseItemCode=207814A'
+    - - :warning
+      - 'Line 1091: Product not found, record ignored., BaseItemCode=207815A'
+    - - :warning
+      - 'Line 1092: Product not found, record ignored., BaseItemCode=207816A'
+    - - :warning
+      - 'Line 1093: Product not found, record ignored., BaseItemCode=207817A'
+    - - :warning
+      - 'Line 1094: Product not found, record ignored., BaseItemCode=207818A'
+    - - :warning
+      - 'Line 1095: Product not found, record ignored., BaseItemCode=207819A'
+    - - :warning
+      - 'Line 1096: Product not found, record ignored., BaseItemCode=207821A'
+    - - :warning
+      - 'Line 1097: Product not found, record ignored., BaseItemCode=207822A'
+    - - :warning
+      - 'Line 1098: Product not found, record ignored., BaseItemCode=207823A'
+    - - :warning
+      - 'Line 1099: Product not found, record ignored., BaseItemCode=207824A'
+    - - :warning
+      - 'Line 1100: Product not found, record ignored., BaseItemCode=207825A'
+    - - :warning
+      - 'Line 1101: Product not found, record ignored., BaseItemCode=207826A'
+    - - :warning
+      - 'Line 1102: Product not found, record ignored., BaseItemCode=207827A'
+    - - :warning
+      - 'Line 1103: Product not found, record ignored., BaseItemCode=207828A'
+    - - :warning
+      - 'Line 1104: Product not found, record ignored., BaseItemCode=207829A'
+    - - :warning
+      - 'Line 1105: Product not found, record ignored., BaseItemCode=207831A'
+    - - :warning
+      - 'Line 1106: Product not found, record ignored., BaseItemCode=207832A'
+    - - :warning
+      - 'Line 1107: Product not found, record ignored., BaseItemCode=207833A'
+    - - :warning
+      - 'Line 1108: Product not found, record ignored., BaseItemCode=207834A'
+    - - :warning
+      - 'Line 1109: Product not found, record ignored., BaseItemCode=207835A'
+    - - :warning
+      - 'Line 1110: Product not found, record ignored., BaseItemCode=207836A'
+    - - :warning
+      - 'Line 1111: Product not found, record ignored., BaseItemCode=207837A'
+    - - :warning
+      - 'Line 1112: Product not found, record ignored., BaseItemCode=207838A'
+    - - :warning
+      - 'Line 1113: Product not found, record ignored., BaseItemCode=207839A'
+    - - :warning
+      - 'Line 1114: Product not found, record ignored., BaseItemCode=207841A'
+    - - :warning
+      - 'Line 1115: Product not found, record ignored., BaseItemCode=207842A'
+    - - :warning
+      - 'Line 1116: Product not found, record ignored., BaseItemCode=207843A'
+    - - :warning
+      - 'Line 1117: Product not found, record ignored., BaseItemCode=207844A'
+    - - :warning
+      - 'Line 1118: Product not found, record ignored., BaseItemCode=207845A'
+    - - :warning
+      - 'Line 1119: Product not found, record ignored., BaseItemCode=207846A'
+    - - :warning
+      - 'Line 1120: Product not found, record ignored., BaseItemCode=207847A'
+    - - :warning
+      - 'Line 1121: Product not found, record ignored., BaseItemCode=207848A'
+    - - :warning
+      - 'Line 1381: Product not found, record ignored., BaseItemCode=43461A'
+    - - :warning
+      - 'Line 1410: Product not found, record ignored., BaseItemCode=48483'
+    - - :warning
+      - 'Line 1411: Product not found, record ignored., BaseItemCode=48749'
+    - - :warning
+      - 'Line 1412: Product not found, record ignored., BaseItemCode=48848'
+    - - :warning
+      - 'Line 1413: Product not found, record ignored., BaseItemCode=48939'
+    - - :warning
+      - 'Line 1447: Product not found, record ignored., BaseItemCode=82813A'
+    - - :warning
+      - 'Line 1544: Product not found, record ignored., BaseItemCode=93661A'
+    - - :warning
+      - 'Line 1545: Product not found, record ignored., BaseItemCode=93679A'
+    - - :warning
+      - 'Line 1562: Product not found, record ignored., BaseItemCode=94636A'
+    - - :warning
+      - 'Line 1584: Product not found, record ignored., BaseItemCode=97132A'
+ |
+| 2026-06-17T09:04:15.642250 | ---
+- - Inventory
+  - - - :warning
+      - 'Line 21: Product not found, record ignored., BaseItemCode=203523A'
+    - - :warning
+      - 'Line 101: Product not found, record ignored., BaseItemCode=31613A'
+    - - :warning
+      - 'Line 267: Product not found, record ignored., BaseItemCode=202262A'
+    - - :warning
+      - 'Line 277: Product not found, record ignored., BaseItemCode=202316A'
+    - - :warning
+      - 'Line 289: Product not found, record ignored., BaseItemCode=202501A'
+    - - :warning
+      - 'Line 325: Product not found, record ignored., BaseItemCode=203676A'
+    - - :warning
+      - 'Line 328: Product not found, record ignored., BaseItemCode=203743A'
+    - - :warning
+      - 'Line 357: Product not found, record ignored., BaseItemCode=204001A'
+    - - :warning
+      - 'Line 393: Product not found, record ignored., BaseItemCode=204234A'
+    - - :warning
+      - 'Line 394: Product not found, record ignored., BaseItemCode=204235A'
+    - - :warning
+      - 'Line 395: Product not found, record ignored., BaseItemCode=204236A'
+    - - :warning
+      - 'Line 396: Product not found, record ignored., BaseItemCode=204237A'
+    - - :warning
+      - 'Line 426: Product not found, record ignored., BaseItemCode=204444A'
+    - - :warning
+      - 'Line 429: Product not found, record ignored., BaseItemCode=204615A'
+    - - :warning
+      - 'Line 430: Product not found, record ignored., BaseItemCode=204616A'
+    - - :warning
+      - 'Line 431: Product not found, record ignored., BaseItemCode=204617A'
+    - - :warning
+      - 'Line 432: Product not found, record ignored., BaseItemCode=204618A'
+    - - :warning
+      - 'Line 433: Product not found, record ignored., BaseItemCode=204619A'
+    - - :warning
+      - 'Line 434: Product not found, record ignored., BaseItemCode=204621A'
+    - - :warning
+      - 'Line 435: Product not found, record ignored., BaseItemCode=204632A'
+    - - :warning
+      - 'Line 436: Product not found, record ignored., BaseItemCode=204633A'
+    - - :warning
+      - 'Line 437: Product not found, record ignored., BaseItemCode=204634A'
+    - - :warning
+      - 'Line 438: Product not found, record ignored., BaseItemCode=204635A'
+    - - :warning
+      - 'Line 441: Product not found, record ignored., BaseItemCode=204729A'
+    - - :warning
+      - 'Line 535: Product not found, record ignored., BaseItemCode=205978A'
+    - - :warning
+      - 'Line 1078: Product not found, record ignored., BaseItemCode=207801A'
+    - - :warning
+      - 'Line 1079: Product not found, record ignored., BaseItemCode=207802A'
+    - - :warning
+      - 'Line 1080: Product not found, record ignored., BaseItemCode=207803A'
+    - - :warning
+      - 'Line 1081: Product not found, record ignored., BaseItemCode=207804A'
+    - - :warning
+      - 'Line 1082: Product not found, record ignored., BaseItemCode=207805A'
+    - - :warning
+      - 'Line 1083: Product not found, record ignored., BaseItemCode=207806A'
+    - - :warning
+      - 'Line 1084: Product not found, record ignored., BaseItemCode=207807A'
+    - - :warning
+      - 'Line 1085: Product not found, record ignored., BaseItemCode=207808A'
+    - - :warning
+      - 'Line 1086: Product not found, record ignored., BaseItemCode=207809A'
+    - - :warning
+      - 'Line 1087: Product not found, record ignored., BaseItemCode=207811A'
+    - - :warning
+      - 'Line 1088: Product not found, record ignored., BaseItemCode=207812A'
+    - - :warning
+      - 'Line 1089: Product not found, record ignored., BaseItemCode=207813A'
+    - - :warning
+      - 'Line 1090: Product not found, record ignored., BaseItemCode=207814A'
+    - - :warning
+      - 'Line 1091: Product not found, record ignored., BaseItemCode=207815A'
+    - - :warning
+      - 'Line 1092: Product not found, record ignored., BaseItemCode=207816A'
+    - - :warning
+      - 'Line 1093: Product not found, record ignored., BaseItemCode=207817A'
+    - - :warning
+      - 'Line 1094: Product not found, record ignored., BaseItemCode=207818A'
+    - - :warning
+      - 'Line 1095: Product not found, record ignored., BaseItemCode=207819A'
+    - - :warning
+      - 'Line 1096: Product not found, record ignored., BaseItemCode=207821A'
+    - - :warning
+      - 'Line 1097: Product not found, record ignored., BaseItemCode=207822A'
+    - - :warning
+      - 'Line 1098: Product not found, record ignored., BaseItemCode=207823A'
+    - - :warning
+      - 'Line 1099: Product not found, record ignored., BaseItemCode=207824A'
+    - - :warning
+      - 'Line 1100: Product not found, record ignored., BaseItemCode=207825A'
+    - - :warning
+      - 'Line 1101: Product not found, record ignored., BaseItemCode=207826A'
+    - - :warning
+      - 'Line 1102: Product not found, record ignored., BaseItemCode=207827A'
+    - - :warning
+      - 'Line 1103: Product not found, record ignored., BaseItemCode=207828A'
+    - - :warning
+      - 'Line 1104: Product not found, record ignored., BaseItemCode=207829A'
+    - - :warning
+      - 'Line 1105: Product not found, record ignored., BaseItemCode=207831A'
+    - - :warning
+      - 'Line 1106: Product not found, record ignored., BaseItemCode=207832A'
+    - - :warning
+      - 'Line 1107: Product not found, record ignored., BaseItemCode=207833A'
+    - - :warning
+      - 'Line 1108: Product not found, record ignored., BaseItemCode=207834A'
+    - - :warning
+      - 'Line 1109: Product not found, record ignored., BaseItemCode=207835A'
+    - - :warning
+      - 'Line 1110: Product not found, record ignored., BaseItemCode=207836A'
+    - - :warning
+      - 'Line 1111: Product not found, record ignored., BaseItemCode=207837A'
+    - - :warning
+      - 'Line 1112: Product not found, record ignored., BaseItemCode=207838A'
+    - - :warning
+      - 'Line 1113: Product not found, record ignored., BaseItemCode=207839A'
+    - - :warning
+      - 'Line 1114: Product not found, record ignored., BaseItemCode=207841A'
+    - - :warning
+      - 'Line 1115: Product not found, record ignored., BaseItemCode=207842A'
+    - - :warning
+      - 'Line 1116: Product not found, record ignored., BaseItemCode=207843A'
+    - - :warning
+      - 'Line 1117: Product not found, record ignored., BaseItemCode=207844A'
+    - - :warning
+      - 'Line 1118: Product not found, record ignored., BaseItemCode=207845A'
+    - - :warning
+      - 'Line 1119: Product not found, record ignored., BaseItemCode=207846A'
+    - - :warning
+      - 'Line 1120: Product not found, record ignored., BaseItemCode=207847A'
+    - - :warning
+      - 'Line 1121: Product not found, record ignored., BaseItemCode=207848A'
+    - - :warning
+      - 'Line 1381: Product not found, record ignored., BaseItemCode=43461A'
+    - - :warning
+      - 'Line 1410: Product not found, record ignored., BaseItemCode=48483'
+    - - :warning
+      - 'Line 1411: Product not found, record ignored., BaseItemCode=48749'
+    - - :warning
+      - 'Line 1412: Product not found, record ignored., BaseItemCode=48848'
+    - - :warning
+      - 'Line 1413: Product not found, record ignored., BaseItemCode=48939'
+    - - :warning
+      - 'Line 1447: Product not found, record ignored., BaseItemCode=82813A'
+    - - :warning
+      - 'Line 1544: Product not found, record ignored., BaseItemCode=93661A'
+    - - :warning
+      - 'Line 1545: Product not found, record ignored., BaseItemCode=93679A'
+    - - :warning
+      - 'Line 1562: Product not found, record ignored., BaseItemCode=94636A'
+    - - :warning
+      - 'Line 1584: Product not found, record ignored., BaseItemCode=97132A'
+ |
+| 2026-06-17T03:05:21.437825 | ---
+- - Customers
+  - - - :error
+      - 'Line 405: Default price code ''10'' must be a valid price level code'
+    - - :error
+      - 'Line 1319: Default price code ''01'' must be a valid price level code'
+- - Sales Data
+  - - - :error
+      - 'Line 87: Base item code GA000051W4 does not match an active product'
+    - - :error
+      - 'Line 232: Base item code 202501A does not match an active product'
+    - - :error
+      - 'Line 263: Base item code 3DIV does not match an active product'
+    - - :error
+      - 'Line 283: Either quantity invoiced or quantity on order is required'
+    - - :error
+      - 'Line 284: Either quantity invoiced or quantity on order is required'
+    - - :error
+      - 'Line 406: Base item code THESIS26 does not match an active product'
+    - - :error
+      - 'Line 456: Base item code THESIS26 does not match an active product'
+    - - :error
+      - 'Line 461: Base item code THESIS26 does not match an active product'
+    - - :error
+      - 'Line 462: Base item code THESIS26 does not match an active product'
+    - - :error
+      - 'Line 463: Base item code 3DIV does not match an active product'
+    - - :error
+      - 'Line 472: error=Parse exception: field=amountinvoiced, value=''50.00-'',
+        error=invalid floating point value'
+    - - :error
+      - 'Line 472: Either quantity invoiced or quantity on order is required'
+    - - :error
+      - 'Line 473: Base item code PB04047101 does not match an active product'
+    - - :error
+      - 'Line 474: Base item code PB04047201 does not match an active product'
+    - - :error
+      - 'Line 475: Base item code PB04047301 does not match an active product'
+    - - :error
+      - 'Line 476: Base item code PB04047401 does not match an active product'
+    - - :error
+      - 'Line 477: Base item code PB04047501 does not match an active product'
+    - - :error
+      - 'Line 478: Base item code PB04047601 does not match an active product'
+    - - :error
+      - 'Line 485: Base item code THESIS26 does not match an active product'
+    - - :error
+      - 'Line 504: Base item code 3DIV does not match an active product'
+    - - :error
+      - 'Line 534: Base item code 3DIV does not match an active product'
+    - - :error
+      - 'Line 602: Base item code 3DIV does not match an active product'
+    - - :error
+      - 'Line 619: Base item code EG02001202-R does not match an active product'
+    - - :error
+      - 'Line 664: Base item code GC00010601 does not match an active product'
+    - - :error
+      - 'Line 666: Base item code GE00015601 does not match an active product'
+    - - :error
+      - 'Line 713: Either quantity invoiced or quantity on order is required'
+    - - :error
+      - 'Line 714: Base item code 3DIV does not match an active product'
+    - - :error
+      - 'Line 715: Base item code ET4437 does not match an active product'
+    - - :error
+      - 'Line 719: Base item code 3DIV does not match an active product'
+    - - :error
+      - 'Line 720: Base item code 3DIV does not match an active product'
+    - - :error
+      - 'Line 833: Base item code 48848 does not match an active product'
+    - - :error
+      - 'Line 860: Either quantity invoiced or quantity on order is required'
+    - - :error
+      - 'Line 867: Base item code 82813A does not match an active product'
+    - - :error
+      - 'Line 876: Base item code ET4312 does not match an active product'
+    - - :error
+      - 'Line 890: Base item code THESIS26 does not match an active product'
+    - - :error
+      - 'Line 945: Base item code KATFANUS26 does not match an active product'
+    - - :error
+      - 'Line 946: Base item code KATLCA54_EN does not match an active product'
+    - - :error
+      - 'Line 947: Base item code KATLCAES01 does not match an active product'
+    - - :error
+      - 'Line 948: Base item code KATLCASOL25 does not match an active product'
+    - - :error
+      - 'Line 949: Base item code KATNCA26/01 does not match an active product'
+    - - :error
+      - 'Line 950: Base item code THESIS26 does not match an active product'
+    - - :error
+      - 'Line 957: Base item code KATFANUS26 does not match an active product'
+    - - :error
+      - 'Line 958: Base item code KATLCA54_EN does not match an active product'
+    - - :error
+      - 'Line 959: Base item code KATLCAES01 does not match an active product'
+    - - :error
+      - 'Line 960: Base item code KATNCA26/01 does not match an active product'
+    - - :error
+      - 'Line 961: Base item code THESIS26 does not match an active product'
+    - - :error
+      - 'Line 975: Base item code GA000439W4 does not match an active product'
+    - - :error
+      - 'Line 1020: Base item code 3DIV does not match an active product'
+    - - :error
+      - 'Line 1073: Base item code 3DIV does not match an active product'
+    - - :error
+      - 'Line 1100: Base item code 3DIV does not match an active product'
+    - - :error
+      - 'Line 1126: Base item code 3DIV does not match an active product'
+    - - :error
+      - 'Line 1146: Base item code GA000476W0 does not match an active product'
+    - - :error
+      - 'Line 1150: Base item code KATFANUS26 does not match an active product'
+    - - :error
+      - 'Line 1151: Base item code KATLCA54_EN does not match an active product'
+    - - :error
+      - 'Line 1152: Base item code KATLCAES01 does not match an active product'
+    - - :error
+      - 'Line 1153: Base item code KATLCASOL25 does not match an active product'
+    - - :error
+      - 'Line 1595: Either quantity invoiced or quantity on order is required'
+    - - :error
+      - 'Line 1596: Either quantity invoiced or quantity on order is required'
+    - - :error
+      - 'Line 1597: Either quantity invoiced or quantity on order is required'
+    - - :error
+      - 'Line 1719: Either quantity invoiced or quantity on order is required'
+    - - :warning
+      - "-71 more rows with invalid products"
+ |
+| 2026-06-16T19:33:21.516979 | ---
+- - Customers
+  - - - :error
+      - 'Line 405: Default price code ''10'' must be a valid price level code'
+    - - :error
+      - 'Line 1319: Default price code ''01'' must be a valid price level code'
+- - Sales Data
+  - - - :error
+      - 'Line 87: Base item code GA000051W4 does not match an active product'
+    - - :error
+      - 'Line 232: Base item code 202501A does not match an active product'
+    - - :error
+      - 'Line 263: Base item code 3DIV does not match an active product'
+    - - :error
+      - 'Line 283: Either quantity invoiced or quantity on order is required'
+    - - :error
+      - 'Line 284: Either quantity invoiced or quantity on order is required'
+    - - :error
+      - 'Line 406: Base item code THESIS26 does not match an active product'
+    - - :error
+      - 'Line 456: Base item code THESIS26 does not match an active product'
+    - - :error
+      - 'Line 461: Base item code THESIS26 does not match an active product'
+    - - :error
+      - 'Line 462: Base item code THESIS26 does not match an active product'
+    - - :error
+      - 'Line 463: Base item code 3DIV does not match an active product'
+    - - :error
+      - 'Line 472: error=Parse exception: field=amountinvoiced, value=''50.00-'',
+        error=invalid floating point value'
+    - - :error
+      - 'Line 472: Either quantity invoiced or quantity on order is required'
+    - - :error
+      - 'Line 473: Base item code PB04047101 does not match an active product'
+    - - :error
+      - 'Line 474: Base item code PB04047201 does not match an active product'
+    - - :error
+      - 'Line 475: Base item code PB04047301 does not match an active product'
+    - - :error
+      - 'Line 476: Base item code PB04047401 does not match an active product'
+    - - :error
+      - 'Line 477: Base item code PB04047501 does not match an active product'
+    - - :error
+      - 'Line 478: Base item code PB04047601 does not match an active product'
+    - - :error
+      - 'Line 485: Base item code THESIS26 does not match an active product'
+    - - :error
+      - 'Line 504: Base item code 3DIV does not match an active product'
+    - - :error
+      - 'Line 534: Base item code 3DIV does not match an active product'
+    - - :error
+      - 'Line 602: Base item code 3DIV does not match an active product'
+    - - :error
+      - 'Line 619: Base item code EG02001202-R does not match an active product'
+    - - :error
+      - 'Line 664: Base item code GC00010601 does not match an active product'
+    - - :error
+      - 'Line 666: Base item code GE00015601 does not match an active product'
+    - - :error
+      - 'Line 713: Either quantity invoiced or quantity on order is required'
+    - - :error
+      - 'Line 714: Base item code 3DIV does not match an active product'
+    - - :error
+      - 'Line 715: Base item code ET4437 does not match an active product'
+    - - :error
+      - 'Line 719: Base item code 3DIV does not match an active product'
+    - - :error
+      - 'Line 720: Base item code 3DIV does not match an active product'
+    - - :error
+      - 'Line 833: Base item code 48848 does not match an active product'
+    - - :error
+      - 'Line 860: Either quantity invoiced or quantity on order is required'
+    - - :error
+      - 'Line 867: Base item code 82813A does not match an active product'
+    - - :error
+      - 'Line 876: Base item code ET4312 does not match an active product'
+    - - :error
+      - 'Line 890: Base item code THESIS26 does not match an active product'
+    - - :error
+      - 'Line 945: Base item code KATFANUS26 does not match an active product'
+    - - :error
+      - 'Line 946: Base item code KATLCA54_EN does not match an active product'
+    - - :error
+      - 'Line 947: Base item code KATLCAES01 does not match an active product'
+    - - :error
+      - 'Line 948: Base item code KATLCASOL25 does not match an active product'
+    - - :error
+      - 'Line 949: Base item code KATNCA26/01 does not match an active product'
+    - - :error
+      - 'Line 950: Base item code THESIS26 does not match an active product'
+    - - :error
+      - 'Line 957: Base item code KATFANUS26 does not match an active product'
+    - - :error
+      - 'Line 958: Base item code KATLCA54_EN does not match an active product'
+    - - :error
+      - 'Line 959: Base item code KATLCAES01 does not match an active product'
+    - - :error
+      - 'Line 960: Base item code KATNCA26/01 does not match an active product'
+    - - :error
+      - 'Line 961: Base item code THESIS26 does not match an active product'
+    - - :error
+      - 'Line 975: Base item code GA000439W4 does not match an active product'
+    - - :error
+      - 'Line 1020: Base item code 3DIV does not match an active product'
+    - - :error
+      - 'Line 1073: Base item code 3DIV does not match an active product'
+    - - :error
+      - 'Line 1100: Base item code 3DIV does not match an active product'
+    - - :error
+      - 'Line 1126: Base item code 3DIV does not match an active product'
+    - - :error
+      - 'Line 1146: Base item code GA000476W0 does not match an active product'
+    - - :error
+      - 'Line 1150: Base item code KATFANUS26 does not match an active product'
+    - - :error
+      - 'Line 1151: Base item code KATLCA54_EN does not match an active product'
+    - - :error
+      - 'Line 1152: Base item code KATLCAES01 does not match an active product'
+    - - :error
+      - 'Line 1153: Base item code KATLCASOL25 does not match an active product'
+    - - :error
+      - 'Line 1595: Either quantity invoiced or quantity on order is required'
+    - - :error
+      - 'Line 1596: Either quantity invoiced or quantity on order is required'
+    - - :error
+      - 'Line 1597: Either quantity invoiced or quantity on order is required'
+    - - :error
+      - 'Line 1719: Either quantity invoiced or quantity on order is required'
+    - - :warning
+      - "-70 more rows with invalid products"
+ |
+| 2026-06-16T15:06:40.275909 | ---
+- - Inventory
+  - - - :warning
+      - 'Line 62: Product not found, record ignored., BaseItemCode=202262A'
+    - - :warning
+      - 'Line 72: Product not found, record ignored., BaseItemCode=202316A'
+    - - :warning
+      - 'Line 85: Product not found, record ignored., BaseItemCode=202501A'
+    - - :warning
+      - 'Line 125: Product not found, record ignored., BaseItemCode=203523A'
+    - - :warning
+      - 'Line 136: Product not found, record ignored., BaseItemCode=203676A'
+    - - :warning
+      - 'Line 139: Product not found, record ignored., BaseItemCode=203743A'
+    - - :warning
+      - 'Line 168: Product not found, record ignored., BaseItemCode=204001A'
+    - - :warning
+      - 'Line 215: Product not found, record ignored., BaseItemCode=204234A'
+    - - :warning
+      - 'Line 216: Product not found, record ignored., BaseItemCode=204235A'
+    - - :warning
+      - 'Line 217: Product not found, record ignored., BaseItemCode=204236A'
+    - - :warning
+      - 'Line 218: Product not found, record ignored., BaseItemCode=204237A'
+    - - :warning
+      - 'Line 252: Product not found, record ignored., BaseItemCode=204444A'
+    - - :warning
+      - 'Line 258: Product not found, record ignored., BaseItemCode=204615A'
+    - - :warning
+      - 'Line 259: Product not found, record ignored., BaseItemCode=204616A'
+    - - :warning
+      - 'Line 260: Product not found, record ignored., BaseItemCode=204617A'
+    - - :warning
+      - 'Line 261: Product not found, record ignored., BaseItemCode=204618A'
+    - - :warning
+      - 'Line 262: Product not found, record ignored., BaseItemCode=204619A'
+    - - :warning
+      - 'Line 263: Product not found, record ignored., BaseItemCode=204621A'
+    - - :warning
+      - 'Line 264: Product not found, record ignored., BaseItemCode=204632A'
+    - - :warning
+      - 'Line 265: Product not found, record ignored., BaseItemCode=204633A'
+    - - :warning
+      - 'Line 266: Product not found, record ignored., BaseItemCode=204634A'
+    - - :warning
+      - 'Line 267: Product not found, record ignored., BaseItemCode=204635A'
+    - - :warning
+      - 'Line 280: Product not found, record ignored., BaseItemCode=204729A'
+    - - :warning
+      - 'Line 389: Product not found, record ignored., BaseItemCode=205978A'
+    - - :warning
+      - 'Line 966: Product not found, record ignored., BaseItemCode=207801A'
+    - - :warning
+      - 'Line 967: Product not found, record ignored., BaseItemCode=207802A'
+    - - :warning
+      - 'Line 968: Product not found, record ignored., BaseItemCode=207803A'
+    - - :warning
+      - 'Line 969: Product not found, record ignored., BaseItemCode=207804A'
+    - - :warning
+      - 'Line 970: Product not found, record ignored., BaseItemCode=207805A'
+    - - :warning
+      - 'Line 971: Product not found, record ignored., BaseItemCode=207806A'
+    - - :warning
+      - 'Line 972: Product not found, record ignored., BaseItemCode=207807A'
+    - - :warning
+      - 'Line 973: Product not found, record ignored., BaseItemCode=207808A'
+    - - :warning
+      - 'Line 974: Product not found, record ignored., BaseItemCode=207809A'
+    - - :warning
+      - 'Line 975: Product not found, record ignored., BaseItemCode=207811A'
+    - - :warning
+      - 'Line 976: Product not found, record ignored., BaseItemCode=207812A'
+    - - :warning
+      - 'Line 977: Product not found, record ignored., BaseItemCode=207813A'
+    - - :warning
+      - 'Line 978: Product not found, record ignored., BaseItemCode=207814A'
+    - - :warning
+      - 'Line 979: Product not found, record ignored., BaseItemCode=207815A'
+    - - :warning
+      - 'Line 980: Product not found, record ignored., BaseItemCode=207816A'
+    - - :warning
+      - 'Line 981: Product not found, record ignored., BaseItemCode=207817A'
+    - - :warning
+      - 'Line 982: Product not found, record ignored., BaseItemCode=207818A'
+    - - :warning
+      - 'Line 983: Product not found, record ignored., BaseItemCode=207819A'
+    - - :warning
+      - 'Line 984: Product not found, record ignored., BaseItemCode=207821A'
+    - - :warning
+      - 'Line 985: Product not found, record ignored., BaseItemCode=207822A'
+    - - :warning
+      - 'Line 986: Product not found, record ignored., BaseItemCode=207823A'
+    - - :warning
+      - 'Line 987: Product not found, record ignored., BaseItemCode=207824A'
+    - - :warning
+      - 'Line 988: Product not found, record ignored., BaseItemCode=207825A'
+    - - :warning
+      - 'Line 989: Product not found, record ignored., BaseItemCode=207826A'
+    - - :warning
+      - 'Line 990: Product not found, record ignored., BaseItemCode=207827A'
+    - - :warning
+      - 'Line 991: Product not found, record ignored., BaseItemCode=207828A'
+    - - :warning
+      - 'Line 992: Product not found, record ignored., BaseItemCode=207829A'
+    - - :warning
+      - 'Line 993: Product not found, record ignored., BaseItemCode=207831A'
+    - - :warning
+      - 'Line 994: Product not found, record ignored., BaseItemCode=207832A'
+    - - :warning
+      - 'Line 995: Product not found, record ignored., BaseItemCode=207833A'
+    - - :warning
+      - 'Line 996: Product not found, record ignored., BaseItemCode=207834A'
+    - - :warning
+      - 'Line 997: Product not found, record ignored., BaseItemCode=207835A'
+    - - :warning
+      - 'Line 998: Product not found, record ignored., BaseItemCode=207836A'
+    - - :warning
+      - 'Line 999: Product not found, record ignored., BaseItemCode=207837A'
+    - - :warning
+      - 'Line 1000: Product not found, record ignored., BaseItemCode=207838A'
+    - - :warning
+      - 'Line 1001: Product not found, record ignored., BaseItemCode=207839A'
+    - - :warning
+      - 'Line 1002: Product not found, record ignored., BaseItemCode=207841A'
+    - - :warning
+      - 'Line 1003: Product not found, record ignored., BaseItemCode=207842A'
+    - - :warning
+      - 'Line 1004: Product not found, record ignored., BaseItemCode=207843A'
+    - - :warning
+      - 'Line 1005: Product not found, record ignored., BaseItemCode=207844A'
+    - - :warning
+      - 'Line 1006: Product not found, record ignored., BaseItemCode=207845A'
+    - - :warning
+      - 'Line 1007: Product not found, record ignored., BaseItemCode=207846A'
+    - - :warning
+      - 'Line 1008: Product not found, record ignored., BaseItemCode=207847A'
+    - - :warning
+      - 'Line 1009: Product not found, record ignored., BaseItemCode=207848A'
+    - - :warning
+      - 'Line 1167: Product not found, record ignored., BaseItemCode=31613A'
+    - - :warning
+      - 'Line 1328: Product not found, record ignored., BaseItemCode=43461A'
+    - - :warning
+      - 'Line 1362: Product not found, record ignored., BaseItemCode=48483'
+    - - :warning
+      - 'Line 1363: Product not found, record ignored., BaseItemCode=48749'
+    - - :warning
+      - 'Line 1364: Product not found, record ignored., BaseItemCode=48848'
+    - - :warning
+      - 'Line 1365: Product not found, record ignored., BaseItemCode=48939'
+    - - :warning
+      - 'Line 1406: Product not found, record ignored., BaseItemCode=82813A'
+    - - :warning
+      - 'Line 1515: Product not found, record ignored., BaseItemCode=93661A'
+    - - :warning
+      - 'Line 1516: Product not found, record ignored., BaseItemCode=93679A'
+    - - :warning
+      - 'Line 1533: Product not found, record ignored., BaseItemCode=94636A'
+    - - :warning
+      - 'Line 1555: Product not found, record ignored., BaseItemCode=97132A'
+ |
+| 2026-06-16T09:03:15.850310 | ---
+- - Inventory
+  - - - :warning
+      - 'Line 62: Product not found, record ignored., BaseItemCode=202262A'
+    - - :warning
+      - 'Line 72: Product not found, record ignored., BaseItemCode=202316A'
+    - - :warning
+      - 'Line 85: Product not found, record ignored., BaseItemCode=202501A'
+    - - :warning
+      - 'Line 125: Product not found, record ignored., BaseItemCode=203523A'
+    - - :warning
+      - 'Line 136: Product not found, record ignored., BaseItemCode=203676A'
+    - - :warning
+      - 'Line 139: Product not found, record ignored., BaseItemCode=203743A'
+    - - :warning
+      - 'Line 168: Product not found, record ignored., BaseItemCode=204001A'
+    - - :warning
+      - 'Line 215: Product not found, record ignored., BaseItemCode=204234A'
+    - - :warning
+      - 'Line 216: Product not found, record ignored., BaseItemCode=204235A'
+    - - :warning
+      - 'Line 217: Product not found, record ignored., BaseItemCode=204236A'
+    - - :warning
+      - 'Line 218: Product not found, record ignored., BaseItemCode=204237A'
+    - - :warning
+      - 'Line 252: Product not found, record ignored., BaseItemCode=204444A'
+    - - :warning
+      - 'Line 258: Product not found, record ignored., BaseItemCode=204615A'
+    - - :warning
+      - 'Line 259: Product not found, record ignored., BaseItemCode=204616A'
+    - - :warning
+      - 'Line 260: Product not found, record ignored., BaseItemCode=204617A'
+    - - :warning
+      - 'Line 261: Product not found, record ignored., BaseItemCode=204618A'
+    - - :warning
+      - 'Line 262: Product not found, record ignored., BaseItemCode=204619A'
+    - - :warning
+      - 'Line 263: Product not found, record ignored., BaseItemCode=204621A'
+    - - :warning
+      - 'Line 264: Product not found, record ignored., BaseItemCode=204632A'
+    - - :warning
+      - 'Line 265: Product not found, record ignored., BaseItemCode=204633A'
+    - - :warning
+      - 'Line 266: Product not found, record ignored., BaseItemCode=204634A'
+    - - :warning
+      - 'Line 267: Product not found, record ignored., BaseItemCode=204635A'
+    - - :warning
+      - 'Line 280: Product not found, record ignored., BaseItemCode=204729A'
+    - - :warning
+      - 'Line 389: Product not found, record ignored., BaseItemCode=205978A'
+    - - :warning
+      - 'Line 966: Product not found, record ignored., BaseItemCode=207801A'
+    - - :warning
+      - 'Line 967: Product not found, record ignored., BaseItemCode=207802A'
+    - - :warning
+      - 'Line 968: Product not found, record ignored., BaseItemCode=207803A'
+    - - :warning
+      - 'Line 969: Product not found, record ignored., BaseItemCode=207804A'
+    - - :warning
+      - 'Line 970: Product not found, record ignored., BaseItemCode=207805A'
+    - - :warning
+      - 'Line 971: Product not found, record ignored., BaseItemCode=207806A'
+    - - :warning
+      - 'Line 972: Product not found, record ignored., BaseItemCode=207807A'
+    - - :warning
+      - 'Line 973: Product not found, record ignored., BaseItemCode=207808A'
+    - - :warning
+      - 'Line 974: Product not found, record ignored., BaseItemCode=207809A'
+    - - :warning
+      - 'Line 975: Product not found, record ignored., BaseItemCode=207811A'
+    - - :warning
+      - 'Line 976: Product not found, record ignored., BaseItemCode=207812A'
+    - - :warning
+      - 'Line 977: Product not found, record ignored., BaseItemCode=207813A'
+    - - :warning
+      - 'Line 978: Product not found, record ignored., BaseItemCode=207814A'
+    - - :warning
+      - 'Line 979: Product not found, record ignored., BaseItemCode=207815A'
+    - - :warning
+      - 'Line 980: Product not found, record ignored., BaseItemCode=207816A'
+    - - :warning
+      - 'Line 981: Product not found, record ignored., BaseItemCode=207817A'
+    - - :warning
+      - 'Line 982: Product not found, record ignored., BaseItemCode=207818A'
+    - - :warning
+      - 'Line 983: Product not found, record ignored., BaseItemCode=207819A'
+    - - :warning
+      - 'Line 984: Product not found, record ignored., BaseItemCode=207821A'
+    - - :warning
+      - 'Line 985: Product not found, record ignored., BaseItemCode=207822A'
+    - - :warning
+      - 'Line 986: Product not found, record ignored., BaseItemCode=207823A'
+    - - :warning
+      - 'Line 987: Product not found, record ignored., BaseItemCode=207824A'
+    - - :warning
+      - 'Line 988: Product not found, record ignored., BaseItemCode=207825A'
+    - - :warning
+      - 'Line 989: Product not found, record ignored., BaseItemCode=207826A'
+    - - :warning
+      - 'Line 990: Product not found, record ignored., BaseItemCode=207827A'
+    - - :warning
+      - 'Line 991: Product not found, record ignored., BaseItemCode=207828A'
+    - - :warning
+      - 'Line 992: Product not found, record ignored., BaseItemCode=207829A'
+    - - :warning
+      - 'Line 993: Product not found, record ignored., BaseItemCode=207831A'
+    - - :warning
+      - 'Line 994: Product not found, record ignored., BaseItemCode=207832A'
+    - - :warning
+      - 'Line 995: Product not found, record ignored., BaseItemCode=207833A'
+    - - :warning
+      - 'Line 996: Product not found, record ignored., BaseItemCode=207834A'
+    - - :warning
+      - 'Line 997: Product not found, record ignored., BaseItemCode=207835A'
+    - - :warning
+      - 'Line 998: Product not found, record ignored., BaseItemCode=207836A'
+    - - :warning
+      - 'Line 999: Product not found, record ignored., BaseItemCode=207837A'
+    - - :warning
+      - 'Line 1000: Product not found, record ignored., BaseItemCode=207838A'
+    - - :warning
+      - 'Line 1001: Product not found, record ignored., BaseItemCode=207839A'
+    - - :warning
+      - 'Line 1002: Product not found, record ignored., BaseItemCode=207841A'
+    - - :warning
+      - 'Line 1003: Product not found, record ignored., BaseItemCode=207842A'
+    - - :warning
+      - 'Line 1004: Product not found, record ignored., BaseItemCode=207843A'
+    - - :warning
+      - 'Line 1005: Product not found, record ignored., BaseItemCode=207844A'
+    - - :warning
+      - 'Line 1006: Product not found, record ignored., BaseItemCode=207845A'
+    - - :warning
+      - 'Line 1007: Product not found, record ignored., BaseItemCode=207846A'
+    - - :warning
+      - 'Line 1008: Product not found, record ignored., BaseItemCode=207847A'
+    - - :warning
+      - 'Line 1009: Product not found, record ignored., BaseItemCode=207848A'
+    - - :warning
+      - 'Line 1167: Product not found, record ignored., BaseItemCode=31613A'
+    - - :warning
+      - 'Line 1328: Product not found, record ignored., BaseItemCode=43461A'
+    - - :warning
+      - 'Line 1362: Product not found, record ignored., BaseItemCode=48483'
+    - - :warning
+      - 'Line 1363: Product not found, record ignored., BaseItemCode=48749'
+    - - :warning
+      - 'Line 1364: Product not found, record ignored., BaseItemCode=48848'
+    - - :warning
+      - 'Line 1365: Product not found, record ignored., BaseItemCode=48939'
+    - - :warning
+      - 'Line 1406: Product not found, record ignored., BaseItemCode=82813A'
+    - - :warning
+      - 'Line 1515: Product not found, record ignored., BaseItemCode=93661A'
+    - - :warning
+      - 'Line 1516: Product not found, record ignored., BaseItemCode=93679A'
+    - - :warning
+      - 'Line 1533: Product not found, record ignored., BaseItemCode=94636A'
+    - - :warning
+      - 'Line 1555: Product not found, record ignored., BaseItemCode=97132A'
+ |
+| 2026-06-16T03:04:27.342804 | ---
+- - Customers
+  - - - :error
+      - 'Line 405: Default price code ''10'' must be a valid price level code'
+    - - :error
+      - 'Line 1319: Default price code ''01'' must be a valid price level code'
+- - Sales Data
+  - - - :error
+      - 'Line 87: Base item code GA000051W4 does not match an active product'
+    - - :error
+      - 'Line 232: Base item code 202501A does not match an active product'
+    - - :error
+      - 'Line 263: Base item code 3DIV does not match an active product'
+    - - :error
+      - 'Line 283: Either quantity invoiced or quantity on order is required'
+    - - :error
+      - 'Line 284: Either quantity invoiced or quantity on order is required'
+    - - :error
+      - 'Line 406: Base item code THESIS26 does not match an active product'
+    - - :error
+      - 'Line 456: Base item code THESIS26 does not match an active product'
+    - - :error
+      - 'Line 461: Base item code THESIS26 does not match an active product'
+    - - :error
+      - 'Line 462: Base item code THESIS26 does not match an active product'
+    - - :error
+      - 'Line 463: Base item code 3DIV does not match an active product'
+    - - :error
+      - 'Line 472: error=Parse exception: field=amountinvoiced, value=''50.00-'',
+        error=invalid floating point value'
+    - - :error
+      - 'Line 472: Either quantity invoiced or quantity on order is required'
+    - - :error
+      - 'Line 473: Base item code PB04047101 does not match an active product'
+    - - :error
+      - 'Line 474: Base item code PB04047201 does not match an active product'
+    - - :error
+      - 'Line 475: Base item code PB04047301 does not match an active product'
+    - - :error
+      - 'Line 476: Base item code PB04047401 does not match an active product'
+    - - :error
+      - 'Line 477: Base item code PB04047501 does not match an active product'
+    - - :error
+      - 'Line 478: Base item code PB04047601 does not match an active product'
+    - - :error
+      - 'Line 485: Base item code THESIS26 does not match an active product'
+    - - :error
+      - 'Line 504: Base item code 3DIV does not match an active product'
+    - - :error
+      - 'Line 534: Base item code 3DIV does not match an active product'
+    - - :error
+      - 'Line 602: Base item code 3DIV does not match an active product'
+    - - :error
+      - 'Line 619: Base item code EG02001202-R does not match an active product'
+    - - :error
+      - 'Line 664: Base item code GC00010601 does not match an active product'
+    - - :error
+      - 'Line 666: Base item code GE00015601 does not match an active product'
+    - - :error
+      - 'Line 713: Either quantity invoiced or quantity on order is required'
+    - - :error
+      - 'Line 714: Base item code 3DIV does not match an active product'
+    - - :error
+      - 'Line 715: Base item code ET4437 does not match an active product'
+    - - :error
+      - 'Line 719: Base item code 3DIV does not match an active product'
+    - - :error
+      - 'Line 720: Base item code 3DIV does not match an active product'
+    - - :error
+      - 'Line 833: Base item code 48848 does not match an active product'
+    - - :error
+      - 'Line 860: Either quantity invoiced or quantity on order is required'
+    - - :error
+      - 'Line 867: Base item code 82813A does not match an active product'
+    - - :error
+      - 'Line 876: Base item code ET4312 does not match an active product'
+    - - :error
+      - 'Line 890: Base item code THESIS26 does not match an active product'
+    - - :error
+      - 'Line 945: Base item code KATFANUS26 does not match an active product'
+    - - :error
+      - 'Line 946: Base item code KATLCA54_EN does not match an active product'
+    - - :error
+      - 'Line 947: Base item code KATLCAES01 does not match an active product'
+    - - :error
+      - 'Line 948: Base item code KATLCASOL25 does not match an active product'
+    - - :error
+      - 'Line 949: Base item code KATNCA26/01 does not match an active product'
+    - - :error
+      - 'Line 950: Base item code THESIS26 does not match an active product'
+    - - :error
+      - 'Line 957: Base item code KATFANUS26 does not match an active product'
+    - - :error
+      - 'Line 958: Base item code KATLCA54_EN does not match an active product'
+    - - :error
+      - 'Line 959: Base item code KATLCAES01 does not match an active product'
+    - - :error
+      - 'Line 960: Base item code KATNCA26/01 does not match an active product'
+    - - :error
+      - 'Line 961: Base item code THESIS26 does not match an active product'
+    - - :error
+      - 'Line 975: Base item code GA000439W4 does not match an active product'
+    - - :error
+      - 'Line 1020: Base item code 3DIV does not match an active product'
+    - - :error
+      - 'Line 1073: Base item code 3DIV does not match an active product'
+    - - :error
+      - 'Line 1100: Base item code 3DIV does not match an active product'
+    - - :error
+      - 'Line 1126: Base item code 3DIV does not match an active product'
+    - - :error
+      - 'Line 1146: Base item code GA000476W0 does not match an active product'
+    - - :error
+      - 'Line 1150: Base item code KATFANUS26 does not match an active product'
+    - - :error
+      - 'Line 1151: Base item code KATLCA54_EN does not match an active product'
+    - - :error
+      - 'Line 1152: Base item code KATLCAES01 does not match an active product'
+    - - :error
+      - 'Line 1153: Base item code KATLCASOL25 does not match an active product'
+    - - :error
+      - 'Line 1595: Either quantity invoiced or quantity on order is required'
+    - - :error
+      - 'Line 1596: Either quantity invoiced or quantity on order is required'
+    - - :error
+      - 'Line 1597: Either quantity invoiced or quantity on order is required'
+    - - :error
+      - 'Line 1719: Either quantity invoiced or quantity on order is required'
+    - - :warning
+      - "-70 more rows with invalid products"
+ |
+| 2026-06-15T19:33:25.207466 | ---
+- - Customers
+  - - - :error
+      - 'Line 405: Default price code ''10'' must be a valid price level code'
+    - - :error
+      - 'Line 1319: Default price code ''01'' must be a valid price level code'
+- - Sales Data
+  - - - :error
+      - 'Line 87: Base item code GA000051W4 does not match an active product'
+    - - :error
+      - 'Line 232: Base item code 202501A does not match an active product'
+    - - :error
+      - 'Line 263: Base item code 3DIV does not match an active product'
+    - - :error
+      - 'Line 283: Either quantity invoiced or quantity on order is required'
+    - - :error
+      - 'Line 284: Either quantity invoiced or quantity on order is required'
+    - - :error
+      - 'Line 406: Base item code THESIS26 does not match an active product'
+    - - :error
+      - 'Line 456: Base item code THESIS26 does not match an active product'
+    - - :error
+      - 'Line 461: Base item code THESIS26 does not match an active product'
+    - - :error
+      - 'Line 462: Base item code THESIS26 does not match an active product'
+    - - :error
+      - 'Line 463: Base item code 3DIV does not match an active product'
+    - - :error
+      - 'Line 472: error=Parse exception: field=amountinvoiced, value=''50.00-'',
+        error=invalid floating point value'
+    - - :error
+      - 'Line 472: Either quantity invoiced or quantity on order is required'
+    - - :error
+      - 'Line 473: Base item code PB04047101 does not match an active product'
+    - - :error
+      - 'Line 474: Base item code PB04047201 does not match an active product'
+    - - :error
+      - 'Line 475: Base item code PB04047301 does not match an active product'
+    - - :error
+      - 'Line 476: Base item code PB04047401 does not match an active product'
+    - - :error
+      - 'Line 477: Base item code PB04047501 does not match an active product'
+    - - :error
+      - 'Line 478: Base item code PB04047601 does not match an active product'
+    - - :error
+      - 'Line 485: Base item code THESIS26 does not match an active product'
+    - - :error
+      - 'Line 504: Base item code 3DIV does not match an active product'
+    - - :error
+      - 'Line 534: Base item code 3DIV does not match an active product'
+    - - :error
+      - 'Line 602: Base item code 3DIV does not match an active product'
+    - - :error
+      - 'Line 619: Base item code EG02001202-R does not match an active product'
+    - - :error
+      - 'Line 664: Base item code GC00010601 does not match an active product'
+    - - :error
+      - 'Line 666: Base item code GE00015601 does not match an active product'
+    - - :error
+      - 'Line 713: Either quantity invoiced or quantity on order is required'
+    - - :error
+      - 'Line 714: Base item code 3DIV does not match an active product'
+    - - :error
+      - 'Line 715: Base item code ET4437 does not match an active product'
+    - - :error
+      - 'Line 719: Base item code 3DIV does not match an active product'
+    - - :error
+      - 'Line 720: Base item code 3DIV does not match an active product'
+    - - :error
+      - 'Line 833: Base item code 48848 does not match an active product'
+    - - :error
+      - 'Line 860: Either quantity invoiced or quantity on order is required'
+    - - :error
+      - 'Line 867: Base item code 82813A does not match an active product'
+    - - :error
+      - 'Line 876: Base item code ET4312 does not match an active product'
+    - - :error
+      - 'Line 890: Base item code THESIS26 does not match an active product'
+    - - :error
+      - 'Line 945: Base item code KATFANUS26 does not match an active product'
+    - - :error
+      - 'Line 946: Base item code KATLCA54_EN does not match an active product'
+    - - :error
+      - 'Line 947: Base item code KATLCAES01 does not match an active product'
+    - - :error
+      - 'Line 948: Base item code KATLCASOL25 does not match an active product'
+    - - :error
+      - 'Line 949: Base item code KATNCA26/01 does not match an active product'
+    - - :error
+      - 'Line 950: Base item code THESIS26 does not match an active product'
+    - - :error
+      - 'Line 957: Base item code KATFANUS26 does not match an active product'
+    - - :error
+      - 'Line 958: Base item code KATLCA54_EN does not match an active product'
+    - - :error
+      - 'Line 959: Base item code KATLCAES01 does not match an active product'
+    - - :error
+      - 'Line 960: Base item code KATNCA26/01 does not match an active product'
+    - - :error
+      - 'Line 961: Base item code THESIS26 does not match an active product'
+    - - :error
+      - 'Line 975: Base item code GA000439W4 does not match an active product'
+    - - :error
+      - 'Line 1071: Base item code 3DIV does not match an active product'
+    - - :error
+      - 'Line 1098: Base item code 3DIV does not match an active product'
+    - - :error
+      - 'Line 1124: Base item code 3DIV does not match an active product'
+    - - :error
+      - 'Line 1144: Base item code GA000476W0 does not match an active product'
+    - - :error
+      - 'Line 1148: Base item code KATFANUS26 does not match an active product'
+    - - :error
+      - 'Line 1149: Base item code KATLCA54_EN does not match an active product'
+    - - :error
+      - 'Line 1150: Base item code KATLCAES01 does not match an active product'
+    - - :error
+      - 'Line 1151: Base item code KATLCASOL25 does not match an active product'
+    - - :error
+      - 'Line 1152: Base item code KATNCA26/01 does not match an active product'
+    - - :error
+      - 'Line 1591: Either quantity invoiced or quantity on order is required'
+    - - :error
+      - 'Line 1592: Either quantity invoiced or quantity on order is required'
+    - - :error
+      - 'Line 1593: Either quantity invoiced or quantity on order is required'
+    - - :error
+      - 'Line 1715: Either quantity invoiced or quantity on order is required'
+    - - :warning
+      - "-69 more rows with invalid products"
+ |
+| 2026-06-15T15:03:50.440159 | ---
+- - Inventory
+  - - - :warning
+      - 'Line 104: Product not found, record ignored., BaseItemCode=202262A'
+    - - :warning
+      - 'Line 110: Product not found, record ignored., BaseItemCode=202316A'
+    - - :warning
+      - 'Line 126: Product not found, record ignored., BaseItemCode=204001A'
+    - - :warning
+      - 'Line 142: Product not found, record ignored., BaseItemCode=204234A'
+    - - :warning
+      - 'Line 143: Product not found, record ignored., BaseItemCode=204235A'
+    - - :warning
+      - 'Line 152: Product not found, record ignored., BaseItemCode=204444A'
+    - - :warning
+      - 'Line 153: Product not found, record ignored., BaseItemCode=204615A'
+    - - :warning
+      - 'Line 154: Product not found, record ignored., BaseItemCode=204616A'
+    - - :warning
+      - 'Line 155: Product not found, record ignored., BaseItemCode=204618A'
+    - - :warning
+      - 'Line 156: Product not found, record ignored., BaseItemCode=204621A'
+    - - :warning
+      - 'Line 157: Product not found, record ignored., BaseItemCode=204632A'
+    - - :warning
+      - 'Line 158: Product not found, record ignored., BaseItemCode=204633A'
+    - - :warning
+      - 'Line 159: Product not found, record ignored., BaseItemCode=204634A'
+    - - :warning
+      - 'Line 160: Product not found, record ignored., BaseItemCode=204635A'
+    - - :warning
+      - 'Line 162: Product not found, record ignored., BaseItemCode=204729A'
+    - - :warning
+      - 'Line 186: Product not found, record ignored., BaseItemCode=205978A'
+    - - :warning
+      - 'Line 282: Product not found, record ignored., BaseItemCode=204617A'
+    - - :warning
+      - 'Line 283: Product not found, record ignored., BaseItemCode=204619A'
+    - - :warning
+      - 'Line 291: Product not found, record ignored., BaseItemCode=207818A'
+    - - :warning
+      - 'Line 292: Product not found, record ignored., BaseItemCode=207819A'
+    - - :warning
+      - 'Line 293: Product not found, record ignored., BaseItemCode=207825A'
+    - - :warning
+      - 'Line 335: Product not found, record ignored., BaseItemCode=203676A'
+    - - :warning
+      - 'Line 336: Product not found, record ignored., BaseItemCode=203743A'
+    - - :warning
+      - 'Line 483: Product not found, record ignored., BaseItemCode=93661A'
+    - - :warning
+      - 'Line 485: Product not found, record ignored., BaseItemCode=94636A'
+    - - :warning
+      - 'Line 544: Product not found, record ignored., BaseItemCode=202501A'
+    - - :warning
+      - 'Line 545: Product not found, record ignored., BaseItemCode=204236A'
+    - - :warning
+      - 'Line 546: Product not found, record ignored., BaseItemCode=204237A'
+    - - :warning
+      - 'Line 560: Product not found, record ignored., BaseItemCode=97132A'
+    - - :warning
+      - 'Line 586: Product not found, record ignored., BaseItemCode=207833A'
+    - - :warning
+      - 'Line 587: Product not found, record ignored., BaseItemCode=207834A'
+    - - :warning
+      - 'Line 588: Product not found, record ignored., BaseItemCode=207835A'
+    - - :warning
+      - 'Line 589: Product not found, record ignored., BaseItemCode=207836A'
+    - - :warning
+      - 'Line 590: Product not found, record ignored., BaseItemCode=207838A'
+    - - :warning
+      - 'Line 591: Product not found, record ignored., BaseItemCode=207839A'
+    - - :warning
+      - 'Line 592: Product not found, record ignored., BaseItemCode=207841A'
+    - - :warning
+      - 'Line 593: Product not found, record ignored., BaseItemCode=207842A'
+    - - :warning
+      - 'Line 594: Product not found, record ignored., BaseItemCode=207843A'
+    - - :warning
+      - 'Line 595: Product not found, record ignored., BaseItemCode=207844A'
+    - - :warning
+      - 'Line 596: Product not found, record ignored., BaseItemCode=207846A'
+    - - :warning
+      - 'Line 597: Product not found, record ignored., BaseItemCode=207847A'
+    - - :warning
+      - 'Line 598: Product not found, record ignored., BaseItemCode=207848A'
+    - - :warning
+      - 'Line 656: Product not found, record ignored., BaseItemCode=207837A'
+    - - :warning
+      - 'Line 660: Product not found, record ignored., BaseItemCode=207801A'
+    - - :warning
+      - 'Line 661: Product not found, record ignored., BaseItemCode=207802A'
+    - - :warning
+      - 'Line 662: Product not found, record ignored., BaseItemCode=207803A'
+    - - :warning
+      - 'Line 663: Product not found, record ignored., BaseItemCode=207804A'
+    - - :warning
+      - 'Line 664: Product not found, record ignored., BaseItemCode=207805A'
+    - - :warning
+      - 'Line 665: Product not found, record ignored., BaseItemCode=207806A'
+    - - :warning
+      - 'Line 666: Product not found, record ignored., BaseItemCode=207807A'
+    - - :warning
+      - 'Line 667: Product not found, record ignored., BaseItemCode=207808A'
+    - - :warning
+      - 'Line 668: Product not found, record ignored., BaseItemCode=207809A'
+    - - :warning
+      - 'Line 669: Product not found, record ignored., BaseItemCode=207811A'
+    - - :warning
+      - 'Line 670: Product not found, record ignored., BaseItemCode=207812A'
+    - - :warning
+      - 'Line 671: Product not found, record ignored., BaseItemCode=207813A'
+    - - :warning
+      - 'Line 672: Product not found, record ignored., BaseItemCode=207815A'
+    - - :warning
+      - 'Line 673: Product not found, record ignored., BaseItemCode=207816A'
+    - - :warning
+      - 'Line 674: Product not found, record ignored., BaseItemCode=207817A'
+    - - :warning
+      - 'Line 691: Product not found, record ignored., BaseItemCode=207831A'
+    - - :warning
+      - 'Line 692: Product not found, record ignored., BaseItemCode=207832A'
+    - - :warning
+      - 'Line 748: Product not found, record ignored., BaseItemCode=207814A'
+    - - :warning
+      - 'Line 830: Product not found, record ignored., BaseItemCode=43461A'
+    - - :warning
+      - 'Line 853: Product not found, record ignored., BaseItemCode=207845A'
+    - - :warning
+      - 'Line 905: Product not found, record ignored., BaseItemCode=48483'
+    - - :warning
+      - 'Line 1313: Product not found, record ignored., BaseItemCode=48939'
+    - - :warning
+      - 'Line 1397: Product not found, record ignored., BaseItemCode=48749'
+    - - :warning
+      - 'Line 1421: Product not found, record ignored., BaseItemCode=207826A'
+    - - :warning
+      - 'Line 1422: Product not found, record ignored., BaseItemCode=207827A'
+    - - :warning
+      - 'Line 1423: Product not found, record ignored., BaseItemCode=207821A'
+    - - :warning
+      - 'Line 1424: Product not found, record ignored., BaseItemCode=207822A'
+    - - :warning
+      - 'Line 1425: Product not found, record ignored., BaseItemCode=207828A'
+    - - :warning
+      - 'Line 1426: Product not found, record ignored., BaseItemCode=207823A'
+    - - :warning
+      - 'Line 1427: Product not found, record ignored., BaseItemCode=207824A'
+    - - :warning
+      - 'Line 1428: Product not found, record ignored., BaseItemCode=207829A'
+    - - :warning
+      - 'Line 1533: Product not found, record ignored., BaseItemCode=31613A'
+    - - :warning
+      - 'Line 1594: Product not found, record ignored., BaseItemCode=82813A'
+    - - :warning
+      - 'Line 1669: Product not found, record ignored., BaseItemCode=203523A'
+    - - :warning
+      - 'Line 1676: Product not found, record ignored., BaseItemCode=48848'
+    - - :warning
+      - 'Line 1687: Product not found, record ignored., BaseItemCode=93679A'
+ |

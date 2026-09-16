@@ -1,0 +1,56 @@
+# Signal Rank — Hudson Valley Lighting (hvl, org_id=71)
+- **Run date**: 2026-06-17
+- **Total signals fired**: 23 (P0: 0, P1: 14, P2: 9)
+- **Org GMV**: $0.0M eCat LTM, $0.0M total business LTM
+
+## Ranked Manifest (Top 20 by SIGNAL_RANK)
+
+| Rank | Signal ID | Description | Priority | Section | Surprise | Dollar Impact | Action | SIGNAL_RANK | Tone |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 | SIG-OPP-04 | New Item Adoption Gap — 30 new items with $0 platform orders | P2 | §3 Product | 3.0 | $50,000 | 1.0 | 150,000 | POSITIVE |
+| 2 | SIG-RISK-03 | Data Staleness — customers last updated 313d ago | P1 | §6 Platform | 3.5 | $1 | 2.0 | 7 | RISK |
+| 3 | SIG-RISK-03 | Data Staleness — customer_favorites last updated 313d ago | P1 | §6 Platform | 3.5 | $1 | 2.0 | 7 | RISK |
+| 4 | SIG-RISK-03 | Data Staleness — inventories last updated 313d ago | P1 | §6 Platform | 3.5 | $1 | 2.0 | 7 | RISK |
+| 5 | SIG-RISK-03 | Data Staleness — placement_reports last updated 313d ago | P1 | §6 Platform | 3.5 | $1 | 2.0 | 7 | RISK |
+| 6 | SIG-RISK-03 | Data Staleness — price_levels last updated 313d ago | P1 | §6 Platform | 3.5 | $1 | 2.0 | 7 | RISK |
+| 7 | SIG-RISK-03 | Data Staleness — options last updated 313d ago | P1 | §6 Platform | 3.5 | $1 | 2.0 | 7 | RISK |
+| 8 | SIG-RISK-03 | Data Staleness — option_groups last updated 313d ago | P1 | §6 Platform | 3.5 | $1 | 2.0 | 7 | RISK |
+| 9 | SIG-RISK-03 | Data Staleness — matrix_options last updated 313d ago | P1 | §6 Platform | 3.5 | $1 | 2.0 | 7 | RISK |
+| 10 | SIG-RISK-03 | Data Staleness — contract_prices last updated 313d ago | P1 | §6 Platform | 3.5 | $1 | 2.0 | 7 | RISK |
+| 11 | SIG-RISK-03 | Data Staleness — kit_items last updated 313d ago | P1 | §6 Platform | 3.5 | $1 | 2.0 | 7 | RISK |
+| 12 | SIG-RISK-03 | Data Staleness — commitment_reports last updated 313d ago | P1 | §6 Platform | 3.5 | $1 | 2.0 | 7 | RISK |
+| 13 | SIG-RISK-03 | Data Staleness — riser_prices last updated 313d ago | P1 | §6 Platform | 3.5 | $1 | 2.0 | 7 | RISK |
+| 14 | SIG-RISK-03 | Data Staleness — customer_payment_informations last updated 313d ago | P1 | §6 Platform | 3.5 | $1 | 2.0 | 7 | RISK |
+| 15 | SIG-RISK-03 | Data Staleness — sales_quotas last updated 313d ago | P1 | §6 Platform | 3.5 | $1 | 2.0 | 7 | RISK |
+| 16 | SIG-RISK-03 | Data Staleness — products last updated 153d ago | P2 | §6 Platform | 1.7 | $1 | 2.0 | 3 | RISK |
+| 17 | SIG-RISK-03 | Data Staleness — smart_stacks last updated 153d ago | P2 | §6 Platform | 1.7 | $1 | 2.0 | 3 | RISK |
+| 18 | SIG-RISK-03 | Data Staleness — categories last updated 153d ago | P2 | §6 Platform | 1.7 | $1 | 2.0 | 3 | RISK |
+| 19 | SIG-RISK-03 | Data Staleness — collections last updated 153d ago | P2 | §6 Platform | 1.7 | $1 | 2.0 | 3 | RISK |
+| 20 | SIG-RISK-03 | Data Staleness — groups last updated 153d ago | P2 | §6 Platform | 1.7 | $1 | 2.0 | 3 | RISK |
+
+## Section Signal Density Table
+
+| Section | P0 | P1 | P2 | Total | Notes |
+| --- | --- | --- | --- | --- | --- |
+| §3 Product Intelligence | 0 | 0 | 1 | 1 | |
+| §6 Platform Context | 0 | 14 | 8 | 22 | |
+
+**Section ORDER is FIXED (§1→§5→§2→§4→§3→§6). Density does NOT determine position.**
+
+## Top 7 Signal Summary Candidates
+
+Ordered by narrative arc (Momentum → Intelligence → Opportunity → Risk), NOT by raw SIGNAL_RANK:
+
+1. **[POSITIVE/MOMENTUM]** SIG-OPP-04: New Item Adoption Gap — 30 new items with $0 platform orders
+2. **[RISK]** SIG-RISK-03: Data Staleness — customers last updated 313d ago
+3. **[RISK]** SIG-RISK-03: Data Staleness — customer_favorites last updated 313d ago
+4. **[RISK]** SIG-RISK-03: Data Staleness — inventories last updated 313d ago
+5. **[RISK]** SIG-RISK-03: Data Staleness — placement_reports last updated 313d ago
+6. **[RISK]** SIG-RISK-03: Data Staleness — price_levels last updated 313d ago
+7. **[RISK]** SIG-RISK-03: Data Staleness — options last updated 313d ago
+
+**Balance check**: 1 positive (slots 1-1), 6 risk (slots 2-7). Finding #1 is positive. ✓
+
+## Sections to Skip
+
+None — all sections have ≥1 fired signal or their alternate include gate passes.

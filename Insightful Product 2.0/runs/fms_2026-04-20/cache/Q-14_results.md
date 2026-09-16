@@ -1,0 +1,28 @@
+# Q-14: Customer Reorder Frequency & Velocity
+- **Org**: Visual Comfort - Studio /Fans (fms, org_id=108)
+- **Period**: Trailing 12 months (customers with ≥3 orders)
+- **Run date**: 2026-04-20
+- **Rows**: 20
+
+| Customer Num | Company Name | eCat Orders | eCat GMV | First Order | Last Order | Avg Days Between |
+|-------------|-------------|------------|---------|-------------|------------|-----------------|
+| 59666 | FS-MANASQUAN LIGHTING - FS | 72 | $86,823.98 | 2025-04-22 | 2026-04-01 | 4.8 |
+| 32258 | FS-BEDFORD LIGHTING INC - FS | 61 | $27,335.14 | 2025-04-21 | 2026-04-14 | 6.0 |
+| 44808 | FS-HI-LIGHT DECORATING INC - FS | 56 | $51,818.50 | 2025-04-22 | 2026-04-20 | 6.6 |
+| 225604 | FS-VOSS DESIGNS LLC - FS | 35 | $29,171.98 | 2025-04-25 | 2026-04-10 | 10.3 |
+| 296511 | FS-ELEMENTS INTERIOR DESIGN INC DD - FS | 23 | $19,925.18 | 2025-05-01 | 2026-03-25 | 14.9 |
+| 44809 | FS-LITES PLUS INC - FS | 20 | $14,380.55 | 2025-04-22 | 2025-10-08 | 8.9 |
+| 244333 | FS-L O INTERIORS LLC - FS | 18 | $8,842.17 | 2025-04-22 | 2026-04-16 | 21.2 |
+| 48610 | FS-LESSMAN ELECTRIC SUPPLY C - FS | 17 | $9,027.55 | 2025-07-31 | 2025-12-31 | 9.6 |
+| 319279 | FS-WOSTBROCK HOME - FS | 16 | $6,737.55 | 2025-05-23 | 2026-02-06 | 17.3 |
+| 316936 | FS-ST. JOHN'S FURNITURE CORP. - FS | 16 | $13,988.71 | 2025-05-20 | 2026-03-31 | 21.0 |
+| 49702 | FS-LIGHTING SUPERSTORE - FS | 15 | $8,449.21 | 2025-04-30 | 2026-04-16 | 25.1 |
+| 281593 | Knaak Marketing Group Inc | 15 | $6,800.45 | 2025-05-01 | 2026-02-27 | 21.6 |
+| 284795 | FS-M WALLMAN DESIGN LLC DD - FS | 14 | $10,764.99 | 2025-04-21 | 2026-03-12 | 25.0 |
+| 329486 | FS-OLD DOG INTERIORS - FS | 14 | $16,463.70 | 2025-05-15 | 2026-02-19 | 21.5 |
+| 292178 | FS-DWELL HOME FURNISHINGS & INTERIOR - FS | 13 | $8,242.62 | 2025-11-06 | 2026-04-10 | 12.9 |
+| 50038 | FS-LIGHTSTYLE OF ORLANDO / BSA - FS | 13 | $74,624.33 | 2025-04-28 | 2026-01-27 | 22.8 |
+| 46620 | FS-J BANKS DESIGN GROUP INC DD - FS | 10 | $13,752.36 | 2025-04-30 | 2026-03-02 | 34.0 |
+| 287983 | FS-VERVE INTERIORS LTD - FS | 10 | $3,926.75 | 2025-04-23 | 2025-10-29 | 21.0 |
+| 290522 | FS-HOUNDSTOOTH HOUSE DD - FS | 9 | $3,299.64 | 2025-04-27 | 2026-02-16 | 36.9 |
+| 317023 | FS-ELIZABETH ANNE STAR ANTIQUES DD - FS | 9 | $5,690.60 | 2025-04-22 | 2025-09-03 | 16.8 |

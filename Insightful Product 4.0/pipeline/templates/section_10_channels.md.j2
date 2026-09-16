@@ -1,0 +1,151 @@
+{# §10 Channels.
+   Reference: Sarreid PASS3 §10 (lines 248-266) for STRONG-CANDIDATE render.
+   Suppression templates (§O.1 / §O.2 verbatim) from report_editorial_rules_v4.md §O.
+
+   Track B (2026-07-09), corrected by Track E (2026-07-09): the eCat DOLLAR
+   figure below is ALWAYS `posture.ecat_ltm_confirmed_gmv` (Q-ECON-00) — the
+   same canonical figure the hero (§1) and the `ecat_minority` signal
+   (signals.py:detect_ecat_minority) read. It is NOT `chan_split.ecat_gmv`
+   (Q-CHAN-05). Track E's re-baseline diff caught these two live-diverging on
+   Sarreid ($2,041,136.71 vs $2,049,865.61 — the 11.4%-vs-11.5%-style
+   contradiction resurfacing in dollar form, hidden on cci only because the two
+   figures happened to round to the same displayed value there). Q-CHAN-05's
+   `chan_split` may still supply its own `total_business_gmv` / `non_ecat_gmv`
+   split context, but the eCat dollar cell itself must never come from
+   `chan_split`. #}
+{% from '_macros.md.j2' import signal_channel_concentration, signal_ecat_minority, action_channel_concentration, action_ecat_minority, suppression_chan_none, suppression_chan_partial %}
+{% set chan_split = gather.channel_split %}
+{% set ecat_pct = posture.ecat_pct_of_invoiced or 0 -%}
+## Channels
+
+{% if posture.is_provably_incomplete -%}
+> *{{ posture.invoiced_channel_subset_sentence }} Invoiced net and confirmed eCat orders are both shown below in absolute dollars; the eCat-vs-invoiced share is deliberately suppressed — a ratio over 100% would only prove the invoice number is a subset, not measure a share of total business.*
+
+{% elif posture.is_stale -%}
+> *Invoiced channel figures below are historical — {{ posture.erp_asof_stamp }} ({{ posture.stale_age_phrase }} since the last invoice). Confirmed eCat capture is {{ posture.ecat_live_stamp }}; it is the one live channel signal here.*
+
+{% endif -%}
+
+{% if posture.channel_posture == "NONE" -%}
+{{ suppression_chan_none(posture) }}
+
+### eCat as a channel
+
+| | |
+|---|---|
+{% if chan_split and chan_split.is_reportable -%}
+| Invoiced business, channel-split basis (all channels) | ${{ "{:,.2f}".format(chan_split.total_business_gmv / 1000000) }}M |
+| eCat orders (confirmed) | ${{ "{:,.2f}".format(posture.ecat_ltm_confirmed_gmv / 1000000) }}M{% if posture.feed_completeness == "CORROBORATED" and posture.ecat_pct_of_invoiced is not none %} · {{ "{:.1f}".format(posture.ecat_pct_of_invoiced) }}%{% endif %} |
+| Other channels (non-eCat) | ${{ "{:,.2f}".format(chan_split.non_ecat_gmv / 1000000) }}M{% if posture.feed_completeness == "CORROBORATED" and chan_split.non_ecat_pct is not none %} · {{ "{:.1f}".format(chan_split.non_ecat_pct) }}%{% endif %} |
+{% else -%}
+| eCat orders (confirmed, LTM) | ${{ "{:,.2f}".format(posture.ecat_ltm_confirmed_gmv / 1000000) }}M |
+{% endif %}
+{% if posture.ecat_confidence_capped %}
+*{{ posture.ecat_caveat_sentence }}*
+{% endif %}
+
+{% if posture.feed_completeness != "CORROBORATED" -%}
+Shown as absolute dollars — a share of total business needs a second independent feed.
+{%- elif ecat_pct < 15 -%}
+eCat is roughly {{ "{:.0f}".format(ecat_pct) }}% of invoiced LTM — a minority channel for a business that runs primarily through direct and traditional ordering.
+{%- else -%}
+eCat at {{ "{:.0f}".format(ecat_pct) }}% of invoiced LTM is a meaningful channel. Confirmed-order dollars are overlaid from the orders-truth feed, not derived from the origin column.
+{%- endif %}
+{% if posture.ecat_hero_sentence %}
+
+> *{{ posture.ecat_hero_sentence }}*
+{% endif %}
+
+{%- elif posture.channel_posture == "PARTIAL" -%}
+{{ suppression_chan_partial(posture) }}
+
+{% if gather.channels -%}
+| Channel (LTM, booked orders) | $ | Share |
+|---|---|---|
+{% for ch in gather.channels -%}
+| {{ ch.label }} | ${{ "{:,.2f}".format(ch.booked_dollars / 1_000_000) }}M | {{ "{:.1f}".format(ch.share_pct) }}% |
+{% endfor %}
+{%- else -%}
+{# QUERY-NEEDED: Q-CHAN-10 not cached for PARTIAL posture. Run: python -m pipeline.populate_cache --org <org> --queries Q-CHAN-10 #}
+{%- endif %}
+
+### eCat as a channel
+
+| | |
+|---|---|
+{% if chan_split and chan_split.is_reportable -%}
+| Invoiced business, channel-split basis (all channels) | ${{ "{:,.2f}".format(chan_split.total_business_gmv / 1000000) }}M |
+| eCat orders (confirmed) | ${{ "{:,.2f}".format(posture.ecat_ltm_confirmed_gmv / 1000000) }}M{% if posture.feed_completeness == "CORROBORATED" and posture.ecat_pct_of_invoiced is not none %} · {{ "{:.1f}".format(posture.ecat_pct_of_invoiced) }}%{% endif %} |
+| Other channels (non-eCat) | ${{ "{:,.2f}".format(chan_split.non_ecat_gmv / 1000000) }}M{% if posture.feed_completeness == "CORROBORATED" and chan_split.non_ecat_pct is not none %} · {{ "{:.1f}".format(chan_split.non_ecat_pct) }}%{% endif %} |
+{% else -%}
+| eCat orders (confirmed, LTM) | ${{ "{:,.2f}".format(posture.ecat_ltm_confirmed_gmv / 1000000) }}M |
+{% endif %}
+{% if posture.ecat_confidence_capped %}
+*{{ posture.ecat_caveat_sentence }}*
+{% endif %}
+
+{% if posture.feed_completeness != "CORROBORATED" -%}
+Shown as absolute dollars — a share of total business needs a second independent feed.
+{%- endif %}
+{% if posture.ecat_hero_sentence %}
+
+> *{{ posture.ecat_hero_sentence }}*
+{% endif %}
+
+{%- else -%}
+{% if gather.channel_decomposition_ok -%}
+{% set mapped = gather.channels_mapped -%}
+{% set mapped_total = mapped | sum(attribute='booked_dollars') -%}
+| Channel (LTM, booked orders) | $ | Share |
+|---|---|---|
+{% for ch in mapped -%}
+| {{ ch.label }} | ${{ "{:,.2f}".format(ch.booked_dollars / 1_000_000) }}M | {{ "{:.1f}".format(100.0 * ch.booked_dollars / mapped_total if mapped_total else 0) }}% |
+{% endfor %}
+
+{% set top_channel = mapped[0] -%}
+{% set channel_signals = signals | selectattr("kind", "eq", "channel_concentration") | list -%}
+{% if channel_signals -%}
+{{ signal_channel_concentration(channel_signals[0], top_channel) }}
+
+{{ action_channel_concentration(top_channel) }}
+{%- elif top_channel and top_channel.share_pct > 50 -%}
+{{ top_channel.label }} carries {{ "{:.0f}".format(100.0 * top_channel.booked_dollars / mapped_total if mapped_total else 0) }}% of mapped booked orders — the dominant channel. Not at the 70%+ concentration-signal threshold, but worth watching: a single channel decision moves the topline at that share.
+{%- endif %}
+{%- else -%}
+Booked orders carry order-origin values, but they aren't mapped to named sales channels for {{ org_display_name }} yet — so a per-channel breakdown would be one "unclassified" bar, not a real decomposition. We report the eCat channel in dollars below and leave the rest unsplit rather than ship a chart that isn't real. Mapping origins to channels is a fast configuration step whenever you want this cut.
+{%- endif %}
+
+**eCat as a channel:**
+
+| | |
+|---|---|
+{% if chan_split and chan_split.is_reportable -%}
+| Invoiced business, channel-split basis (all channels) | ${{ "{:,.2f}".format(chan_split.total_business_gmv / 1000000) }}M |
+| eCat orders (confirmed) | ${{ "{:,.2f}".format(posture.ecat_ltm_confirmed_gmv / 1000000) }}M{% if posture.feed_completeness == "CORROBORATED" and posture.ecat_pct_of_invoiced is not none %} · {{ "{:.1f}".format(posture.ecat_pct_of_invoiced) }}%{% endif %} |
+| Other channels (non-eCat) | ${{ "{:,.2f}".format(chan_split.non_ecat_gmv / 1000000) }}M{% if posture.feed_completeness == "CORROBORATED" and chan_split.non_ecat_pct is not none %} · {{ "{:.1f}".format(chan_split.non_ecat_pct) }}%{% endif %} |
+{% else -%}
+| eCat orders (confirmed, LTM) | ${{ "{:,.2f}".format(posture.ecat_ltm_confirmed_gmv / 1000000) }}M |
+{% endif %}
+{# eCat tag-reconciliation row intentionally omitted — recon ratio / tag status
+   is internal QA plumbing, not a CEO-facing channel fact (client-chrome cut). #}
+{% if posture.ecat_confidence_capped %}
+*{{ posture.ecat_caveat_sentence }}*
+{% endif %}
+
+{% set ecat_signals = signals | selectattr("kind", "eq", "ecat_minority") | list -%}
+{% if posture.feed_completeness != "CORROBORATED" -%}
+Shown as absolute dollars — a share of total business needs a second independent feed.
+{%- elif ecat_signals -%}
+{{ signal_ecat_minority(ecat_signals[0]) }}
+{%- elif ecat_pct < 15 -%}
+eCat is roughly {{ "{:.0f}".format(ecat_pct) }}% of invoiced LTM — a minority channel for a business that runs primarily through direct and traditional ordering.
+{%- else -%}
+eCat at {{ "{:.0f}".format(ecat_pct) }}% of invoiced LTM is a meaningful ordering channel. Confirmed-order dollars are overlaid from the orders-truth feed.
+{%- endif %}
+{% if posture.ecat_hero_sentence %}
+
+> *{{ posture.ecat_hero_sentence }}*
+{% endif %}
+
+{#- Gate trace: Q-CHAN-00 · STRONG-CANDIDATE · {{ posture.ecat_tag_status }} (recon ratio rendered above, not just here) -#}
+{%- endif %}

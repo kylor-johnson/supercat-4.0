@@ -1,0 +1,3214 @@
+# Q-09-recent Results — RENWIL (rw, org_id=248)
+- **Query**: Q-09-recent — Import Health — Recent Errors
+- **Period**: LTM (2025-06-15 to 2026-06-15)
+- **Row count**: 10
+- **Run date**: 2026-06-15
+
+
+| created_at | data |
+| --- | --- |
+| 2026-06-15 22:06:07 | ---
+- - Portal Invoices
+  - []
+ |
+| 2026-06-15 17:02:17 | ---
+- - Inventory
+  - - - :warning
+      - 'Line 14: Product not found, record ignored., BaseItemCode=CHA071'
+    - - :warning
+      - 'Line 19: Product not found, record ignored., BaseItemCode=CHA088'
+    - - :warning
+      - 'Line 20: Product not found, record ignored., BaseItemCode=CHA089'
+    - - :warning
+      - 'Line 24: Product not found, record ignored., BaseItemCode=CHA094'
+    - - :warning
+      - 'Line 25: Product not found, record ignored., BaseItemCode=CHA095'
+    - - :warning
+      - 'Line 27: Product not found, record ignored., BaseItemCode=CHA097'
+    - - :warning
+      - 'Line 28: Product not found, record ignored., BaseItemCode=CHA098'
+    - - :warning
+      - 'Line 37: Product not found, record ignored., BaseItemCode=CL220'
+    - - :warning
+      - 'Line 38: Product not found, record ignored., BaseItemCode=CL239'
+    - - :warning
+      - 'Line 42: Product not found, record ignored., BaseItemCode=CL257'
+    - - :warning
+      - 'Line 76: Product not found, record ignored., BaseItemCode=LPC4058'
+    - - :warning
+      - 'Line 88: Product not found, record ignored., BaseItemCode=LPC4418'
+    - - :warning
+      - 'Line 92: Product not found, record ignored., BaseItemCode=LPC4434'
+    - - :warning
+      - 'Line 96: Product not found, record ignored., BaseItemCode=LPC4445'
+    - - :warning
+      - 'Line 98: Product not found, record ignored., BaseItemCode=LPC4454'
+    - - :warning
+      - 'Line 130: Product not found, record ignored., BaseItemCode=LPF3023'
+    - - :warning
+      - 'Line 133: Product not found, record ignored., BaseItemCode=LPF3071'
+    - - :warning
+      - 'Line 135: Product not found, record ignored., BaseItemCode=LPF3110'
+    - - :warning
+      - 'Line 136: Product not found, record ignored., BaseItemCode=LPF3111'
+    - - :warning
+      - 'Line 139: Product not found, record ignored., BaseItemCode=LPF3135'
+    - - :warning
+      - 'Line 145: Product not found, record ignored., BaseItemCode=LPF3146'
+    - - :warning
+      - 'Line 147: Product not found, record ignored., BaseItemCode=LPF3149'
+    - - :warning
+      - 'Line 151: Product not found, record ignored., BaseItemCode=LPF3153'
+    - - :warning
+      - 'Line 179: Product not found, record ignored., BaseItemCode=LPT1047'
+    - - :warning
+      - 'Line 180: Product not found, record ignored., BaseItemCode=LPT1057'
+    - - :warning
+      - 'Line 183: Product not found, record ignored., BaseItemCode=LPT1127'
+    - - :warning
+      - 'Line 186: Product not found, record ignored., BaseItemCode=LPT1159'
+    - - :warning
+      - 'Line 188: Product not found, record ignored., BaseItemCode=LPT1161'
+    - - :warning
+      - 'Line 191: Product not found, record ignored., BaseItemCode=LPT1173'
+    - - :warning
+      - 'Line 194: Product not found, record ignored., BaseItemCode=LPT1183'
+    - - :warning
+      - 'Line 203: Product not found, record ignored., BaseItemCode=LPT1216'
+    - - :warning
+      - 'Line 205: Product not found, record ignored., BaseItemCode=LPT1218'
+    - - :warning
+      - 'Line 206: Product not found, record ignored., BaseItemCode=LPT1219'
+    - - :warning
+      - 'Line 207: Product not found, record ignored., BaseItemCode=LPT1221'
+    - - :warning
+      - 'Line 208: Product not found, record ignored., BaseItemCode=LPT1222'
+    - - :warning
+      - 'Line 211: Product not found, record ignored., BaseItemCode=LPT1225'
+    - - :warning
+      - 'Line 217: Product not found, record ignored., BaseItemCode=LPT1234'
+    - - :warning
+      - 'Line 223: Product not found, record ignored., BaseItemCode=LPT1240'
+    - - :warning
+      - 'Line 224: Product not found, record ignored., BaseItemCode=LPT1241'
+    - - :warning
+      - 'Line 225: Product not found, record ignored., BaseItemCode=LPT1242'
+    - - :warning
+      - 'Line 226: Product not found, record ignored., BaseItemCode=LPT1243'
+    - - :warning
+      - 'Line 227: Product not found, record ignored., BaseItemCode=LPT1246'
+    - - :warning
+      - 'Line 228: Product not found, record ignored., BaseItemCode=LPT1249'
+    - - :warning
+      - 'Line 229: Product not found, record ignored., BaseItemCode=LPT1250'
+    - - :warning
+      - 'Line 234: Product not found, record ignored., BaseItemCode=LPT1257'
+    - - :warning
+      - 'Line 236: Product not found, record ignored., BaseItemCode=LPT1259'
+    - - :warning
+      - 'Line 245: Product not found, record ignored., BaseItemCode=LPT1268'
+    - - :warning
+      - 'Line 247: Product not found, record ignored., BaseItemCode=LPT1270'
+    - - :warning
+      - 'Line 248: Product not found, record ignored., BaseItemCode=LPT1271'
+    - - :warning
+      - 'Line 251: Product not found, record ignored., BaseItemCode=LPT1274'
+    - - :warning
+      - 'Line 252: Product not found, record ignored., BaseItemCode=LPT1275'
+    - - :warning
+      - 'Line 258: Product not found, record ignored., BaseItemCode=LPT1284'
+    - - :warning
+      - 'Line 261: Product not found, record ignored., BaseItemCode=LPT1287'
+    - - :warning
+      - 'Line 306: Product not found, record ignored., BaseItemCode=LPT1334'
+    - - :warning
+      - 'Line 333: Product not found, record ignored., BaseItemCode=LPT172'
+    - - :warning
+      - 'Line 334: Product not found, record ignored., BaseItemCode=LPT594'
+    - - :warning
+      - 'Line 336: Product not found, record ignored., BaseItemCode=LPT714'
+    - - :warning
+      - 'Line 337: Product not found, record ignored., BaseItemCode=LPT825'
+    - - :warning
+      - 'Line 338: Product not found, record ignored., BaseItemCode=LPT853'
+    - - :warning
+      - 'Line 339: Product not found, record ignored., BaseItemCode=LPT869'
+    - - :warning
+      - 'Line 340: Product not found, record ignored., BaseItemCode=LPT884'
+    - - :warning
+      - 'Line 341: Product not found, record ignored., BaseItemCode=LPT885'
+    - - :warning
+      - 'Line 343: Product not found, record ignored., BaseItemCode=LPT982'
+    - - :warning
+      - 'Line 344: Product not found, record ignored., BaseItemCode=MT1006'
+    - - :warning
+      - 'Line 347: Product not found, record ignored., BaseItemCode=MT1134'
+    - - :warning
+      - 'Line 348: Product not found, record ignored., BaseItemCode=MT1185'
+    - - :warning
+      - 'Line 350: Product not found, record ignored., BaseItemCode=MT1284'
+    - - :warning
+      - 'Line 360: Product not found, record ignored., BaseItemCode=MT1499'
+    - - :warning
+      - 'Line 366: Product not found, record ignored., BaseItemCode=MT1594'
+    - - :warning
+      - 'Line 371: Product not found, record ignored., BaseItemCode=MT1706'
+    - - :warning
+      - 'Line 377: Product not found, record ignored., BaseItemCode=MT1820'
+    - - :warning
+      - 'Line 383: Product not found, record ignored., BaseItemCode=MT1857'
+    - - :warning
+      - 'Line 403: Product not found, record ignored., BaseItemCode=MT2301'
+    - - :warning
+      - 'Line 404: Product not found, record ignored., BaseItemCode=MT2320'
+    - - :warning
+      - 'Line 424: Product not found, record ignored., BaseItemCode=MT2412'
+    - - :warning
+      - 'Line 432: Product not found, record ignored., BaseItemCode=MT2437'
+    - - :warning
+      - 'Line 433: Product not found, record ignored., BaseItemCode=MT2444'
+    - - :warning
+      - 'Line 438: Product not found, record ignored., BaseItemCode=MT2456'
+    - - :warning
+      - 'Line 439: Product not found, record ignored., BaseItemCode=MT2459'
+    - - :warning
+      - 'Line 442: Product not found, record ignored., BaseItemCode=MT2464'
+    - - :warning
+      - 'Line 443: Product not found, record ignored., BaseItemCode=MT2471'
+    - - :warning
+      - 'Line 448: Product not found, record ignored., BaseItemCode=MT2497'
+    - - :warning
+      - 'Line 459: Product not found, record ignored., BaseItemCode=MT2513'
+    - - :warning
+      - 'Line 470: Product not found, record ignored., BaseItemCode=MT2529'
+    - - :warning
+      - 'Line 472: Product not found, record ignored., BaseItemCode=MT2531'
+    - - :warning
+      - 'Line 479: Product not found, record ignored., BaseItemCode=MT2541'
+    - - :warning
+      - 'Line 493: Product not found, record ignored., BaseItemCode=MT2563'
+    - - :warning
+      - 'Line 495: Product not found, record ignored., BaseItemCode=MT2567'
+    - - :warning
+      - 'Line 503: Product not found, record ignored., BaseItemCode=MT2610'
+    - - :warning
+      - 'Line 504: Product not found, record ignored., BaseItemCode=MT2611'
+    - - :warning
+      - 'Line 509: Product not found, record ignored., BaseItemCode=MT2616'
+    - - :warning
+      - 'Line 515: Product not found, record ignored., BaseItemCode=MT2622'
+    - - :warning
+      - 'Line 517: Product not found, record ignored., BaseItemCode=MT2624'
+    - - :warning
+      - 'Line 519: Product not found, record ignored., BaseItemCode=MT2626'
+    - - :warning
+      - 'Line 530: Product not found, record ignored., BaseItemCode=MT2637'
+    - - :warning
+      - 'Line 531: Product not found, record ignored., BaseItemCode=MT2638'
+    - - :warning
+      - 'Line 535: Product not found, record ignored., BaseItemCode=MT2654'
+    - - :warning
+      - 'Line 598: Product not found, record ignored., BaseItemCode=MT849'
+    - - :warning
+      - 'Line 601: Product not found, record ignored., BaseItemCode=OL1485'
+    - - :warning
+      - 'Line 605: Product not found, record ignored., BaseItemCode=OL1717'
+    - - :warning
+      - 'Line 607: Product not found, record ignored., BaseItemCode=OL1730'
+    - - :warning
+      - 'Line 619: Product not found, record ignored., BaseItemCode=OL1965'
+    - - :warning
+      - 'Line 622: Product not found, record ignored., BaseItemCode=OL1978'
+    - - :warning
+      - 'Line 635: Product not found, record ignored., BaseItemCode=OL2058'
+    - - :warning
+      - 'Line 637: Product not found, record ignored., BaseItemCode=OL2065'
+    - - :warning
+      - 'Line 639: Product not found, record ignored., BaseItemCode=OL2067'
+    - - :warning
+      - 'Line 641: Product not found, record ignored., BaseItemCode=OL2069'
+    - - :warning
+      - 'Line 650: Product not found, record ignored., BaseItemCode=OL2090'
+    - - :warning
+      - 'Line 652: Product not found, record ignored., BaseItemCode=OL2096'
+    - - :warning
+      - 'Line 653: Product not found, record ignored., BaseItemCode=OL2098'
+    - - :warning
+      - 'Line 655: Product not found, record ignored., BaseItemCode=OL2101'
+    - - :warning
+      - 'Line 656: Product not found, record ignored., BaseItemCode=OL2102'
+    - - :warning
+      - 'Line 659: Product not found, record ignored., BaseItemCode=OL2107'
+    - - :warning
+      - 'Line 661: Product not found, record ignored., BaseItemCode=OL2110'
+    - - :warning
+      - 'Line 663: Product not found, record ignored., BaseItemCode=OL2112'
+    - - :warning
+      - 'Line 666: Product not found, record ignored., BaseItemCode=OL2115'
+    - - :warning
+      - 'Line 668: Product not found, record ignored., BaseItemCode=OL2117'
+    - - :warning
+      - 'Line 669: Product not found, record ignored., BaseItemCode=OL2121'
+    - - :warning
+      - 'Line 676: Product not found, record ignored., BaseItemCode=OL2130'
+    - - :warning
+      - 'Line 681: Product not found, record ignored., BaseItemCode=OL2136'
+    - - :warning
+      - 'Line 684: Product not found, record ignored., BaseItemCode=OL2139'
+    - - :warning
+      - 'Line 688: Product not found, record ignored., BaseItemCode=OL2143'
+    - - :warning
+      - 'Line 689: Product not found, record ignored., BaseItemCode=OL2144'
+    - - :warning
+      - 'Line 690: Product not found, record ignored., BaseItemCode=OL2145'
+    - - :warning
+      - 'Line 699: Product not found, record ignored., BaseItemCode=OL2155'
+    - - :warning
+      - 'Line 776: Product not found, record ignored., BaseItemCode=PF035'
+    - - :warning
+      - 'Line 777: Product not found, record ignored., BaseItemCode=PF043'
+    - - :warning
+      - 'Line 780: Product not found, record ignored., BaseItemCode=PF046'
+    - - :warning
+      - 'Line 782: Product not found, record ignored., BaseItemCode=PWFL1001'
+    - - :warning
+      - 'Line 783: Product not found, record ignored., BaseItemCode=PWFL1005'
+    - - :warning
+      - 'Line 784: Product not found, record ignored., BaseItemCode=PWFL1009'
+    - - :warning
+      - 'Line 785: Product not found, record ignored., BaseItemCode=PWFL1010'
+    - - :warning
+      - 'Line 786: Product not found, record ignored., BaseItemCode=PWFL1012'
+    - - :warning
+      - 'Line 787: Product not found, record ignored., BaseItemCode=PWFL1020'
+    - - :warning
+      - 'Line 789: Product not found, record ignored., BaseItemCode=PWFL1026'
+    - - :warning
+      - 'Line 790: Product not found, record ignored., BaseItemCode=PWFL1027'
+    - - :warning
+      - 'Line 791: Product not found, record ignored., BaseItemCode=PWFL1028'
+    - - :warning
+      - 'Line 792: Product not found, record ignored., BaseItemCode=PWFL1030'
+    - - :warning
+      - 'Line 793: Product not found, record ignored., BaseItemCode=PWFL1035'
+    - - :warning
+      - 'Line 794: Product not found, record ignored., BaseItemCode=PWFL1037'
+    - - :warning
+      - 'Line 795: Product not found, record ignored., BaseItemCode=PWFL1048'
+    - - :warning
+      - 'Line 804: Product not found, record ignored., BaseItemCode=PWFL1069'
+    - - :warning
+      - 'Line 805: Product not found, record ignored., BaseItemCode=PWFL1079'
+    - - :warning
+      - 'Line 806: Product not found, record ignored., BaseItemCode=PWFL1085'
+    - - :warning
+      - 'Line 810: Product not found, record ignored., BaseItemCode=PWFL1115'
+    - - :warning
+      - 'Line 811: Product not found, record ignored., BaseItemCode=PWFL1131'
+    - - :warning
+      - 'Line 812: Product not found, record ignored., BaseItemCode=PWFL1147'
+    - - :warning
+      - 'Line 813: Product not found, record ignored., BaseItemCode=PWFL1160'
+    - - :warning
+      - 'Line 814: Product not found, record ignored., BaseItemCode=PWFL1168'
+    - - :warning
+      - 'Line 815: Product not found, record ignored., BaseItemCode=PWFL1176'
+    - - :warning
+      - 'Line 816: Product not found, record ignored., BaseItemCode=PWFL1180'
+    - - :warning
+      - 'Line 817: Product not found, record ignored., BaseItemCode=PWFL1200'
+    - - :warning
+      - 'Line 819: Product not found, record ignored., BaseItemCode=PWFL1234'
+    - - :warning
+      - 'Line 820: Product not found, record ignored., BaseItemCode=PWFL1243'
+    - - :warning
+      - 'Line 822: Product not found, record ignored., BaseItemCode=PWFL1252'
+    - - :warning
+      - 'Line 825: Product not found, record ignored., BaseItemCode=PWFL1355'
+    - - :warning
+      - 'Line 826: Product not found, record ignored., BaseItemCode=PWFL1357'
+    - - :warning
+      - 'Line 827: Product not found, record ignored., BaseItemCode=PWFL1358'
+    - - :warning
+      - 'Line 829: Product not found, record ignored., BaseItemCode=PWFL1362'
+    - - :warning
+      - 'Line 830: Product not found, record ignored., BaseItemCode=PWFL1367'
+    - - :warning
+      - 'Line 831: Product not found, record ignored., BaseItemCode=PWFL1373'
+    - - :warning
+      - 'Line 832: Product not found, record ignored., BaseItemCode=PWFL1377'
+    - - :warning
+      - 'Line 833: Product not found, record ignored., BaseItemCode=PWFL1389'
+    - - :warning
+      - 'Line 835: Product not found, record ignored., BaseItemCode=PWFL1399'
+    - - :warning
+      - 'Line 837: Product not found, record ignored., BaseItemCode=PWFL1401'
+    - - :warning
+      - 'Line 838: Product not found, record ignored., BaseItemCode=PWFL1402'
+    - - :warning
+      - 'Line 839: Product not found, record ignored., BaseItemCode=PWFL1404'
+    - - :warning
+      - 'Line 840: Product not found, record ignored., BaseItemCode=PWFL1405'
+    - - :warning
+      - 'Line 841: Product not found, record ignored., BaseItemCode=PWFL1406'
+    - - :warning
+      - 'Line 843: Product not found, record ignored., BaseItemCode=PWFL1411'
+    - - :warning
+      - 'Line 844: Product not found, record ignored., BaseItemCode=PWFL1415'
+    - - :warning
+      - 'Line 846: Product not found, record ignored., BaseItemCode=PWFL1420'
+    - - :warning
+      - 'Line 847: Product not found, record ignored., BaseItemCode=PWFL1421'
+    - - :warning
+      - 'Line 848: Product not found, record ignored., BaseItemCode=PWFL1422'
+    - - :warning
+      - 'Line 851: Product not found, record ignored., BaseItemCode=PWFL1425'
+    - - :warning
+      - 'Line 855: Product not found, record ignored., BaseItemCode=PWFL1429'
+    - - :warning
+      - 'Line 856: Product not found, record ignored., BaseItemCode=PWFL1430'
+    - - :warning
+      - 'Line 857: Product not found, record ignored., BaseItemCode=PWFL1431'
+    - - :warning
+      - 'Line 858: Product not found, record ignored., BaseItemCode=PWFL1432'
+    - - :warning
+      - 'Line 859: Product not found, record ignored., BaseItemCode=PWFL1433'
+    - - :warning
+      - 'Line 860: Product not found, record ignored., BaseItemCode=PWFL1435'
+    - - :warning
+      - 'Line 861: Product not found, record ignored., BaseItemCode=PWFL1436'
+    - - :warning
+      - 'Line 862: Product not found, record ignored., BaseItemCode=PWFL1438'
+    - - :warning
+      - 'Line 863: Product not found, record ignored., BaseItemCode=PWFL1439'
+    - - :warning
+      - 'Line 864: Product not found, record ignored., BaseItemCode=PWFL1441'
+    - - :warning
+      - 'Line 865: Product not found, record ignored., BaseItemCode=PWFL1442'
+    - - :warning
+      - 'Line 867: Product not found, record ignored., BaseItemCode=PWFL1444'
+    - - :warning
+      - 'Line 869: Product not found, record ignored., BaseItemCode=PWFL1446'
+    - - :warning
+      - 'Line 870: Product not found, record ignored., BaseItemCode=PWFL1447'
+    - - :warning
+      - 'Line 871: Product not found, record ignored., BaseItemCode=PWFL1448'
+    - - :warning
+      - 'Line 873: Product not found, record ignored., BaseItemCode=PWFL1450'
+    - - :warning
+      - 'Line 875: Product not found, record ignored., BaseItemCode=PWFL1452'
+    - - :warning
+      - 'Line 877: Product not found, record ignored., BaseItemCode=PWFL1454'
+    - - :warning
+      - 'Line 879: Product not found, record ignored., BaseItemCode=PWFL1456'
+    - - :warning
+      - 'Line 886: Product not found, record ignored., BaseItemCode=PWFL1463'
+    - - :warning
+      - 'Line 897: Product not found, record ignored., BaseItemCode=PWFLO1000'
+    - - :warning
+      - 'Line 898: Product not found, record ignored., BaseItemCode=PWFLO1001'
+    - - :warning
+      - 'Line 899: Product not found, record ignored., BaseItemCode=PWFLO1003'
+    - - :warning
+      - 'Line 900: Product not found, record ignored., BaseItemCode=PWFLO1006'
+    - - :warning
+      - 'Line 901: Product not found, record ignored., BaseItemCode=PWFLO1007'
+    - - :warning
+      - 'Line 902: Product not found, record ignored., BaseItemCode=PWFLO1009'
+    - - :warning
+      - 'Line 903: Product not found, record ignored., BaseItemCode=PWFLO1010'
+    - - :warning
+      - 'Line 905: Product not found, record ignored., BaseItemCode=PWFLO1012'
+    - - :warning
+      - 'Line 909: Product not found, record ignored., BaseItemCode=PWFLO1017'
+    - - :warning
+      - 'Line 919: Product not found, record ignored., BaseItemCode=RALL-10002-810'
+    - - :warning
+      - 'Line 1135: Product not found, record ignored., BaseItemCode=SHE032'
+    - - :warning
+      - 'Line 1136: Product not found, record ignored., BaseItemCode=SHE033'
+    - - :warning
+      - 'Line 1140: Product not found, record ignored., BaseItemCode=STA479'
+    - - :warning
+      - 'Line 1143: Product not found, record ignored., BaseItemCode=STA571'
+    - - :warning
+      - 'Line 1144: Product not found, record ignored., BaseItemCode=STA575'
+    - - :warning
+      - 'Line 1146: Product not found, record ignored., BaseItemCode=STA665'
+    - - :warning
+      - 'Line 1147: Product not found, record ignored., BaseItemCode=STA689'
+    - - :warning
+      - 'Line 1148: Product not found, record ignored., BaseItemCode=STA693'
+    - - :warning
+      - 'Line 1152: Product not found, record ignored., BaseItemCode=STA747'
+    - - :warning
+      - 'Line 1153: Product not found, record ignored., BaseItemCode=STA757'
+    - - :warning
+      - 'Line 1159: Product not found, record ignored., BaseItemCode=STA773'
+    - - :warning
+      - 'Line 1162: Product not found, record ignored., BaseItemCode=STA786'
+    - - :warning
+      - 'Line 1179: Product not found, record ignored., BaseItemCode=TA177'
+    - - :warning
+      - 'Line 1181: Product not found, record ignored., BaseItemCode=TA198'
+    - - :warning
+      - 'Line 1188: Product not found, record ignored., BaseItemCode=TA447'
+    - - :warning
+      - 'Line 1197: Product not found, record ignored., BaseItemCode=TA459'
+    - - :warning
+      - 'Line 1198: Product not found, record ignored., BaseItemCode=TA460'
+    - - :warning
+      - 'Line 1199: Product not found, record ignored., BaseItemCode=TA461'
+    - - :warning
+      - 'Line 1200: Product not found, record ignored., BaseItemCode=TA462'
+    - - :warning
+      - 'Line 1209: Product not found, record ignored., BaseItemCode=TA475'
+    - - :warning
+      - 'Line 1215: Product not found, record ignored., BaseItemCode=TA488'
+    - - :warning
+      - 'Line 1221: Product not found, record ignored., BaseItemCode=TA497'
+    - - :warning
+      - 'Line 1257: Product not found, record ignored., BaseItemCode=THR1013'
+    - - :warning
+      - 'Line 1263: Product not found, record ignored., BaseItemCode=VAS118'
+    - - :warning
+      - 'Line 1268: Product not found, record ignored., BaseItemCode=VAS201'
+    - - :warning
+      - 'Line 1269: Product not found, record ignored., BaseItemCode=VAS205'
+    - - :warning
+      - 'Line 1270: Product not found, record ignored., BaseItemCode=VAS206'
+    - - :warning
+      - 'Line 1274: Product not found, record ignored., BaseItemCode=VAS211'
+    - - :warning
+      - 'Line 1275: Product not found, record ignored., BaseItemCode=VAS228'
+    - - :warning
+      - 'Line 1280: Product not found, record ignored., BaseItemCode=VAS240'
+    - - :warning
+      - 'Line 1284: Product not found, record ignored., BaseItemCode=VAS257'
+    - - :warning
+      - 'Line 1289: Product not found, record ignored., BaseItemCode=VAS262'
+    - - :warning
+      - 'Line 1290: Product not found, record ignored., BaseItemCode=VAS272'
+    - - :warning
+      - 'Line 1292: Product not found, record ignored., BaseItemCode=VAS274'
+    - - :warning
+      - 'Line 1294: Product not found, record ignored., BaseItemCode=VAS276'
+    - - :warning
+      - 'Line 1295: Product not found, record ignored., BaseItemCode=VAS277'
+    - - :warning
+      - 'Line 1300: Product not found, record ignored., BaseItemCode=VAS283'
+    - - :warning
+      - 'Line 1323: Product not found, record ignored., BaseItemCode=W6287'
+    - - :warning
+      - 'Line 1326: Product not found, record ignored., BaseItemCode=W6440'
+    - - :warning
+      - 'Line 1327: Product not found, record ignored., BaseItemCode=W6471'
+    - - :warning
+      - 'Line 1329: Product not found, record ignored., BaseItemCode=W6486'
+    - - :warning
+      - 'Line 1342: Product not found, record ignored., BaseItemCode=W6701'
+    - - :warning
+      - 'Line 1344: Product not found, record ignored., BaseItemCode=W6706'
+    - - :warning
+      - 'Line 1347: Product not found, record ignored., BaseItemCode=W6713'
+    - - :warning
+      - 'Line 1353: Product not found, record ignored., BaseItemCode=W6730'
+    - - :warning
+      - 'Line 1399: Product not found, record ignored., BaseItemCode=WS117'
+    - - :warning
+      - 'Line 1405: Product not found, record ignored., BaseItemCode=WS129'
+    - - :warning
+      - 'Line 1411: Product not found, record ignored., BaseItemCode=WS135'
+    - - :warning
+      - 'Line 1415: Product not found, record ignored., BaseItemCode=WS139'
+    - - :warning
+      - 'Line 1420: Product not found, record ignored., BaseItemCode=WS144'
+    - - :warning
+      - 'Line 1422: Product not found, record ignored., BaseItemCode=WS146'
+    - - :warning
+      - 'Line 1423: Product not found, record ignored., BaseItemCode=WS147'
+    - - :warning
+      - 'Line 1446: Product not found, record ignored., BaseItemCode=VAS253'
+    - - :warning
+      - 'Line 1464: Product not found, record ignored., BaseItemCode=LPT1379EV'
+    - - :warning
+      - 'Line 1473: Product not found, record ignored., BaseItemCode=LPT1388EV'
+    - - :warning
+      - 'Line 1485: Product not found, record ignored., BaseItemCode=LIGHTCLOUD'
+    - - :warning
+      - 'Line 1486: Product not found, record ignored., BaseItemCode=LPC125C'
+    - - :warning
+      - 'Line 1487: Product not found, record ignored., BaseItemCode=LPC4255'
+    - - :warning
+      - 'Line 1492: Product not found, record ignored., BaseItemCode=PWFL1007'
+    - - :warning
+      - 'Line 1496: Product not found, record ignored., BaseItemCode=PWFL1192'
+    - - :warning
+      - 'Line 1497: Product not found, record ignored., BaseItemCode=PWFL1257'
+    - - :warning
+      - 'Line 1498: Product not found, record ignored., BaseItemCode=PWFL1310'
+    - - :warning
+      - 'Line 1499: Product not found, record ignored., BaseItemCode=PWFL1313'
+    - - :warning
+      - 'Line 1500: Product not found, record ignored., BaseItemCode=PWFL1322'
+    - - :warning
+      - 'Line 1502: Product not found, record ignored., BaseItemCode=PWFL1391P'
+    - - :warning
+      - 'Line 1503: Product not found, record ignored., BaseItemCode=PWFLX1019'
+    - - :warning
+      - 'Line 1601: Product not found, record ignored., BaseItemCode=VAS249'
+    - - :warning
+      - 'Line 1603: Product not found, record ignored., BaseItemCode=W6345'
+    - - :warning
+      - 'Line 1604: Product not found, record ignored., BaseItemCode=WS053'
+    - - :warning
+      - 'Line 1605: Product not found, record ignored., BaseItemCode=ESM-W6005'
+    - - :warning
+      - 'Line 1606: Product not found, record ignored., BaseItemCode=PWFL1002'
+    - - :warning
+      - 'Line 1607: Product not found, record ignored., BaseItemCode=PWFL1008'
+    - - :warning
+      - 'Line 1608: Product not found, record ignored., BaseItemCode=PWFL1011'
+    - - :warning
+      - 'Line 1609: Product not found, record ignored., BaseItemCode=PWFL1018'
+    - - :warning
+      - 'Line 1610: Product not found, record ignored., BaseItemCode=PWFL1031'
+    - - :warning
+      - 'Line 1612: Product not found, record ignored., BaseItemCode=PWFL1039'
+    - - :warning
+      - 'Line 1614: Product not found, record ignored., BaseItemCode=PWFL1049'
+    - - :warning
+      - 'Line 1615: Product not found, record ignored., BaseItemCode=PWFL1050'
+    - - :warning
+      - 'Line 1616: Product not found, record ignored., BaseItemCode=PWFL1065'
+    - - :warning
+      - 'Line 1617: Product not found, record ignored., BaseItemCode=PWFL1088'
+    - - :warning
+      - 'Line 1618: Product not found, record ignored., BaseItemCode=PWFL1090'
+    - - :warning
+      - 'Line 1619: Product not found, record ignored., BaseItemCode=PWFL1095'
+    - - :warning
+      - 'Line 1620: Product not found, record ignored., BaseItemCode=PWFL1108'
+    - - :warning
+      - 'Line 1621: Product not found, record ignored., BaseItemCode=PWFL1113'
+    - - :warning
+      - 'Line 1622: Product not found, record ignored., BaseItemCode=PWFL1145'
+    - - :warning
+      - 'Line 1625: Product not found, record ignored., BaseItemCode=PWFL1237'
+    - - :warning
+      - 'Line 1627: Product not found, record ignored., BaseItemCode=PWFL1248'
+    - - :warning
+      - 'Line 1628: Product not found, record ignored., BaseItemCode=PWFL1261'
+    - - :warning
+      - 'Line 1629: Product not found, record ignored., BaseItemCode=PWFL1294'
+    - - :warning
+      - 'Line 1630: Product not found, record ignored., BaseItemCode=PWFL1298'
+    - - :warning
+      - 'Line 1632: Product not found, record ignored., BaseItemCode=PWFL1302'
+    - - :warning
+      - 'Line 1633: Product not found, record ignored., BaseItemCode=PWFL1317'
+    - - :warning
+      - 'Line 1634: Product not found, record ignored., BaseItemCode=PWFL1326'
+    - - :warning
+      - 'Line 1635: Product not found, record ignored., BaseItemCode=PWFL1327'
+    - - :warning
+      - 'Line 1636: Product not found, record ignored., BaseItemCode=PWFL1339'
+    - - :warning
+      - 'Line 1637: Product not found, record ignored., BaseItemCode=PWFL1342'
+    - - :warning
+      - 'Line 1638: Product not found, record ignored., BaseItemCode=PWFL1346'
+    - - :warning
+      - 'Line 1639: Product not found, record ignored., BaseItemCode=PWFLO1008'
+    - - :warning
+      - 'Line 1643: Product not found, record ignored., BaseItemCode=VAS245'
+    - - :warning
+      - 'Line 1644: Product not found, record ignored., BaseItemCode=VAS251'
+    - - :warning
+      - 'Line 1646: Product not found, record ignored., BaseItemCode=LPC149'
+    - - :warning
+      - 'Line 1652: Product not found, record ignored., BaseItemCode=ANTISLIP912'
+    - - :warning
+      - 'Line 1653: Product not found, record ignored., BaseItemCode=CHA064'
+    - - :warning
+      - 'Line 1654: Product not found, record ignored., BaseItemCode=FLP1024'
+    - - :warning
+      - 'Line 1655: Product not found, record ignored., BaseItemCode=FLP1616'
+    - - :warning
+      - 'Line 1656: Product not found, record ignored., BaseItemCode=PWFL1407'
+    - - :warning
+      - 'Line 1662: Product not found, record ignored., BaseItemCode=VAS282'
+    - - :warning
+      - 'Line 1664: Product not found, record ignored., BaseItemCode=W6714'
+    - - :warning
+      - 'Line 1665: Product not found, record ignored., BaseItemCode=W6715'
+    - - :warning
+      - 'Line 1666: Product not found, record ignored., BaseItemCode=W6732'
+    - - :warning
+      - 'Line 1682: Product not found, record ignored., BaseItemCode=LPC4488'
+    - - :warning
+      - 'Line 1996: Product not found, record ignored., BaseItemCode=PA0062'
+ |
+| 2026-06-14 22:07:05 | ---
+- - Portal Invoices
+  - []
+ |
+| 2026-06-14 17:01:22 | ---
+- - Inventory
+  - - - :warning
+      - 'Line 14: Product not found, record ignored., BaseItemCode=CHA071'
+    - - :warning
+      - 'Line 19: Product not found, record ignored., BaseItemCode=CHA088'
+    - - :warning
+      - 'Line 20: Product not found, record ignored., BaseItemCode=CHA089'
+    - - :warning
+      - 'Line 24: Product not found, record ignored., BaseItemCode=CHA094'
+    - - :warning
+      - 'Line 25: Product not found, record ignored., BaseItemCode=CHA095'
+    - - :warning
+      - 'Line 27: Product not found, record ignored., BaseItemCode=CHA097'
+    - - :warning
+      - 'Line 28: Product not found, record ignored., BaseItemCode=CHA098'
+    - - :warning
+      - 'Line 37: Product not found, record ignored., BaseItemCode=CL220'
+    - - :warning
+      - 'Line 38: Product not found, record ignored., BaseItemCode=CL239'
+    - - :warning
+      - 'Line 42: Product not found, record ignored., BaseItemCode=CL257'
+    - - :warning
+      - 'Line 76: Product not found, record ignored., BaseItemCode=LPC4058'
+    - - :warning
+      - 'Line 88: Product not found, record ignored., BaseItemCode=LPC4418'
+    - - :warning
+      - 'Line 92: Product not found, record ignored., BaseItemCode=LPC4434'
+    - - :warning
+      - 'Line 96: Product not found, record ignored., BaseItemCode=LPC4445'
+    - - :warning
+      - 'Line 98: Product not found, record ignored., BaseItemCode=LPC4454'
+    - - :warning
+      - 'Line 130: Product not found, record ignored., BaseItemCode=LPF3023'
+    - - :warning
+      - 'Line 133: Product not found, record ignored., BaseItemCode=LPF3071'
+    - - :warning
+      - 'Line 135: Product not found, record ignored., BaseItemCode=LPF3110'
+    - - :warning
+      - 'Line 136: Product not found, record ignored., BaseItemCode=LPF3111'
+    - - :warning
+      - 'Line 139: Product not found, record ignored., BaseItemCode=LPF3135'
+    - - :warning
+      - 'Line 145: Product not found, record ignored., BaseItemCode=LPF3146'
+    - - :warning
+      - 'Line 147: Product not found, record ignored., BaseItemCode=LPF3149'
+    - - :warning
+      - 'Line 151: Product not found, record ignored., BaseItemCode=LPF3153'
+    - - :warning
+      - 'Line 179: Product not found, record ignored., BaseItemCode=LPT1047'
+    - - :warning
+      - 'Line 180: Product not found, record ignored., BaseItemCode=LPT1057'
+    - - :warning
+      - 'Line 183: Product not found, record ignored., BaseItemCode=LPT1127'
+    - - :warning
+      - 'Line 186: Product not found, record ignored., BaseItemCode=LPT1159'
+    - - :warning
+      - 'Line 188: Product not found, record ignored., BaseItemCode=LPT1161'
+    - - :warning
+      - 'Line 191: Product not found, record ignored., BaseItemCode=LPT1173'
+    - - :warning
+      - 'Line 194: Product not found, record ignored., BaseItemCode=LPT1183'
+    - - :warning
+      - 'Line 203: Product not found, record ignored., BaseItemCode=LPT1216'
+    - - :warning
+      - 'Line 205: Product not found, record ignored., BaseItemCode=LPT1218'
+    - - :warning
+      - 'Line 206: Product not found, record ignored., BaseItemCode=LPT1219'
+    - - :warning
+      - 'Line 207: Product not found, record ignored., BaseItemCode=LPT1221'
+    - - :warning
+      - 'Line 208: Product not found, record ignored., BaseItemCode=LPT1222'
+    - - :warning
+      - 'Line 211: Product not found, record ignored., BaseItemCode=LPT1225'
+    - - :warning
+      - 'Line 217: Product not found, record ignored., BaseItemCode=LPT1234'
+    - - :warning
+      - 'Line 223: Product not found, record ignored., BaseItemCode=LPT1240'
+    - - :warning
+      - 'Line 224: Product not found, record ignored., BaseItemCode=LPT1241'
+    - - :warning
+      - 'Line 225: Product not found, record ignored., BaseItemCode=LPT1242'
+    - - :warning
+      - 'Line 226: Product not found, record ignored., BaseItemCode=LPT1243'
+    - - :warning
+      - 'Line 227: Product not found, record ignored., BaseItemCode=LPT1246'
+    - - :warning
+      - 'Line 228: Product not found, record ignored., BaseItemCode=LPT1249'
+    - - :warning
+      - 'Line 229: Product not found, record ignored., BaseItemCode=LPT1250'
+    - - :warning
+      - 'Line 234: Product not found, record ignored., BaseItemCode=LPT1257'
+    - - :warning
+      - 'Line 236: Product not found, record ignored., BaseItemCode=LPT1259'
+    - - :warning
+      - 'Line 245: Product not found, record ignored., BaseItemCode=LPT1268'
+    - - :warning
+      - 'Line 247: Product not found, record ignored., BaseItemCode=LPT1270'
+    - - :warning
+      - 'Line 248: Product not found, record ignored., BaseItemCode=LPT1271'
+    - - :warning
+      - 'Line 251: Product not found, record ignored., BaseItemCode=LPT1274'
+    - - :warning
+      - 'Line 252: Product not found, record ignored., BaseItemCode=LPT1275'
+    - - :warning
+      - 'Line 258: Product not found, record ignored., BaseItemCode=LPT1284'
+    - - :warning
+      - 'Line 261: Product not found, record ignored., BaseItemCode=LPT1287'
+    - - :warning
+      - 'Line 306: Product not found, record ignored., BaseItemCode=LPT1334'
+    - - :warning
+      - 'Line 333: Product not found, record ignored., BaseItemCode=LPT172'
+    - - :warning
+      - 'Line 334: Product not found, record ignored., BaseItemCode=LPT594'
+    - - :warning
+      - 'Line 336: Product not found, record ignored., BaseItemCode=LPT714'
+    - - :warning
+      - 'Line 337: Product not found, record ignored., BaseItemCode=LPT825'
+    - - :warning
+      - 'Line 338: Product not found, record ignored., BaseItemCode=LPT853'
+    - - :warning
+      - 'Line 339: Product not found, record ignored., BaseItemCode=LPT869'
+    - - :warning
+      - 'Line 340: Product not found, record ignored., BaseItemCode=LPT884'
+    - - :warning
+      - 'Line 341: Product not found, record ignored., BaseItemCode=LPT885'
+    - - :warning
+      - 'Line 343: Product not found, record ignored., BaseItemCode=LPT982'
+    - - :warning
+      - 'Line 344: Product not found, record ignored., BaseItemCode=MT1006'
+    - - :warning
+      - 'Line 347: Product not found, record ignored., BaseItemCode=MT1134'
+    - - :warning
+      - 'Line 348: Product not found, record ignored., BaseItemCode=MT1185'
+    - - :warning
+      - 'Line 350: Product not found, record ignored., BaseItemCode=MT1284'
+    - - :warning
+      - 'Line 360: Product not found, record ignored., BaseItemCode=MT1499'
+    - - :warning
+      - 'Line 366: Product not found, record ignored., BaseItemCode=MT1594'
+    - - :warning
+      - 'Line 371: Product not found, record ignored., BaseItemCode=MT1706'
+    - - :warning
+      - 'Line 377: Product not found, record ignored., BaseItemCode=MT1820'
+    - - :warning
+      - 'Line 383: Product not found, record ignored., BaseItemCode=MT1857'
+    - - :warning
+      - 'Line 403: Product not found, record ignored., BaseItemCode=MT2301'
+    - - :warning
+      - 'Line 404: Product not found, record ignored., BaseItemCode=MT2320'
+    - - :warning
+      - 'Line 424: Product not found, record ignored., BaseItemCode=MT2412'
+    - - :warning
+      - 'Line 432: Product not found, record ignored., BaseItemCode=MT2437'
+    - - :warning
+      - 'Line 433: Product not found, record ignored., BaseItemCode=MT2444'
+    - - :warning
+      - 'Line 438: Product not found, record ignored., BaseItemCode=MT2456'
+    - - :warning
+      - 'Line 439: Product not found, record ignored., BaseItemCode=MT2459'
+    - - :warning
+      - 'Line 442: Product not found, record ignored., BaseItemCode=MT2464'
+    - - :warning
+      - 'Line 443: Product not found, record ignored., BaseItemCode=MT2471'
+    - - :warning
+      - 'Line 448: Product not found, record ignored., BaseItemCode=MT2497'
+    - - :warning
+      - 'Line 459: Product not found, record ignored., BaseItemCode=MT2513'
+    - - :warning
+      - 'Line 470: Product not found, record ignored., BaseItemCode=MT2529'
+    - - :warning
+      - 'Line 472: Product not found, record ignored., BaseItemCode=MT2531'
+    - - :warning
+      - 'Line 479: Product not found, record ignored., BaseItemCode=MT2541'
+    - - :warning
+      - 'Line 493: Product not found, record ignored., BaseItemCode=MT2563'
+    - - :warning
+      - 'Line 495: Product not found, record ignored., BaseItemCode=MT2567'
+    - - :warning
+      - 'Line 503: Product not found, record ignored., BaseItemCode=MT2610'
+    - - :warning
+      - 'Line 504: Product not found, record ignored., BaseItemCode=MT2611'
+    - - :warning
+      - 'Line 509: Product not found, record ignored., BaseItemCode=MT2616'
+    - - :warning
+      - 'Line 515: Product not found, record ignored., BaseItemCode=MT2622'
+    - - :warning
+      - 'Line 517: Product not found, record ignored., BaseItemCode=MT2624'
+    - - :warning
+      - 'Line 519: Product not found, record ignored., BaseItemCode=MT2626'
+    - - :warning
+      - 'Line 530: Product not found, record ignored., BaseItemCode=MT2637'
+    - - :warning
+      - 'Line 531: Product not found, record ignored., BaseItemCode=MT2638'
+    - - :warning
+      - 'Line 535: Product not found, record ignored., BaseItemCode=MT2654'
+    - - :warning
+      - 'Line 598: Product not found, record ignored., BaseItemCode=MT849'
+    - - :warning
+      - 'Line 601: Product not found, record ignored., BaseItemCode=OL1485'
+    - - :warning
+      - 'Line 605: Product not found, record ignored., BaseItemCode=OL1717'
+    - - :warning
+      - 'Line 607: Product not found, record ignored., BaseItemCode=OL1730'
+    - - :warning
+      - 'Line 619: Product not found, record ignored., BaseItemCode=OL1965'
+    - - :warning
+      - 'Line 622: Product not found, record ignored., BaseItemCode=OL1978'
+    - - :warning
+      - 'Line 635: Product not found, record ignored., BaseItemCode=OL2058'
+    - - :warning
+      - 'Line 637: Product not found, record ignored., BaseItemCode=OL2065'
+    - - :warning
+      - 'Line 639: Product not found, record ignored., BaseItemCode=OL2067'
+    - - :warning
+      - 'Line 641: Product not found, record ignored., BaseItemCode=OL2069'
+    - - :warning
+      - 'Line 650: Product not found, record ignored., BaseItemCode=OL2090'
+    - - :warning
+      - 'Line 652: Product not found, record ignored., BaseItemCode=OL2096'
+    - - :warning
+      - 'Line 653: Product not found, record ignored., BaseItemCode=OL2098'
+    - - :warning
+      - 'Line 655: Product not found, record ignored., BaseItemCode=OL2101'
+    - - :warning
+      - 'Line 656: Product not found, record ignored., BaseItemCode=OL2102'
+    - - :warning
+      - 'Line 659: Product not found, record ignored., BaseItemCode=OL2107'
+    - - :warning
+      - 'Line 661: Product not found, record ignored., BaseItemCode=OL2110'
+    - - :warning
+      - 'Line 663: Product not found, record ignored., BaseItemCode=OL2112'
+    - - :warning
+      - 'Line 666: Product not found, record ignored., BaseItemCode=OL2115'
+    - - :warning
+      - 'Line 668: Product not found, record ignored., BaseItemCode=OL2117'
+    - - :warning
+      - 'Line 669: Product not found, record ignored., BaseItemCode=OL2121'
+    - - :warning
+      - 'Line 676: Product not found, record ignored., BaseItemCode=OL2130'
+    - - :warning
+      - 'Line 681: Product not found, record ignored., BaseItemCode=OL2136'
+    - - :warning
+      - 'Line 684: Product not found, record ignored., BaseItemCode=OL2139'
+    - - :warning
+      - 'Line 688: Product not found, record ignored., BaseItemCode=OL2143'
+    - - :warning
+      - 'Line 689: Product not found, record ignored., BaseItemCode=OL2144'
+    - - :warning
+      - 'Line 690: Product not found, record ignored., BaseItemCode=OL2145'
+    - - :warning
+      - 'Line 699: Product not found, record ignored., BaseItemCode=OL2155'
+    - - :warning
+      - 'Line 776: Product not found, record ignored., BaseItemCode=PF035'
+    - - :warning
+      - 'Line 777: Product not found, record ignored., BaseItemCode=PF043'
+    - - :warning
+      - 'Line 780: Product not found, record ignored., BaseItemCode=PF046'
+    - - :warning
+      - 'Line 782: Product not found, record ignored., BaseItemCode=PWFL1001'
+    - - :warning
+      - 'Line 783: Product not found, record ignored., BaseItemCode=PWFL1005'
+    - - :warning
+      - 'Line 784: Product not found, record ignored., BaseItemCode=PWFL1009'
+    - - :warning
+      - 'Line 785: Product not found, record ignored., BaseItemCode=PWFL1010'
+    - - :warning
+      - 'Line 786: Product not found, record ignored., BaseItemCode=PWFL1012'
+    - - :warning
+      - 'Line 787: Product not found, record ignored., BaseItemCode=PWFL1020'
+    - - :warning
+      - 'Line 789: Product not found, record ignored., BaseItemCode=PWFL1026'
+    - - :warning
+      - 'Line 790: Product not found, record ignored., BaseItemCode=PWFL1027'
+    - - :warning
+      - 'Line 791: Product not found, record ignored., BaseItemCode=PWFL1028'
+    - - :warning
+      - 'Line 792: Product not found, record ignored., BaseItemCode=PWFL1030'
+    - - :warning
+      - 'Line 793: Product not found, record ignored., BaseItemCode=PWFL1035'
+    - - :warning
+      - 'Line 794: Product not found, record ignored., BaseItemCode=PWFL1037'
+    - - :warning
+      - 'Line 795: Product not found, record ignored., BaseItemCode=PWFL1048'
+    - - :warning
+      - 'Line 804: Product not found, record ignored., BaseItemCode=PWFL1069'
+    - - :warning
+      - 'Line 805: Product not found, record ignored., BaseItemCode=PWFL1079'
+    - - :warning
+      - 'Line 806: Product not found, record ignored., BaseItemCode=PWFL1085'
+    - - :warning
+      - 'Line 810: Product not found, record ignored., BaseItemCode=PWFL1115'
+    - - :warning
+      - 'Line 811: Product not found, record ignored., BaseItemCode=PWFL1131'
+    - - :warning
+      - 'Line 812: Product not found, record ignored., BaseItemCode=PWFL1147'
+    - - :warning
+      - 'Line 813: Product not found, record ignored., BaseItemCode=PWFL1160'
+    - - :warning
+      - 'Line 814: Product not found, record ignored., BaseItemCode=PWFL1168'
+    - - :warning
+      - 'Line 815: Product not found, record ignored., BaseItemCode=PWFL1176'
+    - - :warning
+      - 'Line 816: Product not found, record ignored., BaseItemCode=PWFL1180'
+    - - :warning
+      - 'Line 817: Product not found, record ignored., BaseItemCode=PWFL1200'
+    - - :warning
+      - 'Line 819: Product not found, record ignored., BaseItemCode=PWFL1234'
+    - - :warning
+      - 'Line 820: Product not found, record ignored., BaseItemCode=PWFL1243'
+    - - :warning
+      - 'Line 822: Product not found, record ignored., BaseItemCode=PWFL1252'
+    - - :warning
+      - 'Line 825: Product not found, record ignored., BaseItemCode=PWFL1355'
+    - - :warning
+      - 'Line 826: Product not found, record ignored., BaseItemCode=PWFL1357'
+    - - :warning
+      - 'Line 827: Product not found, record ignored., BaseItemCode=PWFL1358'
+    - - :warning
+      - 'Line 829: Product not found, record ignored., BaseItemCode=PWFL1362'
+    - - :warning
+      - 'Line 830: Product not found, record ignored., BaseItemCode=PWFL1367'
+    - - :warning
+      - 'Line 831: Product not found, record ignored., BaseItemCode=PWFL1373'
+    - - :warning
+      - 'Line 832: Product not found, record ignored., BaseItemCode=PWFL1377'
+    - - :warning
+      - 'Line 833: Product not found, record ignored., BaseItemCode=PWFL1389'
+    - - :warning
+      - 'Line 835: Product not found, record ignored., BaseItemCode=PWFL1399'
+    - - :warning
+      - 'Line 837: Product not found, record ignored., BaseItemCode=PWFL1401'
+    - - :warning
+      - 'Line 838: Product not found, record ignored., BaseItemCode=PWFL1402'
+    - - :warning
+      - 'Line 839: Product not found, record ignored., BaseItemCode=PWFL1404'
+    - - :warning
+      - 'Line 840: Product not found, record ignored., BaseItemCode=PWFL1405'
+    - - :warning
+      - 'Line 841: Product not found, record ignored., BaseItemCode=PWFL1406'
+    - - :warning
+      - 'Line 843: Product not found, record ignored., BaseItemCode=PWFL1411'
+    - - :warning
+      - 'Line 844: Product not found, record ignored., BaseItemCode=PWFL1415'
+    - - :warning
+      - 'Line 846: Product not found, record ignored., BaseItemCode=PWFL1420'
+    - - :warning
+      - 'Line 847: Product not found, record ignored., BaseItemCode=PWFL1421'
+    - - :warning
+      - 'Line 848: Product not found, record ignored., BaseItemCode=PWFL1422'
+    - - :warning
+      - 'Line 851: Product not found, record ignored., BaseItemCode=PWFL1425'
+    - - :warning
+      - 'Line 855: Product not found, record ignored., BaseItemCode=PWFL1429'
+    - - :warning
+      - 'Line 856: Product not found, record ignored., BaseItemCode=PWFL1430'
+    - - :warning
+      - 'Line 857: Product not found, record ignored., BaseItemCode=PWFL1431'
+    - - :warning
+      - 'Line 858: Product not found, record ignored., BaseItemCode=PWFL1432'
+    - - :warning
+      - 'Line 859: Product not found, record ignored., BaseItemCode=PWFL1433'
+    - - :warning
+      - 'Line 860: Product not found, record ignored., BaseItemCode=PWFL1435'
+    - - :warning
+      - 'Line 861: Product not found, record ignored., BaseItemCode=PWFL1436'
+    - - :warning
+      - 'Line 862: Product not found, record ignored., BaseItemCode=PWFL1438'
+    - - :warning
+      - 'Line 863: Product not found, record ignored., BaseItemCode=PWFL1439'
+    - - :warning
+      - 'Line 864: Product not found, record ignored., BaseItemCode=PWFL1441'
+    - - :warning
+      - 'Line 865: Product not found, record ignored., BaseItemCode=PWFL1442'
+    - - :warning
+      - 'Line 867: Product not found, record ignored., BaseItemCode=PWFL1444'
+    - - :warning
+      - 'Line 869: Product not found, record ignored., BaseItemCode=PWFL1446'
+    - - :warning
+      - 'Line 870: Product not found, record ignored., BaseItemCode=PWFL1447'
+    - - :warning
+      - 'Line 871: Product not found, record ignored., BaseItemCode=PWFL1448'
+    - - :warning
+      - 'Line 873: Product not found, record ignored., BaseItemCode=PWFL1450'
+    - - :warning
+      - 'Line 875: Product not found, record ignored., BaseItemCode=PWFL1452'
+    - - :warning
+      - 'Line 877: Product not found, record ignored., BaseItemCode=PWFL1454'
+    - - :warning
+      - 'Line 879: Product not found, record ignored., BaseItemCode=PWFL1456'
+    - - :warning
+      - 'Line 886: Product not found, record ignored., BaseItemCode=PWFL1463'
+    - - :warning
+      - 'Line 897: Product not found, record ignored., BaseItemCode=PWFLO1000'
+    - - :warning
+      - 'Line 898: Product not found, record ignored., BaseItemCode=PWFLO1001'
+    - - :warning
+      - 'Line 899: Product not found, record ignored., BaseItemCode=PWFLO1003'
+    - - :warning
+      - 'Line 900: Product not found, record ignored., BaseItemCode=PWFLO1006'
+    - - :warning
+      - 'Line 901: Product not found, record ignored., BaseItemCode=PWFLO1007'
+    - - :warning
+      - 'Line 902: Product not found, record ignored., BaseItemCode=PWFLO1009'
+    - - :warning
+      - 'Line 903: Product not found, record ignored., BaseItemCode=PWFLO1010'
+    - - :warning
+      - 'Line 905: Product not found, record ignored., BaseItemCode=PWFLO1012'
+    - - :warning
+      - 'Line 909: Product not found, record ignored., BaseItemCode=PWFLO1017'
+    - - :warning
+      - 'Line 919: Product not found, record ignored., BaseItemCode=RALL-10002-810'
+    - - :warning
+      - 'Line 1135: Product not found, record ignored., BaseItemCode=SHE032'
+    - - :warning
+      - 'Line 1136: Product not found, record ignored., BaseItemCode=SHE033'
+    - - :warning
+      - 'Line 1140: Product not found, record ignored., BaseItemCode=STA479'
+    - - :warning
+      - 'Line 1143: Product not found, record ignored., BaseItemCode=STA571'
+    - - :warning
+      - 'Line 1144: Product not found, record ignored., BaseItemCode=STA575'
+    - - :warning
+      - 'Line 1146: Product not found, record ignored., BaseItemCode=STA665'
+    - - :warning
+      - 'Line 1147: Product not found, record ignored., BaseItemCode=STA689'
+    - - :warning
+      - 'Line 1148: Product not found, record ignored., BaseItemCode=STA693'
+    - - :warning
+      - 'Line 1152: Product not found, record ignored., BaseItemCode=STA747'
+    - - :warning
+      - 'Line 1153: Product not found, record ignored., BaseItemCode=STA757'
+    - - :warning
+      - 'Line 1159: Product not found, record ignored., BaseItemCode=STA773'
+    - - :warning
+      - 'Line 1162: Product not found, record ignored., BaseItemCode=STA786'
+    - - :warning
+      - 'Line 1179: Product not found, record ignored., BaseItemCode=TA177'
+    - - :warning
+      - 'Line 1181: Product not found, record ignored., BaseItemCode=TA198'
+    - - :warning
+      - 'Line 1188: Product not found, record ignored., BaseItemCode=TA447'
+    - - :warning
+      - 'Line 1197: Product not found, record ignored., BaseItemCode=TA459'
+    - - :warning
+      - 'Line 1198: Product not found, record ignored., BaseItemCode=TA460'
+    - - :warning
+      - 'Line 1199: Product not found, record ignored., BaseItemCode=TA461'
+    - - :warning
+      - 'Line 1200: Product not found, record ignored., BaseItemCode=TA462'
+    - - :warning
+      - 'Line 1209: Product not found, record ignored., BaseItemCode=TA475'
+    - - :warning
+      - 'Line 1215: Product not found, record ignored., BaseItemCode=TA488'
+    - - :warning
+      - 'Line 1221: Product not found, record ignored., BaseItemCode=TA497'
+    - - :warning
+      - 'Line 1257: Product not found, record ignored., BaseItemCode=THR1013'
+    - - :warning
+      - 'Line 1263: Product not found, record ignored., BaseItemCode=VAS118'
+    - - :warning
+      - 'Line 1268: Product not found, record ignored., BaseItemCode=VAS201'
+    - - :warning
+      - 'Line 1269: Product not found, record ignored., BaseItemCode=VAS205'
+    - - :warning
+      - 'Line 1270: Product not found, record ignored., BaseItemCode=VAS206'
+    - - :warning
+      - 'Line 1274: Product not found, record ignored., BaseItemCode=VAS211'
+    - - :warning
+      - 'Line 1275: Product not found, record ignored., BaseItemCode=VAS228'
+    - - :warning
+      - 'Line 1280: Product not found, record ignored., BaseItemCode=VAS240'
+    - - :warning
+      - 'Line 1284: Product not found, record ignored., BaseItemCode=VAS257'
+    - - :warning
+      - 'Line 1289: Product not found, record ignored., BaseItemCode=VAS262'
+    - - :warning
+      - 'Line 1290: Product not found, record ignored., BaseItemCode=VAS272'
+    - - :warning
+      - 'Line 1292: Product not found, record ignored., BaseItemCode=VAS274'
+    - - :warning
+      - 'Line 1294: Product not found, record ignored., BaseItemCode=VAS276'
+    - - :warning
+      - 'Line 1295: Product not found, record ignored., BaseItemCode=VAS277'
+    - - :warning
+      - 'Line 1300: Product not found, record ignored., BaseItemCode=VAS283'
+    - - :warning
+      - 'Line 1323: Product not found, record ignored., BaseItemCode=W6287'
+    - - :warning
+      - 'Line 1326: Product not found, record ignored., BaseItemCode=W6440'
+    - - :warning
+      - 'Line 1327: Product not found, record ignored., BaseItemCode=W6471'
+    - - :warning
+      - 'Line 1329: Product not found, record ignored., BaseItemCode=W6486'
+    - - :warning
+      - 'Line 1342: Product not found, record ignored., BaseItemCode=W6701'
+    - - :warning
+      - 'Line 1344: Product not found, record ignored., BaseItemCode=W6706'
+    - - :warning
+      - 'Line 1347: Product not found, record ignored., BaseItemCode=W6713'
+    - - :warning
+      - 'Line 1353: Product not found, record ignored., BaseItemCode=W6730'
+    - - :warning
+      - 'Line 1399: Product not found, record ignored., BaseItemCode=WS117'
+    - - :warning
+      - 'Line 1405: Product not found, record ignored., BaseItemCode=WS129'
+    - - :warning
+      - 'Line 1411: Product not found, record ignored., BaseItemCode=WS135'
+    - - :warning
+      - 'Line 1415: Product not found, record ignored., BaseItemCode=WS139'
+    - - :warning
+      - 'Line 1420: Product not found, record ignored., BaseItemCode=WS144'
+    - - :warning
+      - 'Line 1422: Product not found, record ignored., BaseItemCode=WS146'
+    - - :warning
+      - 'Line 1423: Product not found, record ignored., BaseItemCode=WS147'
+    - - :warning
+      - 'Line 1446: Product not found, record ignored., BaseItemCode=VAS253'
+    - - :warning
+      - 'Line 1464: Product not found, record ignored., BaseItemCode=LPT1379EV'
+    - - :warning
+      - 'Line 1473: Product not found, record ignored., BaseItemCode=LPT1388EV'
+    - - :warning
+      - 'Line 1485: Product not found, record ignored., BaseItemCode=LIGHTCLOUD'
+    - - :warning
+      - 'Line 1486: Product not found, record ignored., BaseItemCode=LPC125C'
+    - - :warning
+      - 'Line 1487: Product not found, record ignored., BaseItemCode=LPC4255'
+    - - :warning
+      - 'Line 1492: Product not found, record ignored., BaseItemCode=PWFL1007'
+    - - :warning
+      - 'Line 1496: Product not found, record ignored., BaseItemCode=PWFL1192'
+    - - :warning
+      - 'Line 1497: Product not found, record ignored., BaseItemCode=PWFL1257'
+    - - :warning
+      - 'Line 1498: Product not found, record ignored., BaseItemCode=PWFL1310'
+    - - :warning
+      - 'Line 1499: Product not found, record ignored., BaseItemCode=PWFL1313'
+    - - :warning
+      - 'Line 1500: Product not found, record ignored., BaseItemCode=PWFL1322'
+    - - :warning
+      - 'Line 1502: Product not found, record ignored., BaseItemCode=PWFL1391P'
+    - - :warning
+      - 'Line 1503: Product not found, record ignored., BaseItemCode=PWFLX1019'
+    - - :warning
+      - 'Line 1601: Product not found, record ignored., BaseItemCode=VAS249'
+    - - :warning
+      - 'Line 1603: Product not found, record ignored., BaseItemCode=W6345'
+    - - :warning
+      - 'Line 1604: Product not found, record ignored., BaseItemCode=WS053'
+    - - :warning
+      - 'Line 1605: Product not found, record ignored., BaseItemCode=ESM-W6005'
+    - - :warning
+      - 'Line 1606: Product not found, record ignored., BaseItemCode=PWFL1002'
+    - - :warning
+      - 'Line 1607: Product not found, record ignored., BaseItemCode=PWFL1008'
+    - - :warning
+      - 'Line 1608: Product not found, record ignored., BaseItemCode=PWFL1011'
+    - - :warning
+      - 'Line 1609: Product not found, record ignored., BaseItemCode=PWFL1018'
+    - - :warning
+      - 'Line 1610: Product not found, record ignored., BaseItemCode=PWFL1031'
+    - - :warning
+      - 'Line 1612: Product not found, record ignored., BaseItemCode=PWFL1039'
+    - - :warning
+      - 'Line 1614: Product not found, record ignored., BaseItemCode=PWFL1049'
+    - - :warning
+      - 'Line 1615: Product not found, record ignored., BaseItemCode=PWFL1050'
+    - - :warning
+      - 'Line 1616: Product not found, record ignored., BaseItemCode=PWFL1065'
+    - - :warning
+      - 'Line 1617: Product not found, record ignored., BaseItemCode=PWFL1088'
+    - - :warning
+      - 'Line 1618: Product not found, record ignored., BaseItemCode=PWFL1090'
+    - - :warning
+      - 'Line 1619: Product not found, record ignored., BaseItemCode=PWFL1095'
+    - - :warning
+      - 'Line 1620: Product not found, record ignored., BaseItemCode=PWFL1108'
+    - - :warning
+      - 'Line 1621: Product not found, record ignored., BaseItemCode=PWFL1113'
+    - - :warning
+      - 'Line 1622: Product not found, record ignored., BaseItemCode=PWFL1145'
+    - - :warning
+      - 'Line 1625: Product not found, record ignored., BaseItemCode=PWFL1237'
+    - - :warning
+      - 'Line 1627: Product not found, record ignored., BaseItemCode=PWFL1248'
+    - - :warning
+      - 'Line 1628: Product not found, record ignored., BaseItemCode=PWFL1261'
+    - - :warning
+      - 'Line 1629: Product not found, record ignored., BaseItemCode=PWFL1294'
+    - - :warning
+      - 'Line 1630: Product not found, record ignored., BaseItemCode=PWFL1298'
+    - - :warning
+      - 'Line 1632: Product not found, record ignored., BaseItemCode=PWFL1302'
+    - - :warning
+      - 'Line 1633: Product not found, record ignored., BaseItemCode=PWFL1317'
+    - - :warning
+      - 'Line 1634: Product not found, record ignored., BaseItemCode=PWFL1326'
+    - - :warning
+      - 'Line 1635: Product not found, record ignored., BaseItemCode=PWFL1327'
+    - - :warning
+      - 'Line 1636: Product not found, record ignored., BaseItemCode=PWFL1339'
+    - - :warning
+      - 'Line 1637: Product not found, record ignored., BaseItemCode=PWFL1342'
+    - - :warning
+      - 'Line 1638: Product not found, record ignored., BaseItemCode=PWFL1346'
+    - - :warning
+      - 'Line 1639: Product not found, record ignored., BaseItemCode=PWFLO1008'
+    - - :warning
+      - 'Line 1643: Product not found, record ignored., BaseItemCode=VAS245'
+    - - :warning
+      - 'Line 1644: Product not found, record ignored., BaseItemCode=VAS251'
+    - - :warning
+      - 'Line 1646: Product not found, record ignored., BaseItemCode=LPC149'
+    - - :warning
+      - 'Line 1652: Product not found, record ignored., BaseItemCode=ANTISLIP912'
+    - - :warning
+      - 'Line 1653: Product not found, record ignored., BaseItemCode=CHA064'
+    - - :warning
+      - 'Line 1654: Product not found, record ignored., BaseItemCode=FLP1024'
+    - - :warning
+      - 'Line 1655: Product not found, record ignored., BaseItemCode=FLP1616'
+    - - :warning
+      - 'Line 1656: Product not found, record ignored., BaseItemCode=PWFL1407'
+    - - :warning
+      - 'Line 1662: Product not found, record ignored., BaseItemCode=VAS282'
+    - - :warning
+      - 'Line 1664: Product not found, record ignored., BaseItemCode=W6714'
+    - - :warning
+      - 'Line 1665: Product not found, record ignored., BaseItemCode=W6715'
+    - - :warning
+      - 'Line 1666: Product not found, record ignored., BaseItemCode=W6732'
+    - - :warning
+      - 'Line 1682: Product not found, record ignored., BaseItemCode=LPC4488'
+    - - :warning
+      - 'Line 1996: Product not found, record ignored., BaseItemCode=PA0062'
+ |
+| 2026-06-13 22:06:05 | ---
+- - Portal Invoices
+  - []
+ |
+| 2026-06-13 17:03:20 | ---
+- - Inventory
+  - - - :warning
+      - 'Line 14: Product not found, record ignored., BaseItemCode=CHA071'
+    - - :warning
+      - 'Line 19: Product not found, record ignored., BaseItemCode=CHA088'
+    - - :warning
+      - 'Line 20: Product not found, record ignored., BaseItemCode=CHA089'
+    - - :warning
+      - 'Line 24: Product not found, record ignored., BaseItemCode=CHA094'
+    - - :warning
+      - 'Line 25: Product not found, record ignored., BaseItemCode=CHA095'
+    - - :warning
+      - 'Line 27: Product not found, record ignored., BaseItemCode=CHA097'
+    - - :warning
+      - 'Line 28: Product not found, record ignored., BaseItemCode=CHA098'
+    - - :warning
+      - 'Line 37: Product not found, record ignored., BaseItemCode=CL220'
+    - - :warning
+      - 'Line 38: Product not found, record ignored., BaseItemCode=CL239'
+    - - :warning
+      - 'Line 42: Product not found, record ignored., BaseItemCode=CL257'
+    - - :warning
+      - 'Line 76: Product not found, record ignored., BaseItemCode=LPC4058'
+    - - :warning
+      - 'Line 88: Product not found, record ignored., BaseItemCode=LPC4418'
+    - - :warning
+      - 'Line 92: Product not found, record ignored., BaseItemCode=LPC4434'
+    - - :warning
+      - 'Line 96: Product not found, record ignored., BaseItemCode=LPC4445'
+    - - :warning
+      - 'Line 98: Product not found, record ignored., BaseItemCode=LPC4454'
+    - - :warning
+      - 'Line 130: Product not found, record ignored., BaseItemCode=LPF3023'
+    - - :warning
+      - 'Line 133: Product not found, record ignored., BaseItemCode=LPF3071'
+    - - :warning
+      - 'Line 135: Product not found, record ignored., BaseItemCode=LPF3110'
+    - - :warning
+      - 'Line 136: Product not found, record ignored., BaseItemCode=LPF3111'
+    - - :warning
+      - 'Line 139: Product not found, record ignored., BaseItemCode=LPF3135'
+    - - :warning
+      - 'Line 145: Product not found, record ignored., BaseItemCode=LPF3146'
+    - - :warning
+      - 'Line 147: Product not found, record ignored., BaseItemCode=LPF3149'
+    - - :warning
+      - 'Line 151: Product not found, record ignored., BaseItemCode=LPF3153'
+    - - :warning
+      - 'Line 179: Product not found, record ignored., BaseItemCode=LPT1047'
+    - - :warning
+      - 'Line 180: Product not found, record ignored., BaseItemCode=LPT1057'
+    - - :warning
+      - 'Line 183: Product not found, record ignored., BaseItemCode=LPT1127'
+    - - :warning
+      - 'Line 186: Product not found, record ignored., BaseItemCode=LPT1159'
+    - - :warning
+      - 'Line 188: Product not found, record ignored., BaseItemCode=LPT1161'
+    - - :warning
+      - 'Line 191: Product not found, record ignored., BaseItemCode=LPT1173'
+    - - :warning
+      - 'Line 194: Product not found, record ignored., BaseItemCode=LPT1183'
+    - - :warning
+      - 'Line 203: Product not found, record ignored., BaseItemCode=LPT1216'
+    - - :warning
+      - 'Line 205: Product not found, record ignored., BaseItemCode=LPT1218'
+    - - :warning
+      - 'Line 206: Product not found, record ignored., BaseItemCode=LPT1219'
+    - - :warning
+      - 'Line 207: Product not found, record ignored., BaseItemCode=LPT1221'
+    - - :warning
+      - 'Line 208: Product not found, record ignored., BaseItemCode=LPT1222'
+    - - :warning
+      - 'Line 211: Product not found, record ignored., BaseItemCode=LPT1225'
+    - - :warning
+      - 'Line 217: Product not found, record ignored., BaseItemCode=LPT1234'
+    - - :warning
+      - 'Line 223: Product not found, record ignored., BaseItemCode=LPT1240'
+    - - :warning
+      - 'Line 224: Product not found, record ignored., BaseItemCode=LPT1241'
+    - - :warning
+      - 'Line 225: Product not found, record ignored., BaseItemCode=LPT1242'
+    - - :warning
+      - 'Line 226: Product not found, record ignored., BaseItemCode=LPT1243'
+    - - :warning
+      - 'Line 227: Product not found, record ignored., BaseItemCode=LPT1246'
+    - - :warning
+      - 'Line 228: Product not found, record ignored., BaseItemCode=LPT1249'
+    - - :warning
+      - 'Line 229: Product not found, record ignored., BaseItemCode=LPT1250'
+    - - :warning
+      - 'Line 234: Product not found, record ignored., BaseItemCode=LPT1257'
+    - - :warning
+      - 'Line 236: Product not found, record ignored., BaseItemCode=LPT1259'
+    - - :warning
+      - 'Line 245: Product not found, record ignored., BaseItemCode=LPT1268'
+    - - :warning
+      - 'Line 247: Product not found, record ignored., BaseItemCode=LPT1270'
+    - - :warning
+      - 'Line 248: Product not found, record ignored., BaseItemCode=LPT1271'
+    - - :warning
+      - 'Line 251: Product not found, record ignored., BaseItemCode=LPT1274'
+    - - :warning
+      - 'Line 252: Product not found, record ignored., BaseItemCode=LPT1275'
+    - - :warning
+      - 'Line 258: Product not found, record ignored., BaseItemCode=LPT1284'
+    - - :warning
+      - 'Line 261: Product not found, record ignored., BaseItemCode=LPT1287'
+    - - :warning
+      - 'Line 306: Product not found, record ignored., BaseItemCode=LPT1334'
+    - - :warning
+      - 'Line 333: Product not found, record ignored., BaseItemCode=LPT172'
+    - - :warning
+      - 'Line 334: Product not found, record ignored., BaseItemCode=LPT594'
+    - - :warning
+      - 'Line 336: Product not found, record ignored., BaseItemCode=LPT714'
+    - - :warning
+      - 'Line 337: Product not found, record ignored., BaseItemCode=LPT825'
+    - - :warning
+      - 'Line 338: Product not found, record ignored., BaseItemCode=LPT853'
+    - - :warning
+      - 'Line 339: Product not found, record ignored., BaseItemCode=LPT869'
+    - - :warning
+      - 'Line 340: Product not found, record ignored., BaseItemCode=LPT884'
+    - - :warning
+      - 'Line 341: Product not found, record ignored., BaseItemCode=LPT885'
+    - - :warning
+      - 'Line 343: Product not found, record ignored., BaseItemCode=LPT982'
+    - - :warning
+      - 'Line 344: Product not found, record ignored., BaseItemCode=MT1006'
+    - - :warning
+      - 'Line 347: Product not found, record ignored., BaseItemCode=MT1134'
+    - - :warning
+      - 'Line 348: Product not found, record ignored., BaseItemCode=MT1185'
+    - - :warning
+      - 'Line 350: Product not found, record ignored., BaseItemCode=MT1284'
+    - - :warning
+      - 'Line 360: Product not found, record ignored., BaseItemCode=MT1499'
+    - - :warning
+      - 'Line 366: Product not found, record ignored., BaseItemCode=MT1594'
+    - - :warning
+      - 'Line 371: Product not found, record ignored., BaseItemCode=MT1706'
+    - - :warning
+      - 'Line 377: Product not found, record ignored., BaseItemCode=MT1820'
+    - - :warning
+      - 'Line 383: Product not found, record ignored., BaseItemCode=MT1857'
+    - - :warning
+      - 'Line 403: Product not found, record ignored., BaseItemCode=MT2301'
+    - - :warning
+      - 'Line 404: Product not found, record ignored., BaseItemCode=MT2320'
+    - - :warning
+      - 'Line 424: Product not found, record ignored., BaseItemCode=MT2412'
+    - - :warning
+      - 'Line 432: Product not found, record ignored., BaseItemCode=MT2437'
+    - - :warning
+      - 'Line 433: Product not found, record ignored., BaseItemCode=MT2444'
+    - - :warning
+      - 'Line 438: Product not found, record ignored., BaseItemCode=MT2456'
+    - - :warning
+      - 'Line 439: Product not found, record ignored., BaseItemCode=MT2459'
+    - - :warning
+      - 'Line 442: Product not found, record ignored., BaseItemCode=MT2464'
+    - - :warning
+      - 'Line 443: Product not found, record ignored., BaseItemCode=MT2471'
+    - - :warning
+      - 'Line 448: Product not found, record ignored., BaseItemCode=MT2497'
+    - - :warning
+      - 'Line 459: Product not found, record ignored., BaseItemCode=MT2513'
+    - - :warning
+      - 'Line 470: Product not found, record ignored., BaseItemCode=MT2529'
+    - - :warning
+      - 'Line 472: Product not found, record ignored., BaseItemCode=MT2531'
+    - - :warning
+      - 'Line 479: Product not found, record ignored., BaseItemCode=MT2541'
+    - - :warning
+      - 'Line 493: Product not found, record ignored., BaseItemCode=MT2563'
+    - - :warning
+      - 'Line 495: Product not found, record ignored., BaseItemCode=MT2567'
+    - - :warning
+      - 'Line 503: Product not found, record ignored., BaseItemCode=MT2610'
+    - - :warning
+      - 'Line 504: Product not found, record ignored., BaseItemCode=MT2611'
+    - - :warning
+      - 'Line 509: Product not found, record ignored., BaseItemCode=MT2616'
+    - - :warning
+      - 'Line 515: Product not found, record ignored., BaseItemCode=MT2622'
+    - - :warning
+      - 'Line 517: Product not found, record ignored., BaseItemCode=MT2624'
+    - - :warning
+      - 'Line 519: Product not found, record ignored., BaseItemCode=MT2626'
+    - - :warning
+      - 'Line 530: Product not found, record ignored., BaseItemCode=MT2637'
+    - - :warning
+      - 'Line 531: Product not found, record ignored., BaseItemCode=MT2638'
+    - - :warning
+      - 'Line 535: Product not found, record ignored., BaseItemCode=MT2654'
+    - - :warning
+      - 'Line 598: Product not found, record ignored., BaseItemCode=MT849'
+    - - :warning
+      - 'Line 601: Product not found, record ignored., BaseItemCode=OL1485'
+    - - :warning
+      - 'Line 605: Product not found, record ignored., BaseItemCode=OL1717'
+    - - :warning
+      - 'Line 607: Product not found, record ignored., BaseItemCode=OL1730'
+    - - :warning
+      - 'Line 619: Product not found, record ignored., BaseItemCode=OL1965'
+    - - :warning
+      - 'Line 622: Product not found, record ignored., BaseItemCode=OL1978'
+    - - :warning
+      - 'Line 635: Product not found, record ignored., BaseItemCode=OL2058'
+    - - :warning
+      - 'Line 637: Product not found, record ignored., BaseItemCode=OL2065'
+    - - :warning
+      - 'Line 639: Product not found, record ignored., BaseItemCode=OL2067'
+    - - :warning
+      - 'Line 641: Product not found, record ignored., BaseItemCode=OL2069'
+    - - :warning
+      - 'Line 650: Product not found, record ignored., BaseItemCode=OL2090'
+    - - :warning
+      - 'Line 652: Product not found, record ignored., BaseItemCode=OL2096'
+    - - :warning
+      - 'Line 653: Product not found, record ignored., BaseItemCode=OL2098'
+    - - :warning
+      - 'Line 655: Product not found, record ignored., BaseItemCode=OL2101'
+    - - :warning
+      - 'Line 656: Product not found, record ignored., BaseItemCode=OL2102'
+    - - :warning
+      - 'Line 659: Product not found, record ignored., BaseItemCode=OL2107'
+    - - :warning
+      - 'Line 661: Product not found, record ignored., BaseItemCode=OL2110'
+    - - :warning
+      - 'Line 663: Product not found, record ignored., BaseItemCode=OL2112'
+    - - :warning
+      - 'Line 666: Product not found, record ignored., BaseItemCode=OL2115'
+    - - :warning
+      - 'Line 668: Product not found, record ignored., BaseItemCode=OL2117'
+    - - :warning
+      - 'Line 669: Product not found, record ignored., BaseItemCode=OL2121'
+    - - :warning
+      - 'Line 676: Product not found, record ignored., BaseItemCode=OL2130'
+    - - :warning
+      - 'Line 681: Product not found, record ignored., BaseItemCode=OL2136'
+    - - :warning
+      - 'Line 684: Product not found, record ignored., BaseItemCode=OL2139'
+    - - :warning
+      - 'Line 688: Product not found, record ignored., BaseItemCode=OL2143'
+    - - :warning
+      - 'Line 689: Product not found, record ignored., BaseItemCode=OL2144'
+    - - :warning
+      - 'Line 690: Product not found, record ignored., BaseItemCode=OL2145'
+    - - :warning
+      - 'Line 699: Product not found, record ignored., BaseItemCode=OL2155'
+    - - :warning
+      - 'Line 776: Product not found, record ignored., BaseItemCode=PF035'
+    - - :warning
+      - 'Line 777: Product not found, record ignored., BaseItemCode=PF043'
+    - - :warning
+      - 'Line 780: Product not found, record ignored., BaseItemCode=PF046'
+    - - :warning
+      - 'Line 782: Product not found, record ignored., BaseItemCode=PWFL1001'
+    - - :warning
+      - 'Line 783: Product not found, record ignored., BaseItemCode=PWFL1005'
+    - - :warning
+      - 'Line 784: Product not found, record ignored., BaseItemCode=PWFL1009'
+    - - :warning
+      - 'Line 785: Product not found, record ignored., BaseItemCode=PWFL1010'
+    - - :warning
+      - 'Line 786: Product not found, record ignored., BaseItemCode=PWFL1012'
+    - - :warning
+      - 'Line 787: Product not found, record ignored., BaseItemCode=PWFL1020'
+    - - :warning
+      - 'Line 789: Product not found, record ignored., BaseItemCode=PWFL1026'
+    - - :warning
+      - 'Line 790: Product not found, record ignored., BaseItemCode=PWFL1027'
+    - - :warning
+      - 'Line 791: Product not found, record ignored., BaseItemCode=PWFL1028'
+    - - :warning
+      - 'Line 792: Product not found, record ignored., BaseItemCode=PWFL1030'
+    - - :warning
+      - 'Line 793: Product not found, record ignored., BaseItemCode=PWFL1035'
+    - - :warning
+      - 'Line 794: Product not found, record ignored., BaseItemCode=PWFL1037'
+    - - :warning
+      - 'Line 795: Product not found, record ignored., BaseItemCode=PWFL1048'
+    - - :warning
+      - 'Line 804: Product not found, record ignored., BaseItemCode=PWFL1069'
+    - - :warning
+      - 'Line 805: Product not found, record ignored., BaseItemCode=PWFL1079'
+    - - :warning
+      - 'Line 806: Product not found, record ignored., BaseItemCode=PWFL1085'
+    - - :warning
+      - 'Line 810: Product not found, record ignored., BaseItemCode=PWFL1115'
+    - - :warning
+      - 'Line 811: Product not found, record ignored., BaseItemCode=PWFL1131'
+    - - :warning
+      - 'Line 812: Product not found, record ignored., BaseItemCode=PWFL1147'
+    - - :warning
+      - 'Line 813: Product not found, record ignored., BaseItemCode=PWFL1160'
+    - - :warning
+      - 'Line 814: Product not found, record ignored., BaseItemCode=PWFL1168'
+    - - :warning
+      - 'Line 815: Product not found, record ignored., BaseItemCode=PWFL1176'
+    - - :warning
+      - 'Line 816: Product not found, record ignored., BaseItemCode=PWFL1180'
+    - - :warning
+      - 'Line 817: Product not found, record ignored., BaseItemCode=PWFL1200'
+    - - :warning
+      - 'Line 819: Product not found, record ignored., BaseItemCode=PWFL1234'
+    - - :warning
+      - 'Line 820: Product not found, record ignored., BaseItemCode=PWFL1243'
+    - - :warning
+      - 'Line 822: Product not found, record ignored., BaseItemCode=PWFL1252'
+    - - :warning
+      - 'Line 825: Product not found, record ignored., BaseItemCode=PWFL1355'
+    - - :warning
+      - 'Line 826: Product not found, record ignored., BaseItemCode=PWFL1357'
+    - - :warning
+      - 'Line 827: Product not found, record ignored., BaseItemCode=PWFL1358'
+    - - :warning
+      - 'Line 829: Product not found, record ignored., BaseItemCode=PWFL1362'
+    - - :warning
+      - 'Line 830: Product not found, record ignored., BaseItemCode=PWFL1367'
+    - - :warning
+      - 'Line 831: Product not found, record ignored., BaseItemCode=PWFL1373'
+    - - :warning
+      - 'Line 832: Product not found, record ignored., BaseItemCode=PWFL1377'
+    - - :warning
+      - 'Line 833: Product not found, record ignored., BaseItemCode=PWFL1389'
+    - - :warning
+      - 'Line 835: Product not found, record ignored., BaseItemCode=PWFL1399'
+    - - :warning
+      - 'Line 837: Product not found, record ignored., BaseItemCode=PWFL1401'
+    - - :warning
+      - 'Line 838: Product not found, record ignored., BaseItemCode=PWFL1402'
+    - - :warning
+      - 'Line 839: Product not found, record ignored., BaseItemCode=PWFL1404'
+    - - :warning
+      - 'Line 840: Product not found, record ignored., BaseItemCode=PWFL1405'
+    - - :warning
+      - 'Line 841: Product not found, record ignored., BaseItemCode=PWFL1406'
+    - - :warning
+      - 'Line 843: Product not found, record ignored., BaseItemCode=PWFL1411'
+    - - :warning
+      - 'Line 844: Product not found, record ignored., BaseItemCode=PWFL1415'
+    - - :warning
+      - 'Line 846: Product not found, record ignored., BaseItemCode=PWFL1420'
+    - - :warning
+      - 'Line 847: Product not found, record ignored., BaseItemCode=PWFL1421'
+    - - :warning
+      - 'Line 848: Product not found, record ignored., BaseItemCode=PWFL1422'
+    - - :warning
+      - 'Line 851: Product not found, record ignored., BaseItemCode=PWFL1425'
+    - - :warning
+      - 'Line 855: Product not found, record ignored., BaseItemCode=PWFL1429'
+    - - :warning
+      - 'Line 856: Product not found, record ignored., BaseItemCode=PWFL1430'
+    - - :warning
+      - 'Line 857: Product not found, record ignored., BaseItemCode=PWFL1431'
+    - - :warning
+      - 'Line 858: Product not found, record ignored., BaseItemCode=PWFL1432'
+    - - :warning
+      - 'Line 859: Product not found, record ignored., BaseItemCode=PWFL1433'
+    - - :warning
+      - 'Line 860: Product not found, record ignored., BaseItemCode=PWFL1435'
+    - - :warning
+      - 'Line 861: Product not found, record ignored., BaseItemCode=PWFL1436'
+    - - :warning
+      - 'Line 862: Product not found, record ignored., BaseItemCode=PWFL1438'
+    - - :warning
+      - 'Line 863: Product not found, record ignored., BaseItemCode=PWFL1439'
+    - - :warning
+      - 'Line 864: Product not found, record ignored., BaseItemCode=PWFL1441'
+    - - :warning
+      - 'Line 865: Product not found, record ignored., BaseItemCode=PWFL1442'
+    - - :warning
+      - 'Line 867: Product not found, record ignored., BaseItemCode=PWFL1444'
+    - - :warning
+      - 'Line 869: Product not found, record ignored., BaseItemCode=PWFL1446'
+    - - :warning
+      - 'Line 870: Product not found, record ignored., BaseItemCode=PWFL1447'
+    - - :warning
+      - 'Line 871: Product not found, record ignored., BaseItemCode=PWFL1448'
+    - - :warning
+      - 'Line 873: Product not found, record ignored., BaseItemCode=PWFL1450'
+    - - :warning
+      - 'Line 875: Product not found, record ignored., BaseItemCode=PWFL1452'
+    - - :warning
+      - 'Line 877: Product not found, record ignored., BaseItemCode=PWFL1454'
+    - - :warning
+      - 'Line 879: Product not found, record ignored., BaseItemCode=PWFL1456'
+    - - :warning
+      - 'Line 886: Product not found, record ignored., BaseItemCode=PWFL1463'
+    - - :warning
+      - 'Line 897: Product not found, record ignored., BaseItemCode=PWFLO1000'
+    - - :warning
+      - 'Line 898: Product not found, record ignored., BaseItemCode=PWFLO1001'
+    - - :warning
+      - 'Line 899: Product not found, record ignored., BaseItemCode=PWFLO1003'
+    - - :warning
+      - 'Line 900: Product not found, record ignored., BaseItemCode=PWFLO1006'
+    - - :warning
+      - 'Line 901: Product not found, record ignored., BaseItemCode=PWFLO1007'
+    - - :warning
+      - 'Line 902: Product not found, record ignored., BaseItemCode=PWFLO1009'
+    - - :warning
+      - 'Line 903: Product not found, record ignored., BaseItemCode=PWFLO1010'
+    - - :warning
+      - 'Line 905: Product not found, record ignored., BaseItemCode=PWFLO1012'
+    - - :warning
+      - 'Line 909: Product not found, record ignored., BaseItemCode=PWFLO1017'
+    - - :warning
+      - 'Line 919: Product not found, record ignored., BaseItemCode=RALL-10002-810'
+    - - :warning
+      - 'Line 1135: Product not found, record ignored., BaseItemCode=SHE032'
+    - - :warning
+      - 'Line 1136: Product not found, record ignored., BaseItemCode=SHE033'
+    - - :warning
+      - 'Line 1140: Product not found, record ignored., BaseItemCode=STA479'
+    - - :warning
+      - 'Line 1143: Product not found, record ignored., BaseItemCode=STA571'
+    - - :warning
+      - 'Line 1144: Product not found, record ignored., BaseItemCode=STA575'
+    - - :warning
+      - 'Line 1146: Product not found, record ignored., BaseItemCode=STA665'
+    - - :warning
+      - 'Line 1147: Product not found, record ignored., BaseItemCode=STA689'
+    - - :warning
+      - 'Line 1148: Product not found, record ignored., BaseItemCode=STA693'
+    - - :warning
+      - 'Line 1152: Product not found, record ignored., BaseItemCode=STA747'
+    - - :warning
+      - 'Line 1153: Product not found, record ignored., BaseItemCode=STA757'
+    - - :warning
+      - 'Line 1159: Product not found, record ignored., BaseItemCode=STA773'
+    - - :warning
+      - 'Line 1162: Product not found, record ignored., BaseItemCode=STA786'
+    - - :warning
+      - 'Line 1179: Product not found, record ignored., BaseItemCode=TA177'
+    - - :warning
+      - 'Line 1181: Product not found, record ignored., BaseItemCode=TA198'
+    - - :warning
+      - 'Line 1188: Product not found, record ignored., BaseItemCode=TA447'
+    - - :warning
+      - 'Line 1197: Product not found, record ignored., BaseItemCode=TA459'
+    - - :warning
+      - 'Line 1198: Product not found, record ignored., BaseItemCode=TA460'
+    - - :warning
+      - 'Line 1199: Product not found, record ignored., BaseItemCode=TA461'
+    - - :warning
+      - 'Line 1200: Product not found, record ignored., BaseItemCode=TA462'
+    - - :warning
+      - 'Line 1209: Product not found, record ignored., BaseItemCode=TA475'
+    - - :warning
+      - 'Line 1215: Product not found, record ignored., BaseItemCode=TA488'
+    - - :warning
+      - 'Line 1221: Product not found, record ignored., BaseItemCode=TA497'
+    - - :warning
+      - 'Line 1257: Product not found, record ignored., BaseItemCode=THR1013'
+    - - :warning
+      - 'Line 1263: Product not found, record ignored., BaseItemCode=VAS118'
+    - - :warning
+      - 'Line 1268: Product not found, record ignored., BaseItemCode=VAS201'
+    - - :warning
+      - 'Line 1269: Product not found, record ignored., BaseItemCode=VAS205'
+    - - :warning
+      - 'Line 1270: Product not found, record ignored., BaseItemCode=VAS206'
+    - - :warning
+      - 'Line 1274: Product not found, record ignored., BaseItemCode=VAS211'
+    - - :warning
+      - 'Line 1275: Product not found, record ignored., BaseItemCode=VAS228'
+    - - :warning
+      - 'Line 1280: Product not found, record ignored., BaseItemCode=VAS240'
+    - - :warning
+      - 'Line 1284: Product not found, record ignored., BaseItemCode=VAS257'
+    - - :warning
+      - 'Line 1289: Product not found, record ignored., BaseItemCode=VAS262'
+    - - :warning
+      - 'Line 1290: Product not found, record ignored., BaseItemCode=VAS272'
+    - - :warning
+      - 'Line 1292: Product not found, record ignored., BaseItemCode=VAS274'
+    - - :warning
+      - 'Line 1294: Product not found, record ignored., BaseItemCode=VAS276'
+    - - :warning
+      - 'Line 1295: Product not found, record ignored., BaseItemCode=VAS277'
+    - - :warning
+      - 'Line 1300: Product not found, record ignored., BaseItemCode=VAS283'
+    - - :warning
+      - 'Line 1323: Product not found, record ignored., BaseItemCode=W6287'
+    - - :warning
+      - 'Line 1326: Product not found, record ignored., BaseItemCode=W6440'
+    - - :warning
+      - 'Line 1327: Product not found, record ignored., BaseItemCode=W6471'
+    - - :warning
+      - 'Line 1329: Product not found, record ignored., BaseItemCode=W6486'
+    - - :warning
+      - 'Line 1342: Product not found, record ignored., BaseItemCode=W6701'
+    - - :warning
+      - 'Line 1344: Product not found, record ignored., BaseItemCode=W6706'
+    - - :warning
+      - 'Line 1347: Product not found, record ignored., BaseItemCode=W6713'
+    - - :warning
+      - 'Line 1353: Product not found, record ignored., BaseItemCode=W6730'
+    - - :warning
+      - 'Line 1399: Product not found, record ignored., BaseItemCode=WS117'
+    - - :warning
+      - 'Line 1405: Product not found, record ignored., BaseItemCode=WS129'
+    - - :warning
+      - 'Line 1411: Product not found, record ignored., BaseItemCode=WS135'
+    - - :warning
+      - 'Line 1415: Product not found, record ignored., BaseItemCode=WS139'
+    - - :warning
+      - 'Line 1420: Product not found, record ignored., BaseItemCode=WS144'
+    - - :warning
+      - 'Line 1422: Product not found, record ignored., BaseItemCode=WS146'
+    - - :warning
+      - 'Line 1423: Product not found, record ignored., BaseItemCode=WS147'
+    - - :warning
+      - 'Line 1446: Product not found, record ignored., BaseItemCode=VAS253'
+    - - :warning
+      - 'Line 1464: Product not found, record ignored., BaseItemCode=LPT1379EV'
+    - - :warning
+      - 'Line 1473: Product not found, record ignored., BaseItemCode=LPT1388EV'
+    - - :warning
+      - 'Line 1485: Product not found, record ignored., BaseItemCode=LIGHTCLOUD'
+    - - :warning
+      - 'Line 1486: Product not found, record ignored., BaseItemCode=LPC125C'
+    - - :warning
+      - 'Line 1487: Product not found, record ignored., BaseItemCode=LPC4255'
+    - - :warning
+      - 'Line 1492: Product not found, record ignored., BaseItemCode=PWFL1007'
+    - - :warning
+      - 'Line 1496: Product not found, record ignored., BaseItemCode=PWFL1192'
+    - - :warning
+      - 'Line 1497: Product not found, record ignored., BaseItemCode=PWFL1257'
+    - - :warning
+      - 'Line 1498: Product not found, record ignored., BaseItemCode=PWFL1310'
+    - - :warning
+      - 'Line 1499: Product not found, record ignored., BaseItemCode=PWFL1313'
+    - - :warning
+      - 'Line 1500: Product not found, record ignored., BaseItemCode=PWFL1322'
+    - - :warning
+      - 'Line 1502: Product not found, record ignored., BaseItemCode=PWFL1391P'
+    - - :warning
+      - 'Line 1503: Product not found, record ignored., BaseItemCode=PWFLX1019'
+    - - :warning
+      - 'Line 1601: Product not found, record ignored., BaseItemCode=VAS249'
+    - - :warning
+      - 'Line 1603: Product not found, record ignored., BaseItemCode=W6345'
+    - - :warning
+      - 'Line 1604: Product not found, record ignored., BaseItemCode=WS053'
+    - - :warning
+      - 'Line 1605: Product not found, record ignored., BaseItemCode=ESM-W6005'
+    - - :warning
+      - 'Line 1606: Product not found, record ignored., BaseItemCode=PWFL1002'
+    - - :warning
+      - 'Line 1607: Product not found, record ignored., BaseItemCode=PWFL1008'
+    - - :warning
+      - 'Line 1608: Product not found, record ignored., BaseItemCode=PWFL1011'
+    - - :warning
+      - 'Line 1609: Product not found, record ignored., BaseItemCode=PWFL1018'
+    - - :warning
+      - 'Line 1610: Product not found, record ignored., BaseItemCode=PWFL1031'
+    - - :warning
+      - 'Line 1612: Product not found, record ignored., BaseItemCode=PWFL1039'
+    - - :warning
+      - 'Line 1614: Product not found, record ignored., BaseItemCode=PWFL1049'
+    - - :warning
+      - 'Line 1615: Product not found, record ignored., BaseItemCode=PWFL1050'
+    - - :warning
+      - 'Line 1616: Product not found, record ignored., BaseItemCode=PWFL1065'
+    - - :warning
+      - 'Line 1617: Product not found, record ignored., BaseItemCode=PWFL1088'
+    - - :warning
+      - 'Line 1618: Product not found, record ignored., BaseItemCode=PWFL1090'
+    - - :warning
+      - 'Line 1619: Product not found, record ignored., BaseItemCode=PWFL1095'
+    - - :warning
+      - 'Line 1620: Product not found, record ignored., BaseItemCode=PWFL1108'
+    - - :warning
+      - 'Line 1621: Product not found, record ignored., BaseItemCode=PWFL1113'
+    - - :warning
+      - 'Line 1622: Product not found, record ignored., BaseItemCode=PWFL1145'
+    - - :warning
+      - 'Line 1625: Product not found, record ignored., BaseItemCode=PWFL1237'
+    - - :warning
+      - 'Line 1627: Product not found, record ignored., BaseItemCode=PWFL1248'
+    - - :warning
+      - 'Line 1628: Product not found, record ignored., BaseItemCode=PWFL1261'
+    - - :warning
+      - 'Line 1629: Product not found, record ignored., BaseItemCode=PWFL1294'
+    - - :warning
+      - 'Line 1630: Product not found, record ignored., BaseItemCode=PWFL1298'
+    - - :warning
+      - 'Line 1632: Product not found, record ignored., BaseItemCode=PWFL1302'
+    - - :warning
+      - 'Line 1633: Product not found, record ignored., BaseItemCode=PWFL1317'
+    - - :warning
+      - 'Line 1634: Product not found, record ignored., BaseItemCode=PWFL1326'
+    - - :warning
+      - 'Line 1635: Product not found, record ignored., BaseItemCode=PWFL1327'
+    - - :warning
+      - 'Line 1636: Product not found, record ignored., BaseItemCode=PWFL1339'
+    - - :warning
+      - 'Line 1637: Product not found, record ignored., BaseItemCode=PWFL1342'
+    - - :warning
+      - 'Line 1638: Product not found, record ignored., BaseItemCode=PWFL1346'
+    - - :warning
+      - 'Line 1639: Product not found, record ignored., BaseItemCode=PWFLO1008'
+    - - :warning
+      - 'Line 1643: Product not found, record ignored., BaseItemCode=VAS245'
+    - - :warning
+      - 'Line 1644: Product not found, record ignored., BaseItemCode=VAS251'
+    - - :warning
+      - 'Line 1646: Product not found, record ignored., BaseItemCode=LPC149'
+    - - :warning
+      - 'Line 1652: Product not found, record ignored., BaseItemCode=ANTISLIP912'
+    - - :warning
+      - 'Line 1653: Product not found, record ignored., BaseItemCode=CHA064'
+    - - :warning
+      - 'Line 1654: Product not found, record ignored., BaseItemCode=FLP1024'
+    - - :warning
+      - 'Line 1655: Product not found, record ignored., BaseItemCode=FLP1616'
+    - - :warning
+      - 'Line 1656: Product not found, record ignored., BaseItemCode=PWFL1407'
+    - - :warning
+      - 'Line 1662: Product not found, record ignored., BaseItemCode=VAS282'
+    - - :warning
+      - 'Line 1664: Product not found, record ignored., BaseItemCode=W6714'
+    - - :warning
+      - 'Line 1665: Product not found, record ignored., BaseItemCode=W6715'
+    - - :warning
+      - 'Line 1666: Product not found, record ignored., BaseItemCode=W6732'
+    - - :warning
+      - 'Line 1682: Product not found, record ignored., BaseItemCode=LPC4488'
+    - - :warning
+      - 'Line 1996: Product not found, record ignored., BaseItemCode=PA0062'
+ |
+| 2026-06-12 22:06:09 | ---
+- - Portal Invoices
+  - []
+ |
+| 2026-06-12 17:02:18 | ---
+- - Inventory
+  - - - :warning
+      - 'Line 14: Product not found, record ignored., BaseItemCode=CHA071'
+    - - :warning
+      - 'Line 19: Product not found, record ignored., BaseItemCode=CHA088'
+    - - :warning
+      - 'Line 20: Product not found, record ignored., BaseItemCode=CHA089'
+    - - :warning
+      - 'Line 24: Product not found, record ignored., BaseItemCode=CHA094'
+    - - :warning
+      - 'Line 25: Product not found, record ignored., BaseItemCode=CHA095'
+    - - :warning
+      - 'Line 27: Product not found, record ignored., BaseItemCode=CHA097'
+    - - :warning
+      - 'Line 28: Product not found, record ignored., BaseItemCode=CHA098'
+    - - :warning
+      - 'Line 37: Product not found, record ignored., BaseItemCode=CL220'
+    - - :warning
+      - 'Line 38: Product not found, record ignored., BaseItemCode=CL239'
+    - - :warning
+      - 'Line 42: Product not found, record ignored., BaseItemCode=CL257'
+    - - :warning
+      - 'Line 76: Product not found, record ignored., BaseItemCode=LPC4058'
+    - - :warning
+      - 'Line 88: Product not found, record ignored., BaseItemCode=LPC4418'
+    - - :warning
+      - 'Line 92: Product not found, record ignored., BaseItemCode=LPC4434'
+    - - :warning
+      - 'Line 96: Product not found, record ignored., BaseItemCode=LPC4445'
+    - - :warning
+      - 'Line 98: Product not found, record ignored., BaseItemCode=LPC4454'
+    - - :warning
+      - 'Line 130: Product not found, record ignored., BaseItemCode=LPF3023'
+    - - :warning
+      - 'Line 133: Product not found, record ignored., BaseItemCode=LPF3071'
+    - - :warning
+      - 'Line 135: Product not found, record ignored., BaseItemCode=LPF3110'
+    - - :warning
+      - 'Line 136: Product not found, record ignored., BaseItemCode=LPF3111'
+    - - :warning
+      - 'Line 139: Product not found, record ignored., BaseItemCode=LPF3135'
+    - - :warning
+      - 'Line 145: Product not found, record ignored., BaseItemCode=LPF3146'
+    - - :warning
+      - 'Line 147: Product not found, record ignored., BaseItemCode=LPF3149'
+    - - :warning
+      - 'Line 151: Product not found, record ignored., BaseItemCode=LPF3153'
+    - - :warning
+      - 'Line 179: Product not found, record ignored., BaseItemCode=LPT1047'
+    - - :warning
+      - 'Line 180: Product not found, record ignored., BaseItemCode=LPT1057'
+    - - :warning
+      - 'Line 183: Product not found, record ignored., BaseItemCode=LPT1127'
+    - - :warning
+      - 'Line 186: Product not found, record ignored., BaseItemCode=LPT1159'
+    - - :warning
+      - 'Line 188: Product not found, record ignored., BaseItemCode=LPT1161'
+    - - :warning
+      - 'Line 191: Product not found, record ignored., BaseItemCode=LPT1173'
+    - - :warning
+      - 'Line 194: Product not found, record ignored., BaseItemCode=LPT1183'
+    - - :warning
+      - 'Line 203: Product not found, record ignored., BaseItemCode=LPT1216'
+    - - :warning
+      - 'Line 205: Product not found, record ignored., BaseItemCode=LPT1218'
+    - - :warning
+      - 'Line 206: Product not found, record ignored., BaseItemCode=LPT1219'
+    - - :warning
+      - 'Line 207: Product not found, record ignored., BaseItemCode=LPT1221'
+    - - :warning
+      - 'Line 208: Product not found, record ignored., BaseItemCode=LPT1222'
+    - - :warning
+      - 'Line 211: Product not found, record ignored., BaseItemCode=LPT1225'
+    - - :warning
+      - 'Line 217: Product not found, record ignored., BaseItemCode=LPT1234'
+    - - :warning
+      - 'Line 223: Product not found, record ignored., BaseItemCode=LPT1240'
+    - - :warning
+      - 'Line 224: Product not found, record ignored., BaseItemCode=LPT1241'
+    - - :warning
+      - 'Line 225: Product not found, record ignored., BaseItemCode=LPT1242'
+    - - :warning
+      - 'Line 226: Product not found, record ignored., BaseItemCode=LPT1243'
+    - - :warning
+      - 'Line 227: Product not found, record ignored., BaseItemCode=LPT1246'
+    - - :warning
+      - 'Line 228: Product not found, record ignored., BaseItemCode=LPT1249'
+    - - :warning
+      - 'Line 229: Product not found, record ignored., BaseItemCode=LPT1250'
+    - - :warning
+      - 'Line 234: Product not found, record ignored., BaseItemCode=LPT1257'
+    - - :warning
+      - 'Line 236: Product not found, record ignored., BaseItemCode=LPT1259'
+    - - :warning
+      - 'Line 245: Product not found, record ignored., BaseItemCode=LPT1268'
+    - - :warning
+      - 'Line 247: Product not found, record ignored., BaseItemCode=LPT1270'
+    - - :warning
+      - 'Line 248: Product not found, record ignored., BaseItemCode=LPT1271'
+    - - :warning
+      - 'Line 251: Product not found, record ignored., BaseItemCode=LPT1274'
+    - - :warning
+      - 'Line 252: Product not found, record ignored., BaseItemCode=LPT1275'
+    - - :warning
+      - 'Line 258: Product not found, record ignored., BaseItemCode=LPT1284'
+    - - :warning
+      - 'Line 261: Product not found, record ignored., BaseItemCode=LPT1287'
+    - - :warning
+      - 'Line 306: Product not found, record ignored., BaseItemCode=LPT1334'
+    - - :warning
+      - 'Line 333: Product not found, record ignored., BaseItemCode=LPT172'
+    - - :warning
+      - 'Line 334: Product not found, record ignored., BaseItemCode=LPT594'
+    - - :warning
+      - 'Line 336: Product not found, record ignored., BaseItemCode=LPT714'
+    - - :warning
+      - 'Line 337: Product not found, record ignored., BaseItemCode=LPT825'
+    - - :warning
+      - 'Line 338: Product not found, record ignored., BaseItemCode=LPT853'
+    - - :warning
+      - 'Line 339: Product not found, record ignored., BaseItemCode=LPT869'
+    - - :warning
+      - 'Line 340: Product not found, record ignored., BaseItemCode=LPT884'
+    - - :warning
+      - 'Line 341: Product not found, record ignored., BaseItemCode=LPT885'
+    - - :warning
+      - 'Line 343: Product not found, record ignored., BaseItemCode=LPT982'
+    - - :warning
+      - 'Line 344: Product not found, record ignored., BaseItemCode=MT1006'
+    - - :warning
+      - 'Line 347: Product not found, record ignored., BaseItemCode=MT1134'
+    - - :warning
+      - 'Line 348: Product not found, record ignored., BaseItemCode=MT1185'
+    - - :warning
+      - 'Line 350: Product not found, record ignored., BaseItemCode=MT1284'
+    - - :warning
+      - 'Line 360: Product not found, record ignored., BaseItemCode=MT1499'
+    - - :warning
+      - 'Line 366: Product not found, record ignored., BaseItemCode=MT1594'
+    - - :warning
+      - 'Line 371: Product not found, record ignored., BaseItemCode=MT1706'
+    - - :warning
+      - 'Line 377: Product not found, record ignored., BaseItemCode=MT1820'
+    - - :warning
+      - 'Line 383: Product not found, record ignored., BaseItemCode=MT1857'
+    - - :warning
+      - 'Line 403: Product not found, record ignored., BaseItemCode=MT2301'
+    - - :warning
+      - 'Line 404: Product not found, record ignored., BaseItemCode=MT2320'
+    - - :warning
+      - 'Line 424: Product not found, record ignored., BaseItemCode=MT2412'
+    - - :warning
+      - 'Line 432: Product not found, record ignored., BaseItemCode=MT2437'
+    - - :warning
+      - 'Line 433: Product not found, record ignored., BaseItemCode=MT2444'
+    - - :warning
+      - 'Line 438: Product not found, record ignored., BaseItemCode=MT2456'
+    - - :warning
+      - 'Line 439: Product not found, record ignored., BaseItemCode=MT2459'
+    - - :warning
+      - 'Line 442: Product not found, record ignored., BaseItemCode=MT2464'
+    - - :warning
+      - 'Line 443: Product not found, record ignored., BaseItemCode=MT2471'
+    - - :warning
+      - 'Line 448: Product not found, record ignored., BaseItemCode=MT2497'
+    - - :warning
+      - 'Line 459: Product not found, record ignored., BaseItemCode=MT2513'
+    - - :warning
+      - 'Line 470: Product not found, record ignored., BaseItemCode=MT2529'
+    - - :warning
+      - 'Line 472: Product not found, record ignored., BaseItemCode=MT2531'
+    - - :warning
+      - 'Line 479: Product not found, record ignored., BaseItemCode=MT2541'
+    - - :warning
+      - 'Line 493: Product not found, record ignored., BaseItemCode=MT2563'
+    - - :warning
+      - 'Line 495: Product not found, record ignored., BaseItemCode=MT2567'
+    - - :warning
+      - 'Line 503: Product not found, record ignored., BaseItemCode=MT2610'
+    - - :warning
+      - 'Line 504: Product not found, record ignored., BaseItemCode=MT2611'
+    - - :warning
+      - 'Line 509: Product not found, record ignored., BaseItemCode=MT2616'
+    - - :warning
+      - 'Line 515: Product not found, record ignored., BaseItemCode=MT2622'
+    - - :warning
+      - 'Line 517: Product not found, record ignored., BaseItemCode=MT2624'
+    - - :warning
+      - 'Line 519: Product not found, record ignored., BaseItemCode=MT2626'
+    - - :warning
+      - 'Line 530: Product not found, record ignored., BaseItemCode=MT2637'
+    - - :warning
+      - 'Line 531: Product not found, record ignored., BaseItemCode=MT2638'
+    - - :warning
+      - 'Line 535: Product not found, record ignored., BaseItemCode=MT2654'
+    - - :warning
+      - 'Line 598: Product not found, record ignored., BaseItemCode=MT849'
+    - - :warning
+      - 'Line 601: Product not found, record ignored., BaseItemCode=OL1485'
+    - - :warning
+      - 'Line 605: Product not found, record ignored., BaseItemCode=OL1717'
+    - - :warning
+      - 'Line 607: Product not found, record ignored., BaseItemCode=OL1730'
+    - - :warning
+      - 'Line 619: Product not found, record ignored., BaseItemCode=OL1965'
+    - - :warning
+      - 'Line 622: Product not found, record ignored., BaseItemCode=OL1978'
+    - - :warning
+      - 'Line 635: Product not found, record ignored., BaseItemCode=OL2058'
+    - - :warning
+      - 'Line 637: Product not found, record ignored., BaseItemCode=OL2065'
+    - - :warning
+      - 'Line 639: Product not found, record ignored., BaseItemCode=OL2067'
+    - - :warning
+      - 'Line 641: Product not found, record ignored., BaseItemCode=OL2069'
+    - - :warning
+      - 'Line 650: Product not found, record ignored., BaseItemCode=OL2090'
+    - - :warning
+      - 'Line 652: Product not found, record ignored., BaseItemCode=OL2096'
+    - - :warning
+      - 'Line 653: Product not found, record ignored., BaseItemCode=OL2098'
+    - - :warning
+      - 'Line 655: Product not found, record ignored., BaseItemCode=OL2101'
+    - - :warning
+      - 'Line 656: Product not found, record ignored., BaseItemCode=OL2102'
+    - - :warning
+      - 'Line 659: Product not found, record ignored., BaseItemCode=OL2107'
+    - - :warning
+      - 'Line 661: Product not found, record ignored., BaseItemCode=OL2110'
+    - - :warning
+      - 'Line 663: Product not found, record ignored., BaseItemCode=OL2112'
+    - - :warning
+      - 'Line 666: Product not found, record ignored., BaseItemCode=OL2115'
+    - - :warning
+      - 'Line 668: Product not found, record ignored., BaseItemCode=OL2117'
+    - - :warning
+      - 'Line 669: Product not found, record ignored., BaseItemCode=OL2121'
+    - - :warning
+      - 'Line 676: Product not found, record ignored., BaseItemCode=OL2130'
+    - - :warning
+      - 'Line 681: Product not found, record ignored., BaseItemCode=OL2136'
+    - - :warning
+      - 'Line 684: Product not found, record ignored., BaseItemCode=OL2139'
+    - - :warning
+      - 'Line 688: Product not found, record ignored., BaseItemCode=OL2143'
+    - - :warning
+      - 'Line 689: Product not found, record ignored., BaseItemCode=OL2144'
+    - - :warning
+      - 'Line 690: Product not found, record ignored., BaseItemCode=OL2145'
+    - - :warning
+      - 'Line 699: Product not found, record ignored., BaseItemCode=OL2155'
+    - - :warning
+      - 'Line 776: Product not found, record ignored., BaseItemCode=PF035'
+    - - :warning
+      - 'Line 777: Product not found, record ignored., BaseItemCode=PF043'
+    - - :warning
+      - 'Line 780: Product not found, record ignored., BaseItemCode=PF046'
+    - - :warning
+      - 'Line 782: Product not found, record ignored., BaseItemCode=PWFL1001'
+    - - :warning
+      - 'Line 783: Product not found, record ignored., BaseItemCode=PWFL1005'
+    - - :warning
+      - 'Line 784: Product not found, record ignored., BaseItemCode=PWFL1009'
+    - - :warning
+      - 'Line 785: Product not found, record ignored., BaseItemCode=PWFL1010'
+    - - :warning
+      - 'Line 786: Product not found, record ignored., BaseItemCode=PWFL1012'
+    - - :warning
+      - 'Line 787: Product not found, record ignored., BaseItemCode=PWFL1020'
+    - - :warning
+      - 'Line 789: Product not found, record ignored., BaseItemCode=PWFL1026'
+    - - :warning
+      - 'Line 790: Product not found, record ignored., BaseItemCode=PWFL1027'
+    - - :warning
+      - 'Line 791: Product not found, record ignored., BaseItemCode=PWFL1028'
+    - - :warning
+      - 'Line 792: Product not found, record ignored., BaseItemCode=PWFL1030'
+    - - :warning
+      - 'Line 793: Product not found, record ignored., BaseItemCode=PWFL1035'
+    - - :warning
+      - 'Line 794: Product not found, record ignored., BaseItemCode=PWFL1037'
+    - - :warning
+      - 'Line 795: Product not found, record ignored., BaseItemCode=PWFL1048'
+    - - :warning
+      - 'Line 804: Product not found, record ignored., BaseItemCode=PWFL1069'
+    - - :warning
+      - 'Line 805: Product not found, record ignored., BaseItemCode=PWFL1079'
+    - - :warning
+      - 'Line 806: Product not found, record ignored., BaseItemCode=PWFL1085'
+    - - :warning
+      - 'Line 810: Product not found, record ignored., BaseItemCode=PWFL1115'
+    - - :warning
+      - 'Line 811: Product not found, record ignored., BaseItemCode=PWFL1131'
+    - - :warning
+      - 'Line 812: Product not found, record ignored., BaseItemCode=PWFL1147'
+    - - :warning
+      - 'Line 813: Product not found, record ignored., BaseItemCode=PWFL1160'
+    - - :warning
+      - 'Line 814: Product not found, record ignored., BaseItemCode=PWFL1168'
+    - - :warning
+      - 'Line 815: Product not found, record ignored., BaseItemCode=PWFL1176'
+    - - :warning
+      - 'Line 816: Product not found, record ignored., BaseItemCode=PWFL1180'
+    - - :warning
+      - 'Line 817: Product not found, record ignored., BaseItemCode=PWFL1200'
+    - - :warning
+      - 'Line 819: Product not found, record ignored., BaseItemCode=PWFL1234'
+    - - :warning
+      - 'Line 820: Product not found, record ignored., BaseItemCode=PWFL1243'
+    - - :warning
+      - 'Line 822: Product not found, record ignored., BaseItemCode=PWFL1252'
+    - - :warning
+      - 'Line 825: Product not found, record ignored., BaseItemCode=PWFL1355'
+    - - :warning
+      - 'Line 826: Product not found, record ignored., BaseItemCode=PWFL1357'
+    - - :warning
+      - 'Line 827: Product not found, record ignored., BaseItemCode=PWFL1358'
+    - - :warning
+      - 'Line 829: Product not found, record ignored., BaseItemCode=PWFL1362'
+    - - :warning
+      - 'Line 830: Product not found, record ignored., BaseItemCode=PWFL1367'
+    - - :warning
+      - 'Line 831: Product not found, record ignored., BaseItemCode=PWFL1373'
+    - - :warning
+      - 'Line 832: Product not found, record ignored., BaseItemCode=PWFL1377'
+    - - :warning
+      - 'Line 833: Product not found, record ignored., BaseItemCode=PWFL1389'
+    - - :warning
+      - 'Line 835: Product not found, record ignored., BaseItemCode=PWFL1399'
+    - - :warning
+      - 'Line 837: Product not found, record ignored., BaseItemCode=PWFL1401'
+    - - :warning
+      - 'Line 838: Product not found, record ignored., BaseItemCode=PWFL1402'
+    - - :warning
+      - 'Line 839: Product not found, record ignored., BaseItemCode=PWFL1404'
+    - - :warning
+      - 'Line 840: Product not found, record ignored., BaseItemCode=PWFL1405'
+    - - :warning
+      - 'Line 841: Product not found, record ignored., BaseItemCode=PWFL1406'
+    - - :warning
+      - 'Line 843: Product not found, record ignored., BaseItemCode=PWFL1411'
+    - - :warning
+      - 'Line 844: Product not found, record ignored., BaseItemCode=PWFL1415'
+    - - :warning
+      - 'Line 846: Product not found, record ignored., BaseItemCode=PWFL1420'
+    - - :warning
+      - 'Line 847: Product not found, record ignored., BaseItemCode=PWFL1421'
+    - - :warning
+      - 'Line 848: Product not found, record ignored., BaseItemCode=PWFL1422'
+    - - :warning
+      - 'Line 851: Product not found, record ignored., BaseItemCode=PWFL1425'
+    - - :warning
+      - 'Line 855: Product not found, record ignored., BaseItemCode=PWFL1429'
+    - - :warning
+      - 'Line 856: Product not found, record ignored., BaseItemCode=PWFL1430'
+    - - :warning
+      - 'Line 857: Product not found, record ignored., BaseItemCode=PWFL1431'
+    - - :warning
+      - 'Line 858: Product not found, record ignored., BaseItemCode=PWFL1432'
+    - - :warning
+      - 'Line 859: Product not found, record ignored., BaseItemCode=PWFL1433'
+    - - :warning
+      - 'Line 860: Product not found, record ignored., BaseItemCode=PWFL1435'
+    - - :warning
+      - 'Line 861: Product not found, record ignored., BaseItemCode=PWFL1436'
+    - - :warning
+      - 'Line 862: Product not found, record ignored., BaseItemCode=PWFL1438'
+    - - :warning
+      - 'Line 863: Product not found, record ignored., BaseItemCode=PWFL1439'
+    - - :warning
+      - 'Line 864: Product not found, record ignored., BaseItemCode=PWFL1441'
+    - - :warning
+      - 'Line 865: Product not found, record ignored., BaseItemCode=PWFL1442'
+    - - :warning
+      - 'Line 867: Product not found, record ignored., BaseItemCode=PWFL1444'
+    - - :warning
+      - 'Line 869: Product not found, record ignored., BaseItemCode=PWFL1446'
+    - - :warning
+      - 'Line 870: Product not found, record ignored., BaseItemCode=PWFL1447'
+    - - :warning
+      - 'Line 871: Product not found, record ignored., BaseItemCode=PWFL1448'
+    - - :warning
+      - 'Line 873: Product not found, record ignored., BaseItemCode=PWFL1450'
+    - - :warning
+      - 'Line 875: Product not found, record ignored., BaseItemCode=PWFL1452'
+    - - :warning
+      - 'Line 877: Product not found, record ignored., BaseItemCode=PWFL1454'
+    - - :warning
+      - 'Line 879: Product not found, record ignored., BaseItemCode=PWFL1456'
+    - - :warning
+      - 'Line 886: Product not found, record ignored., BaseItemCode=PWFL1463'
+    - - :warning
+      - 'Line 897: Product not found, record ignored., BaseItemCode=PWFLO1000'
+    - - :warning
+      - 'Line 898: Product not found, record ignored., BaseItemCode=PWFLO1001'
+    - - :warning
+      - 'Line 899: Product not found, record ignored., BaseItemCode=PWFLO1003'
+    - - :warning
+      - 'Line 900: Product not found, record ignored., BaseItemCode=PWFLO1006'
+    - - :warning
+      - 'Line 901: Product not found, record ignored., BaseItemCode=PWFLO1007'
+    - - :warning
+      - 'Line 902: Product not found, record ignored., BaseItemCode=PWFLO1009'
+    - - :warning
+      - 'Line 903: Product not found, record ignored., BaseItemCode=PWFLO1010'
+    - - :warning
+      - 'Line 905: Product not found, record ignored., BaseItemCode=PWFLO1012'
+    - - :warning
+      - 'Line 909: Product not found, record ignored., BaseItemCode=PWFLO1017'
+    - - :warning
+      - 'Line 919: Product not found, record ignored., BaseItemCode=RALL-10002-810'
+    - - :warning
+      - 'Line 1135: Product not found, record ignored., BaseItemCode=SHE032'
+    - - :warning
+      - 'Line 1136: Product not found, record ignored., BaseItemCode=SHE033'
+    - - :warning
+      - 'Line 1140: Product not found, record ignored., BaseItemCode=STA479'
+    - - :warning
+      - 'Line 1143: Product not found, record ignored., BaseItemCode=STA571'
+    - - :warning
+      - 'Line 1144: Product not found, record ignored., BaseItemCode=STA575'
+    - - :warning
+      - 'Line 1146: Product not found, record ignored., BaseItemCode=STA665'
+    - - :warning
+      - 'Line 1147: Product not found, record ignored., BaseItemCode=STA689'
+    - - :warning
+      - 'Line 1148: Product not found, record ignored., BaseItemCode=STA693'
+    - - :warning
+      - 'Line 1152: Product not found, record ignored., BaseItemCode=STA747'
+    - - :warning
+      - 'Line 1153: Product not found, record ignored., BaseItemCode=STA757'
+    - - :warning
+      - 'Line 1159: Product not found, record ignored., BaseItemCode=STA773'
+    - - :warning
+      - 'Line 1162: Product not found, record ignored., BaseItemCode=STA786'
+    - - :warning
+      - 'Line 1179: Product not found, record ignored., BaseItemCode=TA177'
+    - - :warning
+      - 'Line 1181: Product not found, record ignored., BaseItemCode=TA198'
+    - - :warning
+      - 'Line 1188: Product not found, record ignored., BaseItemCode=TA447'
+    - - :warning
+      - 'Line 1197: Product not found, record ignored., BaseItemCode=TA459'
+    - - :warning
+      - 'Line 1198: Product not found, record ignored., BaseItemCode=TA460'
+    - - :warning
+      - 'Line 1199: Product not found, record ignored., BaseItemCode=TA461'
+    - - :warning
+      - 'Line 1200: Product not found, record ignored., BaseItemCode=TA462'
+    - - :warning
+      - 'Line 1209: Product not found, record ignored., BaseItemCode=TA475'
+    - - :warning
+      - 'Line 1215: Product not found, record ignored., BaseItemCode=TA488'
+    - - :warning
+      - 'Line 1221: Product not found, record ignored., BaseItemCode=TA497'
+    - - :warning
+      - 'Line 1257: Product not found, record ignored., BaseItemCode=THR1013'
+    - - :warning
+      - 'Line 1263: Product not found, record ignored., BaseItemCode=VAS118'
+    - - :warning
+      - 'Line 1268: Product not found, record ignored., BaseItemCode=VAS201'
+    - - :warning
+      - 'Line 1269: Product not found, record ignored., BaseItemCode=VAS205'
+    - - :warning
+      - 'Line 1270: Product not found, record ignored., BaseItemCode=VAS206'
+    - - :warning
+      - 'Line 1274: Product not found, record ignored., BaseItemCode=VAS211'
+    - - :warning
+      - 'Line 1275: Product not found, record ignored., BaseItemCode=VAS228'
+    - - :warning
+      - 'Line 1280: Product not found, record ignored., BaseItemCode=VAS240'
+    - - :warning
+      - 'Line 1284: Product not found, record ignored., BaseItemCode=VAS257'
+    - - :warning
+      - 'Line 1289: Product not found, record ignored., BaseItemCode=VAS262'
+    - - :warning
+      - 'Line 1290: Product not found, record ignored., BaseItemCode=VAS272'
+    - - :warning
+      - 'Line 1292: Product not found, record ignored., BaseItemCode=VAS274'
+    - - :warning
+      - 'Line 1294: Product not found, record ignored., BaseItemCode=VAS276'
+    - - :warning
+      - 'Line 1295: Product not found, record ignored., BaseItemCode=VAS277'
+    - - :warning
+      - 'Line 1300: Product not found, record ignored., BaseItemCode=VAS283'
+    - - :warning
+      - 'Line 1323: Product not found, record ignored., BaseItemCode=W6287'
+    - - :warning
+      - 'Line 1326: Product not found, record ignored., BaseItemCode=W6440'
+    - - :warning
+      - 'Line 1327: Product not found, record ignored., BaseItemCode=W6471'
+    - - :warning
+      - 'Line 1329: Product not found, record ignored., BaseItemCode=W6486'
+    - - :warning
+      - 'Line 1342: Product not found, record ignored., BaseItemCode=W6701'
+    - - :warning
+      - 'Line 1344: Product not found, record ignored., BaseItemCode=W6706'
+    - - :warning
+      - 'Line 1347: Product not found, record ignored., BaseItemCode=W6713'
+    - - :warning
+      - 'Line 1353: Product not found, record ignored., BaseItemCode=W6730'
+    - - :warning
+      - 'Line 1399: Product not found, record ignored., BaseItemCode=WS117'
+    - - :warning
+      - 'Line 1405: Product not found, record ignored., BaseItemCode=WS129'
+    - - :warning
+      - 'Line 1411: Product not found, record ignored., BaseItemCode=WS135'
+    - - :warning
+      - 'Line 1415: Product not found, record ignored., BaseItemCode=WS139'
+    - - :warning
+      - 'Line 1420: Product not found, record ignored., BaseItemCode=WS144'
+    - - :warning
+      - 'Line 1422: Product not found, record ignored., BaseItemCode=WS146'
+    - - :warning
+      - 'Line 1423: Product not found, record ignored., BaseItemCode=WS147'
+    - - :warning
+      - 'Line 1446: Product not found, record ignored., BaseItemCode=VAS253'
+    - - :warning
+      - 'Line 1464: Product not found, record ignored., BaseItemCode=LPT1379EV'
+    - - :warning
+      - 'Line 1473: Product not found, record ignored., BaseItemCode=LPT1388EV'
+    - - :warning
+      - 'Line 1485: Product not found, record ignored., BaseItemCode=LIGHTCLOUD'
+    - - :warning
+      - 'Line 1486: Product not found, record ignored., BaseItemCode=LPC125C'
+    - - :warning
+      - 'Line 1487: Product not found, record ignored., BaseItemCode=LPC4255'
+    - - :warning
+      - 'Line 1492: Product not found, record ignored., BaseItemCode=PWFL1007'
+    - - :warning
+      - 'Line 1496: Product not found, record ignored., BaseItemCode=PWFL1192'
+    - - :warning
+      - 'Line 1497: Product not found, record ignored., BaseItemCode=PWFL1257'
+    - - :warning
+      - 'Line 1498: Product not found, record ignored., BaseItemCode=PWFL1310'
+    - - :warning
+      - 'Line 1499: Product not found, record ignored., BaseItemCode=PWFL1313'
+    - - :warning
+      - 'Line 1500: Product not found, record ignored., BaseItemCode=PWFL1322'
+    - - :warning
+      - 'Line 1502: Product not found, record ignored., BaseItemCode=PWFL1391P'
+    - - :warning
+      - 'Line 1503: Product not found, record ignored., BaseItemCode=PWFLX1019'
+    - - :warning
+      - 'Line 1601: Product not found, record ignored., BaseItemCode=VAS249'
+    - - :warning
+      - 'Line 1603: Product not found, record ignored., BaseItemCode=W6345'
+    - - :warning
+      - 'Line 1604: Product not found, record ignored., BaseItemCode=WS053'
+    - - :warning
+      - 'Line 1605: Product not found, record ignored., BaseItemCode=ESM-W6005'
+    - - :warning
+      - 'Line 1606: Product not found, record ignored., BaseItemCode=PWFL1002'
+    - - :warning
+      - 'Line 1607: Product not found, record ignored., BaseItemCode=PWFL1008'
+    - - :warning
+      - 'Line 1608: Product not found, record ignored., BaseItemCode=PWFL1011'
+    - - :warning
+      - 'Line 1609: Product not found, record ignored., BaseItemCode=PWFL1018'
+    - - :warning
+      - 'Line 1610: Product not found, record ignored., BaseItemCode=PWFL1031'
+    - - :warning
+      - 'Line 1612: Product not found, record ignored., BaseItemCode=PWFL1039'
+    - - :warning
+      - 'Line 1614: Product not found, record ignored., BaseItemCode=PWFL1049'
+    - - :warning
+      - 'Line 1615: Product not found, record ignored., BaseItemCode=PWFL1050'
+    - - :warning
+      - 'Line 1616: Product not found, record ignored., BaseItemCode=PWFL1065'
+    - - :warning
+      - 'Line 1617: Product not found, record ignored., BaseItemCode=PWFL1088'
+    - - :warning
+      - 'Line 1618: Product not found, record ignored., BaseItemCode=PWFL1090'
+    - - :warning
+      - 'Line 1619: Product not found, record ignored., BaseItemCode=PWFL1095'
+    - - :warning
+      - 'Line 1620: Product not found, record ignored., BaseItemCode=PWFL1108'
+    - - :warning
+      - 'Line 1621: Product not found, record ignored., BaseItemCode=PWFL1113'
+    - - :warning
+      - 'Line 1622: Product not found, record ignored., BaseItemCode=PWFL1145'
+    - - :warning
+      - 'Line 1625: Product not found, record ignored., BaseItemCode=PWFL1237'
+    - - :warning
+      - 'Line 1627: Product not found, record ignored., BaseItemCode=PWFL1248'
+    - - :warning
+      - 'Line 1628: Product not found, record ignored., BaseItemCode=PWFL1261'
+    - - :warning
+      - 'Line 1629: Product not found, record ignored., BaseItemCode=PWFL1294'
+    - - :warning
+      - 'Line 1630: Product not found, record ignored., BaseItemCode=PWFL1298'
+    - - :warning
+      - 'Line 1632: Product not found, record ignored., BaseItemCode=PWFL1302'
+    - - :warning
+      - 'Line 1633: Product not found, record ignored., BaseItemCode=PWFL1317'
+    - - :warning
+      - 'Line 1634: Product not found, record ignored., BaseItemCode=PWFL1326'
+    - - :warning
+      - 'Line 1635: Product not found, record ignored., BaseItemCode=PWFL1327'
+    - - :warning
+      - 'Line 1636: Product not found, record ignored., BaseItemCode=PWFL1339'
+    - - :warning
+      - 'Line 1637: Product not found, record ignored., BaseItemCode=PWFL1342'
+    - - :warning
+      - 'Line 1638: Product not found, record ignored., BaseItemCode=PWFL1346'
+    - - :warning
+      - 'Line 1639: Product not found, record ignored., BaseItemCode=PWFLO1008'
+    - - :warning
+      - 'Line 1643: Product not found, record ignored., BaseItemCode=VAS245'
+    - - :warning
+      - 'Line 1644: Product not found, record ignored., BaseItemCode=VAS251'
+    - - :warning
+      - 'Line 1646: Product not found, record ignored., BaseItemCode=LPC149'
+    - - :warning
+      - 'Line 1652: Product not found, record ignored., BaseItemCode=ANTISLIP912'
+    - - :warning
+      - 'Line 1653: Product not found, record ignored., BaseItemCode=CHA064'
+    - - :warning
+      - 'Line 1654: Product not found, record ignored., BaseItemCode=FLP1024'
+    - - :warning
+      - 'Line 1655: Product not found, record ignored., BaseItemCode=FLP1616'
+    - - :warning
+      - 'Line 1656: Product not found, record ignored., BaseItemCode=PWFL1407'
+    - - :warning
+      - 'Line 1662: Product not found, record ignored., BaseItemCode=VAS282'
+    - - :warning
+      - 'Line 1664: Product not found, record ignored., BaseItemCode=W6714'
+    - - :warning
+      - 'Line 1665: Product not found, record ignored., BaseItemCode=W6715'
+    - - :warning
+      - 'Line 1666: Product not found, record ignored., BaseItemCode=W6732'
+    - - :warning
+      - 'Line 1682: Product not found, record ignored., BaseItemCode=LPC4488'
+    - - :warning
+      - 'Line 1996: Product not found, record ignored., BaseItemCode=PA0062'
+ |
+| 2026-06-11 22:08:02 | ---
+- - Portal Invoices
+  - []
+ |
+| 2026-06-11 17:03:21 | ---
+- - Inventory
+  - - - :warning
+      - 'Line 14: Product not found, record ignored., BaseItemCode=CHA071'
+    - - :warning
+      - 'Line 19: Product not found, record ignored., BaseItemCode=CHA088'
+    - - :warning
+      - 'Line 20: Product not found, record ignored., BaseItemCode=CHA089'
+    - - :warning
+      - 'Line 24: Product not found, record ignored., BaseItemCode=CHA094'
+    - - :warning
+      - 'Line 25: Product not found, record ignored., BaseItemCode=CHA095'
+    - - :warning
+      - 'Line 27: Product not found, record ignored., BaseItemCode=CHA097'
+    - - :warning
+      - 'Line 28: Product not found, record ignored., BaseItemCode=CHA098'
+    - - :warning
+      - 'Line 37: Product not found, record ignored., BaseItemCode=CL220'
+    - - :warning
+      - 'Line 38: Product not found, record ignored., BaseItemCode=CL239'
+    - - :warning
+      - 'Line 42: Product not found, record ignored., BaseItemCode=CL257'
+    - - :warning
+      - 'Line 76: Product not found, record ignored., BaseItemCode=LPC4058'
+    - - :warning
+      - 'Line 88: Product not found, record ignored., BaseItemCode=LPC4418'
+    - - :warning
+      - 'Line 92: Product not found, record ignored., BaseItemCode=LPC4434'
+    - - :warning
+      - 'Line 96: Product not found, record ignored., BaseItemCode=LPC4445'
+    - - :warning
+      - 'Line 98: Product not found, record ignored., BaseItemCode=LPC4454'
+    - - :warning
+      - 'Line 130: Product not found, record ignored., BaseItemCode=LPF3023'
+    - - :warning
+      - 'Line 133: Product not found, record ignored., BaseItemCode=LPF3071'
+    - - :warning
+      - 'Line 135: Product not found, record ignored., BaseItemCode=LPF3110'
+    - - :warning
+      - 'Line 136: Product not found, record ignored., BaseItemCode=LPF3111'
+    - - :warning
+      - 'Line 139: Product not found, record ignored., BaseItemCode=LPF3135'
+    - - :warning
+      - 'Line 145: Product not found, record ignored., BaseItemCode=LPF3146'
+    - - :warning
+      - 'Line 147: Product not found, record ignored., BaseItemCode=LPF3149'
+    - - :warning
+      - 'Line 151: Product not found, record ignored., BaseItemCode=LPF3153'
+    - - :warning
+      - 'Line 179: Product not found, record ignored., BaseItemCode=LPT1047'
+    - - :warning
+      - 'Line 180: Product not found, record ignored., BaseItemCode=LPT1057'
+    - - :warning
+      - 'Line 183: Product not found, record ignored., BaseItemCode=LPT1127'
+    - - :warning
+      - 'Line 186: Product not found, record ignored., BaseItemCode=LPT1159'
+    - - :warning
+      - 'Line 188: Product not found, record ignored., BaseItemCode=LPT1161'
+    - - :warning
+      - 'Line 191: Product not found, record ignored., BaseItemCode=LPT1173'
+    - - :warning
+      - 'Line 194: Product not found, record ignored., BaseItemCode=LPT1183'
+    - - :warning
+      - 'Line 203: Product not found, record ignored., BaseItemCode=LPT1216'
+    - - :warning
+      - 'Line 205: Product not found, record ignored., BaseItemCode=LPT1218'
+    - - :warning
+      - 'Line 206: Product not found, record ignored., BaseItemCode=LPT1219'
+    - - :warning
+      - 'Line 207: Product not found, record ignored., BaseItemCode=LPT1221'
+    - - :warning
+      - 'Line 208: Product not found, record ignored., BaseItemCode=LPT1222'
+    - - :warning
+      - 'Line 211: Product not found, record ignored., BaseItemCode=LPT1225'
+    - - :warning
+      - 'Line 217: Product not found, record ignored., BaseItemCode=LPT1234'
+    - - :warning
+      - 'Line 223: Product not found, record ignored., BaseItemCode=LPT1240'
+    - - :warning
+      - 'Line 224: Product not found, record ignored., BaseItemCode=LPT1241'
+    - - :warning
+      - 'Line 225: Product not found, record ignored., BaseItemCode=LPT1242'
+    - - :warning
+      - 'Line 226: Product not found, record ignored., BaseItemCode=LPT1243'
+    - - :warning
+      - 'Line 227: Product not found, record ignored., BaseItemCode=LPT1246'
+    - - :warning
+      - 'Line 228: Product not found, record ignored., BaseItemCode=LPT1249'
+    - - :warning
+      - 'Line 229: Product not found, record ignored., BaseItemCode=LPT1250'
+    - - :warning
+      - 'Line 234: Product not found, record ignored., BaseItemCode=LPT1257'
+    - - :warning
+      - 'Line 236: Product not found, record ignored., BaseItemCode=LPT1259'
+    - - :warning
+      - 'Line 245: Product not found, record ignored., BaseItemCode=LPT1268'
+    - - :warning
+      - 'Line 247: Product not found, record ignored., BaseItemCode=LPT1270'
+    - - :warning
+      - 'Line 248: Product not found, record ignored., BaseItemCode=LPT1271'
+    - - :warning
+      - 'Line 251: Product not found, record ignored., BaseItemCode=LPT1274'
+    - - :warning
+      - 'Line 252: Product not found, record ignored., BaseItemCode=LPT1275'
+    - - :warning
+      - 'Line 258: Product not found, record ignored., BaseItemCode=LPT1284'
+    - - :warning
+      - 'Line 261: Product not found, record ignored., BaseItemCode=LPT1287'
+    - - :warning
+      - 'Line 306: Product not found, record ignored., BaseItemCode=LPT1334'
+    - - :warning
+      - 'Line 333: Product not found, record ignored., BaseItemCode=LPT172'
+    - - :warning
+      - 'Line 334: Product not found, record ignored., BaseItemCode=LPT594'
+    - - :warning
+      - 'Line 336: Product not found, record ignored., BaseItemCode=LPT714'
+    - - :warning
+      - 'Line 337: Product not found, record ignored., BaseItemCode=LPT825'
+    - - :warning
+      - 'Line 338: Product not found, record ignored., BaseItemCode=LPT853'
+    - - :warning
+      - 'Line 339: Product not found, record ignored., BaseItemCode=LPT869'
+    - - :warning
+      - 'Line 340: Product not found, record ignored., BaseItemCode=LPT884'
+    - - :warning
+      - 'Line 341: Product not found, record ignored., BaseItemCode=LPT885'
+    - - :warning
+      - 'Line 343: Product not found, record ignored., BaseItemCode=LPT982'
+    - - :warning
+      - 'Line 344: Product not found, record ignored., BaseItemCode=MT1006'
+    - - :warning
+      - 'Line 347: Product not found, record ignored., BaseItemCode=MT1134'
+    - - :warning
+      - 'Line 348: Product not found, record ignored., BaseItemCode=MT1185'
+    - - :warning
+      - 'Line 350: Product not found, record ignored., BaseItemCode=MT1284'
+    - - :warning
+      - 'Line 360: Product not found, record ignored., BaseItemCode=MT1499'
+    - - :warning
+      - 'Line 366: Product not found, record ignored., BaseItemCode=MT1594'
+    - - :warning
+      - 'Line 371: Product not found, record ignored., BaseItemCode=MT1706'
+    - - :warning
+      - 'Line 377: Product not found, record ignored., BaseItemCode=MT1820'
+    - - :warning
+      - 'Line 383: Product not found, record ignored., BaseItemCode=MT1857'
+    - - :warning
+      - 'Line 403: Product not found, record ignored., BaseItemCode=MT2301'
+    - - :warning
+      - 'Line 404: Product not found, record ignored., BaseItemCode=MT2320'
+    - - :warning
+      - 'Line 424: Product not found, record ignored., BaseItemCode=MT2412'
+    - - :warning
+      - 'Line 432: Product not found, record ignored., BaseItemCode=MT2437'
+    - - :warning
+      - 'Line 433: Product not found, record ignored., BaseItemCode=MT2444'
+    - - :warning
+      - 'Line 438: Product not found, record ignored., BaseItemCode=MT2456'
+    - - :warning
+      - 'Line 439: Product not found, record ignored., BaseItemCode=MT2459'
+    - - :warning
+      - 'Line 442: Product not found, record ignored., BaseItemCode=MT2464'
+    - - :warning
+      - 'Line 443: Product not found, record ignored., BaseItemCode=MT2471'
+    - - :warning
+      - 'Line 448: Product not found, record ignored., BaseItemCode=MT2497'
+    - - :warning
+      - 'Line 459: Product not found, record ignored., BaseItemCode=MT2513'
+    - - :warning
+      - 'Line 470: Product not found, record ignored., BaseItemCode=MT2529'
+    - - :warning
+      - 'Line 472: Product not found, record ignored., BaseItemCode=MT2531'
+    - - :warning
+      - 'Line 479: Product not found, record ignored., BaseItemCode=MT2541'
+    - - :warning
+      - 'Line 493: Product not found, record ignored., BaseItemCode=MT2563'
+    - - :warning
+      - 'Line 495: Product not found, record ignored., BaseItemCode=MT2567'
+    - - :warning
+      - 'Line 503: Product not found, record ignored., BaseItemCode=MT2610'
+    - - :warning
+      - 'Line 504: Product not found, record ignored., BaseItemCode=MT2611'
+    - - :warning
+      - 'Line 509: Product not found, record ignored., BaseItemCode=MT2616'
+    - - :warning
+      - 'Line 515: Product not found, record ignored., BaseItemCode=MT2622'
+    - - :warning
+      - 'Line 517: Product not found, record ignored., BaseItemCode=MT2624'
+    - - :warning
+      - 'Line 519: Product not found, record ignored., BaseItemCode=MT2626'
+    - - :warning
+      - 'Line 530: Product not found, record ignored., BaseItemCode=MT2637'
+    - - :warning
+      - 'Line 531: Product not found, record ignored., BaseItemCode=MT2638'
+    - - :warning
+      - 'Line 535: Product not found, record ignored., BaseItemCode=MT2654'
+    - - :warning
+      - 'Line 598: Product not found, record ignored., BaseItemCode=MT849'
+    - - :warning
+      - 'Line 601: Product not found, record ignored., BaseItemCode=OL1485'
+    - - :warning
+      - 'Line 605: Product not found, record ignored., BaseItemCode=OL1717'
+    - - :warning
+      - 'Line 607: Product not found, record ignored., BaseItemCode=OL1730'
+    - - :warning
+      - 'Line 619: Product not found, record ignored., BaseItemCode=OL1965'
+    - - :warning
+      - 'Line 622: Product not found, record ignored., BaseItemCode=OL1978'
+    - - :warning
+      - 'Line 635: Product not found, record ignored., BaseItemCode=OL2058'
+    - - :warning
+      - 'Line 637: Product not found, record ignored., BaseItemCode=OL2065'
+    - - :warning
+      - 'Line 639: Product not found, record ignored., BaseItemCode=OL2067'
+    - - :warning
+      - 'Line 641: Product not found, record ignored., BaseItemCode=OL2069'
+    - - :warning
+      - 'Line 650: Product not found, record ignored., BaseItemCode=OL2090'
+    - - :warning
+      - 'Line 652: Product not found, record ignored., BaseItemCode=OL2096'
+    - - :warning
+      - 'Line 653: Product not found, record ignored., BaseItemCode=OL2098'
+    - - :warning
+      - 'Line 655: Product not found, record ignored., BaseItemCode=OL2101'
+    - - :warning
+      - 'Line 656: Product not found, record ignored., BaseItemCode=OL2102'
+    - - :warning
+      - 'Line 659: Product not found, record ignored., BaseItemCode=OL2107'
+    - - :warning
+      - 'Line 661: Product not found, record ignored., BaseItemCode=OL2110'
+    - - :warning
+      - 'Line 663: Product not found, record ignored., BaseItemCode=OL2112'
+    - - :warning
+      - 'Line 666: Product not found, record ignored., BaseItemCode=OL2115'
+    - - :warning
+      - 'Line 668: Product not found, record ignored., BaseItemCode=OL2117'
+    - - :warning
+      - 'Line 669: Product not found, record ignored., BaseItemCode=OL2121'
+    - - :warning
+      - 'Line 676: Product not found, record ignored., BaseItemCode=OL2130'
+    - - :warning
+      - 'Line 681: Product not found, record ignored., BaseItemCode=OL2136'
+    - - :warning
+      - 'Line 684: Product not found, record ignored., BaseItemCode=OL2139'
+    - - :warning
+      - 'Line 688: Product not found, record ignored., BaseItemCode=OL2143'
+    - - :warning
+      - 'Line 689: Product not found, record ignored., BaseItemCode=OL2144'
+    - - :warning
+      - 'Line 690: Product not found, record ignored., BaseItemCode=OL2145'
+    - - :warning
+      - 'Line 699: Product not found, record ignored., BaseItemCode=OL2155'
+    - - :warning
+      - 'Line 776: Product not found, record ignored., BaseItemCode=PF035'
+    - - :warning
+      - 'Line 777: Product not found, record ignored., BaseItemCode=PF043'
+    - - :warning
+      - 'Line 780: Product not found, record ignored., BaseItemCode=PF046'
+    - - :warning
+      - 'Line 782: Product not found, record ignored., BaseItemCode=PWFL1001'
+    - - :warning
+      - 'Line 783: Product not found, record ignored., BaseItemCode=PWFL1005'
+    - - :warning
+      - 'Line 784: Product not found, record ignored., BaseItemCode=PWFL1009'
+    - - :warning
+      - 'Line 785: Product not found, record ignored., BaseItemCode=PWFL1010'
+    - - :warning
+      - 'Line 786: Product not found, record ignored., BaseItemCode=PWFL1012'
+    - - :warning
+      - 'Line 787: Product not found, record ignored., BaseItemCode=PWFL1020'
+    - - :warning
+      - 'Line 789: Product not found, record ignored., BaseItemCode=PWFL1026'
+    - - :warning
+      - 'Line 790: Product not found, record ignored., BaseItemCode=PWFL1027'
+    - - :warning
+      - 'Line 791: Product not found, record ignored., BaseItemCode=PWFL1028'
+    - - :warning
+      - 'Line 792: Product not found, record ignored., BaseItemCode=PWFL1030'
+    - - :warning
+      - 'Line 793: Product not found, record ignored., BaseItemCode=PWFL1035'
+    - - :warning
+      - 'Line 794: Product not found, record ignored., BaseItemCode=PWFL1037'
+    - - :warning
+      - 'Line 795: Product not found, record ignored., BaseItemCode=PWFL1048'
+    - - :warning
+      - 'Line 804: Product not found, record ignored., BaseItemCode=PWFL1069'
+    - - :warning
+      - 'Line 805: Product not found, record ignored., BaseItemCode=PWFL1079'
+    - - :warning
+      - 'Line 806: Product not found, record ignored., BaseItemCode=PWFL1085'
+    - - :warning
+      - 'Line 810: Product not found, record ignored., BaseItemCode=PWFL1115'
+    - - :warning
+      - 'Line 811: Product not found, record ignored., BaseItemCode=PWFL1131'
+    - - :warning
+      - 'Line 812: Product not found, record ignored., BaseItemCode=PWFL1147'
+    - - :warning
+      - 'Line 813: Product not found, record ignored., BaseItemCode=PWFL1160'
+    - - :warning
+      - 'Line 814: Product not found, record ignored., BaseItemCode=PWFL1168'
+    - - :warning
+      - 'Line 815: Product not found, record ignored., BaseItemCode=PWFL1176'
+    - - :warning
+      - 'Line 816: Product not found, record ignored., BaseItemCode=PWFL1180'
+    - - :warning
+      - 'Line 817: Product not found, record ignored., BaseItemCode=PWFL1200'
+    - - :warning
+      - 'Line 819: Product not found, record ignored., BaseItemCode=PWFL1234'
+    - - :warning
+      - 'Line 820: Product not found, record ignored., BaseItemCode=PWFL1243'
+    - - :warning
+      - 'Line 822: Product not found, record ignored., BaseItemCode=PWFL1252'
+    - - :warning
+      - 'Line 825: Product not found, record ignored., BaseItemCode=PWFL1355'
+    - - :warning
+      - 'Line 826: Product not found, record ignored., BaseItemCode=PWFL1357'
+    - - :warning
+      - 'Line 827: Product not found, record ignored., BaseItemCode=PWFL1358'
+    - - :warning
+      - 'Line 829: Product not found, record ignored., BaseItemCode=PWFL1362'
+    - - :warning
+      - 'Line 830: Product not found, record ignored., BaseItemCode=PWFL1367'
+    - - :warning
+      - 'Line 831: Product not found, record ignored., BaseItemCode=PWFL1373'
+    - - :warning
+      - 'Line 832: Product not found, record ignored., BaseItemCode=PWFL1377'
+    - - :warning
+      - 'Line 833: Product not found, record ignored., BaseItemCode=PWFL1389'
+    - - :warning
+      - 'Line 835: Product not found, record ignored., BaseItemCode=PWFL1399'
+    - - :warning
+      - 'Line 837: Product not found, record ignored., BaseItemCode=PWFL1401'
+    - - :warning
+      - 'Line 838: Product not found, record ignored., BaseItemCode=PWFL1402'
+    - - :warning
+      - 'Line 839: Product not found, record ignored., BaseItemCode=PWFL1404'
+    - - :warning
+      - 'Line 840: Product not found, record ignored., BaseItemCode=PWFL1405'
+    - - :warning
+      - 'Line 841: Product not found, record ignored., BaseItemCode=PWFL1406'
+    - - :warning
+      - 'Line 843: Product not found, record ignored., BaseItemCode=PWFL1411'
+    - - :warning
+      - 'Line 844: Product not found, record ignored., BaseItemCode=PWFL1415'
+    - - :warning
+      - 'Line 846: Product not found, record ignored., BaseItemCode=PWFL1420'
+    - - :warning
+      - 'Line 847: Product not found, record ignored., BaseItemCode=PWFL1421'
+    - - :warning
+      - 'Line 848: Product not found, record ignored., BaseItemCode=PWFL1422'
+    - - :warning
+      - 'Line 851: Product not found, record ignored., BaseItemCode=PWFL1425'
+    - - :warning
+      - 'Line 855: Product not found, record ignored., BaseItemCode=PWFL1429'
+    - - :warning
+      - 'Line 856: Product not found, record ignored., BaseItemCode=PWFL1430'
+    - - :warning
+      - 'Line 857: Product not found, record ignored., BaseItemCode=PWFL1431'
+    - - :warning
+      - 'Line 858: Product not found, record ignored., BaseItemCode=PWFL1432'
+    - - :warning
+      - 'Line 859: Product not found, record ignored., BaseItemCode=PWFL1433'
+    - - :warning
+      - 'Line 860: Product not found, record ignored., BaseItemCode=PWFL1435'
+    - - :warning
+      - 'Line 861: Product not found, record ignored., BaseItemCode=PWFL1436'
+    - - :warning
+      - 'Line 862: Product not found, record ignored., BaseItemCode=PWFL1438'
+    - - :warning
+      - 'Line 863: Product not found, record ignored., BaseItemCode=PWFL1439'
+    - - :warning
+      - 'Line 864: Product not found, record ignored., BaseItemCode=PWFL1441'
+    - - :warning
+      - 'Line 865: Product not found, record ignored., BaseItemCode=PWFL1442'
+    - - :warning
+      - 'Line 867: Product not found, record ignored., BaseItemCode=PWFL1444'
+    - - :warning
+      - 'Line 869: Product not found, record ignored., BaseItemCode=PWFL1446'
+    - - :warning
+      - 'Line 870: Product not found, record ignored., BaseItemCode=PWFL1447'
+    - - :warning
+      - 'Line 871: Product not found, record ignored., BaseItemCode=PWFL1448'
+    - - :warning
+      - 'Line 873: Product not found, record ignored., BaseItemCode=PWFL1450'
+    - - :warning
+      - 'Line 875: Product not found, record ignored., BaseItemCode=PWFL1452'
+    - - :warning
+      - 'Line 877: Product not found, record ignored., BaseItemCode=PWFL1454'
+    - - :warning
+      - 'Line 879: Product not found, record ignored., BaseItemCode=PWFL1456'
+    - - :warning
+      - 'Line 886: Product not found, record ignored., BaseItemCode=PWFL1463'
+    - - :warning
+      - 'Line 897: Product not found, record ignored., BaseItemCode=PWFLO1000'
+    - - :warning
+      - 'Line 898: Product not found, record ignored., BaseItemCode=PWFLO1001'
+    - - :warning
+      - 'Line 899: Product not found, record ignored., BaseItemCode=PWFLO1003'
+    - - :warning
+      - 'Line 900: Product not found, record ignored., BaseItemCode=PWFLO1006'
+    - - :warning
+      - 'Line 901: Product not found, record ignored., BaseItemCode=PWFLO1007'
+    - - :warning
+      - 'Line 902: Product not found, record ignored., BaseItemCode=PWFLO1009'
+    - - :warning
+      - 'Line 903: Product not found, record ignored., BaseItemCode=PWFLO1010'
+    - - :warning
+      - 'Line 905: Product not found, record ignored., BaseItemCode=PWFLO1012'
+    - - :warning
+      - 'Line 909: Product not found, record ignored., BaseItemCode=PWFLO1017'
+    - - :warning
+      - 'Line 919: Product not found, record ignored., BaseItemCode=RALL-10002-810'
+    - - :warning
+      - 'Line 1135: Product not found, record ignored., BaseItemCode=SHE032'
+    - - :warning
+      - 'Line 1136: Product not found, record ignored., BaseItemCode=SHE033'
+    - - :warning
+      - 'Line 1140: Product not found, record ignored., BaseItemCode=STA479'
+    - - :warning
+      - 'Line 1143: Product not found, record ignored., BaseItemCode=STA571'
+    - - :warning
+      - 'Line 1144: Product not found, record ignored., BaseItemCode=STA575'
+    - - :warning
+      - 'Line 1146: Product not found, record ignored., BaseItemCode=STA665'
+    - - :warning
+      - 'Line 1147: Product not found, record ignored., BaseItemCode=STA689'
+    - - :warning
+      - 'Line 1148: Product not found, record ignored., BaseItemCode=STA693'
+    - - :warning
+      - 'Line 1152: Product not found, record ignored., BaseItemCode=STA747'
+    - - :warning
+      - 'Line 1153: Product not found, record ignored., BaseItemCode=STA757'
+    - - :warning
+      - 'Line 1159: Product not found, record ignored., BaseItemCode=STA773'
+    - - :warning
+      - 'Line 1162: Product not found, record ignored., BaseItemCode=STA786'
+    - - :warning
+      - 'Line 1179: Product not found, record ignored., BaseItemCode=TA177'
+    - - :warning
+      - 'Line 1181: Product not found, record ignored., BaseItemCode=TA198'
+    - - :warning
+      - 'Line 1188: Product not found, record ignored., BaseItemCode=TA447'
+    - - :warning
+      - 'Line 1197: Product not found, record ignored., BaseItemCode=TA459'
+    - - :warning
+      - 'Line 1198: Product not found, record ignored., BaseItemCode=TA460'
+    - - :warning
+      - 'Line 1199: Product not found, record ignored., BaseItemCode=TA461'
+    - - :warning
+      - 'Line 1200: Product not found, record ignored., BaseItemCode=TA462'
+    - - :warning
+      - 'Line 1209: Product not found, record ignored., BaseItemCode=TA475'
+    - - :warning
+      - 'Line 1215: Product not found, record ignored., BaseItemCode=TA488'
+    - - :warning
+      - 'Line 1221: Product not found, record ignored., BaseItemCode=TA497'
+    - - :warning
+      - 'Line 1257: Product not found, record ignored., BaseItemCode=THR1013'
+    - - :warning
+      - 'Line 1263: Product not found, record ignored., BaseItemCode=VAS118'
+    - - :warning
+      - 'Line 1268: Product not found, record ignored., BaseItemCode=VAS201'
+    - - :warning
+      - 'Line 1269: Product not found, record ignored., BaseItemCode=VAS205'
+    - - :warning
+      - 'Line 1270: Product not found, record ignored., BaseItemCode=VAS206'
+    - - :warning
+      - 'Line 1274: Product not found, record ignored., BaseItemCode=VAS211'
+    - - :warning
+      - 'Line 1275: Product not found, record ignored., BaseItemCode=VAS228'
+    - - :warning
+      - 'Line 1280: Product not found, record ignored., BaseItemCode=VAS240'
+    - - :warning
+      - 'Line 1284: Product not found, record ignored., BaseItemCode=VAS257'
+    - - :warning
+      - 'Line 1289: Product not found, record ignored., BaseItemCode=VAS262'
+    - - :warning
+      - 'Line 1290: Product not found, record ignored., BaseItemCode=VAS272'
+    - - :warning
+      - 'Line 1292: Product not found, record ignored., BaseItemCode=VAS274'
+    - - :warning
+      - 'Line 1294: Product not found, record ignored., BaseItemCode=VAS276'
+    - - :warning
+      - 'Line 1295: Product not found, record ignored., BaseItemCode=VAS277'
+    - - :warning
+      - 'Line 1300: Product not found, record ignored., BaseItemCode=VAS283'
+    - - :warning
+      - 'Line 1323: Product not found, record ignored., BaseItemCode=W6287'
+    - - :warning
+      - 'Line 1326: Product not found, record ignored., BaseItemCode=W6440'
+    - - :warning
+      - 'Line 1327: Product not found, record ignored., BaseItemCode=W6471'
+    - - :warning
+      - 'Line 1329: Product not found, record ignored., BaseItemCode=W6486'
+    - - :warning
+      - 'Line 1342: Product not found, record ignored., BaseItemCode=W6701'
+    - - :warning
+      - 'Line 1344: Product not found, record ignored., BaseItemCode=W6706'
+    - - :warning
+      - 'Line 1347: Product not found, record ignored., BaseItemCode=W6713'
+    - - :warning
+      - 'Line 1353: Product not found, record ignored., BaseItemCode=W6730'
+    - - :warning
+      - 'Line 1399: Product not found, record ignored., BaseItemCode=WS117'
+    - - :warning
+      - 'Line 1405: Product not found, record ignored., BaseItemCode=WS129'
+    - - :warning
+      - 'Line 1411: Product not found, record ignored., BaseItemCode=WS135'
+    - - :warning
+      - 'Line 1415: Product not found, record ignored., BaseItemCode=WS139'
+    - - :warning
+      - 'Line 1420: Product not found, record ignored., BaseItemCode=WS144'
+    - - :warning
+      - 'Line 1422: Product not found, record ignored., BaseItemCode=WS146'
+    - - :warning
+      - 'Line 1423: Product not found, record ignored., BaseItemCode=WS147'
+    - - :warning
+      - 'Line 1446: Product not found, record ignored., BaseItemCode=VAS253'
+    - - :warning
+      - 'Line 1464: Product not found, record ignored., BaseItemCode=LPT1379EV'
+    - - :warning
+      - 'Line 1473: Product not found, record ignored., BaseItemCode=LPT1388EV'
+    - - :warning
+      - 'Line 1485: Product not found, record ignored., BaseItemCode=LIGHTCLOUD'
+    - - :warning
+      - 'Line 1486: Product not found, record ignored., BaseItemCode=LPC125C'
+    - - :warning
+      - 'Line 1487: Product not found, record ignored., BaseItemCode=LPC4255'
+    - - :warning
+      - 'Line 1492: Product not found, record ignored., BaseItemCode=PWFL1007'
+    - - :warning
+      - 'Line 1496: Product not found, record ignored., BaseItemCode=PWFL1192'
+    - - :warning
+      - 'Line 1497: Product not found, record ignored., BaseItemCode=PWFL1257'
+    - - :warning
+      - 'Line 1498: Product not found, record ignored., BaseItemCode=PWFL1310'
+    - - :warning
+      - 'Line 1499: Product not found, record ignored., BaseItemCode=PWFL1313'
+    - - :warning
+      - 'Line 1500: Product not found, record ignored., BaseItemCode=PWFL1322'
+    - - :warning
+      - 'Line 1502: Product not found, record ignored., BaseItemCode=PWFL1391P'
+    - - :warning
+      - 'Line 1503: Product not found, record ignored., BaseItemCode=PWFLX1019'
+    - - :warning
+      - 'Line 1601: Product not found, record ignored., BaseItemCode=VAS249'
+    - - :warning
+      - 'Line 1603: Product not found, record ignored., BaseItemCode=W6345'
+    - - :warning
+      - 'Line 1604: Product not found, record ignored., BaseItemCode=WS053'
+    - - :warning
+      - 'Line 1605: Product not found, record ignored., BaseItemCode=ESM-W6005'
+    - - :warning
+      - 'Line 1606: Product not found, record ignored., BaseItemCode=PWFL1002'
+    - - :warning
+      - 'Line 1607: Product not found, record ignored., BaseItemCode=PWFL1008'
+    - - :warning
+      - 'Line 1608: Product not found, record ignored., BaseItemCode=PWFL1011'
+    - - :warning
+      - 'Line 1609: Product not found, record ignored., BaseItemCode=PWFL1018'
+    - - :warning
+      - 'Line 1610: Product not found, record ignored., BaseItemCode=PWFL1031'
+    - - :warning
+      - 'Line 1612: Product not found, record ignored., BaseItemCode=PWFL1039'
+    - - :warning
+      - 'Line 1614: Product not found, record ignored., BaseItemCode=PWFL1049'
+    - - :warning
+      - 'Line 1615: Product not found, record ignored., BaseItemCode=PWFL1050'
+    - - :warning
+      - 'Line 1616: Product not found, record ignored., BaseItemCode=PWFL1065'
+    - - :warning
+      - 'Line 1617: Product not found, record ignored., BaseItemCode=PWFL1088'
+    - - :warning
+      - 'Line 1618: Product not found, record ignored., BaseItemCode=PWFL1090'
+    - - :warning
+      - 'Line 1619: Product not found, record ignored., BaseItemCode=PWFL1095'
+    - - :warning
+      - 'Line 1620: Product not found, record ignored., BaseItemCode=PWFL1108'
+    - - :warning
+      - 'Line 1621: Product not found, record ignored., BaseItemCode=PWFL1113'
+    - - :warning
+      - 'Line 1622: Product not found, record ignored., BaseItemCode=PWFL1145'
+    - - :warning
+      - 'Line 1625: Product not found, record ignored., BaseItemCode=PWFL1237'
+    - - :warning
+      - 'Line 1627: Product not found, record ignored., BaseItemCode=PWFL1248'
+    - - :warning
+      - 'Line 1628: Product not found, record ignored., BaseItemCode=PWFL1261'
+    - - :warning
+      - 'Line 1629: Product not found, record ignored., BaseItemCode=PWFL1294'
+    - - :warning
+      - 'Line 1630: Product not found, record ignored., BaseItemCode=PWFL1298'
+    - - :warning
+      - 'Line 1632: Product not found, record ignored., BaseItemCode=PWFL1302'
+    - - :warning
+      - 'Line 1633: Product not found, record ignored., BaseItemCode=PWFL1317'
+    - - :warning
+      - 'Line 1634: Product not found, record ignored., BaseItemCode=PWFL1326'
+    - - :warning
+      - 'Line 1635: Product not found, record ignored., BaseItemCode=PWFL1327'
+    - - :warning
+      - 'Line 1636: Product not found, record ignored., BaseItemCode=PWFL1339'
+    - - :warning
+      - 'Line 1637: Product not found, record ignored., BaseItemCode=PWFL1342'
+    - - :warning
+      - 'Line 1638: Product not found, record ignored., BaseItemCode=PWFL1346'
+    - - :warning
+      - 'Line 1639: Product not found, record ignored., BaseItemCode=PWFLO1008'
+    - - :warning
+      - 'Line 1643: Product not found, record ignored., BaseItemCode=VAS245'
+    - - :warning
+      - 'Line 1644: Product not found, record ignored., BaseItemCode=VAS251'
+    - - :warning
+      - 'Line 1646: Product not found, record ignored., BaseItemCode=LPC149'
+    - - :warning
+      - 'Line 1652: Product not found, record ignored., BaseItemCode=ANTISLIP912'
+    - - :warning
+      - 'Line 1653: Product not found, record ignored., BaseItemCode=CHA064'
+    - - :warning
+      - 'Line 1654: Product not found, record ignored., BaseItemCode=FLP1024'
+    - - :warning
+      - 'Line 1655: Product not found, record ignored., BaseItemCode=FLP1616'
+    - - :warning
+      - 'Line 1656: Product not found, record ignored., BaseItemCode=PWFL1407'
+    - - :warning
+      - 'Line 1662: Product not found, record ignored., BaseItemCode=VAS282'
+    - - :warning
+      - 'Line 1664: Product not found, record ignored., BaseItemCode=W6714'
+    - - :warning
+      - 'Line 1665: Product not found, record ignored., BaseItemCode=W6715'
+    - - :warning
+      - 'Line 1666: Product not found, record ignored., BaseItemCode=W6732'
+    - - :warning
+      - 'Line 1682: Product not found, record ignored., BaseItemCode=LPC4488'
+    - - :warning
+      - 'Line 1996: Product not found, record ignored., BaseItemCode=PA0062'
+ |

@@ -1,0 +1,625 @@
+# Q-09-recent Results — Ratana International Ltd. (ril, org_id=245)
+- **Query**: Q-09-recent — Import Health — Recent Errors
+- **Period**: LTM (2025-06-17 to 2026-06-17)
+- **Row count**: 10
+- **Run date**: 2026-06-17
+
+
+| created_at | data |
+| --- | --- |
+| 2026-06-17 08:02:29 | ---
+- - Inventory
+  - - - :warning
+      - 'Line 859: Product not found, record ignored., BaseItemCode=FN61147PGR'
+    - - :warning
+      - 'Line 864: Product not found, record ignored., BaseItemCode=FN61150PGR'
+    - - :warning
+      - 'Line 1393: Product not found, record ignored., BaseItemCode=FO5202'
+    - - :warning
+      - 'Line 1394: Product not found, record ignored., BaseItemCode=FO5203'
+    - - :warning
+      - 'Line 1435: Product not found, record ignored., BaseItemCode=FO6132'
+    - - :warning
+      - 'Line 1436: Product not found, record ignored., BaseItemCode=FO6133'
+    - - :warning
+      - 'Line 1437: Product not found, record ignored., BaseItemCode=FO6134'
+    - - :warning
+      - 'Line 1438: Product not found, record ignored., BaseItemCode=FO6135'
+    - - :warning
+      - 'Line 1490: Product not found, record ignored., BaseItemCode=FO7198'
+    - - :warning
+      - 'Line 1491: Product not found, record ignored., BaseItemCode=FO7199'
+    - - :warning
+      - 'Line 1492: Product not found, record ignored., BaseItemCode=FO7200'
+    - - :warning
+      - 'Line 1493: Product not found, record ignored., BaseItemCode=FO7201'
+    - - :warning
+      - 'Line 1494: Product not found, record ignored., BaseItemCode=FO7202'
+    - - :warning
+      - 'Line 1495: Product not found, record ignored., BaseItemCode=FO7203'
+    - - :warning
+      - 'Line 1496: Product not found, record ignored., BaseItemCode=FO7204'
+- - Customers
+  - []
+- - Sales Data
+  - - - :error
+      - 'Line 3329: Base item code FN61150PGR does not match an active product'
+    - - :error
+      - 'Line 3766: Base item code FN61150PGR does not match an active product'
+    - - :error
+      - 'Line 4525: Base item code FN61147PGR does not match an active product'
+    - - :error
+      - 'Line 4526: Base item code FN61150PGR does not match an active product'
+    - - :error
+      - 'Line 4631: Base item code FN61150PGR does not match an active product'
+    - - :error
+      - 'Line 5865: Base item code FN61147PGR does not match an active product'
+    - - :error
+      - 'Line 5866: Base item code FN61150PGR does not match an active product'
+    - - :error
+      - 'Line 7288: Base item code FN61147PGR does not match an active product'
+    - - :error
+      - 'Line 7290: Base item code FN61150PGR does not match an active product'
+    - - :error
+      - 'Line 10352: Base item code FN61150PGR does not match an active product'
+    - - :error
+      - 'Line 21066: Base item code FN61150PGR does not match an active product'
+    - - :error
+      - 'Line 22981: Base item code FN61147PGR does not match an active product'
+    - - :error
+      - 'Line 23214: Base item code FN61150PGR does not match an active product'
+- - Portal Orders
+  - []
+- - Portal Invoices
+  - []
+- - Territories
+  - []
+ |
+| 2026-06-16 08:02:32 | ---
+- - Inventory
+  - - - :warning
+      - 'Line 859: Product not found, record ignored., BaseItemCode=FN61147PGR'
+    - - :warning
+      - 'Line 864: Product not found, record ignored., BaseItemCode=FN61150PGR'
+    - - :warning
+      - 'Line 1393: Product not found, record ignored., BaseItemCode=FO5202'
+    - - :warning
+      - 'Line 1394: Product not found, record ignored., BaseItemCode=FO5203'
+    - - :warning
+      - 'Line 1435: Product not found, record ignored., BaseItemCode=FO6132'
+    - - :warning
+      - 'Line 1436: Product not found, record ignored., BaseItemCode=FO6133'
+    - - :warning
+      - 'Line 1437: Product not found, record ignored., BaseItemCode=FO6134'
+    - - :warning
+      - 'Line 1438: Product not found, record ignored., BaseItemCode=FO6135'
+    - - :warning
+      - 'Line 1490: Product not found, record ignored., BaseItemCode=FO7198'
+    - - :warning
+      - 'Line 1491: Product not found, record ignored., BaseItemCode=FO7199'
+    - - :warning
+      - 'Line 1492: Product not found, record ignored., BaseItemCode=FO7200'
+    - - :warning
+      - 'Line 1493: Product not found, record ignored., BaseItemCode=FO7201'
+    - - :warning
+      - 'Line 1494: Product not found, record ignored., BaseItemCode=FO7202'
+    - - :warning
+      - 'Line 1495: Product not found, record ignored., BaseItemCode=FO7203'
+    - - :warning
+      - 'Line 1496: Product not found, record ignored., BaseItemCode=FO7204'
+- - Customers
+  - []
+- - Sales Data
+  - - - :error
+      - 'Line 3342: Base item code FN61150PGR does not match an active product'
+    - - :error
+      - 'Line 3779: Base item code FN61150PGR does not match an active product'
+    - - :error
+      - 'Line 4538: Base item code FN61147PGR does not match an active product'
+    - - :error
+      - 'Line 4539: Base item code FN61150PGR does not match an active product'
+    - - :error
+      - 'Line 4644: Base item code FN61150PGR does not match an active product'
+    - - :error
+      - 'Line 5873: Base item code FN61147PGR does not match an active product'
+    - - :error
+      - 'Line 5874: Base item code FN61150PGR does not match an active product'
+    - - :error
+      - 'Line 7297: Base item code FN61147PGR does not match an active product'
+    - - :error
+      - 'Line 7299: Base item code FN61150PGR does not match an active product'
+    - - :error
+      - 'Line 10370: Base item code FN61150PGR does not match an active product'
+    - - :error
+      - 'Line 15366: BillToCode (U1640HE) is invalid.'
+    - - :error
+      - 'Line 15367: BillToCode (U1640HE) is invalid.'
+    - - :error
+      - 'Line 15368: BillToCode (U1640HE) is invalid.'
+    - - :error
+      - 'Line 19279: Base item code FN61150PGR does not match an active product'
+    - - :error
+      - 'Line 21120: Base item code FN61150PGR does not match an active product'
+    - - :error
+      - 'Line 23039: Base item code FN61147PGR does not match an active product'
+    - - :error
+      - 'Line 23272: Base item code FN61150PGR does not match an active product'
+- - Portal Orders
+  - []
+- - Portal Invoices
+  - []
+- - Territories
+  - []
+ |
+| 2026-06-13 08:02:33 | ---
+- - Inventory
+  - - - :warning
+      - 'Line 859: Product not found, record ignored., BaseItemCode=FN61147PGR'
+    - - :warning
+      - 'Line 864: Product not found, record ignored., BaseItemCode=FN61150PGR'
+    - - :warning
+      - 'Line 1393: Product not found, record ignored., BaseItemCode=FO5202'
+    - - :warning
+      - 'Line 1394: Product not found, record ignored., BaseItemCode=FO5203'
+    - - :warning
+      - 'Line 1435: Product not found, record ignored., BaseItemCode=FO6132'
+    - - :warning
+      - 'Line 1436: Product not found, record ignored., BaseItemCode=FO6133'
+    - - :warning
+      - 'Line 1437: Product not found, record ignored., BaseItemCode=FO6134'
+    - - :warning
+      - 'Line 1438: Product not found, record ignored., BaseItemCode=FO6135'
+    - - :warning
+      - 'Line 1490: Product not found, record ignored., BaseItemCode=FO7198'
+    - - :warning
+      - 'Line 1491: Product not found, record ignored., BaseItemCode=FO7199'
+    - - :warning
+      - 'Line 1492: Product not found, record ignored., BaseItemCode=FO7200'
+    - - :warning
+      - 'Line 1493: Product not found, record ignored., BaseItemCode=FO7201'
+    - - :warning
+      - 'Line 1494: Product not found, record ignored., BaseItemCode=FO7202'
+    - - :warning
+      - 'Line 1495: Product not found, record ignored., BaseItemCode=FO7203'
+    - - :warning
+      - 'Line 1496: Product not found, record ignored., BaseItemCode=FO7204'
+- - Customers
+  - []
+- - Sales Data
+  - - - :error
+      - 'Line 3335: Base item code FN61150PGR does not match an active product'
+    - - :error
+      - 'Line 3772: Base item code FN61150PGR does not match an active product'
+    - - :error
+      - 'Line 4532: Base item code FN61147PGR does not match an active product'
+    - - :error
+      - 'Line 4533: Base item code FN61150PGR does not match an active product'
+    - - :error
+      - 'Line 4638: Base item code FN61150PGR does not match an active product'
+    - - :error
+      - 'Line 5872: Base item code FN61147PGR does not match an active product'
+    - - :error
+      - 'Line 5873: Base item code FN61150PGR does not match an active product'
+    - - :error
+      - 'Line 7303: Base item code FN61147PGR does not match an active product'
+    - - :error
+      - 'Line 7305: Base item code FN61150PGR does not match an active product'
+    - - :error
+      - 'Line 10373: Base item code FN61150PGR does not match an active product'
+    - - :error
+      - 'Line 19302: Base item code FN61150PGR does not match an active product'
+    - - :error
+      - 'Line 21137: Base item code FN61150PGR does not match an active product'
+    - - :error
+      - 'Line 23066: Base item code FN61147PGR does not match an active product'
+    - - :error
+      - 'Line 23316: Base item code FN61150PGR does not match an active product'
+- - Portal Orders
+  - []
+- - Portal Invoices
+  - []
+- - Territories
+  - []
+ |
+| 2026-06-12 17:17:17 | ---
+- - Inventory
+  - - - :warning
+      - 'Line 859: Product not found, record ignored., BaseItemCode=FN61147PGR'
+    - - :warning
+      - 'Line 864: Product not found, record ignored., BaseItemCode=FN61150PGR'
+    - - :warning
+      - 'Line 1393: Product not found, record ignored., BaseItemCode=FO5202'
+    - - :warning
+      - 'Line 1394: Product not found, record ignored., BaseItemCode=FO5203'
+    - - :warning
+      - 'Line 1435: Product not found, record ignored., BaseItemCode=FO6132'
+    - - :warning
+      - 'Line 1436: Product not found, record ignored., BaseItemCode=FO6133'
+    - - :warning
+      - 'Line 1437: Product not found, record ignored., BaseItemCode=FO6134'
+    - - :warning
+      - 'Line 1438: Product not found, record ignored., BaseItemCode=FO6135'
+    - - :warning
+      - 'Line 1490: Product not found, record ignored., BaseItemCode=FO7198'
+    - - :warning
+      - 'Line 1491: Product not found, record ignored., BaseItemCode=FO7199'
+    - - :warning
+      - 'Line 1492: Product not found, record ignored., BaseItemCode=FO7200'
+    - - :warning
+      - 'Line 1493: Product not found, record ignored., BaseItemCode=FO7201'
+    - - :warning
+      - 'Line 1494: Product not found, record ignored., BaseItemCode=FO7202'
+    - - :warning
+      - 'Line 1495: Product not found, record ignored., BaseItemCode=FO7203'
+    - - :warning
+      - 'Line 1496: Product not found, record ignored., BaseItemCode=FO7204'
+ |
+| 2026-06-12 17:12:15 | ---
+- - Inventory
+  - - - :error
+      - 'Line 1: Header field 15 is blank.'
+    - - :warning
+      - 'Line 859: Product not found, record ignored., BaseItemCode=FN61147PGR'
+    - - :warning
+      - 'Line 864: Product not found, record ignored., BaseItemCode=FN61150PGR'
+    - - :warning
+      - 'Line 1393: Product not found, record ignored., BaseItemCode=FO5202'
+    - - :warning
+      - 'Line 1394: Product not found, record ignored., BaseItemCode=FO5203'
+    - - :warning
+      - 'Line 1435: Product not found, record ignored., BaseItemCode=FO6132'
+    - - :warning
+      - 'Line 1436: Product not found, record ignored., BaseItemCode=FO6133'
+    - - :warning
+      - 'Line 1437: Product not found, record ignored., BaseItemCode=FO6134'
+    - - :warning
+      - 'Line 1438: Product not found, record ignored., BaseItemCode=FO6135'
+    - - :warning
+      - 'Line 1490: Product not found, record ignored., BaseItemCode=FO7198'
+    - - :warning
+      - 'Line 1491: Product not found, record ignored., BaseItemCode=FO7199'
+    - - :warning
+      - 'Line 1492: Product not found, record ignored., BaseItemCode=FO7200'
+    - - :warning
+      - 'Line 1493: Product not found, record ignored., BaseItemCode=FO7201'
+    - - :warning
+      - 'Line 1494: Product not found, record ignored., BaseItemCode=FO7202'
+    - - :warning
+      - 'Line 1495: Product not found, record ignored., BaseItemCode=FO7203'
+    - - :warning
+      - 'Line 1496: Product not found, record ignored., BaseItemCode=FO7204'
+ |
+| 2026-06-12 08:02:49 | ---
+- - Inventory
+  - - - :warning
+      - 'Line 859: Product not found, record ignored., BaseItemCode=FN61147PGR'
+    - - :warning
+      - 'Line 864: Product not found, record ignored., BaseItemCode=FN61150PGR'
+    - - :warning
+      - 'Line 1393: Product not found, record ignored., BaseItemCode=FO5202'
+    - - :warning
+      - 'Line 1394: Product not found, record ignored., BaseItemCode=FO5203'
+    - - :warning
+      - 'Line 1435: Product not found, record ignored., BaseItemCode=FO6132'
+    - - :warning
+      - 'Line 1436: Product not found, record ignored., BaseItemCode=FO6133'
+    - - :warning
+      - 'Line 1437: Product not found, record ignored., BaseItemCode=FO6134'
+    - - :warning
+      - 'Line 1438: Product not found, record ignored., BaseItemCode=FO6135'
+    - - :warning
+      - 'Line 1490: Product not found, record ignored., BaseItemCode=FO7198'
+    - - :warning
+      - 'Line 1491: Product not found, record ignored., BaseItemCode=FO7199'
+    - - :warning
+      - 'Line 1492: Product not found, record ignored., BaseItemCode=FO7200'
+    - - :warning
+      - 'Line 1493: Product not found, record ignored., BaseItemCode=FO7201'
+    - - :warning
+      - 'Line 1494: Product not found, record ignored., BaseItemCode=FO7202'
+    - - :warning
+      - 'Line 1495: Product not found, record ignored., BaseItemCode=FO7203'
+    - - :warning
+      - 'Line 1496: Product not found, record ignored., BaseItemCode=FO7204'
+- - Customers
+  - []
+- - Sales Data
+  - - - :error
+      - 'Line 3312: Base item code FN61150PGR does not match an active product'
+    - - :error
+      - 'Line 3749: Base item code FN61150PGR does not match an active product'
+    - - :error
+      - 'Line 4509: Base item code FN61147PGR does not match an active product'
+    - - :error
+      - 'Line 4510: Base item code FN61150PGR does not match an active product'
+    - - :error
+      - 'Line 4615: Base item code FN61150PGR does not match an active product'
+    - - :error
+      - 'Line 5849: Base item code FN61147PGR does not match an active product'
+    - - :error
+      - 'Line 5850: Base item code FN61150PGR does not match an active product'
+    - - :error
+      - 'Line 7297: Base item code FN61147PGR does not match an active product'
+    - - :error
+      - 'Line 7299: Base item code FN61150PGR does not match an active product'
+    - - :error
+      - 'Line 10352: Base item code FN61150PGR does not match an active product'
+    - - :error
+      - 'Line 19271: Base item code FN61150PGR does not match an active product'
+    - - :error
+      - 'Line 21108: Base item code FN61150PGR does not match an active product'
+    - - :error
+      - 'Line 23048: Base item code FN61147PGR does not match an active product'
+    - - :error
+      - 'Line 23304: Base item code FN61150PGR does not match an active product'
+- - Portal Orders
+  - []
+- - Portal Invoices
+  - []
+- - Territories
+  - []
+ |
+| 2026-06-12 07:01:19 | ---
+- - Inventory
+  - - - :warning
+      - 'Line 859: Product not found, record ignored., BaseItemCode=FN61147PGR'
+    - - :warning
+      - 'Line 864: Product not found, record ignored., BaseItemCode=FN61150PGR'
+    - - :warning
+      - 'Line 1393: Product not found, record ignored., BaseItemCode=FO5202'
+    - - :warning
+      - 'Line 1394: Product not found, record ignored., BaseItemCode=FO5203'
+    - - :warning
+      - 'Line 1435: Product not found, record ignored., BaseItemCode=FO6132'
+    - - :warning
+      - 'Line 1436: Product not found, record ignored., BaseItemCode=FO6133'
+    - - :warning
+      - 'Line 1437: Product not found, record ignored., BaseItemCode=FO6134'
+    - - :warning
+      - 'Line 1438: Product not found, record ignored., BaseItemCode=FO6135'
+    - - :warning
+      - 'Line 1490: Product not found, record ignored., BaseItemCode=FO7198'
+    - - :warning
+      - 'Line 1491: Product not found, record ignored., BaseItemCode=FO7199'
+    - - :warning
+      - 'Line 1492: Product not found, record ignored., BaseItemCode=FO7200'
+    - - :warning
+      - 'Line 1493: Product not found, record ignored., BaseItemCode=FO7201'
+    - - :warning
+      - 'Line 1494: Product not found, record ignored., BaseItemCode=FO7202'
+    - - :warning
+      - 'Line 1495: Product not found, record ignored., BaseItemCode=FO7203'
+    - - :warning
+      - 'Line 1496: Product not found, record ignored., BaseItemCode=FO7204'
+- - Sales Data
+  - - - :error
+      - 'Line 3313: Base item code FN61150PGR does not match an active product'
+    - - :error
+      - 'Line 3750: Base item code FN61150PGR does not match an active product'
+    - - :error
+      - 'Line 4510: Base item code FN61147PGR does not match an active product'
+    - - :error
+      - 'Line 4511: Base item code FN61150PGR does not match an active product'
+    - - :error
+      - 'Line 4616: Base item code FN61150PGR does not match an active product'
+    - - :error
+      - 'Line 5850: Base item code FN61147PGR does not match an active product'
+    - - :error
+      - 'Line 5851: Base item code FN61150PGR does not match an active product'
+    - - :error
+      - 'Line 7288: Base item code FN61147PGR does not match an active product'
+    - - :error
+      - 'Line 7290: Base item code FN61150PGR does not match an active product'
+    - - :error
+      - 'Line 10335: Base item code FN61150PGR does not match an active product'
+    - - :error
+      - 'Line 19218: Base item code FN61150PGR does not match an active product'
+    - - :error
+      - 'Line 21052: Base item code FN61150PGR does not match an active product'
+    - - :error
+      - 'Line 22970: Base item code FN61147PGR does not match an active product'
+    - - :error
+      - 'Line 23203: Base item code FN61150PGR does not match an active product'
+ |
+| 2026-06-11 08:02:35 | ---
+- - Inventory
+  - - - :warning
+      - 'Line 859: Product not found, record ignored., BaseItemCode=FN61147PGR'
+    - - :warning
+      - 'Line 864: Product not found, record ignored., BaseItemCode=FN61150PGR'
+    - - :warning
+      - 'Line 1393: Product not found, record ignored., BaseItemCode=FO5202'
+    - - :warning
+      - 'Line 1394: Product not found, record ignored., BaseItemCode=FO5203'
+    - - :warning
+      - 'Line 1435: Product not found, record ignored., BaseItemCode=FO6132'
+    - - :warning
+      - 'Line 1436: Product not found, record ignored., BaseItemCode=FO6133'
+    - - :warning
+      - 'Line 1437: Product not found, record ignored., BaseItemCode=FO6134'
+    - - :warning
+      - 'Line 1438: Product not found, record ignored., BaseItemCode=FO6135'
+    - - :warning
+      - 'Line 1490: Product not found, record ignored., BaseItemCode=FO7198'
+    - - :warning
+      - 'Line 1491: Product not found, record ignored., BaseItemCode=FO7199'
+    - - :warning
+      - 'Line 1492: Product not found, record ignored., BaseItemCode=FO7200'
+    - - :warning
+      - 'Line 1493: Product not found, record ignored., BaseItemCode=FO7201'
+    - - :warning
+      - 'Line 1494: Product not found, record ignored., BaseItemCode=FO7202'
+    - - :warning
+      - 'Line 1495: Product not found, record ignored., BaseItemCode=FO7203'
+    - - :warning
+      - 'Line 1496: Product not found, record ignored., BaseItemCode=FO7204'
+- - Customers
+  - []
+- - Sales Data
+  - - - :error
+      - 'Line 3312: Base item code FN61150PGR does not match an active product'
+    - - :error
+      - 'Line 3747: Base item code FN61150PGR does not match an active product'
+    - - :error
+      - 'Line 4507: Base item code FN61147PGR does not match an active product'
+    - - :error
+      - 'Line 4508: Base item code FN61150PGR does not match an active product'
+    - - :error
+      - 'Line 4613: Base item code FN61150PGR does not match an active product'
+    - - :error
+      - 'Line 5846: Base item code FN61147PGR does not match an active product'
+    - - :error
+      - 'Line 5847: Base item code FN61150PGR does not match an active product'
+    - - :error
+      - 'Line 7272: Base item code FN61147PGR does not match an active product'
+    - - :error
+      - 'Line 7274: Base item code FN61150PGR does not match an active product'
+    - - :error
+      - 'Line 10313: Base item code FN61150PGR does not match an active product'
+    - - :error
+      - 'Line 19225: Base item code FN61150PGR does not match an active product'
+    - - :error
+      - 'Line 21062: Base item code FN61150PGR does not match an active product'
+    - - :error
+      - 'Line 23002: Base item code FN61147PGR does not match an active product'
+    - - :error
+      - 'Line 23258: Base item code FN61150PGR does not match an active product'
+- - Portal Orders
+  - []
+- - Portal Invoices
+  - []
+- - Territories
+  - []
+ |
+| 2026-06-11 06:01:20 | ---
+- - Inventory
+  - - - :warning
+      - 'Line 859: Product not found, record ignored., BaseItemCode=FN61147PGR'
+    - - :warning
+      - 'Line 864: Product not found, record ignored., BaseItemCode=FN61150PGR'
+    - - :warning
+      - 'Line 1393: Product not found, record ignored., BaseItemCode=FO5202'
+    - - :warning
+      - 'Line 1394: Product not found, record ignored., BaseItemCode=FO5203'
+    - - :warning
+      - 'Line 1435: Product not found, record ignored., BaseItemCode=FO6132'
+    - - :warning
+      - 'Line 1436: Product not found, record ignored., BaseItemCode=FO6133'
+    - - :warning
+      - 'Line 1437: Product not found, record ignored., BaseItemCode=FO6134'
+    - - :warning
+      - 'Line 1438: Product not found, record ignored., BaseItemCode=FO6135'
+    - - :warning
+      - 'Line 1490: Product not found, record ignored., BaseItemCode=FO7198'
+    - - :warning
+      - 'Line 1491: Product not found, record ignored., BaseItemCode=FO7199'
+    - - :warning
+      - 'Line 1492: Product not found, record ignored., BaseItemCode=FO7200'
+    - - :warning
+      - 'Line 1493: Product not found, record ignored., BaseItemCode=FO7201'
+    - - :warning
+      - 'Line 1494: Product not found, record ignored., BaseItemCode=FO7202'
+    - - :warning
+      - 'Line 1495: Product not found, record ignored., BaseItemCode=FO7203'
+    - - :warning
+      - 'Line 1496: Product not found, record ignored., BaseItemCode=FO7204'
+- - Sales Data
+  - - - :error
+      - 'Line 3312: Base item code FN61150PGR does not match an active product'
+    - - :error
+      - 'Line 3747: Base item code FN61150PGR does not match an active product'
+    - - :error
+      - 'Line 4507: Base item code FN61147PGR does not match an active product'
+    - - :error
+      - 'Line 4508: Base item code FN61150PGR does not match an active product'
+    - - :error
+      - 'Line 4613: Base item code FN61150PGR does not match an active product'
+    - - :error
+      - 'Line 5846: Base item code FN61147PGR does not match an active product'
+    - - :error
+      - 'Line 5847: Base item code FN61150PGR does not match an active product'
+    - - :error
+      - 'Line 7272: Base item code FN61147PGR does not match an active product'
+    - - :error
+      - 'Line 7274: Base item code FN61150PGR does not match an active product'
+    - - :error
+      - 'Line 10313: Base item code FN61150PGR does not match an active product'
+    - - :error
+      - 'Line 19225: Base item code FN61150PGR does not match an active product'
+    - - :error
+      - 'Line 21062: Base item code FN61150PGR does not match an active product'
+    - - :error
+      - 'Line 23002: Base item code FN61147PGR does not match an active product'
+    - - :error
+      - 'Line 23258: Base item code FN61150PGR does not match an active product'
+ |
+| 2026-06-10 08:02:51 | ---
+- - Inventory
+  - - - :warning
+      - 'Line 859: Product not found, record ignored., BaseItemCode=FN61147PGR'
+    - - :warning
+      - 'Line 864: Product not found, record ignored., BaseItemCode=FN61150PGR'
+    - - :warning
+      - 'Line 1393: Product not found, record ignored., BaseItemCode=FO5202'
+    - - :warning
+      - 'Line 1394: Product not found, record ignored., BaseItemCode=FO5203'
+    - - :warning
+      - 'Line 1435: Product not found, record ignored., BaseItemCode=FO6132'
+    - - :warning
+      - 'Line 1436: Product not found, record ignored., BaseItemCode=FO6133'
+    - - :warning
+      - 'Line 1437: Product not found, record ignored., BaseItemCode=FO6134'
+    - - :warning
+      - 'Line 1438: Product not found, record ignored., BaseItemCode=FO6135'
+    - - :warning
+      - 'Line 1490: Product not found, record ignored., BaseItemCode=FO7198'
+    - - :warning
+      - 'Line 1491: Product not found, record ignored., BaseItemCode=FO7199'
+    - - :warning
+      - 'Line 1492: Product not found, record ignored., BaseItemCode=FO7200'
+    - - :warning
+      - 'Line 1493: Product not found, record ignored., BaseItemCode=FO7201'
+    - - :warning
+      - 'Line 1494: Product not found, record ignored., BaseItemCode=FO7202'
+    - - :warning
+      - 'Line 1495: Product not found, record ignored., BaseItemCode=FO7203'
+    - - :warning
+      - 'Line 1496: Product not found, record ignored., BaseItemCode=FO7204'
+- - Customers
+  - []
+- - Sales Data
+  - - - :error
+      - 'Line 3293: Base item code FN61150PGR does not match an active product'
+    - - :error
+      - 'Line 3727: Base item code FN61150PGR does not match an active product'
+    - - :error
+      - 'Line 4483: Base item code FN61147PGR does not match an active product'
+    - - :error
+      - 'Line 4484: Base item code FN61150PGR does not match an active product'
+    - - :error
+      - 'Line 4589: Base item code FN61150PGR does not match an active product'
+    - - :error
+      - 'Line 5818: Base item code FN61147PGR does not match an active product'
+    - - :error
+      - 'Line 5819: Base item code FN61150PGR does not match an active product'
+    - - :error
+      - 'Line 7240: Base item code FN61147PGR does not match an active product'
+    - - :error
+      - 'Line 7242: Base item code FN61150PGR does not match an active product'
+    - - :error
+      - 'Line 10266: Base item code FN61150PGR does not match an active product'
+    - - :error
+      - 'Line 19146: Base item code FN61150PGR does not match an active product'
+    - - :error
+      - 'Line 20983: Base item code FN61150PGR does not match an active product'
+    - - :error
+      - 'Line 22923: Base item code FN61147PGR does not match an active product'
+    - - :error
+      - 'Line 23179: Base item code FN61150PGR does not match an active product'
+- - Portal Orders
+  - []
+- - Portal Invoices
+  - []
+- - Territories
+  - []
+ |

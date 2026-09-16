@@ -1,0 +1,34 @@
+# Q-17 Results — Palecek (pf, org_id=32)
+- **Query**: Dormant eCat Customer Identification
+- **Period**: Trailing 12 months (ordered 4-12mo ago, not in last 3mo)
+- **Run date**: 2026-04-21
+
+## Recently Lapsed (Top 25 by Historical eCat GMV)
+
+| Customer # | Name | State | Last eCat Order | Historical Orders | Historical GMV |
+|-----------|------|-------|-----------------|-------------------|---------------|
+| 50002 | FURNITURELAND SOUTH INC | NC | 2025-06-16 | 8 | $627,652.40 |
+| 125440 | VERDAY DESIGN STUDIO | FL | 2025-12-08 | 9 | $403,797.02 |
+| 68516 | CABOT HOUSE FURNITURE | MA | 2025-10-16 | 5 | $324,735.56 |
+| 78992 | FLORA HOME | MA | 2026-01-16 | 3 | $217,498.04 |
+| 71589 | ZING PATIO | FL | 2025-08-29 | 1 | $146,611.20 |
+| 78318 | STYLE HOUSE LA, INC. | CA | 2025-07-30 | 2 | $128,534.00 |
+| 121297 | NATALIE JOY INTERIORS | UT | 2025-09-18 | 3 | $111,993.20 |
+| 37987 | FRITZ PORTER | SC | 2025-07-25 | 6 | $96,323.00 |
+| 125783 | 95 DESIGNS | MA | 2025-06-18 | 7 | $81,863.50 |
+| 72851 | WARD DESIGN GROUP | NC | 2026-01-19 | 3 | $81,406.50 |
+| 74218 | MANTRA FURNISHINGS, LLC | FL | 2025-11-13 | 4 | $77,861.60 |
+| 33738 | SUDA SHADES & DESIGN LLC | HI | 2025-09-16 | 3 | $70,721.60 |
+| 82143 | VALLONE DESIGN | AZ | 2026-01-08 | 9 | $62,527.20 |
+| 35186 | LISA DAVENPORT DESIGNS | CT | 2025-08-27 | 7 | $62,133.50 |
+| 42767 | WIDELL + BOSCHETTI | NJ | 2025-11-24 | 3 | $60,184.00 |
+| 126373 | EMERALD & OAK DESIGN | NC | 2025-07-07 | 2 | $52,643.40 |
+| 48599 | KNOX FURNITURE | WI | 2025-11-24 | 4 | $50,347.20 |
+| 37911 | WHITE HART DESIGN | MA | 2025-11-10 | 9 | $47,208.24 |
+| 77384 | THE TRUE HOUSE | CA | 2026-01-20 | 6 | $45,739.00 |
+| 79906 | BOND DESIGN COMPANY LLC | UT | 2025-10-31 | 2 | $45,711.10 |
+| 70776 | KATHERINE ELIZABETH DESIGNS | IL | 2025-11-14 | 3 | $45,484.60 |
+| 124953 | THOMAS OAKLEY DESIGNS | TX | 2025-10-29 | 3 | $44,264.50 |
+| 126564 | FOCUS CONSTRUCTION OF NW FL | FL | 2026-01-16 | 7 | $44,235.20 |
+| 126121 | ASTRAL HOUSE LLC | FL | 2025-08-29 | 7 | $43,048.10 |
+| 74781 | JANE CLARK INTERIORS | TX | 2025-09-24 | 1 | $40,153.50 |

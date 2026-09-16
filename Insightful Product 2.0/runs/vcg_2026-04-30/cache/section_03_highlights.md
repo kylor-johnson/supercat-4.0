@@ -1,0 +1,9 @@
+# §3 Customer & Buyer Intelligence — Highlight Candidates
+
+1. **95% of your account base is dormant — only 256 of 5,170 accounts ordered via eCat in the trailing 12 months** — With 4,138 accounts never activated and 776 lapsed, the eCat activation funnel narrows dramatically from 5,170 total records to just 37 active in the last 90 days. [→ §customers]
+2. **$1.2M+ in dormant high-value accounts going silent after January 2026** — 25 accounts exceeding $1.2M in combined historical eCat GMV have gone quiet for 90+ days; the top 5 alone (Wiseway Supply, Capitol Lighting, Jeid Studio, Xiomana Home, Acquisitions) represent $348K. Most last ordered during what appears to be a January market event but never returned. [→ §customers]
+3. **K & T Interiors orders every 6 days at $69K LTM — but 3 high-frequency accounts are decelerating** — Dwellings A Design Shop (4.7× overdue), Home Lighting of Frazer (5.0× overdue), and Leopold's Furniture (4.8× overdue) have broken their established reorder cadence — early warning signals before they go fully dormant. [→ §customers]
+4. **January 2026 spike drove 67 first-time eCat buyers — 30% of the full-year total in one month** — All 221 new buyers over the trailing 12 months were acquired via iPad through rep-assisted sales; Pete Gamber (16) and Jodie Orange (14) led acquisition. The January cohort's retention is the critical open question. [→ §customers]
+
+## Priority Action Candidate
+- **URGENCY**: Re-engage the top 25 dormant high-value accounts — their combined historical eCat value exceeds $1.2M, and most were active as recently as January 2026. Start with the top 5 by GMV (Wiseway Supply at $74K, Capitol Lighting at $70K, Jeid Studio at $69K) and simultaneously follow up with the 67 January first-time buyers to convert market-event activation into ongoing purchasing before they lapse permanently [HYPOTHETICAL]. [→ §customers]

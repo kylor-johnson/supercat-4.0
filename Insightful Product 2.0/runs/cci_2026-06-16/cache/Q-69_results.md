@@ -1,0 +1,8 @@
+# Q-69 Results — Currey & Company (cci, org_id=161)
+- **Query**: Q-69 — Order Timing Distribution
+- **Period**: LTM (2025-06-16 to 2026-06-16)
+- **Row count**: 0
+- **Run date**: 2026-06-16
+
+
+*(No data returned)*

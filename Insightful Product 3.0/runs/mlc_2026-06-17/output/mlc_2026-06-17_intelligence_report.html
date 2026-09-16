@@ -1,0 +1,1316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Matteo Lighting — Customer Intelligence Report</title>
+<style>
+    :root {
+      --bg: #FAFAF8;
+      --surface: #FFFFFF;
+      --panel: #F5F4F1;
+      --border: #E8E5DE;
+      --border-light: #F0EDE6;
+      --text: #2C2925;
+      --text-secondary: #6B6660;
+      --text-muted: #9B958C;
+      --accent: #C47A4A;
+      --accent-deep: #89523B;
+      --accent-glow: rgba(196,122,74,.08);
+      --accent-border: rgba(196,122,74,.2);
+      --ok: #4A8C5C;
+      --ok-bg: #EDF7F0;
+      --ok-border: rgba(74,140,92,.2);
+      --warn: #B8863A;
+      --warn-bg: #FDF6EC;
+      --warn-border: rgba(184,134,58,.2);
+      --danger: #C0524A;
+      --danger-bg: #FDF0EF;
+      --danger-border: rgba(192,82,74,.2);
+      --info: #4A7A8C;
+      --info-bg: #EDF4F7;
+      --info-border: rgba(74,122,140,.2);
+      --fd: 'DM Sans', system-ui, sans-serif;
+      --fm: 'IBM Plex Mono', ui-monospace, monospace;
+      --r: 10px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font: 400 14px/1.65 var(--fd); color: var(--text); background: var(--bg); -webkit-font-smoothing: antialiased; }
+
+    .page { max-width: 920px; margin: 0 auto; padding: 0 24px 40px; }
+
+    /* ── Header ── */
+    .header { padding: 48px 0 32px; border-bottom: 1px solid var(--border); margin-bottom: 32px; position: relative; }
+    .h-brand { display: flex; align-items: center; gap: 8px; margin-bottom: 20px; }
+    .h-brand span { font: 500 10px/1 var(--fm); letter-spacing: .12em; text-transform: uppercase; color: var(--text-muted); }
+    .h-customer { font: 700 36px/1.1 var(--fd); color: var(--text); letter-spacing: -.01em; margin-bottom: 4px; }
+    .h-type { font: 400 15px/1 var(--fd); color: var(--text-secondary); margin-bottom: 16px; }
+    .h-meta { font: 400 11px/1 var(--fm); color: var(--text-muted); letter-spacing: .02em; }
+    .h-accent { position: absolute; bottom: -1px; left: 0; width: 64px; height: 2px; background: var(--accent); }
+
+    /* ── Key Highlights ── */
+    .highlights { margin: 8px 0 28px; padding: 0; list-style: none; counter-reset: hl; }
+    .highlights li { counter-increment: hl; padding: 12px 0; border-bottom: 1px solid var(--border-light); font: 400 13.5px/1.65 var(--fd); color: var(--text-secondary); padding-left: 36px; position: relative; }
+    .highlights li:last-child { border-bottom: none; }
+    .highlights li::before { content: counter(hl); position: absolute; left: 0; top: 14px; display: flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: var(--accent-glow); border: 1px solid var(--accent-border); font: 600 10px/1 var(--fm); color: var(--accent-deep); }
+    .highlights li strong { color: var(--text); font-weight: 600; }
+    .highlights a { color: var(--accent-deep); text-decoration: none; font-weight: 500; border-bottom: 1px solid var(--accent-border); transition: border-color .12s; }
+    .highlights a:hover { border-bottom-color: var(--accent); }
+    .priority-title a { color: inherit; text-decoration: none; border-bottom: 1px solid transparent; transition: border-color .12s; }
+    .priority-title a:hover { border-bottom-color: var(--accent); color: var(--accent-deep); }
+
+    /* ── Sections ── */
+    .section { margin-bottom: 32px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 28px 32px; }
+    .section-title { font: 700 20px/1.2 var(--fd); color: var(--text); margin-bottom: 4px; padding-bottom: 12px; border-bottom: 1px solid var(--border-light); }
+    .section-sub { font: 400 13px/1 var(--fd); color: var(--text-muted); margin-bottom: 20px; margin-top: 8px; }
+    .subsection { margin-top: 24px; }
+    .subsection-title { font: 600 15px/1.3 var(--fd); color: var(--text); margin-bottom: 12px; }
+    .sub-label { font: 500 9px/1 var(--fm); letter-spacing: .08em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; }
+    .section-num { font: 500 11px/1 var(--fm); color: var(--text-muted); margin-right: 8px; }
+    .section-light { background: var(--panel); border-color: var(--border-light); }
+    .what-this-means { margin-top: 16px; padding: 14px 18px; background: var(--panel); border-left: 3px solid var(--accent); border-radius: 0 6px 6px 0; font: 400 13px/1.6 var(--fd); color: var(--text-secondary); }
+    .what-this-means strong { color: var(--text); font-weight: 600; }
+
+    /* ── Priority Actions ── */
+    .priorities { display: grid; gap: 12px; margin-bottom: 32px; }
+    .priority { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 16px 20px; display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: start; }
+    .priority-badge { font: 700 9px/1 var(--fm); letter-spacing: .06em; text-transform: uppercase; padding: 4px 8px; border-radius: 4px; white-space: nowrap; margin-top: 2px; }
+    .priority-badge.high { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-border); }
+    .priority-badge.medium { background: var(--warn-bg); color: var(--warn); border: 1px solid var(--warn-border); }
+    .priority-badge.low { background: var(--info-bg); color: var(--info); border: 1px solid var(--info-border); }
+    .priority-title { font: 600 13px/1.35 var(--fd); color: var(--text); margin-bottom: 3px; }
+    .priority-desc { font: 400 12px/1.5 var(--fd); color: var(--text-secondary); }
+    .priority-impact { font: 600 12px/1 var(--fm); color: var(--ok); white-space: nowrap; margin-top: 2px; }
+
+    /* ── Metric cards ── */
+    .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 16px 0; }
+    .metrics-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; margin: 16px 0; }
+    .metric { background: var(--panel); border-radius: 8px; padding: 14px 16px; }
+    .metric-card { background: var(--panel); border-radius: 8px; padding: 16px; }
+    .metric-label { font: 500 9px/1 var(--fm); letter-spacing: .08em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
+    .metric-value { font: 700 22px/1.2 var(--fd); color: var(--text); }
+    .metric-val { font: 600 24px/1 var(--fd); color: var(--text); margin-bottom: 4px; }
+    .metric-note { font: 400 11px/1.3 var(--fd); color: var(--text-muted); margin-top: 2px; }
+    .metric-note.ok { color: var(--ok); font-weight: 500; }
+    .metric-note.warn { color: var(--warn); font-weight: 500; }
+    .metric-note.danger { color: var(--danger); font-weight: 500; }
+
+    /* ── Tables ── */
+    table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
+    thead { background: var(--panel); }
+    th { padding: 8px 12px; text-align: left; font: 600 10px/1 var(--fm); letter-spacing: .05em; text-transform: uppercase; color: var(--text-muted); border-bottom: 1px solid var(--border); }
+    td { padding: 8px 12px; border-bottom: 1px solid var(--border-light); color: var(--text-secondary); }
+    tbody tr:hover { background: var(--accent-glow); }
+    td strong { color: var(--text); font-weight: 600; }
+    .row-highlight { background: var(--ok-bg); }
+    .row-warn { background: var(--warn-bg); }
+    .row-danger { background: var(--danger-bg); }
+    .row-total { font-weight: 600; background: var(--panel); }
+    .row-total td { color: var(--text); border-bottom: 2px solid var(--border); }
+    .prose { font: 400 13.5px/1.7 var(--fd); color: var(--text-secondary); margin-bottom: 16px; }
+    .prose strong { color: var(--text); }
+
+    /* ── Badges ── */
+    .badge { display: inline-block; padding: 3px 8px; border-radius: 4px; font: 600 10px/1 var(--fm); letter-spacing: .03em; text-transform: uppercase; }
+    .badge-ok { background: var(--ok-bg); color: var(--ok); border: 1px solid var(--ok-border); }
+    .badge-warn { background: var(--warn-bg); color: var(--warn); border: 1px solid var(--warn-border); }
+    .badge-danger { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-border); }
+    .badge-info { background: var(--info-bg); color: var(--info); border: 1px solid var(--info-border); }
+    .badge.ok { background: var(--ok-bg); color: var(--ok); border: 1px solid var(--ok-border); }
+    .badge.warn { background: var(--warn-bg); color: var(--warn); border: 1px solid var(--warn-border); }
+    .badge.danger { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-border); }
+    .badge.info { background: var(--info-bg); color: var(--info); border: 1px solid var(--info-border); }
+    .badge.muted { background: var(--panel); color: var(--text-muted); border: 1px solid var(--border); }
+
+    /* ── Callout boxes ── */
+    .callout { border-radius: 8px; padding: 16px 20px; margin: 16px 0; font-size: 13px; line-height: 1.6; }
+    .callout-title { font: 600 13px/1 var(--fd); margin-bottom: 6px; }
+    .callout.alert { background: var(--danger-bg); border-left: 3px solid var(--danger); }
+    .callout.alert .callout-title { color: var(--danger); }
+    .callout.opportunity { background: var(--ok-bg); border-left: 3px solid var(--ok); }
+    .callout.opportunity .callout-title { color: var(--ok); }
+    .callout.insight { background: var(--panel); border-left: 3px solid var(--accent); }
+    .callout.insight .callout-title { color: var(--accent-deep); }
+    .callout.note { background: var(--info-bg); border-left: 3px solid var(--info); }
+    .callout.note .callout-title { color: var(--info); }
+    .callout ul { margin: 8px 0 0 20px; }
+    .callout li { margin: 4px 0; }
+
+    /* ── Coaching cards ── */
+    .coaching-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 20px 24px; margin: 12px 0; border-top: 3px solid var(--warn); }
+    .coaching-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+    .coaching-name { font: 600 15px/1 var(--fd); color: var(--text); }
+    .coaching-body { font: 400 13px/1.6 var(--fd); color: var(--text-secondary); margin-bottom: 8px; }
+    .coaching-body strong { color: var(--text); }
+    .coaching-action { font: 500 13px/1.5 var(--fd); color: var(--text); margin-bottom: 6px; }
+    .coaching-impact { display: inline-block; font: 500 12px/1 var(--fm); color: var(--ok); background: var(--ok-bg); border: 1px solid var(--ok-border); padding: 5px 10px; border-radius: 5px; }
+
+    /* ── Progressive disclosure (subsection) ── */
+    details { margin: 12px 0; }
+    details > summary { display: flex; align-items: center; gap: 8px; font: 500 13px/1 var(--fd); color: var(--accent-deep); cursor: pointer; list-style: none; padding: 10px 14px; user-select: none; background: var(--panel); border: 1px solid var(--border); border-radius: 6px; transition: all .15s; }
+    details > summary::-webkit-details-marker { display: none; }
+    details > summary::before { content: '\25B8'; font-size: 10px; transition: transform .15s; display: inline-block; color: var(--accent); }
+    details[open] > summary::before { transform: rotate(90deg); }
+    details > summary:hover { background: var(--accent-glow); border-color: var(--accent-border); color: var(--accent); }
+    details[open] > summary { border-radius: 6px 6px 0 0; border-bottom-color: transparent; background: var(--accent-glow); }
+    details > summary::after { content: 'click to expand'; margin-left: auto; font: 400 10px/1 var(--fm); color: var(--text-muted); letter-spacing: .02em; }
+    details[open] > summary::after { content: 'click to collapse'; }
+
+    /* ── Section-level collapse ── */
+    details.section-collapse { margin: 0 0 32px; border: none; background: none; }
+    details.section-collapse > summary { display: block; background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 24px 32px; cursor: pointer; transition: all .15s; }
+    details.section-collapse > summary::before { content: none; }
+    details.section-collapse > summary::after { content: none; }
+    details.section-collapse > summary:hover { border-color: var(--accent-border); box-shadow: 0 2px 8px rgba(196,122,74,.08); }
+    details.section-collapse > summary .section-title { margin-bottom: 4px; padding-bottom: 0; border-bottom: none; }
+    details.section-collapse > summary .section-sub { margin-bottom: 0; }
+    details.section-collapse > summary .section-contents { font: 400 12px/1.4 var(--fd); color: var(--text-muted); margin-top: 6px; }
+    details.section-collapse > summary .expand-hint { display: inline-block; margin-top: 10px; font: 500 10px/1 var(--fm); letter-spacing: .04em; text-transform: uppercase; color: var(--accent); opacity: .7; transition: opacity .12s; }
+    details.section-collapse > summary:hover .expand-hint { opacity: 1; }
+    details.section-collapse[open] > summary { border-radius: var(--r) var(--r) 0 0; border-bottom-color: var(--border-light); background: var(--surface); }
+    details.section-collapse[open] > summary .expand-hint { display: none; }
+    details.section-collapse > .section { margin-bottom: 0; border-top: none; border-radius: 0 0 var(--r) var(--r); }
+    details.section-collapse.light > summary { background: var(--panel); }
+    details.section-collapse.light[open] > summary { background: var(--panel); }
+    details.section-collapse.light > .section { background: var(--panel); }
+
+    /* ── Peer benchmarking — base ── */
+    .peer-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 20px 24px; margin: 12px 0; }
+    .peer-cohort-label { font: 500 10px/1 var(--fm); letter-spacing: .08em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; }
+    .peer-cohort-value { font: 600 14px/1 var(--fd); color: var(--text); margin-bottom: 4px; }
+    .peer-cohort-sub { font: 400 11px/1.4 var(--fd); color: var(--text-muted); margin-bottom: 16px; }
+    .peer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 16px; margin-top: 12px; }
+    .peer-metric { text-align: center; padding: 12px; background: var(--panel); border-radius: 8px; }
+    .peer-label { font: 500 9px/1 var(--fm); letter-spacing: .08em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
+    .peer-value { font: 700 20px/1.2 var(--fd); color: var(--text); }
+    .peer-compare { font: 400 11px/1 var(--fm); margin-top: 2px; }
+    .peer-compare.above { color: var(--ok); }
+    .peer-compare.below { color: var(--warn); }
+    .peer-compare.on-par { color: var(--text-muted); }
+    .peer-confidence { font: 400 11px/1.5 var(--fd); color: var(--text-muted); margin-top: 12px; font-style: italic; }
+
+    /* ── Peer benchmarking — hero stat ── */
+    .peer-hero { background: var(--accent-glow); border: 1px solid var(--accent-border); border-radius: var(--r); padding: 22px 26px; margin-bottom: 20px; display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: center; }
+    .peer-hero-left { }
+    .peer-hero-eyebrow { font: 500 9px/1 var(--fm); letter-spacing: .1em; text-transform: uppercase; color: var(--accent-deep); margin-bottom: 8px; }
+    .peer-hero-stat { font: 700 32px/1.1 var(--fd); color: var(--text); letter-spacing: -.02em; margin-bottom: 4px; }
+    .peer-hero-context { font: 400 13px/1.55 var(--fd); color: var(--text-secondary); max-width: 440px; }
+    .peer-hero-context strong { color: var(--text); font-weight: 600; }
+    .peer-hero-context .delta-above { color: var(--ok); font-weight: 600; }
+    .peer-hero-context .delta-below { color: var(--warn); font-weight: 600; }
+    .peer-hero-right { text-align: center; flex-shrink: 0; }
+    .peer-hero-pctile { font: 600 13px/1 var(--fm); padding: 6px 12px; border-radius: 20px; white-space: nowrap; }
+    .peer-hero-pctile.above { background: var(--ok-bg); color: var(--ok); border: 1px solid var(--ok-border); }
+    .peer-hero-pctile.below { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-border); }
+    .peer-hero-pctile.on-par { background: var(--panel); color: var(--text-muted); border: 1px solid var(--border); }
+    .peer-hero-pctile-label { font: 400 9px/1.4 var(--fm); color: var(--text-muted); letter-spacing: .04em; text-transform: uppercase; margin-top: 4px; }
+    .peer-hero-metric { flex: 1; }
+    .peer-hero-label { font: 500 10px/1 var(--fm); color: var(--text-muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 6px; }
+    .peer-hero-value { font: 700 32px/1 var(--fd); color: var(--text); margin-bottom: 4px; }
+    .peer-hero-sentence { font: 400 13px/1.5 var(--fd); color: var(--text-secondary); }
+
+    /* ── Peer benchmarking — narrative metric rows ── */
+    .peer-metric-rows { margin-top: 8px; }
+    .peer-metric-row { display: grid; grid-template-columns: 1fr auto; gap: 16px; align-items: start; padding: 14px 0; border-bottom: 1px solid var(--border-light); }
+    .peer-metric-row:last-child { border-bottom: none; }
+    .peer-metric-title { font: 600 12px/1 var(--fm); letter-spacing: .03em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
+    .peer-metric-sentence { font: 400 13px/1.6 var(--fd); color: var(--text-secondary); }
+    .peer-metric-sentence strong { color: var(--text); font-weight: 600; }
+    .peer-metric-sentence .delta-above { color: var(--ok); font-weight: 600; }
+    .peer-metric-sentence .delta-below { color: var(--warn); font-weight: 600; }
+    .peer-metric-sentence .delta-par { color: var(--text-muted); font-weight: 500; }
+    .peer-range-bar { display: flex; align-items: center; gap: 6px; margin-top: 6px; }
+    .peer-range-label { font: 400 9px/1 var(--fm); color: var(--text-muted); white-space: nowrap; letter-spacing: .02em; }
+    .peer-range-track { flex: 1; height: 4px; background: var(--border); border-radius: 2px; position: relative; min-width: 80px; }
+    .peer-range-marker { position: absolute; top: 50%; width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--surface); box-shadow: 0 0 0 1.5px currentColor; transform: translate(-50%, -50%); }
+    .peer-range-marker.above { color: var(--ok); background: var(--ok); }
+    .peer-range-marker.below { color: var(--warn); background: var(--warn); }
+    .peer-range-marker.on-par { color: var(--text-muted); background: var(--text-muted); }
+    .peer-quartile-pill { font: 700 10px/1 var(--fm); letter-spacing: .04em; padding: 4px 9px; border-radius: 20px; white-space: nowrap; flex-shrink: 0; }
+    .peer-quartile-pill.q4 { background: var(--ok-bg); color: var(--ok); border: 1px solid var(--ok-border); }
+    .peer-quartile-pill.q3 { background: var(--info-bg); color: var(--info); border: 1px solid var(--info-border); }
+    .peer-quartile-pill.q2 { background: var(--warn-bg); color: var(--warn); border: 1px solid var(--warn-border); }
+    .peer-quartile-pill.q1 { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-border); }
+    .quartile-pill { font: 700 10px/1 var(--fm); letter-spacing: .04em; padding: 4px 9px; border-radius: 20px; white-space: nowrap; flex-shrink: 0; }
+    .quartile-pill.q4 { background: var(--ok-bg); color: var(--ok); border: 1px solid var(--ok-border); }
+    .quartile-pill.q3 { background: var(--info-bg); color: var(--info); border: 1px solid var(--info-border); }
+    .quartile-pill.q2 { background: var(--warn-bg); color: var(--warn); border: 1px solid var(--warn-border); }
+    .quartile-pill.q1 { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-border); }
+
+    /* ── Peer benchmarking — top performers ── */
+    .top-performer-list { margin-top: 4px; }
+    .top-performer-row { display: flex; gap: 12px; align-items: flex-start; padding: 11px 0; border-bottom: 1px solid var(--border-light); }
+    .top-performer-row:last-child { border-bottom: none; }
+    .top-performer-icon { width: 26px; height: 26px; border-radius: 6px; background: var(--accent-glow); border: 1px solid var(--accent-border); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 12px; margin-top: 1px; }
+    .top-performer-text { font: 400 13px/1.55 var(--fd); color: var(--text-secondary); }
+    .top-performer-text strong { color: var(--text); font-weight: 600; }
+
+    /* ── Data Confidence Footer ── */
+    .data-confidence { background: var(--info-bg, var(--panel)); border-left: 3px solid var(--info, var(--accent)); border-radius: var(--r); padding: 12px 16px; margin: 20px 0; font: 400 12px/1.6 var(--fd); color: var(--text-muted); }
+    .data-confidence.limited { background: var(--warn-bg); border-left-color: var(--warn); }
+    .data-confidence-label { display: inline-block; font: 600 9px/1 var(--fm); letter-spacing: .06em; text-transform: uppercase; padding: 2px 6px; border-radius: 3px; background: var(--panel); color: var(--text-muted); border: 1px solid var(--border); margin-right: 8px; vertical-align: middle; }
+    .data-confidence.limited .data-confidence-label { background: var(--warn-bg); border-color: var(--warn-border); color: var(--warn); }
+    .data-confidence-action { font: 500 12px/1.6 var(--fd); color: var(--text-secondary); }
+
+    /* ── TOC strip (sticky) ── */
+    .toc-strip { position: sticky; top: 0; z-index: 100; display: flex; flex-wrap: nowrap; gap: 5px; padding: 12px 0; margin-bottom: 28px; background: var(--bg); border-bottom: 1px solid var(--border); overflow-x: auto; transition: box-shadow .2s; }
+    .toc-strip.stuck { box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+    .toc-strip a { display: inline-block; padding: 4px 10px; font: 500 10.5px/1 var(--fd); color: var(--text-secondary); text-decoration: none; background: var(--panel); border: 1px solid var(--border-light); border-radius: 20px; transition: all .12s; white-space: nowrap; }
+    .toc-strip a:hover { color: var(--accent); background: var(--accent-glow); border-color: var(--accent-border); }
+    .toc-strip a.active { color: var(--accent-deep); font-weight: 600; background: var(--accent-glow); border-color: var(--accent-border); }
+
+    /* ── Appendix ── */
+    .appendix-row { display: grid; grid-template-columns: 200px 1fr; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border-light); font-size: 13px; }
+    .appendix-row:last-child { border-bottom: none; }
+    .appendix-label { font: 500 12px/1.5 var(--fd); color: var(--text); }
+    .appendix-value { font: 400 12px/1.5 var(--fd); color: var(--text-secondary); }
+    .data-tag { display: inline-block; font: 500 9px/1 var(--fm); letter-spacing: .04em; text-transform: uppercase; padding: 2px 6px; border-radius: 3px; background: var(--panel); color: var(--text-muted); border: 1px solid var(--border); margin-right: 4px; }
+
+    /* ── Report mode banner (activation / reactivation) ── */
+    .mode-banner { border-radius: 8px; padding: 10px 18px; margin-bottom: 20px; font: 500 12px/1.5 var(--fd); display: flex; align-items: center; gap: 10px; }
+    .mode-banner.activation { background: var(--ok-bg); border: 1px solid var(--ok-border); color: var(--ok); }
+    .mode-banner.reactivation { background: var(--warn-bg); border: 1px solid var(--warn-border); color: var(--warn); }
+    .mode-banner strong { font-weight: 600; }
+
+    /* ── Footer ── */
+    .footer { margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--border); text-align: center; }
+    .footer-brand { font: 600 10px/1 var(--fm); letter-spacing: .12em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
+    .footer-text { font: 400 11px/1.5 var(--fd); color: var(--text-muted); }
+
+    /* ── Responsive ── */
+    @media (max-width: 600px) {
+      .h-customer { font-size: 26px; }
+      .section { padding: 20px 16px; }
+      .metrics { grid-template-columns: repeat(2, 1fr); }
+      .priority { grid-template-columns: 1fr; }
+      .priority-impact { margin-top: 4px; }
+      .peer-grid { grid-template-columns: repeat(2, 1fr); }
+      .appendix-row { grid-template-columns: 1fr; }
+      th, td { padding: 6px 8px; font-size: 12px; }
+    }
+
+    @media print {
+      @page {
+        size: letter;
+        margin: 18mm 15mm 15mm 15mm;
+      }
+      body {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        background: #fff;
+        orphans: 3;
+        widows: 3;
+      }
+      .toc-strip { display: none; }
+      .page { max-width: 100%; margin: 0; padding: 0; }
+      details[open] > summary { display: none; }
+      details > div, details > table { display: block !important; }
+
+      .header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        padding: 4px 0 3px;
+        margin-bottom: 0;
+        border-bottom: 1.5px solid #C47A4A;
+        background: #fff;
+      }
+      .h-brand { margin-bottom: 2px; }
+      .h-brand span { font-size: 8px; }
+      .h-customer { font-size: 13px; margin-bottom: 0; }
+      .h-type { display: none; }
+      .h-meta { display: none; }
+      .h-accent { display: none; }
+
+      .section-title { break-after: avoid; }
+      .subsection-title { break-after: avoid; }
+      .sub-label { break-after: avoid; }
+      .callout-title { break-after: avoid; }
+      .coaching-header { break-after: avoid; }
+
+      .priority { break-inside: avoid; }
+      .metrics { break-inside: avoid; }
+      .metric { break-inside: avoid; }
+      .callout { break-inside: avoid; }
+      .coaching-card { break-inside: avoid; }
+      .what-this-means { break-inside: avoid; }
+      .highlights li { break-inside: avoid; }
+      .peer-metric { break-inside: avoid; }
+      .appendix-row { break-inside: avoid; }
+      .data-confidence { break-inside: avoid; }
+      table { break-inside: avoid; }
+      tr { break-inside: avoid; }
+
+      .footer { break-before: page; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+<header class="header" id="top">
+    <div class="h-brand"><span>Insightful &middot; Customer Intelligence</span></div>
+    <div class="h-customer">Matteo Lighting</div>
+    <div class="h-type">Customer Intelligence Report</div>
+    <div class="h-meta">June 2025 &ndash; June 2026 (Trailing 12 Months) &middot; Report Date: June 17, 2026</div>
+    <div class="h-meta" style="margin-top: 4px;"><span class="badge badge-info">Full · iPad</span></div>
+    <div class="h-accent"></div>
+  </header>
+  <nav class="toc-strip" id="tocStrip">
+    <a href="#signals">Signal Summary</a>
+    <a href="#team">Team Intelligence</a>
+    <a href="#accounts">Account Intelligence</a>
+    <a href="#commerce">Commerce Patterns</a>
+    <a href="#product">Product Intelligence</a>
+    <a href="#platform">Platform Context</a>
+    <a href="#appendix">Appendix</a>
+  </nav>
+
+<section class="section" id="signals">
+  <h2 class="section-title"><span class="section-num">&sect;1</span> Signal Summary</h2>
+
+  <ol class="highlights">
+    <li><strong>Shawna Meshwork Logged 181 Customer Presentations</strong> &mdash; she generated 3,257 app events and 181 customer-facing presentations over the trailing 12 months, the most active seller on the team and a strong engagement base as eCat ordering ramps. <a href="#team">&rarr; &sect;5</a></li>
+    <li><strong>Rey Lighting &amp; Accessories Reorders Every 8.9 Days</strong> &mdash; the only true repeat-buying relationship in your top 10, Rey placed 37 eCat orders in 12 months on a tight cadence, proving steady reorder behavior is achievable on the app. $25,973 eCat GMV LTM. <a href="#commerce">&rarr; &sect;4</a></li>
+    <li><strong>Quebec Drives 36% of eCat GMV From Just 7 Accounts</strong> &mdash; Quebec and Ontario together generate 60% of digital catalog volume, so coverage and dealer decisions in those provinces carry outsized revenue weight. $254,571 combined QC + ON eCat GMV LTM. <a href="#accounts">&rarr; &sect;2</a></li>
+    <li><strong>Catalog Is 99.8% Sell-Ready</strong> &mdash; 2,091 products are live with zero missing prices and only 5 missing images over the trailing 12 months, so reps can confidently present and quote nearly the entire line. Completing those 5 images is a same-week win. <a href="#product">&rarr; &sect;3</a></li>
+    <li><strong>The Royaume Luminaire Quebec Cluster Went Dark Together &mdash; $101,693 in Proven Demand</strong> &mdash; the Sherbrooke, Terrebonne, and Beauport branches all placed their last eCat orders on Jan 11, 2026 and have been silent ~157 days; the synchronized stop points to one buying decision you can reopen with one conversation. $101,693 historical eCat GMV (LTM). <a href="#accounts">&rarr; &sect;2</a></li>
+    <li><strong>Two Top Presenters Convert 0% of Presentations Into Orders</strong> &mdash; Shawna and Charles Meshwork built 271 presentations across 8 accounts with no eCat orders, while Hector Reyes converts 46.7%; this is a closing-step gap, not an effort gap, and the fastest coaching win on the team. <a href="#team">&rarr; &sect;5</a></li>
+    <li><strong>Pricing and Options Data Is 313 Days Stale Across 12 Tables</strong> &mdash; price levels, contract prices, and configurable-product options haven&rsquo;t refreshed since August 2025, so reps may be quoting from 10-month-old prices on every configured order; a single import pass resolves it. <a href="#platform">&rarr; &sect;6</a></li>
+  </ol>
+
+  <div class="priorities">
+    <div class="priority">
+      <span class="priority-badge high">High</span>
+      <div>
+        <div class="priority-title"><a href="#accounts">Reopen the Royaume Luminaire Quebec Cluster This Week</a></div>
+        <div class="priority-desc">Sherbrooke, Terrebonne, and Beauport all stopped ordering on the same January day after $101,693 in proven eCat demand, and Drummondville ($31,190 LTM, your #1 account) is 114 days past a normal 9.3-day cadence. The synchronized silence suggests one dealer-group conversation could reactivate the whole cluster.</div>
+      </div>
+      <div class="priority-impact">$132,883 cluster GMV LTM</div>
+    </div>
+    <div class="priority">
+      <span class="priority-badge medium">Growth</span>
+      <div>
+        <div class="priority-title"><a href="#team">Stand Up a Post-Presentation Follow-Up Cadence for Shawna and Charles Meshwork</a></div>
+        <div class="priority-desc">Your two most prolific presenters built 271 customer presentations with zero eCat orders. A structured nudge to submit through the app &mdash; mirroring Hector Reyes&rsquo;s 46.7% conversion &mdash; would turn existing presentation activity into trackable orders with no new customer acquisition.</div>
+      </div>
+      <div class="priority-impact">271 presentations to activate</div>
+    </div>
+    <div class="priority">
+      <span class="priority-badge medium">Medium</span>
+      <div>
+        <div class="priority-title"><a href="#platform">Refresh the 313-Day-Stale Pricing and Options Data</a></div>
+        <div class="priority-desc">Twelve core configuration tables &mdash; price levels, contract prices, matrix and option groups &mdash; last refreshed in August 2025, putting quote accuracy at risk on every configured order. One import pass restores confidence across every section that touches pricing.</div>
+      </div>
+      <div class="priority-impact">Quote accuracy at risk</div>
+    </div>
+  </div>
+
+  <div class="outreach-list">
+    <div class="outreach-title">This Week&rsquo;s Outreach List</div>
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Account</th>
+          <th>Rep</th>
+          <th>Action</th>
+          <th>Talking Point</th>
+          <th>By When</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td><strong>Royaume Luminaire Drummondville</strong></td>
+          <td>&mdash;</td>
+          <td>Call</td>
+          <td>&ldquo;You&rsquo;re our most valuable eCat account and it&rsquo;s been 114 days since your last order &mdash; your usual cadence is about 9 days. What&rsquo;s changed?&rdquo;</td>
+          <td>This week</td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td><strong>Royaume Luminaire Sherbrooke</strong></td>
+          <td>&mdash;</td>
+          <td>Call</td>
+          <td>&ldquo;Several of your Quebec locations paused ordering back in January &mdash; I&rsquo;d like to understand what happened and get the group set back up.&rdquo;</td>
+          <td>This week</td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td><strong>Royaume Luminaire Terrebonne</strong></td>
+          <td>&mdash;</td>
+          <td>Call</td>
+          <td>&ldquo;It&rsquo;s been about 157 days since your last order on Jan 11 &mdash; can we walk through what you need for the next project cycle?&rdquo;</td>
+          <td>This week</td>
+        </tr>
+        <tr>
+          <td>4</td>
+          <td><strong>Royaume Luminaire Beauport</strong></td>
+          <td>&mdash;</td>
+          <td>Call</td>
+          <td>&ldquo;Your Beauport branch went quiet alongside the other Quebec locations in January &mdash; I want to make sure nothing&rsquo;s blocking you from ordering.&rdquo;</td>
+          <td>This week</td>
+        </tr>
+        <tr>
+          <td>5</td>
+          <td><strong>Rey Lighting &amp; Accessories</strong></td>
+          <td>&mdash;</td>
+          <td>Schedule review</td>
+          <td>&ldquo;You&rsquo;re our model reorder account at 37 orders this year &mdash; let&rsquo;s look at a standing cadence and which new SKUs to add next.&rdquo;</td>
+          <td>This month</td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="prose">Rep assignments would strengthen this list &mdash; territory mapping enables direct routing to the right salesperson. All five accounts above sit in the Quebec / Ontario corridor that drives 60% of eCat GMV.</p>
+  </div>
+
+  <div class="callout insight">
+    <div class="callout-title">Patterns That Warrant a Conversation</div>
+    <ol>
+      <li>Three Royaume Luminaire branches stopped ordering on the exact same day in January after $101,693 in proven demand &mdash; was this a single procurement decision (a competitor, a contract change, a buyer transition), or did the projects themselves stall?</li>
+      <li>Your two most active presenters built 271 customer presentations and submitted zero eCat orders, while Hector Reyes converts nearly half of his &mdash; is the gap a workflow habit (orders going in by phone or email), or are these presentations not reaching a buying decision?</li>
+      <li>Quebec and Ontario generate 60% of eCat GMV from a handful of accounts &mdash; is that concentration a deliberate territory strategy, or an under-covered opportunity in the rest of the country waiting for the same playbook?</li>
+    </ol>
+  </div>
+</section>
+
+
+<details class="section-collapse" id="team">
+  <summary>
+    <div class="section-title">Team Intelligence</div>
+    <div class="section-sub">33 active reps &middot; app selling activity from usage data &middot; eCat ordering still ramping</div>
+    <div class="section-contents">Rep leaderboard, behavioral archetypes, presentation-to-close conversion, engagement trajectory, time allocation</div>
+    <span class="expand-hint">Expand section</span>
+  </summary>
+  <div class="section">
+
+    <div class="data-confidence">
+      <span class="data-confidence-label">Partial View</span>
+      This section is built from app usage behavioral data; eCat ordering is still ramping, so the team is ranked by selling activity (customer selections, product searches, presentations) rather than order volume. One leaderboard entry (Kevin Chang) belongs to an admin/showroom login rather than a field territory.
+    </div><div class="subsection">
+      <div class="subsection-title">Rep Leaderboard</div>
+      <div class="sub-label">Ranked by app selling activity (LTM)</div>
+      <table>
+        <thead>
+          <tr><th>#</th><th>Rep</th><th>Days Active</th><th>Customer Selections</th><th>Product Searches</th><th>Presentations</th><th>Total Events</th></tr>
+        </thead>
+        <tbody>
+          <tr class="row-highlight"><td>1</td><td><strong>Shawna Meshwork</strong></td><td>317</td><td>132</td><td>1,537</td><td>181</td><td>3,257</td></tr>
+          <tr class="row-highlight"><td>2</td><td><strong>BJ Ferber</strong></td><td>286</td><td>203</td><td>796</td><td>3</td><td>2,504</td></tr>
+          <tr><td>3</td><td><strong>Normand Drapeau</strong></td><td>79</td><td>94</td><td>769</td><td>43</td><td>2,335</td></tr>
+          <tr><td>4</td><td><strong>Kevin Chang</strong></td><td>85</td><td>77</td><td>353</td><td>5</td><td>2,081</td></tr>
+          <tr><td>5</td><td><strong>Ron Reindl</strong></td><td>408</td><td>29</td><td>355</td><td>8</td><td>1,816</td></tr>
+        </tbody>
+      </table>
+
+      <details>
+        <summary>Reps 6&ndash;20 &#9662;</summary>
+        <table>
+          <thead>
+            <tr><th>#</th><th>Rep</th><th>Days Active</th><th>Customer Selections</th><th>Product Searches</th><th>Presentations</th><th>Total Events</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>6</td><td>Barbara Jordan</td><td>89</td><td>39</td><td>540</td><td>4</td><td>1,188</td></tr>
+            <tr><td>7</td><td>Russel Trudeau</td><td>41</td><td>103</td><td>628</td><td>0</td><td>1,089</td></tr>
+            <tr><td>8</td><td>Steve Knighten</td><td>171</td><td>34</td><td>204</td><td>6</td><td>1,044</td></tr>
+            <tr><td>9</td><td>Charles Meshwork</td><td>84</td><td>19</td><td>652</td><td>19</td><td>1,029</td></tr>
+            <tr><td>10</td><td>Hector Reyes</td><td>113</td><td>113</td><td>302</td><td>0</td><td>1,011</td></tr>
+            <tr><td>11</td><td>Jeff Brose</td><td>262</td><td>0</td><td>109</td><td>8</td><td>669</td></tr>
+            <tr><td>12</td><td>Larry Williams</td><td>133</td><td>109</td><td>143</td><td>0</td><td>529</td></tr>
+            <tr><td>13</td><td>David May</td><td>105</td><td>7</td><td>79</td><td>10</td><td>511</td></tr>
+            <tr><td>14</td><td>Garrett Passmore</td><td>59</td><td>22</td><td>117</td><td>4</td><td>454</td></tr>
+            <tr><td>15</td><td>Jim Ippolito</td><td>37</td><td>33</td><td>247</td><td>3</td><td>426</td></tr>
+            <tr><td>16</td><td>Kathy Phelps</td><td>42</td><td>24</td><td>204</td><td>0</td><td>416</td></tr>
+            <tr><td>17</td><td>Patty Lingwall</td><td>87</td><td>35</td><td>98</td><td>2</td><td>372</td></tr>
+            <tr><td>18</td><td>Cindy Vackar</td><td>75</td><td>40</td><td>149</td><td>4</td><td>368</td></tr>
+            <tr><td>19</td><td>Blair Jonas</td><td>54</td><td>62</td><td>142</td><td>0</td><td>366</td></tr>
+            <tr><td>20</td><td>Charles Walsh</td><td>55</td><td>10</td><td>86</td><td>5</td><td>291</td></tr>
+          </tbody>
+        </table>
+      </details>
+
+      <div class="sub-label" style="margin-top:16px;">Bottom 5 by app activity</div>
+      <table>
+        <thead>
+          <tr><th>Rep</th><th>Days Active</th><th>Customer Selections</th><th>Product Searches</th><th>Presentations</th><th>Total Events</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Chuck Vienna</td><td>57</td><td>1</td><td>0</td><td>0</td><td>113</td></tr>
+          <tr><td>Meghann Bradbury</td><td>16</td><td>5</td><td>52</td><td>0</td><td>92</td></tr>
+          <tr><td>Dennis Morgan</td><td>22</td><td>3</td><td>2</td><td>0</td><td>79</td></tr>
+          <tr><td>Forrest Denbow</td><td>13</td><td>3</td><td>19</td><td>0</td><td>57</td></tr>
+          <tr><td>Greg Sharp</td><td>19</td><td>1</td><td>5</td><td>0</td><td>48</td></tr>
+        </tbody>
+      </table>
+    </div><div class="subsection">
+      <div class="subsection-title">Behavioral Archetypes</div>
+      <div class="callout insight">
+        <div class="callout-title">Three distinct selling patterns across your most active reps</div>
+        <p>Your team's app usage shows not just what they sell but how they sell. Most activity is search-heavy product discovery, with a small group layering in presentation-building &mdash; and a wider group that browses constantly but rarely puts a catalog or email in front of a customer.</p>
+      </div>
+      <table>
+        <thead>
+          <tr><th>Rep</th><th>Archetype</th><th>Total Events</th><th>Presentations</th><th>Searches</th><th>Key Gap</th></tr>
+        </thead>
+        <tbody>
+          <tr class="row-highlight"><td><strong>Shawna Meshwork</strong></td><td><span class="badge ok">Curated Discovery Seller</span></td><td>3,257</td><td>181</td><td>1,537</td><td>Already presenting at scale</td></tr>
+          <tr><td><strong>Normand Drapeau</strong></td><td><span class="badge ok">Curated Discovery Seller</span></td><td>2,335</td><td>43</td><td>769</td><td>Strong present-to-search ratio</td></tr>
+          <tr><td><strong>BJ Ferber</strong></td><td><span class="badge warn">High Activity / Low Presentation</span></td><td>2,504</td><td>3</td><td>796</td><td>796 searches, only 3 presentations</td></tr>
+          <tr><td><strong>Hector Reyes</strong></td><td><span class="badge warn">High Activity / Low Presentation</span></td><td>1,011</td><td>0</td><td>302</td><td>Selects 113 customers, presents to none</td></tr>
+          <tr><td><strong>Russel Trudeau</strong></td><td><span class="badge warn">High Activity / Low Presentation</span></td><td>1,089</td><td>0</td><td>628</td><td>628 searches, zero presentations</td></tr>
+          <tr><td><strong>Ron Reindl</strong></td><td><span class="badge muted">Volume Relationship Seller</span></td><td>1,816</td><td>8</td><td>355</td><td>408 days active, light presenting</td></tr>
+        </tbody>
+      </table>
+      <div class="what-this-means">
+        <strong>Action:</strong> Shawna Meshwork has already cracked the workflow &mdash; 181 presentations against 1,537 searches &mdash; while BJ Ferber, Hector Reyes, and Russel Trudeau run 600&ndash;800 searches each but put fewer than 5 catalogs or emails in front of customers. These three are doing the hard part (customer discovery) without the closing step; pairing them with Shawna's presentation habit is the lowest-friction way to convert browsing into shared, trackable selling.
+      </div>
+    </div><div class="subsection">
+      <div class="subsection-title">Presentation-to-Close Conversion</div>
+      <div class="callout insight">
+        <div class="callout-title">Your two highest-volume presenters are not yet closing through eCat</div>
+        <p>Shawna Meshwork built 148 presentations across 5 accounts and Charles Meshwork built 123 across 3, but neither has converted a presentation into an eCat order yet. Meanwhile Hector Reyes turns just 15 presentations into 7 orders &mdash; far fewer demos, far better yield.</p>
+      </div>
+      <table>
+        <thead>
+          <tr><th>Rep</th><th>Accounts Engaged</th><th>Presentations</th><th>Orders</th><th>Conversion Rate</th></tr>
+        </thead>
+        <tbody>
+          <tr class="row-highlight"><td><strong>Shawna Meshwork</strong></td><td>5</td><td>148</td><td>0</td><td>0.0%</td></tr>
+          <tr><td><strong>Charles Meshwork</strong></td><td>3</td><td>123</td><td>0</td><td>0.0%</td></tr>
+        </tbody>
+      </table>
+      <div class="what-this-means">
+        <strong>Action:</strong> Your two most prolific presenters (271 presentations combined across 8 accounts) are generating zero eCat orders, while Hector Reyes converts 15 presentations into 7 orders at a 46.7% clip on a fraction of the effort. The gap is a closing-step problem, not an effort problem &mdash; a post-presentation follow-up cadence that nudges Shawna's and Charles's engaged accounts to submit through the app would convert existing activity into trackable orders.
+      </div>
+    </div><div class="subsection">
+      <div class="subsection-title">Engagement Trajectory</div>
+      <div class="sub-label">Quarter-over-quarter session trend</div>
+
+      <div class="callout opportunity">
+        <div class="callout-title">Accelerating Reps</div>
+      </div>
+      <table>
+        <thead>
+          <tr><th>Rep</th><th>Prior 90d Logins</th><th>Current 90d Logins</th><th>QoQ Change</th></tr>
+        </thead>
+        <tbody>
+          <tr class="row-highlight"><td><strong>Bruce Kremer</strong></td><td>4</td><td>7</td><td><span class="badge ok">+75%</span></td></tr>
+          <tr><td><strong>David Hanfling</strong></td><td>6</td><td>7</td><td><span class="badge ok">+16.7%</span></td></tr>
+          <tr><td><strong>Jeff Brose</strong></td><td>79</td><td>62</td><td><span class="badge warn">&minus;21.5%</span></td></tr>
+          <tr><td><strong>Jack Helbert</strong></td><td>13</td><td>10</td><td><span class="badge warn">&minus;23.1%</span></td></tr>
+          <tr><td><strong>Charles Meshwork</strong></td><td>21</td><td>15</td><td><span class="badge warn">&minus;28.6%</span></td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout insight">
+        <div class="callout-title">Reps Needing Attention</div>
+      </div>
+      <table>
+        <thead>
+          <tr><th>Rep</th><th>Prior 90d Logins</th><th>Current 90d Logins</th><th>QoQ Change</th></tr>
+        </thead>
+        <tbody>
+          <tr class="row-danger"><td><strong>Russel Trudeau</strong></td><td>69</td><td>3</td><td><span class="badge danger">&minus;95.7%</span></td></tr>
+          <tr class="row-danger"><td><strong>Garrett Passmore</strong></td><td>11</td><td>1</td><td><span class="badge danger">&minus;90.9%</span></td></tr>
+          <tr class="row-danger"><td><strong>David May</strong></td><td>72</td><td>13</td><td><span class="badge danger">&minus;81.9%</span></td></tr>
+          <tr class="row-danger"><td><strong>Barbara Jordan</strong></td><td>16</td><td>3</td><td><span class="badge danger">&minus;81.3%</span></td></tr>
+          <tr class="row-danger"><td><strong>Kevin Chang</strong></td><td>27</td><td>8</td><td><span class="badge danger">&minus;70.4%</span></td></tr>
+        </tbody>
+      </table>
+
+      <div class="what-this-means">
+        <strong>Action:</strong> Russel Trudeau collapsed from 69 logins to 3 (&minus;95.7%) despite running 628 product searches earlier in the year &mdash; an active seller going quiet, not an unused seat, and worth a direct check-in this week. The broader pattern is team-wide login softening, so Bruce Kremer's and David Hanfling's upticks are the momentum to protect with recognition while the declines get attention.
+      </div>
+    </div><div class="subsection">
+      <div class="subsection-title">How Reps Spend Their Time in the App</div>
+      <div class="callout insight">
+        <div class="callout-title">A 70-point spread separates your most and least efficient sellers</div>
+        <p>Your most efficient rep spends 85% of app time on customer-facing selling; your most admin-heavy spends 86% on lookups and order history. That gap correlates with who is putting products in front of buyers vs. who is stuck navigating the app.</p>
+      </div>
+      <table>
+        <thead>
+          <tr><th>Rep</th><th>Total Activity</th><th>Selling</th><th>Admin</th><th>Selling %</th></tr>
+        </thead>
+        <tbody>
+          <tr class="row-highlight"><td><strong>Charles Meshwork</strong></td><td>197</td><td>167</td><td>30</td><td><span class="badge ok">84.8%</span></td></tr>
+          <tr><td>Blair Jonas</td><td>47</td><td>36</td><td>11</td><td><span class="badge ok">76.6%</span></td></tr>
+          <tr><td>Hector Reyes</td><td>93</td><td>55</td><td>38</td><td><span class="badge warn">59.1%</span></td></tr>
+          <tr><td>Shawna Meshwork</td><td>393</td><td>222</td><td>171</td><td><span class="badge warn">56.5%</span></td></tr>
+          <tr><td>Jan Simon</td><td>48</td><td>24</td><td>24</td><td><span class="badge warn">50.0%</span></td></tr>
+          <tr><td>Larry Williams</td><td>51</td><td>25</td><td>26</td><td><span class="badge danger">49.0%</span></td></tr>
+          <tr><td>Normand Drapeau</td><td>33</td><td>16</td><td>17</td><td><span class="badge danger">48.5%</span></td></tr>
+          <tr><td>Jim Ippolito</td><td>20</td><td>9</td><td>11</td><td><span class="badge danger">45.0%</span></td></tr>
+          <tr><td>Vincent Ingato</td><td>26</td><td>11</td><td>15</td><td><span class="badge danger">42.3%</span></td></tr>
+          <tr><td>BJ Ferber</td><td>70</td><td>29</td><td>41</td><td><span class="badge danger">41.4%</span></td></tr>
+        </tbody>
+      </table>
+      <details>
+        <summary>All remaining reps (9) &#9662;</summary>
+        <table>
+          <thead>
+            <tr><th>Rep</th><th>Total Activity</th><th>Selling</th><th>Admin</th><th>Selling %</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Kathy Phelps</td><td>26</td><td>10</td><td>16</td><td>38.5%</td></tr>
+            <tr><td>Nick Paternostro</td><td>26</td><td>10</td><td>16</td><td>38.5%</td></tr>
+            <tr><td>Steve Knighten</td><td>76</td><td>23</td><td>53</td><td>30.3%</td></tr>
+            <tr><td>David May</td><td>170</td><td>50</td><td>120</td><td>29.4%</td></tr>
+            <tr><td>Kevin Chang</td><td>130</td><td>34</td><td>96</td><td>26.2%</td></tr>
+            <tr><td>Ron Reindl</td><td>182</td><td>43</td><td>139</td><td>23.6%</td></tr>
+            <tr><td>Patty Lingwall</td><td>20</td><td>4</td><td>16</td><td>20.0%</td></tr>
+            <tr><td>Jeff Brose</td><td>89</td><td>16</td><td>73</td><td>18.0%</td></tr>
+            <tr><td>Bruce Kremer</td><td>42</td><td>6</td><td>36</td><td>14.3%</td></tr>
+          </tbody>
+        </table>
+      </details>
+      <div class="what-this-means">
+        <strong>Action:</strong> Ron Reindl logs the most app activity of any rep (182 events) but spends 76% of it on admin lookups, and Jeff Brose runs 82% admin &mdash; that is a workflow problem, not a motivation problem, since both are clearly in the app daily. Building these reps saved lists of their core accounts with pre-filtered inventory would shift that time back toward customer-facing selling, the same pattern Charles Meshwork already runs at 85% selling.
+      </div>
+    </div>
+
+    <div class="what-this-means" style="margin-top:24px;">
+      <strong>Action:</strong> Your team is genuinely active &mdash; Shawna Meshwork alone logged 3,257 events and 181 presentations &mdash; but that effort is not yet converting to eCat orders, and your two top presenters sit at 0% conversion. The single highest-ROI move is a post-presentation follow-up cadence that turns existing presentation and search activity into submitted orders; connecting order data per rep would let us quantify exactly which accounts are presented to but never closed.
+    </div>
+
+  </div>
+</details>
+
+
+<details class="section-collapse" id="accounts">
+  <summary>
+    <div class="section-title">Account Intelligence</div>
+    <div class="section-sub">63 active buyers (12mo) &middot; 1,211 total accounts &middot; top accounts with actionable briefs</div>
+    <div class="section-contents">Account briefs, reorder velocity, geographic concentration, dormant high-value accounts</div>
+    <span class="expand-hint">Expand section</span>
+  </summary>
+  <div class="section">
+
+    <div class="metrics">
+      <div class="metric">
+        <div class="metric-label">Total Accounts</div>
+        <div class="metric-value">1,211</div>
+        <div class="metric-note">All accounts in your system</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Active Accounts</div>
+        <div class="metric-value">63</div>
+        <div class="metric-note">&ge;1 eCat order, trailing 12mo</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Active Accounts</div>
+        <div class="metric-value">3</div>
+        <div class="metric-note warn">&ge;1 eCat order, last 90 days</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Avg eCat LTM per Active Account</div>
+        <div class="metric-value">$6,727</div>
+        <div class="metric-note">across 63 active accounts, trailing 12mo</div>
+      </div>
+    </div>
+
+    <div class="data-confidence">
+      <span class="data-confidence-label">Strong View</span>
+      <span class="data-confidence-action">Account intelligence draws on eCat order history, customer records, and current inventory availability across 1,211 accounts. Connecting all-channel order data would add total-business context, wallet share, and competitive-displacement signals that aren&rsquo;t yet visible.</span>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">1. Rey Lighting &amp; Accessories</div>
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-val">Rey Lighting &amp; Accessories</div>
+          <div class="metric-label">Most active eCat account</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-val">Jun 10, 2026</div>
+          <div class="metric-label">Last Order</div>
+          <div class="metric-note ok">7 days ago</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-val">$25,973</div>
+          <div class="metric-label">eCat Revenue (LTM)</div>
+          <div class="metric-note">37 orders, trailing 12mo</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-val"><span class="badge ok">71</span></div>
+          <div class="metric-label">Engagement Score</div>
+          <div class="metric-note">Strong</div>
+        </div>
+      </div>
+      <div class="callout insight">
+        <div class="callout-title">Reorder Cadence</div>
+        <p>Rey reorders every <strong>8.9 days</strong> on average &mdash; the tightest cadence in your active book and more than 2x the frequency of your next-most-active account. They placed 37 eCat orders in the trailing 12 months.</p>
+      </div>
+      <p class="prose"><strong>Priority:</strong> Protect this relationship &mdash; Rey is your single most engaged eCat account. Have their rep confirm there are no stock or fulfillment gaps on their most-ordered items before the next reorder window (~Jun 19).</p>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">2. Royaume Luminaire Drummondville</div>
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-val">Royaume Luminaire Drummondville</div>
+          <div class="metric-label">QC</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-val">Feb 23, 2026</div>
+          <div class="metric-label">Last Order</div>
+          <div class="metric-note danger">114 days ago</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-val">$31,190</div>
+          <div class="metric-label">eCat Revenue (LTM)</div>
+          <div class="metric-note">4 orders, trailing 12mo</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-val"><span class="badge muted">44</span></div>
+          <div class="metric-label">Engagement Score</div>
+          <div class="metric-note">Moderate</div>
+        </div>
+      </div>
+      <div class="callout insight">
+        <div class="callout-title">Reorder Pattern Change</div>
+        <p><strong>Account-level:</strong> 114 days since last order &mdash; roughly 12x their historical 9.3-day cadence. This is your highest-revenue eCat account and it has gone quiet. Worth a check-in.</p>
+      </div>
+      <p class="prose"><strong>Priority:</strong> Call Royaume Drummondville this week &mdash; at $31,190 LTM it is your largest eCat account by revenue, and a 114-day silence against a 9-day cadence is the clearest re-engagement signal in this section.</p>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">3. Wasatch Lighting</div>
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-val">Wasatch Lighting</div>
+          <div class="metric-label">UT</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-val">Jan 11, 2026</div>
+          <div class="metric-label">Last Order</div>
+          <div class="metric-note danger">157 days ago</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-val">$16,875</div>
+          <div class="metric-label">eCat Revenue (LTM)</div>
+          <div class="metric-note">3 orders, trailing 12mo</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-val"><span class="badge warn">29</span></div>
+          <div class="metric-label">Engagement Score</div>
+          <div class="metric-note">Cooling</div>
+        </div>
+      </div>
+      <div class="callout insight">
+        <div class="callout-title">Reorder Pattern Change</div>
+        <p><strong>Account-level:</strong> 157 days since last order. Wasatch placed three orders concentrated in January and has been silent since &mdash; a high-value relationship cooling. Worth a check-in.</p>
+      </div>
+      <p class="prose"><strong>Priority:</strong> Re-engage Wasatch Lighting before the gap widens &mdash; their $16,875 in eCat orders all landed in a single January burst, so a proactive outreach now can re-establish a regular cadence.</p>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">4. Designs By Ann (El Paso Designer&rsquo;s Mart)</div>
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-val">Designs By Ann, Inc.</div>
+          <div class="metric-label">El Paso Designer&rsquo;s Mart &middot; TX</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-val">Jun 19, 2025</div>
+          <div class="metric-label">Last Order</div>
+          <div class="metric-note danger">363 days ago</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-val">$15,447</div>
+          <div class="metric-label">eCat Revenue (LTM)</div>
+          <div class="metric-note">3 orders, trailing 12mo</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-val"><span class="badge danger">14</span></div>
+          <div class="metric-label">Engagement Score</div>
+          <div class="metric-note">At Risk</div>
+        </div>
+      </div>
+      <div class="callout insight">
+        <div class="callout-title">Reorder Pattern Change</div>
+        <p><strong>Account-level:</strong> 363 days since their last eCat order &mdash; effectively a full year of silence after a $15,447 run. This account has lapsed and is the most at-risk relationship in your top eCat buyers.</p>
+      </div>
+      <p class="prose"><strong>Priority:</strong> Treat Designs by Ann as a win-back &mdash; a rep should reach out directly to confirm whether they have shifted ordering elsewhere or simply stopped using eCat, since a full year of silence determines the recovery play.</p>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">5. Ivan Fabian Diaz Gomez</div>
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-val">Ivan Fabian Diaz Gomez</div>
+          <div class="metric-label">Active eCat buyer</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-val">Dec 1, 2025</div>
+          <div class="metric-label">Last Order</div>
+          <div class="metric-note danger">198 days ago</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-val">$1,754</div>
+          <div class="metric-label">eCat Revenue (LTM)</div>
+          <div class="metric-note">3 orders, trailing 12mo</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-val"><span class="badge danger">14</span></div>
+          <div class="metric-label">Engagement Score</div>
+          <div class="metric-note">At Risk</div>
+        </div>
+      </div>
+      <div class="callout insight">
+        <div class="callout-title">Reorder Cadence</div>
+        <p>Diaz ordered three times on a tight 15.9-day cadence between October and December, then stopped. A smaller account by revenue, but the early ordering rhythm suggests a buyer who adopted eCat quickly and may re-engage with a nudge.</p>
+      </div>
+      <p class="prose"><strong>Priority:</strong> Send a light-touch re-order reminder to Diaz Gomez &mdash; they showed a fast 16-day reorder rhythm before going quiet 198 days ago, making them a low-effort reactivation candidate.</p>
+    </div>
+
+    <div class="what-this-means" style="margin-top:20px;">
+      <strong>Action:</strong> Rey Lighting is the engaged anchor to protect, but the bigger move is re-engaging Royaume Drummondville ($31,190 LTM, silent 114 days) and Wasatch ($16,875, silent 157 days) &mdash; both are proven eCat buyers who simply stopped. Left alone, your top eCat revenue concentrates further into a single active account; connecting all-channel order data would reveal whether these accounts are still buying through other channels.
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Geographic Distribution</div>
+      <p class="prose">Quebec and Ontario together account for 60% of eCat revenue (trailing 12mo). Quebec alone drives 36% from just 7 active accounts.</p>
+      <table>
+        <thead>
+          <tr><th>State</th><th>Active Accounts</th><th>eCat Orders</th><th>eCat GMV (LTM)</th><th>% of Total</th></tr>
+        </thead>
+        <tbody>
+          <tr class="row-highlight"><td>QC</td><td>7</td><td>10</td><td>$151,963</td><td>35.9%</td></tr>
+          <tr class="row-highlight"><td>ON</td><td>17</td><td>20</td><td>$102,608</td><td>24.2%</td></tr>
+          <tr class="row-highlight"><td>PR</td><td>2</td><td>40</td><td>$33,228</td><td>7.8%</td></tr>
+          <tr class="row-highlight"><td>BC</td><td>5</td><td>5</td><td>$23,452</td><td>5.5%</td></tr>
+          <tr class="row-highlight"><td>TX</td><td>4</td><td>6</td><td>$22,207</td><td>5.2%</td></tr>
+        </tbody>
+      </table>
+      <details>
+        <summary>Remaining states &#9662;</summary>
+        <table>
+          <thead>
+            <tr><th>State</th><th>Active Accounts</th><th>eCat Orders</th><th>eCat GMV (LTM)</th><th>% of Total</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>UT</td><td>1</td><td>3</td><td>$16,875</td><td>4.0%</td></tr>
+            <tr><td>AB</td><td>5</td><td>5</td><td>$15,161</td><td>3.6%</td></tr>
+            <tr><td>CO</td><td>2</td><td>2</td><td>$13,265</td><td>3.1%</td></tr>
+            <tr><td>MS</td><td>2</td><td>3</td><td>$10,430</td><td>2.5%</td></tr>
+            <tr><td>FL</td><td>1</td><td>2</td><td>$8,766</td><td>2.1%</td></tr>
+            <tr><td>MB</td><td>1</td><td>1</td><td>$6,121</td><td>1.4%</td></tr>
+            <tr><td>SK</td><td>1</td><td>1</td><td>$4,140</td><td>1.0%</td></tr>
+            <tr><td>LA</td><td>1</td><td>1</td><td>$4,061</td><td>1.0%</td></tr>
+            <tr><td>NY</td><td>2</td><td>4</td><td>$3,312</td><td>0.8%</td></tr>
+            <tr><td>SC</td><td>1</td><td>1</td><td>$2,720</td><td>0.6%</td></tr>
+            <tr><td>MT</td><td>1</td><td>1</td><td>$1,737</td><td>0.4%</td></tr>
+            <tr><td>ID</td><td>1</td><td>1</td><td>$1,451</td><td>0.3%</td></tr>
+            <tr><td>ND</td><td>2</td><td>2</td><td>$948</td><td>0.2%</td></tr>
+            <tr><td>IA</td><td>1</td><td>1</td><td>$779</td><td>0.2%</td></tr>
+            <tr><td>OK</td><td>1</td><td>1</td><td>$585</td><td>0.1%</td></tr>
+          </tbody>
+        </table>
+      </details>
+      <div class="what-this-means">
+        <strong>Action:</strong> Your eCat footprint is heavily Canadian &mdash; Quebec and Ontario drive 60% of revenue, so coverage decisions in those two provinces have outsized impact. Puerto Rico stands out as a high-frequency outlier (40 orders from 2 accounts at low GMV per order); worth understanding whether that pattern can be replicated or whether it reflects small repeat sample orders.
+      </div>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Reorder Velocity &amp; Early Warning</div>
+      <table>
+        <thead>
+          <tr><th>Account</th><th>eCat Orders (LTM)</th><th>Avg Interval (days)</th><th>eCat Revenue (LTM)</th></tr>
+        </thead>
+        <tbody>
+          <tr class="row-highlight"><td><strong>Rey Lighting &amp; Accessories</strong></td><td>37</td><td>8.9</td><td>$25,973</td></tr>
+          <tr class="row-highlight"><td><strong>Royaume Luminaire Drummondville</strong></td><td>4</td><td>9.3</td><td>$31,190</td></tr>
+          <tr class="row-highlight"><td><strong>Ivan Fabian Diaz Gomez</strong></td><td>3</td><td>15.9</td><td>$1,754</td></tr>
+          <tr class="row-highlight"><td><strong>Designs By Ann (El Paso Designer&rsquo;s Mart)</strong></td><td>3</td><td>&mdash;</td><td>$15,447</td></tr>
+          <tr class="row-highlight"><td><strong>Wasatch Lighting</strong></td><td>3</td><td>&mdash;</td><td>$16,875</td></tr>
+        </tbody>
+      </table>
+      <div class="what-this-means">
+        <strong>Action:</strong> Rey Lighting&rsquo;s 8.9-day reorder cadence is the behavior to study and replicate &mdash; it is what a fully-adopted eCat account looks like. Three of your five most frequent buyers (Royaume, Designs by Ann, Wasatch) placed their orders in tight bursts and then went quiet, so the early-warning play is converting burst-buyers into steady-cadence accounts like Rey.
+      </div>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Dormant High-Value Accounts</div>
+      <table>
+        <thead>
+          <tr><th>Customer</th><th>State</th><th>Last Order</th><th>Historical eCat GMV</th><th>Days Silent</th></tr>
+        </thead>
+        <tbody>
+          <tr class="row-highlight"><td><strong>Royaume Luminaire Sherbrooke</strong></td><td>QC</td><td>Jan 11, 2026</td><td>$36,314</td><td>156</td></tr>
+          <tr class="row-highlight"><td><strong>Royaume Luminaire Terrebonne</strong></td><td>QC</td><td>Jan 11, 2026</td><td>$36,061</td><td>157</td></tr>
+          <tr class="row-highlight"><td><strong>Royaume Luminaire Beauport</strong></td><td>QC</td><td>Jan 11, 2026</td><td>$29,318</td><td>157</td></tr>
+          <tr class="row-highlight"><td><strong>Viva Lifestyle Inc</strong></td><td>ON</td><td>Jan 11, 2026</td><td>$23,655</td><td>157</td></tr>
+          <tr class="row-highlight"><td><strong>Wasatch Lighting</strong></td><td>UT</td><td>Jan 11, 2026</td><td>$16,875</td><td>157</td></tr>
+        </tbody>
+      </table>
+      <details>
+        <summary>Additional dormant accounts &#9662;</summary>
+        <table>
+          <thead>
+            <tr><th>Customer</th><th>State</th><th>Last Order</th><th>Historical eCat GMV</th><th>Days Silent</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Designs By Ann (El Paso Designer&rsquo;s Mart)</td><td>TX</td><td>Jun 19, 2025</td><td>$15,447</td><td>362</td></tr>
+            <tr><td>Finkle Electric</td><td>ON</td><td>Jul 28, 2025</td><td>$11,460</td><td>324</td></tr>
+            <tr><td>Royal Lighting</td><td>ON</td><td>Jan 10, 2026</td><td>$8,930</td><td>157</td></tr>
+            <tr><td>Best Light LLC (4U Lighting &amp; Design)</td><td>FL</td><td>Jan 11, 2026</td><td>$8,766</td><td>156</td></tr>
+            <tr><td>Royaume Luminaire Sainte-Julie</td><td>QC</td><td>Jan 11, 2026</td><td>$8,604</td><td>156</td></tr>
+            <tr><td>Aura Interiors Inc</td><td>BC</td><td>Jun 20, 2025</td><td>$7,755</td><td>362</td></tr>
+            <tr><td>Paradise Lighting</td><td>ON</td><td>Jan 12, 2026</td><td>$7,687</td><td>156</td></tr>
+            <tr><td>Luminaires Paul Gregoire Inc</td><td>QC</td><td>Feb 3, 2026</td><td>$7,416</td><td>134</td></tr>
+            <tr><td>Sunbelt Lighting LLC</td><td>MS</td><td>Jun 19, 2025</td><td>$7,197</td><td>362</td></tr>
+            <tr><td>Pine Lighting Surrey</td><td>BC</td><td>Jan 12, 2026</td><td>$6,970</td><td>156</td></tr>
+          </tbody>
+        </table>
+      </details>
+      <div class="what-this-means">
+        <strong>Action:</strong> The three Royaume Luminaire locations (Sherbrooke, Terrebonne, Beauport) represent $101,693 in proven eCat demand that all went silent on the same January day &mdash; a coordinated stop that points to a single buying decision worth one direct conversation with the Royaume group. Recovering this Quebec cluster is the highest-dollar re-engagement opportunity in your account base; if it continues, more than $100K in demonstrated eCat revenue stays dark.
+      </div>
+    </div>
+
+    <div class="callout note" style="margin-top:16px;">
+      <div class="callout-title">With Connected Data</div>
+      Connecting your all-channel order data would show whether these dormant accounts are still buying through other channels, add wallet-share and category-whitespace views, and surface competitive-displacement signals that eCat-only data cannot reveal.
+    </div>
+
+  </div>
+</details>
+
+
+<details class="section-collapse" id="commerce">
+  <summary>
+    <div class="section-title">Commerce Patterns</div>
+    <div class="section-sub">$515K eCat sales LTM &middot; 135 orders &middot; buyer concentration and order workflow analysis</div>
+    <div class="section-contents">eCat order trend, top buyers &amp; concentration, order type &amp; workflow, new buyer acquisition</div>
+    <span class="expand-hint">Expand section</span>
+  </summary>
+  <div class="section">
+
+    <div class="data-confidence">
+      <span class="data-confidence-label">Strong View</span>
+      Commerce analysis draws from eCat order data (iPad-originated) and buyer-level order history. All figures reflect orders placed through eCat over the trailing 12 months.
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">eCat Order Trend</div>
+      <table>
+        <thead>
+          <tr><th>Period</th><th>eCat Orders</th><th>eCat GMV</th><th>Avg Order Value</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Jul 2025</td><td>12</td><td>$37,970</td><td>$3,164</td></tr>
+          <tr><td>Aug 2025</td><td>7</td><td>$2,413</td><td>$345</td></tr>
+          <tr><td>Sep 2025</td><td>4</td><td>$7,218</td><td>$1,804</td></tr>
+          <tr><td>Oct 2025</td><td>5</td><td>$7,141</td><td>$1,428</td></tr>
+          <tr><td>Nov 2025</td><td>5</td><td>$3,215</td><td>$643</td></tr>
+          <tr><td>Dec 2025</td><td>3</td><td>$1,088</td><td>$363</td></tr>
+          <tr class="row-highlight"><td><strong>Jan 2026</strong></td><td>54</td><td>$339,423</td><td>$6,286</td></tr>
+          <tr><td>Feb 2026</td><td>11</td><td>$31,985</td><td>$2,908</td></tr>
+          <tr><td>Mar 2026</td><td>8</td><td>$10,970</td><td>$1,371</td></tr>
+          <tr><td>Apr 2026</td><td>4</td><td>$1,203</td><td>$301</td></tr>
+          <tr><td>May 2026</td><td>2</td><td>$2,549</td><td>$1,274</td></tr>
+          <tr><td>Jun 2026 (partial)</td><td>4</td><td>$4,616</td><td>$1,154</td></tr>
+        </tbody>
+      </table>
+      <div class="what-this-means">
+        <strong>Action:</strong> January 2026 stands apart &mdash; 54 orders and $339K in eCat GMV, roughly two-thirds of your trailing-year eCat volume in a single month, driven by a $6,286 average order value. That concentration suggests a market-driven order wave rather than steady monthly demand; treat the post-January softening as a return to baseline, not decline, and work to spread that order intake more evenly across the year.
+      </div>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Top Buyers &amp; Concentration</div>
+      <div class="callout insight">
+        <div class="callout-title">Revenue Concentration in Top Buyers</div>
+        <p>Your top 5 eCat buyers account for 30.9% of total eCat GMV ($158,856 of $514,817 LTM). The four Royaume Luminaire locations alone represent 25.8% &mdash; a single dealer group anchors much of your eCat volume.</p>
+      </div>
+      <table>
+        <thead>
+          <tr><th>Customer</th><th>Orders</th><th>GMV (eCat)</th><th>% of eCat GMV</th></tr>
+        </thead>
+        <tbody>
+          <tr class="row-highlight"><td><strong>Royaume Luminaire Sherbrooke</strong></td><td>1</td><td>$36,314</td><td>7.1%</td></tr>
+          <tr class="row-highlight"><td><strong>Royaume Luminaire Terrebonne</strong></td><td>1</td><td>$36,061</td><td>7.0%</td></tr>
+          <tr class="row-highlight"><td><strong>Royaume Luminaire Drummondville</strong></td><td>4</td><td>$31,190</td><td>6.1%</td></tr>
+          <tr class="row-highlight"><td><strong>Royaume Luminaire Beauport</strong></td><td>1</td><td>$29,318</td><td>5.7%</td></tr>
+          <tr class="row-highlight"><td><strong>Rey Lighting &amp; Accessories</strong></td><td>37</td><td>$25,973</td><td>5.0%</td></tr>
+          <tr><td>Viva Lifestyle Inc</td><td>1</td><td>$23,655</td><td>4.6%</td></tr>
+          <tr><td>Royaume St Basile</td><td>1</td><td>$19,794</td><td>3.8%</td></tr>
+          <tr><td>Wasatch Lighting</td><td>3</td><td>$16,875</td><td>3.3%</td></tr>
+          <tr><td>El Paso Designer&rsquo;s Mart</td><td>3</td><td>$15,447</td><td>3.0%</td></tr>
+          <tr><td>Finkle Electric</td><td>1</td><td>$11,460</td><td>2.2%</td></tr>
+        </tbody>
+      </table>
+      <div class="what-this-means">
+        <strong>Action:</strong> Most of your top buyers placed a single large order in the window, while Rey Lighting &amp; Accessories ordered 37 times for $25,973 &mdash; a recurring, reorder-driven relationship rather than a one-time project. The four Royaume Luminaire branches buying separately is an expansion opening: a coordinated dealer-group program could lift the same buyers from one annual order to a standing eCat reorder cadence like Rey&rsquo;s.
+      </div>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Order Type &amp; Workflow</div>
+      <div class="callout insight">
+        <div class="callout-title">Approval Workflow Carries Your Largest Orders</div>
+        <p>Hold-for-Confirmation (HFC) orders carry the highest average value on eCat at $3,930 &mdash; above standard confirmed orders ($3,807) &mdash; and make up 26.7% of order volume. Your highest-value transactions route through an approval step before they finalize.</p>
+      </div>
+      <details>
+        <summary>View order type breakdown</summary>
+        <table>
+          <thead>
+            <tr><th>Order Type</th><th>Orders</th><th>Share</th><th>Avg Order Value</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Confirmed</td><td>96</td><td>71.1%</td><td>$3,807</td></tr>
+            <tr><td>Hold for Confirmation</td><td>36</td><td>26.7%</td><td>$3,930</td></tr>
+            <tr><td>Quote</td><td>3</td><td>2.2%</td><td>$2,625</td></tr>
+          </tbody>
+        </table>
+      </details>
+      <div class="what-this-means">
+        <strong>Action:</strong> The 36 HFC orders at $3,930 average represent roughly $141K in eCat GMV that passes through an approval gate before it lands &mdash; the approval workflow is governing your high-value transactions, so any delay there directly stalls your biggest deals. Audit HFC turnaround time: shortening the approval cycle on these orders protects the segment that already commands your top average order value.
+      </div>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">New Buyer Acquisition &amp; Growth</div>
+      <div class="metrics">
+        <div class="metric">
+          <div class="metric-label">New eCat Buyers (LTM)</div>
+          <div class="metric-value">31</div>
+          <div class="metric-note">Across 9 active months</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Peak Month</div>
+          <div class="metric-value">13</div>
+          <div class="metric-note">January 2026</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Acquisition Channel</div>
+          <div class="metric-value">100% iPad</div>
+          <div class="metric-note">Rep-acquired</div>
+        </div>
+      </div>
+      <table>
+        <thead>
+          <tr><th>Month</th><th>New eCat Buyers</th><th>Channel</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Mar 2025</td><td>2</td><td>Rep-acquired (iPad)</td></tr>
+          <tr><td>Apr 2025</td><td>2</td><td>Rep-acquired (iPad)</td></tr>
+          <tr><td>May 2025</td><td>1</td><td>Rep-acquired (iPad)</td></tr>
+          <tr><td>Jun 2025</td><td>8</td><td>Rep-acquired (iPad)</td></tr>
+          <tr><td>Jul 2025</td><td>2</td><td>Rep-acquired (iPad)</td></tr>
+          <tr><td>Aug 2025</td><td>1</td><td>Rep-acquired (iPad)</td></tr>
+          <tr class="row-highlight"><td><strong>Jan 2026</strong></td><td>13</td><td>Rep-acquired (iPad)</td></tr>
+          <tr><td>Feb 2026</td><td>1</td><td>Rep-acquired (iPad)</td></tr>
+          <tr><td>Mar 2026</td><td>1</td><td>Rep-acquired (iPad)</td></tr>
+        </tbody>
+      </table>
+      <div class="what-this-means">
+        <strong>Action:</strong> Every new eCat buyer this year came in rep-acquired through iPad, and acquisition clusters around market-driven peaks (8 in June 2025, 13 in January 2026) rather than a steady monthly pipeline. The single highest-leverage next step is account-level trajectory data &mdash; request customer-level first-order dates so the next cycle can show which of these 31 new buyers are growing into repeat relationships versus going dormant after their first order.
+      </div>
+    </div>
+
+    <div class="what-this-means">
+      <strong>Action:</strong> Your eCat business is real but lumpy &mdash; $515K LTM concentrated in a January order wave and anchored by the Royaume Luminaire dealer group, with Rey Lighting proving the reorder-cadence model that the rest of your top buyers haven&rsquo;t adopted yet. Converting one-time large buyers to Rey-style recurring orders is the clearest path to smoothing volume and growing eCat GMV. Connecting all-channel order data would let us measure what share of these buyers&rsquo; total spend already flows through eCat and where the digital headroom sits.
+    </div>
+
+  </div>
+</details>
+
+
+<details class="section-collapse" id="product">
+  <summary>
+    <div class="section-title">Product Intelligence</div>
+    <div class="section-sub">2,091 visible products &middot; catalog completeness</div>
+    <div class="section-contents">Catalog completeness</div>
+    <span class="expand-hint">Expand section</span>
+  </summary>
+  <div class="section">
+
+    <div class="data-confidence">
+      <span class="data-confidence-label">Partial View</span>
+      <span class="data-confidence-action">Product analysis covers your eCat catalog (2,091 visible products). Order-history and inventory-detail intelligence &mdash; top sellers, velocity, stock-outs, and new-item adoption &mdash; aren&rsquo;t available this cycle because invoice-level sales data isn&rsquo;t yet syncing.</span>
+    </div><div class="subsection">
+      <div class="subsection-title">Catalog Completeness</div>
+      <table>
+        <thead>
+          <tr><th>Visibility</th><th>Products</th><th>Missing Images</th><th>Missing Price</th><th>Complete %</th></tr>
+        </thead>
+        <tbody>
+          <tr class="row-highlight"><td><strong>Visible</strong></td><td>2,091</td><td>5</td><td>0</td><td>99.8%</td></tr>
+        </tbody>
+      </table>
+      <div class="what-this-means">
+        <strong>Action:</strong> Your catalog is in strong shape at 99.8% complete &mdash; reps have the images and pricing they need to sell confidently. Only 5 visible products are missing images and none are missing a price, so maintaining this standard protects your digital selling effectiveness. See Platform Health Check for the specific items to finish.
+      </div>
+    </div>
+
+    <div class="what-this-means">
+      <strong>Action:</strong> Your eCat catalog is nearly complete at 99.8%, so reps can present and quote almost every product without gaps &mdash; finishing the last 5 image records keeps that foundation intact. Connecting invoice-level sales and inventory feeds would unlock the higher-value product intelligence here: top sellers, velocity trends, stock-out exposure by customer, and new-item adoption.
+    </div>
+
+  </div>
+</details>
+
+
+<details class="section-collapse" id="platform">
+  <summary>
+    <div class="section-title">Platform Context</div>
+    <div class="section-sub">Actionable items only &middot; data freshness, feature adoption gaps</div>
+    <div class="section-contents">Platform Health Status &middot; Action Required &middot; Feature Utilization</div>
+    <span class="expand-hint">Expand section</span>
+  </summary>
+  <div class="section">
+    <div class="subsection">
+      <div class="subsection-title">Platform Health Status</div>
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-val"><span class="badge warn">Low Volume</span></div>
+          <div class="metric-label">Core Pipeline</div>
+          <div class="metric-note">Avg ~4 imports/month over the last 6 months</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-val"><span class="badge danger">Stalled</span></div>
+          <div class="metric-label">Data Freshness</div>
+          <div class="metric-note">14 entity types not refreshed in 90+ days</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-val"><span class="badge ok">Fresh</span></div>
+          <div class="metric-label">Catalog</div>
+          <div class="metric-note">Products &amp; inventory imported within 2 days</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-val"><span class="badge warn">Narrow</span></div>
+          <div class="metric-label">Feature Adoption</div>
+          <div class="metric-note">4 of tracked features show meaningful usage</div>
+        </div>
+      </div>
+      <p class="prose">Your product catalog and inventory are current &mdash; reps see accurate stock and pricing on the latest SKUs. The concern is everything else: 12 pricing, options, and contract-pricing tables haven&rsquo;t been refreshed since August 2025, and product search dominates app activity while richer features sit idle.</p>
+      <div class="what-this-means">
+        <strong>Action:</strong> Your inventory and product feeds are healthy, but 12 supporting data tables (price levels, options, contract prices) are 313 days stale &mdash; every pricing and configuration view in the app may be showing August 2025 values. A single import refresh of these tables would restore trust in quotes and product options without touching your already-current catalog.
+      </div>
+    </div>
+    <div class="subsection">
+      <div class="subsection-title">Action Required</div>
+      <div class="callout alert">
+        <div class="callout-title">14 data sources need a refresh</div>
+      </div>
+      <table>
+        <thead>
+          <tr><th>Data Source</th><th>Status</th><th>Last Updated</th><th>Impact</th><th>Fix</th></tr>
+        </thead>
+        <tbody>
+          <tr class="row-danger"><td><strong>Price Levels &amp; Contract Prices</strong></td><td><span class="badge danger">Critical</span></td><td>Aug 7, 2025 (313 days)</td><td>Quotes and customer-specific pricing may reflect values from 10 months ago</td><td>Re-import price_levels and contract_prices via FTP</td></tr>
+          <tr class="row-danger"><td><strong>Options, Option Groups &amp; Matrix Options</strong></td><td><span class="badge danger">Critical</span></td><td>Aug 7, 2025 (313 days)</td><td>Configurable-product options reps select at order entry are stale</td><td>Re-import the options data set</td></tr>
+          <tr class="row-danger"><td><strong>Customer Favorites &amp; Kit Items</strong></td><td><span class="badge danger">Critical</span></td><td>Aug 7, 2025 (313 days)</td><td>Saved lists and kits no longer reflect this year&rsquo;s assortment</td><td>Re-import favorites and kit_items</td></tr>
+          <tr class="row-danger"><td><strong>Riser Prices &amp; Payment Info</strong></td><td><span class="badge danger">Critical</span></td><td>Aug 7, 2025 (313 days)</td><td>Pricing add-ons and stored payment details are outdated</td><td>Re-import riser_prices and payment records</td></tr>
+          <tr class="row-warn"><td><strong>Customer Master</strong></td><td><span class="badge warn">Stale</span></td><td>Jan 20, 2026 (148 days)</td><td>New ship-to locations and accounts opened since January aren&rsquo;t in the app</td><td>Update and re-import customers.csv</td></tr>
+          <tr class="row-warn"><td><strong>All-Channel Orders &amp; Invoices</strong></td><td><span class="badge warn">Stale</span></td><td>Mar 13, 2026 (96 days)</td><td>Order and invoice history sync has lagged by ~3 months</td><td>Re-run the order/invoice sync</td></tr>
+        </tbody>
+      </table>
+      <div class="what-this-means">
+        <strong>Action:</strong> The 313-day-old pricing and options tables are the most damaging gap &mdash; reps quoting from August 2025 price levels risk under- or over-charging on every configured order. Schedule a single import pass to refresh price_levels, contract_prices, and the options set, then bring the customer master current so January-onward accounts appear in the app. Enabled-but-stale data is worse than no data: reps lose trust once they catch one wrong price.
+      </div>
+    </div>
+    <div class="subsection">
+      <div class="subsection-title">Feature Utilization</div>
+      <div class="callout insight">
+        <div class="callout-title">4 features carry nearly all app activity</div>
+        <p>Product search dominates at 8,408 events (33% of all activity), with the library, customer-select, and customer-search features forming a solid secondary tier. SmartPicks is effectively dormant &mdash; just 1 use against 8,408 product searches over the trailing 12 months.</p>
+      </div>
+      <table>
+        <thead>
+          <tr><th>Feature</th><th>Events (LTM)</th><th>% of Activity</th><th>Intensity</th></tr>
+        </thead>
+        <tbody>
+          <tr class="row-highlight"><td><strong>Product Search</strong></td><td>8,408</td><td>33.4%</td><td><span class="badge ok">Heavy</span></td></tr>
+          <tr><td><strong>Library Browse</strong></td><td>1,488</td><td>5.9%</td><td><span class="badge muted">Moderate</span></td></tr>
+          <tr><td><strong>Customer Select</strong></td><td>1,321</td><td>5.3%</td><td><span class="badge muted">Moderate</span></td></tr>
+          <tr><td><strong>Customer Search</strong></td><td>1,264</td><td>5.0%</td><td><span class="badge muted">Moderate</span></td></tr>
+          <tr><td>PDF Catalog Creation</td><td>254</td><td>1.0%</td><td><span class="badge warn">Light</span></td></tr>
+          <tr><td>Order Submission</td><td>232</td><td>0.9%</td><td><span class="badge warn">Light</span></td></tr>
+          <tr><td>Collection Search</td><td>134</td><td>0.5%</td><td><span class="badge warn">Light</span></td></tr>
+          <tr><td>Product Filter</td><td>82</td><td>0.3%</td><td><span class="badge warn">Light</span></td></tr>
+          <tr><td>Email Item Info</td><td>75</td><td>0.3%</td><td><span class="badge warn">Light</span></td></tr>
+          <tr><td>SmartPicks</td><td>1</td><td>&lt;0.1%</td><td><span class="badge danger">Zero</span></td></tr>
+        </tbody>
+      </table>
+      <div class="callout opportunity">
+        <div class="callout-title">SmartPicks Coaching Opportunity</div>
+        <p>Your reps run product search more than 8,400 times a year but used SmartPicks once. SmartPicks surfaces personalized recommendations from a customer&rsquo;s purchase history &mdash; it&rsquo;s the difference between reps browsing the catalog and being guided to the right product during a presentation.</p>
+      </div>
+      <div class="what-this-means">
+        <strong>Action:</strong> Heavy manual product search with near-zero SmartPicks use means reps are doing work the app could do for them. Demo SmartPicks to your most active searchers first &mdash; turning even a fraction of those 8,400 searches into guided recommendations would speed up presentations and raise the relevance of what reps put in front of customers.
+      </div>
+    </div>
+  </div>
+</details>
+
+
+<section class="section appendix" id="appendix">
+  <h2 class="section-title"><span class="section-num">Appendix</span> Data Sources</h2>
+  <table class="data-sources">
+    <thead>
+    <tr><th>Source</th><th>Coverage</th><th>Used For</th></tr>
+    </thead>
+    <tbody>
+    <tr><td>eCat iPad Orders</td><td>Full LTM</td><td>Rep performance, order velocity, customer activity</td></tr>
+    <tr><td>All-Channel Business Data</td><td>Full LTM</td><td>Total business context, order channel mix, digital enablement</td></tr>
+    <tr><td>App Usage Analytics</td><td>Full LTM</td><td>Behavioral patterns, engagement scoring, archetype classification</td></tr>
+    <tr><td>Product Catalog</td><td>Current</td><td>Catalog completeness, new item tracking</td></tr>
+    <tr><td>Inventory System</td><td>Current</td><td>Stock-out detection, fill rate analysis</td></tr>
+    <tr><td>Customer Master</td><td>Current</td><td>Territory mapping, customer segmentation</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<footer class="footer">
+    <div class="footer-brand">Insightful &middot; Customer Intelligence</div>
+    <div class="footer-text">Generated June 17, 2026 &middot; Matteo Lighting &middot; Confidential &mdash; prepared for Matteo Lighting use only</div>
+  </footer>
+</div>
+<script>
+  // Sticky TOC active state
+  (function() {
+    const strip = document.getElementById('tocStrip');
+    if (!strip) return;
+    window.addEventListener('scroll', function() {
+      strip.classList.toggle('stuck', window.scrollY > 40);
+    });
+    const links = strip.querySelectorAll('a');
+    const sections = [];
+    links.forEach(function(a) {
+      const id = a.getAttribute('href').replace('#', '');
+      const el = document.getElementById(id);
+      if (el) sections.push({ el, a });
+    });
+    window.addEventListener('scroll', function() {
+      let current = sections[0];
+      sections.forEach(function(s) {
+        if (window.scrollY >= s.el.offsetTop - 80) current = s;
+      });
+      links.forEach(function(a) { a.classList.remove('active'); });
+      if (current) current.a.classList.add('active');
+    }, { passive: true });
+  })();
+
+  function openAndScroll(id) {
+    const target = document.getElementById(id);
+    if (!target) return;
+    const details = target.closest('details');
+    if (details && !details.open) details.open = true;
+    setTimeout(() => target.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+  }
+  document.querySelectorAll('.toc-strip a, .highlights a, .priority-title a').forEach(link => {
+    link.addEventListener('click', function(e) {
+      const href = this.getAttribute('href');
+      if (href && href.startsWith('#')) {
+        e.preventDefault();
+        openAndScroll(href.substring(1));
+      }
+    });
+  });
+</script>
+</body>
+</html>

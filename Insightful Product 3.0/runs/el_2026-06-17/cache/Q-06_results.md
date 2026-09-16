@@ -1,0 +1,119 @@
+# Q-06 Results — Eurofase Inc. (el, org_id=152)
+- **Query**: Q-06 — Rep Engagement Trajectory
+- **Period**: LTM (2025-06-17 to 2026-06-17)
+- **Row count**: 110
+- **Run date**: 2026-06-17
+
+
+| rep_name | logins_prev_90d | logins_current_90d | login_change_pct | orders_prev_90d | orders_current_90d | order_change_pct | gmv_current_90d |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Joe Picaroni | 38 | 14 | -63.20 | 8 | 6 | -25 | $31,435 |
+| Andrea Sims | 6 | 5 | -16.70 | 1 | 3 | 200 | $3,905 |
+| Karl Prekaski | 241 | 273 | 13.30 | 4 | 3 | -25 | $24,263 |
+| Elise Severson | 54 | 29 | -46.30 | 2 | 2 | 0 | $7,425 |
+| Pepper Carlson | 11 | 10 | -9.10 | 0 | 1 | — | $625 |
+| Kris Quackenbush | 120 | 41 | -65.80 | 9 | 1 | -88.90 | $1,350 |
+| Patrick Brockamp | 16 | 3 | -81.30 | 3 | 1 | -66.70 | $978 |
+| Jerry Lynn | 10 | 1 | -90 | 6 | 1 | -83.30 | $4,580 |
+| Diane Laughter | 70 | 67 | -4.30 | 3 | 0 | -100 | $0 |
+| Rob Azimi | 39 | 24 | -38.50 | 1 | 0 | -100 | $0 |
+| Tanya  Rose | 17 | 0 | -100 | 1 | 0 | -100 | $0 |
+| Vincent Ingato | 47 | 19 | -59.60 | 1 | 0 | -100 | $0 |
+| Tami Stauffacher | 12 | 2 | -83.30 | 1 | 0 | -100 | $0 |
+| John Monkowski | 22 | 1 | -95.50 | 9 | 0 | -100 | $0 |
+| Val Khe | 35 | 2 | -94.30 | 1 | 0 | -100 | $0 |
+| Michelle Collins | 12 | 0 | -100 | 2 | 0 | -100 | $0 |
+| Randy Robert | 67 | 40 | -40.30 | 2 | 0 | -100 | $0 |
+| Jason Montoya | 11 | 6 | -45.50 | 2 | 0 | -100 | $0 |
+| John Dalton | 16 | 9 | -43.80 | 4 | 0 | -100 | $0 |
+| Ariel DeAmato | 4 | 0 | -100 | 1 | 0 | -100 | $0 |
+| CJ McGee | 72 | 54 | -25 | 1 | 0 | -100 | $0 |
+| Richard Caputi | 6 | 0 | -100 | 2 | 0 | -100 | $0 |
+| Rolin Hudson | 45 | 9 | -80 | 1 | 0 | -100 | $0 |
+| Philip Todoroff | 78 | 83 | 6.40 | 2 | 0 | -100 | $0 |
+| Sara Romano | 36 | 22 | -38.90 | 7 | 0 | -100 | $0 |
+| Oren Meyers    | 57 | 18 | -68.40 | 2 | 0 | -100 | $0 |
+| Anthony Interlandi | 25 | 32 | 28 | 4 | 0 | -100 | $0 |
+| Alton Mckey | 7 | 6 | -14.30 | 1 | 0 | -100 | $0 |
+| Rob Hailpern | 27 | 7 | -74.10 | 3 | 0 | -100 | $0 |
+| Adam Ashmun | 88 | 71 | -19.30 | 2 | 0 | -100 | $0 |
+| Matthew Chu | 8 | 0 | -100 | 6 | 0 | -100 | $0 |
+| Vikram Kannan | 12 | 2 | -83.30 | 5 | 0 | -100 | $0 |
+| Mishir Fernandez | 11 | 4 | -63.60 | 3 | 0 | -100 | $0 |
+| Anthony Colon | 20 | 0 | -100 | 2 | 0 | -100 | $0 |
+| Troy Kaup | 47 | 21 | -55.30 | 2 | 0 | -100 | $0 |
+| Nick Curtis | 87 | 96 | 10.30 | 5 | 0 | -100 | $0 |
+| Tim Gietz | 27 | 19 | -29.60 | 4 | 0 | -100 | $0 |
+| Brittany Bonovich | 2 | 0 | -100 | 3 | 0 | -100 | $0 |
+| Steven Borowy | 14 | 2 | -85.70 | 5 | 0 | -100 | $0 |
+| Peter Scalia | 90 | 106 | 17.80 | 4 | 0 | -100 | $0 |
+| Itzel Vega | 16 | 3 | -81.30 | 1 | 0 | -100 | $0 |
+| Cindy Clapp | 33 | 22 | -33.30 | — | — | — | — |
+| Ryan  McWilliams | 109 | 108 | -0.90 | — | — | — | — |
+| Beth Peel | 38 | 28 | -26.30 | — | — | — | — |
+| Jackie Stanton | 24 | 33 | 37.50 | — | — | — | — |
+| Matt Hulett | 3 | 8 | 166.70 | — | — | — | — |
+| Todd Bierowski | 13 | 4 | -69.20 | — | — | — | — |
+| Fiza Ladha | 2 | 0 | -100 | — | — | — | — |
+| Allen Warren | 4 | 22 | 450 | — | — | — | — |
+| Chuck Johnson | 18 | 9 | -50 | — | — | — | — |
+| Kip Meyer | 0 | 2 | — | — | — | — | — |
+| Ruben Vargas | 4 | 0 | -100 | — | — | — | — |
+| Kirsten Seidl | 11 | 3 | -72.70 | — | — | — | — |
+| Admin svgray | 4 | 5 | 25 | — | — | — | — |
+| Vernes Learned | 44 | 25 | -43.20 | — | — | — | — |
+| Timothy Davidson | 4 | 1 | -75 | — | — | — | — |
+| Test User | 14 | 2 | -85.70 | — | — | — | — |
+| Zander Carranta | 5 | 0 | -100 | — | — | — | — |
+| Lynnette Levy | 0 | 6 | — | — | — | — | — |
+| michael schwartz | 2 | 0 | -100 | — | — | — | — |
+| Cookie Birardi | 5 | 2 | -60 | — | — | — | — |
+| Ken Rainbolt | 4 | 7 | 75 | — | — | — | — |
+| Patrick Slater | 5 | 0 | -100 | — | — | — | — |
+| Karen Clegg | 8 | 2 | -75 | — | — | — | — |
+| Jimmy Wilson | 0 | 2 | — | — | — | — | — |
+| Kelly York | 71 | 15 | -78.90 | — | — | — | — |
+| Aaron Harvey | 13 | 0 | -100 | — | — | — | — |
+| Jon McMahan | 1 | 0 | -100 | — | — | — | — |
+| Cole  Jenkins | 13 | 15 | 15.40 | — | — | — | — |
+| Allison Stauffacher | 8 | 0 | -100 | — | — | — | — |
+| Dan Whaley | 10 | 3 | -70 | — | — | — | — |
+| Juliana  Ejsmont | 0 | 21 | — | — | — | — | — |
+| Eli Asoyuf | 2 | 0 | -100 | — | — | — | — |
+| Stacey  Micheal | 29 | 20 | -31 | — | — | — | — |
+| Chris Saars | 0 | 14 | — | — | — | — | — |
+| Ryan Davidson | 23 | 13 | -43.50 | — | — | — | — |
+| Dave Bock | 5 | 0 | -100 | — | — | — | — |
+| Stan Terry | 49 | 63 | 28.60 | — | — | — | — |
+| Susan Rodriguez | 0 | 1 | — | — | — | — | — |
+| Kevin Liu | 4 | 0 | -100 | — | — | — | — |
+| Flavia Oliveira | 1 | 0 | -100 | — | — | — | — |
+| Jace Durbin | 5 | 0 | -100 | — | — | — | — |
+| Zack Sharon | 0 | 2 | — | — | — | — | — |
+| James Keenley | 43 | 16 | -62.80 | — | — | — | — |
+| Michael Estrin | 79 | 103 | 30.40 | — | — | — | — |
+| Maurice Cohen | 2 | 0 | -100 | — | — | — | — |
+| Mary McKey | 20 | 10 | -50 | — | — | — | — |
+| Erin  Godsell | 3 | 15 | 400 | — | — | — | — |
+| Dan Wright | 5 | 2 | -60 | — | — | — | — |
+| Glenn Quintana | 32 | 3 | -90.60 | — | — | — | — |
+| Mitch Colker | 8 | 0 | -100 | — | — | — | — |
+| Tom Johnson | 4 | 0 | -100 | — | — | — | — |
+| Keith Hendrix | 31 | 17 | -45.20 | — | — | — | — |
+| Dave Wood | 0 | 10 | — | — | — | — | — |
+| Dakota Duffield | 4 | 0 | -100 | — | — | — | — |
+| Barbara Erlichman  | 2 | 8 | 300 | — | — | — | — |
+| Christine Wall | 58 | 36 | -37.90 | — | — | — | — |
+| Jessica Marcin | 21 | 7 | -66.70 | — | — | — | — |
+| Keeley - Luxeco  Jackson | 69 | 44 | -36.20 | — | — | — | — |
+| Amy Matteson | 19 | 23 | 21.10 | — | — | — | — |
+| Chris Rogers | 6 | 0 | -100 | — | — | — | — |
+| Heather Melzer | 20 | 13 | -35 | — | — | — | — |
+| Ryan Berlin | 4 | 5 | 25 | — | — | — | — |
+| Brent Sanders | 3 | 0 | -100 | — | — | — | — |
+| Rose-Anne Sanford | 11 | 0 | -100 | — | — | — | — |
+| Dino Patruno | 1 | 0 | -100 | — | — | — | — |
+| Francesa  De Negri | 2 | 3 | 50 | — | — | — | — |
+| Wendy Sun | 2 | 0 | -100 | — | — | — | — |
+| Timie Kozaryn | 1 | 0 | -100 | — | — | — | — |
+| Jamie Hamner | 11 | 0 | -100 | — | — | — | — |

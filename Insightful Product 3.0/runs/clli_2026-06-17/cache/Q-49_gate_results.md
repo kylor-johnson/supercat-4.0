@@ -1,0 +1,10 @@
+# Q-49-gate Results — Craftmade (clli, org_id=149)
+- **Query**: Q-49-gate — Buyer Attribution Gate Check
+- **Period**: LTM (2025-06-17 to 2026-06-17)
+- **Row count**: 1
+- **Run date**: 2026-06-17
+
+
+| total_portal_orders | orders_with_buyer_name | orders_with_bill_to |
+| --- | --- | --- |
+| 696,123 | 696,123 | 696,123 |

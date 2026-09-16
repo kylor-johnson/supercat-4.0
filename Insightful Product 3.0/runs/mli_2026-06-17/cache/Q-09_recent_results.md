@@ -1,0 +1,459 @@
+# Q-09-recent Results — Maxim Lighting  (mli, org_id=137)
+- **Query**: Q-09-recent — Import Health — Recent Errors
+- **Period**: LTM (2025-06-17 to 2026-06-17)
+- **Row count**: 10
+- **Run date**: 2026-06-17
+
+
+| created_at | data |
+| --- | --- |
+| 2026-06-16 15:10:21 | ---
+- - Products
+  - - - :warning
+      - 'Line 2: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 1764: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 3870: ImageFileName: 90200CLBK_01 (1).jpg is not valid and will not
+        be imported'
+    - - :warning
+      - 'Line 6515: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6560: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6566: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6580: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6581: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6584: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6598: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6600: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6601: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6603: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6607: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6608: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6612: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6614: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6620: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6622: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6623: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6929: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 8460: BaseItemCode: REM003: The following scan group codes are already
+        used as an item number: REM002'
+    - - :warning
+      - 'Line 9369: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 9542: ImageFileName:  is not valid and will not be imported'
+- - Inventory
+  - []
+- - Product Stories
+  - []
+- - Customers
+  - []
+- - Sales Data
+  - []
+ |
+| 2026-06-15 15:25:36 | ---
+- - Customers
+  - []
+ |
+| 2026-06-15 15:10:51 | ---
+- - Products
+  - - - :warning
+      - 'Line 2: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 1764: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 3871: ImageFileName: 90200CLBK_01 (1).jpg is not valid and will not
+        be imported'
+    - - :warning
+      - 'Line 6516: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6561: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6567: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6581: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6582: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6585: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6597: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6600: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6602: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6603: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6605: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6608: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6609: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6611: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6621: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6623: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6624: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6931: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 8461: BaseItemCode: REM003: The following scan group codes are already
+        used as an item number: REM002'
+    - - :warning
+      - 'Line 9369: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 9542: ImageFileName:  is not valid and will not be imported'
+- - Inventory
+  - []
+- - Product Stories
+  - []
+- - Customers
+  - - - :error
+      - 'Line 9782: error=Validation failed: Buyer email is invalid: Customer # =
+        Z7310480-CRAIRV'
+- - Sales Data
+  - []
+ |
+| 2026-06-14 15:10:02 | ---
+- - Products
+  - - - :warning
+      - 'Line 2: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 1758: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 3868: ImageFileName: 90200CLBK_01 (1).jpg is not valid and will not
+        be imported'
+    - - :warning
+      - 'Line 6513: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6558: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6564: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6578: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6579: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6582: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6594: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6597: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6599: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6600: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6602: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6605: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6606: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6608: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6618: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6620: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6621: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6928: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 8458: BaseItemCode: REM003: The following scan group codes are already
+        used as an item number: REM002'
+    - - :warning
+      - 'Line 9366: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 9539: ImageFileName:  is not valid and will not be imported'
+- - Inventory
+  - - - :warning
+      - 'Line 6446: Product not found, record ignored., BaseItemCode=SMP30005WT'
+    - - :warning
+      - 'Line 6447: Product not found, record ignored., BaseItemCode=SMP30006WT'
+    - - :warning
+      - 'Line 6448: Product not found, record ignored., BaseItemCode=SMP30014WT'
+- - Product Stories
+  - []
+- - Customers
+  - - - :error
+      - 'Line 9782: error=Validation failed: Buyer email is invalid: Customer # =
+        Z7310480-CRAIRV'
+- - Sales Data
+  - []
+ |
+| 2026-06-13 15:11:48 | ---
+- - Products
+  - - - :warning
+      - 'Line 2: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 1758: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 3868: ImageFileName: 90200CLBK_01 (1).jpg is not valid and will not
+        be imported'
+    - - :warning
+      - 'Line 6513: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6558: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6564: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6578: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6579: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6582: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6594: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6597: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6599: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6600: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6602: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6605: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6606: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6608: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6618: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6620: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6621: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6928: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 8458: BaseItemCode: REM003: The following scan group codes are already
+        used as an item number: REM002'
+    - - :warning
+      - 'Line 9366: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 9539: ImageFileName:  is not valid and will not be imported'
+- - Inventory
+  - - - :warning
+      - 'Line 6446: Product not found, record ignored., BaseItemCode=SMP30005WT'
+    - - :warning
+      - 'Line 6447: Product not found, record ignored., BaseItemCode=SMP30006WT'
+    - - :warning
+      - 'Line 6448: Product not found, record ignored., BaseItemCode=SMP30014WT'
+- - Product Stories
+  - []
+- - Customers
+  - - - :error
+      - 'Line 9782: error=Validation failed: Buyer email is invalid: Customer # =
+        Z7310480-CRAIRV'
+- - Sales Data
+  - []
+ |
+| 2026-06-12 15:12:04 | ---
+- - Products
+  - - - :warning
+      - 'Line 1774: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 3863: ImageFileName: 90200CLBK_01 (1).jpg is not valid and will not
+        be imported'
+    - - :warning
+      - 'Line 6512: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6556: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6562: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6575: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6576: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6580: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6591: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6592: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6595: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6596: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6599: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6603: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6606: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6610: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6614: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6615: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6622: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6926: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 8458: BaseItemCode: REM003: The following scan group codes are already
+        used as an item number: REM002'
+    - - :warning
+      - 'Line 9359: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 9536: ImageFileName:  is not valid and will not be imported'
+- - Inventory
+  - []
+- - Product Stories
+  - []
+- - Customers
+  - []
+- - Sales Data
+  - []
+ |
+| 2026-06-11 21:16:18 | ---
+- - Images
+  - - - :information
+      - 'The following images were imported: 22513WWTNAB.jpg, 22512WNGM.jpg, 22514WNGM.jpg'
+ |
+| 2026-06-11 15:09:47 | ---
+- - Products
+  - - - :warning
+      - 'Line 1768: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 3867: ImageFileName: 90200CLBK_01 (1).jpg is not valid and will not
+        be imported'
+    - - :warning
+      - 'Line 6516: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6563: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6567: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6581: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6582: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6587: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6597: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6598: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6603: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6604: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6612: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6613: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6614: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6615: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6621: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6622: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6624: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6930: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 8463: BaseItemCode: REM003: The following scan group codes are already
+        used as an item number: REM002'
+    - - :warning
+      - 'Line 9373: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 9540: ImageFileName:  is not valid and will not be imported'
+- - Inventory
+  - []
+- - Product Stories
+  - []
+- - Customers
+  - []
+- - Sales Data
+  - []
+ |
+| 2026-06-10 15:11:12 | ---
+- - Products
+  - - - :warning
+      - 'Line 1768: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 3868: ImageFileName: 90200CLBK_01 (1).jpg is not valid and will not
+        be imported'
+    - - :warning
+      - 'Line 6516: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6563: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6567: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6580: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6581: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6583: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6598: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6599: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6601: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6603: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6604: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6611: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6612: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6614: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6617: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6623: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6625: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 6931: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 8461: BaseItemCode: REM003: The following scan group codes are already
+        used as an item number: REM002'
+    - - :warning
+      - 'Line 9373: ImageFileName:  is not valid and will not be imported'
+    - - :warning
+      - 'Line 9541: ImageFileName:  is not valid and will not be imported'
+- - Inventory
+  - []
+- - Product Stories
+  - []
+- - Customers
+  - []
+- - Sales Data
+  - []
+ |
+| 2026-06-09 15:12:52 | ---
+- - Sales Data
+  - []
+ |

@@ -1,0 +1,61 @@
+# Q-17 — Dormant eCat Customer Identification
+
+- **Query:** Q-17
+- **Org:** Jamie Young Company (jyc, org_id=76)
+- **Period:** LTM
+- **Run date:** 2026-04-17
+
+## Recently lapsed (ordered 4–12 months ago, NOT in last 3 months) — 25 rows
+
+| customer_num | customer_name | billing_state | last_ecat_order_date | historical_ecat_orders | historical_ecat_gmv |
+|---|---|---|---|---|---|
+| VSH89 | VESTA HOME | CA | 2025-04-24 | 2 | $57,512.00 |
+| ALC5 | ALISON CRAIG HOME FURNISHINGS | FL | 2026-01-16 | 4 | $29,823.00 |
+| OTB1 | OUTSIDE THE BOX PALM BEACH | FL | 2026-01-16 | 4 | $24,689.00 |
+| DWH11 | DASH | FL | 2025-10-27 | 2 | $22,170.00 |
+| MAR32 | A LITTLE MOORE | ME | 2026-01-16 | 4 | $21,464.00 |
+| CO802 | COTTAGE FURNISHINGS | CA | 2026-01-14 | 12 | $18,711.00 |
+| AFF14 | ANGELA FINE FURNISHINGS | FL | 2025-11-03 | 4 | $18,610.00 |
+| SC14 | SEA CLASSICS | NC | 2025-07-19 | 2 | $16,968.00 |
+| MMO6 | MEGAN MOLTEN | SC | 2025-12-30 | 6 | $16,120.40 |
+| HOF24 | HOME OUTFITTERS | CO | 2025-09-09 | 5 | $15,704.00 |
+| BASSM | BASSMAN BLAINE-DESN | CA | 2025-12-17 | 22 | $15,637.00 |
+| PM8 | PAOLO MOSCHINO LIMITED | . | 2025-11-19 | 1 | $15,180.00 |
+| SAMA2 | SAMANTHA DREW HOME | NY | 2025-10-29 | 5 | $14,669.00 |
+| JHI50 | JULIA HALL INTERIORS | FL | 2025-11-19 | 3 | $14,660.00 |
+| WID26 | WILLOW INTERIOR DECORATION AND | CO | 2025-09-02 | 3 | $14,111.00 |
+| TR55 | TREC | CT | 2025-11-13 | 4 | $13,957.42 |
+| OUT70 | OUTRAGEOUS INTERIORS | GA | 2025-08-06 | 3 | $13,475.00 |
+| FLD31 | FOLD DESIGN STUDIO LLC | SC | 2025-07-29 | 2 | $13,419.00 |
+| CIR19 | CIRCLE FURNITURE | MA | 2025-10-24 | 7 | $13,116.20 |
+| BRI55 | BORGO ROSATI INC | OR | 2026-01-15 | 10 | $12,659.00 |
+| AFL8 | ACCENTS FOR LIVING | ON | 2025-05-22 | 5 | $12,391.00 |
+| ACC13 | ACCESSORY STORE, THE | CT | 2026-01-16 | 5 | $12,100.28 |
+| TLP11 | THE LAVISH PALM | FL | 2026-01-16 | 3 | $12,045.54 |
+| LYH6 | SIDEDOOR LYNSEY HUMPHREY | UT | 2025-11-25 | 31 | $11,418.00 |
+| DSP45 | DESIGN PHASE | MI | 2025-10-28 | 2 | $10,666.00 |
+
+## At-risk high-value sub-view (>90 days since last order) — 20 rows
+
+| customer_num | customer_name | billing_state | ecat_gmv_12mo | last_ecat_order_date | days_since_last_ecat_order |
+|---|---|---|---|---|---|
+| VSH89 | VESTA HOME | CA | $57,512.00 | 2025-04-24 | 357 |
+| ALC5 | ALISON CRAIG HOME FURNISHINGS | FL | $29,823.00 | 2026-01-16 | 91 |
+| OTB1 | OUTSIDE THE BOX PALM BEACH | FL | $24,689.00 | 2026-01-16 | 91 |
+| DWH11 | DASH | FL | $22,170.00 | 2025-10-27 | 172 |
+| MAR32 | A LITTLE MOORE | ME | $21,464.00 | 2026-01-16 | 91 |
+| CO802 | COTTAGE FURNISHINGS | CA | $18,711.00 | 2026-01-14 | 92 |
+| AFF14 | ANGELA FINE FURNISHINGS | FL | $18,610.00 | 2025-11-03 | 164 |
+| SC14 | SEA CLASSICS | NC | $16,968.00 | 2025-07-19 | 272 |
+| MMO6 | MEGAN MOLTEN | SC | $16,120.40 | 2025-12-30 | 108 |
+| HOF24 | HOME OUTFITTERS | CO | $15,704.00 | 2025-09-09 | 220 |
+| BASSM | BASSMAN BLAINE-DESN | CA | $15,637.00 | 2025-12-17 | 121 |
+| PM8 | PAOLO MOSCHINO LIMITED | . | $15,180.00 | 2025-11-19 | 149 |
+| SAMA2 | SAMANTHA DREW HOME | NY | $14,669.00 | 2025-10-29 | 170 |
+| JHI50 | JULIA HALL INTERIORS | FL | $14,660.00 | 2025-11-19 | 149 |
+| WID26 | WILLOW INTERIOR DECORATION AND | CO | $14,111.00 | 2025-09-02 | 227 |
+| TR55 | TREC | CT | $13,957.42 | 2025-11-13 | 155 |
+| OUT70 | OUTRAGEOUS INTERIORS | GA | $13,475.00 | 2025-08-06 | 254 |
+| FLD31 | FOLD DESIGN STUDIO LLC | SC | $13,419.00 | 2025-07-29 | 262 |
+| CIR19 | CIRCLE FURNITURE | MA | $13,116.20 | 2025-10-24 | 175 |
+| BRI55 | BORGO ROSATI INC | OR | $12,659.00 | 2026-01-15 | 92 |

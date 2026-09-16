@@ -1,0 +1,27 @@
+# Q-14: Customer Reorder Frequency & Velocity — Visual Comfort - Studio /Fans (fms, org_id=108)
+- **Run date**: 2026-04-30
+- **Period**: LTM
+- **Rows**: 20 (customers with ≥3 eCat orders)
+
+| Customer Num | Company Name | eCat Orders | eCat GMV | First Order | Last Order | Avg Days Between |
+|-------------|-------------|------------|---------|------------|-----------|-----------------|
+| 59666 | FS-MANASQUAN LIGHTING - FS | 70 | $85,563.15 | 2025-04-30 | 2026-04-25 | 5.2 |
+| 44808 | FS-HI-LIGHT DECORATING INC - FS | 57 | $56,026.96 | 2025-05-05 | 2026-04-28 | 6.4 |
+| 32258 | FS-BEDFORD LIGHTING INC - FS | 56 | $24,669.31 | 2025-05-06 | 2026-04-24 | 6.4 |
+| 225604 | FS-VOSS DESIGNS LLC - FS | 34 | $24,193.92 | 2025-05-01 | 2026-04-22 | 10.8 |
+| 296511 | FS-ELEMENTS INTERIOR DESIGN INC DD - FS | 23 | $19,925.18 | 2025-05-01 | 2026-03-25 | 14.9 |
+| 44809 | FS-LITES PLUS INC - FS | 18 | $13,372.92 | 2025-05-07 | 2025-10-08 | 9.1 |
+| 48610 | FS-LESSMAN ELECTRIC SUPPLY C - FS | 17 | $9,027.55 | 2025-07-31 | 2025-12-31 | 9.6 |
+| 319279 | FS-WOSTBROCK HOME - FS | 17 | $7,236.55 | 2025-05-23 | 2026-04-21 | 20.8 |
+| 244333 | FS-L O INTERIORS LLC - FS | 17 | $8,558.67 | 2025-06-03 | 2026-04-21 | 20.2 |
+| 316936 | FS-ST. JOHN'S FURNITURE CORP. - FS | 17 | $14,287.21 | 2025-05-20 | 2026-04-27 | 21.4 |
+| 281593 | Knaak Marketing Group Inc | 15 | $6,800.45 | 2025-05-01 | 2026-02-27 | 21.6 |
+| 329486 | FS-OLD DOG INTERIORS - FS | 14 | $16,463.70 | 2025-05-15 | 2026-02-19 | 21.5 |
+| 49702 | FS-LIGHTING SUPERSTORE - FS | 14 | $7,903.66 | 2025-06-09 | 2026-04-16 | 23.9 |
+| 292178 | FS-DWELL HOME FURNISHINGS & INTERIOR - FS | 13 | $8,242.62 | 2025-11-06 | 2026-04-10 | 12.9 |
+| 284795 | FS-M WALLMAN DESIGN LLC DD - FS | 13 | $10,565.99 | 2025-05-06 | 2026-03-12 | 25.8 |
+| 50038 | FS-LIGHTSTYLE OF ORLANDO / BSA - FS | 12 | $67,753.94 | 2025-06-17 | 2026-01-27 | 20.4 |
+| 46620 | FS-J BANKS DESIGN GROUP INC DD - FS | 9 | $11,457.96 | 2025-07-10 | 2026-03-02 | 29.4 |
+| 59483 | FS-MEWS /BSA - FS | 9 | $68,130.00 | 2026-01-10 | 2026-01-12 | 0.2 |
+| 290522 | FS-HOUNDSTOOTH HOUSE DD - FS | 8 | $2,750.14 | 2025-06-12 | 2026-02-16 | 35.7 |
+| 303119 | FS-AQUA ALLY INC - FS | 8 | $3,100.97 | 2025-08-12 | 2026-02-24 | 28.0 |

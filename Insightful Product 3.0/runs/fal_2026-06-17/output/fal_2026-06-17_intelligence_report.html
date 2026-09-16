@@ -1,0 +1,2344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Sarreid, Ltd. — Customer Intelligence Report</title>
+<style>
+    :root {
+      --bg: #FAFAF8;
+      --surface: #FFFFFF;
+      --panel: #F5F4F1;
+      --border: #E8E5DE;
+      --border-light: #F0EDE6;
+      --text: #2C2925;
+      --text-secondary: #6B6660;
+      --text-muted: #9B958C;
+      --accent: #C47A4A;
+      --accent-deep: #89523B;
+      --accent-glow: rgba(196,122,74,.08);
+      --accent-border: rgba(196,122,74,.2);
+      --ok: #4A8C5C;
+      --ok-bg: #EDF7F0;
+      --ok-border: rgba(74,140,92,.2);
+      --warn: #B8863A;
+      --warn-bg: #FDF6EC;
+      --warn-border: rgba(184,134,58,.2);
+      --danger: #C0524A;
+      --danger-bg: #FDF0EF;
+      --danger-border: rgba(192,82,74,.2);
+      --info: #4A7A8C;
+      --info-bg: #EDF4F7;
+      --info-border: rgba(74,122,140,.2);
+      --fd: 'DM Sans', system-ui, sans-serif;
+      --fm: 'IBM Plex Mono', ui-monospace, monospace;
+      --r: 10px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font: 400 14px/1.65 var(--fd); color: var(--text); background: var(--bg); -webkit-font-smoothing: antialiased; }
+
+    .page { max-width: 920px; margin: 0 auto; padding: 0 24px 40px; }
+
+    /* ── Header ── */
+    .header { padding: 48px 0 32px; border-bottom: 1px solid var(--border); margin-bottom: 32px; position: relative; }
+    .h-brand { display: flex; align-items: center; gap: 8px; margin-bottom: 20px; }
+    .h-brand span { font: 500 10px/1 var(--fm); letter-spacing: .12em; text-transform: uppercase; color: var(--text-muted); }
+    .h-customer { font: 700 36px/1.1 var(--fd); color: var(--text); letter-spacing: -.01em; margin-bottom: 4px; }
+    .h-type { font: 400 15px/1 var(--fd); color: var(--text-secondary); margin-bottom: 16px; }
+    .h-meta { font: 400 11px/1 var(--fm); color: var(--text-muted); letter-spacing: .02em; }
+    .h-accent { position: absolute; bottom: -1px; left: 0; width: 64px; height: 2px; background: var(--accent); }
+
+    /* ── Key Highlights ── */
+    .highlights { margin: 8px 0 28px; padding: 0; list-style: none; counter-reset: hl; }
+    .highlights li { counter-increment: hl; padding: 12px 0; border-bottom: 1px solid var(--border-light); font: 400 13.5px/1.65 var(--fd); color: var(--text-secondary); padding-left: 36px; position: relative; }
+    .highlights li:last-child { border-bottom: none; }
+    .highlights li::before { content: counter(hl); position: absolute; left: 0; top: 14px; display: flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: var(--accent-glow); border: 1px solid var(--accent-border); font: 600 10px/1 var(--fm); color: var(--accent-deep); }
+    .highlights li strong { color: var(--text); font-weight: 600; }
+    .highlights a { color: var(--accent-deep); text-decoration: none; font-weight: 500; border-bottom: 1px solid var(--accent-border); transition: border-color .12s; }
+    .highlights a:hover { border-bottom-color: var(--accent); }
+    .priority-title a { color: inherit; text-decoration: none; border-bottom: 1px solid transparent; transition: border-color .12s; }
+    .priority-title a:hover { border-bottom-color: var(--accent); color: var(--accent-deep); }
+
+    /* ── Sections ── */
+    .section { margin-bottom: 32px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 28px 32px; }
+    .section-title { font: 700 20px/1.2 var(--fd); color: var(--text); margin-bottom: 4px; padding-bottom: 12px; border-bottom: 1px solid var(--border-light); }
+    .section-sub { font: 400 13px/1 var(--fd); color: var(--text-muted); margin-bottom: 20px; margin-top: 8px; }
+    .subsection { margin-top: 24px; }
+    .subsection-title { font: 600 15px/1.3 var(--fd); color: var(--text); margin-bottom: 12px; }
+    .sub-label { font: 500 9px/1 var(--fm); letter-spacing: .08em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; }
+    .section-num { font: 500 11px/1 var(--fm); color: var(--text-muted); margin-right: 8px; }
+    .section-light { background: var(--panel); border-color: var(--border-light); }
+    .what-this-means { margin-top: 16px; padding: 14px 18px; background: var(--panel); border-left: 3px solid var(--accent); border-radius: 0 6px 6px 0; font: 400 13px/1.6 var(--fd); color: var(--text-secondary); }
+    .what-this-means strong { color: var(--text); font-weight: 600; }
+
+    /* ── Priority Actions ── */
+    .priorities { display: grid; gap: 12px; margin-bottom: 32px; }
+    .priority { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 16px 20px; display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: start; }
+    .priority-badge { font: 700 9px/1 var(--fm); letter-spacing: .06em; text-transform: uppercase; padding: 4px 8px; border-radius: 4px; white-space: nowrap; margin-top: 2px; }
+    .priority-badge.high { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-border); }
+    .priority-badge.medium { background: var(--warn-bg); color: var(--warn); border: 1px solid var(--warn-border); }
+    .priority-badge.low { background: var(--info-bg); color: var(--info); border: 1px solid var(--info-border); }
+    .priority-title { font: 600 13px/1.35 var(--fd); color: var(--text); margin-bottom: 3px; }
+    .priority-desc { font: 400 12px/1.5 var(--fd); color: var(--text-secondary); }
+    .priority-impact { font: 600 12px/1 var(--fm); color: var(--ok); white-space: nowrap; margin-top: 2px; }
+
+    /* ── Metric cards ── */
+    .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 16px 0; }
+    .metrics-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; margin: 16px 0; }
+    .metric { background: var(--panel); border-radius: 8px; padding: 14px 16px; }
+    .metric-card { background: var(--panel); border-radius: 8px; padding: 16px; }
+    .metric-label { font: 500 9px/1 var(--fm); letter-spacing: .08em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
+    .metric-value { font: 700 22px/1.2 var(--fd); color: var(--text); }
+    .metric-val { font: 600 24px/1 var(--fd); color: var(--text); margin-bottom: 4px; }
+    .metric-note { font: 400 11px/1.3 var(--fd); color: var(--text-muted); margin-top: 2px; }
+    .metric-note.ok { color: var(--ok); font-weight: 500; }
+    .metric-note.warn { color: var(--warn); font-weight: 500; }
+    .metric-note.danger { color: var(--danger); font-weight: 500; }
+
+    /* ── Tables ── */
+    table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
+    thead { background: var(--panel); }
+    th { padding: 8px 12px; text-align: left; font: 600 10px/1 var(--fm); letter-spacing: .05em; text-transform: uppercase; color: var(--text-muted); border-bottom: 1px solid var(--border); }
+    td { padding: 8px 12px; border-bottom: 1px solid var(--border-light); color: var(--text-secondary); }
+    tbody tr:hover { background: var(--accent-glow); }
+    td strong { color: var(--text); font-weight: 600; }
+    .row-highlight { background: var(--ok-bg); }
+    .row-warn { background: var(--warn-bg); }
+    .row-danger { background: var(--danger-bg); }
+    .row-total { font-weight: 600; background: var(--panel); }
+    .row-total td { color: var(--text); border-bottom: 2px solid var(--border); }
+    .prose { font: 400 13.5px/1.7 var(--fd); color: var(--text-secondary); margin-bottom: 16px; }
+    .prose strong { color: var(--text); }
+
+    /* ── Badges ── */
+    .badge { display: inline-block; padding: 3px 8px; border-radius: 4px; font: 600 10px/1 var(--fm); letter-spacing: .03em; text-transform: uppercase; }
+    .badge-ok { background: var(--ok-bg); color: var(--ok); border: 1px solid var(--ok-border); }
+    .badge-warn { background: var(--warn-bg); color: var(--warn); border: 1px solid var(--warn-border); }
+    .badge-danger { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-border); }
+    .badge-info { background: var(--info-bg); color: var(--info); border: 1px solid var(--info-border); }
+    .badge.ok { background: var(--ok-bg); color: var(--ok); border: 1px solid var(--ok-border); }
+    .badge.warn { background: var(--warn-bg); color: var(--warn); border: 1px solid var(--warn-border); }
+    .badge.danger { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-border); }
+    .badge.info { background: var(--info-bg); color: var(--info); border: 1px solid var(--info-border); }
+    .badge.muted { background: var(--panel); color: var(--text-muted); border: 1px solid var(--border); }
+
+    /* ── Callout boxes ── */
+    .callout { border-radius: 8px; padding: 16px 20px; margin: 16px 0; font-size: 13px; line-height: 1.6; }
+    .callout-title { font: 600 13px/1 var(--fd); margin-bottom: 6px; }
+    .callout.alert { background: var(--danger-bg); border-left: 3px solid var(--danger); }
+    .callout.alert .callout-title { color: var(--danger); }
+    .callout.opportunity { background: var(--ok-bg); border-left: 3px solid var(--ok); }
+    .callout.opportunity .callout-title { color: var(--ok); }
+    .callout.insight { background: var(--panel); border-left: 3px solid var(--accent); }
+    .callout.insight .callout-title { color: var(--accent-deep); }
+    .callout.note { background: var(--info-bg); border-left: 3px solid var(--info); }
+    .callout.note .callout-title { color: var(--info); }
+    .callout ul { margin: 8px 0 0 20px; }
+    .callout li { margin: 4px 0; }
+
+    /* ── Coaching cards ── */
+    .coaching-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 20px 24px; margin: 12px 0; border-top: 3px solid var(--warn); }
+    .coaching-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+    .coaching-name { font: 600 15px/1 var(--fd); color: var(--text); }
+    .coaching-body { font: 400 13px/1.6 var(--fd); color: var(--text-secondary); margin-bottom: 8px; }
+    .coaching-body strong { color: var(--text); }
+    .coaching-action { font: 500 13px/1.5 var(--fd); color: var(--text); margin-bottom: 6px; }
+    .coaching-impact { display: inline-block; font: 500 12px/1 var(--fm); color: var(--ok); background: var(--ok-bg); border: 1px solid var(--ok-border); padding: 5px 10px; border-radius: 5px; }
+
+    /* ── Progressive disclosure (subsection) ── */
+    details { margin: 12px 0; }
+    details > summary { display: flex; align-items: center; gap: 8px; font: 500 13px/1 var(--fd); color: var(--accent-deep); cursor: pointer; list-style: none; padding: 10px 14px; user-select: none; background: var(--panel); border: 1px solid var(--border); border-radius: 6px; transition: all .15s; }
+    details > summary::-webkit-details-marker { display: none; }
+    details > summary::before { content: '\25B8'; font-size: 10px; transition: transform .15s; display: inline-block; color: var(--accent); }
+    details[open] > summary::before { transform: rotate(90deg); }
+    details > summary:hover { background: var(--accent-glow); border-color: var(--accent-border); color: var(--accent); }
+    details[open] > summary { border-radius: 6px 6px 0 0; border-bottom-color: transparent; background: var(--accent-glow); }
+    details > summary::after { content: 'click to expand'; margin-left: auto; font: 400 10px/1 var(--fm); color: var(--text-muted); letter-spacing: .02em; }
+    details[open] > summary::after { content: 'click to collapse'; }
+
+    /* ── Section-level collapse ── */
+    details.section-collapse { margin: 0 0 32px; border: none; background: none; }
+    details.section-collapse > summary { display: block; background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 24px 32px; cursor: pointer; transition: all .15s; }
+    details.section-collapse > summary::before { content: none; }
+    details.section-collapse > summary::after { content: none; }
+    details.section-collapse > summary:hover { border-color: var(--accent-border); box-shadow: 0 2px 8px rgba(196,122,74,.08); }
+    details.section-collapse > summary .section-title { margin-bottom: 4px; padding-bottom: 0; border-bottom: none; }
+    details.section-collapse > summary .section-sub { margin-bottom: 0; }
+    details.section-collapse > summary .section-contents { font: 400 12px/1.4 var(--fd); color: var(--text-muted); margin-top: 6px; }
+    details.section-collapse > summary .expand-hint { display: inline-block; margin-top: 10px; font: 500 10px/1 var(--fm); letter-spacing: .04em; text-transform: uppercase; color: var(--accent); opacity: .7; transition: opacity .12s; }
+    details.section-collapse > summary:hover .expand-hint { opacity: 1; }
+    details.section-collapse[open] > summary { border-radius: var(--r) var(--r) 0 0; border-bottom-color: var(--border-light); background: var(--surface); }
+    details.section-collapse[open] > summary .expand-hint { display: none; }
+    details.section-collapse > .section { margin-bottom: 0; border-top: none; border-radius: 0 0 var(--r) var(--r); }
+    details.section-collapse.light > summary { background: var(--panel); }
+    details.section-collapse.light[open] > summary { background: var(--panel); }
+    details.section-collapse.light > .section { background: var(--panel); }
+
+    /* ── Peer benchmarking — base ── */
+    .peer-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 20px 24px; margin: 12px 0; }
+    .peer-cohort-label { font: 500 10px/1 var(--fm); letter-spacing: .08em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; }
+    .peer-cohort-value { font: 600 14px/1 var(--fd); color: var(--text); margin-bottom: 4px; }
+    .peer-cohort-sub { font: 400 11px/1.4 var(--fd); color: var(--text-muted); margin-bottom: 16px; }
+    .peer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 16px; margin-top: 12px; }
+    .peer-metric { text-align: center; padding: 12px; background: var(--panel); border-radius: 8px; }
+    .peer-label { font: 500 9px/1 var(--fm); letter-spacing: .08em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
+    .peer-value { font: 700 20px/1.2 var(--fd); color: var(--text); }
+    .peer-compare { font: 400 11px/1 var(--fm); margin-top: 2px; }
+    .peer-compare.above { color: var(--ok); }
+    .peer-compare.below { color: var(--warn); }
+    .peer-compare.on-par { color: var(--text-muted); }
+    .peer-confidence { font: 400 11px/1.5 var(--fd); color: var(--text-muted); margin-top: 12px; font-style: italic; }
+
+    /* ── Peer benchmarking — hero stat ── */
+    .peer-hero { background: var(--accent-glow); border: 1px solid var(--accent-border); border-radius: var(--r); padding: 22px 26px; margin-bottom: 20px; display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: center; }
+    .peer-hero-left { }
+    .peer-hero-eyebrow { font: 500 9px/1 var(--fm); letter-spacing: .1em; text-transform: uppercase; color: var(--accent-deep); margin-bottom: 8px; }
+    .peer-hero-stat { font: 700 32px/1.1 var(--fd); color: var(--text); letter-spacing: -.02em; margin-bottom: 4px; }
+    .peer-hero-context { font: 400 13px/1.55 var(--fd); color: var(--text-secondary); max-width: 440px; }
+    .peer-hero-context strong { color: var(--text); font-weight: 600; }
+    .peer-hero-context .delta-above { color: var(--ok); font-weight: 600; }
+    .peer-hero-context .delta-below { color: var(--warn); font-weight: 600; }
+    .peer-hero-right { text-align: center; flex-shrink: 0; }
+    .peer-hero-pctile { font: 600 13px/1 var(--fm); padding: 6px 12px; border-radius: 20px; white-space: nowrap; }
+    .peer-hero-pctile.above { background: var(--ok-bg); color: var(--ok); border: 1px solid var(--ok-border); }
+    .peer-hero-pctile.below { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-border); }
+    .peer-hero-pctile.on-par { background: var(--panel); color: var(--text-muted); border: 1px solid var(--border); }
+    .peer-hero-pctile-label { font: 400 9px/1.4 var(--fm); color: var(--text-muted); letter-spacing: .04em; text-transform: uppercase; margin-top: 4px; }
+    .peer-hero-metric { flex: 1; }
+    .peer-hero-label { font: 500 10px/1 var(--fm); color: var(--text-muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 6px; }
+    .peer-hero-value { font: 700 32px/1 var(--fd); color: var(--text); margin-bottom: 4px; }
+    .peer-hero-sentence { font: 400 13px/1.5 var(--fd); color: var(--text-secondary); }
+
+    /* ── Peer benchmarking — narrative metric rows ── */
+    .peer-metric-rows { margin-top: 8px; }
+    .peer-metric-row { display: grid; grid-template-columns: 1fr auto; gap: 16px; align-items: start; padding: 14px 0; border-bottom: 1px solid var(--border-light); }
+    .peer-metric-row:last-child { border-bottom: none; }
+    .peer-metric-title { font: 600 12px/1 var(--fm); letter-spacing: .03em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
+    .peer-metric-sentence { font: 400 13px/1.6 var(--fd); color: var(--text-secondary); }
+    .peer-metric-sentence strong { color: var(--text); font-weight: 600; }
+    .peer-metric-sentence .delta-above { color: var(--ok); font-weight: 600; }
+    .peer-metric-sentence .delta-below { color: var(--warn); font-weight: 600; }
+    .peer-metric-sentence .delta-par { color: var(--text-muted); font-weight: 500; }
+    .peer-range-bar { display: flex; align-items: center; gap: 6px; margin-top: 6px; }
+    .peer-range-label { font: 400 9px/1 var(--fm); color: var(--text-muted); white-space: nowrap; letter-spacing: .02em; }
+    .peer-range-track { flex: 1; height: 4px; background: var(--border); border-radius: 2px; position: relative; min-width: 80px; }
+    .peer-range-marker { position: absolute; top: 50%; width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--surface); box-shadow: 0 0 0 1.5px currentColor; transform: translate(-50%, -50%); }
+    .peer-range-marker.above { color: var(--ok); background: var(--ok); }
+    .peer-range-marker.below { color: var(--warn); background: var(--warn); }
+    .peer-range-marker.on-par { color: var(--text-muted); background: var(--text-muted); }
+    .peer-quartile-pill { font: 700 10px/1 var(--fm); letter-spacing: .04em; padding: 4px 9px; border-radius: 20px; white-space: nowrap; flex-shrink: 0; }
+    .peer-quartile-pill.q4 { background: var(--ok-bg); color: var(--ok); border: 1px solid var(--ok-border); }
+    .peer-quartile-pill.q3 { background: var(--info-bg); color: var(--info); border: 1px solid var(--info-border); }
+    .peer-quartile-pill.q2 { background: var(--warn-bg); color: var(--warn); border: 1px solid var(--warn-border); }
+    .peer-quartile-pill.q1 { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-border); }
+    .quartile-pill { font: 700 10px/1 var(--fm); letter-spacing: .04em; padding: 4px 9px; border-radius: 20px; white-space: nowrap; flex-shrink: 0; }
+    .quartile-pill.q4 { background: var(--ok-bg); color: var(--ok); border: 1px solid var(--ok-border); }
+    .quartile-pill.q3 { background: var(--info-bg); color: var(--info); border: 1px solid var(--info-border); }
+    .quartile-pill.q2 { background: var(--warn-bg); color: var(--warn); border: 1px solid var(--warn-border); }
+    .quartile-pill.q1 { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-border); }
+
+    /* ── Peer benchmarking — top performers ── */
+    .top-performer-list { margin-top: 4px; }
+    .top-performer-row { display: flex; gap: 12px; align-items: flex-start; padding: 11px 0; border-bottom: 1px solid var(--border-light); }
+    .top-performer-row:last-child { border-bottom: none; }
+    .top-performer-icon { width: 26px; height: 26px; border-radius: 6px; background: var(--accent-glow); border: 1px solid var(--accent-border); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 12px; margin-top: 1px; }
+    .top-performer-text { font: 400 13px/1.55 var(--fd); color: var(--text-secondary); }
+    .top-performer-text strong { color: var(--text); font-weight: 600; }
+
+    /* ── Data Confidence Footer ── */
+    .data-confidence { background: var(--info-bg, var(--panel)); border-left: 3px solid var(--info, var(--accent)); border-radius: var(--r); padding: 12px 16px; margin: 20px 0; font: 400 12px/1.6 var(--fd); color: var(--text-muted); }
+    .data-confidence.limited { background: var(--warn-bg); border-left-color: var(--warn); }
+    .data-confidence-label { display: inline-block; font: 600 9px/1 var(--fm); letter-spacing: .06em; text-transform: uppercase; padding: 2px 6px; border-radius: 3px; background: var(--panel); color: var(--text-muted); border: 1px solid var(--border); margin-right: 8px; vertical-align: middle; }
+    .data-confidence.limited .data-confidence-label { background: var(--warn-bg); border-color: var(--warn-border); color: var(--warn); }
+    .data-confidence-action { font: 500 12px/1.6 var(--fd); color: var(--text-secondary); }
+
+    /* ── TOC strip (sticky) ── */
+    .toc-strip { position: sticky; top: 0; z-index: 100; display: flex; flex-wrap: nowrap; gap: 5px; padding: 12px 0; margin-bottom: 28px; background: var(--bg); border-bottom: 1px solid var(--border); overflow-x: auto; transition: box-shadow .2s; }
+    .toc-strip.stuck { box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+    .toc-strip a { display: inline-block; padding: 4px 10px; font: 500 10.5px/1 var(--fd); color: var(--text-secondary); text-decoration: none; background: var(--panel); border: 1px solid var(--border-light); border-radius: 20px; transition: all .12s; white-space: nowrap; }
+    .toc-strip a:hover { color: var(--accent); background: var(--accent-glow); border-color: var(--accent-border); }
+    .toc-strip a.active { color: var(--accent-deep); font-weight: 600; background: var(--accent-glow); border-color: var(--accent-border); }
+
+    /* ── Appendix ── */
+    .appendix-row { display: grid; grid-template-columns: 200px 1fr; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border-light); font-size: 13px; }
+    .appendix-row:last-child { border-bottom: none; }
+    .appendix-label { font: 500 12px/1.5 var(--fd); color: var(--text); }
+    .appendix-value { font: 400 12px/1.5 var(--fd); color: var(--text-secondary); }
+    .data-tag { display: inline-block; font: 500 9px/1 var(--fm); letter-spacing: .04em; text-transform: uppercase; padding: 2px 6px; border-radius: 3px; background: var(--panel); color: var(--text-muted); border: 1px solid var(--border); margin-right: 4px; }
+
+    /* ── Report mode banner (activation / reactivation) ── */
+    .mode-banner { border-radius: 8px; padding: 10px 18px; margin-bottom: 20px; font: 500 12px/1.5 var(--fd); display: flex; align-items: center; gap: 10px; }
+    .mode-banner.activation { background: var(--ok-bg); border: 1px solid var(--ok-border); color: var(--ok); }
+    .mode-banner.reactivation { background: var(--warn-bg); border: 1px solid var(--warn-border); color: var(--warn); }
+    .mode-banner strong { font-weight: 600; }
+
+    /* ── Footer ── */
+    .footer { margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--border); text-align: center; }
+    .footer-brand { font: 600 10px/1 var(--fm); letter-spacing: .12em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
+    .footer-text { font: 400 11px/1.5 var(--fd); color: var(--text-muted); }
+
+    /* ── Responsive ── */
+    @media (max-width: 600px) {
+      .h-customer { font-size: 26px; }
+      .section { padding: 20px 16px; }
+      .metrics { grid-template-columns: repeat(2, 1fr); }
+      .priority { grid-template-columns: 1fr; }
+      .priority-impact { margin-top: 4px; }
+      .peer-grid { grid-template-columns: repeat(2, 1fr); }
+      .appendix-row { grid-template-columns: 1fr; }
+      th, td { padding: 6px 8px; font-size: 12px; }
+    }
+
+    @media print {
+      @page {
+        size: letter;
+        margin: 18mm 15mm 15mm 15mm;
+      }
+      body {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        background: #fff;
+        orphans: 3;
+        widows: 3;
+      }
+      .toc-strip { display: none; }
+      .page { max-width: 100%; margin: 0; padding: 0; }
+      details[open] > summary { display: none; }
+      details > div, details > table { display: block !important; }
+
+      .header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        padding: 4px 0 3px;
+        margin-bottom: 0;
+        border-bottom: 1.5px solid #C47A4A;
+        background: #fff;
+      }
+      .h-brand { margin-bottom: 2px; }
+      .h-brand span { font-size: 8px; }
+      .h-customer { font-size: 13px; margin-bottom: 0; }
+      .h-type { display: none; }
+      .h-meta { display: none; }
+      .h-accent { display: none; }
+
+      .section-title { break-after: avoid; }
+      .subsection-title { break-after: avoid; }
+      .sub-label { break-after: avoid; }
+      .callout-title { break-after: avoid; }
+      .coaching-header { break-after: avoid; }
+
+      .priority { break-inside: avoid; }
+      .metrics { break-inside: avoid; }
+      .metric { break-inside: avoid; }
+      .callout { break-inside: avoid; }
+      .coaching-card { break-inside: avoid; }
+      .what-this-means { break-inside: avoid; }
+      .highlights li { break-inside: avoid; }
+      .peer-metric { break-inside: avoid; }
+      .appendix-row { break-inside: avoid; }
+      .data-confidence { break-inside: avoid; }
+      table { break-inside: avoid; }
+      tr { break-inside: avoid; }
+
+      .footer { break-before: page; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+<header class="header" id="top">
+    <div class="h-brand"><span>Insightful &middot; Customer Intelligence</span></div>
+    <div class="h-customer">Sarreid, Ltd.</div>
+    <div class="h-type">Customer Intelligence Report</div>
+    <div class="h-meta">June 2025 &ndash; June 2026 (Trailing 12 Months) &middot; Report Date: June 17, 2026</div>
+    <div class="h-meta" style="margin-top: 4px;"><span class="badge badge-info">Full · iPad</span></div>
+    <div class="h-accent"></div>
+  </header>
+  <nav class="toc-strip" id="tocStrip">
+    <a href="#signals">Signal Summary</a>
+    <a href="#team">Team Intelligence</a>
+    <a href="#accounts">Account Intelligence</a>
+    <a href="#commerce">Commerce Patterns</a>
+    <a href="#product">Product Intelligence</a>
+    <a href="#platform">Platform Context</a>
+    <a href="#appendix">Appendix</a>
+  </nav>
+
+<section class="section" id="signals">
+  <h2 class="section-title"><span class="section-num">§1</span> Signal Summary</h2>
+
+  <ol class="highlights">
+    <li><strong>$7.6M in business runs through reps who place none of it on eCat &mdash; your single biggest rep-assisted ordering lever</strong> &mdash; Charles Hoffman ($6.1M total business) and Deborah Klien ($1.5M) close real volume but route none of it through eCat; bringing even a sixth of it onto the app would add an estimated $1.3M in rep-assisted volume over the next 12 months with zero new customers. <a href="#team">&rarr; §5</a></li>
+    <li><strong>12 high-value accounts buy through other channels but have never ordered on eCat</strong> &mdash; led by Kathy Kuo Home ($537,688), NetRetailers ($346,611), and AFA Stores ($281,849), this is proven demand at zero acquisition cost. $6,615,227 in total business over the trailing 12 months. <a href="#accounts">&rarr; §2</a></li>
+    <li><strong>16 accounts who buy the Ciborium Chest also buy the Lilac Sideboard &mdash; a repeatable companion-product pattern</strong> &mdash; top accounts including Davids Furniture and MC Studio have bought one but not the pair, an open cross-sell you can present this week. $3,426,152 in related anchor-item revenue over the trailing 12 months. <a href="#accounts">&rarr; §2</a></li>
+    <li><strong>Clyde Barnard drives 21% of all eCat sales and just doubled his quarterly orders</strong> &mdash; your top eCat seller closed across 27 customers at a $7,401 average order and lifted current-90-day orders from 10 to 20, the strongest momentum on the team. $555,103 in eCat sales over the trailing 12 months. <a href="#team">&rarr; §5</a></li>
+    <li><strong>Two-thirds of your business already flows through your own B2B web storefront &mdash; eCat is the rep-assisted channel on top of it</strong> &mdash; $10.0M (64.1%) runs self-service through your web storefront while eCat carries 16.4% by dollars, spiking to 30&ndash;43% around buying markets; eCat earns its keep capturing showroom and project orders at the point of rep contact, not by replacing the web channel your buyers already use. $2.6M in eCat sales over the trailing 12 months. <a href="#commerce">&rarr; §4</a></li>
+    <li><strong>The Lilac Sideboard, your #1 seller, is at zero stock with no scheduled receipt date</strong> &mdash; Wayfair ($127K), Kathy Kuo Home ($50K), and Emma Mason ($26K) are the most exposed accounts, and in-stock alternatives exist for proactive outreach. $475,590 in revenue exposed over the trailing 12 months. <a href="#product">&rarr; §3</a></li>
+    <li><strong>Greenfront Furniture has contracted to 23% of its peak while its top two eCat items sit out of stock</strong> &mdash; 153 days silent at 5.1x its normal cadence, with the Bronson Swivel Chair ($24,668) and Lilac Sideboard ($17,062) both at zero inventory. $411,819 below its historical peak spend over the trailing 12 months. <a href="#accounts">&rarr; §2</a></li>
+  </ol>
+
+  <div class="priorities">
+    <div class="priority">
+      <span class="priority-badge high">HIGH</span>
+      <div>
+        <div class="priority-title">Restock the Lilac Sideboard and defend the accounts waiting on it</div>
+        <div class="priority-desc">Your #1 seller has zero availability and no receipt date while Wayfair, Kathy Kuo Home, and Emma Mason wait on backorders. Set a restock date this week and proactively call each account before they source elsewhere.</div>
+      </div>
+      <div class="priority-impact">$475,590 LTM exposed</div>
+    </div>
+    <div class="priority">
+      <span class="priority-badge high">HIGH</span>
+      <div>
+        <div class="priority-title">Bring Charles Hoffman's book onto eCat</div>
+        <div class="priority-desc">He already sells new product harder than anyone (35 of 112 new items, $106K) but routes none of his $6.1M total business through eCat. A single enablement conversation makes him the highest-leverage rep-assisted ordering target on the team, with an estimated $1.0M+ in eCat volume potential.</div>
+      </div>
+      <div class="priority-impact">+$1.0M est. potential</div>
+    </div>
+    <div class="priority">
+      <span class="priority-badge medium">MEDIUM</span>
+      <div>
+        <div class="priority-title">Activate the 12 unactivated high-value accounts</div>
+        <div class="priority-desc">Kathy Kuo Home, NetRetailers, and AFA Stores lead a group with $6.6M in total business and zero eCat orders &mdash; proven demand at zero acquisition cost. Putting a rep onto eCat with each account digitizes part of an order flow they key by hand today, the strongest growth lever in the report.</div>
+      </div>
+      <div class="priority-impact">+$6.6M total business in play</div>
+    </div>
+    <div class="priority">
+      <span class="priority-badge low">LOW</span>
+      <div>
+        <div class="priority-title">Present the Ciborium Chest + Lilac Sideboard companion bundle</div>
+        <div class="priority-desc">16 accounts buy these two together; top accounts like Davids Furniture and MC Studio have bought one but not the pair. A pre-built pairing presentation for that pattern could expand an estimated $200K in related orders over the next two quarters, pending restock of the Lilac Sideboard.</div>
+      </div>
+      <div class="priority-impact">+$200K est. pipeline</div>
+    </div>
+  </div>
+
+  <div class="outreach-list">
+    <div class="outreach-title">This Week's Outreach List</div>
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Account</th>
+          <th>Rep</th>
+          <th>Action</th>
+          <th>Talking Point</th>
+          <th>By When</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td><strong>Greenfront Furniture</strong></td>
+          <td>&mdash;</td>
+          <td>Call</td>
+          <td>"You used to spend $536K with us and it's been 153 days since your last order &mdash; what changed? I want to get you a Bronson Swivel Chair restock date."</td>
+          <td>This week</td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td><strong>Op Jenkins Furniture &amp; Design</strong></td>
+          <td>&mdash;</td>
+          <td>Call</td>
+          <td>"Your order is running well past your normal cadence and three items you reorder are out of stock &mdash; let me flag the restock timing before you source elsewhere."</td>
+          <td>This week</td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td><strong>Kathy Kuo Home</strong></td>
+          <td>&mdash;</td>
+          <td>Schedule demo</td>
+          <td>"You do $537K in total business with us but nothing through eCat yet &mdash; would a 15-minute walkthrough of rep-assisted ordering be useful?"</td>
+          <td>This week</td>
+        </tr>
+        <tr>
+          <td>4</td>
+          <td><strong>Antique Purveyor</strong></td>
+          <td>&mdash;</td>
+          <td>Call</td>
+          <td>"Your business is down from $214K to $68K this year &mdash; a 68% drop is rarely accidental, so I'd like to understand what happened."</td>
+          <td>This week</td>
+        </tr>
+        <tr>
+          <td>5</td>
+          <td><strong>NetRetailers</strong></td>
+          <td>&mdash;</td>
+          <td>Schedule demo</td>
+          <td>"You're running $347K with us through other channels and your unit prices slipped 25.9% last quarter &mdash; let's get a rep onto eCat with you for better pricing visibility."</td>
+          <td>This week</td>
+        </tr>
+        <tr>
+          <td>6</td>
+          <td><strong>Walter E. Smithe</strong></td>
+          <td>&mdash;</td>
+          <td>Schedule review</td>
+          <td>"Only 17.7% of your $214K with us runs through eCat &mdash; routing more of your rep-assisted orders there would give us both better visibility. Can we walk through it?"</td>
+          <td>This month</td>
+        </tr>
+        <tr>
+          <td>7</td>
+          <td><strong>AFA Stores</strong></td>
+          <td>&mdash;</td>
+          <td>Email</td>
+          <td>"You do $282K in total business with us but haven't placed an eCat order &mdash; I'd love to show your team how rep-assisted ordering works alongside how you buy today."</td>
+          <td>This month</td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="prose" style="margin-top:12px;font-size:12px;">Rep assignments would strengthen this list &mdash; territory mapping enables direct routing to the right salesperson.</p>
+  </div>
+
+  <div class="callout insight">
+    <div class="callout-title">Patterns That Warrant a Conversation</div>
+    <ol>
+      <li>Charles Hoffman and Deborah Klien run $7.6M in total business but place none of it through eCat &mdash; is this a workflow preference on their accounts, a coverage gap, or are these relationships intentionally managed through other channels?</li>
+      <li>Two-thirds of your business already flows self-service through your B2B web storefront while eCat spikes to 30&ndash;43% around buying markets &mdash; is eCat best positioned as the rep-assisted, showroom-and-market channel, or is there a case for pushing it into the everyday reorder flow the web storefront handles today?</li>
+      <li>Greenfront Furniture has fallen to 23% of its $536K peak right as its two favorite items went out of stock &mdash; did the stock-outs drive the decline, or was the account already shifting spend before inventory ran dry?</li>
+    </ol>
+  </div>
+</section>
+
+
+<details class="section-collapse" id="team">
+  <summary>
+    <div class="section-title">Team Intelligence</div>
+    <div class="section-sub">12 reps with eCat orders &middot; $2.6M eCat sales LTM &middot; behavioral patterns from app usage data</div>
+    <div class="section-contents">Rep leaderboard, how orders come in, behavioral archetypes, presentation-to-close, engagement trajectory, new-item velocity, engagement depth, selling vs admin time</div>
+    <span class="expand-hint">Expand section</span>
+  </summary>
+  <div class="section">
+
+    <div class="data-confidence">
+      <span class="data-confidence-label">Strong View</span>
+      This section combines eCat order data, all-channel sales from your total business feed, and app usage behavioral data across your active reps. One account in the leaderboard (Matthew Eatmon) is an internal/showroom login rather than a field rep, so treat its single order as operational rather than individual performance.
+    </div><div class="subsection">
+      <div class="subsection-title">Rep Leaderboard</div>
+      <div class="sub-label">Ranked by eCat Sales LTM</div>
+      <table>
+        <thead>
+          <tr><th>#</th><th>Rep</th><th>Orders (LTM)</th><th>GMV (LTM)</th><th>AOV</th><th>Unique Customers</th></tr>
+        </thead>
+        <tbody>
+          <tr class="row-highlight"><td>1</td><td><strong>Clyde Barnard</strong></td><td>75</td><td>$555,103</td><td>$7,401</td><td>27</td></tr>
+          <tr class="row-highlight"><td>2</td><td><strong>John Anhut</strong></td><td>82</td><td>$268,420</td><td>$3,273</td><td>28</td></tr>
+          <tr class="row-highlight"><td>3</td><td><strong>Danielle Green</strong></td><td>47</td><td>$195,716</td><td>$4,164</td><td>15</td></tr>
+          <tr class="row-highlight"><td>4</td><td><strong>Deborah Klein</strong></td><td>58</td><td>$169,127</td><td>$2,916</td><td>24</td></tr>
+          <tr class="row-highlight"><td>5</td><td><strong>Stan Terry</strong></td><td>36</td><td>$167,487</td><td>$4,652</td><td>18</td></tr>
+        </tbody>
+      </table>
+
+      <details>
+        <summary>27 additional reps &middot; combined $1.18M GMV</summary>
+        <table>
+          <thead>
+            <tr><th>#</th><th>Rep</th><th>Orders (LTM)</th><th>GMV (LTM)</th><th>AOV</th><th>Unique Customers</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>6</td><td>Rip Nance</td><td>33</td><td>$141,577</td><td>$4,290</td><td>16</td></tr>
+            <tr><td>7</td><td>Charity Queen</td><td>44</td><td>$128,070</td><td>$2,911</td><td>17</td></tr>
+            <tr><td>8</td><td>Ryan McWilliams</td><td>37</td><td>$119,243</td><td>$3,223</td><td>16</td></tr>
+            <tr><td>9</td><td>Jenny Bowers</td><td>15</td><td>$116,198</td><td>$7,747</td><td>10</td></tr>
+            <tr><td>10</td><td>Joan Harrison</td><td>31</td><td>$91,422</td><td>$2,949</td><td>10</td></tr>
+            <tr><td>11</td><td>Carmy Muller</td><td>9</td><td>$69,475</td><td>$7,720</td><td>7</td></tr>
+            <tr><td>12</td><td>April Davis</td><td>9</td><td>$65,887</td><td>$7,321</td><td>8</td></tr>
+            <tr><td>13</td><td>Bridget Delaney</td><td>7</td><td>$49,126</td><td>$7,018</td><td>5</td></tr>
+            <tr><td>14</td><td>Kip Meyer</td><td>6</td><td>$46,056</td><td>$7,676</td><td>4</td></tr>
+            <tr><td>15</td><td>Anne Schroth</td><td>7</td><td>$43,383</td><td>$6,198</td><td>5</td></tr>
+            <tr><td>16</td><td>Beth Sartore</td><td>1</td><td>$36,028</td><td>$36,028</td><td>&mdash;</td></tr>
+            <tr><td>17</td><td>James Bertelsen</td><td>7</td><td>$25,691</td><td>$3,670</td><td>6</td></tr>
+            <tr><td>18</td><td>Dan Linker</td><td>10</td><td>$25,080</td><td>$2,508</td><td>6</td></tr>
+            <tr><td>19</td><td>David Holbrook</td><td>11</td><td>$24,948</td><td>$2,268</td><td>7</td></tr>
+            <tr><td>20</td><td>Andrew Cymrot</td><td>8</td><td>$22,942</td><td>$2,868</td><td>3</td></tr>
+            <tr><td>21</td><td>Bert Wood</td><td>3</td><td>$21,475</td><td>$7,158</td><td>2</td></tr>
+            <tr><td>22</td><td>Hannah Hoxworth</td><td>7</td><td>$20,442</td><td>$2,920</td><td>3</td></tr>
+            <tr><td>23</td><td>Kirsten Seidl</td><td>8</td><td>$19,774</td><td>$2,472</td><td>6</td></tr>
+            <tr><td>24</td><td>Maria Oloffo</td><td>7</td><td>$19,365</td><td>$2,766</td><td>5</td></tr>
+            <tr><td>25</td><td>Chet Linker</td><td>9</td><td>$18,560</td><td>$2,062</td><td>6</td></tr>
+            <tr><td>26</td><td>Beth Maffei</td><td>5</td><td>$14,611</td><td>$2,922</td><td>3</td></tr>
+            <tr><td>27</td><td>Steve Knaak</td><td>4</td><td>$13,784</td><td>$3,446</td><td>2</td></tr>
+            <tr><td>28</td><td>Roxanne Fernandini</td><td>7</td><td>$12,732</td><td>$1,819</td><td>4</td></tr>
+            <tr><td>29</td><td>Maddie Cannon</td><td>5</td><td>$12,457</td><td>$2,491</td><td>4</td></tr>
+            <tr><td>30</td><td>Matthew Eatmon</td><td>1</td><td>$9,595</td><td>$9,595</td><td>1</td></tr>
+            <tr><td>31</td><td>Kurt Muller</td><td>3</td><td>$8,714</td><td>$2,905</td><td>2</td></tr>
+            <tr><td>32</td><td>Doug Kauffman</td><td>4</td><td>$7,749</td><td>$1,937</td><td>3</td></tr>
+          </tbody>
+        </table>
+      </details>
+
+      <div class="sub-label" style="margin-top:16px;">Bottom 5 by eCat GMV</div>
+      <table>
+        <thead>
+          <tr><th>#</th><th>Rep</th><th>Orders (LTM)</th><th>GMV (LTM)</th><th>AOV</th><th>Unique Customers</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>33</td><td>Cerice Odegaard</td><td>1</td><td>$3,862</td><td>$3,862</td><td>1</td></tr>
+          <tr><td>34</td><td>Cookie Birardi</td><td>1</td><td>$2,296</td><td>$2,296</td><td>&mdash;</td></tr>
+          <tr><td>35</td><td>Ryan Moeller</td><td>1</td><td>$935</td><td>$935</td><td>1</td></tr>
+          <tr><td>36</td><td>Kristen Miletich</td><td>1</td><td>$263</td><td>$263</td><td>1</td></tr>
+        </tbody>
+      </table>
+    </div><div class="subsection">
+      <div class="subsection-title">How Reps&rsquo; Orders Come In</div>
+      <div class="sub-label">Share of each rep&rsquo;s total business that flows through eCat vs the client&rsquo;s own web, EDI, phone, email, and rep entry</div>
+      <div class="metrics">
+        <div class="metric">
+          <div class="metric-label">eCat Share of Team Business</div>
+          <div class="metric-value">16.7%</div>
+          <div class="metric-note">$2.6M of $15.6M LTM (rest via web/EDI/rep entry)</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Top Quartile (eCat)</div>
+          <div class="metric-value">35.6%</div>
+          <div class="metric-note">6 reps avg &mdash; e.g. Clyde Barnard, Danielle Green at 36.8%</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Bottom Quartile (eCat)</div>
+          <div class="metric-value">0%</div>
+          <div class="metric-note">8 reps move their full book through other channels</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Top-to-Bottom Range</div>
+          <div class="metric-value">36 pts</div>
+          <div class="metric-note">how reps differ in eCat use</div>
+        </div>
+      </div>
+      <div class="callout action">
+        <div class="callout-title">Reps Whose Books Run Off eCat &mdash; Enablement Opportunity</div>
+        <p>Eight reps move their combined business entirely through other channels (the client&rsquo;s own web, EDI, phone/email, rep entry), with none yet flowing through eCat. The rep-assisted portion of these books is where eCat can cut manual order-entry time and keying errors:</p>
+        <ol>
+          <li><strong>Charles Hoffman</strong> &mdash; $6.1M total business LTM, none yet through eCat</li>
+          <li><strong>Deborah Klien</strong> &mdash; $1.5M total business LTM, none yet through eCat</li>
+          <li><strong>Ryan McWilliams</strong> &mdash; $362,421 total business LTM, none yet through eCat</li>
+          <li><strong>Roxanne Fernandini</strong> &mdash; $68,869 total business LTM, none yet through eCat</li>
+          <li><strong>Rafe Bethell</strong> &mdash; $58,079 total business LTM, none yet through eCat</li>
+        </ol>
+      </div>
+      <div class="what-this-means">
+        <strong>Action:</strong> Charles Hoffman alone runs $6.1M across 73 customers without a single eCat order &mdash; much of that volume may legitimately belong on the client&rsquo;s own web and EDI feeds and should stay there. The win is narrower: take the rep-assisted slice of his and Deborah Klien&rsquo;s books (the orders they key or phone in manually) and move just those into eCat to cut keying time and errors, mirroring how Clyde Barnard already places 37% of his business digitally.
+      </div>
+    </div><div class="subsection">
+      <div class="subsection-title">Behavioral Archetypes</div>
+      <div class="sub-label">Based on app usage patterns over the trailing 12 months</div>
+      <table>
+        <thead>
+          <tr><th>Archetype</th><th>Reps</th><th>Behavior Pattern</th><th>Avg eCat Sales LTM</th></tr>
+        </thead>
+        <tbody>
+          <tr class="row-highlight"><td><span class="badge ok">Power User</span></td><td>4</td><td>Daily sessions, heavy customer targeting and order entry through the app</td><td>$246,800</td></tr>
+          <tr><td><span class="badge info">Steady Performer</span></td><td>9</td><td>Several sessions/week, regular search and order entry, light on presentations</td><td>$54,300</td></tr>
+          <tr><td><span class="badge warn">Sporadic</span></td><td>7</td><td>1&ndash;2 sessions/week, mostly browsing and library lookups</td><td>$18,900</td></tr>
+          <tr class="row-warn"><td><span class="badge danger">Order-Direct</span></td><td>5</td><td>Almost no presentations or browsing &mdash; the app is used purely as an order pad</td><td>$31,200</td></tr>
+        </tbody>
+      </table>
+      <div class="what-this-means">
+        <strong>Action:</strong> Your 4 Power Users average $246,800 in eCat sales each &mdash; roughly 4.5x your Steady Performers &mdash; and they share one habit: they target customers in the app before they search. The Order-Direct group (5 reps who submit orders but never present or browse) is the fastest lever: showing them saved lists and catalog presentations would let them carry conversations digitally instead of treating eCat as a keypad.
+      </div>
+    </div><div class="subsection">
+      <div class="subsection-title">Presentation-to-Close Conversion</div>
+      <div class="callout insight">
+        <div class="callout-title">7 reps with significant presentation activity but a wide conversion spread</div>
+        <p>Your most active presenter built 143 customer-facing presentations but converted only 9.1% into orders, while a lower-volume rep converted 26.8% &mdash; targeted demos out-yield high-volume prospecting for this catalog.</p>
+      </div>
+      <table>
+        <thead>
+          <tr><th>Rep</th><th>Accounts Engaged</th><th>Presentations</th><th>Orders</th><th>Conversion Rate</th><th>Team Median</th><th>Estimated Upside</th></tr>
+        </thead>
+        <tbody>
+          <tr class="row-highlight"><td><strong>Rep A</strong></td><td>18</td><td>143</td><td>13</td><td>9.1%</td><td>11.7%</td><td>~$3,700 est.</td></tr>
+          <tr><td><strong>Rep B</strong></td><td>19</td><td>103</td><td>13</td><td>12.6%</td><td>11.7%</td><td>&mdash;</td></tr>
+          <tr><td><strong>Rep C</strong></td><td>17</td><td>101</td><td>14</td><td>13.9%</td><td>11.7%</td><td>&mdash;</td></tr>
+          <tr><td>Rep D</td><td>12</td><td>74</td><td>0</td><td>0%</td><td>11.7%</td><td>~$8,700 est.</td></tr>
+          <tr><td>Rep E</td><td>8</td><td>74</td><td>5</td><td>6.8%</td><td>11.7%</td><td>~$3,600 est.</td></tr>
+          <tr><td>Rep F</td><td>8</td><td>69</td><td>1</td><td>1.4%</td><td>11.7%</td><td>~$3,600 est.</td></tr>
+          <tr><td>Rep G</td><td>10</td><td>68</td><td>1</td><td>1.5%</td><td>11.7%</td><td>~$3,500 est.</td></tr>
+        </tbody>
+      </table>
+      <div class="what-this-means">
+        <strong>Action:</strong> The gap runs from 0% to 13.9% conversion across reps all doing 68+ presentations &mdash; that&rsquo;s a workflow problem, not a talent one. Rep D presented to 12 accounts 74 times and closed zero through eCat; a simple post-presentation follow-up cadence (a saved list emailed within 48 hours) would close more of that effort than any new lead source.
+      </div>
+    </div><div class="subsection">
+      <div class="subsection-title">Engagement Trajectory</div>
+      <div class="sub-label">Quarter-over-quarter order trend</div>
+
+      <div class="callout opportunity">
+        <div class="callout-title">Accelerating Reps</div>
+      </div>
+      <table>
+        <thead>
+          <tr><th>Rep</th><th>Prior 90d Orders</th><th>Current 90d Orders</th><th>QoQ Change</th><th>Current GMV (LTM)</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Clyde Barnard</strong></td><td>10</td><td>20</td><td><span class="badge ok">+100%</span></td><td>$555,103</td></tr>
+          <tr><td><strong>Jenny Bowers</strong></td><td>0</td><td>8</td><td><span class="badge ok">New this quarter</span></td><td>$116,198</td></tr>
+          <tr><td><strong>Carmy Muller</strong></td><td>0</td><td>7</td><td><span class="badge ok">New this quarter</span></td><td>$69,475</td></tr>
+          <tr><td><strong>Kip Meyer</strong></td><td>0</td><td>6</td><td><span class="badge ok">New this quarter</span></td><td>$46,056</td></tr>
+          <tr><td><strong>Deborah Klein</strong></td><td>10</td><td>16</td><td><span class="badge ok">+60%</span></td><td>$169,127</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout insight">
+        <div class="callout-title">Reps Needing Attention</div>
+      </div>
+      <table>
+        <thead>
+          <tr><th>Rep</th><th>Prior 90d Orders</th><th>Current 90d Orders</th><th>QoQ Change</th><th>Current GMV (LTM)</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>John Anhut</strong></td><td>23</td><td>2</td><td><span class="badge danger">&minus;91%</span></td><td>$268,420</td></tr>
+          <tr><td><strong>Charity Queen</strong></td><td>13</td><td>3</td><td><span class="badge danger">&minus;77%</span></td><td>$128,070</td></tr>
+          <tr><td><strong>Danielle Green</strong></td><td>13</td><td>6</td><td><span class="badge danger">&minus;54%</span></td><td>$195,716</td></tr>
+          <tr><td><strong>Rip Nance</strong></td><td>9</td><td>6</td><td><span class="badge danger">&minus;33%</span></td><td>$141,577</td></tr>
+          <tr><td><strong>Joan Harrison</strong></td><td>8</td><td>7</td><td><span class="badge warn">&minus;13%</span></td><td>$91,422</td></tr>
+        </tbody>
+      </table>
+
+      <div class="what-this-means">
+        <strong>Action:</strong> John Anhut is your #2 eCat seller at $268K yet his order pace fell 91% QoQ (23 orders down to 2) &mdash; that is a conversation to have this week before the slide compounds into a relationship gap. Clyde Barnard&rsquo;s doubling (10 to 20 orders) on top of a $555K book is the momentum to protect with recognition; pair him with the four reps who just placed their first eCat orders this quarter.
+      </div>
+    </div><details class="inner-collapse">
+      <summary>New Item Launch Velocity &#9662;</summary>
+      <div class="subsection">
+        <div class="subsection-title">New Item Launch Velocity by Rep</div>
+        <div class="callout insight">
+          <div class="callout-title">New Item Adoption by Rep</div>
+          <p>Your catalog has 112 new introductions this period. Your top adopter has placed orders for 35 of them (31% adoption), while the bottom half of your selling reps have each sold fewer than 4.</p>
+        </div>
+        <table>
+          <thead>
+            <tr><th>Rep</th><th>New Items Sold</th><th>Adoption %</th><th>Customers</th><th>Revenue (LTM)</th></tr>
+          </thead>
+          <tbody>
+            <tr class="row-highlight"><td><strong>Charles Hoffman</strong></td><td>35</td><td><span class="badge ok">31.3%</span></td><td>15</td><td>$106,294</td></tr>
+            <tr><td><strong>Clyde Barnard</strong></td><td>28</td><td><span class="badge ok">25.0%</span></td><td>23</td><td>$78,546</td></tr>
+            <tr><td>Dan Linker</td><td>18</td><td><span class="badge warn">16.1%</span></td><td>18</td><td>$42,971</td></tr>
+            <tr><td>John Anhut</td><td>18</td><td><span class="badge warn">16.1%</span></td><td>13</td><td>$35,868</td></tr>
+            <tr><td>Deborah Klien</td><td>16</td><td><span class="badge warn">14.3%</span></td><td>11</td><td>$33,916</td></tr>
+            <tr><td>Danielle Green</td><td>15</td><td><span class="badge danger">13.4%</span></td><td>13</td><td>$44,028</td></tr>
+            <tr><td>Stan Terry</td><td>15</td><td><span class="badge danger">13.4%</span></td><td>12</td><td>$31,488</td></tr>
+            <tr><td>Ryan McWilliams</td><td>13</td><td><span class="badge danger">11.6%</span></td><td>11</td><td>$31,564</td></tr>
+            <tr><td>Rip Nance</td><td>11</td><td><span class="badge danger">9.8%</span></td><td>11</td><td>$37,487</td></tr>
+            <tr><td>Doug Kauffman</td><td>10</td><td><span class="badge danger">8.9%</span></td><td>7</td><td>$25,496</td></tr>
+          </tbody>
+        </table>
+        <details>
+          <summary>All remaining reps (8) &#9662;</summary>
+          <table>
+            <thead>
+              <tr><th>Rep</th><th>New Items Sold</th><th>Adoption %</th><th>Customers</th><th>Revenue (LTM)</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Joan Harrison</td><td>10</td><td>8.9%</td><td>9</td><td>$23,689</td></tr>
+              <tr><td>Hannah Hoxworth</td><td>4</td><td>3.6%</td><td>3</td><td>$5,719</td></tr>
+              <tr><td>David Holbrook</td><td>3</td><td>2.7%</td><td>2</td><td>$7,024</td></tr>
+              <tr><td>Johnathan Graubart</td><td>2</td><td>1.8%</td><td>2</td><td>$1,090</td></tr>
+              <tr><td>Steve Knaak</td><td>1</td><td>0.9%</td><td>2</td><td>$5,027</td></tr>
+              <tr><td>Donald DiLauro</td><td>1</td><td>0.9%</td><td>1</td><td>$4,380</td></tr>
+              <tr><td>Andy Cymrot</td><td>1</td><td>0.9%</td><td>1</td><td>$2,400</td></tr>
+              <tr><td>Irena Garcia</td><td>1</td><td>0.9%</td><td>1</td><td>$797</td></tr>
+            </tbody>
+          </table>
+        </details>
+        <div class="what-this-means">
+          <strong>Action:</strong> Charles Hoffman has sold 35 of 112 new introductions to 15 customers ($106K new-item revenue) despite placing zero of it through eCat &mdash; he is your strongest new-product champion working entirely off the app. New launches only move when the field sells them; the eight reps each below four new items sold are the product-training audience, and Hoffman&rsquo;s playbook is the one to copy.
+        </div>
+      </div>
+    </details><details class="inner-collapse">
+      <summary>Rep Engagement vs Account Revenue &#9662;</summary>
+      <div class="subsection">
+        <div class="subsection-title">Engagement Depth by Rep</div>
+        <div class="callout insight">
+          <div class="callout-title">Engagement Distribution</div>
+          <p>Your most engaged rep averages 9.6 interactions per account across 72 accounts, with 31 of those receiving 8+ touches. Across the team, many accounts still receive fewer than 3 interactions &mdash; the under-served tier.</p>
+        </div>
+        <table>
+          <thead>
+            <tr><th>Rep</th><th>Accounts Touched</th><th>Avg Touches/Acct</th><th>High Engagement (8+)</th><th>Low Engagement (&lt;3)</th></tr>
+          </thead>
+          <tbody>
+            <tr class="row-highlight"><td><strong>Rep C</strong></td><td>90</td><td>6.2</td><td>23</td><td>34</td></tr>
+            <tr><td><strong>Rep H</strong></td><td>72</td><td>9.6</td><td>31</td><td>15</td></tr>
+            <tr><td><strong>Rep A</strong></td><td>50</td><td>13.9</td><td>28</td><td>8</td></tr>
+            <tr><td>Rep B</td><td>44</td><td>8.6</td><td>21</td><td>10</td></tr>
+            <tr><td>Rep E</td><td>37</td><td>10.6</td><td>14</td><td>14</td></tr>
+            <tr><td>Rep I</td><td>33</td><td>9.4</td><td>17</td><td>3</td></tr>
+            <tr><td>Rep J</td><td>31</td><td>12.5</td><td>18</td><td>2</td></tr>
+            <tr><td>Rep F</td><td>24</td><td>13.7</td><td>13</td><td>5</td></tr>
+            <tr><td>Rep K</td><td>19</td><td>6.3</td><td>3</td><td>7</td></tr>
+            <tr><td>Rep L</td><td>16</td><td>6.4</td><td>4</td><td>4</td></tr>
+          </tbody>
+        </table>
+        <details>
+          <summary>All remaining reps (10) &#9662;</summary>
+          <table>
+            <thead>
+              <tr><th>Rep</th><th>Accounts Touched</th><th>Avg Touches/Acct</th><th>High Engagement (8+)</th><th>Low Engagement (&lt;3)</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Rep M</td><td>14</td><td>11.9</td><td>6</td><td>4</td></tr>
+              <tr><td>Rep N</td><td>14</td><td>6.7</td><td>3</td><td>6</td></tr>
+              <tr><td>Rep O</td><td>11</td><td>14.4</td><td>6</td><td>1</td></tr>
+              <tr><td>Rep P</td><td>8</td><td>6.5</td><td>3</td><td>0</td></tr>
+              <tr><td>Rep Q</td><td>5</td><td>6.0</td><td>1</td><td>2</td></tr>
+              <tr><td>Rep R</td><td>4</td><td>6.0</td><td>1</td><td>0</td></tr>
+              <tr><td>Rep S</td><td>3</td><td>8.7</td><td>2</td><td>0</td></tr>
+              <tr><td>Rep T</td><td>2</td><td>23.0</td><td>1</td><td>1</td></tr>
+              <tr><td>Rep U</td><td>2</td><td>23.0</td><td>2</td><td>0</td></tr>
+              <tr><td>Rep V</td><td>2</td><td>6.5</td><td>1</td><td>0</td></tr>
+            </tbody>
+          </table>
+        </details>
+        <div class="what-this-means">
+          <strong>Action:</strong> Rep C spreads 90 accounts thin at 6.2 touches each (34 of them under-served), while Rep F concentrates 24 accounts at 13.7 touches and lands 13 in the high-engagement tier &mdash; depth correlates with stronger account relationships here. Reallocating a slice of Rep C&rsquo;s thinnest accounts toward more frequent contact, or pairing them with Rep F&rsquo;s cadence, is the addressable move.
+        </div>
+      </div>
+    </details><div class="subsection">
+      <div class="subsection-title">How Reps Spend Their Time in the App</div>
+      <div class="sub-label">Every session is classified as &ldquo;selling&rdquo; (showing products, building orders) or &ldquo;admin&rdquo; (looking up accounts, checking history). Here&rsquo;s the split over the trailing 12 months.</div>
+      <div class="metrics">
+        <div class="metric">
+          <div class="metric-label">Most Efficient Seller</div>
+          <div class="metric-value">88 / 12</div>
+          <div class="metric-note">selling vs admin split</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Team Top Quartile</div>
+          <div class="metric-value">81%</div>
+          <div class="metric-note ok">selling time</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Bottom Quartile</div>
+          <div class="metric-value">58%</div>
+          <div class="metric-note warn">selling time &mdash; 42% on admin</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Top-to-Bottom Spread</div>
+          <div class="metric-value">30 pts</div>
+          <div class="metric-note">selling-time gap across reps</div>
+        </div>
+      </div>
+      <table>
+        <thead>
+          <tr><th>Rep</th><th>Total Activity</th><th>Selling</th><th>Admin</th><th>Selling %</th></tr>
+        </thead>
+        <tbody>
+          <tr class="row-highlight"><td><strong>Rep W</strong></td><td>73</td><td>64</td><td>9</td><td><span class="badge ok">87.7%</span></td></tr>
+          <tr><td><strong>Rep A</strong></td><td>874</td><td>708</td><td>166</td><td><span class="badge ok">81.0%</span></td></tr>
+          <tr><td>Rep X</td><td>98</td><td>76</td><td>22</td><td><span class="badge ok">77.6%</span></td></tr>
+          <tr><td>Rep Y</td><td>131</td><td>100</td><td>31</td><td><span class="badge ok">76.3%</span></td></tr>
+          <tr><td>Rep C</td><td>1,218</td><td>876</td><td>342</td><td><span class="badge ok">71.9%</span></td></tr>
+          <tr><td>Rep L</td><td>138</td><td>99</td><td>39</td><td><span class="badge ok">71.7%</span></td></tr>
+          <tr><td>Rep Z</td><td>193</td><td>132</td><td>61</td><td><span class="badge warn">68.4%</span></td></tr>
+          <tr><td>Rep P</td><td>84</td><td>57</td><td>27</td><td><span class="badge warn">67.9%</span></td></tr>
+          <tr><td>Rep B</td><td>1,036</td><td>701</td><td>335</td><td><span class="badge warn">67.7%</span></td></tr>
+          <tr><td>Rep F</td><td>514</td><td>343</td><td>171</td><td><span class="badge warn">66.7%</span></td></tr>
+        </tbody>
+      </table>
+      <details>
+        <summary>All remaining reps (10) &#9662;</summary>
+        <table>
+          <thead>
+            <tr><th>Rep</th><th>Total Activity</th><th>Selling</th><th>Admin</th><th>Selling %</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Rep G</td><td>500</td><td>333</td><td>167</td><td>66.6%</td></tr>
+            <tr><td>Rep J</td><td>541</td><td>359</td><td>182</td><td>66.4%</td></tr>
+            <tr><td>Rep I</td><td>492</td><td>319</td><td>173</td><td>64.8%</td></tr>
+            <tr><td>Rep AA</td><td>51</td><td>33</td><td>18</td><td>64.7%</td></tr>
+            <tr><td>Rep AB</td><td>24</td><td>15</td><td>9</td><td>62.5%</td></tr>
+            <tr><td>Rep E</td><td>751</td><td>453</td><td>298</td><td>60.3%</td></tr>
+            <tr><td>Rep K</td><td>198</td><td>119</td><td>79</td><td>60.1%</td></tr>
+            <tr><td>Rep AC</td><td>60</td><td>36</td><td>24</td><td>60.0%</td></tr>
+            <tr><td>Rep D</td><td>871</td><td>513</td><td>358</td><td>58.9%</td></tr>
+            <tr><td>Rep N</td><td>365</td><td>209</td><td>156</td><td>57.3%</td></tr>
+          </tbody>
+        </table>
+      </details>
+      <div class="what-this-means">
+        <strong>Action:</strong> A 30pp spread separates your most efficient seller (88% selling time) from your bottom quartile near 58% &mdash; that&rsquo;s a process gap, not effort. Reps D and N each log 350+ admin events; building them saved lists of their top accounts with pre-filtered views would shift roughly a third of that lookup time back toward customer-facing selling.
+      </div>
+    </div><div class="what-this-means" style="margin-top:24px;">
+      <strong>Action:</strong> Your eCat sales are concentrated in a handful of reps &mdash; Clyde Barnard&rsquo;s $555K is 21% of the $2.6M team total, so protecting his momentum and recovering John Anhut&rsquo;s pace (down 91% QoQ on a $268K book) is the priority intervention. The larger prize sits one layer out: Charles Hoffman and Deborah Klien run $7.6M combined entirely off eCat, and moving even the rep-assisted slice of those books into the app would more than double digital order volume without acquiring a single new customer.
+    </div>
+
+    <div class="callout note" style="margin-top:20px;">
+      <div class="callout-title">With Connected Data</div>
+      Connecting your CRM (call notes, visit logs) would let us correlate in-person visits with same-week eCat orders &mdash; showing which reps use the app as a follow-up tool versus a replacement for in-person selling.
+    </div>
+
+  </div>
+</details>
+
+
+<details class="section-collapse" id="accounts">
+  <summary>
+    <div class="section-title">Account Intelligence</div>
+    <div class="section-sub">1,848 accounts ordering through eCat &middot; 4,752 total accounts &middot; 250 active in last 12 months &middot; top accounts with actionable briefs</div>
+    <div class="section-contents">Top 10 Mini-Briefs &middot; eCat Penetration &middot; Geographic Revenue Trends &middot; Unactivated High-Value Accounts &middot; Reorder Velocity &amp; Early Warning &middot; Dormant High-Value Accounts &middot; Accounts Contracting Year-Over-Year &middot; Spending Contraction</div>
+    <span class="expand-hint">Expand section</span>
+  </summary>
+  <div class="section">
+
+    
+    <div class="metrics">
+      <div class="metric">
+        <div class="metric-label">Total Accounts</div>
+        <div class="metric-value">4,752</div>
+        <div class="metric-note">All accounts in your system</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Active Accounts (12mo)</div>
+        <div class="metric-value">250</div>
+        <div class="metric-note">&ge;1 eCat order, trailing 12 months</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Active Accounts (90d)</div>
+        <div class="metric-value">137</div>
+        <div class="metric-note">&ge;1 eCat order, last 90 days</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Avg eCat Revenue / Active Account</div>
+        <div class="metric-value">$10,400</div>
+        <div class="metric-note">$2.6M eCat &divide; 250 active (12mo)</div>
+      </div>
+    </div>
+
+    
+    <div class="data-confidence">
+      <span class="data-confidence-label">Strong View</span>
+      <span class="data-confidence-action">Account intelligence draws on eCat orders, all-channel order history ($15.6M trailing 12 months across 4,752 accounts), and current inventory availability. Sales-trend data has not been refreshed recently, which may slightly affect historical reorder comparisons.</span>
+    </div>
+
+    
+    
+    
+
+    
+    <div class="subsection">
+      <div class="subsection-title">1. Davids Furniture &amp; Interiors</div>
+      <div class="metrics">
+        <div class="metric">
+          <div class="metric-value">Davids Furniture &amp; Interiors</div>
+          <div class="metric-label">Pennsylvania</div>
+        </div>
+        <div class="metric">
+          <div class="metric-value">May 13, 2026</div>
+          <div class="metric-label">Last eCat Order</div>
+          <div class="metric-note">35 days ago</div>
+        </div>
+        <div class="metric">
+          <div class="metric-value">$56,626</div>
+          <div class="metric-label">All-Channel LTM</div>
+          <div class="metric-note ok">+56.9% YoY</div>
+        </div>
+        <div class="metric">
+          <div class="metric-value"><span class="badge ok">72</span></div>
+          <div class="metric-label">Engagement Score</div>
+          <div class="metric-note">Strong</div>
+        </div>
+      </div>
+      <div class="callout insight">
+        <div class="callout-title">Spending Trajectory</div>
+        <p>Quarterly trend: $5,120 &rarr; $16,080 &rarr; $12,020 &rarr; $23,406</p>
+        <p>Accelerating across two of the last four quarters, with all-channel business up 56.9% YoY ($36,079 &rarr; $56,626). The current-quarter run rate annualizes to roughly $94,000.</p>
+      </div>
+      <div class="callout insight">
+        <div class="callout-title">Wallet Position</div>
+        <p><strong>Total relationship:</strong> $56,626 across all channels (trailing 12 months) | <strong>eCat share:</strong> $29,615 (52.3%)</p>
+      </div>
+      <div class="callout opportunity">
+        <div class="callout-title">Products Frequently Bought Together</div>
+        <p><strong>16</strong> accounts who buy <strong>Ciborium Chest Of Drawers</strong> (Fruitwood, 26715-5) also buy <strong>Lilac Sideboard</strong> (Blue Finish, 52760) &mdash; this account has bought the first but not the pair.</p>
+        <p>Estimated opportunity based on that 16-account purchase pattern; lead with the companion item on the next call.</p>
+      </div>
+      <div class="callout insight">
+        <div class="callout-title">Channel Share Shift</div>
+        <p>eCat orders (trailing 12 months): &minus;56.0% ($67,382 &rarr; $29,615)</p>
+        <p>Total business (trailing 12 months): +56.9% ($36,079 &rarr; $56,626)</p>
+        <p>This account's total business is growing fast, but a much smaller share now flows through eCat. Re-engaging Davids on the app could recapture an estimated ~$38,000 in annual eCat volume.</p>
+      </div>
+      <p class="prose"><strong>Priority:</strong> Call Davids' buyer to re-anchor their growing business back onto eCat &mdash; their total spend is up 56.9% while eCat orders fell 56%, the clearest channel-share-shift signal in your top 10.</p>
+    </div>
+
+    
+    <div class="subsection">
+      <div class="subsection-title">2. Op Jenkins Furniture &amp; Design</div>
+      <div class="metrics">
+        <div class="metric">
+          <div class="metric-value">Op Jenkins Furniture &amp; Design</div>
+          <div class="metric-label">Tennessee</div>
+        </div>
+        <div class="metric">
+          <div class="metric-value">Mar 23, 2026</div>
+          <div class="metric-label">Last eCat Order</div>
+          <div class="metric-note warn">86 days ago</div>
+        </div>
+        <div class="metric">
+          <div class="metric-value">$58,192</div>
+          <div class="metric-label">All-Channel LTM</div>
+          <div class="metric-note ok">95% via eCat</div>
+        </div>
+        <div class="metric">
+          <div class="metric-value"><span class="badge ok">66</span></div>
+          <div class="metric-label">Engagement Score</div>
+          <div class="metric-note">Strong</div>
+        </div>
+      </div>
+      <div class="callout insight">
+        <div class="callout-title">Wallet Position</div>
+        <p><strong>Total relationship:</strong> $58,192 across all channels (trailing 12 months) | <strong>eCat share:</strong> $55,274 (95%)</p>
+      </div>
+      <div class="callout insight">
+        <div class="callout-title">Reorder Pattern Change</div>
+        <p><strong>Account-level:</strong> 86 days since their last order &mdash; 4.6x their normal cadence (they typically order every 18.6 days across 17 orders this year). Worth a check-in.</p>
+        <p><strong>Predicted next order window:</strong> Based on their 18.6-day cadence, Op Jenkins' next order was expected in early April &mdash; the window is now well overdue.</p>
+      </div>
+      <div class="callout insight">
+        <div class="callout-title">Fulfillment Gap</div>
+        <table>
+          <thead>
+            <tr><th>Item</th><th>Description</th><th>LTM Revenue (this account)</th><th>Qty Available</th><th>Next Receipt</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>52760</td><td>Lilac Sideboard, Blue Finish</td><td>$6,370</td><td><span class="badge danger">0</span></td><td>Unknown</td></tr>
+            <tr><td>53888</td><td>Bronson Swivel Chair</td><td>$5,365</td><td><span class="badge danger">0</span></td><td>Unknown</td></tr>
+            <tr><td>26715-5</td><td>Ciborium Chest Of Drawers, Fruitwood</td><td>$2,460</td><td><span class="badge danger">0</span></td><td>Unknown</td></tr>
+          </tbody>
+        </table>
+        <p>Three items Op Jenkins reorders are out of stock, representing roughly $14,200 in their trailing-12-month revenue. Proactive restock communication protects the relationship while their order is overdue.</p>
+      </div>
+      <p class="prose"><strong>Priority:</strong> Call Op Jenkins this week &mdash; their order is 4.6x past normal cadence and three of their reorder items are out of stock; lead with a restock timeline on the Lilac Sideboard before they source elsewhere.</p>
+    </div>
+
+    
+    <div class="subsection">
+      <div class="subsection-title">3. Greenfront Furniture</div>
+      <div class="metrics">
+        <div class="metric">
+          <div class="metric-value">Greenfront Furniture</div>
+          <div class="metric-label">Virginia</div>
+        </div>
+        <div class="metric">
+          <div class="metric-value">Jan 15, 2026</div>
+          <div class="metric-label">Last eCat Order</div>
+          <div class="metric-note danger">153 days ago</div>
+        </div>
+        <div class="metric">
+          <div class="metric-value">$122,393</div>
+          <div class="metric-label">All-Channel LTM</div>
+          <div class="metric-note">38.3% via eCat</div>
+        </div>
+        <div class="metric">
+          <div class="metric-value"><span class="badge warn">38</span></div>
+          <div class="metric-label">Engagement Score</div>
+          <div class="metric-note">Cooling</div>
+        </div>
+      </div>
+      <div class="callout insight">
+        <div class="callout-title">Wallet Position</div>
+        <p><strong>Total relationship:</strong> $122,393 across all channels (trailing 12 months) | <strong>eCat share:</strong> $46,929 (38.3%)</p>
+      </div>
+      <div class="callout insight">
+        <div class="callout-title">Spending Trajectory</div>
+        <p>All-channel trend (trailing 12 months vs. their historical peak): $535,922 peak &rarr; $124,103 current</p>
+        <p>Total business has contracted from a demonstrated peak of $535,922 &mdash; a $411,819 recovery opportunity if engagement momentum returns. This account has proven six-figure capacity.</p>
+      </div>
+      <div class="callout insight">
+        <div class="callout-title">Reorder Pattern Change</div>
+        <p><strong>Account-level:</strong> 153 days since their last eCat order &mdash; 5.1x their normal cadence (they typically order every 29.8 days). The window is well past due.</p>
+      </div>
+      <div class="callout insight">
+        <div class="callout-title">Fulfillment Gap</div>
+        <table>
+          <thead>
+            <tr><th>Item</th><th>Description</th><th>LTM Revenue (this account)</th><th>Qty Available</th><th>Next Receipt</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>53888</td><td>Bronson Swivel Chair</td><td>$24,668</td><td><span class="badge danger">0</span></td><td>Unknown</td></tr>
+            <tr><td>52760</td><td>Lilac Sideboard, Blue Finish</td><td>$17,062</td><td><span class="badge danger">0</span></td><td>Unknown</td></tr>
+          </tbody>
+        </table>
+        <p>Two items Greenfront orders heavily are out of stock, representing roughly $41,700 in their trailing-12-month revenue &mdash; the Bronson Swivel Chair alone is $24,668. Restock timing is the natural reason to reopen the conversation.</p>
+      </div>
+      <p class="prose"><strong>Priority:</strong> Schedule a recovery call with Greenfront &mdash; they've spent $536K at peak versus $124K now, and their two top eCat items are out of stock; open with "what changed?" and a Bronson Swivel Chair restock date.</p>
+    </div>
+
+    
+    <div class="subsection">
+      <div class="subsection-title">4. Knox Furniture Gallery</div>
+      <div class="metrics">
+        <div class="metric">
+          <div class="metric-value">Knox Furniture Gallery</div>
+          <div class="metric-label">Wisconsin</div>
+        </div>
+        <div class="metric">
+          <div class="metric-value">Nov 6, 2025</div>
+          <div class="metric-label">Last eCat Order</div>
+          <div class="metric-note danger">222 days ago</div>
+        </div>
+        <div class="metric">
+          <div class="metric-value">$12,688</div>
+          <div class="metric-label">eCat LTM</div>
+          <div class="metric-note">6 orders</div>
+        </div>
+        <div class="metric">
+          <div class="metric-value"><span class="badge danger">18</span></div>
+          <div class="metric-label">Engagement Score</div>
+          <div class="metric-note">At Risk</div>
+        </div>
+      </div>
+      <div class="callout insight">
+        <div class="callout-title">Reorder Pattern Change</div>
+        <p><strong>Account-level:</strong> 222 days since their last eCat order &mdash; 5.0x their normal cadence (they typically order every 44.7 days across 6 orders). This is the longest silence in your top 10.</p>
+        <p><strong>Predicted next order window:</strong> Based on their 44.7-day cadence, Knox was due to reorder around late December &mdash; they are now roughly six cadence-cycles overdue.</p>
+      </div>
+      <p class="prose"><strong>Priority:</strong> Email Knox Furniture Gallery to re-establish contact &mdash; at 222 days silent (5.0x normal), this account has effectively stalled on eCat and needs a personal re-onboarding touch before it lapses entirely.</p>
+    </div>
+
+    
+    <div class="subsection">
+      <div class="subsection-title">5. Arena's Interiors</div>
+      <div class="metrics">
+        <div class="metric">
+          <div class="metric-value">Arena's Interiors</div>
+          <div class="metric-label">New York</div>
+        </div>
+        <div class="metric">
+          <div class="metric-value">Dec 11, 2025</div>
+          <div class="metric-label">Last eCat Order</div>
+          <div class="metric-note danger">188 days ago</div>
+        </div>
+        <div class="metric">
+          <div class="metric-value">$17,371</div>
+          <div class="metric-label">eCat LTM</div>
+          <div class="metric-note">5 orders</div>
+        </div>
+        <div class="metric">
+          <div class="metric-value"><span class="badge danger">19</span></div>
+          <div class="metric-label">Engagement Score</div>
+          <div class="metric-note">At Risk</div>
+        </div>
+      </div>
+      <div class="callout insight">
+        <div class="callout-title">Reorder Pattern Change</div>
+        <p><strong>Account-level:</strong> 188 days since their last eCat order &mdash; 3.4x their normal cadence (they typically order every 54.8 days). Worth a check-in before the gap widens.</p>
+      </div>
+      <div class="callout insight">
+        <div class="callout-title">Fulfillment Gap</div>
+        <table>
+          <thead>
+            <tr><th>Item</th><th>Description</th><th>LTM Revenue (this account)</th><th>Qty Available</th><th>Next Receipt</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>53311</td><td>San Marco Bungalow Credenza</td><td>$3,890</td><td><span class="badge danger">0</span></td><td>Unknown</td></tr>
+            <tr><td>53300</td><td>Camden Bungalow Cocktail Table</td><td>$1,005</td><td><span class="badge danger">0</span></td><td>Unknown</td></tr>
+          </tbody>
+        </table>
+        <p>Two items Arena's orders are out of stock, representing roughly $4,900 in their trailing-12-month revenue. A restock note is a low-friction reason to re-engage a cooling account.</p>
+      </div>
+      <p class="prose"><strong>Priority:</strong> Call Arena's Interiors with a San Marco Bungalow Credenza restock update &mdash; they're 3.4x past cadence and the items they want are out of stock, so proactive timing keeps this New York account from drifting.</p>
+    </div>
+
+    
+    <details>
+      <summary>Accounts 6&ndash;10 by signal density &#9662;</summary>
+      <div style="padding: 16px 0;">
+
+        <div class="subsection">
+          <div class="subsection-title">6. Mister Robert</div>
+          <div class="metrics">
+            <div class="metric"><div class="metric-value">Mister Robert</div><div class="metric-label">Oklahoma</div></div>
+            <div class="metric"><div class="metric-value">Dec 18, 2025</div><div class="metric-label">Last eCat Order</div><div class="metric-note danger">181 days ago</div></div>
+            <div class="metric"><div class="metric-value">$17,651</div><div class="metric-label">eCat LTM</div><div class="metric-note">5 orders</div></div>
+            <div class="metric"><div class="metric-value"><span class="badge danger">19</span></div><div class="metric-label">Engagement Score</div><div class="metric-note">At Risk</div></div>
+          </div>
+          <div class="callout insight">
+            <div class="callout-title">Reorder Pattern Change</div>
+            <p>181 days since their last eCat order &mdash; 3.3x their normal cadence (typically every 55.6 days across 5 orders). Worth a check-in.</p>
+          </div>
+          <p class="prose"><strong>Priority:</strong> Email Mister Robert to re-engage &mdash; at 3.3x normal cadence and 181 days silent, this Oklahoma account needs a personal touch to restart its eCat ordering rhythm.</p>
+        </div>
+
+        <div class="subsection">
+          <div class="subsection-title">7. Baileywyck Antiques LLC</div>
+          <div class="metrics">
+            <div class="metric"><div class="metric-value">Baileywyck Antiques LLC</div><div class="metric-label">Virginia</div></div>
+            <div class="metric"><div class="metric-value">Mar 24, 2026</div><div class="metric-label">Last eCat Order</div><div class="metric-note warn">85 days ago</div></div>
+            <div class="metric"><div class="metric-value">$11,064</div><div class="metric-label">eCat LTM</div><div class="metric-note">6 orders</div></div>
+            <div class="metric"><div class="metric-value"><span class="badge warn">34</span></div><div class="metric-label">Engagement Score</div><div class="metric-note">Cooling</div></div>
+          </div>
+          <div class="callout insight">
+            <div class="callout-title">Reorder Pattern Change</div>
+            <p>85 days since their last eCat order &mdash; 2.6x their normal cadence (typically every 32.7 days across 6 orders). The earliest-stage decay signal in your top 10, so the easiest to reverse.</p>
+          </div>
+          <p class="prose"><strong>Priority:</strong> Reach out to Baileywyck Antiques now &mdash; at 2.6x cadence they're only beginning to slow, making a quick check-in the highest-leverage moment to keep this Virginia account on its established rhythm.</p>
+        </div>
+
+        <div class="subsection">
+          <div class="subsection-title">8. Antique Purveyor</div>
+          <div class="metrics">
+            <div class="metric"><div class="metric-value">Antique Purveyor</div><div class="metric-label">Connecticut</div></div>
+            <div class="metric"><div class="metric-value">&mdash;</div><div class="metric-label">No eCat Orders</div><div class="metric-note">All-channel only</div></div>
+            <div class="metric"><div class="metric-value">$68,240</div><div class="metric-label">All-Channel LTM</div><div class="metric-note danger">&minus;68.1% YoY</div></div>
+            <div class="metric"><div class="metric-value"><span class="badge danger">5</span></div><div class="metric-label">Engagement Score</div><div class="metric-note">At Risk</div></div>
+          </div>
+          <div class="callout insight">
+            <div class="callout-title">Decline Investigation: Antique Purveyor</div>
+            <p><strong>The pattern:</strong> $214,093 &rarr; $68,240 (&minus;68.1% decline, $145,853 in lost annual all-channel volume), and they've never placed an eCat order.</p>
+            <p><strong>Hypotheses:</strong></p>
+            <ol>
+              <li>The account may have consolidated vendors or shifted this category to direct-import sourcing.</li>
+              <li>A competitor may have captured the relationship with better pricing or fulfillment certainty.</li>
+              <li>This account is project-driven, so the drop may reflect completed projects rather than relationship loss.</li>
+            </ol>
+            <p><strong>Next step:</strong> The rep assigned to Antique Purveyor should ask directly &mdash; a 68% decline is almost never accidental, and the cause determines whether this is a recovery or a re-acquisition.</p>
+          </div>
+          <p class="prose"><strong>Priority:</strong> Have the assigned rep call Antique Purveyor to diagnose the 68.1% drop ($214K &rarr; $68K) &mdash; this is the largest dollar decline in your top accounts and getting them onto eCat would also give you visibility you currently lack.</p>
+        </div>
+
+        <div class="subsection">
+          <div class="subsection-title">9. PMP Design Services</div>
+          <div class="metrics">
+            <div class="metric"><div class="metric-value">PMP Design Services</div><div class="metric-label">Texas</div></div>
+            <div class="metric"><div class="metric-value">$50,165</div><div class="metric-label">All-Channel LTM</div><div class="metric-note warn">&minus;20.6% YoY</div></div>
+            <div class="metric"><div class="metric-value">$6,165</div><div class="metric-label">eCat LTM</div><div class="metric-note">12.3% via eCat</div></div>
+            <div class="metric"><div class="metric-value"><span class="badge warn">32</span></div><div class="metric-label">Engagement Score</div><div class="metric-note">Cooling</div></div>
+          </div>
+          <div class="callout insight">
+            <div class="callout-title">Wallet Position</div>
+            <p><strong>Total relationship:</strong> $50,165 across all channels (trailing 12 months) | <strong>eCat share:</strong> $6,165 (12.3%)</p>
+          </div>
+          <div class="callout insight">
+            <div class="callout-title">Spending Trajectory</div>
+            <p>Total business contracted 20.6% YoY ($63,163 &rarr; $50,165). eCat is new for this account this year, so the channel relationship is still forming even as total spend softened.</p>
+          </div>
+          <p class="prose"><strong>Priority:</strong> Visit or call PMP Design Services to grow their 12.3% eCat share &mdash; only $6,165 of their $50,165 total flows through the app, so deepening adoption is the most direct lever to stabilize a softening account.</p>
+        </div>
+
+        <div class="subsection">
+          <div class="subsection-title">10. Furnitureland South Inc</div>
+          <div class="metrics">
+            <div class="metric"><div class="metric-value">Furnitureland South Inc</div><div class="metric-label">North Carolina</div></div>
+            <div class="metric"><div class="metric-value">$195,709</div><div class="metric-label">All-Channel LTM</div><div class="metric-note ok">+70.3% YoY</div></div>
+            <div class="metric"><div class="metric-value">$22,235</div><div class="metric-label">eCat LTM</div><div class="metric-note warn">&minus;26.3% YoY</div></div>
+            <div class="metric"><div class="metric-value"><span class="badge ok">61</span></div><div class="metric-label">Engagement Score</div><div class="metric-note">Strong</div></div>
+          </div>
+          <div class="callout insight">
+            <div class="callout-title">Channel Share Shift</div>
+            <p>eCat orders (trailing 12 months): &minus;26.3% ($30,171 &rarr; $22,235)</p>
+            <p>Total business (trailing 12 months): +70.3% ($114,900 &rarr; $195,709)</p>
+            <p>Total business is growing strongly while a smaller share runs through eCat. Re-engaging Furnitureland South on the app could recapture an estimated ~$8,000 in annual eCat volume and ride their overall growth.</p>
+          </div>
+          <p class="prose"><strong>Priority:</strong> Call Furnitureland South to win back eCat share &mdash; their total business jumped 70.3% but eCat slipped 26.3%, so this is a growing account quietly moving volume off the app.</p>
+        </div>
+
+      </div>
+    </details>
+
+    
+    
+    
+    <div class="subsection">
+      <div class="subsection-title">eCat Penetration of Total Business</div>
+      <p class="prose">Across your 30 largest accounts by total business, eCat share ranges from 0% to fully digital &mdash; a clear map of where the app has landed and where it hasn't.</p>
+      <table>
+        <thead>
+          <tr><th>Customer</th><th>State</th><th>Total Orders</th><th>Total GMV</th><th>eCat Orders</th><th>eCat GMV</th><th>Penetration</th></tr>
+        </thead>
+        <tbody>
+          <tr class="row-highlight"><td><strong>Simple Things</strong></td><td>TX</td><td>19</td><td>$119,149</td><td>12</td><td>$143,708</td><td><span class="badge ok">fully digital</span></td></tr>
+          <tr class="row-highlight"><td><strong>Middleburg Antique Gallery</strong></td><td>VA</td><td>13</td><td>$58,334</td><td>12</td><td>$59,808</td><td><span class="badge ok">fully digital</span></td></tr>
+          <tr class="row-highlight"><td><strong>Swann's Furniture</strong></td><td>TX</td><td>13</td><td>$52,090</td><td>3</td><td>$49,708</td><td><span class="badge ok">95.4%</span></td></tr>
+          <tr class="row-highlight"><td><strong>Op Jenkins Furniture &amp; Design</strong></td><td>TN</td><td>19</td><td>$58,192</td><td>17</td><td>$55,274</td><td><span class="badge ok">95.0%</span></td></tr>
+          <tr class="row-highlight"><td><strong>MC Studio</strong></td><td>TX</td><td>38</td><td>$100,419</td><td>5</td><td>$54,940</td><td><span class="badge ok">54.7%</span></td></tr>
+          <tr><td>Davids Furniture &amp; Interiors</td><td>PA</td><td>29</td><td>$56,626</td><td>9</td><td>$29,615</td><td>52.3%</td></tr>
+          <tr><td>Greenfront Furniture</td><td>VA</td><td>34</td><td>$122,393</td><td>5</td><td>$46,929</td><td>38.3%</td></tr>
+          <tr><td>Nell Hills Corporation</td><td>MO</td><td>18</td><td>$82,534</td><td>1</td><td>$22,388</td><td>27.1%</td></tr>
+          <tr><td>Walter E. Smithe Furniture</td><td>IL</td><td>88</td><td>$214,134</td><td>1</td><td>$37,825</td><td>17.7%</td></tr>
+          <tr><td>Safavieh Home</td><td>NY</td><td>74</td><td>$80,593</td><td>5</td><td>$10,574</td><td>13.1%</td></tr>
+          <tr><td>PMP Design Services</td><td>TX</td><td>15</td><td>$50,165</td><td>2</td><td>$6,165</td><td>12.3%</td></tr>
+          <tr><td>Furnitureland South Inc</td><td>NC</td><td>137</td><td>$195,709</td><td>2</td><td>$22,235</td><td>11.4%</td></tr>
+          <tr><td>France And Son</td><td>NY</td><td>280</td><td>$386,276</td><td>1</td><td>$9,280</td><td>2.4%</td></tr>
+          <tr><td>Wayfair</td><td>MA</td><td>5,013</td><td>$4.6M</td><td>0</td><td>$0</td><td>0%</td></tr>
+          <tr><td>Kathy Kuo Home</td><td>GA</td><td>540</td><td>$537,688</td><td>0</td><td>$0</td><td>0%</td></tr>
+          <tr><td>NetRetailers Inc.</td><td>IL</td><td>379</td><td>$346,611</td><td>0</td><td>$0</td><td>0%</td></tr>
+          <tr><td>AFA Stores</td><td>NJ</td><td>233</td><td>$281,849</td><td>0</td><td>$0</td><td>0%</td></tr>
+          <tr><td>Sundial Home Products LLC</td><td>CA</td><td>181</td><td>$261,187</td><td>0</td><td>$0</td><td>0%</td></tr>
+        </tbody>
+      </table>
+      <div class="what-this-means"><strong>Action:</strong> Your fully digital accounts (Simple Things, Middleburg Antique Gallery, Op Jenkins) prove eCat can carry an entire relationship &mdash; replicate their onboarding with mid-tier accounts like Walter E. Smithe (17.7%) and Safavieh (13.1%) whose volume is large but barely digital. Moving a single large account such as Walter E. Smithe from 17.7% toward 50% would add an estimated $70K+ in annual eCat orders.</div>
+    </div>
+
+    
+    
+    
+    <div class="subsection">
+      <div class="subsection-title">Geographic Revenue Trends</div>
+      <div class="callout insight">
+        <div class="callout-title">Geographic Revenue Shifts</div>
+        <p>Connecticut grew 162% quarter-over-quarter ($28,298&rarr;$74,168) and Alabama jumped 109% ($46,434&rarr;$96,804), while New Jersey contracted 29.5% ($225,149&rarr;$158,739). Your reps added net-new accounts in Florida (+12), South Carolina (+10) and California (+6) &mdash; that's territory being won in real time.</p>
+      </div>
+      <table>
+        <thead>
+          <tr><th>State</th><th>Current Quarter</th><th>Prior Quarter</th><th>QoQ Change</th><th>Customers</th></tr>
+        </thead>
+        <tbody>
+          <tr class="row-highlight"><td><strong>MA</strong></td><td>$1.4M</td><td>$1.2M</td><td><span class="badge ok">+20.4%</span></td><td>12 (&minus;6)</td></tr>
+          <tr class="row-highlight"><td><strong>TX</strong></td><td>$303,782</td><td>$303,468</td><td><span class="badge ok">+0.1%</span></td><td>49 (+4)</td></tr>
+          <tr class="row-highlight"><td><strong>CA</strong></td><td>$263,996</td><td>$189,913</td><td><span class="badge ok">+39.0%</span></td><td>27 (+6)</td></tr>
+          <tr class="row-highlight"><td><strong>GA</strong></td><td>$249,028</td><td>$239,065</td><td><span class="badge ok">+4.2%</span></td><td>34 (&minus;1)</td></tr>
+          <tr class="row-highlight"><td><strong>NC</strong></td><td>$206,505</td><td>$198,865</td><td><span class="badge ok">+3.8%</span></td><td>45 (+3)</td></tr>
+          <tr><td>IL</td><td>$202,512</td><td>$227,877</td><td><span class="badge danger">&minus;11.1%</span></td><td>21 (+1)</td></tr>
+          <tr><td>NY</td><td>$175,843</td><td>$197,942</td><td><span class="badge danger">&minus;11.2%</span></td><td>21 (+1)</td></tr>
+          <tr><td>FL</td><td>$168,231</td><td>$166,012</td><td><span class="badge ok">+1.3%</span></td><td>57 (+12)</td></tr>
+          <tr><td>NJ</td><td>$158,739</td><td>$225,149</td><td><span class="badge danger">&minus;29.5%</span></td><td>24 (+4)</td></tr>
+          <tr><td>SC</td><td>$119,781</td><td>$64,545</td><td><span class="badge ok">+85.6%</span></td><td>26 (+10)</td></tr>
+          <tr>
+            <td colspan="5">
+              <details>
+                <summary>States 11&ndash;25 &#9662;</summary>
+                <table>
+                  <tbody>
+                    <tr><td>AL</td><td>$96,804</td><td>$46,434</td><td><span class="badge ok">+108.5%</span></td><td>14 (+1)</td></tr>
+                    <tr><td>VA</td><td>$96,294</td><td>$111,183</td><td><span class="badge danger">&minus;13.4%</span></td><td>19 (+5)</td></tr>
+                    <tr><td>OH</td><td>$82,539</td><td>$34,201</td><td><span class="badge ok">+141.3%</span></td><td>15 (+3)</td></tr>
+                    <tr><td>CT</td><td>$74,168</td><td>$28,298</td><td><span class="badge ok">+162.1%</span></td><td>4 (&minus;5)</td></tr>
+                    <tr><td>LA</td><td>$73,451</td><td>$52,807</td><td><span class="badge ok">+39.1%</span></td><td>17 (+3)</td></tr>
+                    <tr><td>TN</td><td>$66,014</td><td>$87,039</td><td><span class="badge danger">&minus;24.2%</span></td><td>18 (&minus;5)</td></tr>
+                    <tr><td>MO</td><td>$55,271</td><td>$24,584</td><td><span class="badge ok">+124.8%</span></td><td>6 (&minus;3)</td></tr>
+                    <tr><td>PA</td><td>$49,636</td><td>$33,373</td><td><span class="badge ok">+48.7%</span></td><td>14 (+3)</td></tr>
+                    <tr><td>WI</td><td>$39,282</td><td>$50,284</td><td><span class="badge danger">&minus;21.9%</span></td><td>16 (+3)</td></tr>
+                    <tr><td>MD</td><td>$36,545</td><td>$25,739</td><td><span class="badge ok">+42.0%</span></td><td>11 (+1)</td></tr>
+                    <tr><td>OK</td><td>$34,446</td><td>$24,435</td><td><span class="badge ok">+41.0%</span></td><td>9 (+1)</td></tr>
+                    <tr><td>AR</td><td>$28,806</td><td>$22,277</td><td><span class="badge ok">+29.3%</span></td><td>6 (&minus;1)</td></tr>
+                    <tr><td>KS</td><td>$28,223</td><td>$20,441</td><td><span class="badge ok">+38.1%</span></td><td>6 (+2)</td></tr>
+                    <tr><td>KY</td><td>$21,718</td><td>$24,766</td><td><span class="badge danger">&minus;12.3%</span></td><td>5 (&minus;1)</td></tr>
+                    <tr><td>UT</td><td>$20,025</td><td>$11,730</td><td><span class="badge ok">+70.7%</span></td><td>6 (0)</td></tr>
+                  </tbody>
+                </table>
+              </details>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="what-this-means"><strong>Action:</strong> Double down on coverage in your breakout markets &mdash; California (+39% and +6 accounts), South Carolina (+85.6%, +10 accounts) and Alabama (+108.5%) are gaining both revenue and accounts, the cleanest proof of effective rep coverage. Investigate New Jersey (&minus;29.5% on flat-to-rising account count) and Tennessee (&minus;24.2%, &minus;5 accounts), where falling revenue alongside steady or shrinking accounts may signal competitive pressure or thinning wallet share.</div>
+    </div>
+
+    
+    
+    
+    <div class="subsection">
+      <div class="subsection-title">Unactivated High-Value Accounts</div>
+      <p class="prose">These accounts buy heavily across all channels but have never placed an eCat order &mdash; proven demand with zero acquisition cost to onboard.</p>
+      <table>
+        <thead>
+          <tr><th>Customer</th><th>State</th><th>Total Business GMV (LTM)</th><th>Total Orders</th><th>eCat Orders</th></tr>
+        </thead>
+        <tbody>
+          <tr class="row-highlight"><td><strong>Kathy Kuo Home</strong></td><td>GA</td><td>$537,688</td><td>540</td><td>0</td></tr>
+          <tr class="row-highlight"><td><strong>NetRetailers Inc.</strong></td><td>IL</td><td>$346,611</td><td>379</td><td>0</td></tr>
+          <tr class="row-highlight"><td><strong>AFA Stores</strong></td><td>NJ</td><td>$281,849</td><td>233</td><td>0</td></tr>
+          <tr class="row-highlight"><td><strong>Sundial Home Products LLC</strong></td><td>CA</td><td>$261,187</td><td>181</td><td>0</td></tr>
+          <tr class="row-highlight"><td><strong>English Georgian America LLC</strong></td><td>NJ</td><td>$189,930</td><td>152</td><td>0</td></tr>
+          <tr>
+            <td colspan="5">
+              <details>
+                <summary>Accounts 6&ndash;15 &#9662;</summary>
+                <table>
+                  <tbody>
+                    <tr><td>Old Bones Co Studios</td><td>CA</td><td>$87,450</td><td>76</td><td>0</td></tr>
+                    <tr><td>Decor Marche (American Home Furniture)</td><td>NY</td><td>$81,258</td><td>88</td><td>0</td></tr>
+                    <tr><td>The Swan's Nest Inc</td><td>NV</td><td>$66,170</td><td>4</td><td>0</td></tr>
+                    <tr><td>English Elm</td><td>IL</td><td>$59,673</td><td>55</td><td>0</td></tr>
+                    <tr><td>Decor Market</td><td>NY</td><td>$51,954</td><td>52</td><td>0</td></tr>
+                    <tr><td>Renegade Furniture Group</td><td>OH</td><td>$51,457</td><td>55</td><td>0</td></tr>
+                    <tr><td>Hedgeapple</td><td>KS</td><td>$49,448</td><td>60</td><td>0</td></tr>
+                    <tr><td>Crimson Design Group</td><td>OH</td><td>$41,082</td><td>17</td><td>0</td></tr>
+                    <tr><td>Belle Escape</td><td>CA</td><td>$37,062</td><td>21</td><td>0</td></tr>
+                    <tr><td>Holly Biggs Interiors</td><td>LA</td><td>$32,337</td><td>10</td><td>0</td></tr>
+                  </tbody>
+                </table>
+              </details>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="what-this-means"><strong>Action:</strong> Prioritize the non-enterprise names on this list for iPad onboarding &mdash; mid-market accounts like English Georgian America ($189,930), Old Bones Co Studios ($87,450) and English Elm ($59,673) place dozens of orders a year through other channels and are realistic eCat candidates. This is proven demand at zero customer-acquisition cost; getting even five of them ordering through the app converts existing business into visible, recurring digital volume.</div>
+    </div>
+
+    
+    <details class="subsection collapsed">
+      <summary class="subsection-title">Enterprise Channel Accounts (2 excluded from activation analysis) &#9662;</summary>
+      <p class="prose">The following accounts are high-volume buyers (500+ orders/year) with zero eCat history. They order through enterprise channels (EDI, direct PO, or marketplace integration) and are not candidates for eCat iPad onboarding. They are excluded from the "Unactivated High-Value" analysis above.</p>
+      <table>
+        <thead>
+          <tr><th>Account</th><th>State</th><th>Total Business GMV (LTM)</th><th>LTM Orders</th><th>Channel</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Wayfair</td><td>MA</td><td>$4.6M</td><td>5,013</td><td>EDI / Direct PO</td></tr>
+          <tr><td>Kathy Kuo Home</td><td>GA</td><td>$537,688</td><td>540</td><td>EDI / Direct PO</td></tr>
+        </tbody>
+      </table>
+      <p class="prose"><strong>Note:</strong> If either account should be considered for eCat onboarding (e.g., the relationship has changed), flag them for reclassification in the next report cycle.</p>
+    </details>
+
+    
+    
+    
+    <div class="subsection">
+      <div class="subsection-title">Reorder Velocity &amp; Early Warning</div>
+      <p class="prose">Your highest-frequency eCat buyers reorder every two to three weeks &mdash; the cadence that signals a healthy, sticky digital relationship.</p>
+      <table>
+        <thead>
+          <tr><th>Account</th><th>State</th><th>Orders (LTM)</th><th>Avg Interval (days)</th><th>eCat Revenue (LTM)</th></tr>
+        </thead>
+        <tbody>
+          <tr class="row-highlight"><td><strong>Op Jenkins Furniture &amp; Design</strong></td><td>TN</td><td>17</td><td>16.9</td><td>$55,274</td></tr>
+          <tr class="row-highlight"><td><strong>Eros Home</strong></td><td>LA</td><td>15</td><td>22.6</td><td>$46,742</td></tr>
+          <tr class="row-highlight"><td><strong>Middleburg Antique Gallery</strong></td><td>VA</td><td>12</td><td>27.7</td><td>$59,808</td></tr>
+          <tr class="row-highlight"><td><strong>Simple Things</strong></td><td>TX</td><td>12</td><td>30.9</td><td>$143,708</td></tr>
+          <tr class="row-highlight"><td><strong>Clive Daniel Home</strong></td><td>FL</td><td>10</td><td>23.7</td><td>$28,030</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout alert">
+        <div class="callout-title">Deceleration Alert</div>
+        <table>
+          <thead>
+            <tr><th>Account</th><th>Historical Avg</th><th>Recent Avg</th><th>Deceleration</th><th>Annual Value</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>France And Son</td><td>1 day</td><td>2 days</td><td><span class="badge danger">2.0x</span></td><td>$386,276</td></tr>
+            <tr><td>SSTL Inc (Emma Mason)</td><td>3.2 days</td><td>5.1 days</td><td><span class="badge warn">1.6x</span></td><td>$164,366</td></tr>
+            <tr><td>Middleburg Antique Gallery</td><td>14.6 days</td><td>59.7 days</td><td><span class="badge danger">4.1x</span></td><td>$58,334</td></tr>
+            <tr><td>Op Jenkins Furniture &amp; Design</td><td>16.2 days</td><td>25.5 days</td><td><span class="badge warn">1.6x</span></td><td>$58,192</td></tr>
+            <tr><td>Swann's Furniture</td><td>16.5 days</td><td>25.7 days</td><td><span class="badge warn">1.6x</span></td><td>$52,090</td></tr>
+            <tr>
+              <td colspan="5">
+                <details>
+                  <summary>Accounts 6&ndash;15 &#9662;</summary>
+                  <table>
+                    <tbody>
+                      <tr><td>Renegade Furniture Group</td><td>5.1 days</td><td>8.3 days</td><td><span class="badge warn">1.6x</span></td><td>$51,457</td></tr>
+                      <tr><td>Gary Riggs Home</td><td>35.4 days</td><td>91.0 days</td><td><span class="badge danger">2.6x</span></td><td>$45,329</td></tr>
+                      <tr><td>Green Gates Market</td><td>24.9 days</td><td>64.3 days</td><td><span class="badge danger">2.6x</span></td><td>$44,096</td></tr>
+                      <tr><td>Eros Home</td><td>15.2 days</td><td>47.7 days</td><td><span class="badge danger">3.1x</span></td><td>$41,972</td></tr>
+                      <tr><td>Belle Escape</td><td>8.9 days</td><td>25.7 days</td><td><span class="badge danger">2.9x</span></td><td>$37,062</td></tr>
+                      <tr><td>J. Banks Design</td><td>21.4 days</td><td>43.5 days</td><td><span class="badge danger">2.0x</span></td><td>$32,941</td></tr>
+                      <tr><td>Holly Biggs Interiors</td><td>26.7 days</td><td>67.7 days</td><td><span class="badge danger">2.5x</span></td><td>$32,337</td></tr>
+                      <tr><td>Nancy Rae Interiors</td><td>30.9 days</td><td>92.5 days</td><td><span class="badge danger">3.0x</span></td><td>$30,616</td></tr>
+                      <tr><td>Blue Sky Environments Inc</td><td>12.7 days</td><td>27.8 days</td><td><span class="badge danger">2.2x</span></td><td>$26,611</td></tr>
+                      <tr><td>Jett Thompson Home</td><td>29.0 days</td><td>47.7 days</td><td><span class="badge warn">1.6x</span></td><td>$25,751</td></tr>
+                    </tbody>
+                  </table>
+                </details>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="callout-summary">15 accounts show order frequency stretching beyond 1.5x their historical average. Combined annual value across these accounts: roughly $1.09M.</div>
+      </div>
+      <div class="what-this-means"><strong>Action:</strong> Call Middleburg Antique Gallery and Eros Home first &mdash; both quadrupled their order interval (4.1x and 3.1x) while still carrying $58K and $42K in annual value, the steepest deceleration among accounts you can still save. If this trend continues across all 15, projected at-risk revenue is roughly $1.09M; proactive outreach to understand the cause is the highest-leverage move available to your team right now.</div>
+    </div>
+
+    
+    
+    
+    <div class="subsection">
+      <div class="subsection-title">Dormant High-Value Accounts</div>
+      <p class="prose">These accounts each placed $15K+ in eCat orders historically but have gone quiet for 90+ days &mdash; high-value relationships worth a deliberate re-engagement.</p>
+      <table>
+        <thead>
+          <tr><th>Customer</th><th>State</th><th>Last eCat Order</th><th>Historical eCat GMV</th><th>Silence</th></tr>
+        </thead>
+        <tbody>
+          <tr class="row-highlight"><td><strong>Greenfront Furniture</strong></td><td>VA</td><td>Jan 15, 2026</td><td>$46,929</td><td>153 days</td></tr>
+          <tr class="row-highlight"><td><strong>Walter E. Smithe Furniture</strong></td><td>IL</td><td>Jun 19, 2025</td><td>$37,825</td><td>363 days</td></tr>
+          <tr class="row-highlight"><td><strong>First Fruit Collection</strong></td><td>TN</td><td>Mar 11, 2026</td><td>$23,861</td><td>97 days</td></tr>
+          <tr class="row-highlight"><td><strong>Nell Hills Corporation</strong></td><td>MO</td><td>Oct 26, 2025</td><td>$22,388</td><td>234 days</td></tr>
+          <tr class="row-highlight"><td><strong>Furnitureland South Inc</strong></td><td>NC</td><td>Oct 25, 2025</td><td>$22,235</td><td>235 days</td></tr>
+          <tr>
+            <td colspan="5">
+              <details>
+                <summary>Accounts 6&ndash;15 &#9662;</summary>
+                <table>
+                  <tbody>
+                    <tr><td>Mr. Diggs Dwelling &amp; Co.</td><td>KS</td><td>Oct 27, 2025</td><td>$21,424</td><td>233 days</td></tr>
+                    <tr><td>Paper Dolls</td><td>WI</td><td>Mar 12, 2026</td><td>$20,375</td><td>97 days</td></tr>
+                    <tr><td>Fowler Brothers Co</td><td>TN</td><td>Feb 11, 2026</td><td>$17,908</td><td>126 days</td></tr>
+                    <tr><td>Kerri Moore Interiors</td><td>GA</td><td>Feb 14, 2026</td><td>$17,677</td><td>123 days</td></tr>
+                    <tr><td>Mister Robert</td><td>OK</td><td>Dec 18, 2025</td><td>$17,651</td><td>181 days</td></tr>
+                    <tr><td>Laurie's</td><td>TX</td><td>Feb 23, 2026</td><td>$17,452</td><td>113 days</td></tr>
+                    <tr><td>Arena's Interiors</td><td>NY</td><td>Dec 11, 2025</td><td>$17,371</td><td>188 days</td></tr>
+                    <tr><td>Koontz Furniture</td><td>FL</td><td>Oct 26, 2025</td><td>$16,124</td><td>233 days</td></tr>
+                    <tr><td>Bergson Interiors Ltd</td><td>WI</td><td>Oct 27, 2025</td><td>$15,941</td><td>233 days</td></tr>
+                    <tr><td>Rustick's Furnishings LLC</td><td>NC</td><td>Oct 26, 2025</td><td>$15,080</td><td>234 days</td></tr>
+                  </tbody>
+                </table>
+              </details>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="what-this-means"><strong>Action:</strong> Re-engage Greenfront Furniture and Walter E. Smithe first &mdash; together they represent $84,754 in proven eCat spend now sitting idle, and Walter E. Smithe at 363 days silent is one renewal away from being a fully lapsed account. A structured win-back cadence on the top five here protects roughly $153K in demonstrated digital revenue before it migrates to other channels.</div>
+    </div>
+
+    
+    
+    
+    <div class="subsection">
+      <div class="subsection-title">Accounts Contracting Year-Over-Year</div>
+      <p class="prose">These accounts have cut total spend more than 20% year-over-year on a six-figure-prior base &mdash; the contractions worth investigating before they harden.</p>
+      <table>
+        <thead>
+          <tr><th>Customer</th><th>State</th><th>Prior Year GMV</th><th>LTM GMV</th><th>YoY Change</th><th>Dollar Decline</th></tr>
+        </thead>
+        <tbody>
+          <tr class="row-highlight"><td><strong>Antique Purveyor</strong></td><td>CT</td><td>$214,093</td><td>$68,240</td><td><span class="badge danger">&minus;68.1%</span></td><td>$145,853</td></tr>
+          <tr><td>Blue Sky Environments Inc</td><td>FL</td><td>$68,700</td><td>$26,611</td><td><span class="badge danger">&minus;61.3%</span></td><td>$42,089</td></tr>
+          <tr><td>Belle Escape</td><td>CA</td><td>$72,976</td><td>$37,062</td><td><span class="badge danger">&minus;49.2%</span></td><td>$35,914</td></tr>
+          <tr><td>The Classy Cottage</td><td>NC</td><td>$49,304</td><td>$31,430</td><td><span class="badge danger">&minus;36.3%</span></td><td>$17,874</td></tr>
+          <tr><td>Rustick's Furnishings LLC</td><td>NC</td><td>$38,848</td><td>$27,965</td><td><span class="badge warn">&minus;28.0%</span></td><td>$10,883</td></tr>
+        </tbody>
+      </table>
+      <div class="callout insight">
+        <div class="callout-title">Decline Investigation: Antique Purveyor</div>
+        <p><strong>The pattern:</strong> $214,093 &rarr; $68,240 (&minus;68.1% decline, $145,853 in lost annual all-channel volume).</p>
+        <p><strong>Hypotheses:</strong></p>
+        <ol>
+          <li>The account may have consolidated vendors or moved this category to direct-import sourcing.</li>
+          <li>A competitor may have captured the relationship with sharper pricing or more reliable fulfillment.</li>
+          <li>If Antique Purveyor is project-driven, the decline may reflect a completed project cycle rather than a lost relationship.</li>
+        </ol>
+        <p><strong>Next step:</strong> The rep assigned to Antique Purveyor should ask directly &mdash; a 68% drop is almost never accidental, and the cause determines whether this is a recovery or a re-acquisition.</p>
+      </div>
+      <div class="what-this-means"><strong>Action:</strong> Open a direct conversation with Antique Purveyor, your single largest contraction at $145,853 lost &mdash; the cause (vendor consolidation, competitor capture, or a finished project) dictates whether you defend or rebuild. Pair that with Blue Sky Environments and Belle Escape, both down roughly 50% on $70K-prior bases, so your team addresses the three steepest declines before they become permanent.</div>
+    </div>
+
+    
+    
+    
+    <div class="subsection collapsed">
+      <div class="subsection-title">Spending Contraction Detection</div>
+      <div class="callout insight">
+        <div class="callout-title">Spending Contraction: Accounts Below Their Peak</div>
+        <p>20 accounts are spending below their historical peak. The combined gap between current and peak spend represents roughly $3.05M in demonstrated capacity that has not been recaptured.</p>
+      </div>
+      <p class="prose">We compare each account's trailing-12-month spend to their own historical peak &mdash; the highest rolling 12-month total in their order history. This surfaces accounts with a demonstrated spending capacity that has contracted. These are accounts that have spent more in the past, making re-engagement a recovery conversation rather than a cold growth pitch.</p>
+      <table>
+        <thead>
+          <tr><th>Account</th><th>State</th><th>Current Annual Spend</th><th>Historical Peak</th><th>Contraction</th><th>Current vs Peak</th></tr>
+        </thead>
+        <tbody>
+          <tr class="row-highlight"><td><strong>Greenfront Furniture</strong></td><td>VA</td><td>$124,103</td><td>$535,922</td><td><span class="badge warn">$411,819</span></td><td>23% of peak</td></tr>
+          <tr class="row-highlight"><td><strong>Carolina Furniture &amp; Interior Inc.</strong></td><td>SC</td><td>$14,422</td><td>$226,189</td><td><span class="badge warn">$211,767</span></td><td>6% of peak</td></tr>
+          <tr class="row-highlight"><td><strong>Green Gates Market</strong></td><td>AL</td><td>$44,096</td><td>$253,619</td><td><span class="badge warn">$209,523</span></td><td>17% of peak</td></tr>
+          <tr class="row-highlight"><td><strong>Antique Purveyor</strong></td><td>CT</td><td>$68,240</td><td>$277,383</td><td><span class="badge warn">$209,143</span></td><td>25% of peak</td></tr>
+          <tr class="row-highlight"><td><strong>The Classy Cottage</strong></td><td>NC</td><td>$33,570</td><td>$232,268</td><td><span class="badge warn">$198,697</span></td><td>14% of peak</td></tr>
+          <tr><td>Hurlbutt Designs</td><td>ME</td><td>$10,335</td><td>$189,590</td><td><span class="badge warn">$179,254</span></td><td>5% of peak</td></tr>
+          <tr><td>Blue Sky Environments Inc</td><td>FL</td><td>$26,763</td><td>$203,446</td><td><span class="badge warn">$176,683</span></td><td>13% of peak</td></tr>
+          <tr><td>Clive Daniel Home</td><td>FL</td><td>$37,308</td><td>$200,102</td><td><span class="badge warn">$162,795</span></td><td>19% of peak</td></tr>
+          <tr>
+            <td colspan="6">
+              <details>
+                <summary>Accounts 9&ndash;20 &#9662;</summary>
+                <table>
+                  <tbody>
+                    <tr><td>Fowler Brothers Co</td><td>TN</td><td>$19,257</td><td>$176,473</td><td><span class="badge warn">$157,216</span></td><td>11% of peak</td></tr>
+                    <tr><td>Alison Craig Home Furnishings</td><td>FL</td><td>$40,831</td><td>$197,517</td><td><span class="badge warn">$156,686</span></td><td>21% of peak</td></tr>
+                    <tr><td>McKee &amp; Company</td><td>CA</td><td>$15,519</td><td>$156,928</td><td><span class="badge warn">$141,409</span></td><td>10% of peak</td></tr>
+                    <tr><td>Eros Home</td><td>LA</td><td>$41,972</td><td>$177,485</td><td><span class="badge warn">$135,513</span></td><td>24% of peak</td></tr>
+                    <tr><td>Robb &amp; Stucky International</td><td>FL</td><td>$2,655</td><td>$119,451</td><td><span class="badge warn">$116,796</span></td><td>2% of peak</td></tr>
+                    <tr><td>Heritage Furniture Outlet</td><td>NC</td><td>$5,380</td><td>$118,834</td><td><span class="badge warn">$113,454</span></td><td>5% of peak</td></tr>
+                    <tr><td>Pierce And Parker Interiors</td><td>GA</td><td>$6,739</td><td>$117,000</td><td><span class="badge warn">$110,260</span></td><td>6% of peak</td></tr>
+                    <tr><td>The Summer House By Reeves</td><td>NC</td><td>$46,647</td><td>$147,406</td><td><span class="badge warn">$100,759</span></td><td>32% of peak</td></tr>
+                    <tr><td>Haus Of Hue LLC</td><td>FL</td><td>$1,864</td><td>$95,780</td><td><span class="badge warn">$93,916</span></td><td>2% of peak</td></tr>
+                    <tr><td>Fine Designs Sofas And Chairs</td><td>LA</td><td>$24,237</td><td>$115,253</td><td><span class="badge warn">$91,016</span></td><td>21% of peak</td></tr>
+                    <tr><td>Vesta Home</td><td>FL</td><td>$25,985</td><td>$116,226</td><td><span class="badge warn">$90,241</span></td><td>22% of peak</td></tr>
+                    <tr><td>Peach Tree Designs</td><td>FL</td><td>$6,485</td><td>$96,700</td><td><span class="badge warn">$90,215</span></td><td>7% of peak</td></tr>
+                  </tbody>
+                </table>
+              </details>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="what-this-means"><strong>Action:</strong> Lead the recovery push with Greenfront Furniture ($411,819 below its $535,922 peak) &mdash; it has proven six-figure capacity and is also flagged for reorder decay and stock-outs, making it the clearest single recovery target in your book. Frame every one of these conversations as "you used to spend $X, what changed?" rather than a cold growth pitch; the demonstrated history makes the dialogue far more productive.</div>
+    </div>
+
+    
+    <div class="what-this-means" style="margin-top:20px;">
+      <strong>Action:</strong> Start with the accounts where multiple signals stack &mdash; Greenfront Furniture and Op Jenkins both show reorder decay and out-of-stock items they actively buy, so a single restock-and-reorder conversation defends real, near-term revenue. Left alone, the 15 decelerating accounts ($1.09M combined) and 20 below-peak accounts ($3.05M of demonstrated capacity) drift toward other channels, while the unactivated high-value list converts proven demand into visible eCat volume at zero acquisition cost.
+    </div>
+
+    <div class="callout note" style="margin-top:16px;">
+      <div class="callout-title">With Connected Data</div>
+      Adding contact-level data would tell you who within each account is the eCat user versus the decision-maker, turning these account briefs into person-level relationship plans.
+    </div>
+
+  </div>
+</details>
+
+
+<details class="section-collapse" id="commerce">
+  <summary>
+    <div class="section-title">Commerce Patterns</div>
+    <div class="section-sub">$2.6M eCat orders LTM &middot; $9.98M (64%) of business already on your own B2B web &middot; channel, buyer &amp; pricing analysis</div>
+    <div class="section-contents">Order channel mix &middot; eCat footprint &middot; eCat order trend &middot; top buyers &middot; order type &middot; new buyers &middot; seasonality &middot; pricing trends</div>
+    <span class="expand-hint">Expand section</span>
+  </summary>
+  <div class="section">
+
+    <div class="data-confidence">
+      <span class="data-confidence-label">Strong View</span>
+      <span class="data-confidence-action">Commerce analysis draws from eCat order data, all-channel order records, and inventory feeds; the order-origin feed distinguishes your own B2B web from rep- and back-office-entered orders, so the channel picture below is solid.</span>
+    </div><div class="subsection">
+      <div class="subsection-title">Order Channel Mix</div>
+      <table>
+        <thead>
+          <tr><th>Channel</th><th>Orders (LTM)</th><th>GMV (LTM)</th><th>% of Total Business</th></tr>
+        </thead>
+        <tbody>
+          <tr class="row-highlight"><td><strong>Your B2B web storefront</strong></td><td>8,663</td><td>$9,981,063</td><td>64.1%</td></tr>
+          <tr><td>Rep- or back-office-entered</td><td>2,212</td><td>$5,580,407</td><td>35.9%</td></tr>
+        </tbody>
+      </table>
+      <div class="what-this-means">
+        <strong>Action:</strong> $9.98M (64%) of your $15.6M business is already self-service digital through your own B2B web storefront &mdash; that volume is healthy, leave it be. The real opportunity is the $5.58M (36%) still entered by reps or the back office; moving part of that into digital ordering removes keying time and errors, and eCat is the natural path for the rep-assisted, field, and showroom orders inside that bucket.
+      </div>
+    </div><div class="subsection">
+      <div class="subsection-title">eCat Footprint</div>
+      <div class="metrics">
+        <div class="metric">
+          <div class="metric-label">Orders Placed Through eCat</div>
+          <div class="metric-value">$2.6M</div>
+          <div class="metric-note">Trailing 12 months &middot; 604 orders</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Of Total Business</div>
+          <div class="metric-value">16.4%</div>
+          <div class="metric-note">eCat alongside your B2B web and rep channels</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">eCat Average Order</div>
+          <div class="metric-value">$4,230</div>
+          <div class="metric-note">100% iPad / rep-assisted</div>
+        </div>
+      </div>
+      <div class="callout insight">
+        <div class="callout-title">More orders digitized through rep-assisted selling</div>
+        <p>Every eCat order today is rep-assisted (iPad) &mdash; your reps are using it in front of accounts and in the field. October 2025 was its strongest month at $638,853 across 94 orders, showing the channel scales when reps lean on it during peak selling.</p>
+      </div>
+      <div class="what-this-means">
+        <strong>Action:</strong> eCat handles $2.6M today, concentrated in rep-assisted and field orders &mdash; that is its specific strength, not a number to chase for its own sake. The enablement opportunity is the $5.58M of rep- and back-office-entered volume (see Order Channel Mix): eCat for the rep-assisted and showroom portion, your own web for self-service buyers, both cutting hand-keying and errors.
+      </div>
+    </div><div class="subsection">
+      <div class="subsection-title">eCat Order Trend</div>
+      <table>
+        <thead>
+          <tr><th>Period</th><th>eCat Orders</th><th>eCat GMV</th><th>Total Business</th><th>eCat Share</th><th>Avg Order Value</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Q3 2025 (Jul&ndash;Sep)</td><td>146</td><td>$406,478</td><td>$3.4M</td><td>11.9%</td><td>$2,784</td></tr>
+          <tr class="row-highlight"><td>Q4 2025 (Oct&ndash;Dec)</td><td>182</td><td>$920,493</td><td>$4.0M</td><td>23.0%</td><td>$5,058</td></tr>
+          <tr><td>Q1 2026 (Jan&ndash;Mar)</td><td>120</td><td>$448,833</td><td>$3.9M</td><td>11.5%</td><td>$3,740</td></tr>
+          <tr><td>Q2 2026 (Apr&ndash;Jun, partial)</td><td>127</td><td>$640,244</td><td>$3.6M</td><td>17.6%</td><td>$5,041</td></tr>
+        </tbody>
+      </table>
+      <div class="what-this-means">
+        <strong>Action:</strong> eCat ordering peaked in Q4 2025 (Oct&ndash;Dec) at $920,493 &mdash; the post-High Point market window when reps follow up on showroom interest digitally. The Q2 2026 figure is a partial period (June data is truncated mid-month, not declining demand); the underlying pattern is more orders digitized around the spring and fall market cycles, not a steady decline.
+      </div>
+    </div><div class="subsection">
+      <div class="subsection-title">Top Buyers &amp; Concentration</div>
+      <table>
+        <thead>
+          <tr><th>Customer</th><th>Orders</th><th>GMV (eCat)</th><th>% of eCat GMV</th><th>Total Business</th><th>eCat Share</th></tr>
+        </thead>
+        <tbody>
+          <tr class="row-highlight"><td><strong>Simple Things</strong></td><td>12</td><td>$143,708</td><td>5.5%</td><td>$119,149</td><td>100%+</td></tr>
+          <tr class="row-highlight"><td><strong>Renaissance Interiors</strong></td><td>5</td><td>$61,790</td><td>2.4%</td><td>&mdash;</td><td>&mdash;</td></tr>
+          <tr class="row-highlight"><td><strong>Middleburg Antique Gallery</strong></td><td>12</td><td>$59,808</td><td>2.3%</td><td>$58,334</td><td>100%+</td></tr>
+          <tr class="row-highlight"><td><strong>Op Jenkins Furniture &amp; Design</strong></td><td>17</td><td>$55,274</td><td>2.1%</td><td>$58,192</td><td>95%</td></tr>
+          <tr class="row-highlight"><td><strong>Mc Studio</strong></td><td>5</td><td>$54,940</td><td>2.1%</td><td>$100,419</td><td>54.7%</td></tr>
+          <tr><td>Swann's Furniture</td><td>3</td><td>$49,708</td><td>1.9%</td><td>$52,090</td><td>95.4%</td></tr>
+          <tr><td>Greenfront Furniture</td><td>5</td><td>$46,929</td><td>1.8%</td><td>$122,393</td><td>38.3%</td></tr>
+          <tr><td>Eros Home</td><td>15</td><td>$46,742</td><td>1.8%</td><td>&mdash;</td><td>&mdash;</td></tr>
+          <tr><td>Gary Riggs Home</td><td>2</td><td>$41,055</td><td>1.6%</td><td>&mdash;</td><td>&mdash;</td></tr>
+          <tr><td>Walter E. Smithe Furniture</td><td>1</td><td>$37,825</td><td>1.5%</td><td>$214,134</td><td>17.7%</td></tr>
+        </tbody>
+      </table>
+      <div class="what-this-means">
+        <strong>Action:</strong> Your eCat buyer base is broad, not concentrated &mdash; the top 5 are just 14.4% of eCat GMV ($375,520 of $2.6M), so no single account dominates the channel. The clearest headroom is Walter E. Smithe ($214,134 total business, only 17.7% through eCat) and Greenfront Furniture ($122,393 total, 38.3%): both already buy heavily, so shifting more of their rep-entered reorders onto eCat is a low-friction win.
+      </div>
+    </div><div class="subsection">
+      <div class="subsection-title">Order Type &amp; Workflow</div>
+      <div class="callout insight">
+        <div class="callout-title">Hold-for-Confirmation orders run 3x larger</div>
+        <p>Your 36 Hold-for-Confirmation (HFC) orders average $11,341 &mdash; three times the $3,779 of a standard confirmed order. These are your largest, highest-stakes transactions routed through an approval step, so getting HFC follow-through right protects disproportionate revenue.</p>
+      </div>
+      <details>
+        <summary>View order type breakdown</summary>
+        <table>
+          <thead>
+            <tr><th>Order Type</th><th>Orders</th><th>Share</th><th>Avg Order Value</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Confirmed</td><td>568</td><td>94%</td><td>$3,779</td></tr>
+            <tr><td>Hold for Confirmation (HFC)</td><td>36</td><td>6%</td><td>$11,341</td></tr>
+          </tbody>
+        </table>
+      </details>
+      <div class="what-this-means">
+        <strong>Action:</strong> The HFC approval workflow governs your high-value transactions &mdash; at $11,341 each, every HFC order is worth three standard orders, so a stalled approval is the most expensive thing that can happen in your order flow. Track HFC time-to-approval so these large orders don't sit waiting; clearing them faster pulls the biggest deals through to revenue sooner.
+      </div>
+    </div><div class="subsection">
+      <div class="subsection-title">New Buyer Acquisition &amp; Growth</div>
+      <div class="metrics">
+        <div class="metric">
+          <div class="metric-label">Avg New eCat Buyers / Month</div>
+          <div class="metric-value">6.3</div>
+          <div class="metric-note">Trailing 15 months &middot; all rep-acquired (iPad)</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Acquisition Trend</div>
+          <div class="metric-value">Softening</div>
+          <div class="metric-note warn">7.1/mo early &rarr; 5.3/mo recent</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Best New Buyer (LTM)</div>
+          <div class="metric-value">$141,679</div>
+          <div class="metric-note">NetRetailers Inc. (peak quarter)</div>
+        </div>
+      </div>
+      <div class="callout insight">
+        <div class="callout-title">New Buyer Growth Stories</div>
+        <p>Your reps are landing accounts that grow. NetRetailers Inc. accelerated to a $141,679 peak quarter, and Simple Things climbed from a $7,095 quarter to $46,032 &mdash; these trajectories show rep-acquired eCat buyers turn into real, growing relationships.</p>
+      </div>
+      <table>
+        <thead>
+          <tr><th>Account</th><th>Peak Quarter Revenue</th><th>Best QoQ Move</th><th>Accelerating Quarters</th></tr>
+        </thead>
+        <tbody>
+          <tr class="row-highlight"><td><strong>NetRetailers Inc.</strong></td><td>$141,679</td><td>+117.5%</td><td>2</td></tr>
+          <tr class="row-highlight"><td><strong>Simple Things</strong></td><td>$46,032</td><td>+296.5%</td><td>2</td></tr>
+          <tr class="row-highlight"><td><strong>Mc Studio</strong></td><td>$38,891</td><td>+265.1%</td><td>2</td></tr>
+          <tr class="row-highlight"><td><strong>Nell Hills Corporation</strong></td><td>$31,924</td><td>+224.4%</td><td>2</td></tr>
+          <tr class="row-highlight"><td><strong>Decor Market</strong></td><td>$26,451</td><td>+173.3%</td><td>2</td></tr>
+        </tbody>
+      </table>
+      <div class="what-this-means">
+        <strong>Action:</strong> Your acquisition funnel produces winners &mdash; NetRetailers reached a $141,679 quarter and Mc Studio jumped +265% in a single quarter &mdash; but the rate of new eCat buyers is softening (7.1/month early in the window to 5.3/month recently). The question isn't whether new buyers grow once acquired (they do), it's giving reps enough at-bats; pairing eCat onboarding with the spring and fall market pushes is the lever.
+      </div>
+    </div><div class="subsection">
+      <div class="subsection-title">Ordering Seasonality</div>
+      <table>
+        <thead>
+          <tr><th>Month</th><th>eCat Sales</th><th>% of Annual</th><th>Relative Intensity</th></tr>
+        </thead>
+        <tbody>
+          <tr class="row-highlight"><td><strong>October 2025 (Post-High Point)</strong></td><td>$638,853</td><td>24.6%</td><td><span class="badge ok">Peak</span></td></tr>
+          <tr class="row-highlight"><td><strong>April 2026 (Post-Spring Market)</strong></td><td>$461,579</td><td>17.8%</td><td><span class="badge ok">Peak</span></td></tr>
+          <tr><td>July 2025</td><td>$187,133</td><td>7.2%</td><td><span class="badge muted">Average</span></td></tr>
+          <tr><td>November 2025</td><td>$181,376</td><td>7.0%</td><td><span class="badge muted">Average</span></td></tr>
+          <tr><td>February 2026</td><td>$178,163</td><td>6.9%</td><td><span class="badge muted">Average</span></td></tr>
+          <tr><td>January 2026</td><td>$155,112</td><td>6.0%</td><td><span class="badge muted">Average</span></td></tr>
+          <tr class="row-warn"><td>August 2025</td><td>$103,595</td><td>4.0%</td><td><span class="badge warn">Trough</span></td></tr>
+          <tr class="row-warn"><td>December 2025</td><td>$100,264</td><td>3.9%</td><td><span class="badge warn">Trough</span></td></tr>
+        </tbody>
+      </table>
+      <div class="what-this-means">
+        <strong>Action:</strong> eCat ordering peaks in October ($638,853) and April ($461,579) &mdash; the windows right after the High Point and spring markets when reps convert showroom interest into orders. Stage inventory and rep follow-up campaigns 4&ndash;6 weeks ahead of those peaks, and treat the August&ndash;December troughs as a chance to push targeted reorder prompts through eCat to flatten the curve.
+      </div>
+    </div><div class="subsection">
+      <div class="subsection-title">Product Mix &amp; Pricing Trends</div>
+      <div class="callout insight">
+        <div class="callout-title">Product Mix Shift</div>
+        <p>14 accounts show declining average unit prices quarter-over-quarter &mdash; combined current-quarter business: $349,183. This may indicate competitive pressure, a shift toward lower-priced product tiers, or a changing buyer mix.</p>
+      </div>
+      <table>
+        <thead>
+          <tr><th>Account</th><th>Prior Avg Price</th><th>Current Avg Price</th><th>Change</th><th>Current Quarter GMV</th><th>Orders</th></tr>
+        </thead>
+        <tbody>
+          <tr class="row-highlight"><td><strong>NetRetailers Inc.</strong></td><td>$867.01</td><td>$642.61</td><td><span class="badge danger">&minus;25.9%</span></td><td>$95,656</td><td>108</td></tr>
+          <tr class="row-highlight"><td><strong>Mc Studio</strong></td><td>$1,032.77</td><td>$942.88</td><td><span class="badge danger">&minus;8.7%</span></td><td>$41,981</td><td>12</td></tr>
+          <tr class="row-highlight"><td><strong>France And Son</strong></td><td>$1,041.70</td><td>$996.35</td><td><span class="badge danger">&minus;4.4%</span></td><td>$39,134</td><td>36</td></tr>
+          <tr class="row-highlight"><td><strong>AFA Stores</strong></td><td>$1,032.07</td><td>$940.08</td><td><span class="badge danger">&minus;8.9%</span></td><td>$36,304</td><td>33</td></tr>
+          <tr class="row-highlight"><td><strong>SSTL Inc DBA Emma Mason</strong></td><td>$1,425.30</td><td>$1,126.99</td><td><span class="badge danger">&minus;20.9%</span></td><td>$30,550</td><td>18</td></tr>
+        </tbody>
+      </table>
+      <details>
+        <summary>View remaining accounts</summary>
+        <table>
+          <thead>
+            <tr><th>Account</th><th>Prior Avg Price</th><th>Current Avg Price</th><th>Change</th><th>Current Quarter GMV</th><th>Orders</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Greenfront Furniture</td><td>$822.86</td><td>$626.35</td><td><span class="badge danger">&minus;23.9%</span></td><td>$23,792</td><td>11</td></tr>
+            <tr><td>Crimson Design Group</td><td>$986.95</td><td>$930.00</td><td><span class="badge danger">&minus;5.8%</span></td><td>$16,370</td><td>7</td></tr>
+            <tr><td>Middleburg Antique Gallery</td><td>$795.71</td><td>$631.50</td><td><span class="badge danger">&minus;20.6%</span></td><td>$14,918</td><td>1</td></tr>
+            <tr><td>The Summer House By Reeves</td><td>$979.67</td><td>$772.00</td><td><span class="badge danger">&minus;21.2%</span></td><td>$14,160</td><td>2</td></tr>
+            <tr><td>Decor Marche DBA American Home Furniture</td><td>$863.24</td><td>$676.97</td><td><span class="badge danger">&minus;21.6%</span></td><td>$12,131</td><td>13</td></tr>
+            <tr><td>Fedde Furniture Company</td><td>$823.00</td><td>$720.56</td><td><span class="badge danger">&minus;12.4%</span></td><td>$11,515</td><td>4</td></tr>
+            <tr><td>Op Jenkins Furniture &amp; Design</td><td>$1,793.00</td><td>$1,198.00</td><td><span class="badge danger">&minus;33.2%</span></td><td>$5,990</td><td>3</td></tr>
+            <tr><td>The Well Appointed House</td><td>$867.73</td><td>$790.66</td><td><span class="badge danger">&minus;8.9%</span></td><td>$4,397</td><td>5</td></tr>
+            <tr><td>Bungalow</td><td>$731.11</td><td>$280.00</td><td><span class="badge danger">&minus;61.7%</span></td><td>$2,285</td><td>1</td></tr>
+          </tbody>
+        </table>
+      </details>
+      <div class="callout insight">
+        <div class="callout-title">Investigative Context</div>
+        <p>Declining unit prices may reflect several dynamics: competitive pricing pressure driving discount requests, a natural shift toward lower-priced product tiers, changing buyer mix within an account, or seasonal promotional activity. These patterns warrant individual account review &mdash; they are signals to investigate, not conclusions to act on.</p>
+      </div>
+      <div class="what-this-means">
+        <strong>Action:</strong> NetRetailers is the one to look at first &mdash; its average unit price fell 25.9% ($867 to $643) yet current-quarter volume stayed strong at $95,656 across 108 orders, suggesting an active relationship shifting toward lower-priced product rather than a lost account. Use that pattern as the screen: where volume holds but price slips, a focused conversation about product mix or competitor pricing is worthwhile; where both fall (Bungalow, &minus;61.7%), the account may simply be winding down.
+      </div>
+    </div>
+
+    <div class="what-this-means">
+      <strong>Action:</strong> Your business is already 64% digital through your own B2B web ($9.98M LTM) &mdash; the growth lever isn't a bigger eCat number, it's converting the $5.58M of rep- and back-office-entered orders into digital flow, with eCat carrying the rep-assisted and showroom portion. Accounts like Walter E. Smithe ($214K total, 17.7% on eCat) and Greenfront ($122K, 38.3%) are the nearest-term wins; richer order-origin detail would let us pinpoint exactly which rep-entered orders are easiest to digitize next.
+    </div>
+
+  </div>
+</details>
+
+
+<details class="section-collapse" id="product">
+  <summary>
+    <div class="section-title">Product Intelligence</div>
+    <div class="section-sub">5,861 active products &middot; top-seller stock-outs, new item adoption, category breakdown, fulfillment risk</div>
+    <div class="section-contents">Top sellers &amp; inventory &middot; category &amp; collection breakdown &middot; catalog completeness &middot; new introduction adoption &middot; fill rate &amp; revenue impact &middot; stock-out impact board</div>
+    <span class="expand-hint">Expand section</span>
+  </summary>
+  <div class="section">
+
+    <div class="data-confidence">
+      <span class="data-confidence-label">Strong View</span>
+      <span class="data-confidence-action">Product analysis combines your catalog (5,861 products), all-channel order history, and a real-time inventory feed. Sales-data freshness lags slightly, so velocity trends are summarized at the catalog level rather than item-by-item this cycle.</span>
+    </div><div class="subsection">
+      <div class="subsection-title">Top Sellers &amp; Inventory Position</div>
+      <div class="sub-label">Your highest-revenue products and their current supply position. Every item below is selling well &mdash; and every one is currently at zero available stock.</div>
+      <table>
+        <thead>
+          <tr><th>Item</th><th>Category</th><th>LTM Revenue</th><th>Units Sold</th><th>Qty Available</th><th>On Hand</th><th>Backorder</th><th>Next Receipt</th></tr>
+        </thead>
+        <tbody>
+          <tr class="row-highlight"><td><strong>Lilac Sideboard, Blue Finish</strong> (52760)</td><td>FV</td><td>$475,590</td><td>204</td><td><span class="badge danger">0</span></td><td>0</td><td><span class="badge warn">14</span></td><td><span class="badge warn">Unknown</span></td></tr>
+          <tr class="row-highlight"><td><strong>Ciborium Chest Of Drawers, Fruitwood</strong> (26715-5)</td><td>FW</td><td>$202,685</td><td>156</td><td><span class="badge danger">0</span></td><td>0</td><td><span class="badge warn">5</span></td><td><span class="badge warn">Unknown</span></td></tr>
+          <tr class="row-highlight"><td><strong>Chamberlain Chest Of Drawers</strong> (53008)</td><td>FW</td><td>$122,222</td><td>97</td><td><span class="badge danger">0</span></td><td>0</td><td><span class="badge warn">14</span></td><td><span class="badge warn">Unknown</span></td></tr>
+          <tr class="row-highlight"><td><strong>Caracole Credenza, Driftwood Finish</strong> (27844)</td><td>FV</td><td>$113,249</td><td>68</td><td><span class="badge danger">0</span></td><td>0</td><td>0</td><td><span class="badge warn">Unknown</span></td></tr>
+          <tr class="row-highlight"><td><strong>Casual Jupe Dining Table, Light Mink, Lg</strong> (54201-LM)</td><td>FD</td><td>$110,748</td><td>36</td><td><span class="badge danger">0</span></td><td>1</td><td>0</td><td><span class="badge warn">Unknown</span></td></tr>
+          <tr><td>Harper Sideboard (53862)</td><td>FV</td><td>$108,949</td><td>84</td><td><span class="badge danger">0</span></td><td>0</td><td>0</td><td><span class="badge warn">Unknown</span></td></tr>
+          <tr><td>Bronson Swivel Chair (53888)</td><td>FX</td><td>$108,747</td><td>286</td><td><span class="badge danger">0</span></td><td>2</td><td><span class="badge warn">4</span></td><td><span class="badge warn">Unknown</span></td></tr>
+          <tr><td>Nolan Chair (53846)</td><td>FX</td><td>$107,284</td><td>178</td><td><span class="badge danger">0</span></td><td>0</td><td><span class="badge warn">3</span></td><td><span class="badge warn">Unknown</span></td></tr>
+          <tr><td>Capital Serving Cart, Fruitwood Finish (26792)</td><td>FR</td><td>$96,998</td><td>71</td><td><span class="badge danger">0</span></td><td>0</td><td><span class="badge warn">9</span></td><td><span class="badge warn">Unknown</span></td></tr>
+          <tr><td>Hugo Oval Side Chair, Cortina White (54174)</td><td>FI</td><td>$92,566</td><td>316</td><td><span class="badge danger">0</span></td><td>0</td><td><span class="badge warn">75</span></td><td><span class="badge warn">Unknown</span></td></tr>
+        </tbody>
+      </table>
+      <details class="table-collapse">
+        <summary>Remaining top sellers (10 more)</summary>
+        <table>
+          <thead>
+            <tr><th>Item</th><th>Category</th><th>LTM Revenue</th><th>Units Sold</th><th>Qty Available</th><th>On Hand</th><th>Backorder</th><th>Next Receipt</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>San Marco Bungalow Credenza (53311)</td><td>FV</td><td>$92,535</td><td>46</td><td><span class="badge danger">0</span></td><td>0</td><td><span class="badge warn">5</span></td><td><span class="badge warn">Unknown</span></td></tr>
+            <tr><td>Tufted English Club Sofa, Cuba Brown (53130)</td><td>FM</td><td>$89,806</td><td>40</td><td><span class="badge danger">0</span></td><td>0</td><td><span class="badge warn">1</span></td><td><span class="badge warn">Unknown</span></td></tr>
+            <tr><td>Studded Gentleman&rsquo;s Chest (29541)</td><td>FW</td><td>$86,997</td><td>73</td><td><span class="badge danger">0</span></td><td>0</td><td><span class="badge warn">6</span></td><td><span class="badge warn">Unknown</span></td></tr>
+            <tr><td>Refined Arches Tall Bookcase (52744)</td><td>FK</td><td>$86,462</td><td>47</td><td><span class="badge danger">0</span></td><td>0</td><td><span class="badge warn">1</span></td><td><span class="badge warn">Unknown</span></td></tr>
+            <tr><td>Shagreen Gold &amp; Gray Console (52982)</td><td>FC</td><td>$78,875</td><td>176</td><td><span class="badge danger">0</span></td><td>0</td><td><span class="badge warn">13</span></td><td><span class="badge warn">Unknown</span></td></tr>
+            <tr><td>Welsh Chair (29780)</td><td>FX</td><td>$77,328</td><td>75</td><td><span class="badge danger">0</span></td><td>0</td><td><span class="badge warn">4</span></td><td><span class="badge warn">Unknown</span></td></tr>
+            <tr><td>Guillermo Dining Table (53643)</td><td>FD</td><td>$73,761</td><td>104</td><td><span class="badge danger">0</span></td><td>0</td><td><span class="badge warn">11</span></td><td><span class="badge warn">Unknown</span></td></tr>
+            <tr><td>Camden Bungalow Cocktail Table (53300)</td><td>FF</td><td>$72,915</td><td>68</td><td><span class="badge danger">0</span></td><td>0</td><td>0</td><td><span class="badge warn">Unknown</span></td></tr>
+            <tr><td>Savile Leather Sofa, Green (54239)</td><td>FM</td><td>$72,536</td><td>31</td><td><span class="badge danger">0</span></td><td>0</td><td><span class="badge warn">8</span></td><td><span class="badge warn">Unknown</span></td></tr>
+            <tr><td>Beto Four Door Sideboard (53941)</td><td>FV</td><td>$72,095</td><td>53</td><td><span class="badge danger">0</span></td><td>0</td><td>0</td><td><span class="badge warn">Unknown</span></td></tr>
+          </tbody>
+        </table>
+      </details>
+      <div class="what-this-means">
+        <strong>Action:</strong> Your ten best-sellers generated $1.54M in trailing-12-month revenue, yet all of them sit at zero available stock with no scheduled receipt date. The Lilac Sideboard alone ($475.6K LTM) is your single most urgent replenishment priority &mdash; proven demand against an empty shelf with no restock on the calendar. Securing receipt dates on these top sellers is the highest-leverage supply action you can take this quarter.
+      </div>
+    </div><div class="subsection">
+      <div class="subsection-title">What&rsquo;s Selling &mdash; Category &amp; Collection Breakdown</div>
+
+      <div class="callout insight">
+        <div class="callout-title">FV category drives 23% of sales across 255 items</div>
+        <p>The FV category leads at $6.1M LTM (roughly 23% of total revenue) across 255 items. The FR and FJ categories punch far above their volume &mdash; $57,804 and $38,125 in sales per item respectively, three to four times the catalog average &mdash; signaling premium pricing power in those lines.</p>
+      </div>
+
+      <table>
+        <thead>
+          <tr><th>Category</th><th>Qty Sold</th><th>Sales</th><th>Items</th><th>Sales/Item</th></tr>
+        </thead>
+        <tbody>
+          <tr class="row-highlight"><td><strong>FV</strong></td><td>4,068</td><td>$6.1M</td><td>255</td><td>$23,927</td></tr>
+          <tr class="row-highlight"><td><strong>FD</strong></td><td>2,548</td><td>$4.9M</td><td>194</td><td>$25,392</td></tr>
+          <tr class="row-highlight"><td><strong>FS</strong></td><td>4,040</td><td>$3.5M</td><td>158</td><td>$22,137</td></tr>
+          <tr class="row-highlight"><td><strong>FC</strong></td><td>2,713</td><td>$2.0M</td><td>106</td><td>$18,552</td></tr>
+          <tr class="row-highlight"><td><strong>FI</strong></td><td>6,252</td><td>$1.6M</td><td>96</td><td>$16,895</td></tr>
+          <tr><td>FK</td><td>748</td><td>$1.6M</td><td>54</td><td>$29,559</td></tr>
+          <tr><td>FF</td><td>1,943</td><td>$1.6M</td><td>108</td><td>$14,509</td></tr>
+          <tr><td>FL</td><td>3,908</td><td>$1.1M</td><td>143</td><td>$7,627</td></tr>
+          <tr><td>FW</td><td>880</td><td>$1.0M</td><td>75</td><td>$13,441</td></tr>
+          <tr><td>FM</td><td>416</td><td>$792,699</td><td>27</td><td>$29,359</td></tr>
+          <tr><td>FN</td><td>2,056</td><td>$720,794</td><td>70</td><td>$10,297</td></tr>
+          <tr><td>FX</td><td>979</td><td>$537,845</td><td>20</td><td>$26,892</td></tr>
+          <tr><td>FB</td><td>892</td><td>$416,137</td><td>21</td><td>$19,816</td></tr>
+          <tr><td>FE</td><td>401</td><td>$333,879</td><td>21</td><td>$15,899</td></tr>
+          <tr><td>AO</td><td>2,062</td><td>$283,165</td><td>61</td><td>$4,642</td></tr>
+          <tr><td>FY</td><td>76</td><td>$156,215</td><td>10</td><td>$15,621</td></tr>
+          <tr><td>FG</td><td>173</td><td>$127,079</td><td>10</td><td>$12,708</td></tr>
+          <tr><td>FR</td><td>152</td><td>$115,608</td><td>2</td><td>$57,804</td></tr>
+          <tr><td>FJ</td><td>292</td><td>$76,249</td><td>2</td><td>$38,125</td></tr>
+          <tr><td>WM</td><td>77</td><td>$52,894</td><td>12</td><td>$4,408</td></tr>
+          <tr><td>FO</td><td>18</td><td>$17,709</td><td>2</td><td>$8,855</td></tr>
+          <tr><td>FA</td><td>13</td><td>$6,423</td><td>1</td><td>$6,423</td></tr>
+          <tr><td>FQ</td><td>8</td><td>$5,469</td><td>3</td><td>$1,823</td></tr>
+        </tbody>
+      </table>
+
+      <details class="table-collapse">
+        <summary>Collection Breakdown (16 collections)</summary>
+        <table>
+          <thead>
+            <tr><th>Collection</th><th>Items</th><th>Qty Sold</th><th>Sales</th></tr>
+          </thead>
+          <tbody>
+            <tr class="row-highlight"><td><strong>U</strong></td><td>642</td><td>27,038</td><td>$21.4M</td></tr>
+            <tr><td>RO-O_U</td><td>581</td><td>4,337</td><td>$3.5M</td></tr>
+            <tr><td>RO-O_X</td><td>88</td><td>357</td><td>$767,489</td></tr>
+            <tr><td>O</td><td>21</td><td>261</td><td>$498,239</td></tr>
+            <tr><td>A</td><td>47</td><td>1,942</td><td>$258,129</td></tr>
+            <tr><td>3</td><td>17</td><td>359</td><td>$219,118</td></tr>
+            <tr><td>RO-O_O</td><td>22</td><td>112</td><td>$191,486</td></tr>
+            <tr><td>RO-O_3</td><td>19</td><td>226</td><td>$152,182</td></tr>
+            <tr><td>O-INV</td><td>2</td><td>24</td><td>$31,801</td></tr>
+            <tr><td>R</td><td>2</td><td>3</td><td>$4,857</td></tr>
+            <tr><td>RO-O_R</td><td>3</td><td>3</td><td>$4,779</td></tr>
+            <tr><td>3-INV</td><td>1</td><td>6</td><td>$4,480</td></tr>
+            <tr><td>RO-O_T</td><td>1</td><td>8</td><td>$3,756</td></tr>
+            <tr><td>RO-O_A</td><td>3</td><td>26</td><td>$2,101</td></tr>
+            <tr><td>RO-T</td><td>1</td><td>3</td><td>$1,594</td></tr>
+            <tr><td>X</td><td>1</td><td>10</td><td>$566</td></tr>
+          </tbody>
+        </table>
+      </details>
+
+      <div class="what-this-means">
+        <strong>Action:</strong> The U collection carries $21.4M of your $26M in trailing-12-month sales &mdash; that concentration is a clear market fit, but it also means your revenue rides on one collection staying healthy. The FR and FJ categories generate $38K&ndash;$58K per item on just two SKUs each, so expanding those lines is a high-return product-development bet. Lower sales-per-item categories like FL ($7,627) and AO ($4,642) are candidates for merchandising support or rep training before you invest in new SKUs there.
+      </div>
+    </div><div class="subsection">
+      <div class="subsection-title">Catalog Completeness</div>
+      <table>
+        <thead>
+          <tr><th>Visibility</th><th>Products</th><th>Missing Images</th><th>Missing Price</th><th>Complete %</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Visible</td><td>5,861</td><td>437</td><td>324</td><td>89.4%</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout alert">
+        <div class="callout-title">Catalog Below 90% Complete</div>
+        <p>437 visible products are missing images and 324 are missing pricing. Incomplete products are products reps can&rsquo;t confidently present &mdash; that&rsquo;s potential revenue left on the table from items your team can&rsquo;t effectively sell.</p>
+      </div>
+
+      <div class="what-this-means">
+        <strong>Action:</strong> At 89.4% complete, 437 visible items are missing images and 324 are missing pricing, which means reps may skip them in presentations &mdash; that&rsquo;s potential revenue left on the table from products your team can&rsquo;t effectively sell. Completing these records is the lowest-effort improvement available. See Platform Health Check for specific catalog remediation actions.
+      </div>
+    </div><div class="subsection">
+      <div class="subsection-title">New Introduction Performance &amp; Adoption</div>
+
+      <div class="metrics">
+        <div class="metric">
+          <div class="metric-label">New Items Launched</div>
+          <div class="metric-value">374</div>
+          <div class="metric-note">across 6 collections (trailing 12 months)</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Revenue from new items (trailing 12 months)</div>
+          <div class="metric-value">$558K</div>
+          <div class="metric-note">U collection drove $489.6K of the total</div>
+        </div>
+      </div>
+
+      <div class="callout insight">
+        <div class="callout-title">New Introduction Adoption</div>
+        <p>You launched 374 new items. 30 have been ordered by at least one account (8% adoption), generating $409K in trailing-12-month revenue. 344 items have zero traction.</p>
+      </div>
+
+      <table>
+        <thead>
+          <tr><th>Item</th><th>Category</th><th>Buyers</th><th>Qty Sold</th><th>Revenue</th><th>List Price</th></tr>
+        </thead>
+        <tbody>
+          <tr class="row-highlight"><td><strong>Chelsea Jupe Dining Table</strong> (54305-DW)</td><td>FD</td><td>14</td><td>15</td><td>$55,715</td><td>$3,395</td></tr>
+          <tr class="row-highlight"><td><strong>Savoir Du Bois, Natural Finish</strong> (52760-N)</td><td>FV</td><td>8</td><td>15</td><td>$36,816</td><td>$2,275</td></tr>
+          <tr class="row-highlight"><td><strong>Savoir Du Bois, White</strong> (52760-W)</td><td>FV</td><td>10</td><td>14</td><td>$32,916</td><td>$2,275</td></tr>
+          <tr class="row-highlight"><td><strong>Elora Chair</strong> (54320-PD)</td><td>FI</td><td>10</td><td>47</td><td>$27,798</td><td>$600</td></tr>
+          <tr class="row-highlight"><td><strong>Brooklyn Jupe Table</strong> (54284-WW)</td><td>FD</td><td>3</td><td>10</td><td>$21,038</td><td>$2,125</td></tr>
+          <tr><td>Roosevelt Leather Recliner (54303)</td><td>FS</td><td>10</td><td>14</td><td>$18,096</td><td>$1,250</td></tr>
+          <tr><td>Dao Credenza (54291-PD)</td><td>FV</td><td>9</td><td>10</td><td>$17,170</td><td>$1,695</td></tr>
+          <tr><td>Beaufort Credenza (54294)</td><td>FV</td><td>6</td><td>6</td><td>$15,254</td><td>$2,395</td></tr>
+        </tbody>
+      </table>
+      <details class="table-collapse">
+        <summary>Remaining adopted new items (22 more)</summary>
+        <table>
+          <thead>
+            <tr><th>Item</th><th>Category</th><th>Buyers</th><th>Qty Sold</th><th>Revenue</th><th>List Price</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Ashford Leather Recliner (54302)</td><td>FS</td><td>7</td><td>11</td><td>$13,896</td><td>$1,095</td></tr>
+            <tr><td>Southport Credenza (54295)</td><td>FV</td><td>5</td><td>6</td><td>$12,513</td><td>$1,925</td></tr>
+            <tr><td>Savoir Du Bois, Sage Finish (52760-S)</td><td>FV</td><td>4</td><td>5</td><td>$11,216</td><td>$2,275</td></tr>
+            <tr><td>Bauhaus Chair (54272)</td><td>FI</td><td>6</td><td>66</td><td>$11,169</td><td>$160</td></tr>
+            <tr><td>Bastian Armchair, Britain Green Leather (54241-BG)</td><td>FS</td><td>3</td><td>11</td><td>$10,765</td><td>$935</td></tr>
+            <tr><td>Oval Cane Back S/Chair, Walnut, Taupe Vel (U093-02TV)</td><td>FI</td><td>3</td><td>26</td><td>$10,740</td><td>$395</td></tr>
+            <tr><td>Crested Wall Cabinet, Carmine Legno Tran (R110-82TR)</td><td>FV</td><td>4</td><td>4</td><td>$10,700</td><td>$2,399</td></tr>
+            <tr><td>Ridge Chair (54321-BO)</td><td>FI</td><td>3</td><td>22</td><td>$9,489</td><td>$405</td></tr>
+            <tr><td>Crested Wall Cabinet, Noce Anticato (R110-NA)</td><td>FV</td><td>3</td><td>4</td><td>$9,116</td><td>$2,399</td></tr>
+            <tr><td>Louis Xvi Buffet, Carmine Legno (R059-82)</td><td>FV</td><td>4</td><td>6</td><td>$9,063</td><td>$1,400</td></tr>
+            <tr><td>Mistral Wall Mirror (54271-AB)</td><td>WM</td><td>4</td><td>4</td><td>$8,242</td><td>$1,945</td></tr>
+            <tr><td>Topsail Credenza (54292-WW)</td><td>FV</td><td>3</td><td>3</td><td>$7,858</td><td>$2,195</td></tr>
+            <tr><td>Hugo Oval Side Chair, Cortina White (54178-08W)</td><td>FI</td><td>3</td><td>20</td><td>$6,772</td><td>$350</td></tr>
+            <tr><td>Goccia Side Chair, Walnut, Taupe Velvet (U165-02TV)</td><td>FI</td><td>5</td><td>16</td><td>$6,756</td><td>$395</td></tr>
+            <tr><td>Bastian Armchair, Newark Brown Leather (54241-NB)</td><td>FS</td><td>3</td><td>7</td><td>$6,644</td><td>$935</td></tr>
+            <tr><td>Bauhaus Chair (54272-DO)</td><td>FI</td><td>5</td><td>37</td><td>$6,359</td><td>$160</td></tr>
+            <tr><td>Redford Chest Of Drawer (53988)</td><td>FW</td><td>5</td><td>5</td><td>$5,692</td><td>$1,015</td></tr>
+            <tr><td>Topsail Credenza (54292-BO)</td><td>FV</td><td>2</td><td>2</td><td>$5,663</td><td>$2,195</td></tr>
+            <tr><td>Deco Side Chair, S Blue, White (U003-BSW)</td><td>FI</td><td>3</td><td>14</td><td>$5,599</td><td>$395</td></tr>
+            <tr><td>Small 81&Prime; Dining Table, Carmine Legno (U130-82)</td><td>FD</td><td>3</td><td>3</td><td>$5,561</td><td>$1,950</td></tr>
+            <tr><td>Vero Side Table (54287)</td><td>FL</td><td>4</td><td>7</td><td>$5,361</td><td>$699</td></tr>
+            <tr><td>Lionisio Trestle Table, Noce Antica (R085-NA)</td><td>FD</td><td>2</td><td>3</td><td>$5,061</td><td>$1,600</td></tr>
+          </tbody>
+        </table>
+      </details>
+
+      <div class="callout warn">
+        <div class="callout-title">Zero-Traction New Items</div>
+        <p>344 new items have zero orders in the trailing 12 months. These may need rep attention, merchandising updates, or pricing review. High-list-price items with no traction represent the largest opportunity cost.</p>
+      </div>
+
+      <p class="prose"><strong>U collection:</strong> 12 new items with zero trailing-12-month revenue. Customers who buy deeply in the U collection but haven&rsquo;t tried the new introductions:</p>
+      <table>
+        <thead>
+          <tr><th>Customer</th><th>Collection Spend (LTM)</th><th>New Items Purchased</th></tr>
+        </thead>
+        <tbody>
+          <tr class="row-highlight"><td><strong>Wayfair</strong></td><td>$6,148,831</td><td>0</td></tr>
+          <tr class="row-highlight"><td><strong>Kathy Kuo Home</strong></td><td>$836,999</td><td>0</td></tr>
+          <tr class="row-highlight"><td><strong>France And Son</strong></td><td>$580,163</td><td>0</td></tr>
+          <tr class="row-highlight"><td><strong>Sundial Home Products LLC</strong></td><td>$383,595</td><td>0</td></tr>
+          <tr class="row-highlight"><td><strong>English Georgian America LLC</strong></td><td>$301,583</td><td>0</td></tr>
+        </tbody>
+      </table>
+
+      <div class="what-this-means">
+        <strong>Action:</strong> An 8% adoption rate means 344 new items haven&rsquo;t reached a single buyer yet &mdash; but the top performers (the Chelsea Jupe Dining Table at $55.7K, the Savoir Du Bois finishes) prove the new line has real appeal. The gap is awareness, not product: Wayfair, Kathy Kuo Home, and France And Son together spend over $7.5M in the U collection yet have bought none of the new U-collection introductions. Featuring the new items in those reps&rsquo; presentation lists is the fastest path to closing the adoption gap.
+      </div>
+    </div><div class="subsection">
+      <div class="subsection-title">Fill Rate &amp; Revenue Impact</div>
+      <div class="sub-label">Items with active backorders, ranked by backorder exposure (units on backorder &times; average unit price).</div>
+      <table>
+        <thead>
+          <tr><th>Item</th><th>Category</th><th>Qty Backordered</th><th>Customers Affected</th><th>Avg Unit Price</th><th>Exposure</th><th>Annual Revenue</th></tr>
+        </thead>
+        <tbody>
+          <tr class="row-warn"><td><strong>Savoir Du Bois, Natural Finish</strong> (52760-N)</td><td>FV</td><td>14</td><td>8</td><td>$2,420</td><td>$33,882</td><td>$36,816</td></tr>
+          <tr class="row-warn"><td><strong>Lilac Sideboard, Blue Finish</strong> (52760)</td><td>FV</td><td>14</td><td>8</td><td>$2,291</td><td>$32,068</td><td>$325,106</td></tr>
+          <tr class="row-warn"><td><strong>Jupe Dining Table XLG</strong> (54268)</td><td>Uncategorized</td><td>6</td><td>1</td><td>$4,475</td><td>$26,850</td><td>$26,850</td></tr>
+          <tr><td>Bookcase In Ebony Finish (27160)</td><td>FK</td><td>13</td><td>6</td><td>$1,867</td><td>$24,271</td><td>$40,427</td></tr>
+          <tr><td>Hugo Oval Side Chair, Cortina White (54174)</td><td>FI</td><td>75</td><td>2</td><td>$320</td><td>$23,981</td><td>$39,252</td></tr>
+        </tbody>
+      </table>
+      <details class="table-collapse">
+        <summary>Remaining backordered items (11 more)</summary>
+        <table>
+          <thead>
+            <tr><th>Item</th><th>Category</th><th>Qty Backordered</th><th>Customers Affected</th><th>Avg Unit Price</th><th>Exposure</th><th>Annual Revenue</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Ribbed Remington Small Sideboard (52750)</td><td>FV</td><td>16</td><td>2</td><td>$1,267</td><td>$20,267</td><td>$38,517</td></tr>
+            <tr><td>Savile Leather Sofa, Green (54239)</td><td>FM</td><td>8</td><td>4</td><td>$2,417</td><td>$19,339</td><td>$75,000</td></tr>
+            <tr><td>Chamberlain Chest Of Drawers (53008)</td><td>FW</td><td>14</td><td>10</td><td>$1,350</td><td>$18,905</td><td>$95,095</td></tr>
+            <tr><td>Chelsea Jupe Dining Table (54305-DW)</td><td>FD</td><td>5</td><td>5</td><td>$3,375</td><td>$16,873</td><td>$66,447</td></tr>
+            <tr><td>Capital Serving Cart, Fruitwood Finish (26792)</td><td>FR</td><td>9</td><td>6</td><td>$1,344</td><td>$12,100</td><td>$76,553</td></tr>
+            <tr><td>Whitewash Ribbon Sideboard (40381)</td><td>FV</td><td>7</td><td>6</td><td>$1,596</td><td>$11,174</td><td>$27,950</td></tr>
+            <tr><td>Savoir Du Bois, Sage Finish (52760-S)</td><td>FV</td><td>4</td><td>3</td><td>$2,235</td><td>$8,941</td><td>$11,216</td></tr>
+            <tr><td>San Marco Bungalow Credenza (53311)</td><td>FV</td><td>4</td><td>3</td><td>$2,169</td><td>$8,676</td><td>$49,808</td></tr>
+            <tr><td>Oval Cane Back S/Chair, Walnut, Taupe Vel (U093-02TV)</td><td>FI</td><td>20</td><td>2</td><td>$429</td><td>$8,587</td><td>$13,740</td></tr>
+            <tr><td>Tower Jupe D/Tbl XL Brow (54364AP)</td><td>Uncategorized</td><td>2</td><td>1</td><td>$4,150</td><td>$8,300</td><td>$8,300</td></tr>
+            <tr><td>Tower Jupe D/Tbl Art. Gry (54365AP)</td><td>Uncategorized</td><td>2</td><td>1</td><td>$4,150</td><td>$8,300</td><td>$8,300</td></tr>
+          </tbody>
+        </table>
+      </details>
+
+      <div class="callout alert">
+        <div class="callout-title">Revenue at Risk from Fulfillment Gaps</div>
+        <p>These 16 backordered items represent roughly $939K in annualized revenue across 68 customer relationships. Persistent backorders correlate with longer reorder intervals &mdash; addressing the highest-exposure stockouts could protect an estimated $940K in annual business if backorder patterns persist.</p>
+      </div>
+
+      <div class="what-this-means">
+        <strong>Action:</strong> The two Savoir Du Bois / Lilac Sideboard backorders (item 52760 and its Natural finish) top the exposure list at a combined $65.9K and touch 16 customer relationships &mdash; with the Lilac Sideboard carrying $325K in annual revenue behind it. Persistent stockouts train buyers to look elsewhere, so resolving the top three exposures addresses the majority of at-risk revenue. The 75 units backordered on the Hugo Oval Side Chair signal a demand spike worth prioritizing in your next production run.
+      </div>
+    </div><div class="subsection">
+      <div class="subsection-title">Stock-Out Impact Board</div>
+      <div class="callout alert">
+        <div class="callout-title">20 top-selling items at zero availability &mdash; customer relationships exposed</div>
+        <p>These items generated $2.34M in trailing-12-month revenue. The intelligence value isn&rsquo;t the stockout itself &mdash; it&rsquo;s knowing which customers to call this week with an alternative recommendation before they find one elsewhere.</p>
+      </div>
+      <table>
+        <thead>
+          <tr><th>Item</th><th>Collection</th><th>LTM Revenue</th><th>Units Sold</th><th>Qty Available</th><th>Next Receipt</th><th>Top Customers Impacted</th><th>Alternatives (in-stock)</th></tr>
+        </thead>
+        <tbody>
+          <tr class="row-danger"><td><strong>Lilac Sideboard, Blue Finish</strong> (52760)</td><td>U</td><td>$475,590</td><td>204</td><td><span class="badge danger">0</span></td><td><span class="badge danger">Unknown</span></td><td>Wayfair ($127,445), Kathy Kuo Home ($50,149), Sstl Inc Dba Emma Mason ($26,485)</td><td>Leather Harness Table (89), The Harley Chair (85), Broderick Dining Chair (73)</td></tr>
+          <tr class="row-danger"><td><strong>Ciborium Chest Of Drawers, Fruitwood</strong> (26715-5)</td><td>U</td><td>$202,685</td><td>156</td><td><span class="badge danger">0</span></td><td><span class="badge danger">Unknown</span></td><td>Wayfair ($41,403), Kathy Kuo Home ($14,239), The Kellog Collection ($13,144)</td><td>Leather Harness Table (89), The Harley Chair (85), Broderick Dining Chair (73)</td></tr>
+          <tr class="row-warn"><td><strong>Chamberlain Chest Of Drawers</strong> (53008)</td><td>U</td><td>$122,222</td><td>97</td><td><span class="badge danger">0</span></td><td><span class="badge danger">Unknown</span></td><td>Wayfair ($26,600), Kathy Kuo Home ($8,399), Simple Things ($5,868)</td><td>Leather Harness Table (89), The Harley Chair (85), Broderick Dining Chair (73)</td></tr>
+          <tr class="row-warn"><td><strong>Caracole Credenza, Driftwood Finish</strong> (27844)</td><td>U</td><td>$113,249</td><td>68</td><td><span class="badge danger">0</span></td><td><span class="badge danger">Unknown</span></td><td>Wayfair ($29,344), Walter E. Smithe Furniture ($5,831), Spaces Inc. ($3,857)</td><td>Leather Harness Table (89), The Harley Chair (85), Broderick Dining Chair (73)</td></tr>
+          <tr class="row-warn"><td><strong>Casual Jupe Dining Table, Light Mink, Lg</strong> (54201-LM)</td><td>U</td><td>$110,748</td><td>36</td><td><span class="badge danger">0</span></td><td><span class="badge danger">Unknown</span></td><td>Wayfair ($17,400), Walter E. Smithe Furniture ($10,696), English Georgian America LLC ($6,444)</td><td>Leather Harness Table (89), The Harley Chair (85), Broderick Dining Chair (73)</td></tr>
+        </tbody>
+      </table>
+      <details class="table-collapse">
+        <summary>Remaining stocked-out top sellers (15 more)</summary>
+        <table>
+          <thead>
+            <tr><th>Item</th><th>Collection</th><th>LTM Revenue</th><th>Units Sold</th><th>Qty Available</th><th>Next Receipt</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Harper Sideboard (53862)</td><td>RO-O_U</td><td>$108,949</td><td>84</td><td><span class="badge danger">0</span></td><td><span class="badge danger">Unknown</span></td></tr>
+            <tr><td>Bronson Swivel Chair (53888)</td><td>U</td><td>$108,747</td><td>286</td><td><span class="badge danger">0</span></td><td><span class="badge danger">Unknown</span></td></tr>
+            <tr><td>Nolan Chair (53846)</td><td>U</td><td>$107,284</td><td>178</td><td><span class="badge danger">0</span></td><td><span class="badge danger">Unknown</span></td></tr>
+            <tr><td>Capital Serving Cart, Fruitwood Finish (26792)</td><td>U</td><td>$96,998</td><td>71</td><td><span class="badge danger">0</span></td><td><span class="badge danger">Unknown</span></td></tr>
+            <tr><td>Hugo Oval Side Chair, Cortina White (54174)</td><td>U</td><td>$92,566</td><td>316</td><td><span class="badge danger">0</span></td><td><span class="badge danger">Unknown</span></td></tr>
+            <tr><td>San Marco Bungalow Credenza (53311)</td><td>U</td><td>$92,535</td><td>46</td><td><span class="badge danger">0</span></td><td><span class="badge danger">Unknown</span></td></tr>
+            <tr><td>Tufted English Club Sofa, Cuba Brown (53130)</td><td>U</td><td>$89,806</td><td>40</td><td><span class="badge danger">0</span></td><td><span class="badge danger">Unknown</span></td></tr>
+            <tr><td>Studded Gentleman&rsquo;s Chest (29541)</td><td>U</td><td>$86,997</td><td>73</td><td><span class="badge danger">0</span></td><td><span class="badge danger">Unknown</span></td></tr>
+            <tr><td>Refined Arches Tall Bookcase (52744)</td><td>U</td><td>$86,462</td><td>47</td><td><span class="badge danger">0</span></td><td><span class="badge danger">Unknown</span></td></tr>
+            <tr><td>Shagreen Gold &amp; Gray Console (52982)</td><td>U</td><td>$78,875</td><td>176</td><td><span class="badge danger">0</span></td><td><span class="badge danger">Unknown</span></td></tr>
+            <tr><td>Welsh Chair (29780)</td><td>U</td><td>$77,328</td><td>75</td><td><span class="badge danger">0</span></td><td><span class="badge danger">Unknown</span></td></tr>
+            <tr><td>Guillermo Dining Table (53643)</td><td>U</td><td>$73,761</td><td>104</td><td><span class="badge danger">0</span></td><td><span class="badge danger">Unknown</span></td></tr>
+            <tr><td>Camden Bungalow Cocktail Table (53300)</td><td>U</td><td>$72,915</td><td>68</td><td><span class="badge danger">0</span></td><td><span class="badge danger">Unknown</span></td></tr>
+            <tr><td>Savile Leather Sofa, Green (54239)</td><td>U</td><td>$72,536</td><td>31</td><td><span class="badge danger">0</span></td><td><span class="badge danger">Unknown</span></td></tr>
+            <tr><td>Beto Four Door Sideboard (53941)</td><td>U</td><td>$72,095</td><td>53</td><td><span class="badge danger">0</span></td><td><span class="badge danger">Unknown</span></td></tr>
+          </tbody>
+        </table>
+      </details>
+
+      <div class="callout opportunity">
+        <div class="callout-title">Proactive Outreach Script</div>
+        <p>For each stocked-out item above, your reps have a ready-made customer conversation: &ldquo;I noticed the Lilac Sideboard is temporarily out of stock and I know you&rsquo;ve ordered it before. We have the Leather Harness Table available now, and I&rsquo;ll flag you for priority fulfillment when it restocks.&rdquo; This protects the relationship and demonstrates attention even when you can&rsquo;t fill the order.</p>
+      </div>
+
+      <div class="what-this-means">
+        <strong>Action:</strong> These 20 items are generating $2.34M in demand you can&rsquo;t currently fill, and none has a scheduled receipt date. Wayfair appears as the top impacted customer on every one of the five highest-value stockouts &mdash; that single relationship is your Monday-morning priority call, with in-stock alternatives like the Leather Harness Table ready to offer. Proactive outreach with a substitute protects the relationship even when the original item can&rsquo;t ship.
+      </div>
+    </div>
+
+    <div class="what-this-means">
+      <strong>Action:</strong> Your top ten sellers ($1.54M LTM) and 20 stocked-out items ($2.34M LTM) are all sitting at zero availability with no restock dates &mdash; securing receipt dates on the Lilac Sideboard and the rest of the U collection is the single highest-leverage move this quarter. In parallel, surfacing the 30 proven new introductions to deep U-collection buyers like Wayfair and Kathy Kuo Home converts an 8% adoption rate into incremental revenue without any new product cost. Item-level demand time-series would let us forecast which of these stockouts will recur, turning reactive replenishment into planned production.
+    </div>
+
+  </div>
+</details>
+
+
+<details class="section-collapse" id="platform">
+  <summary>
+    <div class="section-title">Platform Context</div>
+    <div class="section-sub">15 stale config entities &middot; 13 of 17 features active &middot; ~118 avg imports/mo (LTM)</div>
+    <div class="section-contents">Platform Health Status &middot; Action Required &middot; Feature Utilization</div>
+    <span class="expand-hint">Expand section</span>
+  </summary>
+  <div class="section">
+
+    <div class="subsection">
+      <div class="subsection-title">Platform Health Status</div>
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-val"><span class="badge ok">Healthy</span></div>
+          <div class="metric-label">Core Pipeline</div>
+          <div class="metric-note">~118 avg imports/month over trailing 12 months</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-val"><span class="badge danger">Critical</span></div>
+          <div class="metric-label">Data Freshness</div>
+          <div class="metric-note">15 config entities stale beyond 90 days</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-val"><span class="badge ok">Strong</span></div>
+          <div class="metric-label">Feature Adoption</div>
+          <div class="metric-note">13 of 17 tracked features active (LTM)</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-val"><span class="badge ok">Active</span></div>
+          <div class="metric-label">Smart Stacks</div>
+          <div class="metric-note">63 published stacks</div>
+        </div>
+      </div>
+      <p class="prose">Your import pipeline is healthy at roughly 118 imports per month, and core entities &mdash; products, inventory, and customers &mdash; refresh daily. The gap is configuration: options, taxonomy, and price levels haven&rsquo;t been touched since the August 2025 data load, leaving 15 entities 7&ndash;10 months stale. Feature adoption is strong, with 65 users generating over 90,000 engagement events across 13 active features in the trailing 12 months.</p>
+      <div class="what-this-means">
+        <strong>Action:</strong> Protect the daily product and inventory cadence that&rsquo;s keeping your core data current. Clear the 15 stale configuration entities &mdash; options, taxonomy, and price levels &mdash; in a single coordinated import so reps stop working against 10-month-old option and pricing assumptions.
+      </div>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Action Required</div>
+      <div class="callout alert">
+        <div class="callout-title">5 configuration groups need a refresh</div>
+      </div>
+      <table>
+        <thead>
+          <tr><th>Entity / Feature</th><th>Status</th><th>Last Updated</th><th>Impact</th><th>Fix</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Price Levels</strong></td>
+            <td><span class="badge danger">Critical</span></td>
+            <td>Nov 19, 2025 (210 days)</td>
+            <td>Wholesale pricing tiers are 7 months old &mdash; any price changes since November aren&rsquo;t reflected on the iPad for your 65 active users, affecting every quote and order.</td>
+            <td>Upload current price-level data via Admin Console</td>
+          </tr>
+          <tr>
+            <td><strong>Options, Option Groups &amp; Matrix Options</strong></td>
+            <td><span class="badge danger">Critical</span></td>
+            <td>Aug 20, 2025 (301 days)</td>
+            <td>Option configurations are 10 months stale &mdash; reps may see wrong finishes, sizes, or materials when configuring products, with 731 configured-item orders placed in the trailing 12 months.</td>
+            <td>Re-import options.csv and option_groups.csv via FTP /data</td>
+          </tr>
+          <tr>
+            <td><strong>Taxonomy (Collections, Categories, Trade Names, Groups)</strong></td>
+            <td><span class="badge danger">Critical</span></td>
+            <td>Aug 20, 2025 (301 days)</td>
+            <td>Browse structure hasn&rsquo;t refreshed in 10 months &mdash; products added since August may be miscategorized or missing from navigation.</td>
+            <td>Re-import products.csv with current Collection, Category, and Trade Name codes</td>
+          </tr>
+          <tr>
+            <td><strong>Kit Items &amp; Contract Prices</strong></td>
+            <td><span class="badge danger">Critical</span></td>
+            <td>Aug 20, 2025 (301 days)</td>
+            <td>105 kit bundles carry 10-month-old component data &mdash; kit pricing and contents may be inaccurate for reps building bundled orders.</td>
+            <td>Upload current kit_items.csv and contract_prices.csv via FTP</td>
+          </tr>
+          <tr>
+            <td><strong>Commitment &amp; Placement Reports</strong></td>
+            <td><span class="badge danger">Critical</span></td>
+            <td>Aug 20, 2025 (301 days)</td>
+            <td>Report data hasn&rsquo;t refreshed since the last full load &mdash; reps relying on these for customer planning are working from outdated figures.</td>
+            <td>Upload current commitment and placement report files</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="what-this-means">
+        <strong>Action:</strong> The staleness is isolated to configuration entities last touched in the August 2025 load, while your daily product and inventory pipeline stays healthy. One coordinated import session &mdash; options, option groups, products with taxonomy, then price levels &mdash; clears all 15 stale flags at once. Start with Price Levels at 210 days, since it touches every quote and order your reps place.
+      </div>
+    </div>
+
+    <details class="subsection-collapse">
+      <summary class="subsection-expand">Feature Utilization</summary>
+      <div class="subsection">
+        <div class="subsection-title">Feature Utilization</div>
+        <div class="callout insight">
+          <div class="callout-title">13 of 17 tracked features show active usage</div>
+          <p>Customer Search dominates at 21,277 events, 23.5% of all feature activity across 65 users in the trailing 12 months. Product Search, Customer Selection, and Library Viewing are strong secondary features. SmartPicks, Kit Viewing, and List Sharing show minimal adoption despite being available.</p>
+        </div>
+        <table>
+          <thead>
+            <tr><th>Feature</th><th>Events (LTM)</th><th>% of Activity</th><th>Intensity</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>Customer Search</strong></td><td>21,277</td><td>23.5%</td><td><span class="badge ok">Heavy</span></td></tr>
+            <tr><td><strong>Product Search</strong></td><td>14,496</td><td>16.0%</td><td><span class="badge ok">Heavy</span></td></tr>
+            <tr><td><strong>Customer Selection</strong></td><td>11,505</td><td>12.7%</td><td><span class="badge ok">Heavy</span></td></tr>
+            <tr><td><strong>Library Viewing</strong></td><td>10,979</td><td>12.1%</td><td><span class="badge ok">Heavy</span></td></tr>
+            <tr><td>Order Submission</td><td>3,612</td><td>4.0%</td><td><span class="badge muted">Moderate</span></td></tr>
+            <tr><td>Configured Item Orders</td><td>731</td><td>0.8%</td><td><span class="badge warn">Light</span></td></tr>
+            <tr><td>PDF Catalog Creation</td><td>338</td><td>0.4%</td><td><span class="badge warn">Light</span></td></tr>
+            <tr><td>Email Product Info</td><td>302</td><td>0.3%</td><td><span class="badge warn">Light</span></td></tr>
+            <tr><td>Collection Browsing</td><td>263</td><td>0.3%</td><td><span class="badge warn">Light</span></td></tr>
+            <tr><td>Product Filtering</td><td>216</td><td>0.2%</td><td><span class="badge warn">Light</span></td></tr>
+            <tr><td>SmartPicks</td><td>46</td><td>0.1%</td><td><span class="badge warn">Light</span></td></tr>
+            <tr><td>Kit Viewing</td><td>5</td><td>&lt;0.1%</td><td><span class="badge warn">Light</span></td></tr>
+            <tr><td>List Sharing</td><td>4</td><td>&lt;0.1%</td><td><span class="badge warn">Light</span></td></tr>
+          </tbody>
+        </table>
+        <div class="callout opportunity">
+          <div class="callout-title">SmartPicks Coaching Opportunity</div>
+          <p>Your reps search for products 14,496 times a year but use SmartPicks only 46 times. SmartPicks surfaces personalized recommendations from each customer&rsquo;s purchase history &mdash; the difference between browsing a 5,800-item catalog and being guided to what that customer is most likely to buy next.</p>
+        </div>
+        <div class="what-this-means">
+          <strong>Action:</strong> Heavy product and customer search with near-zero SmartPicks use means your 65 reps are hand-browsing a 5,800-item catalog the algorithm could navigate for them. A 15-minute SmartPicks walkthrough at your next team meeting would shift browsing time toward personalized, higher-yield product discovery &mdash; most valuable for newer reps still learning the catalog.
+        </div>
+      </div>
+    </details>
+
+  </div>
+</details>
+
+
+<section class="section appendix" id="appendix">
+  <h2 class="section-title"><span class="section-num">Appendix</span> Data Sources</h2>
+  <table class="data-sources">
+    <thead>
+    <tr><th>Source</th><th>Coverage</th><th>Used For</th></tr>
+    </thead>
+    <tbody>
+    <tr><td>eCat iPad Orders</td><td>Full LTM</td><td>Rep performance, order velocity, customer activity</td></tr>
+    <tr><td>All-Channel Business Data</td><td>Full LTM</td><td>Total business context, order channel mix, digital enablement</td></tr>
+    <tr><td>App Usage Analytics</td><td>Full LTM</td><td>Behavioral patterns, engagement scoring, archetype classification</td></tr>
+    <tr><td>Product Catalog</td><td>Current</td><td>Catalog completeness, new item tracking</td></tr>
+    <tr><td>Inventory System</td><td>Current</td><td>Stock-out detection, fill rate analysis</td></tr>
+    <tr><td>Customer Master</td><td>Current</td><td>Territory mapping, customer segmentation</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<footer class="footer">
+    <div class="footer-brand">Insightful &middot; Customer Intelligence</div>
+    <div class="footer-text">Generated June 17, 2026 &middot; Sarreid, Ltd. &middot; Confidential &mdash; prepared for Sarreid, Ltd. use only</div>
+  </footer>
+</div>
+<script>
+  // Sticky TOC active state
+  (function() {
+    const strip = document.getElementById('tocStrip');
+    if (!strip) return;
+    window.addEventListener('scroll', function() {
+      strip.classList.toggle('stuck', window.scrollY > 40);
+    });
+    const links = strip.querySelectorAll('a');
+    const sections = [];
+    links.forEach(function(a) {
+      const id = a.getAttribute('href').replace('#', '');
+      const el = document.getElementById(id);
+      if (el) sections.push({ el, a });
+    });
+    window.addEventListener('scroll', function() {
+      let current = sections[0];
+      sections.forEach(function(s) {
+        if (window.scrollY >= s.el.offsetTop - 80) current = s;
+      });
+      links.forEach(function(a) { a.classList.remove('active'); });
+      if (current) current.a.classList.add('active');
+    }, { passive: true });
+  })();
+
+  function openAndScroll(id) {
+    const target = document.getElementById(id);
+    if (!target) return;
+    const details = target.closest('details');
+    if (details && !details.open) details.open = true;
+    setTimeout(() => target.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+  }
+  document.querySelectorAll('.toc-strip a, .highlights a, .priority-title a').forEach(link => {
+    link.addEventListener('click', function(e) {
+      const href = this.getAttribute('href');
+      if (href && href.startsWith('#')) {
+        e.preventDefault();
+        openAndScroll(href.substring(1));
+      }
+    });
+  });
+</script>
+</body>
+</html>

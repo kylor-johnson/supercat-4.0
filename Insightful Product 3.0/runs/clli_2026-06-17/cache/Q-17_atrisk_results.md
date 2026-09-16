@@ -1,0 +1,29 @@
+# Q-17-atrisk Results — Craftmade (clli, org_id=149)
+- **Query**: Q-17-atrisk — Dormant eCat Customers — At-Risk
+- **Period**: LTM (2025-06-17 to 2026-06-17)
+- **Row count**: 20
+- **Run date**: 2026-06-17
+
+
+| customer_num | customer_name | billing_state | ecat_gmv_12mo | last_ecat_order_date | days_since_last_ecat_order |
+| --- | --- | --- | --- | --- | --- |
+| 2 | Craftmade Sample Account | TX | $183,193 | 2025-12-18 15:44:52 | 181 |
+| 93510 | ROYAUME LUMINAIRE LANDAUDIERE | QC | $43,518 | 2026-01-12 15:07:08 | 156 |
+| 44169 | LADY HOME | TX | $43,442 | 2025-07-29 22:20:42 | 322 |
+| 94530 | ROYAUME LUMINAIRE SHERBROOKE | QC | $22,506 | 2026-01-12 15:06:43 | 156 |
+| 44515 | FORT WORTH LIGHTING | TX | $20,576 | 2025-06-23 17:04:10 | 359 |
+| 93011 | ROYAUME LUMINAIRE DRUMMONDVILL | QC | $20,293 | 2026-01-12 15:11:22 | 156 |
+| 93512 | ROYAUME LUMINAIRE BEAUPORT INC | QC | $19,180 | 2026-01-12 15:12:02 | 156 |
+| 1 | Craftmade Warranty Account | TX | $17,765 | 2025-06-20 14:10:28 | 362 |
+| 93511 | ROYAUME LUMINAIRE J D INC | QC | $17,066 | 2026-01-12 15:08:43 | 156 |
+| 4023 | ROYAUME LUMINAIRE-TROIS | QC | $16,375 | 2026-01-12 15:12:07 | 156 |
+| 93515 | ROYAUME LUMINAIRE STE JULIE | QC | $14,430 | 2026-01-12 15:11:05 | 156 |
+| 30800 | COASTAL LIGHTING, LLC | TX | $14,184 | 2026-01-15 01:05:40 | 153 |
+| 20501 | PINE GROVE ELEC SPLY | LA | $13,910 | 2026-01-23 16:12:22 | 145 |
+| 20328 | HOUSE OF CARPETS INC | LA | $12,687 | 2026-01-13 22:50:10 | 154 |
+| 50900 | HAJOCA CORP | LA | $10,786 | 2026-01-11 19:04:14 | 157 |
+| 42179 | FAN DEPOT | DN | $9,916 | 2025-11-20 20:06:47 | 209 |
+| 34381 | GRAND RAPIDS LIGHTING CTR INC | MI | $9,727 | 2026-01-14 13:26:28 | 154 |
+| 50891 | GW KEETER LIGHTING & HOME | AR | $9,670 | 2026-01-29 21:14:29 | 138 |
+| 43128 | WHITE OAK COTTAGE | FL | $9,554 | 2025-11-24 13:50:19 | 205 |
+| 2473 | LIGHTSTYLE OF ORLANDO | FL | $9,133 | 2025-06-20 13:38:36 | 362 |

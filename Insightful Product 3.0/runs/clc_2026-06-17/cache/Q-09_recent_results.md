@@ -1,0 +1,308 @@
+# Q-09-recent Results — Capital Lighting Fixture Co. (clc, org_id=40)
+- **Query**: Q-09-recent — Import Health — Recent Errors
+- **Period**: LTM (2025-06-17 to 2026-06-17)
+- **Row count**: 10
+- **Run date**: 2026-06-17
+
+
+| created_at | data |
+| --- | --- |
+| 2026-06-17 11:34:26 | ---
+- - Products
+  - - - :warning
+      - 'Line 1: Field name room is unknown.'
+    - - :warning
+      - 'Line 1: Field name website sorting is unknown.'
+    - - :warning
+      - 'Line 1: Custom field ''Assembly1'' is missing.'
+    - - :warning
+      - 'Line 1: Custom field ''Assembly2'' is missing.'
+    - - :warning
+      - 'Line 1: Custom field ''Assembly3'' is missing.'
+    - - :warning
+      - 'Line 1: Custom field ''Assembly4'' is missing.'
+    - - :warning
+      - 'Line 1: Custom field ''Assembly5'' is missing.'
+    - - :warning
+      - 'Line 1: Custom field ''Assembly6'' is missing.'
+- - Inventory
+  - []
+- - Product Stories
+  - []
+- - Customers
+  - []
+- - Sales Data
+  - []
+- - Portal Orders
+  - []
+- - Portal Invoices
+  - []
+- - Portal Invoice Tracking Data
+  - []
+ |
+| 2026-06-16 11:35:25 | ---
+- - Products
+  - - - :warning
+      - 'Line 1: Field name room is unknown.'
+    - - :warning
+      - 'Line 1: Field name website sorting is unknown.'
+    - - :warning
+      - 'Line 1: Custom field ''Assembly1'' is missing.'
+    - - :warning
+      - 'Line 1: Custom field ''Assembly2'' is missing.'
+    - - :warning
+      - 'Line 1: Custom field ''Assembly3'' is missing.'
+    - - :warning
+      - 'Line 1: Custom field ''Assembly4'' is missing.'
+    - - :warning
+      - 'Line 1: Custom field ''Assembly5'' is missing.'
+    - - :warning
+      - 'Line 1: Custom field ''Assembly6'' is missing.'
+- - Inventory
+  - []
+- - Product Stories
+  - []
+- - Customers
+  - []
+- - Sales Data
+  - []
+- - Portal Orders
+  - []
+- - Portal Invoices
+  - []
+- - Portal Invoice Tracking Data
+  - []
+ |
+| 2026-06-15 11:34:30 | ---
+- - Products
+  - - - :warning
+      - 'Line 1: Field name room is unknown.'
+    - - :warning
+      - 'Line 1: Field name website sorting is unknown.'
+    - - :warning
+      - 'Line 1: Custom field ''Assembly1'' is missing.'
+    - - :warning
+      - 'Line 1: Custom field ''Assembly2'' is missing.'
+    - - :warning
+      - 'Line 1: Custom field ''Assembly3'' is missing.'
+    - - :warning
+      - 'Line 1: Custom field ''Assembly4'' is missing.'
+    - - :warning
+      - 'Line 1: Custom field ''Assembly5'' is missing.'
+    - - :warning
+      - 'Line 1: Custom field ''Assembly6'' is missing.'
+- - Inventory
+  - []
+- - Product Stories
+  - []
+- - Customers
+  - []
+- - Sales Data
+  - []
+- - Portal Orders
+  - []
+- - Portal Invoices
+  - []
+- - Portal Invoice Tracking Data
+  - []
+ |
+| 2026-06-14 11:35:32 | ---
+- - Portal Orders
+  - []
+ |
+| 2026-06-14 11:34:10 | ---
+- - Products
+  - - - :warning
+      - 'Line 1: Field name room is unknown.'
+    - - :warning
+      - 'Line 1: Field name website sorting is unknown.'
+    - - :warning
+      - 'Line 1: Custom field ''Assembly1'' is missing.'
+    - - :warning
+      - 'Line 1: Custom field ''Assembly2'' is missing.'
+    - - :warning
+      - 'Line 1: Custom field ''Assembly3'' is missing.'
+    - - :warning
+      - 'Line 1: Custom field ''Assembly4'' is missing.'
+    - - :warning
+      - 'Line 1: Custom field ''Assembly5'' is missing.'
+    - - :warning
+      - 'Line 1: Custom field ''Assembly6'' is missing.'
+- - Inventory
+  - []
+- - Product Stories
+  - []
+- - Customers
+  - []
+- - Sales Data
+  - []
+- - Portal Invoices
+  - []
+- - Portal Invoice Tracking Data
+  - []
+ |
+| 2026-06-13 11:35:00 | ---
+- - Products
+  - - - :warning
+      - 'Line 1: Field name room is unknown.'
+    - - :warning
+      - 'Line 1: Field name website sorting is unknown.'
+    - - :warning
+      - 'Line 1: Custom field ''Assembly1'' is missing.'
+    - - :warning
+      - 'Line 1: Custom field ''Assembly2'' is missing.'
+    - - :warning
+      - 'Line 1: Custom field ''Assembly3'' is missing.'
+    - - :warning
+      - 'Line 1: Custom field ''Assembly4'' is missing.'
+    - - :warning
+      - 'Line 1: Custom field ''Assembly5'' is missing.'
+    - - :warning
+      - 'Line 1: Custom field ''Assembly6'' is missing.'
+- - Inventory
+  - []
+- - Product Stories
+  - []
+- - Customers
+  - []
+- - Sales Data
+  - []
+- - Portal Orders
+  - []
+- - Portal Invoices
+  - []
+- - Portal Invoice Tracking Data
+  - []
+ |
+| 2026-06-12 11:34:27 | ---
+- - Products
+  - - - :warning
+      - 'Line 1: Field name room is unknown.'
+    - - :warning
+      - 'Line 1: Field name website sorting is unknown.'
+    - - :warning
+      - 'Line 1: Custom field ''Assembly1'' is missing.'
+    - - :warning
+      - 'Line 1: Custom field ''Assembly2'' is missing.'
+    - - :warning
+      - 'Line 1: Custom field ''Assembly3'' is missing.'
+    - - :warning
+      - 'Line 1: Custom field ''Assembly4'' is missing.'
+    - - :warning
+      - 'Line 1: Custom field ''Assembly5'' is missing.'
+    - - :warning
+      - 'Line 1: Custom field ''Assembly6'' is missing.'
+- - Inventory
+  - []
+- - Product Stories
+  - []
+- - Customers
+  - []
+- - Sales Data
+  - []
+- - Portal Orders
+  - []
+- - Portal Invoices
+  - []
+- - Portal Invoice Tracking Data
+  - []
+ |
+| 2026-06-11 11:34:27 | ---
+- - Products
+  - - - :warning
+      - 'Line 1: Field name room is unknown.'
+    - - :warning
+      - 'Line 1: Field name website sorting is unknown.'
+    - - :warning
+      - 'Line 1: Custom field ''Assembly1'' is missing.'
+    - - :warning
+      - 'Line 1: Custom field ''Assembly2'' is missing.'
+    - - :warning
+      - 'Line 1: Custom field ''Assembly3'' is missing.'
+    - - :warning
+      - 'Line 1: Custom field ''Assembly4'' is missing.'
+    - - :warning
+      - 'Line 1: Custom field ''Assembly5'' is missing.'
+    - - :warning
+      - 'Line 1: Custom field ''Assembly6'' is missing.'
+- - Inventory
+  - []
+- - Product Stories
+  - []
+- - Customers
+  - []
+- - Sales Data
+  - []
+- - Portal Orders
+  - []
+- - Portal Invoices
+  - []
+- - Portal Invoice Tracking Data
+  - []
+ |
+| 2026-06-10 11:34:19 | ---
+- - Products
+  - - - :warning
+      - 'Line 1: Field name room is unknown.'
+    - - :warning
+      - 'Line 1: Field name website sorting is unknown.'
+    - - :warning
+      - 'Line 1: Custom field ''Assembly1'' is missing.'
+    - - :warning
+      - 'Line 1: Custom field ''Assembly2'' is missing.'
+    - - :warning
+      - 'Line 1: Custom field ''Assembly3'' is missing.'
+    - - :warning
+      - 'Line 1: Custom field ''Assembly4'' is missing.'
+    - - :warning
+      - 'Line 1: Custom field ''Assembly5'' is missing.'
+    - - :warning
+      - 'Line 1: Custom field ''Assembly6'' is missing.'
+- - Inventory
+  - []
+- - Product Stories
+  - []
+- - Customers
+  - []
+- - Sales Data
+  - []
+- - Portal Orders
+  - []
+- - Portal Invoices
+  - []
+- - Portal Invoice Tracking Data
+  - []
+ |
+| 2026-06-09 13:44:59 | ---
+- - Products
+  - - - :warning
+      - 'Line 1: Field name room is unknown.'
+    - - :warning
+      - 'Line 1: Field name website sorting is unknown.'
+    - - :warning
+      - 'Line 1: Custom field ''Assembly1'' is missing.'
+    - - :warning
+      - 'Line 1: Custom field ''Assembly2'' is missing.'
+    - - :warning
+      - 'Line 1: Custom field ''Assembly3'' is missing.'
+    - - :warning
+      - 'Line 1: Custom field ''Assembly4'' is missing.'
+    - - :warning
+      - 'Line 1: Custom field ''Assembly5'' is missing.'
+    - - :warning
+      - 'Line 1: Custom field ''Assembly6'' is missing.'
+- - Inventory
+  - []
+- - Product Stories
+  - []
+- - Customers
+  - []
+- - Sales Data
+  - []
+- - Portal Orders
+  - []
+- - Portal Invoices
+  - []
+- - Portal Invoice Tracking Data
+  - []
+ |

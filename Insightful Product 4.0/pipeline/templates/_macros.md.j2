@@ -1,0 +1,319 @@
+{# Shared sentence-pattern macros for the Insightful 4.0 pipeline templates.
+   Each macro takes a Signal object and emits 1-2 sentences of editorial prose.
+   Voice target: "A senior furniture-industry consultant wrote this for a furniture CEO."
+   Rules: no invented causation, no metaphors-as-analysis, lead with dollar and name.
+
+   CLIENT-FACING LABEL DICTIONARY (2026-07-13 voice pass) — use these words in
+   client HTML; keep internal names only in Jinja comments / code:
+     GMV                    → eCat orders (confirmed) / order dollars
+     dollar retention / NRR → same dealers spent $X for every $1 last year
+     fully churned          → went dark / stopped buying
+     contribution proxy     → (omit from hero; say "up/down $X" if needed)
+     lifters / decliners    → accounts that grew / accounts that shrank
+     capture rate           → (never as a client headline; absolute $ only)
+     posture / pipeline     → never in client prose
+     feed                   → invoice data / order data (when you must name it)
+#}
+
+{# ═══════════════════════════════════════════════════════════════════════════
+   SENTENCE-PATTERN MACROS — one per SignalKind (13 total)
+   ═══════════════════════════════════════════════════════════════════════════ #}
+
+{# ─── real_decline ─────────────────────────────────────────────────────── #}
+{% macro signal_real_decline(sig, account) -%}
+{{ account.bill_to_name or account.bill_to_number or "(unnamed)" }} — ${{ "{:,.0f}".format(account.ltm_rev / 1000) }}K invoiced (LTM) — is down {{ "{:.0f}".format((1 - account.recent_6mo / account.prior_6mo) * 100) if account.prior_6mo > 0 else "materially" }}% over the last six months and {% if account.days_silent > 30 %}has gone {{ account.days_silent }} days silent{% else %}is still ordering{% endif %}. The slope is unambiguous; the cause needs a phone call.
+{%- endmacro %}
+
+{# ─── cadence_cliff ────────────────────────────────────────────────────── #}
+{% macro signal_cadence_cliff(sig, account) -%}
+{{ account.bill_to_name or account.bill_to_number or "(unnamed)" }} — ${{ "{:,.0f}".format(account.ltm_rev / 1000) }}K invoiced (LTM) — skipped a beat: {{ account.days_silent }} days silent against a {{ "{:.0f}".format(account.mean_order_gap_days) }}-day normal cadence, but the account {% if account.recent_vs_prior_pct is not none and account.recent_vs_prior_pct > 0 %}is up {{ "{:.0f}".format(account.recent_vs_prior_pct) }}% year-over-year{% else %}is not declining{% endif %}. Confirm the next order is still coming; do not open a decline conversation on a growing book.
+{%- endmacro %}
+
+{# ─── growth_pocket ────────────────────────────────────────────────────── #}
+{% macro signal_growth_pocket(sig, family) -%}
+The {{ family.family_label }} family is up {{ "{:+.0f}".format(family.yoy_pct) }}% YoY — ${{ "{:,.2f}".format(family.ltm_revenue / 1_000_000) }}M invoiced (LTM) across {{ family.dealer_count }} dealers on {{ family.sku_count }} SKUs. That distribution is product depth, not product luck — broad enough to survive a single soft market.
+{%- endmacro %}
+
+{# ─── new_line_takeoff ─────────────────────────────────────────────────── #}
+{% macro signal_new_line_takeoff(sig, family) -%}
+{{ family.family_label }} cleared ${{ "{:,.0f}".format(family.ltm_revenue / 1000) }}K across {{ family.dealer_count }} dealers in its first full year. A new line that clears six figures across that many dealers in year one is earning its floor space on merit, not on introductory pricing.
+{%- endmacro %}
+
+{# ─── lift_concentration ──────────────────────────────────────────────── #}
+{% macro signal_lift_concentration(sig, probe) -%}
+Your top customer holds {{ "{:.0f}".format(probe.top1_share) }}% of LTM invoiced revenue (HHI {{ "{:.0f}".format(probe.hhi) }}). {% if probe.top1_share >= 25 %}That is structural concentration — a single account decision moves the topline.{% else %}Worth watching — not crisis-level, but a single account's buying cadence will show up in your quarterly results.{% endif %}
+{%- endmacro %}
+
+{# ─── rep_overperform ──────────────────────────────────────────────────── #}
+{% macro signal_rep_overperform(sig, rep) -%}
+{{ rep.rep_label or ("rep " ~ rep.rep_number) }} grew {{ "{:+.0f}".format(rep.yoy_pct) }}% year-over-year — ${{ "{:,.2f}".format(rep.ltm_invoiced / 1_000_000) }}M invoiced (LTM) across {{ rep.customer_count }} accounts. That is a field build, not a one-account windfall.
+{%- endmacro %}
+
+{# ─── rep_underperform ─────────────────────────────────────────────────── #}
+{% macro signal_rep_underperform(sig, rep) -%}
+{{ rep.rep_label or ("rep " ~ rep.rep_number) }} is down {{ "{:.0f}".format(rep.yoy_pct | abs) }}% year-over-year on a ${{ "{:,.2f}".format(rep.ltm_invoiced / 1_000_000) }}M book ({{ rep.customer_count }} accounts). The territory needs a coverage review — a book-wide decline across that many accounts is structural, not one bad break.
+{%- endmacro %}
+
+{# ─── rep_atrisk_book ──────────────────────────────────────────────────── #}
+{% macro signal_rep_atrisk_book(sig, risk) -%}
+{% if risk.accounts_at_risk and risk.accounts_at_risk > 0 -%}
+{{ risk.rep_name_tier2 or ("rep " ~ risk.rep_number) }} carries ${{ "{:,.0f}".format(risk.dollars_at_risk / 1000) }}K at risk across {{ risk.accounts_at_risk }} account{{ "s" if risk.accounts_at_risk != 1 else "" }}{% if risk.leak_pct is not none %} ({{ "{:.1f}".format(risk.leak_pct) }}% leak rate on the book){% endif %}. Walk the top-risk account this week before working the tail.
+{%- else -%}
+{{ risk.rep_name_tier2 or ("rep " ~ risk.rep_number) }} shows ${{ "{:,.0f}".format(risk.dollars_at_risk / 1000) }}K of exposure{% if risk.leak_pct is not none %} at a {{ "{:.1f}".format(risk.leak_pct) }}% leak rate{% endif %} — discount-discipline bleed, not account decay (no single account crossed the at-risk threshold). Review discount authority on this book rather than one account.
+{%- endif %}
+{%- endmacro %}
+
+{# ─── cross_sell_pocket ────────────────────────────────────────────────── #}
+{% macro signal_cross_sell_pocket(sig) -%}
+Dealers buying {{ sig.context.anchor }} have never ordered from the {{ sig.context.target }} family — same buyer profile, same floor, already pre-qualified by their own buying history. Push the list to the field this week and ask for a quote inside 30 days.
+{%- endmacro %}
+
+{# ─── second_year_gap ──────────────────────────────────────────────────── #}
+{% macro signal_second_year_gap(sig, dealers) -%}
+Only {{ "{:.0f}".format(dealers.second_year_return_rate * 100) }}% of first-time buyers came back for a second year. You are winning new accounts at the front door and losing them at the back. Every 5-point move on that return rate is meaningful dollars on the full new-dealer base.
+{%- endmacro %}
+
+{# ─── channel_concentration ────────────────────────────────────────────── #}
+{% macro signal_channel_concentration(sig, channel) -%}
+{{ channel.label }} accounts for {{ "{:.0f}".format(channel.share_pct) }}% of booked revenue (${{ "{:,.2f}".format(channel.booked_dollars / 1_000_000) }}M LTM). A single channel decision — a fee change, an algorithm shift, a buyer rotation — moves the topline at that concentration level.
+{%- endmacro %}
+
+{# ─── ecat_minority ────────────────────────────────────────────────────── #}
+{% macro signal_ecat_minority(sig) -%}
+eCat is {{ "{:.1f}".format(sig.context.ecat_pct) }}% of invoiced LTM — a minority of the book for a business that still runs primarily through dealers, trade, and direct. Shown as absolute order dollars, not as a share of "total business" — that claim needs a second independent feed.
+{%- endmacro %}
+
+{# ─── leakage_discipline ──────────────────────────────────────────────── #}
+{% macro signal_leakage_discipline(sig) -%}
+Org-wide leakage is {{ "{:.1f}".format(sig.context.leak_pct) }}% — well below the 3% industry-normal threshold. Pricing discipline is not the problem here; the dollars at risk are in volume retention, not discount bleed.
+{%- endmacro %}
+
+
+{# ═══════════════════════════════════════════════════════════════════════════
+   CONFIDENCE HEADERS — deterministic per posture.commerce_confidence
+   ═══════════════════════════════════════════════════════════════════════════ #}
+
+{% macro confidence_header(posture) -%}
+{% if posture.commerce_confidence == "STRONG" -%}
+Every dollar in this report is a direct result from your invoice data — same method, same window, reproduces exactly. Where a figure is directional (estimated upside, addressable subset), it is flagged inline.
+{%- elif posture.commerce_confidence == "PARTIAL" -%}
+This report draws from a single invoice source that has not been cross-verified against a second independent view. Dollar figures are real results on real invoices — but "your invoiced business" is the honest framing, not "your total business." Directional figures are flagged where they appear.
+{%- elif posture.commerce_confidence == "LIMITED" -%}
+Limited commerce signal: invoice data is present but thin (fewer than 1,000 invoices or under $1M LTM). Patterns are real but dollar-impact estimates carry wider margins. Treat specific-account findings as directional leads, not confirmed reads.
+{%- elif posture.commerce_confidence == "NONE" -%}
+No invoiced dollars available on this window. Findings here are drawn from eCat activity and order-level signals only; no rep-to-revenue claims are made.
+{%- endif %}
+{%- endmacro %}
+
+
+{# ═══════════════════════════════════════════════════════════════════════════
+   "WHAT THIS MEANS" / ACTION BLOCKS — per signal type, max 3 sentences
+   ═══════════════════════════════════════════════════════════════════════════ #}
+
+{% macro action_real_decline(account) -%}
+**Action:** Investigative call this week — walk the candidate explanations (competitive vendor, buyer change, channel shift, project completion) and bring back a read. The slope is clear; the cause is not.
+{%- endmacro %}
+
+{% macro action_cadence_cliff(account) -%}
+**Action:** Quick confirm call — not a decline conversation. Verify the next order is still coming; do not flag concern on a growing book.
+{%- endmacro %}
+
+{% macro action_growth_pocket(family) -%}
+**Action:** Protect the distribution. A growth family across {{ family.dealer_count }} dealers is earning its floor space — the risk now is supply-side (lead times, stock-outs) or field-side (reps not leading with it). Confirm both.
+{%- endmacro %}
+
+{% macro action_declining_family(family) -%}
+**Action:** Defend the base. {{ family.dealer_count }} dealers on a line down {{ "{:.0f}".format(family.yoy_pct | abs) }}% is still the distribution to protect while the mix resets — the near-term risk is losing floor or shelf space to a competitor during the down cycle. Confirm the line stays merchandised and the field keeps showing it; do not treat the decline as a reason to stop leading with it.
+{%- endmacro %}
+
+{% macro action_new_line_takeoff(family) -%}
+**Action:** Pour fuel. A new line clearing six figures across {{ family.dealer_count }}+ dealers in year one is the rarest signal in this business — field teams, marketing spend, and production capacity should follow the pull, not wait for it to prove itself again.
+{%- endmacro %}
+
+{% macro action_lift_concentration(probe) -%}
+**Action:** Map the exposure. Know the top account's contract renewal timeline, buying cadence, and decision-maker stability. Concentration is not a problem to solve — it is a risk to see coming.
+{%- endmacro %}
+
+{% macro action_rep_overperform(rep) -%}
+**Action:** Protect the territory. A book growing at this rate attracts poaching — internal territory carve-ups, competitive recruitment, or simple burnout. Do not lose this person to neglect.
+{%- endmacro %}
+
+{% macro action_rep_underperform(rep) -%}
+**Action:** Book a territory review with {{ rep.rep_label or ("rep " ~ rep.rep_number) }} this week. Look for the cluster pattern — is it one account pulling the average down, or a broad-based fade across the book? Different problems, different fixes.
+{%- endmacro %}
+
+{% macro action_rep_atrisk_book(risk) -%}
+**Action:** Walk the top at-risk account on this book before working the tail. One conversation may explain the pattern; if it does not, triage the rest by days-silent and dollar-at-risk.
+{%- endmacro %}
+
+{% macro action_cross_sell_pocket() -%}
+**Action:** Ship the named dealer list to the field this week with a 30-day quote ask. The list is pre-qualified by the dealers' own buying behavior — no cold outreach, no guesswork.
+{%- endmacro %}
+
+{% macro action_second_year_gap(dealers) -%}
+**Action:** Pick the play — a 60-day reorder check-in, a first-reorder incentive, or a named-rep handoff at day 30 — and run it on the addressable subset. It does not have to be expensive. It has to be deliberate and measured.
+{%- endmacro %}
+
+{% macro action_channel_concentration(channel) -%}
+**Action:** Map the dependency. Know the top channel's fee structure, algorithm changes, and buyer-rotation cadence. Diversification is the medium-term play; visibility is the immediate one.
+{%- endmacro %}
+
+{% macro action_ecat_minority() -%}
+**Action:** This is context, not an urgent finding. eCat share is reported for completeness; the business runs through traditional channels and the report's intelligence value is in those channels, not in eCat adoption.
+{%- endmacro %}
+
+{% macro action_leakage_discipline(has_outlier=false, outlier_rep="", outlier_pct=0) -%}
+{% if has_outlier -%}
+**Action:** Book a discount-authority review with {{ outlier_rep }} this week. A {{ "{:.0f}".format(outlier_pct) }}% leak rate is wide enough to be a coaching question, not just a policy one. The rest of the rep base is within normal range.
+{%- else -%}
+**Action:** No pricing-discipline intervention needed. The dollars at risk in this report are volume-side (account decay, cadence gaps) — not discount-side. Focus coaching time accordingly.
+{%- endif %}
+{%- endmacro %}
+
+
+{# ═══════════════════════════════════════════════════════════════════════════
+   TALKING-POINT GENERATOR — for §2 Do-this-week rows
+   One-line talking point in conversational form (what the rep says to the
+   account on the phone). Voice: direct, named, dollar-grounded.
+   ═══════════════════════════════════════════════════════════════════════════ #}
+
+{# talking_point — one line per call row. Varied by signal kind × decline
+   magnitude × days-silent bucket so a 7-row list doesn't collapse into the
+   same sentence five times (audit_cci §talking-points). Fully deterministic:
+   phrasing is driven by the account's own numbers, never randomness, so the
+   regression harness stays byte-stable. #}
+{% macro talking_point(account, posture) -%}
+{%- set d = account.days_silent -%}
+{%- set p = account.recent_vs_prior_pct -%}
+{%- if account.is_cadence_cliff -%}
+{%- if d and d > 60 -%}
+"You're up{% if p is not none %} {{ "{:.0f}".format(p) }}%{% endif %} but {{ d }} days past your ~{{ "{:.0f}".format(account.mean_order_gap_days) }}-day reorder rhythm — probably timing. Want to line up the next one?"
+{%- else -%}
+"Growing account that skipped a beat on a {{ "{:.0f}".format(account.mean_order_gap_days) }}-day cadence. Lead with the reorder, not concern — this one's healthy."
+{%- endif -%}
+{%- elif account.is_real_decline and p is not none and p <= -45 -%}
+{%- if d and d > 90 -%}
+"Six months of decline and {{ d }} days dark. Is someone else reworking this account, or did the program change?"
+{%- elif d and d > 45 -%}
+"Volume has {{ "halved" if p <= -50 else "dropped ~" ~ "{:.0f}".format(p | abs) ~ "%" }} and it's been {{ d }} days. Assortment, price, or a competitor in the door?"
+{%- else -%}
+"Pace has collapsed {{ "{:.0f}".format(p | abs) }}% in six months. Get ahead of it now, while the relationship is still warm."
+{%- endif -%}
+{%- elif account.is_real_decline and p is not none and p <= -20 -%}
+{%- if d and d > 60 -%}
+"Down {{ "{:.0f}".format(p | abs) }}% and quiet {{ d }} days — call before it hardens into a trend. What shifted?"
+{%- else -%}
+"Ordering is off about {{ "{:.0f}".format(p | abs) }}% over six months. What's changing on your floor?"
+{%- endif -%}
+{%- elif account.is_real_decline and p is not none -%}
+"Running {{ "{:.0f}".format(p | abs) }}% behind last year — early enough to turn around with a check-in. What's the read?"
+{%- elif account.is_real_decline -%}
+"{{ d }} days since the last order on a formerly steady account. What shifted — timing, or something bigger?"
+{%- elif d and d > 60 -%}
+"It's been {{ d }} days. What changed — project on hold, or did we lose the slot?"
+{%- elif p is not none and p <= -20 -%}
+"Ordering is running about {{ "{:.0f}".format(p | abs) }}% behind its recent pace. Worth a direct call — what's shifting?"
+{%- elif p is not none and p < -5 -%}
+"Pace has eased off {{ "{:.0f}".format(p | abs) }}%. A quick check-in now, before it settles into a trend."
+{%- elif p is not none and p > 5 -%}
+"Still pacing up ({{ "{:+.0f}".format(p) }}%) — this is a reinforce-the-relationship call, not a rescue. What else can we load in?"
+{%- else -%}
+"Ordering pace shifted recently — worth a quick check-in. What's the read on your end?"
+{%- endif -%}
+{%- endmacro %}
+
+
+{# ═══════════════════════════════════════════════════════════════════════════
+   §O SUPPRESSION TEMPLATES — verbatim from report_editorial_rules_v4.md
+   These are binding. Do NOT rewrite.
+   ═══════════════════════════════════════════════════════════════════════════ #}
+
+{% macro suppression_chan_none(posture) -%}
+### Channel context — **suppressed**
+
+The invoice feed for {{ posture.org }} carries **{{ posture.distinct_origins }} distinct order-origin value{{ "s" if posture.distinct_origins != 1 else "" }}** across ${{ "{:,.0f}".format(posture.inv_ltm_net) }} of booked LTM orders — {% if posture.distinct_origins == 0 %}the field is uniformly blank{% else %}every row carries the same value{% endif %}. No channel decomposition can be rendered from a single-value field. The channel section is suppressed; eCat dollars are overlaid from confirmed-order data below.
+{#- [Q-CHAN-00 · NONE — suppressed] -#}
+{%- endmacro %}
+
+{% macro suppression_chan_partial(posture) -%}
+### Channel context — partial
+
+The invoice data carries **{{ posture.distinct_origins }} distinct order-origin values** — enough to split channels, but eCat's tag ({{ posture.ecat_tag_status }}, {{ posture.ecat_recon_ratio or "n/a" }}× vs confirmed eCat orders) means eCat dollars are overlaid from confirmed-order data, not from the origin column.
+{#- [Channel gate · PARTIAL · {{ posture.ecat_tag_status }}] -#}
+{%- endmacro %}
+
+{% macro suppression_commerce_none(posture, section_name) -%}
+### {{ section_name }} — **suppressed**
+
+No invoice data exists for {{ posture.org }} on the trailing-twelve-month window (zero invoices, $0 net). Without invoiced dollars, there is no revenue outcome to report. {{ section_name }} is suppressed. This brief stays on in-app activity only — no rep-to-revenue claim is made.
+{#- [Commerce confidence NONE — section suppressed] -#}
+{%- endmacro %}
+
+{% macro suppression_rep_tier(posture) -%}
+### Coaching cards — **not rendered at this rep-identity tier**
+
+The rep-name bridge for {{ posture.org }} resolves **{{ posture.name_bridge_pct }}%** of invoice reps to named people — below the 82% threshold required for coaching cards. The leaderboard above renders at **rep-code grain** (no names); coaching cards require named reps and are suppressed for this org. See the Appendix for which rows did not resolve to a name (they are never silently dropped from the leaderboard).
+{#- [Rep identity tier {{ posture.rep_identity_tier }} — coaching cards suppressed] -#}
+{%- endmacro %}
+
+{% macro suppression_feed_stale(posture) -%}
+### Header note — **invoice data is stale**
+
+Invoice data for {{ posture.org }} was last updated **{{ posture.days_since_last_invoice }} days ago**. Every dollar figure and at-risk flag below is **historical** — pinned to the last real invoice date, not pushed as live. Refresh the invoice data before treating any finding as current.
+{#- [Feed completeness {{ posture.feed_completeness }} — historical only] -#}
+{%- endmacro %}
+
+
+{# ═══════════════════════════════════════════════════════════════════════════
+   TRACK C — STALE framing treatment (decision memo §3 / §4 Track C)
+   Consumed by the existing decay sections (§2/§5/§7/§9). NOT a new mode.
+   The invoiced findings below are HISTORY as of report_through_date; the
+   live commercial signal is the eCat channel (surfaced in §1). eCat is NEVER
+   stamped with the stale date (F2 carve-out — Spine §6.5 live window).
+   ═══════════════════════════════════════════════════════════════════════════ #}
+
+{% macro stale_historical_banner(posture) -%}
+> **Historical — {{ posture.erp_asof_stamp }}, {{ posture.stale_age_phrase }} since the last invoice.** The invoice feed has not updated since, so the figures below describe where the business *was* at that point — not where it is today. Treat them as history to re-verify against a refreshed feed, not as this-week reality. The one live signal is confirmed digital-channel orders ({{ posture.ecat_live_stamp }}) — see the top of this brief.
+{%- endmacro %}
+
+{# ═══════════════════════════════════════════════════════════════════════════
+   NONE-FEED CLOSE — single compact "what an ERP feed unlocks" block.
+   Replaces the 8 scattered "connect the feed to unlock…" stubs on a NONE feed.
+   The behavior-only report LEADS with rep activity + eCat (see hero + §6/§10);
+   this block is the forward-looking close, not the body.
+   ═══════════════════════════════════════════════════════════════════════════ #}
+
+{% macro erp_unlock_block(posture) -%}
+## What an invoiced ERP feed would unlock
+
+This brief runs on owned platform data — eCat orders and in-app activity — which is why it leads with rep behavior and digital-channel volume. Connect an invoiced ERP feed and the same engine produces the full CEO intelligence brief:
+
+- **Revenue outcomes by rep and account** — who is growing, who is fading, and the dollars at stake, tied to invoiced net (not booked orders).
+- **The at-risk watchlist** — named accounts slowing down, with the dollar at risk and the rep to make the call.
+- **Growth families and cross-sell** — which lines are lifting the topline and which dealers are the pre-qualified next buyers.
+- **Same-dealer retention and reorder flow** — the reorder engine underneath the headline dealer count.
+
+Until then, the behavior floor above is the honest, live read: real platform activity, no invented revenue.
+{%- endmacro %}
+
+{% macro stale_ecat_recovery_lead(posture) -%}
+**Refresh the feed — then work the live signal.** The invoice feed went quiet **{{ posture.stale_age_phrase }} ago** ({{ posture.erp_asof_stamp }}), so the invoiced numbers in this brief are a snapshot of that frozen window, not a live read. What *is* live: **${{ "{:,.2f}".format(posture.ecat_ltm_confirmed_gmv / 1_000_000) }}M of confirmed eCat order volume — a live floor ({{ posture.ecat_live_stamp }})** — the org is still placing orders through the platform even though the invoice feed stopped. Lead the recovery here:
+
+- **Refresh the invoice feed.** Every historical dollar below re-verifies the moment a current feed lands — that is step one, before any account call.
+- **Work the live eCat channel.** ${{ "{:,.2f}".format(posture.ecat_ltm_confirmed_gmv / 1_000_000) }}M is confirmed and current — a live floor on digital activity, and the accounts still ordering there are the recovery base, not the frozen invoice watchlist.
+- **Read the decline sections as history.** They describe the business as of {{ posture.report_through_date }}; use them to prioritize *which* relationships to re-confirm once the feed is current.
+{%- endmacro %}
+
+
+{# ═══════════════════════════════════════════════════════════════════════════
+   DOLLAR FORMATTING HELPERS
+   Every dollar figure carries an inline time qualifier per template rules.
+   ═══════════════════════════════════════════════════════════════════════════ #}
+
+{% macro dollars_m(val, qualifier="LTM invoiced") -%}
+${{ "{:,.2f}".format(val / 1_000_000) }}M ({{ qualifier }})
+{%- endmacro %}
+
+{% macro dollars_k(val, qualifier="LTM invoiced") -%}
+${{ "{:,.0f}".format(val / 1000) }}K ({{ qualifier }})
+{%- endmacro %}

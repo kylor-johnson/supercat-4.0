@@ -1,0 +1,29 @@
+# Q-53 Results — Sarreid, Ltd. (fal, org_id=1)
+- **Query**: Q-53 — Unactivated High-Value ERP Accounts
+- **Period**: LTM (2025-06-17 to 2026-06-17)
+- **Row count**: 20
+- **Run date**: 2026-06-17
+
+
+| customer_code | customer_name | state | erp_orders | erp_gmv |
+| --- | --- | --- | --- | --- |
+| 28239 | WAYFAIR | MA | 5,013 | $4.6M |
+| 29729 | KATHY KUO HOME | GA | 540 | $537,688 |
+| 28973 | NETRETAILERS INC. | IL | 379 | $346,611 |
+| 32162 | AFA STORES | NJ | 233 | $281,849 |
+| 32125 | SUNDIAL HOME PRODUCTS LLC | CA | 181 | $261,187 |
+| 31060 | ENGLISH GEORGIAN AMERICA LLC | NJ | 152 | $189,930 |
+| 32653 | OLD BONES CO STUDIOS | CA | 76 | $87,450 |
+| 32165 | DECOR MARCHE DBA AMERICAN HOME FURNITURE | NY | 88 | $81,258 |
+| 32530 | THE SWAN'S NEST INC | NV | 4 | $66,170 |
+| 29362 | ENGLISH ELM | IL | 55 | $59,673 |
+| 32563 | DECOR MARKET | NY | 52 | $51,954 |
+| 30659 | RENEGADE FURNITURE GROUP INC DBA | OH | 55 | $51,457 |
+| 29605 | HEDGEAPPLE | KS | 60 | $49,448 |
+| 28882 | CRIMSON DESIGN GROUP | OH | 17 | $41,082 |
+| 28317 | BELLE ESCAPE | CA | 21 | $37,062 |
+| 32231 | HOLLY BIGGS INTERIORS | LA | 10 | $32,337 |
+| 31516 | GARDNER-WHITE FURNITURE | MI | 8 | $29,605 |
+| 32753 | LISA PARKER INTERIORS | TX | 2 | $26,929 |
+| 22277 | BLUE SKY ENVIRONMENTS INC | FL | 22 | $26,611 |
+| 31896 | VESTA HOME | FL | 3 | $25,985 |

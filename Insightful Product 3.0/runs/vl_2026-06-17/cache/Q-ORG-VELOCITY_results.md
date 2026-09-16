@@ -1,0 +1,24 @@
+# Q-ORG-VELOCITY Results — Ciana Varaluz LLC (vl, org_id=147)
+- **Query**: Q-ORG-VELOCITY — Account Quarterly Velocity Trajectory
+- **Period**: LTM (2025-06-17 to 2026-06-17)
+- **Row count**: 15
+- **Run date**: 2026-06-17
+
+
+| customer_code | customer_name | accel_quarters | peak_quarter_revenue | max_qoq | trajectory |
+| --- | --- | --- | --- | --- | --- |
+| ferg#452 | Ferguson Enterprises : Ferguson # 452 | 2 | 10,547.04 | 15,456.10 | [{'quarter': '2025-07-01', 'revenue': 67.8, 'qoq_pct': -94.9}, {'quarter': '2025-10-01', 'revenue': 10547.04, 'qoq_pct': 15456.1}, {'quarter': '2026-01-01', 'revenue': 1687.2, 'qoq_pct': -84.0}, {'quarter': '2026-04-01', 'revenue': 3629.86, 'qoq_pct': 115.1}] |
+| LightSourceI | Light Source Lighting | 2 | 8,979.50 | 353.10 | [{'quarter': '2025-07-01', 'revenue': 1982.0, 'qoq_pct': 52.6}, {'quarter': '2025-10-01', 'revenue': 8979.5, 'qoq_pct': 353.1}, {'quarter': '2026-01-01', 'revenue': 7633.21, 'qoq_pct': -15.0}, {'quarter': '2026-04-01', 'revenue': 6269.0, 'qoq_pct': -17.9}] |
+| ProgressTDC | Progressive Lighting : TDC | 2 | 8,672.60 | 547.50 | [{'quarter': '2025-07-01', 'revenue': 939.15, 'qoq_pct': -22.6}, {'quarter': '2025-10-01', 'revenue': 422.1, 'qoq_pct': -55.1}, {'quarter': '2026-01-01', 'revenue': 1339.5, 'qoq_pct': 217.3}, {'quarter': '2026-04-01', 'revenue': 8672.6, 'qoq_pct': 547.5}] |
+| MetroLTG | Metro Lighting | 2 | 8,481.50 | 127.80 | [{'quarter': '2025-07-01', 'revenue': 2223.0, 'qoq_pct': -50.9}, {'quarter': '2025-10-01', 'revenue': 5064.0, 'qoq_pct': 127.8}, {'quarter': '2026-01-01', 'revenue': 8481.5, 'qoq_pct': 67.5}, {'quarter': '2026-04-01', 'revenue': 1596.0, 'qoq_pct': -81.2}] |
+| WEgotlites | We Got Lites, Inc. | 2 | 6,366.50 | 970.70 | [{'quarter': '2025-07-01', 'revenue': 3610.3, 'qoq_pct': 409.9}, {'quarter': '2025-10-01', 'revenue': 594.6, 'qoq_pct': -83.5}, {'quarter': '2026-01-01', 'revenue': 6366.5, 'qoq_pct': 970.7}, {'quarter': '2026-04-01', 'revenue': 5003.0, 'qoq_pct': -21.4}] |
+| BlackWhale | Black Whale Lighting | 3 | 5,825.24 | 513.50 | [{'quarter': '2025-07-01', 'revenue': 2199.15, 'qoq_pct': 158.2}, {'quarter': '2025-10-01', 'revenue': 682.12, 'qoq_pct': -69.0}, {'quarter': '2026-01-01', 'revenue': 949.53, 'qoq_pct': 39.2}, {'quarter': '2026-04-01', 'revenue': 5825.24, 'qoq_pct': 513.5}] |
+| Beauthings | Beautiful Things Lighting | 2 | 5,706.25 | 315.50 | [{'quarter': '2025-07-01', 'revenue': 758.5, 'qoq_pct': -57.7}, {'quarter': '2025-10-01', 'revenue': 1569.5, 'qoq_pct': 106.9}, {'quarter': '2026-01-01', 'revenue': 1373.25, 'qoq_pct': -12.5}, {'quarter': '2026-04-01', 'revenue': 5706.25, 'qoq_pct': 315.5}] |
+| VillaLtg | Villa Lighting | 2 | 5,125.50 | 100 | [{'quarter': '2025-07-01', 'revenue': 3027.0, 'qoq_pct': 100.0}, {'quarter': '2025-10-01', 'revenue': 4930.5, 'qoq_pct': 62.9}, {'quarter': '2026-01-01', 'revenue': 5125.5, 'qoq_pct': 4.0}] |
+| HinNePh | Hinkley's New State Lighting | 2 | 5,112 | 246.60 | [{'quarter': '2025-07-01', 'revenue': 1369.0, 'qoq_pct': -64.0}, {'quarter': '2025-10-01', 'revenue': 429.5, 'qoq_pct': -68.6}, {'quarter': '2026-01-01', 'revenue': 1488.5, 'qoq_pct': 246.6}, {'quarter': '2026-04-01', 'revenue': 5112.0, 'qoq_pct': 243.4}] |
+| FusionLGT | Fusion Light and Design | 2 | 4,504 | 493 | [{'quarter': '2025-10-01', 'revenue': 199.5, 'qoq_pct': -66.1}, {'quarter': '2026-01-01', 'revenue': 1183.0, 'qoq_pct': 493.0}, {'quarter': '2026-04-01', 'revenue': 4504.0, 'qoq_pct': 280.7}] |
+| Ferg#34 | Ferguson Enterprises : Ferguson - Charlotte NC | 2 | 4,116.54 | 1,008.10 | [{'quarter': '2025-07-01', 'revenue': 284.74, 'qoq_pct': -29.5}, {'quarter': '2026-01-01', 'revenue': 3155.14, 'qoq_pct': 1008.1}, {'quarter': '2026-04-01', 'revenue': 4116.54, 'qoq_pct': 30.5}] |
+| ColonialPAKi | Colonial Electric Supply Company. Inc | 2 | 3,800 | 428.50 | [{'quarter': '2025-10-01', 'revenue': 309.5, 'qoq_pct': -77.4}, {'quarter': '2026-01-01', 'revenue': 719.0, 'qoq_pct': 132.3}, {'quarter': '2026-04-01', 'revenue': 3800.0, 'qoq_pct': 428.5}] |
+| Lgtngfirst | Lighting First | 2 | 3,661.60 | 278.30 | [{'quarter': '2025-07-01', 'revenue': 2739.0, 'qoq_pct': 278.3}, {'quarter': '2025-10-01', 'revenue': 1412.55, 'qoq_pct': -48.4}, {'quarter': '2026-01-01', 'revenue': 1259.25, 'qoq_pct': -10.9}, {'quarter': '2026-04-01', 'revenue': 3661.6, 'qoq_pct': 190.8}] |
+| Connecticut | Connecticut Lighting Center | 2 | 3,558.36 | 239.20 | [{'quarter': '2025-07-01', 'revenue': 2036.83, 'qoq_pct': -32.3}, {'quarter': '2025-10-01', 'revenue': 3558.36, 'qoq_pct': 74.7}, {'quarter': '2026-01-01', 'revenue': 373.35, 'qoq_pct': -89.5}, {'quarter': '2026-04-01', 'revenue': 1266.52, 'qoq_pct': 239.2}] |
+| LightBulbsNa | Light Bulbs Unlimited - Naples | 2 | 3,508.50 | 225.90 | [{'quarter': '2025-07-01', 'revenue': 1369.5, 'qoq_pct': 225.9}, {'quarter': '2026-04-01', 'revenue': 3508.5, 'qoq_pct': 156.2}] |

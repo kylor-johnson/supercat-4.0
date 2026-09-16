@@ -1,11 +1,22 @@
 # Other-machine setup — paste this into a fresh Cursor agent chat
 
-> **Last updated**: 2026-09-04
+> **Last updated**: 2026-09-15
 >
 > This prompt is for the **other Mac** (the one that is not already cloned).
-> It does not migrate iCloud. It makes that Mac work from GitHub.
+> It does not migrate iCloud. It makes that Mac work from GitHub clones
+> under `~/repos`.
 
 ---
+
+## Two-Mac split
+
+| Mac | Ops git working tree | Workspace file to open |
+|---|---|---|
+| **This Mac (canonical)** | iCloud `SuperCat 4.0` **is** `kylor-johnson/supercat-4.0` | `SuperCat.code-workspace` (Ops root = iCloud path) |
+| **Other Mac** | `~/repos/supercat-4.0` clone | `SuperCat.code.macbook-workspace` (Ops root = `~/repos/supercat-4.0`) |
+
+On the other Mac, do **not** open iCloud `SuperCat 4.0` as the git working tree.
+Edit GitHub clones under `~/repos`. This Mac uses iCloud; the other Mac does not.
 
 Copy everything below the line.
 
@@ -19,7 +30,8 @@ read. Do not `git add .` anywhere. Do not push to `company` /
 
 ## Goal
 
-This computer edits GitHub clones under `~/repos`, same as the first Mac.
+This computer edits GitHub clones under `~/repos`. The first Mac's ops tree is
+iCloud `SuperCat 4.0`, not `~/repos/supercat-4.0`.
 
 ## 1. Auth
 
@@ -87,7 +99,7 @@ Expect:
 
 **File → Open Workspace from File… →**
 
-`~/repos/supercat-4.0/SuperCat.code-workspace`
+`~/repos/supercat-4.0/SuperCat.code.macbook-workspace`
 
 That workspace has three roots:
 
@@ -99,7 +111,10 @@ Do **not** open
 
 `~/Library/Mobile Documents/com~apple~CloudDocs/SuperCat 4.0`
 
-as the working folder.
+as the working folder or as the git working tree on this Mac.
+
+Do **not** open `SuperCat.code-workspace` on this Mac — that file's Ops root
+is the first Mac's iCloud path.
 
 ## 5. How work is split
 
@@ -123,6 +138,7 @@ Switching Macs: pull, work, commit, push. Other Mac: pull.
 - Push `supercat-4.0` to `agentic_operations`
 - Delete iCloud `SuperCat 4.0` or `SuperCat_Simple_Final` this week (CSV + museum leftover)
 - Use `git add .` in Implementation (images / xlsx / Ready_For_Import stay ignored)
+- Never commit Health museums, Insightful 2/3/4, nested `agent-factory/`, `_archive/`, or secrets
 
 ## 7. Report back
 
