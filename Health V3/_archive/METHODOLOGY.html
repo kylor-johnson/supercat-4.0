@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Client Health Score — Methodology Overview</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      font-size: 15px;
+      line-height: 1.7;
+      color: #1a1a1a;
+      background: #f7f7f5;
+    }
+
+    .page {
+      max-width: 860px;
+      margin: 48px auto;
+      background: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08), 0 4px 24px rgba(0,0,0,0.06);
+      overflow: hidden;
+    }
+
+    /* ── Header ── */
+    .doc-header {
+      background: #111827;
+      color: #ffffff;
+      padding: 40px 48px 36px;
+    }
+    .doc-header h1 {
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      margin-bottom: 8px;
+    }
+    .doc-header .meta {
+      font-size: 13px;
+      color: #9ca3af;
+      letter-spacing: 0.2px;
+    }
+
+    /* ── Body ── */
+    .doc-body {
+      padding: 40px 48px 56px;
+    }
+
+    /* ── Executive Summary ── */
+    .exec-summary {
+      background: #f0f9ff;
+      border-left: 4px solid #0ea5e9;
+      border-radius: 0 6px 6px 0;
+      padding: 28px 32px;
+      margin-bottom: 40px;
+    }
+    .exec-summary h2 {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: #0369a1;
+      margin-bottom: 20px;
+    }
+    .exec-summary h3 {
+      font-size: 15px;
+      font-weight: 700;
+      color: #0c4a6e;
+      margin: 20px 0 6px;
+    }
+    .exec-summary h3:first-of-type { margin-top: 0; }
+    .exec-summary p { color: #1e3a5f; font-size: 14px; margin-bottom: 8px; }
+    .exec-summary ol { padding-left: 20px; color: #1e3a5f; font-size: 14px; }
+    .exec-summary ol li { margin-bottom: 4px; }
+
+    /* ── Section headings ── */
+    h2.section-title {
+      font-size: 19px;
+      font-weight: 700;
+      color: #111827;
+      margin: 40px 0 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    h2.section-title:first-of-type { margin-top: 0; }
+
+    h3.sub-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #374151;
+      margin: 28px 0 10px;
+    }
+
+    p { margin-bottom: 14px; color: #374151; }
+    p:last-child { margin-bottom: 0; }
+
+    strong { color: #111827; }
+    em { color: #6b7280; font-style: italic; }
+
+    ul, ol {
+      padding-left: 22px;
+      margin-bottom: 14px;
+      color: #374151;
+    }
+    ul li, ol li { margin-bottom: 5px; }
+
+    hr { border: none; border-top: 1px solid #e5e7eb; margin: 36px 0; }
+
+    /* ── Tables ── */
+    .table-wrap { overflow-x: auto; margin: 16px 0 20px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+    }
+    thead tr { background: #f3f4f6; }
+    thead th {
+      text-align: left;
+      padding: 9px 14px;
+      font-weight: 600;
+      color: #374151;
+      border-bottom: 2px solid #e5e7eb;
+      white-space: nowrap;
+    }
+    tbody tr:nth-child(even) { background: #f9fafb; }
+    tbody td {
+      padding: 8px 14px;
+      color: #374151;
+      border-bottom: 1px solid #f0f0ee;
+      vertical-align: top;
+    }
+
+    /* ── Band pills ── */
+    .band { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+    .band-thriving  { background: #d1fae5; color: #065f46; }
+    .band-healthy   { background: #dbeafe; color: #1e40af; }
+    .band-watch     { background: #fef9c3; color: #854d0e; }
+    .band-atrisk    { background: #ffedd5; color: #9a3412; }
+    .band-critical  { background: #fee2e2; color: #991b1b; }
+
+    /* ── Callout boxes ── */
+    .callout {
+      border-radius: 6px;
+      padding: 16px 20px;
+      margin: 16px 0 20px;
+      font-size: 14px;
+    }
+    .callout-note    { background: #f0fdf4; border-left: 3px solid #22c55e; color: #14532d; }
+    .callout-warning { background: #fffbeb; border-left: 3px solid #f59e0b; color: #78350f; }
+    .callout-info    { background: #eff6ff; border-left: 3px solid #3b82f6; color: #1e3a8a; }
+
+    /* ── Design decision list ── */
+    .decision-list { list-style: none; padding: 0; }
+    .decision-list li {
+      padding: 12px 16px 12px 44px;
+      position: relative;
+      border-radius: 6px;
+      margin-bottom: 8px;
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      font-size: 14px;
+      color: #374151;
+    }
+    .decision-list li::before {
+      content: "→";
+      position: absolute;
+      left: 16px;
+      top: 13px;
+      color: #9ca3af;
+      font-weight: 700;
+    }
+
+    /* ── Footer ── */
+    .doc-footer {
+      background: #f3f4f6;
+      border-top: 1px solid #e5e7eb;
+      padding: 20px 48px;
+      font-size: 12px;
+      color: #9ca3af;
+      display: flex;
+      justify-content: space-between;
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Header -->
+  <div class="doc-header">
+    <h1>Client Health Score &mdash; Methodology Overview</h1>
+    <div class="meta">Version 3.1 &nbsp;·&nbsp; Last Updated May 2026 &nbsp;·&nbsp; SuperCat Customer Success</div>
+  </div>
+
+  <div class="doc-body">
+
+    <!-- Executive Summary -->
+    <div class="exec-summary">
+      <h2>Executive Summary</h2>
+
+      <h3>The Problem We Were Solving</h3>
+      <p>SuperCat's previous client health model (V2) had grown difficult to trust and difficult to explain. It incorporated risk modifiers, growth signals, and weighted inputs that were not grounded in data — they were gut-feel coefficients that accumulated over time. The result was a score that was hard to interpret, hard to defend in a client conversation, and structurally conflated two separate questions: <em>is this client healthy today?</em> and <em>is this client growing?</em></p>
+      <p>CS was left either ignoring the score or reverse-engineering it. Neither is what a health score is for.</p>
+
+      <h3>What We Set Out to Build</h3>
+      <p>The goal of V3 was to start over with a simpler, more honest model built around one question: <strong>is this client actually using and benefiting from SuperCat right now?</strong></p>
+      <p>Four things had to be true about the new model:</p>
+      <ol>
+        <li><strong>Explainable in one sentence per dimension.</strong> A CS rep reading the output should know exactly why a score is what it is and what to do about it — without a decoder ring.</li>
+        <li><strong>No growth signals.</strong> Expansion and upsell are a separate conversation. Health is about the current state of the relationship, not the opportunity.</li>
+        <li><strong>No invented weights.</strong> Weighting dimensions implies we know which dimensions best predict churn. We don't — not yet. Equal weights are honest; gut-feel weights create false precision.</li>
+        <li><strong>Grounded in real data before shipping.</strong> Before finalizing thresholds, we ran empirical research across the full 104-org portfolio. Every key threshold was validated against or derived from that research.</li>
+      </ol>
+
+      <h3>What We Built</h3>
+      <p>V3 is a composite score (0–100) built from four equal dimensions — Engagement, Adoption, Value Delivery, and Operational Health — each contributing 25%. The score runs monthly, covers every active paying client, and produces a health band alongside a plain-English narrative for each dimension. Two safety overrides cap the composite when behavior tells a story the averages alone would miss.</p>
+
+      <h3>Where We Are Now</h3>
+      <p>V3.1 has completed its first full run across all 104 active clients (May 2026). The output is a monthly CSV that CS can use immediately to prioritize outreach. The roadmap from here — trigger alerts, churn-pattern recognition, and save-play playbooks — is staged and depends on accumulating monthly history before each next step can run responsibly.</p>
+    </div>
+
+    <hr>
+
+    <!-- Section 1 -->
+    <h2 class="section-title">1. What This Is</h2>
+    <p>The Client Health Score is a monthly signal that tells us how each client is actually using and benefiting from SuperCat — expressed as a single number between 0 and 100. It exists because we need a consistent, objective way to know which accounts need attention before they churn, which ones are thriving, and how to prioritize CS time across a large portfolio. The score runs once per month, covers every active client, and produces both a summary number and a plain-English explanation of what's driving it. New accounts in their first 90 days are excluded — during onboarding, Time to First Value is the right metric, not a health score.</p>
+
+    <hr>
+
+    <!-- Section 2 -->
+    <h2 class="section-title">2. How the Score Is Built</h2>
+    <p>The composite score is a simple average of four equal dimensions: <strong>Engagement</strong>, <strong>Adoption</strong>, <strong>Value Delivery</strong>, and <strong>Operational Health</strong>. Each dimension scores 0–100 and contributes exactly 25% to the composite. No dimension outweighs another at this stage — that weighting decision is intentionally deferred until we have enough outcome data (retention, ARR change) to know which dimensions actually predict churn for each product tier.</p>
+    <p>A score of 80 or above means things look good across the board. A score below 40 is a signal to act. Each account also carries two possible safety overrides — Ghost Account and Behavioral Floor — that can cap the composite downward when behavior tells a story the averages alone might miss.</p>
+
+    <hr>
+
+    <!-- Section 3 -->
+    <h2 class="section-title">3. How Each Dimension Is Scored</h2>
+
+    <h3 class="sub-title">Engagement — Are users actually showing up?</h3>
+    <p>Engagement measures login activity across three lenses, then averages them.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Signal</th><th>What It Measures</th><th>High Score</th><th>Low Score</th></tr></thead>
+        <tbody>
+          <tr><td>Login volume (90 days)</td><td>Raw number of logins in the last quarter</td><td>3,000+ logins</td><td>0–49 logins</td></tr>
+          <tr><td>Active user ratio</td><td>Share of enabled users who have logged in at least once in 90 days</td><td>90%+ of team is active</td><td>Under 25% ever logging in</td></tr>
+          <tr><td>Login velocity</td><td>Whether the pace of logins is holding steady, accelerating, or fading vs. the prior six months</td><td>Pace is holding or growing</td><td>Pace has dropped sharply — users logged in early and went quiet</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>A client can log in frequently but still score poorly on velocity if usage was high early on and has since dropped off. This is intentional — it catches the "great launch, slow fade" pattern that raw login counts miss.</p>
+
+    <h3 class="sub-title">Adoption — Are they using what they have?</h3>
+    <p>Adoption measures feature breadth. Each feature the client is configured to use counts as one point. Using it = 1 point; not using it = 0. The score is the share of applicable features the client is actually using. A feature only counts if it's actively turned on in the client's configuration — no client is penalized for not using something that was never set up for them.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Feature</th><th>How Usage Is Measured</th></tr></thead>
+        <tbody>
+          <tr><td>iPad App (core)</td><td>At least one login in the last 90 days</td></tr>
+          <tr><td>Smart Stacks</td><td>At least one smart stack created</td></tr>
+          <tr><td>Sharing / Quoting</td><td>At least one email draft (item or document) in 90 days</td></tr>
+          <tr><td>eCat Online Catalog</td><td>Portal traffic in the last 90 days (if catalog is enabled)</td></tr>
+          <tr><td>Online Ordering / B2B Cart</td><td>Portal order submitted in the last 90 days (if cart is enabled)</td></tr>
+          <tr><td>Sales Portal</td><td>Rep opened the Sales Portal section of the app in the last 90 days (if enabled)</td></tr>
+          <tr><td>Inventory Management</td><td>Inventory feed imported in the last 90 days (if an inventory feed has been active)</td></tr>
+          <tr><td>Sales Data</td><td>Sales data imported in the last 90 days (if sales data is configured)</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Every client has at least three applicable features (iPad, Smart Stacks, Sharing). Most have more depending on their subscription tier.</p>
+
+    <h3 class="sub-title">Value Delivery — Are they getting real outcomes?</h3>
+    <p>Value Delivery applies the same point-per-channel logic as Adoption, but focuses on whether the platform is producing observable business results — not just whether features are turned on and touched.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Activity</th><th>What Qualifies</th><th>If Configured But Not Happening</th></tr></thead>
+        <tbody>
+          <tr><td>iPad order volume</td><td>10+ submitted iPad orders in the last 90 days</td><td>Low conversion of iPad activity into orders</td></tr>
+          <tr><td>Sharing activity</td><td>3+ email drafts (item or document) in the last 90 days</td><td>Reps are not using sharing/quoting in the field</td></tr>
+          <tr><td>Online catalog engagement</td><td>Portal traffic in the last 90 days (if catalog enabled)</td><td>Catalog is live but customers aren't visiting</td></tr>
+          <tr><td>Portal ordering (B2B Cart)</td><td>Any portal orders in the last 90 days (if cart enabled)</td><td>Cart is configured but not generating orders</td></tr>
+          <tr><td>Sales Portal engagement</td><td>Any portal orders in the last 90 days (if Sales Portal enabled)</td><td>Portal is set up but not driving activity</td></tr>
+          <tr><td>Inventory data flowing</td><td>Inventory imported at least once in the last 90 days (if feed is active)</td><td>Feed has gone silent</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Thresholds are intentionally low. The question being answered is "is this channel producing anything?" — not "is it producing enough?" Volume calibration comes in a later iteration.</p>
+
+    <h3 class="sub-title">Operational Health — Is the data infrastructure in good shape?</h3>
+    <p>Operational Health has three sub-signals, averaged equally.</p>
+    <ul>
+      <li><strong>Catalog Completeness</strong> — what share of active products have a name, an image, and a price? A catalog that's 90%+ complete scores 100; 60–89% scores 60; below 60% scores 20.</li>
+      <li><strong>Import Health</strong> — for every data feed the client actively runs, did the most recent run succeed? The score is the share of active feed types with a clean last run. Imports with only warnings (not errors) count as successful.</li>
+      <li><strong>Data Freshness</strong> — is each data feed running on its own normal cadence? Freshness is measured relative to each client's historical rhythm, not a universal clock. A daily inventory feed that hasn't run in three days is in worse shape than a quarterly product re-load that's two weeks behind.</li>
+    </ul>
+
+    <hr>
+
+    <!-- Section 4 -->
+    <h2 class="section-title">4. Health Bands</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Band</th><th>Score Range</th><th>What It Means for CS</th></tr></thead>
+        <tbody>
+          <tr><td><span class="band band-thriving">Thriving</span></td><td>80–100</td><td>Account is in good shape. No action required; periodic check-in sufficient.</td></tr>
+          <tr><td><span class="band band-healthy">Healthy</span></td><td>60–79</td><td>Strong across most dimensions with identifiable room to grow. Coaching opportunity, not a rescue.</td></tr>
+          <tr><td><span class="band band-watch">Watch</span></td><td>40–59</td><td>Meaningful gaps in engagement or outcomes. Proactive outreach warranted within the current month.</td></tr>
+          <tr><td><span class="band band-atrisk">At Risk</span></td><td>20–39</td><td>Significant problems across multiple dimensions. Prioritize for active save play.</td></tr>
+          <tr><td><span class="band band-critical">Critical</span></td><td>0–19</td><td>Severe disengagement or zero usage. Urgent intervention; escalate to executive if high ARR.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <hr>
+
+    <!-- Section 5 -->
+    <h2 class="section-title">5. Override Rules</h2>
+    <p>Two overrides can cap the composite score downward. They exist because averages can sometimes produce misleading results when behavior tells a more urgent story.</p>
+
+    <h3 class="sub-title">Ghost Account Override</h3>
+    <p><strong>What it is:</strong> Any client with $5,000 or more in ARR who has had zero logins in the last 90 days.</p>
+    <p><strong>Why it exists:</strong> Operational signals — catalog completeness, import health — can look perfectly fine on an account where nobody has opened the app. Without this override, a well-maintained catalog and healthy data feeds could push a completely dormant account into the Healthy band, which would be deeply misleading.</p>
+    <p><strong>What it does:</strong> Caps the composite score at 20 (Critical band), regardless of what the four dimensions compute. All four dimension scores are still shown — CSMs need to see what's working and what isn't. Lower-ARR accounts below the $5,000 threshold are not overridden; they may be on pause or in a different lifecycle stage.</p>
+
+    <h3 class="sub-title">Behavioral Floor Override</h3>
+    <p><strong>What it is:</strong> Any account where Engagement scores below 55 AND Value Delivery scores below 40.</p>
+    <p><strong>Why it exists:</strong> An account can score well on Adoption and Operational Health while users are barely showing up and the platform is producing no outcomes. A great catalog and healthy imports don't help a client who isn't using the product.</p>
+    <p><strong>What it does:</strong> Caps the composite score at 40 (top of the Watch band). All four dimension scores are still shown in full.</p>
+    <div class="callout callout-info">When either override applies, it is clearly labeled in the output so CSMs know why the composite differs from the average of the dimensions.</div>
+
+    <hr>
+
+    <!-- Section 6 -->
+    <h2 class="section-title">6. Key Design Decisions</h2>
+    <ul class="decision-list">
+      <li><strong>Equal weights, on purpose.</strong> All four dimensions contribute 25% each. We do not have enough outcome data yet to know empirically which dimensions best predict retention. Weighting by gut feel would be worse than not weighting at all. The plan is to run a formal correlation analysis once we have 3+ months of scores and 30+ labeled outcomes — and only introduce weights if the data clearly supports it.</li>
+      <li><strong>No trajectory scoring.</strong> Month-over-month trend is not a scored dimension. Trend direction is much more useful as context — surfaced in narrative — than as a mathematical input. Scoring trend would require a longer baseline than we currently have.</li>
+      <li><strong>Seasonality is flagged, not suppressed.</strong> If a measurement window falls during a known slow cycle for an industry (furniture, lighting, etc.), that context is noted alongside the score. The score itself is not adjusted. We don't yet have 12-month per-account baselines to normalize against.</li>
+      <li><strong>Adoption and Value Delivery are unweighted point systems.</strong> Every applicable feature or channel counts equally. An org with 200 presentations and an org with 2,000 portal orders are both delivering value through their primary channel. Neither outcome is privileged over the other in V1.</li>
+    </ul>
+
+    <hr>
+
+    <!-- Section 7 -->
+    <h2 class="section-title">7. How the Key Thresholds Were Set</h2>
+    <p>Each threshold in the model has a different origin. Here is the honest account of where each number came from.</p>
+
+    <h3 class="sub-title">Login Volume Bands</h3>
+    <p>These were derived from the actual distribution of logins across all 104 paying clients, measured in the trailing 90 days at the time of the first V3 run (May 2026):</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Percentile</th><th>Logins / 90 days</th></tr></thead>
+        <tbody>
+          <tr><td>10th</td><td>97</td></tr>
+          <tr><td>25th</td><td>314</td></tr>
+          <tr><td>50th (median)</td><td>927</td></tr>
+          <tr><td>75th</td><td>2,100</td></tr>
+          <tr><td>90th</td><td>3,623</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>The band thresholds were placed at natural breaks in that distribution. The 200-login boundary sits just below the 25th percentile, placing the lower quarter of the portfolio in the developing tier. The 1,000-login boundary sits near the median. The 3,000+ ceiling corresponds to approximately the 90th percentile. These thresholds were not pulled from a benchmark — they were set by observing where the client base actually clusters and where behavior meaningfully changes between groups.</p>
+
+    <h3 class="sub-title">iPad Order Volume (≥ 10 orders)</h3>
+    <p>The 10-order threshold was validated against the full portfolio distribution:</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Band</th><th>Clients</th></tr></thead>
+        <tbody>
+          <tr><td>1–4 orders</td><td>7</td></tr>
+          <tr><td>5–9 orders</td><td>7</td></tr>
+          <tr><td>10–29 orders</td><td>13</td></tr>
+          <tr><td>30–49 orders</td><td>5</td></tr>
+          <tr><td>50–99 orders</td><td>10</td></tr>
+          <tr><td>100+ orders</td><td>39</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>The 1–9 band is consistent with "one rep tested the feature." The 10+ band is consistent with genuine recurring workflow. A natural shoulder in the histogram falls around 10–30 orders. An earlier threshold of 50 (carried over from V2) was evaluated and rejected — it would have penalized 18 clients with real but modest order activity. At 10 orders over 90 days, the bar is approximately one order per week from a single rep.</p>
+
+    <h3 class="sub-title">Sharing / Quoting Activity (≥ 3 events)</h3>
+    <p>The 3-event threshold is a <strong>conservatively low starting point</strong>, not a validated threshold. The empirical analysis showed:</p>
+    <ul>
+      <li>8 clients have zero sharing events</li>
+      <li>19 clients have 1–9 events (consistent with one-off tests)</li>
+      <li>62 clients have 30+ events (consistent with regular workflow)</li>
+      <li>The median for clients with any sharing activity is 53 events</li>
+    </ul>
+    <p>The data suggests the real "workflow-level" threshold is closer to 10 events per 90 days. The 3-event threshold was retained for V3.0 to avoid false negatives during the first run. Raising it to 10 is a planned V3.2 refinement.</p>
+
+    <h3 class="sub-title">Health Bands (80 / 60 / 40 / 20)</h3>
+    <p>The band boundaries are judgment calls anchored to CS workflow actions, not derived from a statistical model:</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Band</th><th>Score</th><th>Design Intent</th></tr></thead>
+        <tbody>
+          <tr><td><span class="band band-thriving">Thriving</span></td><td>80–100</td><td>Doing well across the board — periodic check-in only</td></tr>
+          <tr><td><span class="band band-healthy">Healthy</span></td><td>60–79</td><td>Strong but with identifiable room to grow — coaching opportunity</td></tr>
+          <tr><td><span class="band band-watch">Watch</span></td><td>40–59</td><td>Meaningful gaps — proactive outreach this month</td></tr>
+          <tr><td><span class="band band-atrisk">At Risk</span></td><td>20–39</td><td>Multiple problems across dimensions — active save play</td></tr>
+          <tr><td><span class="band band-critical">Critical</span></td><td>0–19</td><td>Severe disengagement — escalate if high ARR</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>The boundaries are round numbers because the underlying scoring mechanics (step-ladders, point ratios) do not produce enough precision to justify non-round boundaries. The 40-point boundary is the most operationally grounded — the Behavioral Floor override exists specifically to prevent a client from landing above Watch when engagement and value delivery are both below their respective thresholds.</p>
+    <div class="callout callout-warning"><strong>Validation plan:</strong> These thresholds will be validated retrospectively against churn outcomes once 3+ months of score history exists. That analysis cannot run until sufficient outcome data is available — the subscription history table in the database was bulk-backfilled in mid-2025 and cannot be used as a churn source.</div>
+
+    <hr>
+
+    <!-- Section 8 -->
+    <h2 class="section-title">8. What This Is Not</h2>
+    <ul>
+      <li><strong>Interpretive narrative is a V3.1 target.</strong> The current system produces factual summaries per dimension — counts, ratios, which channels are active. It does not yet produce the interpretive layer: "why is this score what it is, and what should the CSM do about it?"</li>
+      <li><strong>Seasonality is acknowledged, not modeled.</strong> The system flags when a score might reflect a known industry slow period, but it does not adjust scores accordingly. Without a full year of per-account history, any seasonal adjustment would be a guess.</li>
+      <li><strong>Dimension weights are not correlated to business outcomes yet.</strong> The 25/25/25/25 weighting is an intentional starting point, not a validated model. A formal correlation study against retention and ARR outcomes will determine whether weighting is warranted.</li>
+      <li><strong>Growth scoring is out of scope.</strong> Expansion, upsell, and growth signals are a separate concern and are not included in the health score. The health score measures the health of what a client currently has — not the opportunity or likelihood of them buying more.</li>
+    </ul>
+
+  </div><!-- /doc-body -->
+
+  <div class="doc-footer">
+    <span>SuperCat Customer Success &mdash; Internal Use</span>
+    <span>Health Score V3.1 &nbsp;·&nbsp; May 2026</span>
+  </div>
+
+</div><!-- /page -->
+</body>
+</html>

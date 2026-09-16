@@ -77,29 +77,6 @@ GHOST_CAP = 20
 # §5.2 Behavioral floor override
 BEHAVIORAL_FLOOR_CAP = 40.0
 
-# §2 Dimension weights — selectable via --weights (see README §9).
-#
-# "equal"    — 25/25/25/25. The V3.0–V3.2.x default and the documented model.
-# "v330"     — 25/20/35/20. Introduced 2026-06-08 with the code comment
-#              "validated against 7-month backfill". That validation was never
-#              recorded; see runs/_weighting_study/ for the audit. Retained so
-#              every V3.3.x canonical stays byte-reproducible.
-#
-# WEIGHTS is set from --weights at startup; module-level constants are the
-# live view used by composite().
-WEIGHT_SCHEMES = {
-    "equal": (0.25, 0.25, 0.25, 0.25),
-    "v330":  (0.25, 0.20, 0.35, 0.20),
-}
-DEFAULT_WEIGHTS = "v330"
-ENG_WEIGHT, ADO_WEIGHT, VAL_WEIGHT, OPS_WEIGHT = WEIGHT_SCHEMES[DEFAULT_WEIGHTS]
-
-
-def set_weights(scheme):
-    """Point the module-level weight constants at a named scheme."""
-    global ENG_WEIGHT, ADO_WEIGHT, VAL_WEIGHT, OPS_WEIGHT
-    ENG_WEIGHT, ADO_WEIGHT, VAL_WEIGHT, OPS_WEIGHT = WEIGHT_SCHEMES[scheme]
-
 NEW_ORG_DAYS = 90
 
 # Bundle normalization (MAL stack column → canonical)
@@ -658,9 +635,6 @@ def parse_args():
     p.add_argument("--output-dir", default="Health V3/runs",
                    help="Parent dir; a {score-date} subdir is created inside")
     p.add_argument("--single-org", help="Score only this org_shortname (for debugging)")
-    p.add_argument("--weights", choices=sorted(WEIGHT_SCHEMES), default=DEFAULT_WEIGHTS,
-                   help="Dimension weighting scheme (default: %(default)s). "
-                        "'equal' = 25/25/25/25; 'v330' = 25/20/35/20.")
     p.add_argument("--dry-run", action="store_true",
                    help="Compute scores and print to stdout; do not write CSV")
     p.add_argument(
@@ -1274,26 +1248,13 @@ def score_operational_health(catalog_row, import_rows, contract_pricing_enabled,
 
 
 def composite(eng, ado, val, ops):
-    all_dims = [(eng, ENG_WEIGHT), (ado, ADO_WEIGHT), (val, VAL_WEIGHT), (ops, OPS_WEIGHT)]
-    available = [(s, w) for s, w in all_dims if s is not None]
-    n = len(available)
+    dims = [s for s in [eng, ado, val, ops] if s is not None]
+    n = len(dims)
     if n == 0:
         return None, "blocked", 0
     if n == 1:
         return None, "blocked", 1
-    # Re-normalize weights when partial (some dimensions None) so missing dims
-    # don't silently dilute the weighted average.
-    #
-    # When every available weight is equal the weighted mean IS the arithmetic
-    # mean, but sum(s*w)/sum(w) and sum(s)/n round differently at a .x5
-    # boundary. Take the plain-mean path so --weights equal reproduces the
-    # pre-V3.3.0 canonicals byte-for-byte (the §6.6 determinism contract).
-    weights = [w for _, w in available]
-    if len(set(weights)) == 1:
-        score = round(sum(s for s, _ in available) / n, 1)
-    else:
-        total_w = sum(weights)
-        score = round(sum(s * w for s, w in available) / total_w, 1)
+    score = round(sum(dims) / n, 1)
     status = "complete" if n == 4 else "partial"
     return score, status, n
 
@@ -1305,11 +1266,8 @@ def composite(eng, ado, val, ops):
 def main():
     args = parse_args()
     score_date = args.score_date
-    set_weights(args.weights)
 
     print(f"[INFO] Health V3 score run — {score_date}")
-    print(f"[INFO] Weighting scheme: {args.weights} "
-          f"(ENG {ENG_WEIGHT} / ADO {ADO_WEIGHT} / VAL {VAL_WEIGHT} / OPS {OPS_WEIGHT})")
     mal = load_mal(args.mal)
     print(f"[OK] MAL loaded: {len(mal)} orgs")
 
@@ -1618,9 +1576,8 @@ def main():
     _cache_flags = f' --cache --cache-dir "{cache_dir}"' if cache_dir else ''
     metadata_md = f"""# Health V3 run metadata — {score_date}
 
-- Command: `python health_operator_v3.py --mal "{args.mal}" --score-date {score_date}{_cache_flags} --weights {args.weights} --output-dir "{args.output_dir}"`
+- Command: `python health_operator_v3.py --mal "{args.mal}" --score-date {score_date}{_cache_flags} --output-dir "{args.output_dir}"`
 - MAL: `{args.mal}`
-- Weighting scheme: `{args.weights}` — ENG {ENG_WEIGHT} / ADO {ADO_WEIGHT} / VAL {VAL_WEIGHT} / OPS {OPS_WEIGHT}
 - Output CSV: `{out_csv}`
 - Rows scored: {len(df)}
 - Rows skipped (new-org exclusion or not in Postgres): {len(skipped)}

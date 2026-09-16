@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Client Health Review — May 11, 2026</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      font-size: 14px;
+      color: #1e293b;
+      background: #ffffff;
+      padding: 44px 52px;
+      max-width: 1120px;
+      margin: 0 auto;
+      line-height: 1.55;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    h1 { font-size: 24px; font-weight: 700; color: #0f172a; margin-bottom: 4px; }
+    h2 { font-size: 15px; font-weight: 600; color: #0f172a; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid #f1f5f9; }
+    .run-date { font-size: 12px; color: #64748b; }
+    .divider { border: none; border-top: 1px solid #e2e8f0; margin: 36px 0; }
+    .section { margin-bottom: 0; }
+    .section-note { font-size: 12px; color: #64748b; margin-bottom: 14px; }
+
+    /* ── Stats ── */
+    .stats-row { display: flex; gap: 14px; margin-bottom: 24px; }
+    .stat-box {
+      flex: 1; text-align: center; padding: 18px 12px;
+      border: 1px solid #e2e8f0; border-radius: 8px; background: #fafafa;
+    }
+    .stat-value { font-size: 30px; font-weight: 700; line-height: 1; }
+    .stat-label { font-size: 11px; color: #64748b; margin-top: 5px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.04em; }
+    .stat-box.s-thriving .stat-value { color: #16a34a; }
+    .stat-box.s-watch     .stat-value { color: #d97706; }
+    .stat-box.s-atrisk    .stat-value { color: #ea580c; }
+    .stat-box.s-critical  .stat-value { color: #dc2626; }
+
+    /* ── Band Bar Chart ── */
+    .band-bar-wrap { margin-bottom: 6px; }
+    .band-bar {
+      display: flex; height: 34px; border-radius: 6px; overflow: hidden;
+      border: 1px solid #e2e8f0;
+    }
+    .bs {
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 600; color: white; white-space: nowrap;
+      overflow: hidden;
+    }
+    .bs.thriving  { background: #16a34a; }
+    .bs.healthy   { background: #4ade80; }
+    .bs.watch     { background: #f59e0b; }
+    .bs.at-risk   { background: #f97316; }
+    .bs.critical  { background: #ef4444; }
+    .band-legend { display: flex; gap: 20px; margin-top: 10px; flex-wrap: wrap; }
+    .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #475569; }
+    .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+    /* ── Callouts ── */
+    .callout {
+      padding: 14px 16px; border-radius: 6px; border-left: 4px solid;
+      margin-bottom: 12px;
+    }
+    .callout.danger  { background: #fef2f2; border-color: #ef4444; }
+    .callout.warning { background: #fffbeb; border-color: #f59e0b; }
+    .callout-title { font-weight: 600; font-size: 13px; margin-bottom: 6px; }
+    .callout.danger  .callout-title { color: #991b1b; }
+    .callout.warning .callout-title { color: #92400e; }
+    .callout p { font-size: 13px; color: #374151; line-height: 1.55; }
+
+    /* ── Tables ── */
+    .table-wrap { border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    thead tr { background: #f8fafc; }
+    th {
+      text-align: left; padding: 10px 13px;
+      font-size: 10.5px; font-weight: 600; color: #64748b;
+      text-transform: uppercase; letter-spacing: 0.06em;
+      border-bottom: 1px solid #e2e8f0; white-space: nowrap;
+    }
+    td { padding: 9px 13px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    td.r, th.r { text-align: right; }
+    td.c, th.c { text-align: center; }
+    .td-sm { font-size: 12px; color: #64748b; }
+
+    /* ── Row tones ── */
+    tr.rt  { background: #dcfce7; }
+    tr.rh  { background: #f0fdf4; }
+    tr.rw  { background: #fefce8; }
+    tr.rar { background: #fff7ed; }
+    tr.rc  { background: #fef2f2; }
+
+    /* ── Band pills ── */
+    .bp {
+      display: inline-block; padding: 2px 9px; border-radius: 9999px;
+      font-size: 11px; font-weight: 500; border: 1px solid; white-space: nowrap;
+    }
+    .bp.thriving { background: #dcfce7; color: #15803d; border-color: #86efac; }
+    .bp.healthy  { background: #f1f5f9; color: #475569; border-color: #cbd5e1; }
+    .bp.watch    { background: #fef9c3; color: #854d0e; border-color: #fde047; }
+    .bp.at-risk  { background: #ffedd5; color: #9a3412; border-color: #fdba74; }
+    .bp.critical { background: #fee2e2; color: #991b1b; border-color: #fca5a5; }
+    .floor-tag {
+      display: inline-block; padding: 2px 9px; border-radius: 9999px;
+      font-size: 11px; font-weight: 500;
+      background: #fef9c3; color: #854d0e; border: 1px solid #fde047;
+    }
+
+    /* ── Dimension scores ── */
+    .dm { font-weight: 700; color: #0f172a; }
+    .dn { color: #94a3b8; }
+
+    /* ── Full portfolio table (smaller) ── */
+    .portfolio-table td { padding: 7px 11px; font-size: 12.5px; }
+    .portfolio-table th { padding: 9px 11px; }
+
+    /* ── Print ── */
+    @media print {
+      body { padding: 18px 22px; font-size: 11px; max-width: 100%; }
+      h1 { font-size: 18px; }
+      h2 { font-size: 12px; padding-bottom: 7px; margin-bottom: 10px; }
+      th { font-size: 9px; padding: 7px 9px; }
+      td { padding: 6px 9px; font-size: 11px; }
+      .portfolio-table td { padding: 5px 8px; font-size: 10.5px; }
+      .portfolio-table th { padding: 6px 8px; }
+      .divider { margin: 22px 0; }
+      .stats-row { gap: 10px; margin-bottom: 18px; }
+      .stat-box { padding: 12px 8px; }
+      .stat-value { font-size: 22px; }
+      .callout { padding: 10px 12px; margin-bottom: 8px; }
+      .callout p { font-size: 11px; }
+      .callout-title { font-size: 11px; }
+      .bp { font-size: 9px; padding: 1px 6px; }
+      .floor-tag { font-size: 9px; padding: 1px 6px; }
+      .section-break { page-break-before: always; }
+      thead { display: table-header-group; }
+      tr { page-break-inside: avoid; }
+      .band-bar { height: 24px; }
+      .bs { font-size: 9px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════════════════════════ HEADER -->
+  <header style="margin-bottom:28px;">
+    <h1>Client Health Review</h1>
+    <p class="run-date">May 11, 2026 &nbsp;·&nbsp; 104 organizations scored</p>
+  </header>
+
+  <hr class="divider" style="margin-top:0;">
+
+  <!-- ════════════════════════════════════════ 1. PORTFOLIO SUMMARY -->
+  <section class="section">
+    <h2>Portfolio Summary</h2>
+
+    <div class="stats-row">
+      <div class="stat-box s-thriving">
+        <div class="stat-value">55</div>
+        <div class="stat-label">Thriving</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-value">33</div>
+        <div class="stat-label">Healthy</div>
+      </div>
+      <div class="stat-box s-watch">
+        <div class="stat-value">14</div>
+        <div class="stat-label">Watch</div>
+      </div>
+      <div class="stat-box s-atrisk">
+        <div class="stat-value">1</div>
+        <div class="stat-label">At Risk</div>
+      </div>
+      <div class="stat-box s-critical">
+        <div class="stat-value">1</div>
+        <div class="stat-label">Critical</div>
+      </div>
+    </div>
+
+    <div class="band-bar-wrap">
+      <div class="band-bar">
+        <div class="bs thriving" style="width:52.88%">55</div>
+        <div class="bs healthy"  style="width:31.73%">33</div>
+        <div class="bs watch"    style="width:13.46%">14</div>
+        <div class="bs at-risk"  style="width:0.96%"></div>
+        <div class="bs critical" style="width:0.96%"></div>
+      </div>
+      <div class="band-legend">
+        <span class="legend-item"><span class="legend-dot" style="background:#16a34a"></span>Thriving (55)</span>
+        <span class="legend-item"><span class="legend-dot" style="background:#4ade80"></span>Healthy (33)</span>
+        <span class="legend-item"><span class="legend-dot" style="background:#f59e0b"></span>Watch (14)</span>
+        <span class="legend-item"><span class="legend-dot" style="background:#f97316"></span>At Risk (1)</span>
+        <span class="legend-item"><span class="legend-dot" style="background:#ef4444"></span>Critical (1)</span>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- ════════════════════════════════ 2. IMMEDIATE ACTION REQUIRED -->
+  <section class="section">
+    <h2>Immediate Action Required</h2>
+
+    <div class="callout danger">
+      <div class="callout-title">Tomlinson Companies — Critical · 14.6</div>
+      <p>Probable churn. Only 12 logins over the past 90 days, with no activity in the last 67 days. Catalog is 20% complete and value is being delivered through zero channels. Immediate CS outreach required.</p>
+    </div>
+
+    <div class="callout warning">
+      <div class="callout-title">Hancock &amp; Moore / Jessica Charles — Watch · 40.0 (behavioral floor applied)</div>
+      <p>High churn risk despite Watch label. Login velocity has collapsed to 0.1× the trailing rate — just 4 logins last month against a 30/month average. Behavioral floor is masking a deeper engagement decline. Flag for urgent outreach.</p>
+    </div>
+
+    <div class="callout warning">
+      <div class="callout-title">Kaleen Rugs &amp; Broadloom — At Risk · 34.2 (behavioral floor applied)</div>
+      <p>Catalog is 0% complete with no value delivery through any channel. Behavioral floor applied. Without CS intervention this account is on a clear churn trajectory.</p>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- ═══════════════════════════════════════════════ 3. WATCH LIST -->
+  <section class="section">
+    <h2>Watch List</h2>
+    <p class="section-note">14 organizations · sorted by annual contract value descending</p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Organization</th>
+            <th class="r">Annual Value</th>
+            <th class="r">Score</th>
+            <th class="c">Behavioral Floor</th>
+            <th>Primary Concern</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="rw"><td><strong>Coleto Brands | Progress Lighting</strong></td><td class="r">$25,200</td><td class="r">57.5</td><td class="c">—</td><td class="td-sm">Value delivery: 1 of 2 channels active — order volume gap.</td></tr>
+          <tr class="rw"><td><strong>Morgan Fabrics Corporation</strong></td><td class="r">$13,440</td><td class="r">40.0</td><td class="c"><span class="floor-tag">Applied</span></td><td class="td-sm">Value delivery: 1 of 3 channels active — order volume and online catalog gaps.</td></tr>
+          <tr class="rw"><td><strong>Alden Home</strong></td><td class="r">$11,040</td><td class="r">59.4</td><td class="c">—</td><td class="td-sm">Value delivery: 2 of 5 channels active — order volume, online catalog, and portal ordering gaps.</td></tr>
+          <tr class="rw"><td><strong>Coleto Brands | Kichler</strong></td><td class="r">$9,360</td><td class="r">55.4</td><td class="c">—</td><td class="td-sm">Value delivery: 0 of 2 channels active — no orders or sharing activity.</td></tr>
+          <tr class="rw"><td><strong>DALS Lighting</strong></td><td class="r">$8,700</td><td class="r">43.8</td><td class="c">—</td><td class="td-sm">Data &amp; operations: catalog only 33% complete — inventory feed unhealthy.</td></tr>
+          <tr class="rw"><td><strong>International Home Miami</strong></td><td class="r">$8,404</td><td class="r">54.7</td><td class="c">—</td><td class="td-sm">Value delivery: 1 of 3 channels active — inventory data not flowing.</td></tr>
+          <tr class="rw"><td><strong>Hancock &amp; Moore / Jessica Charles</strong></td><td class="r">$7,909</td><td class="r">40.0</td><td class="c"><span class="floor-tag">Applied</span></td><td class="td-sm">Engagement: 4 logins last month vs. 30/month average — login velocity at 0.1× trailing rate.</td></tr>
+          <tr class="rw"><td><strong>Century Furniture</strong></td><td class="r">$7,830</td><td class="r">40.0</td><td class="c"><span class="floor-tag">Applied</span></td><td class="td-sm">Value delivery: 1 of 3 channels active — no orders or sharing activity.</td></tr>
+          <tr class="rw"><td><strong>Highland House</strong></td><td class="r">$7,830</td><td class="r">40.0</td><td class="c"><span class="floor-tag">Applied</span></td><td class="td-sm">Value delivery: 1 of 3 channels active — no orders or sharing activity.</td></tr>
+          <tr class="rw"><td><strong>Lucas McKearn</strong></td><td class="r">$7,830</td><td class="r">53.5</td><td class="c">—</td><td class="td-sm">Value delivery: 1 of 3 channels active — no orders or inventory data flowing.</td></tr>
+          <tr class="rw"><td><strong>Sixtrees Limited</strong></td><td class="r">$6,960</td><td class="r">40.0</td><td class="c"><span class="floor-tag">Applied</span></td><td class="td-sm">Value delivery: 0 of 3 channels active — no orders, sharing, or online catalog.</td></tr>
+          <tr class="rw"><td><strong>Sabine Pools, Spas &amp; Furniture</strong></td><td class="r">$6,960</td><td class="r">53.0</td><td class="c">—</td><td class="td-sm">Feature adoption: using only 1 of 3 applicable features.</td></tr>
+          <tr class="rw"><td><strong>Hudson Valley Lighting</strong></td><td class="r">$5,405</td><td class="r">49.6</td><td class="c">—</td><td class="td-sm">Value delivery: 0 of 2 channels active — no orders or sharing activity.</td></tr>
+          <tr class="rw"><td><strong>Troy Lighting</strong></td><td class="r">$4,392</td><td class="r">51.2</td><td class="c">—</td><td class="td-sm">Value delivery: 0 of 2 channels active — catalog only 22% complete.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- ══════════════════════════════════ 4. SUPPORT FIRE FLAGS -->
+  <section class="section">
+    <h2>Support Fire Flags</h2>
+    <p class="section-note">9 organizations with open engineering-escalation support tickets</p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Organization</th>
+            <th class="c">Health Band</th>
+            <th class="r">Score</th>
+            <th>Open Tickets</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Universal Furniture</strong></td><td class="c"><span class="bp thriving">Thriving</span></td><td class="r">97.1</td><td>1 open engineering intervention</td></tr>
+          <tr><td><strong>Wildwood/Chelsea House</strong></td><td class="c"><span class="bp thriving">Thriving</span></td><td class="r">96.2</td><td>1 open engineering intervention</td></tr>
+          <tr><td><strong>Gabriella White</strong></td><td class="c"><span class="bp thriving">Thriving</span></td><td class="r">94.2</td><td>2 open engineering interventions</td></tr>
+          <tr><td><strong>Palecek</strong></td><td class="c"><span class="bp thriving">Thriving</span></td><td class="r">93.8</td><td>1 open engineering intervention</td></tr>
+          <tr><td><strong>Visual Comfort Signature</strong></td><td class="c"><span class="bp thriving">Thriving</span></td><td class="r">87.7</td><td>1 open engineering intervention</td></tr>
+          <tr><td><strong>Craftmade</strong></td><td class="c"><span class="bp thriving">Thriving</span></td><td class="r">87.7</td><td>1 open engineering intervention</td></tr>
+          <tr><td><strong>Savoy House Lighting</strong></td><td class="c"><span class="bp thriving">Thriving</span></td><td class="r">85.3</td><td>1 open engineering intervention</td></tr>
+          <tr><td><strong>Alfresco Home</strong></td><td class="c"><span class="bp healthy">Healthy</span></td><td class="r">74.5</td><td>1 open engineering intervention</td></tr>
+          <tr><td><strong>Charleston Forge</strong></td><td class="c"><span class="bp healthy">Healthy</span></td><td class="r">66.7</td><td>1 open engineering intervention</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- ══════════════════════════════════════ 5. FULL PORTFOLIO -->
+  <section class="section section-break">
+    <h2>Full Portfolio</h2>
+    <p class="section-note">All 104 organizations · sorted by composite score · row color indicates health band</p>
+    <div class="table-wrap">
+      <table class="portfolio-table">
+        <thead>
+          <tr>
+            <th>Organization</th>
+            <th>Bundle</th>
+            <th class="r">Annual Value</th>
+            <th class="r">Score</th>
+            <th class="c">Band</th>
+            <th class="c">Floor</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Thriving -->
+          <tr class="rt"><td>Interlude Home</td><td class="td-sm">iPad + Portal</td><td class="r">$22,140</td><td class="r">97.7</td><td class="c"><span class="bp thriving">Thriving</span></td><td class="c">—</td></tr>
+          <tr class="rt"><td>Universal Furniture</td><td class="td-sm">iPad + Portal</td><td class="r">$25,475</td><td class="r">97.1</td><td class="c"><span class="bp thriving">Thriving</span></td><td class="c">—</td></tr>
+          <tr class="rt"><td>Wildwood/Chelsea House</td><td class="td-sm">Full Suite</td><td class="r">$40,340</td><td class="r">96.2</td><td class="c"><span class="bp thriving">Thriving</span></td><td class="c">—</td></tr>
+          <tr class="rt"><td>Four Seasons Furniture</td><td class="td-sm">Full Suite</td><td class="r">$22,560</td><td class="r">95.8</td><td class="c"><span class="bp thriving">Thriving</span></td><td class="c">—</td></tr>
+          <tr class="rt"><td>Sarreid, Ltd.</td><td class="td-sm">iPad + Portal</td><td class="r">$27,968</td><td class="r">95.7</td><td class="c"><span class="bp thriving">Thriving</span></td><td class="c">—</td></tr>
+          <tr class="rt"><td>Kalco / Allegri Crystal</td><td class="td-sm">Full Suite</td><td class="r">$29,045</td><td class="r">94.7</td><td class="c"><span class="bp thriving">Thriving</span></td><td class="c">—</td></tr>
+          <tr class="rt"><td>Gabriella White</td><td class="td-sm">iPad + Portal</td><td class="r">$24,936</td><td class="r">94.2</td><td class="c"><span class="bp thriving">Thriving</span></td><td class="c">—</td></tr>
+          <tr class="rt"><td>Braxton Culler</td><td class="td-sm">Full Suite</td><td class="r">$26,340</td><td class="r">94.1</td><td class="c"><span class="bp thriving">Thriving</span></td><td class="c">—</td></tr>
+          <tr class="rt"><td>Palecek</td><td class="td-sm">iPad + Catalog</td><td class="r">$39,010</td><td class="r">93.8</td><td class="c"><span class="bp thriving">Thriving</span></td><td class="c">—</td></tr>
+          <tr class="rt"><td>Somerset Bay &amp; Modern History</td><td class="td-sm">Full Suite</td><td class="r">$26,080</td><td class="r">93.8</td><td class="c"><span class="bp thriving">Thriving</span></td><td class="c">—</td></tr>
+          <tr class="rt"><td>Summer Classics Contract</td><td class="td-sm">Full Suite</td><td class="r">$21,820</td><td class="r">93.3</td><td class="c"><span class="bp thriving">Thriving</span></td><td class="c">—</td></tr>
+          <tr class="rt"><td>Interlude Furniture</td><td class="td-sm">iPad + Portal</td><td class="r">$20,730</td><td class="r">93.3</td><td class="c"><span class="bp thriving">Thriving</span></td><td class="c">—</td></tr>
+          <tr class="rt"><td>Jamie Young Company</td><td class="td-sm">Full Suite</td><td class="r">$35,400</td><td class="r">92.8</td><td class="c"><span class="bp thriving">Thriving</span></td><td class="c">—</td></tr>
+          <tr class="rt"><td>Summer Classics</td><td class="td-sm">Full Suite</td><td class="r">$38,779</td><td class="r">92.8</td><td class="c"><span class="bp thriving">Thriving</span></td><td class="c">—</td></tr>
+          <tr class="rt"><td>Hubbardton Forge</td><td class="td-sm">iPad + Portal</td><td class="r">$36,300</td><td class="r">92.7</td><td class="c"><span class="bp thriving">Thriving</span></td><td class="c">—</td></tr>
+          <tr class="rt"><td>Magnussen Home</td><td class="td-sm">iPad</td><td class="r">$17,420</td><td class="r">91.8</td><td class="c"><span class="bp thriving">Thriving</span></td><td class="c">—</td></tr>
+          <tr class="rt"><td>Currey &amp; Company</td><td class="td-sm">iPad + Portal</td><td class="r">$26,480</td><td class="r">91.7</td><td class="c"><span class="bp thriving">Thriving</span></td><td class="c">—</td></tr>
+          <tr class="rt"><td>Ricci Argentieri Company</td><td class="td-sm">iPad</td><td class="r">$4,540</td><td class="r">91.5</td><td class="c"><span class="bp thriving">Thriving</span></td><td class="c">—</td></tr>
+          <tr class="rt"><td>Visual Comfort Europe</td><td class="td-sm">iPad</td><td class="r">$7,830</td><td class="r">90.7</td><td class="c"><span class="bp thriving">Thriving</span></td><td class="c">—</td></tr>
+          <tr class="rt"><td>WAC/Modern Forms Lighting</td><td class="td-sm">iPad</td><td class="r">$22,104</td><td class="r">90.5</td><td class="c"><span class="bp thriving">Thriving</span></td><td class="c">—</td></tr>
+          <tr class="rt"><td>Theodore Alexander</td><td class="td-sm">Full Suite</td><td class="r">$24,260</td><td class="r">89.8</td><td class="c"><span class="bp thriving">Thriving</span></td><td class="c">—</td></tr>
+          <tr class="rt"><td>Gabby</td><td class="td-sm">Full Suite</td><td class="r">$24,336</td><td class="r">89.5</td><td class="c"><span class="bp thriving">Thriving</span></td><td class="c">—</td></tr>
+          <tr class="rt"><td>Dainolite Ltd.</td><td class="td-sm">iPad</td><td class="r">$9,400</td><td class="r">89.3</td><td class="c"><span class="bp thriving">Thriving</span></td><td class="c">—</td></tr>
+          <tr class="rt"><td>Maxim Lighting</td><td class="td-sm">iPad</td><td class="r">$19,237</td><td class="r">89.2</td><td class="c"><span class="bp thriving">Thriving</span></td><td class="c">—</td></tr>
+          <tr class="rt"><td>Jonathan Charles Fine Furniture</td><td class="td-sm">iPad + Portal</td><td class="r">$24,029</td><td class="r">88.5</td><td class="c"><span class="bp thriving">Thriving</span></td><td class="c">—</td></tr>
+          <tr class="rt"><td>ELICO LTD.</td><td class="td-sm">iPad</td><td class="r">$8,700</td><td class="r">88.1</td><td class="c"><span class="bp thriving">Thriving</span></td><td class="c">—</td></tr>
+          <tr class="rt"><td>Wendover Art Group</td><td class="td-sm">iPad</td><td class="r">$16,088</td><td class="r">88.0</td><td class="c"><span class="bp thriving">Thriving</span></td><td class="c">—</td></tr>
+          <tr class="rt"><td>Linon/Powell Furniture</td><td class="td-sm">Full Suite</td><td class="r">$26,080</td><td class="r">87.8</td><td class="c"><span class="bp thriving">Thriving</span></td><td class="c">—</td></tr>
+          <tr class="rt"><td>Visual Comfort Signature</td><td class="td-sm">iPad</td><td class="r">$18,455</td><td class="r">87.7</td><td class="c"><span class="bp thriving">Thriving</span></td><td class="c">—</td></tr>
+          <tr class="rt"><td>Craftmade</td><td class="td-sm">iPad + Portal</td><td class="r">$28,740</td><td class="r">87.7</td><td class="c"><span class="bp thriving">Thriving</span></td><td class="c">—</td></tr>
+          <tr class="rt"><td>Ciana Varaluz LLC</td><td class="td-sm">iPad + Portal</td><td class="r">$11,420</td><td class="r">87.3</td><td class="c"><span class="bp thriving">Thriving</span></td><td class="c">—</td></tr>
+          <tr class="rt"><td>Furniture Classics</td><td class="td-sm">Full Suite</td><td class="r">$24,100</td><td class="r">87.2</td><td class="c"><span class="bp thriving">Thriving</span></td><td class="c">—</td></tr>
+          <tr class="rt"><td>Fine Art Handcrafted Lighting</td><td class="td-sm">iPad</td><td class="r">$17,840</td><td class="r">86.9</td><td class="c"><span class="bp thriving">Thriving</span></td><td class="c">—</td></tr>
+          <tr class="rt"><td>Schonbek Lighting</td><td class="td-sm">iPad</td><td class="r">$17,625</td><td class="r">86.5</td><td class="c"><span class="bp thriving">Thriving</span></td><td class="c">—</td></tr>
+          <tr class="rt"><td>Kuzco Lighting Inc.</td><td class="td-sm">Full Suite</td><td class="r">$26,780</td><td class="r">86.5</td><td class="c"><span class="bp thriving">Thriving</span></td><td class="c">—</td></tr>
+          <tr class="rt"><td>Alfonso Marina</td><td class="td-sm">iPad</td><td class="r">$11,083</td><td class="r">86.4</td><td class="c"><span class="bp thriving">Thriving</span></td><td class="c">—</td></tr>
+          <tr class="rt"><td>Eglo USA Inc.</td><td class="td-sm">iPad</td><td class="r">$10,340</td><td class="r">86.1</td><td class="c"><span class="bp thriving">Thriving</span></td><td class="c">—</td></tr>
+          <tr class="rt"><td>Home Essentials &amp; Beyond</td><td class="td-sm">iPad</td><td class="r">$9,140</td><td class="r">85.8</td><td class="c"><span class="bp thriving">Thriving</span></td><td class="c">—</td></tr>
+          <tr class="rt"><td>Bulbrite</td><td class="td-sm">Full Suite</td><td class="r">$31,445</td><td class="r">85.7</td><td class="c"><span class="bp thriving">Thriving</span></td><td class="c">—</td></tr>
+          <tr class="rt"><td>Lifestyle Solutions</td><td class="td-sm">iPad</td><td class="r">$8,700</td><td class="r">85.7</td><td class="c"><span class="bp thriving">Thriving</span></td><td class="c">—</td></tr>
+          <tr class="rt"><td>Crystorama</td><td class="td-sm">iPad + Portal</td><td class="r">$30,480</td><td class="r">85.4</td><td class="c"><span class="bp thriving">Thriving</span></td><td class="c">—</td></tr>
+          <tr class="rt"><td>Savoy House Lighting</td><td class="td-sm">Full Suite</td><td class="r">$25,700</td><td class="r">85.3</td><td class="c"><span class="bp thriving">Thriving</span></td><td class="c">—</td></tr>
+          <tr class="rt"><td>Theodore Alexander Manhasset</td><td class="td-sm">iPad</td><td class="r">$14,060</td><td class="r">85.2</td><td class="c"><span class="bp thriving">Thriving</span></td><td class="c">—</td></tr>
+          <tr class="rt"><td>Eurofase Inc.</td><td class="td-sm">iPad + Portal</td><td class="r">$33,095</td><td class="r">85.2</td><td class="c"><span class="bp thriving">Thriving</span></td><td class="c">—</td></tr>
+          <tr class="rt"><td>Uniware Housewares Corp.</td><td class="td-sm">iPad</td><td class="r">$8,740</td><td class="r">84.7</td><td class="c"><span class="bp thriving">Thriving</span></td><td class="c">—</td></tr>
+          <tr class="rt"><td>Minka Lighting Group</td><td class="td-sm">iPad</td><td class="r">$16,688</td><td class="r">84.6</td><td class="c"><span class="bp thriving">Thriving</span></td><td class="c">—</td></tr>
+          <tr class="rt"><td>Jonathan Charles Designs Inc.</td><td class="td-sm">iPad</td><td class="r">$9,671</td><td class="r">84.3</td><td class="c"><span class="bp thriving">Thriving</span></td><td class="c">—</td></tr>
+          <tr class="rt"><td>Abaline Supply Inc.</td><td class="td-sm">Full Suite</td><td class="r">$25,685</td><td class="r">84.3</td><td class="c"><span class="bp thriving">Thriving</span></td><td class="c">—</td></tr>
+          <tr class="rt"><td>Matteo Lighting</td><td class="td-sm">iPad</td><td class="r">$12,675</td><td class="r">84.0</td><td class="c"><span class="bp thriving">Thriving</span></td><td class="c">—</td></tr>
+          <tr class="rt"><td>Capital Lighting Fixture Co.</td><td class="td-sm">Full Suite</td><td class="r">$28,060</td><td class="r">84.0</td><td class="c"><span class="bp thriving">Thriving</span></td><td class="c">—</td></tr>
+          <tr class="rt"><td>Visual Comfort — Studio/Fans</td><td class="td-sm">iPad</td><td class="r">$15,439</td><td class="r">83.0</td><td class="c"><span class="bp thriving">Thriving</span></td><td class="c">—</td></tr>
+          <tr class="rt"><td>Ratana International Ltd.</td><td class="td-sm">Full Suite</td><td class="r">$27,026</td><td class="r">81.3</td><td class="c"><span class="bp thriving">Thriving</span></td><td class="c">—</td></tr>
+          <tr class="rt"><td>Golden Lighting</td><td class="td-sm">Full Suite</td><td class="r">$24,310</td><td class="r">81.2</td><td class="c"><span class="bp thriving">Thriving</span></td><td class="c">—</td></tr>
+          <tr class="rt"><td>Sauder Woodworking</td><td class="td-sm">iPad</td><td class="r">$8,700</td><td class="r">81.2</td><td class="c"><span class="bp thriving">Thriving</span></td><td class="c">—</td></tr>
+          <tr class="rt"><td>Visual Comfort — Modern</td><td class="td-sm">iPad</td><td class="r">$13,567</td><td class="r">80.2</td><td class="c"><span class="bp thriving">Thriving</span></td><td class="c">—</td></tr>
+          <!-- Healthy -->
+          <tr class="rh"><td>Shadow Catchers</td><td class="td-sm">iPad</td><td class="r">$8,700</td><td class="r">79.8</td><td class="c"><span class="bp healthy">Healthy</span></td><td class="c">—</td></tr>
+          <tr class="rh"><td>Vaxcel International Corporation</td><td class="td-sm">Full Suite</td><td class="r">$21,780</td><td class="r">79.5</td><td class="c"><span class="bp healthy">Healthy</span></td><td class="c">—</td></tr>
+          <tr class="rh"><td>Access Lighting</td><td class="td-sm">iPad + Portal</td><td class="r">$21,680</td><td class="r">79.1</td><td class="c"><span class="bp healthy">Healthy</span></td><td class="c">—</td></tr>
+          <tr class="rh"><td>Rowe Furniture</td><td class="td-sm">iPad</td><td class="r">$9,300</td><td class="r">79.0</td><td class="c"><span class="bp healthy">Healthy</span></td><td class="c">—</td></tr>
+          <tr class="rh"><td>EGLO Canada</td><td class="td-sm">iPad</td><td class="r">$7,830</td><td class="r">78.1</td><td class="c"><span class="bp healthy">Healthy</span></td><td class="c">—</td></tr>
+          <tr class="rh"><td>Godinger Silver Art Co.</td><td class="td-sm">iPad</td><td class="r">$8,800</td><td class="r">78.0</td><td class="c"><span class="bp healthy">Healthy</span></td><td class="c">—</td></tr>
+          <tr class="rh"><td>Butler Specialty Company</td><td class="td-sm">iPad</td><td class="r">$6,960</td><td class="r">77.2</td><td class="c"><span class="bp healthy">Healthy</span></td><td class="c">—</td></tr>
+          <tr class="rh"><td>Yutzy Woodworking</td><td class="td-sm">iPad</td><td class="r">$11,385</td><td class="r">76.8</td><td class="c"><span class="bp healthy">Healthy</span></td><td class="c">—</td></tr>
+          <tr class="rh"><td>RENWIL</td><td class="td-sm">iPad + Portal</td><td class="r">$25,374</td><td class="r">75.3</td><td class="c"><span class="bp healthy">Healthy</span></td><td class="c">—</td></tr>
+          <tr class="rh"><td>Studio Silversmiths, Inc.</td><td class="td-sm">iPad</td><td class="r">$4,500</td><td class="r">75.3</td><td class="c"><span class="bp healthy">Healthy</span></td><td class="c">—</td></tr>
+          <tr class="rh"><td>Designer's Fountain</td><td class="td-sm">iPad</td><td class="r">$9,560</td><td class="r">74.8</td><td class="c"><span class="bp healthy">Healthy</span></td><td class="c">—</td></tr>
+          <tr class="rh"><td>Alfresco Home</td><td class="td-sm">iPad + Cart</td><td class="r">$18,560</td><td class="r">74.5</td><td class="c"><span class="bp healthy">Healthy</span></td><td class="c">—</td></tr>
+          <tr class="rh"><td>Geo Contemporary</td><td class="td-sm">iPad</td><td class="r">$9,865</td><td class="r">73.2</td><td class="c"><span class="bp healthy">Healthy</span></td><td class="c">—</td></tr>
+          <tr class="rh"><td>Millennium Lighting</td><td class="td-sm">iPad + Catalog</td><td class="r">$17,980</td><td class="r">70.6</td><td class="c"><span class="bp healthy">Healthy</span></td><td class="c">—</td></tr>
+          <tr class="rh"><td>Hooker Furnishings</td><td class="td-sm">iPad</td><td class="r">$10,365</td><td class="r">70.3</td><td class="c"><span class="bp healthy">Healthy</span></td><td class="c">—</td></tr>
+          <tr class="rh"><td>Elegant Furniture &amp; Lighting</td><td class="td-sm">iPad + Cart</td><td class="r">$26,570</td><td class="r">69.6</td><td class="c"><span class="bp healthy">Healthy</span></td><td class="c">—</td></tr>
+          <tr class="rh"><td>Globalux Lighting &amp; Fans</td><td class="td-sm">iPad</td><td class="r">$16,200</td><td class="r">69.2</td><td class="c"><span class="bp healthy">Healthy</span></td><td class="c">—</td></tr>
+          <tr class="rh"><td>Pioneer Morton</td><td class="td-sm">iPad + Cart</td><td class="r">$15,282</td><td class="r">68.2</td><td class="c"><span class="bp healthy">Healthy</span></td><td class="c">—</td></tr>
+          <tr class="rh"><td>Charleston Forge</td><td class="td-sm">iPad + Cart</td><td class="r">$21,066</td><td class="r">66.7</td><td class="c"><span class="bp healthy">Healthy</span></td><td class="c">—</td></tr>
+          <tr class="rh"><td>Baker-McGuire</td><td class="td-sm">iPad</td><td class="r">$18,730</td><td class="r">66.5</td><td class="c"><span class="bp healthy">Healthy</span></td><td class="c">—</td></tr>
+          <tr class="rh"><td>Silver One</td><td class="td-sm">iPad</td><td class="r">$8,700</td><td class="r">65.3</td><td class="c"><span class="bp healthy">Healthy</span></td><td class="c">—</td></tr>
+          <tr class="rh"><td>Groupe Courchesne</td><td class="td-sm">iPad + Cart</td><td class="r">$16,980</td><td class="r">64.8</td><td class="c"><span class="bp healthy">Healthy</span></td><td class="c">—</td></tr>
+          <tr class="rh"><td>Kindel Karges Furniture</td><td class="td-sm">iPad</td><td class="r">$9,540</td><td class="r">64.2</td><td class="c"><span class="bp healthy">Healthy</span></td><td class="c">—</td></tr>
+          <tr class="rh"><td>Arabela Lighting</td><td class="td-sm">iPad</td><td class="r">$7,830</td><td class="r">63.9</td><td class="c"><span class="bp healthy">Healthy</span></td><td class="c">—</td></tr>
+          <tr class="rh"><td>Oly Studio</td><td class="td-sm">iPad</td><td class="r">$13,380</td><td class="r">63.8</td><td class="c"><span class="bp healthy">Healthy</span></td><td class="c">—</td></tr>
+          <tr class="rh"><td>AFX, Inc.</td><td class="td-sm">iPad</td><td class="r">$9,150</td><td class="r">63.6</td><td class="c"><span class="bp healthy">Healthy</span></td><td class="c">—</td></tr>
+          <tr class="rh"><td>Kennedy International, Inc.</td><td class="td-sm">iPad + Cart</td><td class="r">$16,643</td><td class="r">62.6</td><td class="c"><span class="bp healthy">Healthy</span></td><td class="c">—</td></tr>
+          <tr class="rh"><td>Donald Choi Canada</td><td class="td-sm">iPad + Cart</td><td class="r">$22,038</td><td class="r">61.4</td><td class="c"><span class="bp healthy">Healthy</span></td><td class="c">—</td></tr>
+          <tr class="rh"><td>Accord Lighting</td><td class="td-sm">iPad</td><td class="r">$12,920</td><td class="r">61.4</td><td class="c"><span class="bp healthy">Healthy</span></td><td class="c">—</td></tr>
+          <tr class="rh"><td>Moda at Home Enterprises</td><td class="td-sm">iPad + Cart</td><td class="r">$16,642</td><td class="r">61.1</td><td class="c"><span class="bp healthy">Healthy</span></td><td class="c">—</td></tr>
+          <tr class="rh"><td>America's Backyards</td><td class="td-sm">iPad</td><td class="r">$8,700</td><td class="r">60.8</td><td class="c"><span class="bp healthy">Healthy</span></td><td class="c">—</td></tr>
+          <tr class="rh"><td>Philip Whitney</td><td class="td-sm">iPad</td><td class="r">$4,500</td><td class="r">60.7</td><td class="c"><span class="bp healthy">Healthy</span></td><td class="c">—</td></tr>
+          <tr class="rh"><td>Buster &amp; Punch</td><td class="td-sm">iPad</td><td class="r">$15,280</td><td class="r">60.3</td><td class="c"><span class="bp healthy">Healthy</span></td><td class="c">—</td></tr>
+          <!-- Watch -->
+          <tr class="rw"><td>Alden Home</td><td class="td-sm">iPad + Cart</td><td class="r">$11,040</td><td class="r">59.4</td><td class="c"><span class="bp watch">Watch</span></td><td class="c">—</td></tr>
+          <tr class="rw"><td>Coleto Brands | Progress Lighting</td><td class="td-sm">iPad</td><td class="r">$25,200</td><td class="r">57.5</td><td class="c"><span class="bp watch">Watch</span></td><td class="c">—</td></tr>
+          <tr class="rw"><td>Coleto Brands | Kichler</td><td class="td-sm">iPad</td><td class="r">$9,360</td><td class="r">55.4</td><td class="c"><span class="bp watch">Watch</span></td><td class="c">—</td></tr>
+          <tr class="rw"><td>International Home Miami</td><td class="td-sm">iPad</td><td class="r">$8,404</td><td class="r">54.7</td><td class="c"><span class="bp watch">Watch</span></td><td class="c">—</td></tr>
+          <tr class="rw"><td>Lucas McKearn</td><td class="td-sm">iPad</td><td class="r">$7,830</td><td class="r">53.5</td><td class="c"><span class="bp watch">Watch</span></td><td class="c">—</td></tr>
+          <tr class="rw"><td>Sabine Pools, Spas &amp; Furniture</td><td class="td-sm">iPad</td><td class="r">$6,960</td><td class="r">53.0</td><td class="c"><span class="bp watch">Watch</span></td><td class="c">—</td></tr>
+          <tr class="rw"><td>Troy Lighting</td><td class="td-sm">iPad</td><td class="r">$4,392</td><td class="r">51.2</td><td class="c"><span class="bp watch">Watch</span></td><td class="c">—</td></tr>
+          <tr class="rw"><td>Hudson Valley Lighting</td><td class="td-sm">iPad</td><td class="r">$5,405</td><td class="r">49.6</td><td class="c"><span class="bp watch">Watch</span></td><td class="c">—</td></tr>
+          <tr class="rw"><td>DALS Lighting</td><td class="td-sm">iPad</td><td class="r">$8,700</td><td class="r">43.8</td><td class="c"><span class="bp watch">Watch</span></td><td class="c">—</td></tr>
+          <tr class="rw"><td>Morgan Fabrics Corporation</td><td class="td-sm">iPad + Catalog</td><td class="r">$13,440</td><td class="r">40.0</td><td class="c"><span class="bp watch">Watch</span></td><td class="c"><span class="floor-tag">Yes</span></td></tr>
+          <tr class="rw"><td>Hancock &amp; Moore / Jessica Charles</td><td class="td-sm">iPad</td><td class="r">$7,909</td><td class="r">40.0</td><td class="c"><span class="bp watch">Watch</span></td><td class="c"><span class="floor-tag">Yes</span></td></tr>
+          <tr class="rw"><td>Century Furniture</td><td class="td-sm">iPad</td><td class="r">$7,830</td><td class="r">40.0</td><td class="c"><span class="bp watch">Watch</span></td><td class="c"><span class="floor-tag">Yes</span></td></tr>
+          <tr class="rw"><td>Highland House</td><td class="td-sm">iPad</td><td class="r">$7,830</td><td class="r">40.0</td><td class="c"><span class="bp watch">Watch</span></td><td class="c"><span class="floor-tag">Yes</span></td></tr>
+          <tr class="rw"><td>Sixtrees Limited</td><td class="td-sm">iPad + Catalog</td><td class="r">$6,960</td><td class="r">40.0</td><td class="c"><span class="bp watch">Watch</span></td><td class="c"><span class="floor-tag">Yes</span></td></tr>
+          <!-- At Risk -->
+          <tr class="rar"><td>Kaleen Rugs &amp; Broadloom</td><td class="td-sm">iPad</td><td class="r">$8,700</td><td class="r">34.2</td><td class="c"><span class="bp at-risk">At Risk</span></td><td class="c"><span class="floor-tag">Yes</span></td></tr>
+          <!-- Critical -->
+          <tr class="rc"><td><strong>Tomlinson Companies</strong></td><td class="td-sm">iPad + Catalog</td><td class="r">$13,440</td><td class="r">14.6</td><td class="c"><span class="bp critical">Critical</span></td><td class="c"><span class="floor-tag">Yes</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- ══════════════════════════ 6. DIMENSION SCORE BREAKDOWN -->
+  <section class="section">
+    <h2>Dimension Score Breakdown</h2>
+    <p class="section-note">Watch, At Risk, and Critical accounts · lowest dimension per row is shown in bold</p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Organization</th>
+            <th class="c">Band</th>
+            <th class="r">Engagement</th>
+            <th class="r">Feature Adoption</th>
+            <th class="r">Value Delivery</th>
+            <th class="r">Data &amp; Operations</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- min: vd=40.0 -->
+          <tr class="rw"><td>Alden Home</td><td class="c"><span class="bp watch">Watch</span></td><td class="r"><span class="dn">75.0</span></td><td class="r"><span class="dn">66.7</span></td><td class="r"><span class="dm">40.0</span></td><td class="r"><span class="dn">56.0</span></td></tr>
+          <!-- min: vd=50.0 -->
+          <tr class="rw"><td>Coleto Brands | Progress Lighting</td><td class="c"><span class="bp watch">Watch</span></td><td class="r"><span class="dn">55.0</span></td><td class="r"><span class="dn">66.7</span></td><td class="r"><span class="dm">50.0</span></td><td class="r"><span class="dn">58.3</span></td></tr>
+          <!-- min: vd=0.0 -->
+          <tr class="rw"><td>Coleto Brands | Kichler</td><td class="c"><span class="bp watch">Watch</span></td><td class="r"><span class="dn">55.0</span></td><td class="r"><span class="dn">100.0</span></td><td class="r"><span class="dm">0.0</span></td><td class="r"><span class="dn">66.7</span></td></tr>
+          <!-- min: vd=33.3 -->
+          <tr class="rw"><td>International Home Miami</td><td class="c"><span class="bp watch">Watch</span></td><td class="r"><span class="dn">66.7</span></td><td class="r"><span class="dn">40.0</span></td><td class="r"><span class="dm">33.3</span></td><td class="r"><span class="dn">78.8</span></td></tr>
+          <!-- min: vd=33.3 -->
+          <tr class="rw"><td>Lucas McKearn</td><td class="c"><span class="bp watch">Watch</span></td><td class="r"><span class="dn">65.0</span></td><td class="r"><span class="dn">60.0</span></td><td class="r"><span class="dm">33.3</span></td><td class="r"><span class="dn">55.6</span></td></tr>
+          <!-- min: adp=33.3 -->
+          <tr class="rw"><td>Sabine Pools, Spas &amp; Furniture</td><td class="c"><span class="bp watch">Watch</span></td><td class="r"><span class="dn">65.0</span></td><td class="r"><span class="dm">33.3</span></td><td class="r"><span class="dn">50.0</span></td><td class="r"><span class="dn">63.8</span></td></tr>
+          <!-- min: vd=0.0 -->
+          <tr class="rw"><td>Troy Lighting</td><td class="c"><span class="bp watch">Watch</span></td><td class="r"><span class="dn">56.7</span></td><td class="r"><span class="dn">75.0</span></td><td class="r"><span class="dm">0.0</span></td><td class="r"><span class="dn">73.3</span></td></tr>
+          <!-- min: vd=0.0 -->
+          <tr class="rw"><td>Hudson Valley Lighting</td><td class="c"><span class="bp watch">Watch</span></td><td class="r"><span class="dn">56.7</span></td><td class="r"><span class="dn">75.0</span></td><td class="r"><span class="dm">0.0</span></td><td class="r"><span class="dn">66.7</span></td></tr>
+          <!-- min: oh=10.0 -->
+          <tr class="rw"><td>DALS Lighting</td><td class="c"><span class="bp watch">Watch</span></td><td class="r"><span class="dn">40.0</span></td><td class="r"><span class="dn">75.0</span></td><td class="r"><span class="dn">50.0</span></td><td class="r"><span class="dm">10.0</span></td></tr>
+          <!-- min: vd=33.3 -->
+          <tr class="rw"><td>Morgan Fabrics Corporation</td><td class="c"><span class="bp watch">Watch</span></td><td class="r"><span class="dn">50.0</span></td><td class="r"><span class="dn">60.0</span></td><td class="r"><span class="dm">33.3</span></td><td class="r"><span class="dn">46.7</span></td></tr>
+          <!-- min: eng=16.7 -->
+          <tr class="rw"><td>Hancock &amp; Moore / Jessica Charles</td><td class="c"><span class="bp watch">Watch</span></td><td class="r"><span class="dm">16.7</span></td><td class="r"><span class="dn">60.0</span></td><td class="r"><span class="dn">33.3</span></td><td class="r"><span class="dn">53.3</span></td></tr>
+          <!-- min: vd=33.3 -->
+          <tr class="rw"><td>Century Furniture</td><td class="c"><span class="bp watch">Watch</span></td><td class="r"><span class="dn">43.3</span></td><td class="r"><span class="dn">100.0</span></td><td class="r"><span class="dm">33.3</span></td><td class="r"><span class="dn">66.7</span></td></tr>
+          <!-- min: vd=33.3 -->
+          <tr class="rw"><td>Highland House</td><td class="c"><span class="bp watch">Watch</span></td><td class="r"><span class="dn">43.3</span></td><td class="r"><span class="dn">75.0</span></td><td class="r"><span class="dm">33.3</span></td><td class="r"><span class="dn">45.0</span></td></tr>
+          <!-- min: vd=0.0 -->
+          <tr class="rw"><td>Sixtrees Limited</td><td class="c"><span class="bp watch">Watch</span></td><td class="r"><span class="dn">43.3</span></td><td class="r"><span class="dn">40.0</span></td><td class="r"><span class="dm">0.0</span></td><td class="r"><span class="dn">95.2</span></td></tr>
+          <!-- min: vd=0.0 -->
+          <tr class="rar"><td>Kaleen Rugs &amp; Broadloom</td><td class="c"><span class="bp at-risk">At Risk</span></td><td class="r"><span class="dn">46.7</span></td><td class="r"><span class="dn">50.0</span></td><td class="r"><span class="dm">0.0</span></td><td class="r"><span class="dn">40.0</span></td></tr>
+          <!-- min: vd=0.0 -->
+          <tr class="rc"><td><strong>Tomlinson Companies</strong></td><td class="c"><span class="bp critical">Critical</span></td><td class="r"><span class="dn">13.3</span></td><td class="r"><span class="dn">25.0</span></td><td class="r"><span class="dm">0.0</span></td><td class="r"><span class="dn">20.0</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer style="margin-top:48px; padding-top:16px; border-top:1px solid #e2e8f0;">
+    <p style="font-size:11px; color:#94a3b8;">SuperCat Health V3.1 · Scored May 11, 2026 · Confidential</p>
+  </footer>
+
+</body>
+</html>
