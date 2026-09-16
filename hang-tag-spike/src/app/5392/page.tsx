@@ -1,5 +1,5 @@
 import data from "@/data/kuzco-fixture.json";
-import { HangTag } from "@/components/hang-tag";
+import { TemplateSheet } from "@/components/template-sheet";
 import { SheetChrome } from "@/components/sheet-chrome";
 import type { HangTagSku } from "@/data/sku";
 
@@ -14,11 +14,7 @@ export default function Avery5392Page() {
   return (
     <main className="hang-tag-page">
       <SheetChrome sheet="5392" />
-      <section className="sheet-5392" aria-label="Avery 5392 sheet">
-        {skus.slice(0, 6).map((sku) => (
-          <HangTag key={sku.item_number} sku={sku} layout="5392" />
-        ))}
-      </section>
+      <TemplateSheet stock="5392" skus={skus.slice(0, 6)} />
     </main>
   );
 }

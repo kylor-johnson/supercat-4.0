@@ -45,10 +45,12 @@ The product is a **browser designer** that prints Avery tags. iPad hang tags sta
 
 - Avery **5371** letter: 3.5×2 in, 2×5, 0.5" top, 0.75" sides, no gap
 - Avery **5392** letter: 4×3 in, 2×3, 0.25" sides, 1" top/bottom (official Avery, not iOS 3-col 3×4)
+- Designer templates for **both** stocks (`src/data/template.ts`); print sheets render `TemplateTag` from that JSON (localStorage overlay per stock)
 - 10 live Kuzco (`kll`) SKUs on disk in `src/data/kuzco-fixture.json`
 - Real UPC-A (`scripts/render-upcs.mjs` → `public/fixtures/barcodes/`)
 - Logo + product photos on disk
 - Print CSS hides chrome; Chrome File → Print or Download PDF
+- Vercel fixture-only: https://kuzco-hang-tags.vercel.app (no catalog API, no live IMAP)
 
 Bindings match Kuzco live formats 3198 / 3204:
 

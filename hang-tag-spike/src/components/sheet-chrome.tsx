@@ -2,6 +2,10 @@ import Link from "next/link";
 import { PrintButton } from "@/components/print-button";
 import { SHEETS, type SheetCode } from "@/data/sheets";
 
+function designerHref(stock: SheetCode): string {
+  return stock === "5392" ? "/design?stock=5392" : "/design";
+}
+
 export function SheetChrome({
   sheet,
   designer = false,
@@ -17,17 +21,17 @@ export function SheetChrome({
         <h1>Hang tags</h1>
         <p>
           {designer
-            ? "Drag objects on a 5371 tag. Layout saves as JSON (inches + bindings)."
-            : `${current.name} · ${current.size} · ${current.grid}. Live kll fixture SKUs. Download the PDF to share, or print from here.`}
+            ? `Drag objects on a ${sheet} tag. Layout saves as JSON (inches + bindings). Print sheets render that JSON.`
+            : `${current.name} · ${current.size} · ${current.grid}. Fixture kll SKUs on disk. Download the PDF to share, or print from here.`}
         </p>
         <nav className="sheet-switcher" aria-label="Avery sheet">
           {(Object.values(SHEETS) as Array<(typeof SHEETS)[SheetCode]>).map(
             (option) => (
               <Link
                 key={option.code}
-                href={option.href}
+                href={designer ? designerHref(option.code) : option.href}
                 className={
-                  !designer && option.code === sheet
+                  option.code === sheet
                     ? "sheet-switcher-link is-current"
                     : "sheet-switcher-link"
                 }
@@ -37,7 +41,7 @@ export function SheetChrome({
             ),
           )}
           <Link
-            href="/design"
+            href={designerHref(sheet)}
             className={
               designer ? "sheet-switcher-link is-current" : "sheet-switcher-link"
             }
@@ -46,7 +50,13 @@ export function SheetChrome({
           </Link>
         </nav>
       </div>
-      {designer ? null : (
+      {designer ? (
+        <div className="hang-tag-actions">
+          <Link className="kb kb-md kb-secondary" href={current.href}>
+            Print sheet
+          </Link>
+        </div>
+      ) : (
         <div className="hang-tag-actions">
           <a
             className="kb kb-md kb-secondary"

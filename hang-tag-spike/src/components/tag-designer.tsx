@@ -3,14 +3,16 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { HangTagSku } from "@/data/sku";
 import { boundImageSrc, boundText } from "@/data/bindings";
+import type { SheetCode } from "@/data/sheets";
 import {
   cloneTemplate,
+  DEFAULT_TEMPLATES,
   EDITOR_DPI,
   inchesToPx,
-  KUZCO_5371_TEMPLATE,
   parseStoredTemplate,
   pxToInches,
   STORAGE_KEY,
+  templateStorageKey,
   type HangTagTemplate,
   type TemplateObject,
 } from "@/data/template";
@@ -54,7 +56,7 @@ async function addTemplateObject(
       fontSize: ptToPx(spec.fontSize ?? 8),
       fontWeight: spec.fontWeight ?? 400,
       fontFamily:
-        spec.id === "sku"
+        spec.binding === "item_number"
           ? "ui-monospace, SFMono-Regular, Menlo, monospace"
           : "system-ui, sans-serif",
       fill: "#1a1714",
@@ -109,20 +111,33 @@ function templateFromCanvas(
   return next;
 }
 
-export function TagDesigner({ skus }: { skus: HangTagSku[] }) {
+export function TagDesigner({
+  skus,
+  stock,
+}: {
+  skus: HangTagSku[];
+  stock: SheetCode;
+}) {
   const hostRef = useRef<HTMLCanvasElement | null>(null);
   const fabricRef = useRef<FabricModule | null>(null);
   const canvasRef = useRef<FabricCanvas | null>(null);
-  const templateRef = useRef<HangTagTemplate>(cloneTemplate(KUZCO_5371_TEMPLATE));
+  const templateRef = useRef<HangTagTemplate>(cloneTemplate(DEFAULT_TEMPLATES[stock]));
   const skuRef = useRef<HangTagSku>(skus[0]);
   const [skuIndex, setSkuIndex] = useState(0);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
+  const fallback = DEFAULT_TEMPLATES[stock];
 
-  const persist = useCallback((template: HangTagTemplate) => {
-    templateRef.current = template;
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(template));
-  }, []);
+  const persist = useCallback(
+    (template: HangTagTemplate) => {
+      templateRef.current = template;
+      window.localStorage.setItem(
+        templateStorageKey(stock),
+        JSON.stringify(template),
+      );
+    },
+    [stock],
+  );
 
   const rebuild = useCallback(async () => {
     const fabric = fabricRef.current;
@@ -141,8 +156,13 @@ export function TagDesigner({ skus }: { skus: HangTagSku[] }) {
     const canvasEl = hostRef.current;
     if (!canvasEl) return;
 
-    const stored = parseStoredTemplate(window.localStorage.getItem(STORAGE_KEY));
+    const stored = parseStoredTemplate(
+      window.localStorage.getItem(templateStorageKey(stock)) ??
+        (stock === "5371" ? window.localStorage.getItem(STORAGE_KEY) : null),
+      stock,
+    );
     if (stored) templateRef.current = stored;
+    else templateRef.current = cloneTemplate(fallback);
 
     import("fabric").then(async (fabric) => {
       if (disposed || !hostRef.current) return;
@@ -178,7 +198,7 @@ export function TagDesigner({ skus }: { skus: HangTagSku[] }) {
       canvasRef.current?.dispose();
       canvasRef.current = null;
     };
-  }, [persist, rebuild]);
+  }, [fallback, persist, rebuild, stock]);
 
   useEffect(() => {
     skuRef.current = skus[skuIndex] ?? skus[0];
@@ -186,7 +206,7 @@ export function TagDesigner({ skus }: { skus: HangTagSku[] }) {
   }, [skuIndex, skus, ready, rebuild]);
 
   function resetLayout() {
-    persist(cloneTemplate(KUZCO_5371_TEMPLATE));
+    persist(cloneTemplate(fallback));
     void rebuild();
   }
 
@@ -197,14 +217,14 @@ export function TagDesigner({ skus }: { skus: HangTagSku[] }) {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = "kuzco-5371-template.json";
+    link.download = `kuzco-${stock}-template.json`;
     link.click();
     URL.revokeObjectURL(url);
   }
 
   const sku = skus[skuIndex] ?? skus[0];
-  const width = inchesToPx(KUZCO_5371_TEMPLATE.tag.width);
-  const height = inchesToPx(KUZCO_5371_TEMPLATE.tag.height);
+  const width = inchesToPx(fallback.tag.width);
+  const height = inchesToPx(fallback.tag.height);
 
   return (
     <div className="designer-layout">
@@ -227,8 +247,9 @@ export function TagDesigner({ skus }: { skus: HangTagSku[] }) {
           </select>
         </label>
         <p className="designer-meta">
-          Avery 5371 · 3.5×2 in. Drag to move, handles to resize. Layout saves
-          in this browser as JSON inches + bindings.
+          Avery {stock} · {fallback.tag.width}×{fallback.tag.height} in. Drag to
+          move, handles to resize. Layout saves in this browser as JSON inches +
+          bindings. Print sheets read the same JSON.
         </p>
         <p className="designer-meta">
           Selected: <strong>{selectedId ?? "none"}</strong>

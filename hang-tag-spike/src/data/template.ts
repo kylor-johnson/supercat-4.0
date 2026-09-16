@@ -1,3 +1,5 @@
+import type { SheetCode } from "@/data/sheets";
+
 export const TEMPLATE_VERSION = 1 as const;
 export const STORAGE_KEY = "hang-tag-template-v1";
 export const EDITOR_DPI = 192;
@@ -33,7 +35,7 @@ export type TemplateObject = {
 export type HangTagTemplate = {
   version: typeof TEMPLATE_VERSION;
   name: string;
-  stock: "5371";
+  stock: SheetCode;
   tag: { width: number; height: number };
   objects: TemplateObject[];
 };
@@ -138,6 +140,115 @@ export const KUZCO_5371_TEMPLATE: HangTagTemplate = {
   ],
 };
 
+export const KUZCO_5392_TEMPLATE: HangTagTemplate = {
+  version: TEMPLATE_VERSION,
+  name: "Kuzco 5392 showroom",
+  stock: "5392",
+  tag: { width: 4, height: 3 },
+  objects: [
+    {
+      id: "photo",
+      type: "image",
+      binding: "primary_image",
+      x: 0.14,
+      y: 0.12,
+      width: 1.15,
+      height: 1.15,
+    },
+    {
+      id: "logo",
+      type: "image",
+      binding: "logo",
+      x: 1.41,
+      y: 0.12,
+      width: 2.0,
+      height: 0.28,
+    },
+    {
+      id: "collection",
+      type: "text",
+      binding: "collection_name",
+      x: 1.41,
+      y: 0.44,
+      width: 2.45,
+      height: 0.22,
+      fontSize: 11,
+      fontWeight: 700,
+      letterSpacing: "0.04em",
+      textTransform: "uppercase",
+    },
+    {
+      id: "sku",
+      type: "text",
+      binding: "item_number",
+      x: 1.41,
+      y: 0.68,
+      width: 2.45,
+      height: 0.18,
+      fontSize: 8.5,
+    },
+    {
+      id: "finish",
+      type: "text",
+      binding: "finish",
+      x: 1.41,
+      y: 0.9,
+      width: 2.45,
+      height: 0.18,
+      fontSize: 9.5,
+    },
+    {
+      id: "lamp",
+      type: "text",
+      binding: "lamp_line",
+      x: 1.41,
+      y: 1.1,
+      width: 2.45,
+      height: 0.18,
+      fontSize: 9.5,
+    },
+    {
+      id: "size",
+      type: "text",
+      binding: "size_line",
+      x: 1.41,
+      y: 1.3,
+      width: 2.45,
+      height: 0.18,
+      fontSize: 9.5,
+    },
+    {
+      id: "price",
+      type: "text",
+      binding: "price_line",
+      x: 1.41,
+      y: 1.52,
+      width: 2.45,
+      height: 0.36,
+      fontSize: 9.5,
+      fontWeight: 700,
+    },
+    {
+      id: "barcode",
+      type: "barcode",
+      binding: "upc_image",
+      x: 0.24,
+      y: 2.4,
+      width: 3.52,
+      height: 0.52,
+    },
+  ],
+};
+
+export const DEFAULT_TEMPLATES: Record<SheetCode, HangTagTemplate> = {
+  "5371": KUZCO_5371_TEMPLATE,
+  "5392": KUZCO_5392_TEMPLATE,
+};
+
+export function templateStorageKey(stock: SheetCode): string {
+  return `${STORAGE_KEY}-${stock}`;
+}
+
 export function inchesToPx(value: number): number {
   return value * EDITOR_DPI;
 }
@@ -150,11 +261,16 @@ export function cloneTemplate(template: HangTagTemplate): HangTagTemplate {
   return structuredClone(template);
 }
 
-export function parseStoredTemplate(raw: string | null): HangTagTemplate | null {
+export function parseStoredTemplate(
+  raw: string | null,
+  stock?: SheetCode,
+): HangTagTemplate | null {
   if (!raw) return null;
   try {
     const parsed = JSON.parse(raw) as HangTagTemplate;
-    if (parsed.version !== TEMPLATE_VERSION || parsed.stock !== "5371") return null;
+    if (parsed.version !== TEMPLATE_VERSION) return null;
+    if (parsed.stock !== "5371" && parsed.stock !== "5392") return null;
+    if (stock && parsed.stock !== stock) return null;
     if (!Array.isArray(parsed.objects)) return null;
     return parsed;
   } catch {
