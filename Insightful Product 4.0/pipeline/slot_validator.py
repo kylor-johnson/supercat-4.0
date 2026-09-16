@@ -561,13 +561,24 @@ def check_play_alignment(
 def reorder_play_framing(
     plays: list[dict], play_framing: list[str] | None
 ) -> list[str] | None:
-    """Re-key a complete old Slot-D array after signal ranking changes order.
+    """Re-key a Slot-D array onto the selected plays, matching on play type.
 
-    This only succeeds when every body has one unique matching play. Otherwise
-    the original order is returned so ``check_play_alignment`` still fails the
-    run on a real title/body mismatch.
+    Handles two kinds of drift between an authored prose file and the plays the
+    pipeline selects at run time:
+
+    * **reorder** — same bodies, different rank order (signal ranking changed).
+    * **superset** — the prose file describes plays that are no longer selected.
+      `kal` authored a cross-sell body and a pricing body; only the cross-sell
+      play now survives selection. The orphaned body is dropped, not treated as
+      a mismatch — nothing is wrong, the file simply describes more plays than
+      were chosen.
+
+    Succeeds only when every selected play has exactly one matching body.
+    Otherwise the original array is returned unchanged so
+    ``check_play_alignment`` still fails the run on a real title/body mismatch.
+    A *subset* (fewer bodies than plays) cannot be covered and is returned as-is.
     """
-    if not play_framing or len(play_framing) != len(plays):
+    if not play_framing or len(play_framing) < len(plays):
         return play_framing
     remaining = list(enumerate(play_framing))
     reordered: list[str] = []

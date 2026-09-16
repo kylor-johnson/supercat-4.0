@@ -241,7 +241,7 @@ Bugs, not design debates. Must close before the golden freeze.
 
 | ID | Defect | Location |
 |---|---|---|
-| **P0-1** | HFG states **1,075** and **1,080** for "prior-year accounts that went dark" in one report | `Q-ECON-NRR` vs `Q-DEALER-COHORT` |
+| **P0-1** | Two different counts for "accounts that went dark" in one report — **hfg** 1,075 vs 1,080, **cci** 3,045 vs 3,107, **bmc** 550 vs 748 | `Q-ECON-NRR.fully_churned_custs` vs `Q-DEALER-COHORT.lapsed` |
 | **P0-2** | Dainolite hero card reads `LTM invoiced $4.87M` above "There is no invoiced total in this window" | `section_01_hero.md.j2` |
 | **P0-3** | Dainolite leaks raw markdown `--- \| --- \|` rows into HTML | `report_render/md_parse.py` |
 | **P0-4** | Sarreid ships a duplicated orphaned `Priority actions, by cadence:` | `hero_sanitizer._PRIORITY_ACTIONS` |
@@ -253,6 +253,7 @@ Bugs, not design debates. Must close before the golden freeze.
 | **P0-10** | `bmc` **cannot ship** — `smoke_check FAIL`, 3× unhedged dollars at `PARTIAL` | deterministic fallback vs §Q |
 | **P0-11** | bsc GATESTOP says *"lift platform coverage past **0.0%**"* | `_macros.md.j2` floor copy |
 | **P0-12** | `requirements-pipeline.txt` omits `pytest` despite claiming "self-sufficient" | **FIXED in Phase 0** |
+| **P0-13** | **The number-parity gate never runs on the path production uses.** `validate_slot` is called from `narrative.generate_slot` (API path) and `prose_conformance_check.py` (regression-time). Every run loads `outputs/{org}_prose_{date}.json`, and `run_report.py` never validates it. | `pipeline/run_report.py:278` |
 
 ### P0-9 / P0-10 detail (found by the Phase 0 cohort sweep)
 
@@ -312,3 +313,52 @@ Visible in the `kal` baseline diff. v10 was right; A3 regressed it.
 Byte-identical to the previously-tracked artifact: **8 of 11**
 (sarreid, cci, da, clc, hfg, ali, sca + bri/bmc had none).
 Drifted: `kal`, `bsc` — their tracked copies were stale July artifacts.
+
+
+---
+
+## 7. Phase 1 findings (2026-09-16)
+
+### P0-1 is three orgs, not one — and one surface is deterministic
+
+`Q-ECON-NRR.fully_churned_custs` counts prior-year customers with zero retained
+**dollars** (denominator: the invoiced cohort). `Q-DEALER-COHORT.lapsed` counts
+dealers **active** in the prior LTM who did not order (denominator: the activity
+base). Both are correct; both rendered as *"prior-year accounts that went dark"*.
+
+| org | `lapsed` (§9, canonical) | `fully_churned_custs` (§1) | gap |
+|---|---|---|---|
+| hfg | 1,080 | 1,075 | 5 |
+| cci | 3,107 | 3,045 | 62 |
+| **bmc** | **748** | **550** | **198 (36%)** |
+
+`lapsed` wins because §9's flow only reconciles with it (hfg:
+2,504 − 1,080 + 998 = 2,422). bmc's gap came through
+`section_05_layers.md.j2:97` — a **deterministic template**, not authored prose,
+so this was never only an LLM problem.
+
+### P0-13 — the gate is wired to the wrong path, AND it is mis-calibrated
+
+Wiring `validate_slot` onto the prose-file path was attempted and **backed out**.
+On hfg it rejected nearly every authored slot, including:
+
+```
+- dollar '$0.84 ' (=0.84) not in fact bundle     ← from "spent $0.84 for every $1"
+- dollar '$1' (=1.00) not in fact bundle         ← the literal "$1" in that phrase
+- count '24 dealers' (=24.00) not in fact bundle ← target_dealers IS 24
+- dollar '$16.5M' not in fact bundle             ← |contraction_dollars| = 16,541,078
+```
+
+Turning it on as-is would replace all authored prose with templates across the
+cohort — **the exact failure that produced the sterile reports in the first
+place.** The gate needs a working derived/rounded-value model before it can
+block. Routed to **Phase 8** with this evidence; do not enable it before then.
+
+### P0-9 — Slot-D superset, not misalignment
+
+`kal` authored 2 play bodies; 1 play survives selection. `reorder_play_framing`
+bailed on any length mismatch and `check_play_alignment` then failed the run
+(exit 1) — **Kalco could not produce a report at all.** A superset is not a
+mismatch: the fix matches each selected play to its unique body by type and
+drops orphans. Fixed; `kal` exit1 → SHIP, and it now renders the authored FLINT
+cross-sell prose instead of template boilerplate.
