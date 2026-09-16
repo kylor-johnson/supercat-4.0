@@ -12,8 +12,8 @@ There are **four trees**. If a path here disagrees with an older doc,
 
 | Work | Path on this Mac | GitHub |
 |---|---|---|
-| **Ops** — skills, foundation, Insightful 4.0, Health V3, hang-tag | iCloud `SuperCat 4.0` (this git working tree; remote name `personal`) | `kylor-johnson/supercat-4.0` |
-| **Live clients** — CSVs, `02_Implementation/<Client>/` | iCloud `SuperCat_Simple_Final` | `kylor-johnson/ecat-onboarding-workspace` |
+| **Ops** — skills, foundation, Insightful 4.0, Health V3, hang-tag | `~/repos/supercat-4.0` (this git working tree; remotes `origin` / `personal`) | `kylor-johnson/supercat-4.0` |
+| **Live clients** — CSVs, `02_Implementation/<Client>/` | iCloud `SuperCat_Simple_Final` (also `~/repos/ecat-onboarding-workspace` symlink) | `kylor-johnson/ecat-onboarding-workspace` |
 | **Product code** — Rails + iPad | `~/supercat-code` | `SuperCatSolutionsLLC/supercat_server`, `sarreid_ios` |
 | **Company agents** — CEO system, factory `context/` | `~/repos/agent-factory` (never the nested copy inside SuperCat 4.0) | `SuperCatSolutionsLLC/agent-factory` |
 
@@ -48,20 +48,24 @@ Keep these folder names here. Map on copy; do not reshape this ops tree into L0�
 | `hang-tag-spike/` | **Do not copy** — hang-tag Next prototype stays in this ops repo |
 
 Open **File → Open Workspace from File… →**
-`~/Library/Mobile Documents/com~apple~CloudDocs/SuperCat 4.0/SuperCat.code-workspace`.
+`~/repos/supercat-4.0/SuperCat.code-workspace`.
 
-That folder **is** `kylor-johnson/supercat-4.0` (remote name `personal`). There is
-no `~/repos/supercat-4.0` on this Mac. Do not recreate that clone here.
+That folder **is** `kylor-johnson/supercat-4.0` (remotes `origin` and `personal`).
 
-The other Mac clones under `~/repos` — see `HANDOFF_OTHER_MACHINE.md` and
-`SuperCat.macbook.code-workspace`. On that Mac, live clients are
-`~/repos/ecat-onboarding-workspace`. Do not treat that path as this Mac's live tree.
+**iCloud `SuperCat 4.0` is an unread trap.** Do not open it, do not commit from
+it. Leave it on disk; it is not the working tree.
+
+The other Mac also uses `~/repos/supercat-4.0` — see `HANDOFF_OTHER_MACHINE.md`
+and `SuperCat.macbook.code-workspace`. Live clients on this Mac stay iCloud
+`SuperCat_Simple_Final` (also the `~/repos/ecat-onboarding-workspace` symlink).
+Hang-tag: `npm install` locally in `~/repos/supercat-4.0/hang-tag-spike` if you
+use it (`node_modules` is gitignored).
 
 ---
 
 ## What GitHub tracks vs what stays local
 
-`git status` against `personal/main` is the GitHub tree. Venvs, secrets, and the
+`git status` against `origin/main` (or `personal/main`) is the GitHub tree. Venvs, secrets, and the
 nested company `agent-factory/` clone stay gitignored. Health and Insightful
 **source** (not venvs) are tracked here so they can be copied into
 `SuperCatSolutionsLLC/agent-factory`.

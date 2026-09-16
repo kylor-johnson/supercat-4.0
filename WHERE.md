@@ -11,14 +11,16 @@ There are **four trees**, not one SuperCat folder. GitHub is **two owners**, not
 
 | Work | Path on this Mac | GitHub |
 |---|---|---|
-| **Ops** — skills, foundation, Insightful 4.0, Health V3, hang-tag | iCloud `SuperCat 4.0` (this git working tree; remote name `personal`) | `kylor-johnson/supercat-4.0` |
-| **Live clients** — CSVs, `02_Implementation/<Client>/` | iCloud `SuperCat_Simple_Final` | `kylor-johnson/ecat-onboarding-workspace` |
+| **Ops** — skills, foundation, Insightful 4.0, Health V3, hang-tag | `~/repos/supercat-4.0` (this git working tree; remotes `origin` / `personal`) | `kylor-johnson/supercat-4.0` |
+| **Live clients** — CSVs, `02_Implementation/<Client>/` | iCloud `SuperCat_Simple_Final` (also `~/repos/ecat-onboarding-workspace` symlink) | `kylor-johnson/ecat-onboarding-workspace` |
 | **Product code** — Rails + iPad | `~/supercat-code/{supercat_server,sarreid_ios}` | `SuperCatSolutionsLLC/supercat_server`, `sarreid_ios` |
 | **Company agents** — CEO system, factory `context/` | `~/repos/agent-factory` (one clone; never the nested copy inside SuperCat 4.0) | `SuperCatSolutionsLLC/agent-factory` |
 
-Open **File → Open Workspace from File… →** `SuperCat.code-workspace` in the ops tree.
+Open **File → Open Workspace from File… →** `~/repos/supercat-4.0/SuperCat.code-workspace`.
 
-Do **not** open nested `SuperCat 4.0/repos/`, `repos 2/`, or `SuperCat 4.0/agent-factory/`. Those were iCloud dumps of the same remotes.
+**iCloud `SuperCat 4.0` is an unread trap.** Do not open it, do not commit from it. Leave it on disk.
+
+Do **not** open nested iCloud `SuperCat 4.0/repos/`, `repos 2/`, or `SuperCat 4.0/agent-factory/`. Those were iCloud dumps of the same remotes.
 
 ## Who we serve — two homes, two questions
 

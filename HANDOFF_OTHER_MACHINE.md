@@ -12,11 +12,11 @@
 
 | Mac | Ops git working tree | Workspace file to open |
 |---|---|---|
-| **This Mac (canonical)** | iCloud `SuperCat 4.0` **is** `kylor-johnson/supercat-4.0` | `SuperCat.code-workspace` (Ops root = iCloud path) |
-| **Other Mac** | `~/repos/supercat-4.0` clone | `SuperCat.macbook.code-workspace` (Ops root = `~/repos/supercat-4.0`) |
+| **This Mac** | `~/repos/supercat-4.0` | `SuperCat.code-workspace` (Ops root = `~/repos/supercat-4.0`; live clients = iCloud `SuperCat_Simple_Final`) |
+| **Other Mac** | `~/repos/supercat-4.0` | `SuperCat.macbook.code-workspace` (Ops root = `~/repos/supercat-4.0`; live clients = `~/repos/ecat-onboarding-workspace`) |
 
-On the other Mac, do **not** open iCloud `SuperCat 4.0` as the git working tree.
-Edit GitHub clones under `~/repos`. This Mac uses iCloud; the other Mac does not.
+**iCloud `SuperCat 4.0` is an unread trap on both Macs.** Do not open it, do not
+commit from it. Leave it on disk. Edit GitHub clones under `~/repos`.
 
 **Do not iCloud-download** (leave cloud icons; never “Download Now”):
 
@@ -48,8 +48,8 @@ read. Do not `git add .` anywhere. Do not push to `company` /
 
 ## Goal
 
-This computer edits GitHub clones under `~/repos`. The first Mac's ops tree is
-iCloud `SuperCat 4.0`, not `~/repos/supercat-4.0`.
+This computer edits GitHub clones under `~/repos`. Both Macs' ops tree is
+`~/repos/supercat-4.0`. iCloud `SuperCat 4.0` is an unread trap.
 
 ## 1. Auth
 
@@ -139,8 +139,10 @@ Do **not** open
 
 as the working folder or as the git working tree on this Mac.
 
-Do **not** open `SuperCat.code-workspace` on this Mac — that file's Ops root
-is the first Mac's iCloud path.
+Prefer `SuperCat.macbook.code-workspace` on this Mac (live clients =
+`~/repos/ecat-onboarding-workspace`). `SuperCat.code-workspace` Ops root is
+also `~/repos/supercat-4.0`; its Implementation root is iCloud
+`SuperCat_Simple_Final`.
 
 ## 5. How work is split
 

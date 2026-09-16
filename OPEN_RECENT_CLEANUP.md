@@ -1,19 +1,18 @@
 # Open Recent Cleanup
 
-**Status (2026-09-15):** Keep using the iCloud workspace file on this Mac.
-`SuperCat (Workspace)` is pinned and first in the list.
+**Status (2026-09-16):** Open `~/repos/supercat-4.0/SuperCat.code-workspace`.
+iCloud `SuperCat 4.0` is an unread trap — do not open it, do not commit from it.
 
 This only hides menu entries. **No folders or files are deleted.**
 
 ## Use going forward (this Mac)
 
 ```
-~/Library/Mobile Documents/com~apple~CloudDocs/SuperCat 4.0/SuperCat.code-workspace
+~/repos/supercat-4.0/SuperCat.code-workspace
 ```
 
-That iCloud folder **is** the `kylor-johnson/supercat-4.0` git working tree.
-Open the **workspace file**, not the `SuperCat 4.0` folder — a plain-folder
-open splits agent chat history.
+That folder **is** the `kylor-johnson/supercat-4.0` git working tree.
+Do **not** open iCloud `SuperCat 4.0` as a folder or workspace.
 
 Pin **SuperCat (Workspace)** in File → Open Recent.
 
@@ -63,7 +62,7 @@ They don't split agent chat history; only workspace/folder entries do.
 2. Find `SuperCat (Workspace)` → click the **pin** icon on the right
 
 Or: **File → Open Workspace from File… →**
-`~/Library/Mobile Documents/com~apple~CloudDocs/SuperCat 4.0/SuperCat.code-workspace`
+`~/repos/supercat-4.0/SuperCat.code-workspace`
 
 ---
 
@@ -82,5 +81,10 @@ Or: **File → Open Workspace from File… →**
 
 **Use going forward:**
 ```
-~/Library/Mobile Documents/com~apple~CloudDocs/SuperCat 4.0/SuperCat.code-workspace
+~/repos/supercat-4.0/SuperCat.code-workspace
+```
+
+**Trap — do not open as a workspace or git tree:**
+```
+~/Library/Mobile Documents/com~apple~CloudDocs/SuperCat 4.0
 ```

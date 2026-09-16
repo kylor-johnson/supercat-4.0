@@ -16,32 +16,34 @@ Location map: [`WHERE.md`](WHERE.md).
 ## This Mac — how to open
 
 **File → Open Workspace from File… →**
-`~/Library/Mobile Documents/com~apple~CloudDocs/SuperCat 4.0/SuperCat.code-workspace`
+`~/repos/supercat-4.0/SuperCat.code-workspace`
 
-That iCloud folder **is** this git working tree (remote `personal` →
-`kylor-johnson/supercat-4.0`). `~/repos/supercat-4.0` does not exist on this Mac.
-Do not recreate that clone here.
+That folder **is** this git working tree (remotes `origin` / `personal` →
+`kylor-johnson/supercat-4.0`).
+
+**iCloud `SuperCat 4.0` is an unread trap.** Do not open it, do not commit from
+it. Leave it on disk; it is not the working tree.
 
 Four trees (this Mac):
 
 | Work | Path | What lives there |
 |---|---|---|
-| SuperCat Ops | iCloud `SuperCat 4.0` | This repo (remote `personal`) |
-| Live clients | iCloud `SuperCat_Simple_Final` | Live client CSVs + build work (`02_Implementation/`) = `kylor-johnson/ecat-onboarding-workspace` |
+| SuperCat Ops | `~/repos/supercat-4.0` | This repo (remotes `origin` / `personal`) |
+| Live clients | iCloud `SuperCat_Simple_Final` | Live client CSVs + build work (`02_Implementation/`) = `kylor-johnson/ecat-onboarding-workspace` (also `~/repos/ecat-onboarding-workspace` symlink) |
 | Product code | `~/supercat-code` | Rails / iOS application source |
 | Company agents | `~/repos/agent-factory` | Weekly agents / factory PRs (`SuperCatSolutionsLLC/agent-factory`) |
 
-The **other Mac** clones under `~/repos` and opens
+The **other Mac** also clones under `~/repos` and opens
 `SuperCat.macbook.code-workspace` (Ops root = `~/repos/supercat-4.0`; live
 clients there = `~/repos/ecat-onboarding-workspace`).
-See [`HANDOFF_OTHER_MACHINE.md`](./HANDOFF_OTHER_MACHINE.md). Do not treat
-`~/repos/ecat-onboarding-workspace` as this Mac's live path.
+See [`HANDOFF_OTHER_MACHINE.md`](./HANDOFF_OTHER_MACHINE.md). Hang-tag: `npm install`
+locally in `~/repos/supercat-4.0/hang-tag-spike` if you use it.
 
 ## Source of truth
 
 | Work | Where |
 |---|---|
-| Skills, rules, onboarding-models, PM, foundation, reports | This working tree (iCloud `SuperCat 4.0` on this Mac) |
+| Skills, rules, onboarding-models, PM, foundation, reports | This working tree (`~/repos/supercat-4.0` on this Mac) |
 | Live client onboarding (Legrand, jcusa, Fine Art, …) | iCloud `SuperCat_Simple_Final` → `02_Implementation/<Client>/` |
 | Company weekly agents / PRs | `~/repos/agent-factory` |
 | Active Insightful 4.0 pipeline (runtime + outputs) | local `Insightful Product 4.0/` (gitignored); source also in `agent-factory/agents/insightful_product` |
