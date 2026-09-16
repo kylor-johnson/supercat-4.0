@@ -9,14 +9,22 @@ database: supercatprod
 
 # Line E — is the variation structural, or segment-driven?
 
+> **2026-09-15 — historical measurement of *seat* jobs, not current product doctrine.**
+> This file retested “only 4 of 31 jobs vary.” That claim is **withdrawn** as a build rule.
+> What still stands: org *shape* (product count, price-code tail, territory emptiness) varies and
+> should size extracts / paginate views. What does **not** stand: PG-01 and PG-07 sharing a home
+> screen. Canonical set: [`../personas/00-PERSONA-GROUPS.md`](../personas/00-PERSONA-GROUPS.md).
+
 **Tagging:** every figure in this file is `MEASURED` via **Q040** unless marked otherwise. Interpretive
 readings are marked `JUDGMENT` inline.
 
-**This claim is load-bearing for "build one layer, parameterised."** It is retested here from
-Postgres rather than from the roster CSV, and the result is not softened in either direction.
+**This claim was load-bearing for "build one layer, parameterised."** It is retested here from
+Postgres rather than from the roster CSV. Treat the numbers as evidence about **org shape**, not as
+permission to ship one analytics surface for all four motions.
 
-**Verdict up front: the architecture decision survives, and is better supported than the register
-claims. Two of the four supporting job-level attributions do not survive.**
+**Verdict as of 2026-08-31 (seats): the seat-register architecture decision looked supported; two of
+the four supporting job-level attributions did not survive.** Verdict as of 2026-09-15 (persona
+groups): do not implement that architecture.
 
 ---
 

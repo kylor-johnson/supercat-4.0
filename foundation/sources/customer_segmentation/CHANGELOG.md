@@ -236,3 +236,55 @@ the "Brand-Building" alias in Insightful profiles.
 
 **Open decision #1 in `00-SYNTHESIS.md` §5 is now closed.** Five remain.
 
+---
+
+## 2026-09-15 — persona groups restored (motion × seat)
+
+The Aug 25 Phase 2/3 pack treated SuperCat **login seats** (PER-01…08) as personas and concluded
+**only 4 of 31 jobs vary by selling motion / build once, do not condition on segment.** That inverted
+the July thesis (personas live *inside* selling-motion segments) and the June eOL-by-motion targeting.
+
+### Added
+- `personas/00-PERSONA-GROUPS.md` — **canonical persona set**: PG-01…08 (field/buyer × four motions) + PG-HQ.
+
+### Rewrote
+- `analytics/jtbd-register.md` — `JOB-*` per group. Old JTBD-0xx IDs retired.
+- `product/surface-mapping.md` — eOL for buyers (fit follows motion); iPad-EC for field-rep analytics (one shell, job pack by segment); HQ on Portal/Admin/Insightful.
+- `personas/PER-00-persona-set.md` — demoted to login-seat / headcount index.
+- `00-SYNTHESIS.md` — section 2/3/5 rewritten; CS2 deletion recorded.
+
+### Changed
+- PER-01…08 — banners pointing at persona groups. Seat evidence kept.
+- `product/data-gaps.md`, `_measured/README.md` — scope notes (old IDs; measurements of seats still valid).
+- Foundation runtime: `CEO_SYSTEM_CONTEXT.md`, `02_who_we_serve.md`, `01_what_we_do.md`, `00_README.md` — withdrawn "jobs don't differ / build once not on segment" as product doctrine. Lineage (roster lookup, no segment on prospects) kept. Prior versions in `foundation/_archive/*_2026-09-15_pre-persona-groups.md`.
+- Deleted `Customer Segmentation 2/` (byte-identical duplicate).
+
+### Untouched
+Stamped v4.0 roster · Lens 1 / D-001a / T1/T2/T3 · HPMKT / prospects / field-kit · factory copy (still hold).
+
+---
+
+## 2026-09-15 — Layer 1 vs Layer 2 (consumption personas)
+
+Kylor: the SuperCat personas are admin / VP of sales / executives / sales reps / customers-dealers-buyers, because they consume different products. That is correct. v0.2 over-named motion × seat cells as the persona set and mashed HQ.
+
+### Changed
+- `personas/00-PERSONA-GROUPS.md` v0.3 — Layer 1 = five SuperCat personas (surfaces). Layer 2 = selling-motion job packs (PG-01…08 kept as pack IDs). Mixpanel + Postgres consumption evidence in-file.
+- `PERSONA-GROUPS-REVIEW.html` — verdict rewritten to agree + two pushbacks (buyer eOL fit; rep analytics grain).
+
+---
+
+## 2026-09-15 — wrap-up (internal consistency before GitHub)
+
+Debris from the Aug 25/31 pack still argued the withdrawn seat doctrine. Closed in this pass:
+
+### Changed
+- `engineering/01-NO-NEW-DATA-PACK.md`, `02-IPAD-ACCOUNT-BRIEF-SPEC.md`, `03-ROADMAP.md` — rewritten onto `JOB-*` / persona groups. EBR-91 first, A2/A3/A4, extract/offline/fail-closed kept. `02` is **PG-01 only** (24-month by collection); not a universal rep brief.
+- `PERSONA-READOUT.html`, `CEO-READOUT.html`, `CEO-BRIEF.html` — replaced with withdrawn stubs that redirect to `PERSONA-GROUPS-REVIEW.html`.
+- `_measured/00-FINDINGS.md`, `_measured/06-SEGMENT-VARIATION.md` — banners: measured seats; “4 of 31” is not current doctrine.
+- `ASSUMPTIONS.md` F-10 — CS2 recorded as deleted.
+
+### Still not this pass (not an agent job)
+Interview validation of JOB-* · factory copy (hold) · commit/push · Postgres re-measure.
+
+

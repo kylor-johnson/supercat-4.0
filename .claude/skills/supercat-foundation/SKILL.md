@@ -1,6 +1,6 @@
 ---
 name: supercat-foundation
-description: "SuperCat company context (L1) — ICP and the two segmentation lenses, the persona axis (7 personas / 31 jobs — who uses the product), T1/T2/T3 pricing, competitive set, strategic bets, FY26 headline targets, product surfaces, and how confident we're allowed to be before citing a figure. Use this BEFORE answering anything about what SuperCat is, who we serve, who uses the product and what job they're doing, how we make money, where we're going, or how the company operates — including lazy phrasings like 'what's our ACV again', 'is X a T2', 'what's Platform-Embedded mean', 'who are our personas', 'what does a rep actually need', or 'can I say $768M GMV in a deck', and including when drafting customer-, investor-, or board-facing material that leans on those facts, or scoping what to build for a persona. Trigger it even when the question sounds answerable from memory: the figures move quarterly. NOT for live org lookups (use supercat-data-routing), report runs (insightful-report-4), eCat file builds or import debugging (ecat-* skills), or workspace navigation (AGENTS.md)."
+description: "SuperCat company context (L1) — ICP and the two segmentation lenses, persona groups (five consumption roles — Admin, VP of sales, executive, sales rep, buyer — selling motion is a job-pack modifier, not extra personas), T1/T2/T3 pricing, competitive set, strategic bets, FY26 headline targets, product surfaces, and how confident we're allowed to be before citing a figure. Use this BEFORE answering anything about what SuperCat is, who we serve, who uses the product and what job they're doing, how we make money, where we're going, or how the company operates — including lazy phrasings like 'what's our ACV again', 'is X a T2', 'what's Platform-Embedded mean', 'who are our personas', 'what does a rep actually need', or 'can I say $768M GMV in a deck', and including when drafting customer-, investor-, or board-facing material that leans on those facts, or scoping what to build for a persona. Trigger it even when the question sounds answerable from memory: the figures move quarterly. NOT for live org lookups (use supercat-data-routing), report runs (insightful-report-4), eCat file builds or import debugging (ecat-* skills), or workspace navigation (AGENTS.md)."
 ---
 
 # SuperCat Foundation — L1 context router
@@ -25,22 +25,21 @@ vs. order-consummation contract, and the marketing-niche vs. analytical-ICP
 distinction — do not reconstruct those from elsewhere. For most questions it is
 sufficient alone.
 
-**Three axes, never collapsed.** Customer questions run on three orthogonal cuts, and the most
-common error is reading one off another:
+**Do not collapse these cuts.** Customer questions run on more than one, and the most common error
+is reading one off another:
 
-| Axis | Classifies | When |
+| Cut | Classifies | When |
 |---|---|---|
 | **Account Segment** (Lens 1 maturity / Lens 2 selling motion) | the client **organisation** | post-sale only — a stamped roster lookup, never recomputed |
 | **Prospect Archetype** | a **pre-sale** company, named for what is observable | pre-sale — **never** put a segment label on a prospect |
-| **Persona** (PER-01…PER-08) | a **behavioural role with jobs** — who uses the product | any "who uses it / what do they need / what should we build" question |
+| **Persona group** (PG-01…08 + HQ) | **selling motion × who is in the room** — the job, and what to build | any "who uses it / what do they need / what should we build" question |
+| **Login seat** (PER-01…08) | who is logged in (rep / buyer / HQ) — **not** the persona set | headcounts and surface constraints only |
 
-Neither predicts the other. **PER-08 dealer buyer is a fourth thing again — our *customer's*
-customer**, the largest population on any surface, and never collapsed into the internal-user
-personas.
+Buyer groups are *our customer's customer*. Do not fold designer / dealer / chain into one buyer.
 
-**The build rule that falls out of it:** build once, parameterise on **org structure** (price codes,
-territories, products) — **not on segment.** Only 4 of 31 jobs vary, and on structure rather than
-selling motion. No segment-conditional variants.
+**The build rule:** field and buyer **jobs follow selling motion**. Share the plumbing (one iPad-EC
+shell, eOL for buyers, Portal for HQ). Do not ship one analytics job list for spec and volume.
+Do not cite "only 4 of 31 jobs vary / build once, not on segment" — withdrawn 2026-09-15.
 
 **If these paths don't resolve, you are not in the repo — or the workspace is out
 of sync.** Say so plainly and ask for the doc or the relevant pasted section. Do
@@ -120,8 +119,9 @@ Implementation: Essentials included, Guided $2,500, Comprehensive $5,000.
 | Selling Motion (Lens 2) — model and methodology | `foundation/sources/customer_segmentation/README.md`, `Customer Segmentation/current/SuperCat_Client_Segmentation_v4.0.md` |
 | Selling Motion (Lens 2) — per-org roster and buyer-type evidence | `Customer Segmentation/current/SuperCat_Customer_Segmentation_v4.0_MASTER.csv`, `foundation/sources/customer_segmentation/account_buyer_type_reads.csv` |
 | Prospect Archetype (pre-sale) — never a segment label on a prospect | `foundation/sources/customer_segmentation/taxonomy/prospect-archetypes.md`, `taxonomy/segment-archetype-mapping.md` |
-| **Persona (third axis) — who *uses* the product, keep/drop reasoning, measured populations** | `foundation/sources/customer_segmentation/personas/PER-00-persona-set.md` + the 7 `PER-0*.md` files |
-| **JTBD — all 31 jobs, primary metric, current state, segment variation** | `foundation/sources/customer_segmentation/analytics/jtbd-register.md` |
+| **Persona groups — who consumes which product** | `foundation/sources/customer_segmentation/personas/00-PERSONA-GROUPS.md` |
+| **Login seats / headcounts only** | `foundation/sources/customer_segmentation/personas/PER-00-persona-set.md` |
+| **JTBD — jobs per persona group** | `foundation/sources/customer_segmentation/analytics/jtbd-register.md` |
 | **Which surface a job lands on, build size, offline constraints** | `foundation/sources/customer_segmentation/product/surface-mapping.md` |
 | **What blocks a job — engineering backlog vs. client-data gaps** | `foundation/sources/customer_segmentation/product/data-gaps.md` |
 | The whole persona/JTBD picture in two pages | `foundation/sources/customer_segmentation/00-SYNTHESIS.md` |

@@ -1,24 +1,29 @@
 ---
 id: ENG-01
 title: Engineering handoff — the four no-new-data items
-version: 1.0
+version: 1.1
 status: ready for engineering
-date: 2026-08-27
+date: 2026-09-15
 owner: Kylor Johnson
 engineering_reader: Brent Sanders
 depends_on: [PROD-GAPS §D, PROD-MAP, JTBD-REG, SALES-PORTAL-SPEC]
+supersedes: v1.0 (2026-08-27) seat-register IDs (JTBD-0xx / PER-0x)
 ---
 
 # Four items, no new data required
 
 **Read this whole file before starting. It is one conversation's worth of work, ordered.**
 
+Job IDs are `JOB-*` from [`../analytics/jtbd-register.md`](../analytics/jtbd-register.md). Seats
+(PER-01…08) are headcount, not the persona set — see
+[`../personas/00-PERSONA-GROUPS.md`](../personas/00-PERSONA-GROUPS.md).
+
 Every claim below is either cited to a checked-in file or labelled `[SQL 2026-08-27]` for a
 read-only query run against production while writing this. Where something could not be verified it
 says **UNKNOWN** rather than guessing.
 
-**Order is deliberate:** A6 first. Fourteen of 31 jobs land on the Sales Portal
-(`product/surface-mapping.md` §1 totals) and A6 is the defect that undermines trust in every number
+**Order is deliberate:** A6 first. HQ jobs land on the Sales Portal
+(`product/surface-mapping.md` §2) and A6 is the defect that undermines trust in every number
 on it. Nothing downstream is worth building on an untrusted surface.
 
 | # | Item | Size | Ticket | Status entering this pack |
@@ -28,6 +33,10 @@ on it. Nothing downstream is worth building on an untrusted surface.
 | **A3** | Catalog completeness | S | none — needs one | Rule now defined; was undefined |
 | **A2** | Inventory snapshot age | S | none — needs one | Mechanism confirmed |
 
+These four are **shared HQ / buyer-honesty work.** They are not a universal field-rep analytics
+surface. Field analytics is iPad-EC, job pack by persona group — `02-IPAD-ACCOUNT-BRIEF-SPEC.md`
+is the **PG-01** pack, not the home screen for PG-05/PG-07.
+
 ---
 
 ## A6 — Export/UI reconciliation (EBR-91 / SERV-2449)
@@ -36,21 +45,19 @@ on it. Nothing downstream is worth building on an untrusted surface.
 
 ### Jobs and personas served
 
-| JTBD | Persona | Relationship |
+| Job | Group | Relationship |
 |---|---|---|
-| **JTBD-035** Make the export match the screen | **PER-03** VP Sales / sales ops | Direct — this *is* the job |
-| JTBD-031 Get one topline I can defend | PER-03 | Gated — a topline whose export disagrees is not defensible |
-| JTBD-061 Know the one true topline | PER-06 owner / exec | Gated, highest consequence |
-| JTBD-012 See only my territory, and trust it | PER-01 rep | Secondary metric of JTBD-012 is export-to-UI reconciliation rate |
+| **JOB-HQ-5** Make the export match the screen | **PG-HQ** (VP / ops) | Direct — this *is* the job |
+| JOB-HQ-1 Get one topline I can defend | PG-HQ (owner / VP) | Gated — a topline whose export disagrees is not defensible |
+| JOB-01-3 / JOB-03-3 See only my territory, and trust it | PG-01 / PG-03 | Secondary metric is export-to-UI reconciliation rate |
 
-`personas/PER-06-owner-exec.md` states the dependency verbatim: *"three things must be true before
-Intelligence is trustworthy: territory scopes the book; export reconciles to UI; quotes never counted
-as sales."* A6 is the second of those three.
+`personas/PER-06-owner-exec.md` (seat evidence) states the dependency: *"three things must be true
+before Intelligence is trustworthy: territory scopes the book; export reconciles to UI; quotes never
+counted as sales."* A6 is the second of those three.
 
-PER-03's documented trust failure is this defect: *"export ≠ displayed total [EBR-91], which makes
-this persona the one who fields 'the CSV doesn't match' and rebuilds it by hand."* When the rebuild
-happens, Excel becomes the real system of record and every downstream analytics job is dead on
-arrival.
+The documented trust failure: *"export ≠ displayed total [EBR-91], which makes this persona the one
+who fields 'the CSV doesn't match' and rebuilds it by hand."* When the rebuild happens, Excel
+becomes the real system of record and every downstream analytics job is dead on arrival.
 
 ### The specific defect
 
@@ -115,14 +122,14 @@ shared territory-resolver work, and SERV-2196 bill-to/ship-to semantics.
 
 ### One correction to carry into this ticket
 
-`analytics/jtbd-register.md` and `personas/PER-01-independent-sales-rep.md` both describe JTBD-012 as
-*"Served badly (EBR-40/212/91)."* **EBR-40 and EBR-212 are closed, not open.**
-`BRENT-ENGINEERING-QUEUE-2026-08-04.md` §6 records `PROD-PASS` on both — restricted `betaverify`,
-Gigi Lane June 2026 displayed `$123,585` against `$123,585.35` in SQL; Dashboard Current-YTD showed
-`$836,263` matching Invoices. Under spec §2.1 production behaviour outranks documentation, so treat
-EBR-40/212 as closed. The live reproduced authorization defect is a *different* one — direct-record
-out-of-book access (`INV65157`, email-invoice id `4667912895`, customer `14378`), covered by the
-net-new authorization package in §3 of that queue, which is sequenced **before** SERV-2449.
+JOB-01-3 / JOB-03-3 (territory trust) were documented against EBR-40/212/91. **EBR-40 and EBR-212
+are closed, not open.** `BRENT-ENGINEERING-QUEUE-2026-08-04.md` §6 records `PROD-PASS` on both —
+restricted `betaverify`, Gigi Lane June 2026 displayed `$123,585` against `$123,585.35` in SQL;
+Dashboard Current-YTD showed `$836,263` matching Invoices. Under spec §2.1 production behaviour
+outranks documentation, so treat EBR-40/212 as closed. The live reproduced authorization defect is a
+*different* one — direct-record out-of-book access (`INV65157`, email-invoice id `4667912895`,
+customer `14378`), covered by the net-new authorization package in §3 of that queue, which is
+sequenced **before** SERV-2449.
 
 ---
 
@@ -133,7 +140,7 @@ net-new authorization package in §3 of that queue, which is sequenced **before*
 ### What the docs assume, and what is actually true
 
 `product/data-gaps.md` A4 reads: *"`enable_rep_activity` is on for 7 of 257 orgs `[MEASURED]`. Data
-exists; the switch is off"* — implying JTBD-032/063 are a config flip.
+exists; the switch is off"* — implying JOB-HQ-3 is a config flip.
 
 `[SQL 2026-08-27]` confirms the count exactly: **7 of 257 organizations** have
 `organizations.enable_rep_activity = true`. But the flag does not gate what the register thinks it
@@ -150,7 +157,7 @@ Two consequences:
 - **It is a pilot, not a suppressed feature.** The 7 orgs are `demo`, `wwjc`, `kl`, `demo2`, `pebl`,
   `cst`, `bgu` `[SQL 2026-08-27]` — **two of the seven are demo orgs.** That is five real orgs in a
   deliberate phased rollout, which is what the plan document describes.
-- **Ungating it would not serve JTBD-032 or JTBD-063.** Those jobs measure logins against seats.
+- **Ungating it would not serve JOB-HQ-3.** That job measures logins against seats.
   The pilot measures rep-logged activities, depends on the iPad client shipping the buttons, and
   would render empty tables in any org where reps have never tapped them.
 
@@ -161,13 +168,15 @@ table rep_activities`, so actual pilot volume could not be verified.
 
 ### Jobs and personas served
 
-| JTBD | Persona | Metric |
+| Job | Group | Metric |
 |---|---|---|
-| **JTBD-032** Know the team is actually using it | **PER-03** VP Sales / sales ops | Reps active in 30d ÷ seats licensed |
-| **JTBD-063** Is the sales organisation working | **PER-06** owner / exec | Share of licensed reps active in 30d |
+| **JOB-HQ-3** Know the team is actually using it | **PG-HQ** (VP / ops / owner) | Reps active in 30d ÷ seats licensed |
 
-Same underlying data at two altitudes — `personas/PER-06-owner-exec.md` says so explicitly:
-*"Same underlying gap as JTBD-032, viewed from a different altitude."*
+Same underlying data at two altitudes (ops vs owner). The owner-facing view must never imply that
+low SuperCat-submitted order volume is failed adoption — selling instrument ≠ order consummation.
+
+This job **does not differ by selling motion.** Volume orgs and spec orgs both need the count. Do
+not skip it for volume.
 
 ### The gap, and the fields it lives in
 
@@ -178,7 +187,7 @@ There is no view anywhere that renders active reps against seats. Both inputs ex
 | iPad last login | `org_users.last_ipad_login_at` | `[SQL 2026-08-27]` present |
 | eOL last login | `org_users.last_ecat_online_login_at` | `[SQL 2026-08-27]` present |
 | Rep vs buyer discriminator | `org_users.customer_number` blank ⇒ internal/rep | `personas/PER-00-persona-set.md` §1 |
-| Orders per user | `orders` | `product/surface-mapping.md` §1 |
+| Orders per user | `orders` | `product/surface-mapping.md` |
 | Seats licensed | `subscription_plans.user_limit` via `subscriptions.subscription_plan_id` | `[SQL 2026-08-27]` present |
 
 **Reproduced numerator** `[SQL 2026-08-27]`, filtering `customer_number IS NULL OR = ''`:
@@ -205,11 +214,10 @@ count alone for the rest.
    a ratio that looks authoritative and is wrong.
 5. Window is configurable to 30 / 60 / 90 days; 30 is the default. A 90-day run against the whole
    estate must return 4,058 to match the baseline above.
-6. **Mandatory honesty label on the surface**, inherited from `PER-03` JTBD-032 and `PER-06`
-   JTBD-063: low SuperCat-submitted order volume is **not** evidence of failed adoption —
-   *"selling instrument ≠ order consummation."* Narrate activity; never imply failure. `PER-06`
-   is explicit that an owner-facing activity view implying otherwise *"would cause real, wrong
-   personnel decisions."*
+6. **Mandatory honesty label on the surface:** low SuperCat-submitted order volume is **not**
+   evidence of failed adoption — *"selling instrument ≠ order consummation."* Narrate activity;
+   never imply failure. An owner-facing activity view implying otherwise would cause real, wrong
+   personnel decisions.
 7. Reps with no territory assignment still appear in the activity count. Fail-closed applies to
    *sales data*, not to *login counts* — an unterritoried rep is exactly who a VP needs to see.
 
@@ -234,26 +242,26 @@ orgs is a product call about that feature, on its own evidence, and it is **not*
 
 ### Jobs and personas served
 
-| JTBD | Persona | Metric |
+| Job | Group | Metric |
 |---|---|---|
-| **JTBD-053** Find where the catalog is broken before a rep does | **PER-05** product / merchandising | Count of active items failing a completeness check |
+| **JOB-HQ-9** Find where the catalog is broken before a rep does | **PG-HQ** (merch) | Count of active items failing a completeness check |
 
-Second-order beneficiary is **PER-01** (rep): the decision this changes, per
-`personas/PER-05-product-merchandising.md`, is *"whether a rep is embarrassed in front of a
-customer."*
+Second-order beneficiary is the field: the decision this changes is *"whether a rep is embarrassed
+in front of a customer."* That is why PG-07 still has a reason to open the iPad even if we skip an
+L analytics panel.
 
-**Segment note.** This is one of only 4 of 31 jobs that legitimately varies — **SEG-04**, median
-4,498 products against median 30 collections, the largest catalogs with the least structure. Per the
-standing rule, **do not condition on segment.** Parameterise on the org's own product count: manual
-eyeballing is tractable at 600 items and impossible at 30,000, so paginate and rank by count. The
-view is identical either way.
+**Motion note.** Completeness itself is **shared HQ work** — do not skip it for volume. Volume
+catalogs are the largest (SEG-04 median ~4,498 products against median 30 collections), so paginate
+and rank by fail count; eyeballing is tractable at 600 items and impossible at 30,000. What *does*
+differ by motion is merch **grain for "what sold"** (JOB-HQ-8: collection vs velocity). This view is
+the broken-catalog list, not sell-through. Do not condition completeness on segment.
 
 ### The gap
 
 `data-gaps.md` A3: *"No new fields — images, prices and taxonomy all exist. Pure aggregation."*
 Confirmed `[SQL 2026-08-27]` — every field needed is present on `products`. What was missing was not
-data but a **definition**: `PER-05` says *"no image, no price, no category"*, which is a phrase, not a
-testable rule.
+data but a **definition**: the merch seat says *"no image, no price, no category"*, which is a
+phrase, not a testable rule.
 
 **Rule fixed 2026-08-27.** Three independent checks over active items.
 
@@ -268,7 +276,7 @@ testable rule.
 
 `collection_codes` / `collection_code` are **not** part of the rule — collection is a merchandising
 grouping, not a completeness requirement, and treating a missing collection as a defect would swamp
-flat SEG-04 catalogs.
+flat volume catalogs.
 
 ### Baseline — run this and expect these numbers
 
@@ -309,7 +317,7 @@ the rule: it is signal, not noise.
 ### Ticket
 
 **None exists. Needs one.** Suggested title: *Admin Console: catalog completeness view.*
-Surface is **Admin** per `product/surface-mapping.md` §1 — this is where PER-05 acts, and the fix
+Surface is **Admin** per `product/surface-mapping.md` — this is where merch acts, and the fix
 happens in the same place as the finding.
 
 ---
@@ -318,14 +326,15 @@ happens in the same place as the finding.
 
 ### Jobs and personas served
 
-| JTBD | Persona | Relationship |
+| Job | Group | Relationship |
 |---|---|---|
-| **JTBD-084** Know what's in stock before I promise it | **PER-08** dealer buyer | Direct — *"staleness disclosure is the gap, not the data"* |
-| Every offline staleness rule | **PER-01** rep | `product/surface-mapping.md` §5.3 requires an age line on the iPad extract |
+| JOB-02-2 / 04-2 / 08-2 Know what's in stock before I promise it | PG-02 / 04 / 08 (buyers on eOL) | Direct — staleness disclosure is the gap, not the data |
+| Every offline staleness rule | PG-01 / 03 / 05 field extracts | `product/surface-mapping.md` §3 requires an age line on the iPad extract |
 
 **Scope decided 2026-08-27: both surfaces — the eOL buyer view and the iPad extract.** One timestamp,
-two renderings. §5.3's staleness rules cannot be implemented without it, and the iPad side is the
-larger population (4,058 active reps).
+two renderings. iPad-EC staleness rules cannot be implemented without it, and the iPad side is the
+larger population (4,058 active reps). Buyer-side fit still follows motion: spec/trade high,
+volume fringe.
 
 ### The gap, and the mechanism — confirmed
 
@@ -364,7 +373,7 @@ The worst single case found is an org whose inventory last imported **2021-01-04
 years old, still rendering as current.
 
 That is a modest buyer population. The larger case is the rep side: the same snapshot feeds 4,058
-active iPad reps, and §5.3's entire staleness contract depends on this timestamp existing in the UI.
+active iPad reps, and iPad-EC's entire staleness contract depends on this timestamp existing in the UI.
 
 ### Acceptance criteria
 
@@ -373,17 +382,16 @@ active iPad reps, and §5.3's entire staleness contract depends on this timestam
 2. **eOL buyer view:** anywhere `qty_available` or `next_scheduled_receipt_date` is rendered, the
    snapshot age is rendered with it, non-modally, in the same visual unit as the quantity. Never show
    a quantity without its age.
-3. Age renders as an absolute local time plus a relative age — the pattern in §5.3 is
-   *"As of Tue 9:14am — 2 days old."* Not a bare relative age; a rep or buyer quoting a number needs
-   the timestamp.
+3. Age renders as an absolute local time plus a relative age — *"As of Tue 9:14am — 2 days old."*
+   Not a bare relative age; a rep or buyer quoting a number needs the timestamp.
 4. **iPad extract:** the snapshot timestamp is carried into the extract at sync and rendered by the
    same rule. See `02-IPAD-ACCOUNT-BRIEF-SPEC.md` §4.
 5. Past the acceptable window the numbers still render, with a visible warning state — **never an
-   empty state where cached data exists** (§5.3). A stale number with its age beats a spinner.
+   empty state where cached data exists**. A stale number with its age beats a spinner.
 6. Where an org has never imported inventory (no rows), render "inventory not provided" — not a zero,
    not a blank. Prior work bars rendering absent data as `$0`/`0`.
 7. Anything a buyer or rep would quote to a customer, past its window, is labelled as needing
-   confirmation rather than presented as fact (§5.3).
+   confirmation rather than presented as fact.
 8. No new column on `inventories`. No write path. Read-only derivation.
 
 **Tests:** fresh org renders age; the 2021-snapshot org renders age plus warning state; an org with
@@ -394,7 +402,7 @@ iPad extract carries the timestamp through a full sync cycle.
 
 **None exists. Needs one** — and it should be **two**, because the surfaces ship independently:
 *eOL: disclose inventory snapshot age to buyers* and *iPad extract: carry inventory snapshot age*.
-The second is a dependency of the JTBD-011 component and can ship with it.
+The second is a dependency of the PG-01 component and can ship with it.
 
 ---
 
@@ -407,8 +415,12 @@ The second is a dependency of the JTBD-011 component and can ship with it.
 3. **A4, A3, A2** — mutually independent. Any order, or in parallel. None touches the Portal
    territory or amount contracts, so none collides with A6 or with SERV-2196.
 
-**A2's iPad half is the one cross-dependency:** it is also step one of the JTBD-011 component in
+**A2's iPad half is the one cross-dependency:** it is also step one of the PG-01 component in
 `02-IPAD-ACCOUNT-BRIEF-SPEC.md`.
+
+Canonical field-analytics order after this pack: territory fail-closed → iPad-EC shell → PG-01 and
+PG-03 job packs (`product/surface-mapping.md` §2). Do not implement a single seat-based analytics
+surface for all motions.
 
 ## Open items a developer will hit, recorded rather than guessed
 
@@ -418,8 +430,8 @@ The second is a dependency of the JTBD-011 component and can ship with it.
   SuperCat at all."* `[SQL 2026-08-27]`: `portal_invoices` carries `tracking_number` on **1,121,123
   of 4,940,477** invoices across **26 organizations**, plus `tracking_carrier` (744,046) and
   `ship_via` (2,712,248), and a dedicated `portal_invoice_tracking_records` table exists. This does
-  **not** unblock JTBD-015/043 — tracking is post-invoice, and those jobs ask about open orders — but
-  the flat claim is wrong and is corrected in `03-ROADMAP.md`. B3's *conclusion* stands: do not build
-  a ship-date promise on data we do not hold.
+  **not** unblock JOB-01-2's ERP ship-status half — tracking is post-invoice, and that job asks
+  about open items / next receipt — but the flat claim is wrong and is corrected in `03-ROADMAP.md`.
+  B3's *conclusion* stands: do not build a ship-date promise on data we do not hold.
 - **Territory master coverage is worse than F11 records**, and it caps the iPad work rather than this
   pack. See `02-IPAD-ACCOUNT-BRIEF-SPEC.md` §2.

@@ -14,6 +14,8 @@ jobs: [JTBD-011, JTBD-012, JTBD-013, JTBD-014, JTBD-015]
 
 # PER-01 — Independent sales rep
 
+> **2026-09-15 — login seat, not the persona set.** This file is evidence about who is on the iPad. Product personas are PG-01 / PG-03 / PG-05 / PG-07 in [`00-PERSONA-GROUPS.md`](00-PERSONA-GROUPS.md) — they do **not** share one analytics job. JTBD-0xx IDs below are retired. Use `JOB-*` in [`../analytics/jtbd-register.md`](../analytics/jtbd-register.md).
+
 **Behavioural definition.** Carries multiple manufacturers' lines. Sells in the field — a dealer's
 back office, a designer's studio, a market showroom — frequently with no usable connectivity.
 Writes orders on the iPad; the order is often consummated elsewhere (ERP, phone, EDI). Paid on what

@@ -1,6 +1,10 @@
 # 01 — What We Do
 
-> **Last updated**: 2026-08-27 (added the **build once, parameterise on org structure — not on segment** rule under the gating model, from the persona/JTBD work: only 4 of 31 jobs vary, and not by segment. Surfaces, the five gating layers, value moments and BCF all unchanged. Prior version: `_archive/01_what_we_do_2026-08-27_pre-persona-axis.md`. Previously: 2026-05-12)
+> **Last updated**: 2026-09-15 (replaced the 2026-08-27 **build once, do not condition on segment**
+> rule with: one iPad-EC *shell*, job pack by selling motion; buyer jobs on eOL with fit that follows
+> motion; HQ shared. Surfaces, gating layers, value moments and BCF unchanged. Prior version:
+> `_archive/01_what_we_do_2026-09-15_pre-persona-groups.md`. Previously: 2026-08-27 added the now-withdrawn
+> build-once rule. Prior: `_archive/01_what_we_do_2026-08-27_pre-persona-axis.md`. Previously: 2026-05-12)
 > **Owner**: CEO
 > **Review cadence**: Quarterly (or when product surface, gating model, or value-moment catalog changes)
 > **Primary sources**: [`skills/insightful_product/01_bcf_instance_profile.md`](../skills/insightful_product/01_bcf_instance_profile.md), [`skills/insightful_product/04_value_moment_catalog.md`](../skills/insightful_product/04_value_moment_catalog.md), [`skills/monetization_refresh_2026/11_synthesis/2026-01-28__product_capability_map__m3_input__v1.md`](../skills/monetization_refresh_2026/11_synthesis/2026-01-28__product_capability_map__m3_input__v1.md)
@@ -111,15 +115,25 @@ Practical consequence: **only Layers 1–3 can be used for tier fences in the 20
 
 The architecture is currently **modular, not tiered**. An org subscribes to iPad ($725), then separately adds Catalog ($295), Cart ($295), Portal ($395), Closed Site ($100), CPQ ($195 add-on or $795 bundle). The 2026 monetization refresh collapses this into T1/T2/T3 — see [`03_how_we_make_money.md`](03_how_we_make_money.md).
 
-### Build once, parameterise on org structure — not on segment
+### Field and buyer jobs follow selling motion; HQ is the shared shell
 
-*Added 2026-08-27. The load-bearing product conclusion of the persona/JTBD work; see [`02_who_we_serve.md`](02_who_we_serve.md) § Persona.*
+*Corrected 2026-09-15. Replaces the 2026-08-27 rule that forbade conditioning product on segment.
+See [`02_who_we_serve.md`](02_who_we_serve.md) § Persona groups.*
 
-When we build a surface for a job, **build it once and parameterise it on the org's own structure — price-code count, territory count, product count — never on the client's segment.** Across the 31 registered jobs, **only 4 vary by segment and 27 do not**; and the four that vary track catalog scale, territory count and price-code count, which are structural facts an org can read off its own data, **not selling motion**. A job does not need to know an org is Luxury Specification; it needs to know how many price codes it has.
+When we build for **field reps and buyers**, the job is a function of the client's selling motion
+(roster lookup). A spec-rep's pre-appointment brief is not a volume-rep's catalog reference. A
+showroom buyer's eOL is not a chain buyer's (and the chain buyer mostly will not use eOL).
 
-**This is a build rule, not an observation.** A per-segment variant of an analytics surface encodes a distinction the data cannot carry — the selling-motion segments are stamped judgment reproducing at **38.5% against a 34.9% majority baseline**. The default answer for any new job is **does not differ by segment**; variation is claimed only where it can be pointed at a measured structural difference. Detail: [`sources/customer_segmentation/analytics/jtbd-register.md`](sources/customer_segmentation/analytics/jtbd-register.md) § Segment variation and [`sources/customer_segmentation/product/surface-mapping.md`](sources/customer_segmentation/product/surface-mapping.md).
+When we build the **plumbing**, share it: one iPad-embedded web-component shell, one extract
+pipeline, one eOL Cart, Portal/Admin for HQ. Parameterise HQ on structure and on the few jobs that
+actually move with motion (account-decline window, merch grain). **Do not** ship four products. **Do
+not** ship one job list for every motion.
 
-**One current-state fact this rule sits on:** there is **no incumbent rep analytics surface** — the Sales Portal Territory Dashboard is enabled for **zero organisations** and Reports reaches **6**. Anything rep-facing and analytics-shaped is greenfield, not a redesign.
+There is **no incumbent rep analytics surface** — Territory Dashboard is enabled for **zero
+organisations**. Field-rep analytics is greenfield and belongs in the iPad, because the unsolved
+constraint is offline.
+
+Detail: [`sources/customer_segmentation/product/surface-mapping.md`](sources/customer_segmentation/product/surface-mapping.md).
 
 ---
 

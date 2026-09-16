@@ -15,6 +15,13 @@ depends_on: [TAX-A, TAX-B, TAX-MAP]
 
 # Corrections — APPLIED 2026-08-26
 
+**Also applied 2026-09-15 (persona groups).** `CEO_SYSTEM_CONTEXT.md`, `02_who_we_serve.md`,
+`01_what_we_do.md`, and `00_README.md` no longer say “jobs don’t differ / build once not on
+segment.” Lineage (roster lookup, no segment on prospects) kept. Prior versions:
+`foundation/_archive/*_2026-09-15_pre-persona-groups.md`. Canonical persona set:
+`sources/customer_segmentation/personas/00-PERSONA-GROUPS.md`. This file remains the record of the
+2026-08-26 lineage correction; it is not a second source of truth for personas.
+
 **Status: applied.** Authorised by Kylor 2026-08-26 after the Layer A/B taxonomy was flipped to
 `status: hardened`. The hold condition (*"apply after Layer A/B is hardened"*) is satisfied and
 discharged.

@@ -14,6 +14,8 @@ jobs: [JTBD-061, JTBD-062, JTBD-063]
 
 # PER-06 — Owner / exec
 
+> **2026-09-15 — login seat, not the persona set.** Maps to **PG-HQ** in [`00-PERSONA-GROUPS.md`](00-PERSONA-GROUPS.md). Account-decline windows **do** differ by selling motion. JTBD-0xx IDs below are retired.
+
 **Behavioural definition.** Owns the business, not the selling system. Consumes conclusions, not
 screens. Logs in rarely or never — more often receives the number from someone who did.
 

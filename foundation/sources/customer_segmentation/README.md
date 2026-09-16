@@ -1,6 +1,6 @@
 # Customer Segmentation — canonical home
 
-> **Last updated**: 2026-08-25 · **Owner**: CEO · **Status**: v4.0 stamped (2026-07-09), imported here 2026-07-10.
+> **Last updated**: 2026-09-15 · **Owner**: CEO · **Status**: v4.0 stamped (2026-07-09); SuperCat personas = who consumes which product (2026-09-15).
 >
 > **2026-08-25 — link repair.** This README previously named three files as living in this folder;
 > only `account_buyer_type_reads.csv` ever did. The stamped narrative and the MASTER roster live at
@@ -40,14 +40,17 @@ segments are **post-sale only** and cannot be assigned to a prospect.
 | [`taxonomy/prospect-archetypes.md`](taxonomy/prospect-archetypes.md) | **Layer B** — ARCH-01..04, built only from pre-sale observable features |
 | [`taxonomy/segment-archetype-mapping.md`](taxonomy/segment-archetype-mapping.md) | Measured A↔B correspondence and the back-test. **Read this before using any archetype** |
 | [`ASSUMPTIONS.md`](ASSUMPTIONS.md) | Assumptions register and open findings |
-| [`FOUNDATION-CORRECTIONS.md`](FOUNDATION-CORRECTIONS.md) | Proposed corrections to `CEO_SYSTEM_CONTEXT.md` / `02_who_we_serve.md`. **Held, not applied** |
+| [`FOUNDATION-CORRECTIONS.md`](FOUNDATION-CORRECTIONS.md) | Record of foundation patches (lineage 2026-08-26; persona groups 2026-09-15) |
+| [`PERSONA-GROUPS-REVIEW.html`](PERSONA-GROUPS-REVIEW.html) | Stamp packet to review before GitHub. `PERSONA-READOUT.html` / `CEO-READOUT.html` / `CEO-BRIEF.html` are **withdrawn stubs** |
 | [`CHANGELOG.md`](CHANGELOG.md) | Change history for this subtree |
+| [`personas/00-PERSONA-GROUPS.md`](personas/00-PERSONA-GROUPS.md) | **Canonical persona set** — selling motion × seat (2026-09-15). Start here for "who uses it / what to build" |
+| [`analytics/jtbd-register.md`](analytics/jtbd-register.md) | Analytics jobs per SuperCat persona (admin / VP / exec / rep / buyer) |
+| [`product/surface-mapping.md`](product/surface-mapping.md) | eOL vs iPad-EC vs Portal |
 
 No Layer B archetype inherits a Layer A segment name — per `07_how_we_establish_truth.md`
 principle 7, enrichment is validated *against* a first-party segment, never seeded *from* one.
 
-**Ignore list:** `Customer Segmentation 2/` is a byte-identical duplicate of `Customer Segmentation/`.
-Do not read, cite, or write to it.
+`Customer Segmentation 2/` was a byte-identical duplicate; **deleted 2026-09-15.**
 
 ---
 

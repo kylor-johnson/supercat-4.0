@@ -14,6 +14,8 @@ jobs: [JTBD-021, JTBD-022, JTBD-023, JTBD-024]
 
 # PER-02 — Rep agency principal
 
+> **2026-09-15 — login seat, not the persona set.** Still unservable (no agency entity). Not a persona group. Canonical set: [`00-PERSONA-GROUPS.md`](00-PERSONA-GROUPS.md). JTBD-0xx IDs below are retired.
+
 **Behavioural definition.** Runs an independent rep agency carrying several manufacturers' lines,
 with sub-reps under them. Their unit of concern is **the agency's book across a manufacturer**, not
 one territory and not the manufacturer's whole org. They are not employed by the manufacturer, and

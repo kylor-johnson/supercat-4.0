@@ -10,6 +10,8 @@ depends_on: [JTBD-REG, PROD-MAP]
 
 # Data-work backlog
 
+> **2026-09-15.** Job IDs in this backlog (JTBD-0xx) refer to the retired Aug 25 seat register. The live jobs are `JOB-*` in [`../analytics/jtbd-register.md`](../analytics/jtbd-register.md). The split below (we build it vs client must send it) still holds — especially the invoice feed for 71 orgs, which still blocks commercial-truth jobs.
+
 **Two lists, because they have different owners.** List A is engineering work we control. List B is
 client data we can only ask for. Conflating them has been making the roadmap look more tractable
 than it is.

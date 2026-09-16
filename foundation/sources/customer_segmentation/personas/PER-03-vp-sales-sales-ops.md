@@ -14,6 +14,8 @@ jobs: [JTBD-031, JTBD-032, JTBD-033, JTBD-034, JTBD-035]
 
 # PER-03 — VP Sales / sales ops
 
+> **2026-09-15 — login seat, not the persona set.** Maps to **PG-HQ** in [`00-PERSONA-GROUPS.md`](00-PERSONA-GROUPS.md). JTBD-0xx IDs below are retired; use `JOB-HQ-*` in [`../analytics/jtbd-register.md`](../analytics/jtbd-register.md).
+
 **Behavioural definition.** Owns the selling system rather than a book. Decides who sees what, keeps
 the numbers reconcilable, and answers for team performance upward. Combines the Owner/VP seat from
 `PERSONA-ONE-PAGERS.md` Persona 2 with the ops half of Persona 3 — one person in most of our

@@ -1,5 +1,9 @@
 # Brief — measure the persona register against production
 
+> **2026-09-15 — historical prompt.** This brief measured the Aug 25 *seat* register. Do not re-run
+> it as if JTBD-0xx / “31 jobs” were current. Output lives in `_measured/` and is scoped there.
+> Canonical set: [`personas/00-PERSONA-GROUPS.md`](personas/00-PERSONA-GROUPS.md).
+
 **For:** Claude Code, with read-only Postgres MCP access to `supercatprod` and the foundation repo on disk.
 **Written:** 2026-08-31, after a first verification pass that reproduced most of the register's figures and found one wrong.
 

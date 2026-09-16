@@ -1,278 +1,133 @@
 ---
 id: PROD-MAP
-title: Surface mapping — all 31 jobs to a surface
-version: 0.1
+title: Surface mapping — persona-group jobs onto eOL, iPad-EC, Portal
+version: 0.2
 status: draft
-date: 2026-08-25
+date: 2026-09-15
 owner: Kylor Johnson
-depends_on: [JTBD-REG, PER-00]
+depends_on: [PERSONA-GROUPS, JTBD-REG]
+supersedes: Aug 25 mapping that placed 31 seat-jobs and forbade segment-conditional variants
 ---
 
 # Surface mapping
 
-**Carried forward as established, applied to every row:**
+**Locked product constraint:**
 
-1. **Sales Portal is the analytics surface. eOL Catalog/Cart is the buying surface.**
-2. **There is no incumbent rep analytics surface.** Territory Dashboard requires `:portal_portal`,
-   enabled for **zero organisations** — 9 internal SuperCat usernames only. Reports requires
-   `:advanced_reports`, **6 orgs** `[OBSERVED: PERSONA-EVIDENCE.md]`. Anything rep-facing and
-   analytics-shaped is greenfield, not a redesign.
-3. **Build once, parameterise on org structure** — price-code count, territory count, product count.
-   **No segment-conditional variants.** Only 4 of 31 jobs vary, and they vary on structure an org
-   can read off its own data, not on selling motion.
-
-Surfaces: **Portal** (Sales Portal) · **eOL** (Catalog/Cart/Closed Site) · **iPad-EC** (new
-web-based component embedded in the offline iPad app) · **Admin** (Admin Console) · **Insightful**.
-
----
-
-## 1. The mapping table
-
-Build size: **S** ≤2 weeks · **M** 2–6 weeks · **L** >6 weeks or needs a new data structure.
-Offline risk applies to iPad-EC rows only.
-
-| JTBD | Persona | Surface | Data dependencies | Fields that don't exist | Size | Offline risk |
-|---|---|---|---|---|---|---|
-| JTBD-011 | rep | **iPad-EC** ⚠️ | `portal_invoices`, `orders`, customer, territory | — | **L** | **HIGH** |
-| JTBD-012 | rep | **Portal + iPad-EC** | territory master, user territories, `access_all_customer_sales_totals` | `RepNumber` as multi-value | **M** (fix, not build) | **MED** |
-| JTBD-013 | rep | **iPad** (existing) | local SQLite catalog/customers/pricing/inventory | — | — (protect) | **N/A — is the baseline** |
-| JTBD-014 | rep | **iPad-EC** | `portal_invoices`, `orders` by customer by period | **per-account baseline / seasonality** | **M** | **MED** |
-| JTBD-015 | rep | **iPad-EC** | `orders`, `portal_invoices` | **ERP ship status** (not ours) | **S** | **MED** |
-| JTBD-021 | agency | **Portal** ⚠️ | invoices, multi-territory rollup | **agency entity**, sub-rep→principal | **L** | — |
-| JTBD-022 | agency | **Portal** | per-rep attribution | **agency entity**, `REP_IDENTITY_TIER` ≥2 | **L** | — |
-| JTBD-023 | agency | **Portal** | multi-year invoices | **agency entity**, customer "opened by" | **L** | — |
-| JTBD-024 | agency | **Admin** | user territories, user types, `customer_synching` | **view-as / preview mechanism** | **M** | — |
-| JTBD-031 | VP/ops | **Portal** (exists) ⚠️ | `portal_invoices`, `orders`, backlog calc | — | **S** (honesty labelling) | — |
-| JTBD-032 | VP/ops | **Portal** | `last_ipad_login_at`, `last_ecat_online_login_at`, orders/user, seats | — | **S** — gate is off, not missing | — |
-| JTBD-033 | VP/ops | **Admin** | 134 toggles / 39 flags / 6 layers, `customer_synching` | — (aggregation only) | **M** | — |
-| JTBD-034 | VP/ops | **Admin** | import events, ETL delay | **push/alert channel**; failure reason codes | **S** | — |
-| JTBD-035 | VP/ops | **Portal** | same query both paths | — | **S** (defect fix) | — |
-| JTBD-041 | CS | **Portal** (exists) | `orders`, `portal_invoices`, ship-tos, linkage | — | — (coverage, not build) | — |
-| JTBD-042 | CS | **Admin** (exists) | customers, price levels, options, inventory | — | — | — |
-| JTBD-043 | CS | **Portal** | `orders`, `portal_invoices`, `NextReceiptDate` | **ERP ship/carrier/tracking** (not ours) | **S** | — |
-| JTBD-044 | CS | **Admin** | product state, inventory freshness, import state | **order-failure reason codes** | **M** | — |
-| JTBD-051 | product | **Portal** | order/invoice lines by item, taxonomy | **item lifecycle dates**, inventory history | **M** | — |
-| JTBD-052 | product | **Portal** | option selections on order lines | **option selection capture** (varies by org) | **L** | — |
-| JTBD-053 | product | **Admin** | products, images, prices, taxonomy, image-match results | — (aggregation only) | **S** — cheapest new job | — |
-| JTBD-054 | product | **Portal** | order lines by collection, first-order date | **product launch date / "new" flag** | **M** | — |
-| JTBD-061 | owner | **Insightful** (exists) ⚠️ | `portal_invoices` | — | — | — |
-| JTBD-062 | owner | **Portal** | invoices by customer by period, rep ownership | **per-account baseline** (segment-aware window) | **M** | — |
-| JTBD-063 | owner | **Portal** | login timestamps, territory coverage | — | **S** — gate is off | — |
-| JTBD-081 | buyer | **eOL Cart** (exists) | history, pricing, inventory, cart | — | — (58 orgs entitled) | — |
-| JTBD-082 | buyer | **eOL/Portal** (exists) | `orders`, `portal_invoices`, linkage | — | — **protect, don't regress** | — |
-| JTBD-083 | buyer | **eOL** (exists) | `DefaultPriceCode`, price levels, markup | — | — | — |
-| JTBD-084 | buyer | **eOL** | `inventory` incl. `NextReceiptDate` | **snapshot age / freshness indicator** | **S** | — |
-| JTBD-085 | buyer | **eOL** | catalog, pricing, history | — | **L** (offline buyer session) | **HIGH — see §5.6** |
-| JTBD-086 | buyer | **Portal** (buyer half) | invoices by customer, category mapping | — | **S** — config track, see §2 |
-
-⚠️ = anatomy-vs-spec conflict changes the answer. Scoped in §6.
-
-**Totals:** iPad-EC 5 · Portal 14 · Admin 5 · eOL 5 · Insightful 1 · existing-and-fine 6.
-By size: **S 12 · M 8 · L 6** (5 rows are protect/coverage, not build).
-
----
-
-## 2. The buyer-history config track — not a build item, and not mine to rank
-
-`:advanced_reports` currently reaches **6 orgs**; rolling it to all portal orgs reaches
-**~13,800 additional active buyers** `[OBSERVED: PERSONA-EVIDENCE.md]`. **This is a configuration
-change, not a build**, so it does not belong in the ranking above and is not competing with
-JTBD-053 or anything else for engineering time. It is listed separately because its gating question
-is commercial rather than technical: **exposing a buyer's own purchase history is our client's
-decision about their own customers, not ours.** The risks a client would need to weigh are
-pricing-entitlement exposure (a buyer inferring their tier, or comparing across their own
-locations) and competitive exposure (history views revealing assortment or volume patterns the
-manufacturer would rather not surface). It is therefore **blocked on a client-risk review, not on
-job strength** — a small number of orgs already run it (`:link_to_customer_dashboard` in `vic` and
-`clm`) and could be asked directly. **Decision left with Kylor.**
-
----
-
-## 3. First-class finding — there is no incumbent rep analytics surface
-
-Worth stating plainly because it changes the build calculus rather than just the backlog:
-
-**The Sales Portal Territory Dashboard — the surface a rep would use for JTBD-011, 012, 014 — is
-enabled for zero organisations.** `:portal_portal` resolves to 9 internal SuperCat usernames.
-Reports reaches 6 orgs. The dashboard variant has been stalled since 2022 (EBR-212).
-
-Consequences:
-
-- **Nothing is being displaced.** There is no user habit, no trained expectation, no migration path
-  to preserve. Design freedom is unusually high.
-- **There is also no usage evidence.** No telemetry, no complaints from a surface nobody has, no
-  "reps do X today" baseline. Every design assumption here is untested — which is precisely why
-  Phase 5's H1–H4 exist.
-- **A shipped-but-disabled surface is not a shipped surface.** Any roadmap claiming rep analytics
-  "exists and needs improvement" is wrong. It is greenfield.
-
----
-
-## 4. PER-02 rep agency principal — not servable today
-
-All four PER-02 jobs are capped by one missing structure. Current state `[MEASURED 2026-08-25]`:
-`user_types.primary_rep_group` (a boolean, 142 of 1,980 user types, 39 orgs) and
-`org_users.company_name` (**11,873 distinct free-text values**). Neither is an entity.
-
-### What the entity would need to be
-
-| Element | Requirement |
-|---|---|
-| **`agencies`** table | Stable id, canonical name, per-organisation scope. An agency is a real-world firm; today it is a string typed 11,873 different ways |
-| **`org_users.agency_id`** | FK replacing free-text `company_name` as the authoritative link. Requires a **name-normalisation migration** over 11,873 values — the expensive part |
-| **Principal flag** | Which user(s) in an agency may see the agency-wide roll-up |
-| **Agency → territory mapping** | Many-to-many. Cannot ride on the scalar `RepNumber` — spec §7.5 already says comma-separated rep numbers are *"not reliably represented by the current scalar warehouse model"* |
-| **Warehouse rollup** | Agency-level aggregation in the Portal warehouse, respecting fail-closed territory rules |
-| **Identity tier** | `REP_IDENTITY_TIER` ≥ 2 before any per-sub-rep attribution; unmapped reps never silently dropped |
-
-**Size: L, and the largest single item in this register.** It overlaps EBR-180 / SERV-2178, which
-spec §7.5 already calls *"a separate, large implementation class."* The migration — not the schema —
-is the cost: 11,873 free-text values must be resolved to canonical agencies, and no authoritative
-external list exists.
-
-### Is PER-02 servable before that exists?
-
-**No.**
-
-JTBD-021, 022 and 023 all require aggregating across sub-reps, which requires knowing who the
-sub-reps are. That relationship is not recorded anywhere. There is no partial version: an
-"agency view" built on free-text `company_name` would silently merge distinct agencies that typed
-their name differently and split single agencies that didn't — producing a number that looks
-authoritative and is wrong. Under principle 6 that is a suppress case, not a degrade case.
-
-**The one exception is JTBD-024** (show a sub-rep their scoped view), which needs a preview
-mechanism rather than an agency entity, and is **M** — but it is a support job, not the persona's
-reason to exist.
-
-**Recommendation: do not commit to PER-02 in this cycle.** Say so explicitly to anyone asking for
-agency analytics, rather than shipping an approximation.
-
----
-
-## 5. Offline constraints — the 5 iPad-embedded components only
-
-Applies to **JTBD-011, 012, 014, 015** (rep analytics) and **JTBD-085** (buyer at market).
-Not to the other 26.
-
-**Precedent, noted not re-derived:** the iPad codebase already carries a WebView bridge — **36 call
-sites, classed `NATIVE_EQUIVALENT`** `[OBSERVED: PM/ecat-web-rewrite-estimate/01_CODE_CENSUS.md]`.
-Embedding a web component is an established pattern here, not a new architecture.
-
-### 5.1 What must be cached locally, and its size
-
-Rep analytics needs a **pre-aggregated per-rep extract**, never the raw tables. Shipping order and
-invoice history to the device is not viable — SEG-04 orgs run a median 5,759 orders and SEG-01
-orgs a median 4,418 customers `[MEASURED]`.
-
-| Cached object | Grain | Estimated size |
+| Persona | Where analytics / requirements go | Why |
 |---|---|---|
-| Account summary | one row per customer in the rep's territory: T12M invoiced, prior T12M, open order value, last order date | ~200 bytes × up to ~5,000 accounts ≈ **1 MB** |
-| Category mix | customer × category, last 2 periods | ~50 bytes × ~20 categories × 5,000 ≈ **5 MB** |
-| Decline flags | precomputed per account (JTBD-014) | negligible |
-| Open order status | one row per open order | ~150 bytes × ~1,000 ≈ **0.15 MB** |
-| **Total per rep** | | **≈ 6–8 MB typical; budget 15 MB for the SEG-04 / SEG-01 tail** |
+| **Customer / dealer / buyer** | **eCat Online** (Catalog / Cart / Closed Site) | They are not on the iPad. 18,691 eOL-90d vs 62 buyer iPad-90d. A buyer cannot reach rep views. |
+| **Sales rep** — selling | **Existing iPad** | Already the job. Protect it. Mixpanel lives here. |
+| **Sales rep** — book analytics | **iPad-EC** — a new web component in the offline iPad | No incumbent (`:portal_portal` = 0). Offline is the unsolved constraint. Portal-first leaves the field case unsolved. |
+| **Admin** | **Admin Console** | Catalog, imports, users. Fix happens here. |
+| **VP of sales** (and CS) | **Sales Portal** | The book and the team. Portal on 52/102 sites. |
+| **Executive** | **Insightful** | One topline. Suppress without an invoice feed. |
 
-Sized against the existing catalog cache this is small. **Parameterise the extract on territory
-size and account count — the org's own structure — not on segment.**
+**Do not** put spec-rep book analytics only in Sales Portal. **Do not** put buyer reorder on the iPad. **Do not** ship one "account brief" widget for all four motions.
 
-### 5.2 Acceptable staleness
-
-| Data | Acceptable | Rationale |
-|---|---|---|
-| Account summary / invoiced totals | **24 hours** | Warehouse ETL already runs on a delay (spec §5.3); intra-day precision is not a decision input for a pre-appointment brief |
-| Open order status | **4 hours** | Changes during a business day and is quoted to a customer |
-| Decline flags | **7 days** | A trend signal; daily recomputation is false precision |
-| Territory/permission scope | **Must match server on last sync** | Never stale-serve an access decision — fail closed |
-
-### 5.3 What the rep sees when stale
-
-**Always show the data with its age. Never hide it, never silently serve it as current.**
-
-- A persistent, non-modal age line: *"As of Tue 9:14am — 2 days old."*
-- Past the acceptable window: the same numbers plus a visible warning state, still usable. A rep in
-  a dealer's office with 6-day-old numbers is far better off than a rep with a spinner.
-- **Never** an empty state where cached data exists.
-- Anything quoted to a customer (open order status) past its window: label it explicitly as
-  needing confirmation rather than presenting it as fact.
-
-### 5.4 Zero connectivity on a market floor or dealer back office
-
-This is the **normal** case, not the exception, and the design must assume it:
-
-- All five components read **only** from the local extract. **No component may block on a network
-  call.** A rep-facing analytics panel that spins on a market floor is worse than no panel — it
-  breaks the one thing (JTBD-013) that already works and is SuperCat's strongest asset.
-- No lazy-loaded remote assets — charts, fonts and icons ship with the component.
-- Market week is the **worst** connectivity and the **highest** usage simultaneously. Treat it as
-  the design case.
-- Degradation order when the extract is missing entirely: show the customer record and catalog
-  (existing behaviour), and state that the analytics extract has not synced — never a blank screen.
-
-### 5.5 Sync and conflict handling
-
-**These components are read-only, which removes the hard problem.** They display derived analytics;
-they do not author data. Therefore:
-
-- **No write conflicts by design.** The rep cannot edit an account summary.
-- Sync is a **full replace of the extract**, not a merge — simpler and idempotent.
-- Sync piggybacks the existing catalog/customer sync rather than adding a second channel.
-- Partial sync failure must leave the **previous complete extract in place**, never a half-updated
-  one. A stale-but-consistent view beats a fresh-but-partial one.
-- **This is a deliberate scope boundary.** If a later job requires the rep to *write* through one of
-  these components (e.g. dismissing a decline flag), conflict handling stops being trivial and must
-  be re-specified. Keep them read-only.
-
-### 5.6 Auth when offline
-
-- The component runs inside an authenticated iPad session; it inherits that session and **must not
-  present its own login**.
-- **Permission scope is baked into the extract at sync time** — the extract contains only the
-  accounts the rep is entitled to see. There is no client-side filtering of a wider dataset, so a
-  compromised device cannot reveal a wider book.
-- Consequence: **a permission change does not take effect until the next sync.** Acceptable for
-  widening; **not** acceptable for revocation. Revocation must be enforced server-side at next
-  sync, and the product must not claim real-time revocation it cannot deliver.
-- **Fail closed:** no valid extract, or a territory set that is empty, → show nothing, never
-  whole-org. This is the same rule as JTBD-012 and it is non-negotiable — it is the documented root
-  trust failure (EBR-40).
-
-### 5.7 JTBD-085 is a different and harder problem
-
-JTBD-085 (buyer leaves a market appointment with an order) is the one row where the offline
-constraint applies to a **buyer's own device in a browser**, not to the rep's iPad. The rep half is
-offline-capable; the buyer half is not, and a browser session on a market floor has none of the
-iPad's caching. **Sized L and flagged: this is not solvable by the same pattern**, and may not be
-solvable at all without a buyer-side app. Do not assume the iPad-EC approach transfers.
+Build the **iPad-EC component once** (one WebView, one extract pipeline, one staleness UI). **Configure JOB-REP-1 by stamped segment** — spec does not get the volume home screen. That is not four products. It is one shell with a motion-specific job list.
 
 ---
 
-## 6. The anatomy-vs-spec conflict — scoped, not resolved
+## 1. Mapping table
 
-`PLATFORM_ANATOMY §1.6`: Sales Portal is *"where sales leadership and CS live."*
-`00-SALES-PORTAL-SYSTEM-SPEC.md §3`: its users are *"primarily sales representatives reviewing
-their customer/territory book"* — reps listed **first**.
+Build size: **S** ≤2 weeks · **M** 2–6 weeks · **L** >6 weeks. iPad-EC rows inherit the offline rules in §3.
 
-It bites at three jobs. Both readings are internally coherent; they build different things.
+| ID | Group | Surface | Size | Notes |
+|---|---|---|---|---|
+| JOB-01-1 | PG-01 spec rep | **iPad-EC** | **L** | Needs invoice feed or labelled order-proxy. 24-month grain, by collection. |
+| JOB-01-2 | PG-01 | **iPad** (exists) + **iPad-EC** for open/lead-time | **M** | Lead time/next receipt; ERP ship status is not ours |
+| JOB-01-3 | PG-01 | **iPad-EC** | **M** | Territory fail-closed. Fix, not a new idea (EBR-40) |
+| JOB-02-1 | PG-02 spec buyer | **eOL Cart** | — | Exists where Cart is on (~55 orgs). Highest-value eOL motion. Coverage, not a new surface |
+| JOB-02-2 | PG-02 | **eOL** | **S** | Price + stock already conceptually there; stock needs snapshot age |
+| JOB-02-3 | PG-02 | **eOL / buyer Portal** | — | Protect Orders + Invoices. History beyond that is a **client-risk config**, not a build |
+| JOB-03-1 | PG-03 trade rep | **iPad-EC** | **L** | Dealer line / holes — different extract than JOB-01-1 |
+| JOB-03-2 | PG-03 | **iPad-EC** | **M** | Under-penetrated dealers. Needs a baseline store |
+| JOB-03-3 | PG-03 | **iPad-EC** | **M** | Same territory-trust job as 01-3 |
+| JOB-04-1 | PG-04 dealer buyer | **eOL Cart** | — | Restock-the-line. Same Cart, different default path than spec |
+| JOB-04-2 | PG-04 | **eOL** | **S** | Entitled price + stock |
+| JOB-04-3 | PG-04 | **eOL / buyer Portal** | — | Protect |
+| JOB-05-1 | PG-05 mix rep | **iPad-EC** | **M** | Book must *exclude* marketplace/EDI accounts the rep does not sell |
+| JOB-05-2 | PG-05 | **iPad** (exists) | — | Availability + price — protect |
+| JOB-06-1 | PG-06 reorder buyer | **eOL Cart** | — | Long-tail only. Do not sell as Wayfair replacement |
+| JOB-06-2 | PG-06 | **eOL** | — | Entitlement; this motion has the messy price-code tail |
+| JOB-07-1 | PG-07 volume rep | **iPad** (exists) | — | Catalog reference. **Do not** fund an L analytics panel |
+| JOB-07-2 | PG-07 | **iPad-EC** | **S** | Fringe-only; must not ingest chain HQ volume as "my book" |
+| JOB-08-1 | PG-08 volume buyer | **eOL Cart** | — | Fringe only. **Not a growth bet** |
+| JOB-08-2 | PG-08 | **eOL** | **S** | Next receipt + snapshot age, if we bother |
+| JOB-HQ-1 | HQ | **Insightful** (exists) | — | Honesty ceiling: invoice feed or suppress |
+| JOB-HQ-2 | HQ | **Portal** | **M** | Motion-aware decline window. Do not ship one T90D rule |
+| JOB-HQ-3 | HQ | **Portal** | **S** | Gate is off (`enable_rep_activity` on a handful of orgs), not missing data |
+| JOB-HQ-4 | HQ | **Admin** | **S** | Push/alert; data exists, nothing notifies |
+| JOB-HQ-5 | HQ | **Portal** | **S** | EBR-91 — gates trust in every Portal number. Do this first among HQ |
+| JOB-HQ-6 | HQ | **Portal** (exists) | — | Best current fit. Coverage |
+| JOB-HQ-7 | HQ | **Admin** (exists) | — | Load varies; surface does not |
+| JOB-HQ-8 | HQ | **Portal** | **M** | Grain by motion (collection vs velocity) |
+| JOB-HQ-9 | HQ | **Admin** | **S** | Aggregation, no new fields. Cheapest new HQ job |
+| JOB-HQ-10 | HQ | **Portal** | **M** | Needs a launch date / "new" flag. Skip for volume orgs |
 
-| | **Reading A — anatomy** (Portal = leadership + CS) | **Reading B — spec** (Portal = reps first) |
+---
+
+## 2. What to build, in order
+
+Engineering, ours:
+
+| # | Item | Serves | Size |
+|---|---|---|---|
+| 1 | Export/UI reconciliation (EBR-91) | JOB-HQ-5 — trust ceiling for every Portal number | S |
+| 2 | Inventory snapshot age in the UI | JOB-02-2, 04-2, 08-2, HQ-9 | S |
+| 3 | Catalog completeness view | JOB-HQ-9, also PG-07's reason to open the iPad | S |
+| 4 | Territory fail-closed (never whole-org) | JOB-01-3, 03-3 | M |
+| 5 | iPad-EC shell + per-rep extract | All field analytics | L — **one shell** |
+| 6 | PG-01 and PG-03 job packs on that shell | Spec + trade — where eCat is the selling surface | M each |
+| 7 | PG-05 exclusion of marketplace/EDI from "my book" | Multi-channel honesty | M |
+| 8 | PG-07 fringe pack **or skip** | Volume — default skip unless a named client asks | S |
+| 9 | Motion-aware account-decline (JOB-HQ-2) | Owner/VP | M |
+| 10 | Product launch date | JOB-HQ-10 | S (nullable column) |
+
+**eOL expansion targeting follows the motion**, as the June 29 brief already had:
+
+| Motion | eOL | Why |
 |---|---|---|
-| **JTBD-011** know my book | Rep analytics belong on the **iPad**. Build iPad-EC (L). Portal stays leadership-facing | Rep analytics belong in the **Portal**; the gap is that Territory Dashboard was never enabled. Fix + enable (M) |
-| **JTBD-021** agency book | Portal grows a third audience (external principals) — a new authorization surface | Natural extension of a rep-facing Portal, same territory machinery |
-| **JTBD-031** topline | Portal's primary job. Rep scoping is secondary; simpler permission model | Portal must serve both altitudes; territory scoping becomes first-class (EBR-40 is then a P0, not a defect) |
+| Luxury Spec (PG-02) | **Highest** | Showrooms/designers will use a portal |
+| Premium Trade (PG-04) | **High** | Dealer restock |
+| Multi-Channel (PG-06) | **Medium** | Long tail only; Wayfair never |
+| Volume (PG-08) | **Minimal** | Chain HQ never logs in |
 
-**Cost of picking wrong:**
+That targeting is a GTM/CS rule, not a fourth product.
 
-- **Wrong on A** (build iPad-EC, reps actually wanted it in the Portal): sunk iPad-EC build, plus a
-  Portal that still fails territory scoping. **Recoverable** — the extract and aggregation logic
-  are reusable; the wrapper is thrown away. Call it **the smaller loss**.
-- **Wrong on B** (invest in Portal territory scoping, reps actually need it offline in the field):
-  a correct Portal that reps cannot use where they work — a dealer's back office, a market floor.
-  **Less recoverable**, because it fails on the constraint (offline) rather than on the surface, and
-  the offline requirement then forces the iPad build anyway. **The larger loss.**
+**Client must send:** invoice feed for the 71 roster orgs without one. Without it, JOB-01-1 / 03-1 / HQ-1 / HQ-2 cannot be invoiced-net. Degrade to labelled eCat-order views only where the job is "what's the trend on this rail"; **suppress** when the job is "what really happened commercially."
 
-**The asymmetry is the useful part**: getting A wrong costs a wrapper; getting B wrong costs the
-wrapper *and* leaves the field case unsolved. That argues for resolving the conflict before
-committing to JTBD-011, not after.
+**Do not commit this cycle:** PER-02 agency entity; buyer purchase-history ungate as a blanket (client-risk: pricing entitlement + competitive exposure); a Portal-first rep analytics bet that leaves the field case unsolved.
 
-**Still not picked.** Two stamped documents disagree and this is a product-owner decision.
-**The cheapest way to settle it is Phase 5's walk list** — ask reps at market where they would look.
+---
+
+## 3. iPad-EC — offline rules (field components only)
+
+Applies to JOB-01-*, 03-*, 05-1, 07-2. Not to eOL. Not to HQ.
+
+The iPad already embeds WebViews (established pattern, not a new architecture). These components are **read-only**. That removes write-conflict handling.
+
+- **Cache a pre-aggregated extract**, never raw orders/invoices. Budget ~6–8 MB typical, 15 MB for the fat tail. Size on the org's account count / territory size.
+- **PG-01 extract ≠ PG-03 extract ≠ PG-07 extract.** Same pipeline, different grain (project/collection vs dealer line vs fringe-only). Segment comes from the roster, not from a threshold on AOV.
+- **No network call on render.** Market week is the design case (worst connectivity, highest use).
+- Always show data **with its age**. Never empty-state when a cache exists. Never block the existing catalog/customer path if the extract is missing.
+- Permission scope is **baked into the extract at sync**. Fail closed. Revocation is not real-time — do not claim it is.
+- Sync is a full replace, piggybacked on existing catalog/customer sync. Partial failure leaves the previous complete extract.
+
+**Buyer offline (a dealer on their own phone at market)** is a different and harder problem. Do not assume iPad-EC transfers. Flagged, not solved.
+
+---
+
+## 4. Anatomy vs spec — decided for this register
+
+Sales Portal anatomy says leadership+CS; the Portal spec lists reps first. For **field-rep analytics** this register picks the iPad, because the unsolved constraint is offline, not which web app wraps the query. Getting that wrong toward Portal leaves the field case unsolved. HQ stays on Portal.
+
+If later we enable Territory Dashboard for leadership, that is JOB-HQ-*, not a replacement for iPad-EC.
+
+---
+
+## 5. What August got right, and what it got wrong
+
+Right: disjoint rep/buyer populations; no incumbent rep analytics surface; iPad-EC as the field wrapper; eOL as the buyer surface; invoice feed as the commercial ceiling; agency unservable; EBR-91 first.
+
+Wrong: "one surface serves everyone" as a product conclusion; mapping 31 seat-jobs as if PG-01 and PG-07 shared a home screen; ranking eOL work without the motion targeting the June brief already had.

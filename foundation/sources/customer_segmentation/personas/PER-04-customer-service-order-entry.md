@@ -14,6 +14,8 @@ jobs: [JTBD-041, JTBD-042, JTBD-043, JTBD-044]
 
 # PER-04 — Customer service / order entry
 
+> **2026-09-15 — login seat, not the persona set.** Maps to **PG-HQ** in [`00-PERSONA-GROUPS.md`](00-PERSONA-GROUPS.md). JTBD-0xx IDs below are retired.
+
 **Behavioural definition.** Answers inbound from dealers and reps, keys orders that arrive by phone
 / email / EDI, and researches history when something is disputed. Measured on responsiveness and
 accuracy, not on revenue. Works reactively — the queue sets the agenda.

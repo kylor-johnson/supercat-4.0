@@ -1,6 +1,6 @@
 # 02 — Who We Serve
 
-> **Last updated**: 2026-08-27 (**added the persona axis** — 7 personas / 31 jobs as a third axis orthogonal to Account Segment and Prospect Archetype, with PER-08 dealer buyer flagged as *our customer's customer* and the largest population on any surface; and added the build-once-parameterise-on-org-structure finding to "what it doesn't change". D-001a, Lens 1, the v4.0 lens and the four buyer roles all unchanged. Prior version: `_archive/02_who_we_serve_2026-08-27_pre-persona-axis.md`. Previously: 2026-08-26, corrected the Lens 2 lineage claim — the v4.0 segments are stamped judgment corroborated by Postgres, not derived from it — and struck the "knowable at first-touch" claim, which was tested and is false; D-001a and T1/T2/T3 unchanged. Prior version: `_archive/02_who_we_serve_2026-08-26_pre-segmentation-lineage-correction.md`. Previously: 2026-07-09, added the market-selling-motion lens as a candidate ICP input)
+> **Last updated**: 2026-09-15 (**SuperCat personas = who consumes which product**; motion is a job pack on rep/buyer. Withdrawn the 2026-08-27 "build once, only 4 of 31 jobs vary, do not condition on segment" product rule. D-001a, Lens 1, the v4.0 roster and the four buyer roles unchanged. Lineage still holds: segments are stamped judgment, not first-touch-knowable. Prior version: `_archive/02_who_we_serve_2026-09-15_pre-persona-groups.md`. Previously: 2026-08-27 added the persona axis as 7 seats / 31 jobs plus the now-withdrawn build-once finding. Prior: `_archive/02_who_we_serve_2026-08-27_pre-persona-axis.md`. Previously: 2026-08-26, corrected the Lens 2 lineage claim — the v4.0 segments are stamped judgment corroborated by Postgres, not derived from it — and struck the "knowable at first-touch" claim, which was tested and is false; D-001a and T1/T2/T3 unchanged. Prior version: `_archive/02_who_we_serve_2026-08-26_pre-segmentation-lineage-correction.md`. Previously: 2026-07-09, added the market-selling-motion lens as a candidate ICP input)
 > **Owner**: CEO
 > **Review cadence**: Quarterly (or when segment definitions, install-base composition, or M1 stamped decisions change)
 > **Primary sources**: [`skills/monetization_refresh_2026/11_synthesis/PRICING_CONSTITUTION.md`](../skills/monetization_refresh_2026/11_synthesis/PRICING_CONSTITUTION.md) D-001a (the **stamped, authoritative** segmentation — 2026-01-28), [`skills/monetization_refresh_2026/11_synthesis/2026-02-25__install_base_tier_mapping_wtp__d004a_exercise1__v1.md`](../skills/monetization_refresh_2026/11_synthesis/2026-02-25__install_base_tier_mapping_wtp__d004a_exercise1__v1.md) (segment → tier crosswalk), [`reports/state_of_industry/state_of_industry_benchmarks_2026-01-21.md`](../reports/state_of_industry/state_of_industry_benchmarks_2026-01-21.md) (market context), [`skills/insightful_product/01_bcf_instance_profile.md`](../skills/insightful_product/01_bcf_instance_profile.md) (deployed reference), [`Customer Segmentation/current/`](../Customer%20Segmentation/current/) (v4.0 client selling-motion segmentation, Kjael-stamped 2026-07-09 — a separate lens, see below)
@@ -229,16 +229,12 @@ Three enrichment axes ride alongside the four segments as **continuous dimension
 
 - **It does not change T1/T2/T3 pricing or the stamped D-001a decision.** Tiers still track
   digital-commerce behavior, not market selling motion.
-- **It does not change what we build — and that is now a measured finding, not an assumption**
-  *(added 2026-08-27)*. Across the 31 registered jobs, **only 4 vary by selling-motion segment; 27
-  do not.** The four that vary track **catalog scale, territory count and price-code count** —
-  structural facts an org can read off its own data — **not selling motion as such.** A job does not
-  need to know an org is Luxury Specification; it needs to know how many price codes it has.
-  **Build the surface once, parameterise on the org's own structure, and do not build
-  segment-conditional variants.** That is the simpler and cheaper build, and it is far better
-  supported than the alternative given the segments reproduce at 38.5% against a 34.9% baseline.
-  Detail: [`sources/customer_segmentation/analytics/jtbd-register.md`](sources/customer_segmentation/analytics/jtbd-register.md)
-  § Segment variation.
+- **It *does* change what we build for field reps and buyers.** *(corrected 2026-09-15)* Selling
+  motion is the classifier of the *job*, not "vocabulary on screen." Spec-rep vs volume-rep, and
+  designer/showroom vs chain replenishment, are different analytics jobs. HQ work is mostly shared
+  and can be parameterised (decline window, merch grain, catalog scale). Do not cite the withdrawn
+  "only 4 of 31 jobs vary / one surface serves everyone" finding as product doctrine.
+  Detail: [`sources/customer_segmentation/personas/00-PERSONA-GROUPS.md`](sources/customer_segmentation/personas/00-PERSONA-GROUPS.md).
 - **It's a candidate input for messaging, not for pre-sale qualification.** An earlier version of
   this doc asserted that a prospect's market selling motion is "knowable at first-touch, before any
   SuperCat usage data exists." **That has been tested and is false.** Two methods were tried against
@@ -330,66 +326,30 @@ The validated SuperCat selling correlation model (analyzed across 7,000 reps ove
 
 ---
 
-## Persona — a third axis: who *uses* the product
+## Persona groups — who consumes which product
 
-> *Added 2026-08-27. This is a **new axis**, not a revision of anything above. D-001a, Lens 1, the
-> v4.0 selling-motion lens, and the four buyer roles are all unchanged.*
+> *Corrected 2026-09-15 evening. SuperCat personas are admin / VP / exec / sales rep / buyer.
+> PG-01…08 are motion packs on rep and buyer, not eight extra people. D-001a, Lens 1, the v4.0
+> roster, and the four commercial buyer roles above are unchanged.*
 
-Everything above this section classifies **client organisations** (Digital Selling Maturity, market
-selling motion) or **our customers' customers as commercial archetypes** (the four buyer roles).
-Neither answers a different and necessary question: **who sits in front of a screen, what job are
-they doing, and what should we build for them?**
+| Persona | Consumes | What to build for them |
+|---|---|---|
+| **Admin** | Admin Console | Catalog completeness, import alerts — not a sales dashboard |
+| **VP of sales** | Sales Portal | Trust (EBR-91), team usage, account reconstruct, slipping accounts |
+| **Executive** | Insightful | One invoiced topline. Suppress without a feed |
+| **Sales rep** | iPad | Protect offline selling. Book analytics = **new iPad-embedded web component**, pack by motion |
+| **Customer / dealer / buyer** ⚠️ | **eCat Online** | Reorder / specify / my price / my invoices. Fit: spec highest → volume never |
 
-**Persona is a separate axis from Account Segment and from Prospect Archetype.** A persona is a
-**behavioural role with jobs**; a segment is a **property of the client organisation**. They
-cross-tabulate and **neither predicts the other** — do not infer a persona from a segment, or a
-segment from a persona.
+⚠️ *Our customer's customer.* Jobs only if they pay the manufacturer. **Do not fold** designer /
+dealer / chain into one eOL bet.
 
-**Seven personas, 31 jobs, one primary metric each** `[MEASURED 2026-08-25, Postgres, 253 orgs with
-users]`:
+**Seat facts that still hold**: ~4k iPad-active internals vs ~19k eOL-active buyers; almost no
+overlap; a buyer cannot reach rep views; no incumbent rep analytics surface. Agency principal is
+not servable this cycle.
 
-| ID | Persona | Primary surface | Population |
-|---|---|---|---|
-| **PER-01** | Independent sales rep | eCat iPad (offline) | 4,058 iPad-active across 146 orgs |
-| **PER-02** | Rep agency principal | Sales Portal multi-rep view — **does not exist today** | 617 iPad-active in flagged rep groups |
-| **PER-03** | VP Sales / sales ops *(manager folds here)* | Sales Portal + Admin Console | 2,365 internal admin records |
-| **PER-04** | Customer service / order entry | Sales Portal (research) + Admin (action) | within the 2,365; not separately keyed |
-| **PER-05** | Product / merchandising | Admin Console (action) + Portal (evidence) | not keyed — **weakest-evidenced persona kept** |
-| **PER-06** | Owner / exec | Insightful (deep) + a thin Portal subset | small; overlaps PER-03 |
-| **PER-08** | **Dealer buyer** ⚠️ *our customer's customer* | eCat Online + the buyer half of Sales Portal | **87,927 enabled / 17,532 active** |
-
-**PER-08 is on a different axis again, and the distinction is load-bearing. They do not work for a
-SuperCat client — they buy from one.** Every buyer job is written from the buyer's side but
-**justified by what our client gains**: orders captured, CS calls deflected, share of wallet held.
-Where a job is good for the buyer and neutral for our client, it is cut — which is why "compare this
-manufacturer's prices to others" and "see the manufacturer's other dealers" are excluded outright.
-PER-08 is the **largest user population SuperCat has on any surface**, at **7.7:1 over reps on active
-logins**, and must never be collapsed into the internal-user personas.
-
-**Two population facts reshaped the set:**
-
-- **Reps and buyers are near-disjoint.** Only **593 users** are active on both iPad and eOL, and
-  `should_show_customers_tab` requires `customer_number.blank?` — **a buyer cannot reach the rep
-  views by any configuration.** They share no session and no mental model.
-- **The rep population is an order of magnitude smaller than the buyer population** (4,058 vs
-  17,532 active). Earlier figures citing ~15,987 "reps" counted enabled eOL records on portal orgs,
-  which overstates it — the real rep surface is the iPad.
-
-**Two candidate personas were dropped, deliberately.** *IT / integrations* consumes job status and
-error logs, **not analytics** — the integration rail is a spine rail, not a user-facing app; it is
-retained as a stakeholder, not a persona with jobs. *Manager* **folds into PER-03** as an
-oversight-scoped permission tier, not a new bounded context.
-
-**One constraint binds the whole set: there is no incumbent rep analytics surface.** The Sales Portal
-Territory Dashboard requires `:portal_portal` and is enabled for **zero organisations** — 9 internal
-SuperCat usernames only; Reports reaches **6 orgs**. Anything rep-facing and analytics-shaped is
-**greenfield, not a redesign** — which also means there is no usage evidence, and every design
-assumption is untested.
-
-*Depth: [`sources/customer_segmentation/personas/PER-00-persona-set.md`](sources/customer_segmentation/personas/PER-00-persona-set.md)
-(the set, with keep/drop reasoning and the measured populations) plus the seven persona files; all 31
-jobs flat in [`sources/customer_segmentation/analytics/jtbd-register.md`](sources/customer_segmentation/analytics/jtbd-register.md);
-job → surface → size in [`sources/customer_segmentation/product/surface-mapping.md`](sources/customer_segmentation/product/surface-mapping.md).*
+*Depth: [`sources/customer_segmentation/personas/00-PERSONA-GROUPS.md`](sources/customer_segmentation/personas/00-PERSONA-GROUPS.md);
+jobs [`sources/customer_segmentation/analytics/jtbd-register.md`](sources/customer_segmentation/analytics/jtbd-register.md);
+surfaces [`sources/customer_segmentation/product/surface-mapping.md`](sources/customer_segmentation/product/surface-mapping.md).*
 
 ---
 

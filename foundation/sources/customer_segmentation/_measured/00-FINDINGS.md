@@ -9,6 +9,11 @@ database: supercatprod
 
 # Findings
 
+> **2026-09-15 — this pack measured the Aug 25 *seat* register (PER-01…08, JTBD-0xx), now demoted.**
+> Headcounts, invoice-feed shape, disjoint rep/buyer populations still stand. **Do not treat
+> “only 4 of 31 jobs vary / build once not on segment” as current doctrine.** Canonical set:
+> [`../personas/00-PERSONA-GROUPS.md`](../personas/00-PERSONA-GROUPS.md).
+
 Ranked by what each would change about what we build, not by how interesting it is.
 Every figure carries a query id. Every claim carries a tag.
 

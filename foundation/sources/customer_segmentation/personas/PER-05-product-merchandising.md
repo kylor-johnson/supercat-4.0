@@ -14,6 +14,8 @@ jobs: [JTBD-051, JTBD-052, JTBD-053, JTBD-054]
 
 # PER-05 — Product / merchandising
 
+> **2026-09-15 — login seat, not the persona set.** Maps to **PG-HQ** in [`00-PERSONA-GROUPS.md`](00-PERSONA-GROUPS.md). Grain of "what sold" **does** differ by selling motion. JTBD-0xx IDs below are retired.
+
 **Behavioural definition.** Owns what is in the catalog and how it is presented — categories,
 collections, options, images, what launches, what gets discontinued. Judged on whether the
 assortment sells, not on individual transactions.
