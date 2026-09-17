@@ -20,6 +20,57 @@ from .cache import CachePaths
 
 
 # ─── Row types ─────────────────────────────────────────────────────────────
+# P0-5: several ERPs store account names ALL-CAPS (sarreid and cci are 12/12).
+# Rendering them raw shouted "FRANCE AND SONS · AFA STORES" out of a CEO brief.
+# Only fully-uppercase names are touched; anything already mixed-case (clc's
+# "1Stoplighting.com dba Belami Inc") is returned untouched.
+# Stay uppercase. Deliberately EXCLUDES Inc / Co / Corp / Ltd — those read as
+# shouting in a title-cased name ("Swan's Nest INC"), so they get capitalised
+# like any other word.
+_NAME_ACRONYMS = frozenset({
+    "LLC", "L.L.C.", "LLP", "PLC", "PC", "LP", "USA", "US", "DBA",
+    "II", "III", "IV", "TV", "AV", "LED", "HVAC",
+    "NY", "LA", "SF", "DC", "NE", "SE", "NW", "SW",
+})
+
+# Lowercased unless they lead the name.
+_NAME_SMALL_WORDS = frozenset({"and", "of", "the", "for", "at", "in", "on", "to", "by"})
+
+
+def _cap_word(word: str) -> str:
+    """Capitalise one token: SWAN'S -> Swan's, O'BRIEN -> O'Brien, A-B -> A-B."""
+    if not word:
+        return word
+    low = word.lower()
+    out = low[0].upper() + low[1:]
+    # Letters after an apostrophe or hyphen: capitalise real words ("O'Brien",
+    # "Smith-Jones") but not a possessive "s" ("Swan's").
+    out = re.sub(
+        r"([\'\-])([a-z]+)",
+        lambda m: m.group(1) + (m.group(2).capitalize() if len(m.group(2)) > 1 else m.group(2)),
+        out,
+    )
+    return out
+
+
+def normalize_account_name(name: str) -> str:
+    """Title-case an ALL-CAPS account name, preserving known acronyms."""
+    s = (name or "").strip()
+    if not s or not s.isupper():
+        return s
+    words = s.split()
+    out: list[str] = []
+    for i, w in enumerate(words):
+        if w.strip(".,()").upper() in _NAME_ACRONYMS:
+            out.append(w)
+            continue
+        capped = _cap_word(w)
+        if i > 0 and capped.strip(".,()").lower() in _NAME_SMALL_WORDS:
+            capped = capped.lower()
+        out.append(capped)
+    return " ".join(out)
+
+
 @dataclass
 class AccountDecay:
     bill_to_number: str
@@ -552,9 +603,9 @@ def load_decay(rows: list[dict]) -> list[AccountDecay]:
         out.append(
             AccountDecay(
                 bill_to_number=_s(r.get("subject") or r.get("bill_to_number") or r.get("customer_bill_to_number") or ""),
-                bill_to_name=_s(r.get("bill_to_name") or r.get("customer_name") or ""),
+                bill_to_name=normalize_account_name(_s(r.get("bill_to_name") or r.get("customer_name") or "")),
                 rep_number=_s(r.get("who_to_call") or r.get("rep_number") or "") or None,
-                rep_label=_s(r.get("rep_name") or r.get("rep_label") or "") or None,
+                rep_label=normalize_account_name(_s(r.get("rep_name") or r.get("rep_label") or "")) or None,
                 ltm_rev=_f(r.get("dollar_impact") or r.get("ltm_rev") or r.get("dollars_at_risk")) or 0.0,
                 recent_6mo=recent,
                 prior_6mo=prior,
@@ -583,8 +634,8 @@ def load_reps(rows: list[dict]) -> list[RepRow]:
         out.append(
             RepRow(
                 rep_number=_extract_rep_number(r),
-                rep_label=_s(r.get("rep_label") or r.get("rep_name") or "") or None,
-                rep_name_tier2=_s(r.get("rep_label") or r.get("rep_name") or "") or None,
+                rep_label=normalize_account_name(_s(r.get("rep_label") or r.get("rep_name") or "")) or None,
+                rep_name_tier2=normalize_account_name(_s(r.get("rep_label") or r.get("rep_name") or "")) or None,
                 ltm_invoiced=ltm,
                 prior_ltm_invoiced=prior,
                 yoy_pct=pct,
@@ -637,7 +688,7 @@ def load_rep_risks(rows: list[dict]) -> list[RepRisk]:
         out.append(
             RepRisk(
                 rep_number=_s(r.get("who_to_call") or r.get("rep_number") or ""),
-                rep_name_tier2=_s(r.get("rep_name") or r.get("rep_name_tier2") or "") or None,
+                rep_name_tier2=normalize_account_name(_s(r.get("rep_name") or r.get("rep_name_tier2") or "")) or None,
                 dollars_at_risk=_f(r.get("dollar_impact")) or 0.0,
                 accounts_at_risk=0,
                 leak_dollars=_f(r.get("dollar_impact")),
@@ -677,7 +728,7 @@ def load_contrib(rows: list[dict]) -> tuple[list[ContribRow], list[ContribRow]]:
         shift = _f(r.get("rank_shift")) or 0.0
         row = ContribRow(
             bill_to_number=_s(r.get("customer_bill_to_number") or ""),
-            bill_to_name=_s(r.get("name") or ""),
+            bill_to_name=normalize_account_name(_s(r.get("name") or "")),
             ltm_rev=ltm,
             prior_ltm_rev=0.0,
             delta=contrib - ltm,

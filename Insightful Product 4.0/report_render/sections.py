@@ -217,7 +217,19 @@ def render_summary(chunk: Chunk, period_line: str = "") -> str:
     # standalone .prose below the metrics.
     hero_sub_para = ""
     rest_paras = paragraphs[1:]
-    if rest_paras and not _is_table(rest_paras[0]) and len(rest_paras[0]) < 600:
+    # P0-4: a STRUCTURAL lead-in is not the hero sub-paragraph. This branch
+    # assumed the block after the hero is always narrative (the Sarreid
+    # pattern). When the sanitizer collapses the hero and its numbered list
+    # into one block, the next block is "**Priority actions, by cadence:**" —
+    # which got glued into the hero as prose while the bullets below still
+    # emitted the real sub-label, so 8 of 11 orgs shipped the heading twice.
+    if (
+        rest_paras
+        and not _is_table(rest_paras[0])
+        and len(rest_paras[0]) < 600
+        and not _is_priorities_lead(rest_paras[0])
+        and not _is_three_things_lead(rest_paras[0])
+    ):
         hero_sub_para = rest_paras[0]
         rest_paras = rest_paras[1:]
         # If the hero-sub paragraph is what carries the per-metric narrative,

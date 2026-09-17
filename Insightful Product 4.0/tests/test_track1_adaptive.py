@@ -65,7 +65,7 @@ def test_cci_and_sca_stale_derived_hero_claims_are_removed():
         "cci", "2026-07-02", hero=_hero("cci", "2026-07-02")
     ).split("## Do this week", 1)[0]
     assert "Only Goodform" not in cci
-    assert "LAMPS.COM" in cci
+    assert "Lamps.com" in cci  # P0-5: names are no longer shouted
     assert "11.4% of invoiced" not in cci
 
     ali = _render(

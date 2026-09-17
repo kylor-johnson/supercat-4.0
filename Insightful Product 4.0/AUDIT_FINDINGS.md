@@ -387,3 +387,71 @@ were lost and had to be re-applied.
 `.gitignore` now carries `!outputs/*_prose_*.json` and the nine prose inputs are
 tracked again. They move to the private client-data repo at Phase 11.
 **Rule: ignore artifacts, never inputs.**
+
+
+---
+
+## 9. Phase 1 batch 2 (2026-09-16)
+
+### P0-4 — the duplicated heading was 8 of 11 orgs
+
+`sections.py` unconditionally treated the block after the hero as "the hero
+sub-paragraph (the Sarreid pattern)". When `hero_sanitizer` collapses the hero
+and its numbered list into one block, that next block is the **structural
+lead-in** — `**Priority actions, by cadence:**` — which got glued into the hero
+as prose while the bullets below still emitted the real `sub-label`. Guarded
+with `_is_priorities_lead` / `_is_three_things_lead`. bri also carried a
+dangling `Three things you wouldn't have known…` lead with no list after it.
+
+### P0-5 — names, and it was not just accounts
+
+| surface | affected |
+|---|---|
+| account names (`S1`, `Q-ECON-CONTRIB`) | sarreid 12/12, cci 12/12 ALL-CAPS |
+| **rep names (`RS-01`)** | **cci 25/25, ali 25/25, kal 15/25, bmc 3/25, clc 1/25** |
+| **authored prose files** | cci 7 names, ali 3 names |
+
+Rep names appear in the leaderboard, the coaching cards *and* the call list, so
+they were the more visible half. Normalising only the data would have left
+ali's table reading `Brand Jump LLC` beside prose reading `BRAND JUMP LLC`, so
+the prose files were migrated against each org's own cached name set (never a
+blind string replace — SKU codes and `DIRECTIONAL` must not be touched).
+
+`normalize_account_name` only transforms fully-uppercase strings, so clc's
+`1Stoplighting.com dba Belami Inc` is untouched. `Inc`/`Co`/`Corp`/`Ltd` are
+title-cased; `LLC`/`LLP`/`PLC`/`USA`/`DBA` stay capitalised. Also fixed
+sarreid's `THE Collective Santa FE` → `The Collective Santa Fe`.
+
+Residual ALL-CAPS in the cohort is confined to **SKU descriptions**
+(`ACRYLIC BOTTOM AND TOP DIFFUSERS`, `NOTTAWAY LARGE BRONZE CHANDELI`) — P0-8.
+
+**The §P gate caught my own copy.** The first P0-11 wording used the word
+"motion", a forbidden SaaS token; `sca` went SHIP → FAIL until it was reworded.
+The vocabulary gate does work — its problem is scope (§1.4), not correctness.
+
+### P0-6 — BLOCKED, and it is stale cache, not code
+
+The call list shows `1489` / `37085` because **five orgs' `S1` cache predates a
+schema change**, not because of a rendering bug:
+
+| S1 schema | orgs | populated |
+|---|---|---|
+| current — has `bill_to_name`, `rep_name` | sarreid, cci, clc | 2026-07-10 |
+| stale — neither column | **hfg, kal, ali, bmc, bri** | 07-01 … 07-16 |
+
+The LIVE `S1` in `selling_customer_exception_layer.md` *does* select
+`COALESCE(NULLIF(TRIM(c.cust_name),''), c.cust) AS bill_to_name` and bridges
+`rep_name`. Those five caches simply never got re-populated.
+
+**Cannot be fixed offline** — needs VPN + Postgres (`DATABASE_URL` unset here).
+Owner action: `./run.sh <org> --populate-cache` for hfg, kal, ali, bmc, bri.
+
+This also **narrows Phase 6**: HFG's account codes are stale cache; only the
+*rep* codes in its coaching cards are the `REP_IDENTITY_TIER` gate. Re-cache
+first, then re-measure how much of Phase 6 is actually left.
+
+### P0-11 — no coverage target off a zero base
+
+bsc shipped *"lift platform coverage past 0.0%"*. Below 1% there is no
+programme to lift: bsc 0.0%, sca 0.2%, clc 0.7%. Those now state the real
+position and ask for one proving territory instead. da (8.4%) is unchanged.
