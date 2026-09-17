@@ -91,6 +91,7 @@ export type HangTagTemplate = {
   tag: { width: number; height: number };
   fontFamily?: FontFamily;
   barcodeFormat?: BarcodeFormat;
+  itemNumbers?: string[];
   objects: TemplateObject[];
 };
 
@@ -445,6 +446,12 @@ export function parseStoredTemplate(
         : undefined,
       barcodeFormat: isBarcodeFormat(parsed.barcodeFormat)
         ? parsed.barcodeFormat
+        : undefined,
+      itemNumbers: Array.isArray(parsed.itemNumbers)
+        ? parsed.itemNumbers.filter(
+            (code): code is string =>
+              typeof code === "string" && code.trim().length > 0,
+          )
         : undefined,
       objects: parsed.objects.map((object) => ({
         ...object,

@@ -30,3 +30,8 @@ export const SHEETS: Record<SheetCode, SheetSpec> = {
     pdfFile: "kuzco-5392-sheet.pdf",
   },
 };
+
+export const TAGS_PER_SHEET: Record<SheetCode, number> = {
+  "5371": 10,
+  "5392": 6,
+};

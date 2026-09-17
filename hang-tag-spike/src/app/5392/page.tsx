@@ -14,7 +14,7 @@ export default function Avery5392Page() {
   return (
     <main className="hang-tag-page">
       <SheetChrome sheet="5392" />
-      <TemplateSheet stock="5392" skus={skus.slice(0, 6)} />
+      <TemplateSheet stock="5392" skus={skus} />
     </main>
   );
 }

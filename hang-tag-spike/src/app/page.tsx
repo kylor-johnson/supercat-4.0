@@ -9,7 +9,7 @@ export default function Home() {
   return (
     <main className="hang-tag-page">
       <SheetChrome sheet="5371" />
-      <TemplateSheet stock="5371" skus={skus.slice(0, 10)} />
+      <TemplateSheet stock="5371" skus={skus} />
     </main>
   );
 }

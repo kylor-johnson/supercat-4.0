@@ -1,12 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { TemplateTag } from "@/components/template-tag";
+import { MiniSheet } from "@/components/template-sheet";
 import { boundImageSrc, boundText } from "@/data/bindings";
 import type { HangTagSku } from "@/data/sku";
-import type { SheetCode } from "@/data/sheets";
+import { TAGS_PER_SHEET, type SheetCode } from "@/data/sheets";
 import { codeImageSrc } from "@/lib/codes";
 import { snapMovingTarget } from "@/lib/designer-geom";
+import { resolvedItemNumbers } from "@/lib/sheet-skus";
 import {
   BARCODE_FORMAT_LABELS,
   BARCODE_FORMATS,
@@ -210,6 +211,7 @@ export function TagDesigner({
   const [historyState, setHistoryState] = useState({ index: 0, length: 1 });
   const [ready, setReady] = useState(false);
   const fallback = DEFAULT_TEMPLATES[stock];
+  const sheetKey = (draft.itemNumbers ?? []).join("|");
 
   const persist = useCallback(
     (template: HangTagTemplate, options?: { history?: boolean }) => {
@@ -315,9 +317,12 @@ export function TagDesigner({
   }, [fallback, persist, rebuild, stock]);
 
   useEffect(() => {
-    skuRef.current = skus[skuIndex] ?? skus[0];
+    const preview = resolvedItemNumbers(templateRef.current, skus)
+      .map((code) => skus.find((item) => item.item_number === code))
+      .filter((item): item is HangTagSku => Boolean(item));
+    skuRef.current = preview[skuIndex] ?? preview[0] ?? skus[0];
     if (ready) void rebuild();
-  }, [skuIndex, skus, ready, rebuild]);
+  }, [skuIndex, skus, ready, rebuild, sheetKey]);
 
   function resetLayout() {
     persist(cloneTemplate(fallback));
@@ -425,6 +430,35 @@ export function TagDesigner({
     next.fontFamily = fontFamily;
     persist(next);
     void rebuild();
+  }
+
+  function setSheetItems(itemNumbers: string[]) {
+    const next = cloneTemplate(templateRef.current);
+    next.itemNumbers = itemNumbers;
+    persist(next);
+    const preview = resolvedItemNumbers(next, skus);
+    if (skuIndex >= preview.length) setSkuIndex(0);
+  }
+
+  function toggleSheetItem(itemNumber: string) {
+    const current = resolvedItemNumbers(templateRef.current, skus);
+    if (current.includes(itemNumber)) {
+      if (current.length === 1) return;
+      setSheetItems(current.filter((code) => code !== itemNumber));
+      return;
+    }
+    setSheetItems([...current, itemNumber]);
+  }
+
+  function moveSheetItem(itemNumber: string, direction: -1 | 1) {
+    const current = resolvedItemNumbers(templateRef.current, skus);
+    const index = current.indexOf(itemNumber);
+    const nextIndex = index + direction;
+    if (index < 0 || nextIndex < 0 || nextIndex >= current.length) return;
+    const next = [...current];
+    const [moved] = next.splice(index, 1);
+    next.splice(nextIndex, 0, moved);
+    setSheetItems(next);
   }
 
   function patchSelected(patch: Partial<TemplateObject>, rebuildCanvas = false) {
@@ -596,7 +630,12 @@ export function TagDesigner({
     persist(templateFromCanvas(canvas, templateRef.current));
   }
 
-  const sku = skus[skuIndex] ?? skus[0];
+  const skuCatalog = skus;
+  const sheetItemNumbers = resolvedItemNumbers(draft, skuCatalog);
+  const previewSkus = sheetItemNumbers
+    .map((code) => skuCatalog.find((item) => item.item_number === code))
+    .filter((item): item is HangTagSku => Boolean(item));
+  const sku = previewSkus[skuIndex] ?? previewSkus[0] ?? skuCatalog[0];
   const width = inchesToPx(fallback.tag.width);
   const height = inchesToPx(fallback.tag.height);
   const selected =
@@ -607,13 +646,16 @@ export function TagDesigner({
   const globalFont = draft.fontFamily ?? "geist";
   const canUndo = historyState.index > 0;
   const canRedo = historyState.index < historyState.length - 1;
-  const printScale = EDITOR_DPI / 96;
+  const slots = TAGS_PER_SHEET[stock];
   const selectedLabel =
     selectedIds.length === 0
       ? "none"
       : selectedIds.length === 1
         ? `${selectedIds[0]}${selected ? ` · ${selected.type}` : ""}`
         : `${selectedIds.length} objects`;
+  const unselectedSkus = skuCatalog.filter(
+    (item) => !sheetItemNumbers.includes(item.item_number),
+  );
 
   return (
     <div className="designer-layout">
@@ -625,25 +667,16 @@ export function TagDesigner({
           </div>
         </div>
         <div>
-          <p className="designer-stage-label">Print</p>
-          <div className="designer-print-frame" style={{ width, height }}>
-            <div
-              className="designer-print-scale"
-              style={{
-                width: `${fallback.tag.width}in`,
-                height: `${fallback.tag.height}in`,
-                transform: `scale(${printScale})`,
-              }}
-            >
-              <TemplateTag sku={sku} template={draft} />
-            </div>
-          </div>
+          <p className="designer-stage-label">
+            Avery {stock} sheet · this browser
+          </p>
+          <MiniSheet stock={stock} skus={skuCatalog} template={draft} />
         </div>
       </div>
       <aside className="designer-sidebar">
         <p className="designer-hint">
           {selectedIds.length === 0
-            ? "Click a line for type. Click the barcode for UPC / QR. Shift-click to multi-select. Arrows nudge 0.01″ (Shift 0.1″). ⌘Z undoes."
+            ? "Click a line for type. Click the barcode for UPC / QR. Sheet products below print on the Avery page in this browser."
             : selected?.type === "text"
               ? "Type, weight, and tracking apply to this line and the print preview."
               : selected?.type === "barcode"
@@ -659,19 +692,85 @@ export function TagDesigner({
         </p>
 
         <label className="kf-field">
-          <span className="kf-field-label">SKU</span>
+          <span className="kf-field-label">Edit preview</span>
           <select
             className="kf-input kf-md"
-            value={skuIndex}
+            value={Math.min(skuIndex, Math.max(previewSkus.length - 1, 0))}
             onChange={(event) => setSkuIndex(Number(event.target.value))}
           >
-            {skus.map((item, index) => (
+            {previewSkus.map((item, index) => (
               <option key={item.item_number} value={index}>
                 {item.collection_name} · {item.item_number}
               </option>
             ))}
           </select>
+          <span className="kf-field-hint">
+            Layout canvas only. Does not change who is on the sheet.
+          </span>
         </label>
+
+        <div className="kf-field">
+          <span className="kf-field-label">Sheet products</span>
+          <span className="kf-field-hint">
+            Avery {stock} holds {slots} tags. Print order below. A short list
+            repeats to fill the sheet. Same list as the print page in this
+            browser.
+          </span>
+          <div className="designer-sku-list">
+            {sheetItemNumbers.map((code, index) => {
+              const item = skuCatalog.find((skuItem) => skuItem.item_number === code);
+              if (!item) return null;
+              return (
+                <div className="designer-sku-row" key={code}>
+                  <button
+                    className="kb kb-sm kb-secondary"
+                    type="button"
+                    disabled={index === 0}
+                    onClick={() => moveSheetItem(code, -1)}
+                  >
+                    Up
+                  </button>
+                  <button
+                    className="kb kb-sm kb-secondary"
+                    type="button"
+                    disabled={index === sheetItemNumbers.length - 1}
+                    onClick={() => moveSheetItem(code, 1)}
+                  >
+                    Down
+                  </button>
+                  <span>
+                    {item.collection_name} · {item.item_number}
+                  </span>
+                  <button
+                    className="kb kb-sm kb-secondary"
+                    type="button"
+                    disabled={sheetItemNumbers.length === 1}
+                    onClick={() => toggleSheetItem(code)}
+                  >
+                    Remove
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+          {unselectedSkus.length ? (
+            <div className="designer-sku-add">
+              <span className="kf-field-label">Add from fixture</span>
+              {unselectedSkus.map((item) => (
+                <button
+                  key={item.item_number}
+                  className="kb kb-sm kb-secondary"
+                  type="button"
+                  onClick={() => toggleSheetItem(item.item_number)}
+                >
+                  {item.collection_name}
+                </button>
+              ))}
+            </div>
+          ) : (
+            <span className="kf-field-hint">All 10 fixture SKUs are on the sheet.</span>
+          )}
+        </div>
 
         <label className="kf-field">
           <span className="kf-field-label">Template font</span>

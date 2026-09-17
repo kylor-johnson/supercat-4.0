@@ -18,12 +18,13 @@ and physical Avery are later.
 | Public app | https://kuzco-hang-tags.vercel.app — fixture-only, 10 Kuzco (`kll`) SKUs on disk |
 | 5371 sheet | `/` — `TemplateTag` from JSON |
 | 5392 sheet | `/5392` — same |
-| Designer | `/design` (5371) and `/design?stock=5392` — Edit canvas + Print preview |
+| Designer | `/design` (5371) and `/design?stock=5392` — Edit canvas + mini Avery sheet |
 | Git | `hang-tag-spike/` on `main`. GitHub is how this moves between Macs. |
 | Vercel | CLI project `kuzco-hang-tags`. **Not GitHub-linked.** Push does not deploy. |
 | Fonts | Template default + per-object face, size (pt), weight, tracking. |
 | Align | Text left/center/right. Elements vs tag / selection; distribute at 3+. Snap + arrow nudge. |
 | History | ⌘Z / Undo · Redo. 20 JSON states. |
+| Sheet products | Template `itemNumbers`. Ordered unique SKUs; a short list repeats to fill 10 / 6 slots. |
 | Barcodes | UPC-A default. Code 128 and QR in-app from the SKU’s UPC digits. |
 | Catalog / live IMAP | Parked. No live prices on the public URL. |
 | EBR-794 | Parked. Do not comment in Jira. |
@@ -69,8 +70,9 @@ The product is a **browser designer** that prints Avery tags. iPad hang tags sta
 - Avery **5371** letter: 3.5×2 in, 2×5, 0.5" top, 0.75" sides, no gap
 - Avery **5392** letter: 4×3 in, 2×3, 0.25" sides, 1" top/bottom (official Avery, not iOS 3-col 3×4)
 - Designer templates for **both** stocks (`src/data/template.ts`); print sheets render `TemplateTag` from that JSON
-- Font, size, weight, tracking, text align, element align/distribute, snap, nudge, and barcode type persist on that JSON
-- Designer shows a live `TemplateTag` print preview beside Fabric; ⌘Z undoes JSON states
+- Font, size, weight, tracking, text align, element align/distribute, snap, nudge, barcode type, and `itemNumbers` persist on that JSON
+- Designer shows a live mini Avery sheet beside Fabric (same SKUs and layout as `/` or `/5392` in this browser); ⌘Z undoes JSON states
+- Sheet product picker: unique ordered SKUs, reorder, add/remove. Missing `itemNumbers` uses the full fixture list. A short list repeats to fill the Avery slots.
 - 10 live Kuzco (`kll`) SKUs on disk in `src/data/kuzco-fixture.json`
 - Real UPC-A (`scripts/render-upcs.mjs` → `public/fixtures/barcodes/`); Code 128 and QR generated in-app from the SKU UPC digits
 - Logo + product photos on disk
@@ -95,7 +97,7 @@ Bindings match Kuzco live formats 3198 / 3204:
 
 Drag/drop must serialize. If layout only lives in React/Fabric state, the spike is throwaway.
 
-Schema: `src/data/template.ts`. Positions in **inches**. Objects: `text` / `image` / `barcode`. Bindings are IpadReport vocabulary (`item_number`, `c.FinishOptions`, `upc_value`, …), not `populate_hash` keys. Template-level `fontFamily` / `barcodeFormat`; per-object `fontFamily`, `textAlign`, `barcodeFormat`.
+Schema: `src/data/template.ts`. Positions in **inches**. Objects: `text` / `image` / `barcode`. Bindings are IpadReport vocabulary (`item_number`, `c.FinishOptions`, `upc_value`, …), not `populate_hash` keys. Template-level `fontFamily` / `barcodeFormat` / `itemNumbers`; per-object `fontFamily`, `textAlign`, `barcodeFormat`.
 
 Defaults live in git (`KUZCO_5371_TEMPLATE`, `KUZCO_5392_TEMPLATE`). Designer edits persist in **that browser only**:
 
