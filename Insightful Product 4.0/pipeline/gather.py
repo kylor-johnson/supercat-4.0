@@ -188,6 +188,166 @@ class RepRisk:
         )
 
 
+# ─── P0-8: product descriptions are ERP spec strings, not product names ────
+#
+# HFG shipped this verbatim into a CEO brief:
+#   9N00145405-3-14-DL105 | TYPE DL-105 | 34.5" H x 64.5" D x 92.5" L |
+#   OPEN CENTER, ACRYLIC BOTTOM AND TOP DIFFUSERS
+#
+# The rule below is deliberately STRUCTURAL. It only removes material that is
+# provably not part of the item's name — the item number repeated back, a
+# purchase-order reference, a dimensional segment — and it never rewrites or
+# invents a name. Case is touched only when every token in a segment is a real
+# word, so ali's `FLMNT RND 5.5 inches...` and bri's `LED14DISC/7/930/J/WHRD/D`
+# come through exactly as the ERP stores them: "Flmnt Rnd" would be worse than
+# leaving it shouting.
+#
+# Verified against all 8 cohort catalogs that have a Q-PROD-TOP (sarreid, cci,
+# clc, hfg, kal, ali, bmc, bri). da has no product CSVs; sca and bsc have the
+# files with zero rows.
+
+# Dimension-only segments: `34.5" H x 64.5" D x 92.5" L`, `16.3" H x 96" OD`.
+_DIM_TOKENS = frozenset({"H", "W", "D", "L", "OD", "ID", "DIA", "SQ", "X"})
+_DIM_QUOTE = "[\"\u2033\u201d']"
+_DIM_MEASURE_RE = re.compile(r"^\d+(?:\.\d+)?" + _DIM_QUOTE + r"$")
+_DIM_MEASURE_SUFFIXED_RE = re.compile(
+    r"^\d+(?:\.\d+)?" + _DIM_QUOTE + r"(?:H|W|D|L|OD|ID|DIA)$", re.I
+)
+_DIM_PLAIN_NUM_RE = re.compile(r"^\d+(?:\.\d+)?$")
+
+# A purchase-order reference leading the description (bmc): `PO644283 Eltham
+# Wall Mirror`, `po-78500 Brookings Floor Mirror`, `PO Y0964 Hudson Server`.
+# The digit lookahead is what keeps "POOL TABLE" safe.
+_PO_PREFIX_RE = re.compile(r"^\s*P\.?O\.?[-#\s]*(?=[A-Za-z]?\d)[A-Za-z0-9-]*\s+", re.I)
+# A long bare numeric code leading the description (bmc): `040003492 Round
+# Coffee Table`. Six digits minimum so clc's `4 Light Pendant` is untouched.
+_NUM_PREFIX_RE = re.compile(r"^\s*\d{6,}\s+")
+
+# Kept as-is when a segment is title-cased: units, finish codes and electrical
+# shorthand that would read as a typo in title case.
+_PRODUCT_KEEP_UPPER = frozenset({
+    "LED", "LT", "IN", "FT", "CM", "MM", "OD", "ID", "CRI", "CCT", "LM", "LMN",
+    "W", "V", "K", "AC", "DC", "UV", "IP", "USB", "PK", "NAT", "BN", "OPL",
+    "ACR", "CLR", "MBL", "WH", "BK", "US", "UL", "ETL", "ADA", "RGB",
+})
+_PRODUCT_SMALL_WORDS = frozenset({"and", "of", "the", "for", "at", "in", "on", "to", "by", "with"})
+_WORDLIKE_RE = re.compile(r"^[A-Za-z][A-Za-z\'\-]{2,}$")
+
+# A measurement token welded to its unit — `20W`, `1300LM`, `90CRI`, `3CCT`,
+# `2700K`, `120V`, `4PK`. One of these anywhere in a description means the
+# field is an electrical spec string, not a product name: ali's whole catalog
+# and bri's part codes look like this. Those are left exactly as the ERP stores
+# them, because "PEN LED 30W" title-cases to "Pen LED 30W" and `Pen` is an
+# abbreviation for Pendant, not a word.
+#
+# LT and IN are deliberately NOT units here: `6LT` (light count) and `48IN`
+# (inches) are how kal names a product, not how it specs one.
+_SPEC_UNIT_RE = re.compile(
+    r"(?<![A-Za-z])\d+(?:\.\d+)?(?:W|V|K|A|LM|LMD|LMN|NM|CRI|CCT|PK|WATT|LUMEN)\b",
+    re.I,
+)
+
+
+def _is_dimension_segment(segment: str) -> bool:
+    """True for a segment that is only measurements — the dimensional tail."""
+    tokens = segment.replace("\u00d7", " x ").replace(",", " ").split()
+    if not tokens:
+        return False
+    saw_measure = False
+    for tok in tokens:
+        upper = tok.upper()
+        if upper in _DIM_TOKENS:
+            continue
+        if _DIM_MEASURE_RE.match(tok) or _DIM_MEASURE_SUFFIXED_RE.match(tok):
+            saw_measure = True
+            continue
+        if _DIM_PLAIN_NUM_RE.match(tok):
+            continue
+        return False
+    # Require at least one quoted measurement so a plain "5 x 3" (which could be
+    # a light count or a pack size) is never silently dropped.
+    return saw_measure
+
+
+def _title_case_product_segment(segment: str) -> str:
+    """Title-case a shouted segment, but only when every token is a real word.
+
+    `OPEN CENTER, ACRYLIC BOTTOM AND TOP DIFFUSERS` becomes readable.
+    `FLMNT RND`, `MULTI DROP PENDANT 6LT`, `LED14DISC/7/930/J/WHRD/D` do not
+    qualify and come back untouched — there is no safe way to case a token
+    that is not a word, and a half-cased spec string reads worse than a
+    shouted one.
+    """
+    if not segment or not segment.isupper():
+        return segment
+    if _SPEC_UNIT_RE.search(segment):
+        return segment
+    tokens = segment.split()
+    if not tokens:
+        return segment
+    saw_word = False
+    for tok in tokens:
+        bare = tok.strip(".,()/&")
+        if not bare:
+            continue
+        if bare.upper() in _PRODUCT_KEEP_UPPER or bare.lower() in _PRODUCT_SMALL_WORDS:
+            continue
+        if any(ch.isdigit() for ch in bare):
+            continue          # a part/size code riding along: DL-105, 6LT, 48IN
+        if not _WORDLIKE_RE.match(bare) or not _VOWEL_RE.search(bare):
+            return segment    # FLMNT, RND, GFR, SCN — no safe way to case these
+        saw_word = True
+    if not saw_word:
+        return segment
+    out: list[str] = []
+    for i, tok in enumerate(tokens):
+        bare = tok.strip(".,()/&")
+        if bare.upper() in _PRODUCT_KEEP_UPPER or any(ch.isdigit() for ch in bare):
+            out.append(tok)
+            continue
+        capped = _cap_word(tok)
+        if i > 0 and capped.strip(".,()").lower() in _PRODUCT_SMALL_WORDS:
+            capped = capped.lower()
+        out.append(capped)
+    return " ".join(out)
+
+
+def normalize_product_description(description: str, item_number: str = "") -> str:
+    """Render-facing product label: keep the identifying head, drop the spec tail.
+
+    Never invents a name and never returns empty — an all-dropped description
+    falls back to the raw string, and a blank one to the item number.
+    """
+    raw = (description or "").strip()
+    if not raw:
+        return (item_number or "").strip()
+
+    segments = [s.strip() for s in raw.split("|")] if "|" in raw else [raw]
+    item = (item_number or "").strip().casefold()
+
+    kept: list[str] = []
+    for seg in segments:
+        if not seg:
+            continue
+        if item and seg.casefold() == item:
+            continue          # the item number repeated back at the reader
+        if _is_dimension_segment(seg):
+            continue          # the dimensional tail
+        kept.append(seg)
+    if not kept:
+        kept = [raw]
+
+    kept = [_title_case_product_segment(_PO_PREFIX_RE.sub("", _NUM_PREFIX_RE.sub("", s), count=1)).strip()
+            for s in kept]
+    kept = [s for s in kept if s]
+    if not kept:
+        return raw
+
+    out = " \u2014 ".join(kept)
+    out = re.sub(r"\s{2,}", " ", out).strip(" \u2014-")
+    return out or raw
+
+
 @dataclass
 class ProductRow:
     item_number: str
@@ -195,6 +355,11 @@ class ProductRow:
     ltm_revenue: float
     units: int
     dealers: int
+
+    @property
+    def display_description(self) -> str:
+        """Client-facing label. See ``normalize_product_description``."""
+        return normalize_product_description(self.description, self.item_number)
 
 
 _WORD_RE = re.compile(r"^[A-Za-z]{4,}$")

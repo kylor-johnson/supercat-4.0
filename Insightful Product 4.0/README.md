@@ -10,7 +10,9 @@ points, coaching, plays, growth connective, outreach) may be filled by an LLM or
 by a Cursor agent writing `outputs/{org}_prose_{date}.json`. Every slot has a
 fact bundle, number-parity gate, voice lint, and **deterministic template
 fallback** — so a run still ships with `--no-narrative` / no API key / no prose
-file. The LLM **expresses**; it never selects or computes.
+file, at every commerce-confidence level (verified across the pinned cohort:
+STRONG, PARTIAL and NONE all reach `smoke_check: PASS` deterministically).
+The LLM **expresses**; it never selects or computes.
 
 Governance / reading contract: [`CANON.md`](CANON.md). Runtime map:
 [`foundation/WHAT_ACTUALLY_RUNS.md`](foundation/WHAT_ACTUALLY_RUNS.md). Re-anchor
@@ -23,6 +25,7 @@ plan: [`handoffs/REANCHOR_PLAN_2026-07-13.md`](handoffs/REANCHOR_PLAN_2026-07-13
 ./run.sh sarreid --date 2026-07-02     # pinned cache date
 ./run.sh ali --preview                 # draft-profile run → PREVIEW
 ./run.sh da --date 2026-07-07          # Mode-2 org → ACTIVATION HTML
+./run.sh bmc --date 2026-07-09 --no-narrative   # deterministic templates only
 ./run.sh --cohort sarreid,cci,hfg,kal  # batch run
 ./regression.sh                        # golden-set regression (6 orgs, checksum-verified)
 ```

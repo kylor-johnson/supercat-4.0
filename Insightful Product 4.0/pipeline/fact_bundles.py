@@ -346,15 +346,18 @@ def build_plays_from_gather(
             anchor = (
                 gap.anchor_item
                 if gap and gap.anchor_item
-                else gather.products[0].description
+                else gather.products[0].display_description
             )
             from .outreach_screen import looks_like_code
 
             title = (
                 f"{target.family_label} cross-sell"
+                # P0-8: the code test reads the RAW field. hfg's top item is an
+                # ERP spec string, and normalising it into a readable label must
+                # not turn "Axis cross-sell" into a 60-character play heading.
                 if looks_like_code(gather.products[0].description)
                 else (
-                    f"{gather.products[0].description.strip()} "
+                    f"{gather.products[0].display_description.strip()} "
                     f"→ {target.family_label} cross-sell"
                 )
             )
