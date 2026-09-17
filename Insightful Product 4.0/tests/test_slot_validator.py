@@ -322,3 +322,62 @@ def test_align_coaching_rekeys_when_house_card_removed():
 
 def test_align_coaching_none_when_no_cards():
     assert align_coaching_narratives([], ["body"]) is None
+
+
+# ─── P0-9: Slot-D superset drift (kal could not ship at all) ───────────────
+# kal_prose_2026-07-02.json authors TWO play bodies (cross-sell + pricing) but
+# only the cross-sell play survives selection. That is a superset, not a
+# misalignment — yet reorder_play_framing bailed on any length mismatch and
+# check_play_alignment then failed the whole run with exit 1.
+
+_XSELL_BODY = (
+    "The FLINT family is your clearest cross-sell. Its anchor SKU sits on 84 "
+    "dealers and 42 of those have never bought the rest of the family."
+)
+_PRICING_BODY = (
+    "Discount dispersion across the rep base is healthy in aggregate; the "
+    "spread is wide enough to be worth one discount-authority conversation."
+)
+_RETENTION_BODY = (
+    "New dealers are not coming back — the second-year return rate is the "
+    "number to move, so run a reorder push at the first-time buyers."
+)
+_XSELL_PLAY = {"type": "cross_sell", "target_family": "FLINT", "anchor_item": "519275WB"}
+_PRICING_PLAY = {"type": "pricing"}
+_RETENTION_PLAY = {"type": "retention"}
+
+
+def test_reorder_play_framing_drops_orphaned_body_superset():
+    """Two authored bodies, one selected play → keep the match, drop the rest."""
+    out = reorder_play_framing([_XSELL_PLAY], [_XSELL_BODY, _PRICING_BODY])
+    assert out == [_XSELL_BODY]
+    assert check_play_alignment([_XSELL_PLAY], out) == []
+
+
+def test_reorder_play_framing_superset_picks_by_type_not_position():
+    """The surviving play is authored SECOND — position must not decide."""
+    out = reorder_play_framing([_PRICING_PLAY], [_XSELL_BODY, _PRICING_BODY])
+    assert out == [_PRICING_BODY]
+    assert check_play_alignment([_PRICING_PLAY], out) == []
+
+
+def test_reorder_play_framing_superset_reorders_while_dropping():
+    """Three bodies, two plays, inverted order — re-key and drop the orphan."""
+    plays = [_PRICING_PLAY, _XSELL_PLAY]
+    out = reorder_play_framing(plays, [_XSELL_BODY, _RETENTION_BODY, _PRICING_BODY])
+    assert out == [_PRICING_BODY, _XSELL_BODY]
+    assert check_play_alignment(plays, out) == []
+
+
+def test_reorder_play_framing_subset_returns_original():
+    """Fewer bodies than plays cannot be covered — leave it to the gate."""
+    plays = [_XSELL_PLAY, _PRICING_PLAY]
+    assert reorder_play_framing(plays, [_XSELL_BODY]) == [_XSELL_BODY]
+
+
+def test_reorder_play_framing_ambiguous_returns_original():
+    """Two bodies matching one play is unresolvable — the gate must still fire."""
+    plays = [_XSELL_PLAY]
+    framing = [_XSELL_BODY, _XSELL_BODY]
+    assert reorder_play_framing(plays, framing) == framing
+    assert check_play_alignment(plays, framing) != []

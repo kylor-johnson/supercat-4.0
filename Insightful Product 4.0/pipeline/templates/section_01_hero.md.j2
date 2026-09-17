@@ -5,7 +5,7 @@
    (--no-narrative) or fails.
 
    Reference: Sarreid PASS3 §1 (lines 6-29). #}
-{% from '_macros.md.j2' import confidence_header, signal_real_decline, signal_cadence_cliff, signal_growth_pocket, signal_lift_concentration, dollars_m, stale_ecat_recovery_lead %}
+{% from '_macros.md.j2' import confidence_header, signal_real_decline, signal_cadence_cliff, signal_growth_pocket, signal_lift_concentration, dollars_m, stale_ecat_recovery_lead, sensitivity_hedge %}
 ## The 60-second read
 {%- if posture.is_stale and posture.ecat_ltm_confirmed_gmv > 0 %}
 
@@ -49,7 +49,11 @@
 - **This week:** work the {{ _hero_activity.quiet_seats + _hero_activity.dark_seats }} quiet or dark seats — re-establish the platform habit before expanding the program.
 {%- endif %}
 {% if _hero_coverage and _hero_coverage.coverage_pct is not none -%}
+{% if _hero_coverage.coverage_pct < 1.0 -%}
+- **This month:** the account book is effectively untouched by the platform — {{ "{:,}".format(_hero_coverage.untouched_customers) }} accounts have had no platform order in 90 days. Start with one territory and prove it there before setting a coverage target.
+{%- else -%}
 - **This month:** lift platform coverage past {{ "{:.1f}".format(_hero_coverage.coverage_pct) }}% — {{ "{:,}".format(_hero_coverage.untouched_customers) }} accounts were not touched in the last 90 days.
+{%- endif %}
 {%- endif %}
 {% if _hero_stale -%}
 - **Data upkeep:** confirm whether the {{ _hero_stale | length }} stale configuration areas are intentionally static or need a refresh.
@@ -157,7 +161,11 @@ Your existing accounts {% if posture.is_stale %}were{% else %}are{% endif %} spe
 - **This week:** work the {{ _ra.dark_seats }} dark seats — the customer relationships and territory knowledge are there; the platform habit isn't yet.
 {% endif -%}
 {% if _rc and _rc.coverage_pct is not none -%}
+{% if _rc.coverage_pct < 1.0 -%}
+- **This month:** the account book is effectively untouched by the platform — the {{ "{:,}".format(_rc.untouched_customers) }} untouched accounts are the nearest activation pool, but start with one territory rather than a coverage target.
+{%- else -%}
 - **This month:** lift platform coverage past its current {{ "{:.0f}".format(_rc.coverage_pct) }}% — the {{ "{:,}".format(_rc.untouched_customers) }} untouched accounts are the nearest activation pool.
+{%- endif %}
 {% endif -%}
 - **The unlock:** connect an invoiced ERP feed and every behavioral signal here gains a revenue outcome — at-risk dollars, rep leaderboards, growth families. See the close of this brief.
 {%- else -%}
@@ -193,6 +201,11 @@ Your existing accounts {% if posture.is_stale %}were{% else %}are{% endif %} spe
 {% endif -%}
 {% if gather.decay -%}
 | Revenue at risk | **${{ "{:,.2f}".format((gather.decay | sum(attribute='ltm_rev')) / 1_000_000) }}M** across {{ gather.decay | length }} accounts pulling back |
+{% endif -%}
+{# §Q: the cards are Tier-A claims. Below STRONG they need the hedge here —
+   the §1 lead-in sits well over 400 chars up by the time the cards render. #}
+{% if posture.commerce_confidence not in ["STRONG", "NONE"] %}
+> *{{ sensitivity_hedge(posture, "every dollar figure above", singular=true) }}*
 {% endif -%}
 {% endif -%}
 {% if posture.ecat_hero_sentence %}

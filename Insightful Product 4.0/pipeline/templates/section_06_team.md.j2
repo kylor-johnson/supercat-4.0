@@ -45,7 +45,11 @@
 | Reps who placed an order | **{{ ra.order_authors_90d }}** |
 | Confirmed orders placed | **{{ ra.confirmed_orders_90d }}** |
 
-{%- if ra.quiet_seats > 0 or ra.dark_seats > 0 %}
+{# P0-3: NO whitespace-chomp here. `{%-` ate the blank line, so this
+   paragraph abutted the table above it, markdown treated it as a lazy
+   continuation row, and the parser then swallowed the NEXT table whole —
+   separator row and all — emitting a literal `---` cell to the client. #}
+{% if ra.quiet_seats > 0 or ra.dark_seats > 0 %}
 {% set _silent = ra.quiet_seats + ra.dark_seats -%}
 {% if ra.quiet_seats > 0 and ra.dark_seats > 0 -%}
 **{{ _silent }} of {{ ra.active_seats }} seats are quiet or dark** ({{ ra.quiet_seats }} quiet, {{ ra.dark_seats }} dark / 90+ days). {% if _silent >= (ra.active_seats // 2) %}More than half the active seat base is quiet or dark — this is a systematic adoption gap, not individual scheduling.{% else %}These are your re-activation targets: the customer relationships and territory knowledge are there, the platform habit isn't yet.{% endif %}
@@ -68,7 +72,8 @@ All {{ ra.active_seats }} active seats logged in within the last month. Platform
 | Platform coverage rate | **{{ "{:.1f}".format(rc.coverage_pct) if rc.coverage_pct is not none else "n/a" }}%** |
 | Accounts not yet touched | {{ "{:,}".format(rc.untouched_customers) }} |
 
-{%- if rc.coverage_pct is not none and rc.coverage_pct < 50 %}
+{# P0-3: no backward chomp — keep the blank line. #}
+{% if rc.coverage_pct is not none and rc.coverage_pct < 50 %}
 **Less than half the active account book received a platform order in the last 90 days.** The {{ "{:,}".format(rc.untouched_customers) }} untouched accounts represent the coverage gap — whether those are intentionally managed offline or truly dormant is worth a territory review conversation.
 {%- elif rc.coverage_pct is not none and rc.coverage_pct >= 80 %}
 **{{ "{:.0f}".format(rc.coverage_pct) }}% of the active account book is covered.** The remaining {{ "{:,}".format(rc.untouched_customers) }} accounts haven't received a platform order in 90 days — worth identifying whether those are new-activation opportunities or intentional offline accounts.
@@ -86,7 +91,8 @@ All {{ ra.active_seats }} active seats logged in within the last month. Platform
 | Draft / quote | {{ "{:,}".format(rq.draft_orders) }} |
 | Confirmation rate | **{{ "{:.1f}".format(rq.submit_rate_pct) if rq.submit_rate_pct is not none else "n/a" }}%** |
 
-{%- if rq.submit_rate_pct is not none and rq.submit_rate_pct < 70 %}
+{# P0-3: no backward chomp — keep the blank line. #}
+{% if rq.submit_rate_pct is not none and rq.submit_rate_pct < 70 %}
 **{{ "{:.0f}".format(100 - rq.submit_rate_pct) }}% of platform orders are drafts or quotes that haven't been submitted.** That is {{ "{:,}".format(rq.draft_orders) }} orders sitting in limbo — each one is a customer conversation that hasn't closed yet. Converting drafts to confirmed orders is the fastest path to accurate order flow.{% if rq.top_draft_type %} The most common draft status is **{{ rq.top_draft_type }}**.{% endif %}
 {%- elif rq.submit_rate_pct is not none and rq.submit_rate_pct >= 90 %}
 **{{ "{:.0f}".format(rq.submit_rate_pct) }}% confirmation rate** — strong order discipline. Reps are converting nearly all platform orders to confirmed submissions.

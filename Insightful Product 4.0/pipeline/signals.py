@@ -75,6 +75,17 @@ class LeakContext(TypedDict, total=False):
     total_leak_dollars: float
 
 
+class ProjectContext(TypedDict, total=False):
+    prefix: str
+    sku_count: int
+    dollars: float
+    share_pct: float
+    units: int
+    unit_price: float
+    unit_price_ratio: float
+    items: list
+
+
 class EcatContext(TypedDict, total=False):
     ecat_pct: float
     inv_ltm_net: float
@@ -95,6 +106,7 @@ SignalKind = Literal[
     "ecat_minority",         # eCat is <15% of invoiced LTM (suppresses share framing)
     "leakage_discipline",    # org-wide leakage well below industry-normal
     "territory_cluster_decay",  # 3+ accounts under one rep all in real_decline
+    "single_door_project",   # a custom project: few units, one door, material share of the year
 ]
 
 
@@ -116,6 +128,7 @@ SIGNAL_ARC_ORDER: dict[str, int] = {
     "rep_underperform": 3,     # risk
     "rep_atrisk_book": 3,      # risk
     "territory_cluster_decay": 3,  # risk
+    "single_door_project": 1,  # intelligence — it explains the catalog, it is not a call
 }
 
 
@@ -154,6 +167,29 @@ LEAKAGE_LOW_THRESHOLD = 3.0         # org-wide leak rate <3% = disciplined
 SECOND_YEAR_RETURN_THRESHOLD = 0.50 # <50% of first-timers come back
 CROSS_SELL_ADDRESSABLE_FRACTION = 0.30  # editorial estimate of addressable cross-sell potential
 
+# ─── P0-7: single-door project concentration ──────────────────────────────
+# HFG's top-12 is 25% one-off custom SKUs, one dealer each, and the far more
+# interesting fact — that a single ~$2.6M custom project in ONE door drove 6.4%
+# of a $41.2M year — was never stated anywhere in the brief.
+#
+# Both gates are RELATIVE, per AUDIT_FINDINGS §2.1: one to the org's topline,
+# one to the org's own catalog. An absolute dollar floor here would be the
+# Sarreid overfit in a new place.
+#
+# Gate 2 is what separates a project from a channel. ali's `SB-23*` pair is
+# 2.6% of LTM across one door too — but it ships 2,750 units at $69 each. That
+# is a marketplace or direct account, not a fabricated project, and it is
+# already covered by concentration signals. HFG's cluster ships 63 units at
+# $41,871 each: 26× its own catalog's median unit price.
+#
+# Calibration across the 8 cohort catalogs that have one is in
+# handoffs/exec/W1_evidence.md. Candidates (2%, 5×) / (3%, 8×) / (5%, 10×) all
+# fire on hfg alone and on nothing else, so the cohort does not discriminate
+# between them — these are the middle values and they are the OWNER'S to move.
+PROJECT_MIN_SHARE_OF_LTM = 0.03      # cluster ≥3% of invoiced LTM
+PROJECT_MIN_UNIT_PRICE_RATIO = 8.0   # cluster $/unit ≥8× the catalog median
+PROJECT_SKU_PREFIX_MIN_LEN = 4       # shared SKU-prefix length that makes a cluster
+
 # ─── Editorial weights (surprise × actionability per signal kind) ─────────
 SIGNAL_WEIGHTS = {
     "real_decline":          {"surprise_warning": 0.6, "surprise_critical": 0.9, "actionability": 0.9},
@@ -170,6 +206,7 @@ SIGNAL_WEIGHTS = {
     "ecat_minority":         {"surprise": 0.3, "actionability": 0.3},
     "leakage_discipline":    {"surprise": 0.3, "actionability": 0.3},
     "territory_cluster_decay": {"surprise": 0.9, "actionability": 0.8},
+    "single_door_project":   {"surprise": 0.9, "actionability": 0.3},
 }
 
 # ─── Industry-context downweights (knowledge/industry_context.md) ─────────
@@ -551,6 +588,118 @@ def detect_territory_cluster_decay(
     )
 
 
+def _shared_prefix(a: str, b: str) -> str:
+    out = []
+    for x, y in zip(a, b):
+        if x != y:
+            break
+        out.append(x)
+    return "".join(out)
+
+
+def detect_single_door_project(
+    products: list[ProductRow],
+    inv_ltm_net: float,
+) -> Optional[Signal]:
+    """A custom project shipped to ONE door, large enough to move the year.
+
+    Groups the single-dealer items in the top-N catalog by shared SKU prefix,
+    then applies two size-relative gates: share of invoiced LTM, and unit price
+    against the org's own catalog median. See the constants above for why both
+    are needed and why neither is an absolute dollar figure.
+
+    Under-detects by construction: Q-PROD-TOP carries the top 25 items only, so
+    a project whose SKUs rank below that is invisible here. It never
+    over-detects — every gate is a floor.
+    """
+    if not products or inv_ltm_net <= 0:
+        return None
+
+    priced = [p for p in products if p.units > 0 and p.ltm_revenue > 0]
+    if len(priced) < 3:
+        return None
+    unit_prices = sorted(p.ltm_revenue / p.units for p in priced)
+    mid = len(unit_prices) // 2
+    median_unit_price = (
+        unit_prices[mid]
+        if len(unit_prices) % 2
+        else (unit_prices[mid - 1] + unit_prices[mid]) / 2
+    )
+    if median_unit_price <= 0:
+        return None
+
+    singles = [p for p in priced if p.dealers == 1]
+    if not singles:
+        return None
+
+    clusters: list[dict] = []
+    for product in singles:
+        for cluster in clusters:
+            shared = _shared_prefix(cluster["prefix"], product.item_number)
+            if len(shared) >= PROJECT_SKU_PREFIX_MIN_LEN:
+                cluster["prefix"] = shared
+                cluster["items"].append(product)
+                break
+        else:
+            clusters.append({"prefix": product.item_number, "items": [product]})
+
+    best: Optional[dict] = None
+    for cluster in clusters:
+        dollars = sum(p.ltm_revenue for p in cluster["items"])
+        units = sum(p.units for p in cluster["items"])
+        if units <= 0:
+            continue
+        share = dollars / inv_ltm_net
+        unit_price = dollars / units
+        if share < PROJECT_MIN_SHARE_OF_LTM:
+            continue
+        if unit_price / median_unit_price < PROJECT_MIN_UNIT_PRICE_RATIO:
+            continue
+        cluster.update(
+            dollars=dollars, units=units, share=share, unit_price=unit_price,
+            ratio=unit_price / median_unit_price,
+        )
+        if best is None or dollars > best["dollars"]:
+            best = cluster
+    if best is None:
+        return None
+
+    items = sorted(best["items"], key=lambda p: p.ltm_revenue, reverse=True)
+    w = SIGNAL_WEIGHTS["single_door_project"]
+    return Signal(
+        kind="single_door_project",
+        section="products",
+        headline=(
+            f"{len(items)} single-dealer SKUs sharing prefix {best['prefix']} "
+            f"carry ${int(best['dollars'] / 1000)}K — "
+            f"{best['share'] * 100:.1f}% of invoiced LTM"
+        ),
+        surprise=w["surprise"],
+        dollar_impact=best["dollars"],
+        actionability=w["actionability"],
+        confidence_ceiling="STRONG",
+        context=ProjectContext(
+            prefix=best["prefix"],
+            sku_count=len(items),
+            dollars=best["dollars"],
+            share_pct=best["share"] * 100,
+            units=int(best["units"]),
+            unit_price=best["unit_price"],
+            unit_price_ratio=best["ratio"],
+            items=[
+                {
+                    "item_number": p.item_number,
+                    "label": p.display_description,
+                    "ltm_revenue": p.ltm_revenue,
+                    "units": int(p.units),
+                }
+                for p in items
+            ],
+        ),
+        is_positive=True,
+    )
+
+
 # ─── Orchestration ─────────────────────────────────────────────────────────
 def detect_all(gather: GatherBundle, posture: RunPosture) -> list[Signal]:
     """Run every detection rule against the gather bundle. Returns all
@@ -573,6 +722,10 @@ def detect_all(gather: GatherBundle, posture: RunPosture) -> list[Signal]:
         sig = detect_new_line_takeoff(family)
         if sig:
             signals.append(sig)
+
+    sig = detect_single_door_project(gather.products, posture.inv_ltm_net)
+    if sig:
+        signals.append(sig)
 
     if gather.products and gather.families:
         sig = detect_cross_sell_pocket(

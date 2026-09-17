@@ -79,6 +79,20 @@ Only {{ "{:.0f}".format(dealers.second_year_return_rate * 100) }}% of first-time
 {%- endmacro %}
 
 {# ─── ecat_minority ────────────────────────────────────────────────────── #}
+{# ─── single_door_project (P0-7) ───────────────────────────────────────────
+   A custom project is not catalog volume. Left unnamed it does two things at
+   once: it crowds the real catalog story out of the top-12 table, and it hides
+   the more interesting fact — that one door and one project carried a material
+   slice of the year. Say it first, then read the catalog without it. #}
+{% macro signal_single_door_project(sig) -%}
+{%- set c = sig.context -%}
+{# Two paragraphs on purpose: the renderer lifts the FIRST paragraph of a
+   section into its summary card, and a single long one truncates mid-clause. #}
+**{{ c.sku_count }} of the items below share the {{ c.prefix }} prefix and went to a single dealer — ${{ "{:,.2f}".format(c.dollars / 1_000_000) }}M invoiced (LTM), {{ "{:.1f}".format(c.share_pct) }}% of the year, on {{ c.units }} units.**
+
+At ${{ "{:,.0f}".format(c.unit_price) }} a unit — {{ "{:.0f}".format(c.unit_price_ratio) }}× the median item on this list — that is one project, not a line the field can reorder. The catalog reads differently once you set it aside: everything below it is the repeatable business.
+{%- endmacro %}
+
 {% macro signal_ecat_minority(sig) -%}
 eCat is {{ "{:.1f}".format(sig.context.ecat_pct) }}% of invoiced LTM — a minority of the book for a business that still runs primarily through dealers, trade, and direct. Shown as absolute order dollars, not as a share of "total business" — that claim needs a second independent feed.
 {%- endmacro %}
@@ -103,6 +117,34 @@ Limited commerce signal: invoice data is present but thin (fewer than 1,000 invo
 {%- elif posture.commerce_confidence == "NONE" -%}
 No invoiced dollars available on this window. Findings here are drawn from eCat activity and order-level signals only; no rep-to-revenue claims are made.
 {%- endif %}
+{%- endmacro %}
+
+
+{# ═══════════════════════════════════════════════════════════════════════════
+   §Q SENSITIVITY HEDGE — the deterministic path's half of the gate
+   ═══════════════════════════════════════════════════════════════════════════
+
+   §Q requires every Tier-A/S dollar claim to carry an adjacent "what would
+   change this read" sentence. On the prose path that sentence is authored
+   inside the slot. With no API key and no prose file every slot is skipped,
+   the deterministic templates still emit Tier-A dollars, and nothing hedges
+   them — which is why bmc (PARTIAL) could not ship at all.
+
+   §Q.3 says the hedge "must be authored, not templated." That holds for the
+   prose path, where there is an author. The deterministic fallback has none,
+   so its choice is a templated hedge or no hedge, and no hedge means no
+   report. The macro therefore does the work §Q.4(a) asks of a collective
+   hedge: it NAMES THE UNCERTAINTY CLASS (one un-cross-verified invoice
+   source, or a frozen one) instead of stamping a bracket, and it carries the
+   §Q.2 marker phrasing verbatim.
+
+   Marker tokens for pipeline.smoke_check._HEDGE_MARKERS: "directional",
+   "floor". §Q.2 phrasings: "What would change this read", "pressure-test".
+   Do not reword either without re-reading §Q.2 — both gates read this text.
+#}
+
+{% macro sensitivity_hedge(posture, subject="The dollars above", singular=false) -%}
+What would change this read: {{ subject }} {{ "is" if singular else "are" }} directional — a floor drawn from {% if posture.is_stale %}an invoice feed that stopped updating {{ posture.stale_age_phrase }} ago{% else %}one invoice source that has not been cross-verified against a second independent view{% endif %}. {% if posture.is_stale %}A refreshed feed{% else %}A second source{% endif %} moves the size of these numbers, not their direction; pressure-test the size before you plan against it.
 {%- endmacro %}
 
 

@@ -94,7 +94,7 @@ The prior-year dealer base expanded: ${{ "{:,.2f}".format(gather.nrr.expansion_d
 {%- elif gather.nrr.nrr_pct >= 85 -%}
 Your existing accounts {% if posture.is_stale %}were spending{% else %}are spending{% endif %} **${{ "{:.2f}".format(gather.nrr.nrr_pct / 100) }} for every $1** they spent the year before. Expansion (${{ "{:,.2f}".format(gather.nrr.expansion_dollars / 1_000_000) }}M) didn't fully cover what contracted and went dark (${{ "{:,.2f}".format((gather.nrr.contraction_dollars | abs) / 1_000_000) }}M) — any topline growth {% if posture.is_stale %}was{% else %}is{% endif %} coming from new-dealer intake, not from the reorder engine you already have.
 {%- else -%}
-The reorder engine {% if posture.is_stale %}was running below replacement as of {{ posture.report_through_date }}{% else %}is running below replacement{% endif %} — same-account spend retained {{ "{:.0f}".format(gather.nrr.nrr_pct) }} cents on the prior-year dollar, with {{ "{:,}".format(gather.nrr.fully_churned_custs) }} prior-year accounts that went dark. New-dealer intake is covering the gap, but that is not a durable reorder strategy.
+The reorder engine {% if posture.is_stale %}was running below replacement as of {{ posture.report_through_date }}{% else %}is running below replacement{% endif %} — same-account spend retained {{ "{:.0f}".format(gather.nrr.nrr_pct) }} cents on the prior-year dollar, with {{ "{:,}".format(gather.dealers.lapsed if gather.dealers else gather.nrr.fully_churned_custs) }} prior-year accounts that went dark. New-dealer intake is covering the gap, but that is not a durable reorder strategy.
 {%- endif %}
 {%- elif gather.dealers -%}
 {%- if gather.dealers.returning > 0 %}
@@ -184,7 +184,7 @@ First year of invoice history — the same-dealer comparison (which accounts exp
 {%- endif %}
 {%- elif gather.products -%}
 {% set top_product = gather.products[0] -%}
-{{ top_product.description }} is the largest item slice in this window — **${{ "{:,.0f}".format(top_product.ltm_revenue / 1000) }}K invoiced (LTM)** across {{ top_product.dealers }} dealers. The catalog does not expose a marketable family rollup here, so this layer stays at item grain.
+{{ top_product.display_description }} is the largest item slice in this window — **${{ "{:,.0f}".format(top_product.ltm_revenue / 1000) }}K invoiced (LTM)** across {{ top_product.dealers }} dealers. The catalog does not expose a marketable family rollup here, so this layer stays at item grain.
 {%- else -%}
 {# QUERY-NEEDED: Q-PROD-FAMILY not yet in cache — needed for growth-family decomposition. #}
 {%- endif %}

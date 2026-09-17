@@ -70,6 +70,14 @@ def build_hero_bundle(
         for s in signals_slice
     ]
 
+    # P0-1: `lapsed` (Q-DEALER-COHORT) is the ONE client-facing "went dark"
+    # count. It is load-bearing — §9's dealer flow only reconciles with it
+    # (hfg: 2,504 - 1,080 + 998 = 2,422). `nrr.fully_churned_custs` measures a
+    # near-synonym on a different denominator (the invoiced-dollar cohort,
+    # 2,499 not 2,504) and rendered as the same English claim, so hfg shipped
+    # "1,075 prior-year accounts went dark" in §1 and "1,080 dealers ordered
+    # nothing this year" in §9. Both were right; the report was not. It is
+    # withheld from the bundle so prose cannot cite it at all.
     dealers_facts: dict = {}
     if gather.dealers:
         dealers_facts = {
@@ -77,6 +85,8 @@ def build_hero_bundle(
             "returning": gather.dealers.returning,
             "second_year_return_rate": gather.dealers.second_year_return_rate,
             "new_dealers": gather.dealers.new_dealers,
+            "lapsed": gather.dealers.lapsed,
+            "active_prior_ltm": gather.dealers.active_prior_ltm,
         }
 
     nrr_facts: dict = {}
@@ -85,7 +95,6 @@ def build_hero_bundle(
             "nrr_pct": gather.nrr.nrr_pct,
             "expansion_dollars": gather.nrr.expansion_dollars,
             "contraction_dollars": gather.nrr.contraction_dollars,
-            "fully_churned_custs": gather.nrr.fully_churned_custs,
         }
 
     total_at_risk_ltm = sum(a.ltm_rev for a in gather.decay)
@@ -337,15 +346,18 @@ def build_plays_from_gather(
             anchor = (
                 gap.anchor_item
                 if gap and gap.anchor_item
-                else gather.products[0].description
+                else gather.products[0].display_description
             )
             from .outreach_screen import looks_like_code
 
             title = (
                 f"{target.family_label} cross-sell"
+                # P0-8: the code test reads the RAW field. hfg's top item is an
+                # ERP spec string, and normalising it into a readable label must
+                # not turn "Axis cross-sell" into a 60-character play heading.
                 if looks_like_code(gather.products[0].description)
                 else (
-                    f"{gather.products[0].description.strip()} "
+                    f"{gather.products[0].display_description.strip()} "
                     f"→ {target.family_label} cross-sell"
                 )
             )
