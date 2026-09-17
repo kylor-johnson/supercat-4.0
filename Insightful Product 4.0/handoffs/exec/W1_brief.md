@@ -6,7 +6,11 @@
 
 **Read first:** `AUDIT_FINDINGS.md` §4, §7, §9 · `EXECUTION_PLAN.md` (stamp protocol).
 
-**Verify with** (~10s, fully offline — no VPN, no DB, no API key):
+**W1 needs no VPN, no Postgres and no API key.** Everything runs from the
+on-disk cache in ~10s. Confirmed 2026-09-17: `bmc` reproduces its failure
+offline, and all 8 catalogs P0-7/P0-8 need are cached.
+
+**Verify with:**
 ```bash
 cd "Insightful Product 4.0"
 make check                      # pytest + golden + cohort diff
@@ -46,10 +50,32 @@ marker phrasing to the template paths that emit Tier-A dollars when
 `report_product/report_editorial_rules_v4.md`; the canonical marker phrases are
 in `_macros.md.j2`.
 
+### The escape hatch is also unreachable (verified 2026-09-17)
+
+`README.md` documents `--no-narrative`, but **`run.sh` does not accept it**:
+
+```
+$ ./run.sh sarreid --date 2026-07-02 --no-narrative
+Unknown flag: --no-narrative          # run.sh:51
+```
+
+It exists only on the Python module. Via that path the split is clean:
+
+```
+$ .venv-renderer/bin/python -m pipeline.run_report --org sarreid --date 2026-07-02 --no-narrative
+preflight: confidence=STRONG    smoke_check: PASS     # STRONG is fine
+$ .venv-renderer/bin/python -m pipeline.run_report --org bmc --date 2026-07-09 --no-narrative
+preflight: confidence=PARTIAL   smoke_check: FAIL     # same 3 hedge violations
+```
+
+So the deterministic-only path is **unreachable through the documented
+entrypoint AND broken at PARTIAL**. Both halves are yours.
+
 **DoD:** `bmc` reaches SHIP with `smoke_check: PASS` and `step10: PASS`; hedges
-read as English a CEO would accept, not as a bracket; `--no-narrative` is
-verified on **at least one PARTIAL and one STRONG org**; no other org changes
-outcome; `README.md`'s claim is either true or amended to match reality.
+read as English a CEO would accept, not as a bracket; deterministic-only mode is
+verified on **at least one PARTIAL and one STRONG org** (use the module form
+above, or add the flag to `run.sh` — your call, but say which and why); no other
+org changes outcome; `README.md`'s claim is either made true or amended.
 
 ---
 
@@ -100,8 +126,14 @@ collapse two different SKUs to the same label. `pipeline/gather.normalize_accoun
 is the precedent for case handling but product text is not a company name — do
 not reuse it blindly (`FLMNT RND` must not become `Flmnt Rnd` if that is worse).
 
-**DoD:** the full cohort is checked, not just HFG; no two SKUs collide; the
-before/after table for every affected org is in the evidence file.
+**DoD:** every org that *has* a catalog is checked, not just HFG; no two SKUs
+collide; the before/after table for every affected org is in the evidence file.
+
+**Catalog coverage is 8 orgs, not 11** (verified 2026-09-17): sarreid, cci, clc,
+hfg, kal, ali, bmc, bri each carry 25 `Q-PROD-TOP` rows. `da` has no product
+CSVs at all; `sca` and `bsc` have the files with zero rows. All three are
+behavior-only / gate-stop and legitimately have no catalog — that is full
+coverage of what exists, not three gaps.
 
 ---
 
