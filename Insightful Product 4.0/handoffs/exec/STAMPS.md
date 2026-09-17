@@ -14,6 +14,10 @@ Append-only. One row per stamped task. Protocol: [`../../EXECUTION_PLAN.md`](../
 
 ---
 
+| 2026-09-17 | PHASE-2 golden re-freeze | `main` | **STAMP** | v11 (4 orgs) → v12 (11 orgs); `GOLDEN SET: PASS (11/11)`; `make check` green |
+
+---
+
 ## Reviewer note — W1 (2026-09-17)
 
 Verified by re-running, not by reading the evidence. Independent checks:
@@ -56,3 +60,32 @@ pre-existing render-time caser bug, not a P0-8 change.
 **Golden stays red (0/4).** It was red before W1, `golden_set.json` is
 worker-forbidden, and re-freezing is Phase 2 — after the P0 defects are closed,
 so known-defective output is never enshrined as the baseline.
+
+
+---
+
+## Phase 2 — golden re-freeze (2026-09-17)
+
+`config/golden_set.json` **v11 (4 orgs) → v12 (11 orgs)**. First freeze since
+2026-07-20, and the first that can detect Sarreid overfit — V11 contained only
+orgs that behave like Sarreid. `hfg`, `kal`, `ali`, `sca` were dropped from V11
+rather than reviewed; `bsc`, `bmc`, `bri` were never frozen at all.
+
+**`bsc` is now the only regression coverage of the correct-refusal path.**
+
+Every entry was generated from a real run, not hand-edited. Each carries
+`known_defects` — the design debt frozen alongside it, so the manifest
+*documents* debt instead of blessing it. Phases 4–10 tick those off. Nothing in
+`known_defects` is endorsed by being frozen.
+
+```
+GOLDEN SET: PASS (11/11)        # incl. prose conformance, Gate 2
+pytest                          150 passed, 6 skipped
+cohort_diff                     no change vs baseline
+```
+
+`_baseline/` re-captured at the same moment as the freeze, so the two agree.
+
+**The rule from here: red means red.** *"Expected-red is accepted"* — the
+2026-09-16 changelog line that let the harness rot for two months — is not
+written again.

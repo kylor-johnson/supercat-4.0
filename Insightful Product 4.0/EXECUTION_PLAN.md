@@ -65,11 +65,15 @@ reviewer-only, at a phase boundary, with owner confirmation.
 
 ## Phases
 
+> **Status 2026-09-17:** Phases 0–2 complete and merged to `main` (`701a635`).
+> Cohort **10 SHIP / 1 REDIRECT / 0 fail** (was 8/1/2). Tests 48 → 150.
+> `make check` is green. **Next: Phase 3 (W2, characterization tests).**
+
 | # | Phase | Owner | Sessions | Gate |
 |---|---|---|---|---|
-| **0** | Safety net, baseline, audit record | reviewer | 0 | G0 ✅ |
-| **1** | P0 shipping defects (12) | reviewer (8) + **W1** (2) | 1 | G1 — owner reads 4 reports |
-| **2** | Re-freeze golden 4→11, wire `make check` | reviewer | 0 | G2 — 11/11 green |
+| ~~**0**~~ | ~~Safety net, baseline, audit record~~ | reviewer | — | **G0 ✅** |
+| ~~**1**~~ | ~~P0 shipping defects~~ | reviewer + W1 | — | **G1 ✅** 11 of 12 closed; P0-6 blocked on VPN |
+| ~~**2**~~ | ~~Re-freeze golden 4→11~~ | reviewer | — | **G2 ✅** v12, `PASS (11/11)`, `make check` green |
 | **3** | Characterization tests on the renderer | **W2** | 1 | G3 — coverage |
 | **4** | **Tier-1 insight restoration** | reviewer | 0 | **G4 — owner reads Sarreid + HFG** |
 | **5** | De-Sarreid the constants | **W3** | 1 | G5 — owner approves every constant |
