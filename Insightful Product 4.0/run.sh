@@ -5,6 +5,7 @@
 #   ./run.sh {org}                        # full run → SHIP or REDIRECT
 #   ./run.sh {org} --date YYYY-MM-DD      # pinned cache date
 #   ./run.sh {org} --preview              # draft-profile run, labeled PREVIEW
+#   ./run.sh {org} --no-narrative         # deterministic templates only, no LLM
 #   ./run.sh --cohort org1,org2,...        # batch (delegates to run_cohort.sh)
 #   ./run.sh {org} --populate-cache       # populate cache before running
 #
@@ -37,11 +38,13 @@ DATE="$(date -u +%Y-%m-%d)"
 PREVIEW=0
 COHORT=""
 POPULATE_CACHE=0
+NO_NARRATIVE=0
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --date)          DATE="$2"; shift 2 ;;
     --preview)       PREVIEW=1; shift ;;
+    --no-narrative)  NO_NARRATIVE=1; shift ;;
     --cohort)        COHORT="$2"; shift 2 ;;
     --populate-cache) POPULATE_CACHE=1; shift ;;
     -h|--help)
@@ -67,7 +70,7 @@ if [[ -n "$COHORT" ]]; then
 fi
 
 if [[ -z "$ORG" ]]; then
-  echo "ERROR: org required. Usage: ./run.sh {org} [--date YYYY-MM-DD] [--preview]" >&2
+  echo "ERROR: org required. Usage: ./run.sh {org} [--date YYYY-MM-DD] [--preview] [--no-narrative]" >&2
   exit 3
 fi
 
@@ -90,6 +93,7 @@ fi
 # No branching on profile state: the pipeline auto-derives profiles/{org}.md
 # internally when it's missing, so no flag is needed here.
 PIPELINE_FLAGS=(--org "$ORG" --date "$DATE")
+[[ "$NO_NARRATIVE" -eq 1 ]] && PIPELINE_FLAGS+=(--no-narrative)
 
 # ─── Populate cache if requested ────────────────────────────────────────────
 if [[ "$POPULATE_CACHE" -eq 1 ]]; then

@@ -1,8 +1,12 @@
 {# §8 What's selling — top-12 items + family rollups + cross-sell.
    Reference: Sarreid PASS3 §8 (lines 203-227). #}
-{% from '_macros.md.j2' import signal_growth_pocket, signal_new_line_takeoff, action_growth_pocket %}
+{% from '_macros.md.j2' import signal_growth_pocket, signal_new_line_takeoff, action_growth_pocket, signal_single_door_project %}
 ## What's selling
 
+{% set _projects = signals | selectattr("kind", "eq", "single_door_project") | list -%}
+{% if _projects %}
+{{ signal_single_door_project(_projects[0]) }}
+{% endif %}
 {% if gather.families -%}
 {% set _lead = gather.families[0] -%}
 {% if _lead.is_new -%}
@@ -18,12 +22,12 @@
 | Item | LTM revenue | Units | Dealers |
 |---|---|---|---|
 {% for p in gather.products[:12] -%}
-| {{ p.description | replace("|", "–") }} | **${{ "{:,.0f}".format(p.ltm_revenue / 1000) }}K** | {{ "{:,}".format(p.units) }} | {{ p.dealers }} |
+| {{ p.display_description | replace("|", "–") }} | **${{ "{:,.0f}".format(p.ltm_revenue / 1000) }}K** | {{ "{:,}".format(p.units) }} | {{ p.dealers }} |
 {% endfor %}
 
 {% set widest = gather.products | sort(attribute="dealers", reverse=True) | first -%}
 {% if widest and widest.dealers > 20 -%}
-{{ widest.description | replace("  ", " ") }} is your most-distributed high-dollar item — {{ widest.dealers }} dealers at ${{ "{:,.0f}".format(widest.ltm_revenue / 1000) }}K.{% if gather.families %} The top family ({{ gather.families[0].family_label }}) accounts for ${{ "{:,.2f}".format(gather.families[0].ltm_revenue / 1_000_000) }}M across {{ gather.families[0].sku_count }} SKUs.{% endif %}
+{{ widest.display_description }} is your most-distributed high-dollar item — {{ widest.dealers }} dealers at ${{ "{:,.0f}".format(widest.ltm_revenue / 1000) }}K.{% if gather.families %} The top family ({{ gather.families[0].family_label }}) accounts for ${{ "{:,.2f}".format(gather.families[0].ltm_revenue / 1_000_000) }}M across {{ gather.families[0].sku_count }} SKUs.{% endif %}
 {%- endif %}
 {%- else -%}
 {# QUERY-NEEDED: Q-PROD-TOP not yet in cache — compose over invoice items for top-12 by LTM revenue. #}
@@ -63,16 +67,16 @@ Family performance is steady — no single growth engine and no clear fade. Dist
 {% set anchor = gather.products[0] -%}
 {% set target = gather.families[0] -%}
 {% if gather.cross_sell_gap is not none and gather.cross_sell_gap.count > 0 -%}
-**{{ gather.cross_sell_gap.count }} of {{ anchor.dealers }} {{ anchor.description | replace("  ", " ") }} dealers have never bought from the {{ target.family_label }} family.** That measured overlap gap is the named cross-sell list.
+**{{ gather.cross_sell_gap.count }} of {{ anchor.dealers }} {{ anchor.display_description }} dealers have never bought from the {{ target.family_label }} family.** That measured overlap gap is the named cross-sell list.
 {%- elif gather.cross_sell_gap is not none -%}
-Every {{ anchor.description | replace("  ", " ") }} dealer already buys from the {{ target.family_label }} family. There is no overlap list to push; the next question is depth by dealer.
+Every {{ anchor.display_description }} dealer already buys from the {{ target.family_label }} family. There is no overlap list to push; the next question is depth by dealer.
 {%- else -%}
-The overlap between {{ anchor.description | replace("  ", " ") }} buyers and the {{ target.family_label }} family is not computed for this org. No shared-buyer-profile claim is made.
+The overlap between {{ anchor.display_description }} buyers and the {{ target.family_label }} family is not computed for this org. No shared-buyer-profile claim is made.
 {%- endif %}
 {%- elif gather.families -%}
 The {{ gather.families[0].family_label }} family at {{ gather.families[0].dealer_count }} dealers is the natural cross-sell target from top-12 buyers.
 {%- elif gather.products -%}
-This catalog isn't grouped into branded product families, so the cleanest cross-sell here is item-to-item off the top-12 list above — {{ gather.products[0].description }} buyers who haven't yet taken the next-best-attached SKU — rather than a push into a named collection.
+This catalog isn't grouped into branded product families, so the cleanest cross-sell here is item-to-item off the top-12 list above — {{ gather.products[0].display_description }} buyers who haven't yet taken the next-best-attached SKU — rather than a push into a named collection.
 {%- else -%}
 Cross-sell analysis requires product and family data — will populate once both are available.
 {%- endif %}

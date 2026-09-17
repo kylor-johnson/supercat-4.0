@@ -1,5 +1,5 @@
 {# §3 Do this month — fired-signal plays, ranked by Signal.rank; max three. #}
-{% from '_macros.md.j2' import action_cross_sell_pocket, action_second_year_gap, action_leakage_discipline %}
+{% from '_macros.md.j2' import action_cross_sell_pocket, action_second_year_gap, action_leakage_discipline, sensitivity_hedge %}
 ## Do this month — {{ plays | length }} play{{ "s" if plays | length != 1 else "" }}
 {% if posture.commerce_confidence != "STRONG" %}
 > *All figures are directional — partial feed basis.*
@@ -15,7 +15,7 @@
 {%- elif play.type == "cross_sell" -%}
 {% set anchor = gather.products[0] -%}
 {% set target = gather.families | selectattr("family_label", "eq", play.target_family) | first -%}
-{{ anchor.description | replace("  ", " ") }} is the anchor item — ${{ "{:,.0f}".format(anchor.ltm_revenue / 1000) }}K invoiced (LTM) across {{ anchor.dealers }} dealers.{% if target %} The {{ target.family_label }} family is ${{ "{:,.2f}".format(target.ltm_revenue / 1_000_000) }}M{% if target.yoy_pct is not none %}, {{ "{:+.0f}".format(target.yoy_pct) }}% YoY{% endif %}, across {{ target.dealer_count }} dealers and {{ target.sku_count }} SKUs.{% endif %}
+{{ anchor.display_description }} is the anchor item — ${{ "{:,.0f}".format(anchor.ltm_revenue / 1000) }}K invoiced (LTM) across {{ anchor.dealers }} dealers.{% if target %} The {{ target.family_label }} family is ${{ "{:,.2f}".format(target.ltm_revenue / 1_000_000) }}M{% if target.yoy_pct is not none %}, {{ "{:+.0f}".format(target.yoy_pct) }}% YoY{% endif %}, across {{ target.dealer_count }} dealers and {{ target.sku_count }} SKUs.{% endif %}{% if posture.commerce_confidence not in ["STRONG", "NONE"] %} {{ sensitivity_hedge(posture, "Both figures") }}{% endif %}
 
 {% if play.gap_available and play.gap_count > 0 -%}
 **{{ play.gap_count }} of {{ play.anchor_dealers }} anchor-item dealers have never bought from the {{ play.target_family }} family.** That is the measured overlap gap; push the named list to the field and ask for a quote inside 30 days.
