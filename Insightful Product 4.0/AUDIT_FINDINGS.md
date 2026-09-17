@@ -362,3 +362,28 @@ bailed on any length mismatch and `check_play_alignment` then failed the run
 mismatch: the fix matches each selected play to its unique body by type and
 drops orphans. Fixed; `kal` exit1 → SHIP, and it now renders the authored FLINT
 cross-sell prose instead of template boilerplate.
+
+
+---
+
+## 8. Process finding — one repo, one branch, no matter how many folders
+
+During Phase 1 a second session working in a **different folder**
+(`onboarding-models/`) ran `git checkout main` + `git pull`. A checkout switches
+the **entire working tree**, so `tools/`, `AUDIT_FINDINGS.md`,
+`EXECUTION_PLAN.md` and `Makefile` — which exist only as commits on
+`exec/phase-0-baseline` — vanished from disk mid-task. Folder separation gives
+no isolation from branch operations. Two concurrent sessions need **two
+checkouts**, not two folders. Committed work was never at risk.
+
+### The branch switch also deleted untracked client inputs
+
+`outputs/*_prose_*.json` is **authored source**, not a build artifact — the
+pipeline cannot regenerate it. Phase 0 gitignored `outputs/*` wholesale, which
+made the prose files untracked; `checkout main` restored the tracked July
+copies over them and `checkout exec/...` then deleted them. The P0-1 prose fixes
+were lost and had to be re-applied.
+
+`.gitignore` now carries `!outputs/*_prose_*.json` and the nine prose inputs are
+tracked again. They move to the private client-data repo at Phase 11.
+**Rule: ignore artifacts, never inputs.**

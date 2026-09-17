@@ -91,6 +91,10 @@ def load_profile_basics(profile_path: Path) -> dict:
 
 # ─── Subtitle / period derivation ───────────────────────────────────────────
 
+_BEHAVIOR_ONLY = re.compile(
+    r"behavior-only|no invoiced ERP feed", re.IGNORECASE
+)
+
 _PERIOD_LINE = re.compile(
     r"Trailing\s+12\s+months\s+through\s+([A-Z][a-z]+\s+\d{1,2}(?:,?\s*\d{4})?)",
     re.I,
@@ -261,8 +265,18 @@ def assemble_mode1(report: ParsedReport, period_line: str) -> tuple[str, str, li
 
 
 def _eyebrow_text(report: ParsedReport) -> str:
-    """The hero eyebrow line, e.g. 'LTM invoiced · through Jun 29, 2026'."""
-    m = _PERIOD_LINE.search(report.org_subtitle or "")
+    """The hero eyebrow line, e.g. 'LTM invoiced · through Jun 29, 2026'.
+
+    P0-2: a behavior-only report (COMMERCE_CONFIDENCE = NONE) has no invoice
+    feed at all — its hero number is confirmed platform order volume. Labelling
+    it "LTM invoiced" put those two words directly above the report's own
+    sentence "There is no invoiced total in this window" (da, sca). The header
+    subtitle is the rendered signal for that posture.
+    """
+    subtitle = report.org_subtitle or ""
+    if _BEHAVIOR_ONLY.search(subtitle):
+        return "Confirmed platform orders &middot; trailing 12 months"
+    m = _PERIOD_LINE.search(subtitle)
     if m:
         return f"LTM invoiced &middot; through {m.group(1)}"
     return "LTM invoiced"
