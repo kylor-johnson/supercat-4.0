@@ -21,7 +21,7 @@ export function SheetChrome({
         <h1>Hang tags</h1>
         <p>
           {designer
-            ? `Drag objects on a ${sheet} tag. Font, align, and barcode type save as JSON. Print sheets render that JSON.`
+            ? `Drag objects on a ${sheet} tag. Edit vs Print sit side by side. Click a line or the barcode for type tools.`
             : `${current.name} · ${current.size} · ${current.grid}. Fixture kll SKUs on disk. Download the PDF to share, or print from here.`}
         </p>
         <nav className="sheet-switcher" aria-label="Avery sheet">

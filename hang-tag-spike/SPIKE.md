@@ -1,6 +1,6 @@
 # Hang tag spike
 
-> **Last updated**: 2026-09-16
+> **Last updated**: 2026-09-17
 
 Standalone Next.js prototype for web-to-print showroom hang tags.
 Not iPad reports. Not EBR-794. Not a new catalog API.
@@ -8,7 +8,7 @@ Not iPad reports. Not EBR-794. Not a new catalog API.
 Tracked in **`kylor-johnson/supercat-4.0`** as `hang-tag-spike/`.
 Not a nested git repo. `node_modules` / `.next` stay gitignored.
 
-## Status (2026-09-16)
+## Status (2026-09-17)
 
 Brent asked for designer + a shareable web app first. That is live. Catalog key
 and physical Avery are later.
@@ -18,12 +18,13 @@ and physical Avery are later.
 | Public app | https://kuzco-hang-tags.vercel.app — fixture-only, 10 Kuzco (`kll`) SKUs on disk |
 | 5371 sheet | `/` — `TemplateTag` from JSON |
 | 5392 sheet | `/5392` — same |
-| Designer | `/design` (5371) and `/design?stock=5392` |
-| Git | `hang-tag-spike/` on `main` |
+| Designer | `/design` (5371) and `/design?stock=5392` — Edit canvas + Print preview |
+| Git | `hang-tag-spike/` on `main`. GitHub is how this moves between Macs. |
 | Vercel | CLI project `kuzco-hang-tags`. **Not GitHub-linked.** Push does not deploy. |
-| Fonts | Template default + per-object override. Geist, Geist Mono, Arial, Georgia, Times, Courier. |
-| Align | Text left/center/right (`textAlign`). Elements vs tag and vs selection; distribute at 3+. |
-| Barcodes | UPC-A default (`upc_value` fixture). Code 128 and QR in-app from the SKU’s UPC digits. |
+| Fonts | Template default + per-object face, size (pt), weight, tracking. |
+| Align | Text left/center/right. Elements vs tag / selection; distribute at 3+. Snap + arrow nudge. |
+| History | ⌘Z / Undo · Redo. 20 JSON states. |
+| Barcodes | UPC-A default. Code 128 and QR in-app from the SKU’s UPC digits. |
 | Catalog / live IMAP | Parked. No live prices on the public URL. |
 | EBR-794 | Parked. Do not comment in Jira. |
 | Physical Avery | A check, not the gate. |
@@ -68,7 +69,8 @@ The product is a **browser designer** that prints Avery tags. iPad hang tags sta
 - Avery **5371** letter: 3.5×2 in, 2×5, 0.5" top, 0.75" sides, no gap
 - Avery **5392** letter: 4×3 in, 2×3, 0.25" sides, 1" top/bottom (official Avery, not iOS 3-col 3×4)
 - Designer templates for **both** stocks (`src/data/template.ts`); print sheets render `TemplateTag` from that JSON
-- Font, text align, element align/distribute, and barcode type persist on that JSON
+- Font, size, weight, tracking, text align, element align/distribute, snap, nudge, and barcode type persist on that JSON
+- Designer shows a live `TemplateTag` print preview beside Fabric; ⌘Z undoes JSON states
 - 10 live Kuzco (`kll`) SKUs on disk in `src/data/kuzco-fixture.json`
 - Real UPC-A (`scripts/render-upcs.mjs` → `public/fixtures/barcodes/`); Code 128 and QR generated in-app from the SKU UPC digits
 - Logo + product photos on disk

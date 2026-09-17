@@ -52,6 +52,19 @@ export const BARCODE_FORMAT_LABELS: Record<BarcodeFormat, string> = {
 export const DEFAULT_FONT_FAMILY: FontFamily = "geist";
 export const DEFAULT_TEXT_ALIGN: TextAlign = "left";
 export const DEFAULT_BARCODE_FORMAT: BarcodeFormat = "upc";
+export const DEFAULT_FONT_SIZE = 8;
+export const DEFAULT_FONT_WEIGHT = 400;
+export const NUDGE_INCHES = 0.01;
+export const NUDGE_SHIFT_INCHES = 0.1;
+export const SNAP_INCHES = 0.04;
+export const HISTORY_LIMIT = 20;
+
+export const LETTER_SPACING_OPTIONS = [
+  { value: "", label: "None" },
+  { value: "0.02em", label: "Tight" },
+  { value: "0.04em", label: "Wide" },
+  { value: "0.08em", label: "Extra" },
+] as const;
 
 export type TemplateObject = {
   id: string;
@@ -161,6 +174,21 @@ export function resolvedFontFamily(
 
 export function resolvedTextAlign(spec: TemplateObject): TextAlign {
   return spec.textAlign ?? DEFAULT_TEXT_ALIGN;
+}
+
+export function resolvedFontSize(spec: TemplateObject): number {
+  return spec.fontSize ?? DEFAULT_FONT_SIZE;
+}
+
+export function resolvedFontWeight(spec: TemplateObject): number {
+  return spec.fontWeight ?? DEFAULT_FONT_WEIGHT;
+}
+
+export function emToCharSpacing(value?: string): number {
+  if (!value) return 0;
+  const match = value.trim().match(/^(-?[\d.]+)em$/i);
+  if (!match) return 0;
+  return Math.round(Number(match[1]) * 1000);
 }
 
 export function resolvedBarcodeFormat(

@@ -1,10 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { TemplateTag } from "@/components/template-tag";
 import { boundImageSrc, boundText } from "@/data/bindings";
 import type { HangTagSku } from "@/data/sku";
 import type { SheetCode } from "@/data/sheets";
 import { codeImageSrc } from "@/lib/codes";
+import { snapMovingTarget } from "@/lib/designer-geom";
 import {
   BARCODE_FORMAT_LABELS,
   BARCODE_FORMATS,
@@ -14,11 +16,18 @@ import {
   FONT_FAMILIES,
   FONT_LABELS,
   fontCanvasStack,
+  HISTORY_LIMIT,
+  LETTER_SPACING_OPTIONS,
+  NUDGE_INCHES,
+  NUDGE_SHIFT_INCHES,
+  emToCharSpacing,
   inchesToPx,
   parseStoredTemplate,
   pxToInches,
   resolvedBarcodeFormat,
   resolvedFontFamily,
+  resolvedFontSize,
+  resolvedFontWeight,
   resolvedTextAlign,
   STORAGE_KEY,
   templateStorageKey,
@@ -77,10 +86,11 @@ async function addTemplateObject(
       (spec.binding ? boundText(sku, spec.binding) : spec.text) || "";
     const box = new Textbox(text, {
       width: inchesToPx(spec.width),
-      fontSize: ptToPx(spec.fontSize ?? 8),
-      fontWeight: spec.fontWeight ?? 400,
+      fontSize: ptToPx(resolvedFontSize(spec)),
+      fontWeight: resolvedFontWeight(spec),
       fontFamily: fontCanvasStack(resolvedFontFamily(template, spec)),
       textAlign: resolvedTextAlign(spec),
+      charSpacing: emToCharSpacing(spec.letterSpacing),
       fill: "#1a1714",
       splitByGrapheme: false,
       originX: "left",
@@ -167,6 +177,15 @@ function toolbarClass(active: boolean): string {
   return active ? "kb kb-sm kb-primary" : "kb kb-sm kb-secondary";
 }
 
+function templatesEqual(a: HangTagTemplate, b: HangTagTemplate): boolean {
+  return JSON.stringify(a) === JSON.stringify(b);
+}
+
+function isEditingField(target: EventTarget | null): boolean {
+  if (!(target instanceof HTMLElement)) return false;
+  return Boolean(target.closest("input, select, textarea, [contenteditable]"));
+}
+
 export function TagDesigner({
   skus,
   stock,
@@ -181,22 +200,35 @@ export function TagDesigner({
     cloneTemplate(DEFAULT_TEMPLATES[stock]),
   );
   const skuRef = useRef<HangTagSku>(skus[0]);
+  const historyRef = useRef<HangTagTemplate[]>([]);
+  const historyIndexRef = useRef(0);
   const [skuIndex, setSkuIndex] = useState(0);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [draft, setDraft] = useState<HangTagTemplate>(() =>
     cloneTemplate(DEFAULT_TEMPLATES[stock]),
   );
+  const [historyState, setHistoryState] = useState({ index: 0, length: 1 });
   const [ready, setReady] = useState(false);
   const fallback = DEFAULT_TEMPLATES[stock];
 
   const persist = useCallback(
-    (template: HangTagTemplate) => {
-      templateRef.current = template;
-      setDraft(cloneTemplate(template));
+    (template: HangTagTemplate, options?: { history?: boolean }) => {
+      const next = cloneTemplate(template);
+      templateRef.current = next;
+      setDraft(cloneTemplate(next));
       window.localStorage.setItem(
         templateStorageKey(stock),
-        JSON.stringify(template),
+        JSON.stringify(next),
       );
+      if (options?.history === false) return;
+      const stack = historyRef.current.slice(0, historyIndexRef.current + 1);
+      const last = stack[stack.length - 1];
+      if (last && templatesEqual(last, next)) return;
+      stack.push(cloneTemplate(next));
+      if (stack.length > HISTORY_LIMIT) stack.shift();
+      historyRef.current = stack;
+      historyIndexRef.current = stack.length - 1;
+      setHistoryState({ index: stack.length - 1, length: stack.length });
     },
     [stock],
   );
@@ -243,6 +275,9 @@ export function TagDesigner({
     const initial = stored ?? cloneTemplate(fallback);
     templateRef.current = initial;
     setDraft(cloneTemplate(initial));
+    historyRef.current = [cloneTemplate(initial)];
+    historyIndexRef.current = 0;
+    setHistoryState({ index: 0, length: 1 });
 
     import("fabric").then(async (fabric) => {
       if (disposed || !hostRef.current) return;
@@ -259,6 +294,10 @@ export function TagDesigner({
       canvasRef.current = canvas;
       canvas.on("object:modified", () => {
         persist(templateFromCanvas(canvas, templateRef.current));
+      });
+      canvas.on("object:moving", (event) => {
+        if (!event.target) return;
+        snapMovingTarget(event.target, canvas, templateRef.current);
       });
       const syncSelection = () => setSelectedIds(selectedIdsFrom(canvas));
       canvas.on("selection:created", syncSelection);
@@ -285,6 +324,89 @@ export function TagDesigner({
     setSelectedIds([]);
     void rebuild(false);
   }
+
+  const applyHistory = useCallback(
+    (index: number) => {
+      const template = historyRef.current[index];
+      if (!template) return;
+      historyIndexRef.current = index;
+      setHistoryState({ index, length: historyRef.current.length });
+      persist(cloneTemplate(template), { history: false });
+      void rebuild();
+    },
+    [persist, rebuild],
+  );
+
+  const undo = useCallback(() => {
+    if (historyIndexRef.current <= 0) return;
+    applyHistory(historyIndexRef.current - 1);
+  }, [applyHistory]);
+
+  const redo = useCallback(() => {
+    if (historyIndexRef.current >= historyRef.current.length - 1) return;
+    applyHistory(historyIndexRef.current + 1);
+  }, [applyHistory]);
+
+  const nudgeSelected = useCallback(
+    (dxIn: number, dyIn: number) => {
+      const fabric = fabricRef.current;
+      const canvas = canvasRef.current;
+      if (!fabric || !canvas) return;
+      const objects = canvas.getActiveObjects();
+      if (objects.length === 0) return;
+      canvas.discardActiveObject();
+      const dx = inchesToPx(dxIn);
+      const dy = inchesToPx(dyIn);
+      for (const object of objects) {
+        object.set({
+          left: (object.left ?? 0) + dx,
+          top: (object.top ?? 0) + dy,
+        });
+        object.setCoords();
+      }
+      restoreSelection(fabric, canvas, objects);
+      canvas.requestRenderAll();
+      persist(templateFromCanvas(canvas, templateRef.current));
+    },
+    [persist],
+  );
+
+  useEffect(() => {
+    if (!ready) return;
+    function onKey(event: KeyboardEvent) {
+      if (isEditingField(event.target)) return;
+      const key = event.key.toLowerCase();
+      if ((event.metaKey || event.ctrlKey) && key === "z") {
+        event.preventDefault();
+        if (event.shiftKey) redo();
+        else undo();
+        return;
+      }
+      if ((event.metaKey || event.ctrlKey) && key === "y") {
+        event.preventDefault();
+        redo();
+        return;
+      }
+      if (
+        event.key !== "ArrowLeft" &&
+        event.key !== "ArrowRight" &&
+        event.key !== "ArrowUp" &&
+        event.key !== "ArrowDown"
+      ) {
+        return;
+      }
+      if (!canvasRef.current?.getActiveObjects().length) return;
+      event.preventDefault();
+      const step = event.shiftKey ? NUDGE_SHIFT_INCHES : NUDGE_INCHES;
+      const dx =
+        event.key === "ArrowLeft" ? -step : event.key === "ArrowRight" ? step : 0;
+      const dy =
+        event.key === "ArrowUp" ? -step : event.key === "ArrowDown" ? step : 0;
+      nudgeSelected(dx, dy);
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [nudgeSelected, persist, ready, redo, undo]);
 
   function downloadJson() {
     const blob = new Blob([JSON.stringify(templateRef.current, null, 2)], {
@@ -327,6 +449,15 @@ export function TagDesigner({
     }
     if (patch.textAlign) {
       active.set("textAlign", patch.textAlign);
+    }
+    if (patch.fontSize !== undefined) {
+      active.set("fontSize", ptToPx(patch.fontSize));
+    }
+    if (patch.fontWeight !== undefined) {
+      active.set("fontWeight", patch.fontWeight);
+    }
+    if ("letterSpacing" in patch) {
+      active.set("charSpacing", emToCharSpacing(patch.letterSpacing));
     }
     canvas.requestRenderAll();
   }
@@ -474,13 +605,59 @@ export function TagDesigner({
       : undefined;
   const textAlign = selected ? resolvedTextAlign(selected) : "left";
   const globalFont = draft.fontFamily ?? "geist";
+  const canUndo = historyState.index > 0;
+  const canRedo = historyState.index < historyState.length - 1;
+  const printScale = EDITOR_DPI / 96;
+  const selectedLabel =
+    selectedIds.length === 0
+      ? "none"
+      : selectedIds.length === 1
+        ? `${selectedIds[0]}${selected ? ` · ${selected.type}` : ""}`
+        : `${selectedIds.length} objects`;
 
   return (
     <div className="designer-layout">
-      <div className="designer-stage" style={{ width, height }}>
-        <canvas ref={hostRef} width={width} height={height} />
+      <div className="designer-stages">
+        <div>
+          <p className="designer-stage-label">Edit</p>
+          <div className="designer-stage" style={{ width, height }}>
+            <canvas ref={hostRef} width={width} height={height} />
+          </div>
+        </div>
+        <div>
+          <p className="designer-stage-label">Print</p>
+          <div className="designer-print-frame" style={{ width, height }}>
+            <div
+              className="designer-print-scale"
+              style={{
+                width: `${fallback.tag.width}in`,
+                height: `${fallback.tag.height}in`,
+                transform: `scale(${printScale})`,
+              }}
+            >
+              <TemplateTag sku={sku} template={draft} />
+            </div>
+          </div>
+        </div>
       </div>
       <aside className="designer-sidebar">
+        <p className="designer-hint">
+          {selectedIds.length === 0
+            ? "Click a line for type. Click the barcode for UPC / QR. Shift-click to multi-select. Arrows nudge 0.01″ (Shift 0.1″). ⌘Z undoes."
+            : selected?.type === "text"
+              ? "Type, weight, and tracking apply to this line and the print preview."
+              : selected?.type === "barcode"
+                ? "UPC-A is the Kuzco default. QR / Code 128 encode this SKU’s UPC digits."
+                : selectedIds.length > 1
+                  ? "Shift-click adds to the selection. Align to selection appears at 2+; distribute at 3+."
+                  : "Align to tag writes x / y inches into the JSON the print sheet reads."}
+        </p>
+        <p className="designer-meta">
+          Selected: <strong>{selectedLabel}</strong>
+          <br />
+          Previewing {sku.collection_name} / {sku.item_number}
+        </p>
+
         <label className="kf-field">
           <span className="kf-field-label">SKU</span>
           <select
@@ -511,10 +688,6 @@ export function TagDesigner({
               </option>
             ))}
           </select>
-          <span className="kf-field-hint">
-            Applies to text without its own face. SKU stays Geist Mono until you
-            override it.
-          </span>
         </label>
 
         {selected?.type === "text" ? (
@@ -534,6 +707,59 @@ export function TagDesigner({
                 {FONT_FAMILIES.map((family) => (
                   <option key={family} value={family}>
                     {FONT_LABELS[family]}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="kf-field">
+              <span className="kf-field-label">Size (pt)</span>
+              <input
+                className="kf-input kf-md"
+                type="number"
+                min={6}
+                max={24}
+                step={0.5}
+                value={resolvedFontSize(selected)}
+                onChange={(event) =>
+                  patchSelected({
+                    fontSize: Number(event.target.value) || 8,
+                  })
+                }
+              />
+            </label>
+            <div className="kf-field">
+              <span className="kf-field-label">Weight</span>
+              <div className="designer-toolbar">
+                <button
+                  className={toolbarClass(resolvedFontWeight(selected) === 400)}
+                  type="button"
+                  onClick={() => patchSelected({ fontWeight: 400 })}
+                >
+                  Regular
+                </button>
+                <button
+                  className={toolbarClass(resolvedFontWeight(selected) >= 700)}
+                  type="button"
+                  onClick={() => patchSelected({ fontWeight: 700 })}
+                >
+                  Bold
+                </button>
+              </div>
+            </div>
+            <label className="kf-field">
+              <span className="kf-field-label">Tracking</span>
+              <select
+                className="kf-input kf-md"
+                value={selected.letterSpacing ?? ""}
+                onChange={(event) =>
+                  patchSelected({
+                    letterSpacing: event.target.value || undefined,
+                  })
+                }
+              >
+                {LETTER_SPACING_OPTIONS.map((option) => (
+                  <option key={option.label} value={option.value}>
+                    {option.label}
                   </option>
                 ))}
               </select>
@@ -659,23 +885,26 @@ export function TagDesigner({
         ) : null}
 
         <p className="designer-meta">
-          Avery {stock} · {fallback.tag.width}×{fallback.tag.height} in. Drag to
-          move, handles to resize. Layout saves in this browser as JSON inches +
-          bindings. Print sheets read the same JSON.
-        </p>
-        <p className="designer-meta">
-          Selected:{" "}
-          <strong>
-            {selectedIds.length === 0
-              ? "none"
-              : selectedIds.length === 1
-                ? selectedIds[0]
-                : `${selectedIds.length} objects`}
-          </strong>
-          <br />
-          Previewing {sku.collection_name} / {sku.item_number}
+          Avery {stock} · {fallback.tag.width}×{fallback.tag.height} in. Layout
+          saves in this browser. Print sheets read the same JSON.
         </p>
         <div className="hang-tag-actions">
+          <button
+            className="kb kb-md kb-secondary"
+            type="button"
+            disabled={!canUndo}
+            onClick={undo}
+          >
+            Undo
+          </button>
+          <button
+            className="kb kb-md kb-secondary"
+            type="button"
+            disabled={!canRedo}
+            onClick={redo}
+          >
+            Redo
+          </button>
           <button className="kb kb-md kb-secondary" type="button" onClick={resetLayout}>
             Reset layout
           </button>
