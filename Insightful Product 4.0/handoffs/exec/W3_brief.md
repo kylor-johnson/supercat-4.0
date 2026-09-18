@@ -66,6 +66,73 @@ category each constant is in before you touch it.
 
 ---
 
+## Three symptoms the owner saw on screen (added 2026-09-18)
+
+Phase 4's G4 review surfaced three complaints that all trace back to these
+constants. **They are the reason this phase matters — treat them as the
+acceptance test, not as extras.** Owner's words: *"the numbers don't really
+stand out or pop like Sarreid's."*
+
+### S1 — the whole month is a $7–12K play on a $41.2M company
+
+hfg's "Do this month" is one play: *"One dealer already buying the top custom
+fixture has never ordered Axis; the estimated upside is $7K–$12K, DIRECTIONAL,
+on a single door."* That is 0.02% of the year presented as the month's work.
+
+`fact_bundles.build_plays_from_gather` applies **no materiality floor at all** —
+it renders a cross-sell play at `gap_count = 1`. A temporary hero-only floor of
+3 dealers sits in `_macros.md.j2` (`hero_finding`, cross_sell branch); **replace
+it with the size-scaled version and delete the stopgap.**
+
+A play that cannot clear the floor should not be padded — "no play qualified
+this month" is a legitimate, honest output and the template already supports it.
+
+### S2 — four coaching cards reading `$1K at risk`, one of them on a GROWING account
+
+hfg ships five cards; four say **`$1K AT RISK`**. Card 1 is worse than
+immaterial — it is wrong in kind:
+
+> *"Rep CANOREP's flagged book is about $22K of near-term risk, and it sits on a
+> $602K account that is actually pacing up (about $19K of half-over-half gain).
+> Treat it as coverage maintenance."*
+
+A **risk** card about an account that is **growing**. Two defects in one:
+
+- **Materiality** — `REP_ATRISK_MIN_DOLLARS = 20_000` gates the *signal*, but the
+  cards render from `bundle.rep_risks` and never consult it. Give the card the
+  same size-scaled floor.
+- **Consistency** — Phase 4 established ONE definition of "needs attention"
+  (`gather.account_needs_a_call`) now driving the call list, the watchlist, the
+  hero at-risk card and the footer. **The coaching cards are the fourth surface
+  and were missed.** A rep whose flagged accounts are all growing should not
+  produce a risk card.
+
+Do the consistency half even if the materiality half needs owner numbers — they
+are separable.
+
+### S3 — the hero calls a contracting base "roughly flat"
+
+hfg's hero: *"Your existing accounts are spending **roughly flat** vs. prior
+year."* Section 5 of the same report: *"Growing accounts added $9.7M while
+shrinking and lapsed ones handed back **$16.5M** … **1,080** prior-year accounts
+went dark. **Do not read a flat-looking year as reorder strength.**"*
+
+The hero softens the report's own headline finding. The cause is a constant plus
+a measure choice, both in scope here:
+
+- `section_01_hero.md.j2` branches on `same_base_lift_pct < -5` to decide
+  "spending less" vs "roughly flat". hfg is **−2%**, so it gets "roughly flat".
+- But `nrr_pct` says **$0.84 for every $1 — a 16% contraction in retained
+  dollars.** Two measures of one concept, disagreeing by 14 points, and the hero
+  leads with the gentler one.
+
+**Decide which measure the hero leads on and at what threshold**, and put both
+in the calibration table. If a same-dealer base handing back $16.5M is not
+"spending less", the threshold is wrong. Note this is also a T1-5
+named-quantity risk: two numbers, one claim.
+
+---
+
 ## The job
 
 **Convert size-dependent constants to size-relative ones, and produce the
@@ -125,12 +192,19 @@ so explicitly and leave that constant alone.
   threshold; the absolute floor still binding on a tiny org; and a
   `commerce_confidence = NONE` org (`inv_ltm_net = 0`) not dividing by zero.
 - `AUDIT_FINDINGS.md` §2.1 updated to describe the mechanism that now exists.
+- **S1:** plays carry a size-scaled materiality floor; the hero-only stopgap of 3
+  in `_macros.md.j2` is removed; "no play qualified this month" is reachable.
+- **S2:** coaching cards honour the same floor **and** the same
+  `account_needs_a_call` definition the other four surfaces use — no risk card
+  for a rep whose flagged accounts are all growing.
+- **S3:** a recommendation on which same-dealer measure the hero leads with and
+  at what threshold, with hfg (−2% lift vs $0.84 NRR) in the table.
+- The owner can read hfg end to end and not hit an immaterial or
+  self-contradictory claim.
 
 ## Scope
 
-**In:** `pipeline/signals.py`, `pipeline/fact_bundles.py` (only where a play
-threshold mirrors a signal one), `tests/**`, `handoffs/exec/W3_evidence.md`,
-`AUDIT_FINDINGS.md`.
+**In:** `pipeline/signals.py`, `pipeline/fact_bundles.py`, `pipeline/templates/_macros.md.j2` and `section_01_hero.md.j2` (S1/S2/S3 only), `pipeline/availability.py` if a card gate moves, `tests/**`, `handoffs/exec/W3_evidence.md`, `AUDIT_FINDINGS.md`.
 
 **Out:** `config/golden_set.json` (reviewer-only), LIVE SQL in `foundation/**` /
 `operators/**`, `pipeline/cache/**`, `outputs/*_prose_*.json` (authored client
@@ -140,9 +214,11 @@ a constant directly, and anything outside `Insightful Product 4.0/`.
 **Do not** enable `validate_slot` on the prose-file path (Phase 8 — it rejects
 `$1` from the phrase "for every $1"; `AUDIT_FINDINGS.md` §7).
 
-**Known adjacent item, not yours:** the hero cross-sell carries a temporary
-floor of 3 dealers (`_macros.md.j2`, `hero_finding`). Phase 7 replaces it with
-the size-scaled version. Leave it.
+**Phase 4 left one rule you must reuse, not re-invent:**
+`gather.account_needs_a_call(account)` is the single definition of "this account
+has actually slipped". The call list, the watchlist, the hero at-risk card and
+the call-list footer all read it. S2 makes the coaching cards the fifth. Do not
+add a sixth definition.
 
 ## Two traps already paid for
 
