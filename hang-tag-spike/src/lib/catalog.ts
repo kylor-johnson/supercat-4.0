@@ -66,8 +66,21 @@ const FIELD_ALIASES: Record<SkuFieldKey, string[]> = {
     "photourl",
     "primaryimage",
   ],
-  us_imap: ["us_imap", "usimap", "priceus", "imap", "pl.usimap"],
-  cad_imap: ["cad_imap", "cadimap", "pricecad", "pl.cadimap"],
+  us_imap: [
+    "us_imap",
+    "usimap",
+    "priceusimap",
+    "priceus",
+    "imap",
+    "pl.usimap",
+  ],
+  cad_imap: [
+    "cad_imap",
+    "cadimap",
+    "pricecadimap",
+    "pricecad",
+    "pl.cadimap",
+  ],
   "c.MarketSpecial": [
     "c.marketspecial",
     "marketspecial",
@@ -197,6 +210,19 @@ export function cellFor(
   return (row[header] ?? "").trim();
 }
 
+export const KUZCO_IMAGE_CDN =
+  "https://supercatcdn.global.ssl.fastly.net/kll/product_image/full";
+
+export function resolveImageSrc(raw: string): string {
+  const first = raw.split(",")[0]?.trim() ?? "";
+  if (!first) return "";
+  if (/^https:\/\//i.test(first) || first.startsWith("/")) return first;
+  if (/^http:\/\//i.test(first)) return "";
+  const file = first.split(/[\\/]/).pop() ?? first;
+  if (!/\.(jpe?g|png|webp|gif)$/i.test(file)) return "";
+  return `${KUZCO_IMAGE_CDN}/${encodeURIComponent(file)}`;
+}
+
 export function rowToSku(
   row: Record<string, string>,
   map: CatalogColumnMap,
@@ -207,7 +233,7 @@ export function rowToSku(
   if (!sku.item_number || !sku.collection_name) return null;
 
   sku.upc_value = cellFor(row, map.upc_value);
-  sku.image = cellFor(row, map.image);
+  sku.image = resolveImageSrc(cellFor(row, map.image));
   sku.us_imap = cellFor(row, map.us_imap);
   sku.cad_imap = cellFor(row, map.cad_imap);
   sku.FinishOptions = cellFor(row, map.FinishOptions);
@@ -287,7 +313,7 @@ function coerceSku(value: unknown): HangTagSku | null {
   sku.us_imap = String(row.us_imap ?? "");
   sku.cad_imap = String(row.cad_imap ?? "");
   sku.upc_value = String(row.upc_value ?? "");
-  sku.image = String(row.image ?? "");
+  sku.image = resolveImageSrc(String(row.image ?? ""));
   for (const flag of BOOLEAN_BINDINGS) {
     const raw = row[flag];
     sku[flag] =
@@ -314,12 +340,105 @@ export function writeStoredMap(map: CatalogColumnMap) {
   window.localStorage.setItem(CATALOG_MAP_STORAGE_KEY, JSON.stringify(map));
 }
 
-export function writeStoredCatalog(skus: HangTagSku[]) {
-  window.localStorage.setItem(CATALOG_STORAGE_KEY, JSON.stringify(skus));
+const IDB_NAME = "hang-tag-catalog-v1";
+const IDB_STORE = "catalog";
+const IDB_KEY = "skus";
+
+let memoryCatalog: HangTagSku[] | null | undefined;
+
+export function memoryImportedCatalog(): HangTagSku[] | null | undefined {
+  return memoryCatalog;
+}
+
+function openCatalogDb(): Promise<IDBDatabase> {
+  return new Promise((resolve, reject) => {
+    const request = window.indexedDB.open(IDB_NAME, 1);
+    request.onupgradeneeded = () => {
+      const db = request.result;
+      if (!db.objectStoreNames.contains(IDB_STORE)) {
+        db.createObjectStore(IDB_STORE);
+      }
+    };
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+async function idbWrite(skus: HangTagSku[]) {
+  const db = await openCatalogDb();
+  await new Promise<void>((resolve, reject) => {
+    const tx = db.transaction(IDB_STORE, "readwrite");
+    tx.objectStore(IDB_STORE).put(skus, IDB_KEY);
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+  });
+  db.close();
+}
+
+async function idbRead(): Promise<HangTagSku[] | null> {
+  const db = await openCatalogDb();
+  const skus = await new Promise<unknown>((resolve, reject) => {
+    const tx = db.transaction(IDB_STORE, "readonly");
+    const request = tx.objectStore(IDB_STORE).get(IDB_KEY);
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+  db.close();
+  if (!Array.isArray(skus)) return null;
+  return parseStoredCatalog(JSON.stringify(skus));
+}
+
+async function idbClear() {
+  try {
+    const db = await openCatalogDb();
+    await new Promise<void>((resolve, reject) => {
+      const tx = db.transaction(IDB_STORE, "readwrite");
+      tx.objectStore(IDB_STORE).delete(IDB_KEY);
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+    });
+    db.close();
+  } catch {
+    // IndexedDB may be missing in private mode.
+  }
+}
+
+function notifyCatalogChange() {
   window.dispatchEvent(new Event(CATALOG_CHANGE_EVENT));
 }
 
-export function clearStoredCatalog() {
+export async function writeStoredCatalog(skus: HangTagSku[]) {
+  memoryCatalog = skus;
+  const json = JSON.stringify(skus);
+  try {
+    window.localStorage.setItem(CATALOG_STORAGE_KEY, json);
+    await idbClear();
+  } catch {
+    window.localStorage.removeItem(CATALOG_STORAGE_KEY);
+    await idbWrite(skus);
+  }
+  notifyCatalogChange();
+}
+
+export async function clearStoredCatalog() {
+  memoryCatalog = null;
   window.localStorage.removeItem(CATALOG_STORAGE_KEY);
-  window.dispatchEvent(new Event(CATALOG_CHANGE_EVENT));
+  await idbClear();
+  notifyCatalogChange();
+}
+
+export async function hydrateStoredCatalog(): Promise<HangTagSku[] | null> {
+  if (memoryCatalog !== undefined) {
+    return memoryCatalog;
+  }
+  const fromLs = parseStoredCatalog(
+    window.localStorage.getItem(CATALOG_STORAGE_KEY),
+  );
+  if (fromLs) {
+    memoryCatalog = fromLs;
+    return fromLs;
+  }
+  const fromIdb = await idbRead();
+  memoryCatalog = fromIdb;
+  return fromIdb;
 }

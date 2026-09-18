@@ -82,10 +82,11 @@ The product is a **browser designer** that prints hang tags. iPad hang tags stay
 - Designer shows a live mini sheet (Avery) or one-up tag beside Fabric; optional photo+hole sizzle; ⌘Z undoes JSON states
 - Sheet product picker: unique ordered SKUs, reorder, add/remove. Missing `itemNumbers` uses the full current catalog. Avery: a short list repeats to fill slots. Hang tag: one printed tag per selected SKU
 - Default templates include a `QUICK SHIP` text object with `showIf` on `c.QuickShip`. Existing 5371/5392 localStorage will not grow that object until Reset layout — hang tag is a new storage key so it shows immediately
-- 10 live Kuzco (`kll`) SKUs on disk in `src/data/kuzco-fixture.json`, with mixed boolean flags. Designer CSV import replaces that list in **this browser** (`hang-tag-catalog-v1`). Clear CSV restores the fixture. Column map is `hang-tag-catalog-map-v1`
-- Guess `collection_name` from collection headers first; LongDesc / name only if collection isn’t mapped. Booleans: Y / true / 1 / yes. Unmapped flag = false. This is not the eCat iPad `products.csv` importer
+- 10 live Kuzco (`kll`) SKUs on disk in `src/data/kuzco-fixture.json`, with mixed boolean flags. Designer CSV import replaces that list in **this browser** (`hang-tag-catalog-v1`, localStorage or IndexedDB if the file is large). Clear CSV restores the fixture. Column map is `hang-tag-catalog-map-v1`
+- Guess `collection_name` from collection headers first; LongDesc / name only if collection isn’t mapped. Booleans: Y / true / 1 / yes. Unmapped flag = false. This is not the eCat iPad `products.csv` importer. Kuzco’s live export has `CollectionCodes` / `price_us_imap` / `upcvalue` / `ImageFileName`, not `c.QuickShip`
 - UPC-A, Code 128, and QR generated in-app from the SKU UPC digits (`jsbarcode` / `qrcode`). `scripts/render-upcs.mjs` can still write on-disk SVGs; print does not require them
-- Logo + product photos on disk. CSV image column is an HTTPS URL or a relative `/fixtures/...` path. Rows with no image still print (empty photo box). No ZIP / FTP
+- Photos: HTTPS URL, `/fixtures/...`, or an eCat `ImageFileName` (first of a comma list). Filenames load from `https://supercatcdn.global.ssl.fastly.net/kll/product_image/full/{file}` — public Fastly, no API key, no Next proxy, no ZIP/FTP. Rows with no image still print (empty photo box)
+- If every saved sheet SKU is missing from the imported catalog, the sheet falls back to the first 10 of the new list (so hang tag does not print thousands of pages)
 - Print CSS hides chrome; Chrome File → Print. Avery print is a flat letter sheet of labels (no hole). Hang-tag print is the 2×3.5 tag on letter, not the photo sizzle
 - Unused leftover: `src/components/hang-tag.tsx` (old hardcoded renderer; sheets no longer import it)
 
@@ -124,7 +125,7 @@ Brent on the public URL sees the git default **templates**, not anyone else’s 
 
 ## Catalog
 
-Browser CSV is the catalog until a live key exists. Parser + mapper live in `src/lib/csv.ts` and `src/lib/catalog.ts`. Upload is in the designer; print pages read the same stored list.
+Browser CSV is the catalog until a live key exists. Parser + mapper live in `src/lib/csv.ts` and `src/lib/catalog.ts`. Upload is in the designer; print pages read the same stored list. eCat `ImageFileName` values are not URLs — hang-tag prefixes the first filename with Kuzco’s public Fastly product-image CDN.
 
 `GET /api/v1/kll/products` — NDJSON, `Products::RenderForApi` in `supercat_server`. Console-issued key, one dedicated OrgUser, `org_shortname` must match. Next route handler proxies (no CORS). Do not invent an API. Do not query Postgres from this app.
 
