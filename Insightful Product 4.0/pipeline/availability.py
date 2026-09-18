@@ -16,7 +16,9 @@ def outreach_mix(gather: GatherBundle) -> str:
     rows = gather.outreach_list
     if not rows:
         return "empty"
-    decline_count = sum(1 for row in rows if row.is_real_decline)
+    from .gather import account_needs_a_call
+
+    decline_count = sum(1 for row in rows if account_needs_a_call(row))
     if decline_count == len(rows):
         return "all_decline"
     if decline_count == 0:
@@ -103,7 +105,10 @@ def build_availability(
         ),
         team=bool(gather.rep_risks),
         activity_floor=activity_floor,
-        watchlist=len(gather.decay) > len(gather.outreach_list),
+        # The watchlist is part of the required report shape (smoke_check
+        # enforces it), so it renders whenever there is any risk at all —
+        # not only when a tail exists beyond the call list.
+        watchlist=bool(gather.watchlist),
         products=bool(gather.products or gather.families),
         dealers=invoiced_dealers or has_account_coverage,
         invoiced_dealers=invoiced_dealers,

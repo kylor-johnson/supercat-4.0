@@ -169,6 +169,10 @@ def apply(bundle: GatherBundle, profile_text: str | None = None) -> GatherBundle
     before_cards = len(bundle.rep_risks)
     bundle.rep_risks = screen_rep_risks(bundle.rep_risks, rules)
     bundle.outreach_list = callable_rows[:7]
+    # C1: the watchlist renders from the same set. `decay` keeps every
+    # screened row so signal detection is unchanged; only what is shown
+    # under the heading "risk watchlist" is gated on actual risk.
+    bundle.watchlist = callable_rows
     bundle.outreach_screened = len(dropped)
     bundle.outreach_reordered = [
         account.bill_to_number for account in bundle.outreach_list

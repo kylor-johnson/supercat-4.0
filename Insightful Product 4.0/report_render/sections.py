@@ -340,6 +340,38 @@ def _wrap_open_section(section_id: str, title: str, body: str) -> str:
     )
 
 
+_TAGS_RE = re.compile(r"<[^>]+>")
+_WS_RE = re.compile(r"\s+")
+
+
+def _plain(fragment: str) -> str:
+    """Tag-stripped, entity-folded, whitespace-normalised text for comparison."""
+    txt = _TAGS_RE.sub(" ", fragment or "")
+    for ent, ch in (("&middot;", "·"), ("&rsquo;", "\u2019"), ("&nbsp;", " "),
+                    ("&amp;", "&"), ("&mdash;", "—"), ("&ndash;", "–")):
+        txt = txt.replace(ent, ch)
+    return _WS_RE.sub(" ", txt).strip().rstrip(".").lower()
+
+
+def _drop_leading_echo(body: str, sub_blurb: str) -> str:
+    """Remove the body's opening paragraph when it just repeats the teaser."""
+    teaser = _plain(sub_blurb)
+    if not teaser or len(teaser) < 25:
+        return body
+    m = re.search(r"<p[^>]*>.*?</p>", body, re.S)
+    if not m:
+        return body
+    first = _plain(m.group(0))
+    if not (first == teaser or first.startswith(teaser)):
+        return body
+    remainder = body[: m.start()] + body[m.end():]
+    # Never empty a section. When the echoed paragraph is the ONLY content, the
+    # teaser is all the reader would get — keep the body and accept the repeat.
+    if not _plain(remainder):
+        return body
+    return remainder
+
+
 def _wrap_collapse_section(
     section_id: str,
     title: str,
@@ -358,6 +390,11 @@ def _wrap_collapse_section(
     """
     cls = f"section-collapse {variant}".strip()
     open_attr = " open" if is_open else ""
+    # The teaser and the body were printing the SAME sentence back to back on
+    # every section that uses `_default_sub_blurb` (which COPIES the first
+    # sentence rather than lifting it, unlike `_render_table_section_smart`).
+    # Expanded, the reader saw each section open by repeating its own header.
+    body = _drop_leading_echo(body, sub_blurb)
     sub_html = f'<div class="section-sub">{sub_blurb}</div>' if sub_blurb else ""
     contents_html = (
         f'<div class="section-contents">{contents_blurb}</div>'
@@ -1267,7 +1304,7 @@ def render_team(chunk: Chunk) -> str:
         section_id="team",
         title=_enrich_title(chunk.heading),
         body="\n".join(parts),
-        contents_blurb=" · ".join(t[:40] for t in contents_titles[:3]),
+        contents_blurb=" · ".join(_truncate_clean(t, 40) for t in contents_titles[:3]),
         sub_blurb=_default_sub_blurb(chunk.body_md),
         expand_hint="Click to expand",
     )
@@ -1472,7 +1509,7 @@ def render_risk(chunk: Chunk) -> str:
         section_id="risk",
         title=_enrich_title(chunk.heading),
         body=body,
-        contents_blurb="Positions 6 – 25 · tail of the watchlist",
+        contents_blurb="tail of the watchlist",
         sub_blurb=_default_sub_blurb(chunk.body_md),
         expand_hint="Click to expand the tail",
     )
@@ -1579,7 +1616,7 @@ def render_methodology(gaps_chunk: Optional[Chunk], trust_chunk: Optional[Chunk]
         title=title,
         body="\n".join(parts),
         variant="quarter",
-        contents_blurb=" &middot; ".join(contents_blurbs),
+        contents_blurb=" · ".join(contents_blurbs),
         sub_blurb=sub_blurb,
     )
 

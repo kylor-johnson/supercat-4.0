@@ -82,14 +82,24 @@ def test_cci_and_sca_stale_derived_hero_claims_are_removed():
     assert "30 enrolled reps" not in sca
 
 
-def test_mixed_call_list_dispatches_two_conversation_footer():
-    assert outreach_mix(_run_state("clc", "2026-07-09")[1]) == "mixed"
+def test_all_decline_call_list_dispatches_the_investigative_footer():
+    """Phase 4: the footer must describe the list that actually rendered.
+
+    T1-4 removed non-slipping accounts from the call list, so clc's three
+    remaining rows are all declines. The footer used to say "the grow/flat rows
+    need reinforcement" about rows that no longer existed — and hfg showed it
+    with six rows all down 31-82%, because `outreach_mix` classified on
+    `is_real_decline` (recent < 60% of prior) while MEMBERSHIP uses
+    `account_needs_a_call` (<= -10%). Two rules for one concept.
+    """
+    assert outreach_mix(_run_state("clc", "2026-07-09")[1]) == "all_decline"
     rendered = _render("clc", "2026-07-09")
     this_week = rendered.split("## Do this week", 1)[1].split(
         "## Do this month", 1
     )[0]
-    assert "Two different conversations live in this list" in this_week
-    assert "Investigative call this week — walk the candidate explanations" not in this_week
+    assert "Investigative call this week — walk the candidate explanations" in this_week
+    assert "Two different conversations live in this list" not in this_week
+    assert "grow/flat rows need reinforcement" not in this_week
 
 
 def test_missing_cross_sell_gap_does_not_claim_buyer_profile_in_products():

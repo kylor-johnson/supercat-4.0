@@ -484,7 +484,11 @@ def test_growth_walks_h3_subsections():
 
 def test_growth_renders_the_intro_before_the_first_h3():
     html = render_growth(_chunk("growth", "The growth engine", _GROWTH_H3))
-    assert '<p class="prose">The engine has three layers.</p>' in html
+    # Phase 4 render fix: the intro shows ONCE, in the collapsed-section
+    # teaser. It used to print in the teaser AND again as the body's first
+    # paragraph, so every section opened by repeating its own header.
+    assert '<div class="section-sub">The engine has three layers.</div>' in html
+    assert html.count("The engine has three layers.") == 1
 
 
 _CHANNELS_SOFT = """Channel mix, in one view.
@@ -543,7 +547,8 @@ def test_risk_renders_one_tinted_table():
     assert 'id="risk"' in html
     assert '<tr class="row-danger">' in html
     assert '<div class="callout insight">' in html
-    assert "Positions 6 – 25" in html
+    assert "tail of the watchlist" in html
+    assert "Positions 6 – 25" not in html  # was hardcoded, contradicted the rows
 
 
 # ─── §6 Team ───────────────────────────────────────────────────────────────
@@ -671,7 +676,12 @@ def test_methodology_combines_both_chunks_into_one_collapsible():
     assert html.count('id="methodology"') == 1
     assert html.count('class="subsection"') == 2
     assert '<h3 class="subsection-title">What this report can\'t see</h3>' in html
-    assert "Data gaps · upgrades to queue &middot; Methodology" in html
+    assert "Data gaps · upgrades to queue · Methodology" in html
+    # The entity used to leak into the NAV line specifically; it is still
+    # correct inside the section <h2> title, so scope the assertion.
+    import re as _re
+    nav = _re.search(r'section-contents">([^<]*)', html)
+    assert nav and "&middot;" not in nav.group(1)
 
 
 def test_methodology_renders_with_only_one_chunk():

@@ -609,6 +609,7 @@ class GatherBundle:
     org: str
     date: str
     decay: list[AccountDecay] = field(default_factory=list)
+    watchlist: list[AccountDecay] = field(default_factory=list)
     outreach_list: list[AccountDecay] = field(default_factory=list)
     reps: list[RepRow] = field(default_factory=list)
     rep_risks: list[RepRisk] = field(default_factory=list)
