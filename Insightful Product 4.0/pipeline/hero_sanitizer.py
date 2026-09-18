@@ -73,6 +73,15 @@ def sanitize_hero_framing(text: str | None) -> str | None:
 
     kept: list[str] = []
     for line in text.splitlines():
+        # T1-3: BLANK LINES ARE STRUCTURE. This used to `continue` on every
+        # empty line, which fused the hero paragraph and the numbered findings
+        # into a single markdown block — so `sections.py` never saw a standalone
+        # 3-item list and the CEO callout cards silently vanished on every org
+        # with an authored prose file (sarreid, cci, hfg, kal, ali all rendered
+        # zero cards; only the two template-path orgs had them).
+        if not line.strip():
+            kept.append("")
+            continue
         line = _WATCHLIST_CLAUSE.sub("", line)
         line = _strip_ecat_rate_sentences(line)
         if not line.strip():

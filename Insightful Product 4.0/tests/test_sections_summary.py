@@ -290,23 +290,22 @@ def test_a_standalone_priorities_list_with_no_lead_in_is_still_detected():
     assert html.count('class="priority"') == 3
 
 
-def test_a_short_list_directly_after_the_hero_is_swallowed_as_the_hero_sub():
-    """The hero-sub branch tests only for a table and the two lead-ins, so a
-    list under 600 chars sitting directly after the hero never reaches the
-    callout/priority detectors. Pinned, not endorsed (W2 finding F-5)."""
+def test_a_short_list_directly_after_the_hero_reaches_its_detector():
+    """FIXED in Phase 4, T1-3 (was W2 finding F-5).
+
+    The hero-sub branch tested only for a table and the two NAMED lead-ins, so
+    a list under 600 chars sitting directly after the hero was swallowed and
+    never reached the callout detector. Every org with an authored prose file
+    shipped zero CEO callout cards because of it — hfg, cci, ali and clc used
+    "What stands out:" rather than the one string the branch knew about.
+    """
     html = _summary(_HERO, _CALLOUTS)
-    assert html.count('<div class="ceo-num">') == 0
-    assert html.count('class="hero-sub"') == 2
-    assert _summary(_HERO, _BULLETS).count('class="priority"') == 0
+    assert html.count('<div class="ceo-num">') == 3
+    assert _summary(_HERO, _BULLETS).count('class="priority"') == 3
 
 
-@pytest.mark.xfail(
-    reason="W2 finding F-5: a callout or priority list sitting directly after the "
-           "hero is absorbed into the hero sub and never reaches its detector, so "
-           "the cards silently vanish (Phase 4, T1-3)",
-    strict=True,
-)
-def test_a_list_directly_after_the_hero_should_still_reach_its_detector():
+def test_a_list_directly_after_the_hero_still_reaches_its_detector():
+    """The former strict xfail for F-5; it flipped to XPASS when T1-3 landed."""
     assert _summary(_HERO, _CALLOUTS).count('<div class="ceo-num">') == 3
 
 

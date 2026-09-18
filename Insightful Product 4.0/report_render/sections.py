@@ -229,6 +229,14 @@ def render_summary(chunk: Chunk, period_line: str = "") -> str:
         and len(rest_paras[0]) < 600
         and not _is_priorities_lead(rest_paras[0])
         and not _is_three_things_lead(rest_paras[0])
+        # T1-3: nor a lead-in FUSED to its numbered findings, nor a bare
+        # numbered list. The P0-4 guard only knew the two NAMED lead-ins, so an
+        # authored hero using any other wording ("What stands out:") was
+        # swallowed into the hero sub and its callout cards never rendered —
+        # hfg, cci, ali and clc all shipped zero cards.
+        and _split_lead_and_numbered_list(rest_paras[0]) is None
+        and not _is_numbered_list(rest_paras[0])
+        and not _is_bullet_list(rest_paras[0])
     ):
         hero_sub_para = rest_paras[0]
         rest_paras = rest_paras[1:]
@@ -283,6 +291,13 @@ def render_summary(chunk: Chunk, period_line: str = "") -> str:
             callouts_html = _build_ceo_callouts(block)
             i += 1
             continue
+        # A bold lead-in FUSED to its numbered list (no blank line between).
+        if not callouts_html:
+            split = _split_lead_and_numbered_list(block)
+            if split and _looks_like_ceo_callouts(split[1]):
+                callouts_html = _build_ceo_callouts(split[1])
+                i += 1
+                continue
         # Standalone priorities bullet list (no lead-in)
         if not priorities_html and _is_bullet_list(block) and _looks_like_priorities(block):
             priorities_html = _build_priorities(block)
@@ -403,6 +418,27 @@ def _looks_like_metric_table(rows: list[list[str]]) -> bool:
 
 
 HERO_CALLOUTS_MARKER = "<!--hero:callouts-->"
+
+
+def _split_lead_and_numbered_list(block: str) -> tuple[str, str] | None:
+    """Separate a bold lead-in fused to its numbered list.
+
+    T1-3: authored prose files are inconsistent about the blank line between
+    the lead-in and the findings — sarreid and kal leave one, hfg/cci/ali do
+    not. Without the blank they arrive as ONE markdown block, so neither the
+    lead-in test nor the standalone-list test matches and the CEO callout
+    cards silently vanish. Presentation must not depend on that convention.
+    """
+    lines = block.strip().splitlines()
+    if len(lines) < 2:
+        return None
+    lead = lines[0].strip()
+    if not (lead.startswith("**") and lead.endswith(("**", "**:", ":")) and len(lead) < 120):
+        return None
+    rest = "\n".join(lines[1:]).strip()
+    if not _is_numbered_list(rest):
+        return None
+    return lead, rest
 
 
 def _is_three_things_lead(block: str) -> bool:
