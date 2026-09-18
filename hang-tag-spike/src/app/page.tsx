@@ -3,7 +3,7 @@ import { StockScreen } from "@/components/template-sheet";
 
 export default function Home() {
   return (
-    <main className="hang-tag-page">
+    <main id="main" className="hang-tag-page">
       <SheetChrome sheet="5371" />
       <StockScreen stock="5371" />
     </main>

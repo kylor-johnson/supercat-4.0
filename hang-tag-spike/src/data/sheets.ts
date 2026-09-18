@@ -9,6 +9,8 @@ export type SheetSpec = {
   code: SheetCode;
   name: string;
   shortLabel: string;
+  navLabel: string;
+  navHint: string;
   size: string;
   grid: string;
   href: string;
@@ -38,6 +40,8 @@ export const SHEETS: Record<SheetCode, SheetSpec> = {
     code: "5371",
     name: "Avery 5371",
     shortLabel: "5371",
+    navLabel: "5371 labels",
+    navHint: "3.5×2 · 2×5",
     size: "3.5×2 in",
     grid: "2×5",
     href: "/",
@@ -54,6 +58,8 @@ export const SHEETS: Record<SheetCode, SheetSpec> = {
     code: "5392",
     name: "Avery 5392",
     shortLabel: "5392",
+    navLabel: "5392 labels",
+    navHint: "4×3 · 2×3",
     size: "4×3 in",
     grid: "2×3",
     href: "/5392",
@@ -69,7 +75,9 @@ export const SHEETS: Record<SheetCode, SheetSpec> = {
   hangtag: {
     code: "hangtag",
     name: "Hang tag 2×3.5",
-    shortLabel: "2×3.5",
+    shortLabel: "Hang tag",
+    navLabel: "Hang tag",
+    navHint: "2×3.5",
     size: "2×3.5 in",
     grid: "1-up",
     href: "/hangtag",

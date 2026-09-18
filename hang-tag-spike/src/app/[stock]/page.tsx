@@ -32,7 +32,7 @@ export default async function StockPage({
   if (!isSheetCode(stock) || stock === "5371") notFound();
 
   return (
-    <main className="hang-tag-page">
+    <main id="main" className="hang-tag-page">
       <SheetChrome sheet={stock} />
       <StockScreen stock={stock} />
     </main>
