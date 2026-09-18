@@ -3,7 +3,7 @@
 import { useEffect, useState, type CSSProperties } from "react";
 import type { HangTagSku } from "@/data/sku";
 import type { BarcodeFormat } from "@/data/template";
-import { codeImageSrc, upcFixtureSrc } from "@/lib/codes";
+import { codeImageSrc } from "@/lib/codes";
 
 export function BarcodeMark({
   sku,
@@ -16,11 +16,9 @@ export function BarcodeMark({
   className?: string;
   style?: CSSProperties;
 }) {
-  const upcSrc = upcFixtureSrc(sku);
   const [generated, setGenerated] = useState("");
 
   useEffect(() => {
-    if (format === "upc") return;
     let cancelled = false;
     void codeImageSrc(format, sku).then((next) => {
       if (!cancelled) setGenerated(next);
@@ -30,7 +28,6 @@ export function BarcodeMark({
     };
   }, [format, sku]);
 
-  const src = format === "upc" ? upcSrc : generated;
-  if (!src) return null;
-  return <img className={className} style={style} src={src} alt="" />;
+  if (!generated) return null;
+  return <img className={className} style={style} src={generated} alt="" />;
 }

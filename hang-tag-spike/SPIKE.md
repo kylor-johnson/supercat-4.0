@@ -10,16 +10,17 @@ Not a nested git repo. `node_modules` / `.next` stay gitignored.
 
 ## Status (2026-09-18)
 
-Brent asked for designer + a shareable web app first. That is live. Catalog key
-and physical Avery are later.
+Brent asked for designer + a shareable web app first. That is live. Browser CSV
+is now the catalog. Live `GET /api/v1/kll/products` and physical Avery stay later.
 
 | Surface | State |
 |---|---|
-| Public app | https://kuzco-hang-tags.vercel.app — fixture-only, 10 Kuzco (`kll`) SKUs on disk |
+| Public app | https://kuzco-hang-tags.vercel.app — 10 Kuzco (`kll`) SKUs on disk until a CSV is loaded in that browser |
 | 5371 sheet | `/` — `TemplateTag` from JSON · official Avery letter 2×5 |
 | 5392 sheet | `/5392` — same · official Avery letter 2×3 (not iOS 3-col 3×4) |
 | Hang tag | `/hangtag` — 2×3.5 in portrait, one-up. Screen is photo+hole sizzle; print is the tag |
 | Designer | `/design`, `/design?stock=5392`, `/design?stock=hangtag` |
+| Catalog CSV | Designer upload. Parse + map in the browser. Shared across 5371 / 5392 / hangtag. Clear CSV restores the 10-SKU fixture; column map stays. Sample: `/samples/kuzco-hang-tags.csv` |
 | Formats | Registry in `src/data/sheets.ts`. Adding a format is data + a default template |
 | Git | `hang-tag-spike/` on `main`. GitHub is how this moves between Macs. |
 | Vercel | CLI project `kuzco-hang-tags`. **Not GitHub-linked.** Push does not deploy. |
@@ -27,11 +28,11 @@ and physical Avery are later.
 | Align | Text left/center/right. Elements vs tag / selection; distribute at 3+. Snap + arrow nudge. |
 | History | ⌘Z / Undo · Redo. 20 JSON states. |
 | Fields | Per-object Field (binding or static text) + Show when (always / flag true / flag false) |
-| Booleans | Fixture `c.MarketSpecial`, `c.QuickShip`, `c.ContainerDiscount`. Additive `showIf` |
-| Sheet products | Template `itemNumbers`. Avery: short list repeats to fill slots. Hang tag: one per SKU |
-| Barcodes | UPC-A default. Code 128 and QR in-app from the SKU’s UPC digits. |
+| Booleans | `c.MarketSpecial`, `c.QuickShip`, `c.ContainerDiscount`. Additive `showIf` |
+| Sheet products | Template `itemNumbers` over the current catalog (CSV or fixture). Avery: short list repeats to fill slots. Hang tag: one per SKU |
+| Barcodes | UPC-A / Code 128 / QR generated in-app from the SKU’s UPC digits. No pre-rendered SVG required. |
 | Photo preview | Designer toggle. Default on for hang tag. Hole is preview-only — not punched through Avery print |
-| Catalog / live IMAP | Parked. No live prices on the public URL. |
+| Live IMAP / catalog API | Parked. No live prices on the public URL. CSV is not that API. |
 | EBR-794 | Parked. Do not comment in Jira. |
 | Physical Avery | A check, not the gate. |
 
@@ -79,11 +80,12 @@ The product is a **browser designer** that prints hang tags. iPad hang tags stay
 - Designer templates for all stocks (`src/data/template.ts`); print surfaces render `TemplateTag` from that JSON
 - Font, size, weight, tracking, text align, element align/distribute, snap, nudge, barcode type, `itemNumbers`, Field, and `showIf` persist on that JSON
 - Designer shows a live mini sheet (Avery) or one-up tag beside Fabric; optional photo+hole sizzle; ⌘Z undoes JSON states
-- Sheet product picker: unique ordered SKUs, reorder, add/remove. Missing `itemNumbers` uses the full fixture list. Avery: a short list repeats to fill slots. Hang tag: one printed tag per selected SKU
+- Sheet product picker: unique ordered SKUs, reorder, add/remove. Missing `itemNumbers` uses the full current catalog. Avery: a short list repeats to fill slots. Hang tag: one printed tag per selected SKU
 - Default templates include a `QUICK SHIP` text object with `showIf` on `c.QuickShip`. Existing 5371/5392 localStorage will not grow that object until Reset layout — hang tag is a new storage key so it shows immediately
-- 10 live Kuzco (`kll`) SKUs on disk in `src/data/kuzco-fixture.json`, with mixed boolean flags
-- Real UPC-A (`scripts/render-upcs.mjs` → `public/fixtures/barcodes/`); Code 128 and QR generated in-app from the SKU UPC digits
-- Logo + product photos on disk
+- 10 live Kuzco (`kll`) SKUs on disk in `src/data/kuzco-fixture.json`, with mixed boolean flags. Designer CSV import replaces that list in **this browser** (`hang-tag-catalog-v1`). Clear CSV restores the fixture. Column map is `hang-tag-catalog-map-v1`
+- Guess `collection_name` from collection headers first; LongDesc / name only if collection isn’t mapped. Booleans: Y / true / 1 / yes. Unmapped flag = false. This is not the eCat iPad `products.csv` importer
+- UPC-A, Code 128, and QR generated in-app from the SKU UPC digits (`jsbarcode` / `qrcode`). `scripts/render-upcs.mjs` can still write on-disk SVGs; print does not require them
+- Logo + product photos on disk. CSV image column is an HTTPS URL or a relative `/fixtures/...` path. Rows with no image still print (empty photo box). No ZIP / FTP
 - Print CSS hides chrome; Chrome File → Print. Avery print is a flat letter sheet of labels (no hole). Hang-tag print is the 2×3.5 tag on letter, not the photo sizzle
 - Unused leftover: `src/components/hang-tag.tsx` (old hardcoded renderer; sheets no longer import it)
 
@@ -118,9 +120,11 @@ Defaults live in git (`KUZCO_5371_TEMPLATE`, `KUZCO_5392_TEMPLATE`, `KUZCO_HANGT
 | `hang-tag-template-v1-5392` | 5392 |
 | `hang-tag-template-v1-hangtag` | 2×3.5 hang tag |
 
-Brent on the public URL sees the git defaults, not anyone else’s localStorage. Download JSON from the designer to share a layout. Do not build a new API for this.
+Brent on the public URL sees the git default **templates**, not anyone else’s localStorage. Download JSON from the designer to share a layout. Catalog CSV is also this-browser-only (`hang-tag-catalog-v1`). Do not build a new API for this.
 
-## Catalog later
+## Catalog
+
+Browser CSV is the catalog until a live key exists. Parser + mapper live in `src/lib/csv.ts` and `src/lib/catalog.ts`. Upload is in the designer; print pages read the same stored list.
 
 `GET /api/v1/kll/products` — NDJSON, `Products::RenderForApi` in `supercat_server`. Console-issued key, one dedicated OrgUser, `org_shortname` must match. Next route handler proxies (no CORS). Do not invent an API. Do not query Postgres from this app.
 
@@ -150,11 +154,11 @@ Both Macs edit `~/repos/supercat-4.0`. Pull, work, commit, push, other Mac pulls
 
 Do not push this repo to `agentic_operations`. Do not commit `node_modules`.
 
-## Next (do not start catalog)
+## Next
 
 1. Decide how templates are shared beyond localStorage (commit JSON into the repo vs download-only).
 2. Physical Avery when a sheet is worth hanging.
-3. Catalog proxy only after Brent’s console key + a dedicated OrgUser.
+3. Catalog proxy only after Brent’s console key + a dedicated OrgUser. CSV is the stand-in until then.
 
 ## Design system
 

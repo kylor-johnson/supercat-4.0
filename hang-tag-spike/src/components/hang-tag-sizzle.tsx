@@ -11,7 +11,9 @@ export function HangTagSizzle({
 }) {
   return (
     <figure className="hang-tag-sizzle" aria-label={`${sku.item_number} hang-tag preview`}>
-      <img className="hang-tag-sizzle-photo" src={sku.image} alt="" />
+      {sku.image ? (
+        <img className="hang-tag-sizzle-photo" src={sku.image} alt="" />
+      ) : null}
       <span className="hang-tag-sizzle-hook" aria-hidden />
       <div className="hang-tag-sizzle-tag">
         <TemplateTag sku={sku} template={template} />

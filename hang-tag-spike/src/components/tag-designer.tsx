@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { CatalogCsv } from "@/components/catalog-csv";
 import { MiniSheet } from "@/components/template-sheet";
 import { HangTagSizzle } from "@/components/hang-tag-sizzle";
 import { boundImageSrc, boundText } from "@/data/bindings";
@@ -14,6 +15,7 @@ import { SHEETS, TAGS_PER_SHEET, type SheetCode } from "@/data/sheets";
 import { codeImageSrc } from "@/lib/codes";
 import { snapMovingTarget } from "@/lib/designer-geom";
 import { resolvedItemNumbers } from "@/lib/sheet-skus";
+import { useCatalog } from "@/lib/use-catalog";
 import {
   BARCODE_FORMAT_LABELS,
   BARCODE_FORMATS,
@@ -198,19 +200,18 @@ function isEditingField(target: EventTarget | null): boolean {
 }
 
 export function TagDesigner({
-  skus,
   stock,
 }: {
-  skus: HangTagSku[];
   stock: SheetCode;
 }) {
+  const { skus } = useCatalog();
   const hostRef = useRef<HTMLCanvasElement | null>(null);
   const fabricRef = useRef<FabricModule | null>(null);
   const canvasRef = useRef<FabricCanvas | null>(null);
   const templateRef = useRef<HangTagTemplate>(
     cloneTemplate(DEFAULT_TEMPLATES[stock]),
   );
-  const skuRef = useRef<HangTagSku>(skus[0]);
+  const skuRef = useRef<HangTagSku | undefined>(skus[0]);
   const historyRef = useRef<HangTagTemplate[]>([]);
   const historyIndexRef = useRef(0);
   const [skuIndex, setSkuIndex] = useState(0);
@@ -255,13 +256,18 @@ export function TagDesigner({
     canvas.clear();
     canvas.backgroundColor = "#ffffff";
     if (document.fonts?.ready) await document.fonts.ready;
+    const sku = skuRef.current;
+    if (!sku) {
+      canvas.requestRenderAll();
+      return;
+    }
     for (const spec of templateRef.current.objects) {
-      if (!objectVisible(spec, skuRef.current)) continue;
+      if (!objectVisible(spec, sku)) continue;
       await addTemplateObject(
         fabric,
         canvas,
         spec,
-        skuRef.current,
+        sku,
         templateRef.current,
       );
     }
@@ -334,6 +340,7 @@ export function TagDesigner({
       .map((code) => skus.find((item) => item.item_number === code))
       .filter((item): item is HangTagSku => Boolean(item));
     skuRef.current = preview[skuIndex] ?? preview[0] ?? skus[0];
+    if (preview.length && skuIndex >= preview.length) setSkuIndex(0);
     if (ready) void rebuild();
   }, [skuIndex, skus, ready, rebuild, sheetKey]);
 
@@ -693,6 +700,16 @@ export function TagDesigner({
     (item) => !sheetItemNumbers.includes(item.item_number),
   );
 
+  if (!sku) {
+    return (
+      <div className="designer-layout">
+        <aside className="designer-sidebar">
+          <CatalogCsv />
+        </aside>
+      </div>
+    );
+  }
+
   return (
     <div className="designer-layout">
       <div className="designer-stages">
@@ -737,6 +754,8 @@ export function TagDesigner({
           Previewing {sku.collection_name} / {sku.item_number}
           {sku["c.QuickShip"] ? " · c.QuickShip" : ""}
         </p>
+
+        <CatalogCsv />
 
         <label className="kf-field">
           <span className="kf-field-label">Edit preview</span>
@@ -896,7 +915,7 @@ export function TagDesigner({
           </div>
           {unselectedSkus.length ? (
             <div className="designer-sku-add">
-              <span className="kf-field-label">Add from fixture</span>
+              <span className="kf-field-label">Add from catalog</span>
               {unselectedSkus.map((item) => (
                 <button
                   key={item.item_number}
@@ -909,7 +928,9 @@ export function TagDesigner({
               ))}
             </div>
           ) : (
-            <span className="kf-field-hint">All 10 fixture SKUs are on the sheet.</span>
+            <span className="kf-field-hint">
+              All {skuCatalog.length} catalog SKUs are on the sheet.
+            </span>
           )}
         </div>
 
