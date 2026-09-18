@@ -4,6 +4,7 @@ import { boundImageSrc, boundText } from "@/data/bindings";
 import type { HangTagSku } from "@/data/sku";
 import {
   fontCssStack,
+  objectVisible,
   resolvedBarcodeFormat,
   resolvedFontFamily,
   resolvedTextAlign,
@@ -96,14 +97,16 @@ export function TemplateTag({
         height: `${template.tag.height}in`,
       }}
     >
-      {template.objects.map((spec) => (
-        <TemplateObjectView
-          key={spec.id}
-          spec={spec}
-          sku={sku}
-          template={template}
-        />
-      ))}
+      {template.objects
+        .filter((spec) => objectVisible(spec, sku))
+        .map((spec) => (
+          <TemplateObjectView
+            key={spec.id}
+            spec={spec}
+            sku={sku}
+            template={template}
+          />
+        ))}
     </article>
   );
 }
