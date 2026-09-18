@@ -35,6 +35,33 @@ TIER_OVERRIDES_JSON = CONFIG_DIR / "tier_overrides.json"
 # VPN must be active. The MCP server `user-supercat-postgres-vpn` uses the
 # same backing database; pipeline reads through psycopg2 directly so it
 # does not require the agent to be in the loop during cache population.
+def _load_dotenv(path: Path) -> None:
+    """Read KEY=VALUE lines from a .env into os.environ, without a dependency.
+
+    The comment above has promised .env support for a while; only os.environ
+    was ever read, so a DSN written to .env silently did nothing and
+    populate_cache fell through to the MCP path. A real process environment
+    always wins, so exporting still overrides the file.
+    """
+    if not path.is_file():
+        return
+    for raw in path.read_text(encoding="utf-8").splitlines():
+        line = raw.strip()
+        if not line or line.startswith("#"):
+            continue
+        if line.startswith("export "):
+            line = line[len("export "):].lstrip()
+        key, sep, value = line.partition("=")
+        if not sep:
+            continue
+        key = key.strip()
+        value = value.strip().strip('"').strip("'")
+        if key and key not in os.environ:
+            os.environ[key] = value
+
+
+_load_dotenv(WORKSPACE_ROOT / ".env")
+
 DATABASE_URL = os.environ.get("DATABASE_URL")
 
 
