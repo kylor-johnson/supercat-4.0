@@ -455,3 +455,75 @@ first, then re-measure how much of Phase 6 is actually left.
 bsc shipped *"lift platform coverage past 0.0%"*. Below 1% there is no
 programme to lift: bsc 0.0%, sca 0.2%, clc 0.7%. Those now state the real
 position and ask for one proving territory instead. da (8.4%) is unchanged.
+
+
+---
+
+## 10. Phase 4 — T1-1 was three layers, not one (2026-09-18)
+
+`AUDIT_FINDINGS.md` §2.5 said the narrative arc never reached the page because
+`signal_summary_set()` had zero callers. That was true but incomplete. The arc
+was defeated **three independent times**, and fixing only the first changes
+nothing:
+
+1. **`signal_summary_set()` had zero callers.** Both hero paths used raw
+   rank-descending. *(Fixed — wired at `run_report.py:262` and `:373`.)*
+2. **The hero template re-sorted by rank itself.**
+   `{% set top_signals = signals | sort(attribute='rank', reverse=True) %}`
+   threw away whatever order it was handed. **This was the deepest layer** — it
+   would have silently nullified fix 1 forever. `top_signals` now arrives
+   arc-ordered from `assemble.py`.
+3. **Three hardcoded if/elif ladders** (one per hero slot) re-imposed
+   decline-first regardless, consulting `top_signals` only as a *membership
+   test*, never as an *ordering*. Replaced by a loop over the arc-ordered set
+   through a new `hero_finding()` macro covering all 14 firing signal kinds —
+   the template previously had copy for only 7, which is why slots fell through
+   to filler.
+
+### The "≥3 positive" rule does not survive three slots
+
+`signal_summary_set` implements 3.0's doctrine for a **5–7 finding** summary.
+Applied to a **3-slot** hero, taking the first three arc-ordered signals evicted
+*every* risk item — Sarreid lost France and Sons (−56%, $402K), its single most
+actionable fact. The doctrine is **positive FIRST, not positive ONLY**. The hero
+now takes the best renderable finding from each arc *band* in order, so the three
+slots span momentum → intelligence → opportunity → risk.
+
+### What T1-1 can and cannot reach today
+
+**It changes 2 of 11 orgs.** The other nine load an authored
+`outputs/{org}_prose_{date}.json` for slot A, which is fixed text — the template
+hero never renders for them, so no amount of signal reordering can move it.
+
+| | |
+|---|---|
+| bmc, bri (no prose file) | hero now leads momentum/intelligence; filler line gone |
+| the other nine | byte-identical — authored prose overrides the template |
+
+**This is the G4 decision.** The arc is correct and governs every future
+generation, but the nine authored heroes were written from decline-first bundles
+and will keep reading that way until they are regenerated — which needs an
+`ANTHROPIC_API_KEY`, or the files deleted so the template renders.
+
+### Defects this surfaced, all fixed
+
+- Two different reps each called "the largest book movement on the team".
+- hfg led on *"Other (unmapped) carries 100% of booked revenue"* and kal on
+  *"Unattributed carries 100%"* — a single ~100% bucket means there is **no**
+  channel decomposition, not a finding. Guarded on label and on `pct >= 99.5`.
+- kal: *"42 dealers buy Flint 5 LT Multi Drop but have never bought from the
+  Flint family"* — the detector can pick an anchor already **inside** the target
+  family. Guarded at render; the detector's anchor choice is signal work.
+- `"1 dealers"` — a one-door overlap is not a hero finding. Floor of 3 (the
+  size-scaled version is Phase 7).
+- cci shipped `BUNNY WILLIAMS` and a raw SKU code `9000-0135` as hero copy.
+  Added `FamilyRollup.display_label`, mirroring W1's `display_description` split
+  so family *derivation* stays byte-stable.
+- **`| first` on an empty sequence RAISES under `StrictUndefined`.** Most signal
+  kinds carry no `anchor`, so the naive `... | first or fallback` form blew up
+  the entire hero — and because `run_report` had already written a DRAFT, stale
+  artifacts looked like passing runs. Materialise to a list and index it.
+
+W2's characterization tests caught two of my own regressions during this work
+(`bmc` losing its §Q hedge, then the hedge wrongly appearing at `NONE`). Phase 3
+paid for itself inside one phase.

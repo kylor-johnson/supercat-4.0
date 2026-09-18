@@ -5,7 +5,7 @@
    (--no-narrative) or fails.
 
    Reference: Sarreid PASS3 §1 (lines 6-29). #}
-{% from '_macros.md.j2' import confidence_header, signal_real_decline, signal_cadence_cliff, signal_growth_pocket, signal_lift_concentration, dollars_m, stale_ecat_recovery_lead, sensitivity_hedge %}
+{% from '_macros.md.j2' import confidence_header, signal_real_decline, signal_cadence_cliff, signal_growth_pocket, signal_lift_concentration, dollars_m, stale_ecat_recovery_lead, sensitivity_hedge, hero_finding %}
 ## The 60-second read
 {%- if posture.is_stale and posture.ecat_ltm_confirmed_gmv > 0 %}
 
@@ -62,7 +62,8 @@
 {% endif %}
 {%- else -%}
 {% if posture.inv_ltm_net > 0 -%}
-{% set top_signals = signals | sort(attribute='rank', reverse=True) -%}
+{#- T1-1: `top_signals` now arrives ARC-ORDERED from assemble.py. Re-sorting it
+    by rank here is what discarded the narrative arc for the whole of 4.0. -#}
 {% set positive_signals = top_signals | selectattr("is_positive") | list -%}
 {% set negative_signals = top_signals | rejectattr("is_positive") | list -%}
 **${{ "{:,.2f}".format(posture.inv_ltm_net / 1_000_000) }}M invoiced ({% if posture.is_stale %}{{ posture.erp_asof_stamp }}{% else %}LTM{% endif %}).** {% if gather.dealers and gather.dealers.same_base_lift_pct is not none and gather.dealers.same_base_lift_pct > 5 -%}
@@ -73,54 +74,45 @@ Your existing accounts {% if posture.is_stale %}were{% else %}are{% endif %} spe
 *(Figures below are directional — partial feed.)*
 {% endif -%}
 {% if top_signals | length >= 3 -%}
+<!--hero:callouts-->
 **Three things you wouldn't have known without this report:**
 
-{% set decline_sigs = top_signals | selectattr("kind", "eq", "real_decline") | list -%}
-{% set cliff_sigs = top_signals | selectattr("kind", "eq", "cadence_cliff") | list -%}
-{% set conc_sigs = top_signals | selectattr("kind", "eq", "lift_concentration") | list -%}
-{% set atrisk_sigs = top_signals | selectattr("kind", "eq", "rep_atrisk_book") | list -%}
-{% set gap_sigs = top_signals | selectattr("kind", "eq", "second_year_gap") | list -%}
-{% set growth_sigs = top_signals | selectattr("kind", "eq", "growth_pocket") | list -%}
-{% set chan_sigs = top_signals | selectattr("kind", "eq", "channel_concentration") | list -%}
-{% if decline_sigs -%}
-{% set acct = gather.decay | selectattr("bill_to_number", "eq", decline_sigs[0].context.get("account", "")) | first -%}
-{% if acct -%}
-1. **{{ acct.bill_to_name or acct.bill_to_number or "(unnamed)" }} — ${{ "{:,.0f}".format(acct.ltm_rev / 1000) }}K LTM — {% if posture.is_stale %}was{% else %}is{% endif %} down {{ "{:.0f}".format((1 - acct.recent_6mo / acct.prior_6mo) * 100) if acct.prior_6mo > 0 else "materially" }}% in six months{% if acct.days_silent < 14 %} and {% if posture.is_stale %}was{% else %}is{% endif %} still ordering{% endif %}.** {% if posture.is_stale %}That was the slope as of {{ posture.report_through_date }}; whether it held — or already reversed — is exactly what a refreshed feed answers.{% else %}The slope is unambiguous; the cause needs a phone call this week, not a quarter from now.{% endif %}
+{# T1-1: loop the ARC-ORDERED signals (momentum → intelligence → opportunity →
+   risk, >=3 positive, finding #1 positive — signal_summary_set) and take the
+   first three that render. This replaced three hardcoded if/elif ladders that
+   each re-imposed decline-first ordering, which is why every hero opened on a
+   decline no matter what the arc said. #}
+{# Take the best renderable finding from each ARC BAND in order, so the three
+   slots SPAN momentum → intelligence → opportunity → risk rather than all
+   landing in one band. signal_summary_set's ">=3 positive" was written for a
+   5-7 finding summary; with only three slots, taking the first three evicted
+   every risk item — which drops the most actionable fact on the page. The
+   doctrine is positive FIRST, not positive ONLY. #}
+{%- set _findings = [] -%}
+{%- set _bands = [] -%}
+{%- for _sig in top_signals -%}
+{%- set _b = signal_arc_band(_sig.kind) -%}
+{%- set _body = hero_finding(_sig, gather, posture) | trim -%}
+{%- if _body and _b not in _bands and _findings | length < 3 -%}
+{%- set _ = _findings.append(_body) -%}{%- set _ = _bands.append(_b) -%}
 {%- endif -%}
-{%- elif conc_sigs -%}
-1. **Your top customer holds {{ "{:.0f}".format(conc_sigs[0].context.get("top1_pct", 0)) }}% of LTM revenue.** That level of concentration means a single account decision — a fee change, a buyer rotation, a competitive displacement — moves the topline.
-{%- elif atrisk_sigs -%}
-1. **{{ atrisk_sigs[0].context.get("rep", "A single rep") }} carries ${{ "{:,.0f}".format(atrisk_sigs[0].dollar_impact / 1000) }}K at risk on their own book.** The concentration warrants a specific coverage review this week.
-{%- elif chan_sigs -%}
-1. **{{ chan_sigs[0].context.get("channel", "One channel") }} is {{ "{:.0f}".format(chan_sigs[0].context.get("pct", 0)) }}% of booked revenue.** A single channel decision moves the topline at that concentration level.
-{%- else -%}
-1. **${{ "{:,.2f}".format((gather.decay | sum(attribute='ltm_rev')) / 1_000_000) }}M sits on the watchlist across {{ gather.decay | length }} named accounts.** Each one has a named rep and a specific call shape.
-{%- endif %}
-{% if cliff_sigs -%}
-{% set acct2 = gather.decay | selectattr("bill_to_number", "eq", cliff_sigs[0].context.get("account", "")) | first -%}
-{% if acct2 -%}
-2. **{{ acct2.bill_to_name or acct2.bill_to_number or "(unnamed)" }} — ${{ "{:,.0f}".format(acct2.ltm_rev / 1000) }}K LTM — skipped a beat ({{ acct2.days_silent }} days silent on a {{ "{:.0f}".format(acct2.mean_order_gap_days) }}-day cadence) but the account is growing.** Quick confirm call — not a decline conversation.
-{%- endif -%}
-{%- elif gap_sigs and gather.dealers -%}
-2. **{{ "{:,}".format(gather.dealers.new_dealers) }} dealers placed a first-ever order with you last year. {{ "{:,}".format((gather.dealers.new_dealers * gather.dealers.second_year_return_rate) | int) }} came back.** That is a {{ "{:.1f}".format(gather.dealers.second_year_return_rate * 100) }}% second-year return rate. You're winning new accounts at the front door and losing them at the back.
-{%- elif gather.named_families and gather.named_families[0].yoy_pct is not none and gather.named_families[0].yoy_pct > 15 -%}
-2. **The {{ gather.named_families[0].family_label }} family is up {{ "{:.0f}".format(gather.named_families[0].yoy_pct) }}% YoY across {{ gather.named_families[0].dealer_count }} dealers.** That distribution is product depth, not product luck.
-{%- else -%}
-2. **The data shows where the money is moving — by name, by rep, by dollar.** Every finding below is a specific conversation, not a general observation.
-{%- endif %}
-{% if gather.conc_customer and gather.conc_customer.top1_share > 15 -%}
-3. **Your top customer holds {{ "{:.0f}".format(gather.conc_customer.top1_share) }}% of LTM revenue (HHI {{ "{:.0f}".format(gather.conc_customer.hhi) }}).** Concentration at that level means a single account decision moves the topline. Worth mapping the exposure.
-{% elif gather.decay | length > 10 -%}
-3. **{{ gather.decay | length }} accounts sit on the watchlist — ${{ "{:,.2f}".format((gather.decay | sum(attribute='ltm_rev')) / 1_000_000) }}M LTM at risk{% if posture.commerce_confidence != "STRONG" %} (directional — partial feed floor){% endif %}.** The watchlist is not short. It needs a territory-by-territory read, not a blanket approach.
-{% elif gather.channel_decomposition_ok and gather.channels_mapped[0].share_pct > 60 -%}
-3. **{{ gather.channels_mapped[0].label }} accounts for {{ "{:.0f}".format(gather.channels_mapped[0].share_pct) }}% of booked revenue.** A single channel decision at that concentration level moves the topline.
-{% elif gather.nrr and gather.nrr.nrr_pct is not none -%}
-3. **The same-dealer base spent ${{ "{:.2f}".format(gather.nrr.nrr_pct / 100) }} for every $1 last year.** Growing accounts added ${{ "{:,.1f}".format(gather.nrr.expansion_dollars / 1_000_000) }}M; shrinking and lapsed ones gave back ${{ "{:,.1f}".format((gather.nrr.contraction_dollars | abs) / 1_000_000) }}M.
-{% elif gather.dealers and gather.dealers.same_base_lift_pct is not none -%}
-3. **{{ "{:,}".format(gather.dealers.returning) }} dealers spent ${{ "{:.2f}".format(1 + gather.dealers.same_base_lift_pct / 100) }} for every prior-year dollar.**
-{% else -%}
-3. **Named accounts on this brief carry a named dollar and a named slope.** The cause behind each one still needs a call.
+{%- endfor -%}
+{#- backfill if fewer than three ARC BANDS produced a finding -#}
+{%- for _sig in top_signals -%}
+{%- set _body = hero_finding(_sig, gather, posture) | trim -%}
+{%- if _body and _body not in _findings and _findings | length < 3 -%}{%- set _ = _findings.append(_body) -%}{%- endif -%}
+{%- endfor -%}
+{% if _findings | length < 3 and gather.decay | length > 0 -%}
+{% set _ = _findings.append("**$" ~ "{:,.2f}".format((gather.decay | sum(attribute='ltm_rev')) / 1000000) ~ "M sits on the watchlist across " ~ gather.decay | length ~ " named accounts.** Each one carries a named rep and a specific call shape.") -%}
 {% endif -%}
+
+{% for _f in _findings %}{{ loop.index }}. {{ _f }}
+{% endfor %}
+{#- NONE has no invoiced dollars at all, so the cards are not rendered and the
+    hedge must not appear either (W2 pinned this). Hedge PARTIAL/LIMITED only. -#}
+{%- if posture.commerce_confidence not in ("STRONG", "NONE") and _findings %}
+{{ sensitivity_hedge(posture, subject="The dollars in these three findings") }}
+{%- endif %}
 {%- endif %}
 
 **Priority actions, by cadence:**

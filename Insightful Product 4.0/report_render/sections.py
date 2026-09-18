@@ -402,8 +402,22 @@ def _looks_like_metric_table(rows: list[list[str]]) -> bool:
     return len(header) == 2 and all(not h.strip() for h in header)
 
 
+HERO_CALLOUTS_MARKER = "<!--hero:callouts-->"
+
+
 def _is_three_things_lead(block: str) -> bool:
-    """Catches the bold lead-in: "**Three things you wouldn't have known…**" """
+    """T1-3: the callout cards are keyed on a STRUCTURAL marker the template
+    emits, not on the English of the heading.
+
+    Presentation used to depend on the literal string "Three things you
+    wouldn't have known…" — which `hero_sanitizer` rewrites to "What stands
+    out:" whenever the numbered-item count isn't exactly 3. One stage rewrote a
+    string a later stage pattern-matched on, so the cards silently collapsed to
+    a plain numbered list (Sarreid and hfg both lost them). The English is now
+    free to change; the marker is the contract.
+    """
+    if HERO_CALLOUTS_MARKER in block:
+        return True
     low = block.lower()
     return "three things you wouldn" in low and "have known" in low
 

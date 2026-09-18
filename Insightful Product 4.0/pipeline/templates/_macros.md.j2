@@ -220,6 +220,80 @@ What would change this read: {{ subject }} {{ "is" if singular else "are" }} dir
 
 
 {# ═══════════════════════════════════════════════════════════════════════════
+   T1-1 — HERO FINDING RENDERER
+   Renders ONE signal into a "thing you wouldn't have known" line, or nothing
+   when the signal has no renderable form for this org.
+
+   Why this exists: the hero used three hardcoded if/elif ladders, each of
+   which re-imposed decline-first ordering regardless of what
+   signal_summary_set() had arranged. `top_signals` was consulted only as a
+   membership test, never as an ordering — so the narrative arc (momentum →
+   intelligence → opportunity → risk, >=3 positive, finding #1 positive) could
+   not reach the page. The hero now LOOPS this macro over the arc-ordered
+   signals and takes the first three that render.
+
+   Every branch states a number and a consequence. No invented causation, no
+   meta-commentary about the report's own value.
+   ═══════════════════════════════════════════════════════════════════════════ #}
+{% macro hero_finding(sig, gather, posture) -%}
+{%- set c = sig.context -%}
+{#- Resolved cross-sell anchor label. Computed HERE, not inside the if-chain: a
+    {% set %} between elif branches belongs to the previous branch's body, so the
+    name is undefined when that branch did not match. Materialise to lists first —
+    under StrictUndefined `| first` on an EMPTY sequence RAISES, and most signal
+    kinds carry no `anchor`, so the naive form blew up the whole hero. -#}
+{%- set _xs_hits = gather.products | selectattr("item_number", "eq", c.anchor | default("", true)) | map(attribute="display_description") | list -%}
+{%- set _xs_all = gather.products | map(attribute="display_description") | list -%}
+{%- set _xs_anchor = _xs_hits[0] if _xs_hits else (_xs_all[0] if _xs_all else c.anchor | default("", true)) -%}
+{#- ── momentum ─────────────────────────────────────────────────────────── -#}
+{%- if sig.kind == "growth_pocket" and c.family -%}
+**The {{ (gather.named_families | selectattr("family_label","eq",c.family) | map(attribute="display_label") | list | first) if (gather.named_families | selectattr("family_label","eq",c.family) | list) else c.family }} family is up {{ "{:.0f}".format(c.yoy) }}% across {{ (gather.named_families | selectattr("family_label","eq",c.family) | map(attribute="dealer_count") | list | first) if (gather.named_families | selectattr("family_label","eq",c.family) | list) else "multiple" }} dealers.** Growth spread that wide is depth in the line, not one dealer loading up.
+{%- elif sig.kind == "new_line_takeoff" and c.family -%}
+**{{ (gather.named_families | selectattr("family_label","eq",c.family) | map(attribute="display_label") | list | first) if (gather.named_families | selectattr("family_label","eq",c.family) | list) else c.family }} cleared ${{ "{:,.0f}".format(sig.dollar_impact / 1000) }}K in its first year on the invoiced record.** A new line reaching that many floors in year one is a distribution result, not a launch.
+{%- elif sig.kind == "rep_overperform" and c.rep -%}
+**{{ c.rep }} is up {{ "{:.0f}".format(c.yoy) }}% year over year — ${{ "{:,.0f}".format(sig.dollar_impact / 1000) }}K.** That is field-built growth on a named book; what changed there is worth knowing before anything gets fixed elsewhere.
+{#- ── intelligence ─────────────────────────────────────────────────────── -#}
+{%- elif sig.kind == "single_door_project" and c.sku_count -%}
+**{{ c.sku_count }} items sharing the {{ c.prefix }} prefix went to a single dealer — ${{ "{:,.2f}".format(c.dollars / 1_000_000) }}M, {{ "{:.1f}".format(c.share_pct) }}% of the year.** At ${{ "{:,.0f}".format(c.unit_price) }} a unit, {{ "{:.0f}".format(c.unit_price_ratio) }}× the median item, that is one project — not a line the field can reorder.
+{%- elif sig.kind == "lift_concentration" and c.top1_pct -%}
+**Your top customer holds {{ "{:.0f}".format(c.top1_pct) }}% of LTM revenue.** At that level a single account decision — a buyer rotation, a fee change, a competitor in the door — moves the topline on its own.
+{%- elif sig.kind == "leakage_discipline" and c.leak_pct is not none -%}
+**Discount leakage runs {{ "{:.1f}".format(c.leak_pct) }}% of invoiced — ${{ "{:,.0f}".format(c.total_leak_dollars / 1000) }}K.** That is disciplined in aggregate; the spread between reps is where the coaching conversation is, not the policy.
+{%- elif sig.kind == "channel_concentration" and c.channel and "unmapped" not in (c.channel | lower) and "other" != (c.channel | lower) and "unclassified" not in (c.channel | lower)
+      and "unattributed" not in (c.channel | lower) and c.pct < 99.5 -%}
+**{{ c.channel }} carries {{ "{:.0f}".format(c.pct) }}% of booked revenue.** One channel decision at that share moves the topline.
+{%- elif sig.kind == "ecat_minority" and c.ecat_pct is not none -%}
+**Confirmed platform orders are ${{ "{:,.2f}".format(posture.ecat_ltm_confirmed_gmv / 1_000_000) }}M against ${{ "{:,.2f}".format(c.inv_ltm_net / 1_000_000) }}M invoiced.** Both are absolute counts from separate feeds — the point is not the ratio, it is how much is still written where you cannot see the order.
+{#- ── opportunity ──────────────────────────────────────────────────────── -#}
+{#- Hero floor of 3: a one-door overlap is not "a thing you wouldn't have known",
+    it is a rounding error dressed as a play. The properly SIZE-SCALED floor for
+    every section lands in Phase 7; this keeps a 1-dealer gap off the hero now. -#}
+{%- elif sig.kind == "cross_sell_pocket" and c.anchor and c.target and gather.cross_sell_gap and gather.cross_sell_gap.count >= 3
+      and (c.target | lower) not in (_xs_anchor | lower) -%}
+**{{ gather.cross_sell_gap.count }} dealers buy {{ _xs_anchor }} but have never bought from the {{ (gather.named_families | selectattr("family_label","eq",c.target) | map(attribute="display_label") | list | first) if (gather.named_families | selectattr("family_label","eq",c.target) | list) else c.target }} family.** Same buyer, same floor — that is a pre-qualified list, not a catalog theory.
+{%- elif sig.kind == "second_year_gap" and gather.dealers and gather.dealers.second_year_return_rate is not none -%}
+**{{ "{:,}".format(gather.dealers.new_dealers) }} dealers placed a first-ever order last year. {{ "{:,}".format((gather.dealers.new_dealers * gather.dealers.second_year_return_rate) | int) }} came back.** A {{ "{:.1f}".format(gather.dealers.second_year_return_rate * 100) }}% second-year return rate means you are winning accounts at the front door and losing them at the back.
+{#- ── risk ─────────────────────────────────────────────────────────────── -#}
+{%- elif sig.kind in ("real_decline", "cadence_cliff") and c.account -%}
+{%- set acct = gather.decay | selectattr("bill_to_number", "eq", c.account) | first -%}
+{%- if acct -%}
+{%- if sig.kind == "real_decline" -%}
+**{{ acct.bill_to_name or acct.bill_to_number }} — ${{ "{:,.0f}".format(acct.ltm_rev / 1000) }}K LTM — {{ "was" if posture.is_stale else "is" }} down {{ "{:.0f}".format((1 - acct.recent_6mo / acct.prior_6mo) * 100) if acct.prior_6mo > 0 else "materially" }}% in six months{% if acct.days_silent < 14 %} and {{ "was" if posture.is_stale else "is" }} still ordering{% endif %}.** {% if posture.is_stale %}That was the slope as of {{ posture.report_through_date }}; whether it held is exactly what a refreshed feed answers.{% else %}The slope is unambiguous; the cause needs a phone call this week, not a quarter from now.{% endif %}
+{%- else -%}
+**{{ acct.bill_to_name or acct.bill_to_number }} — ${{ "{:,.0f}".format(acct.ltm_rev / 1000) }}K LTM — skipped a beat: {{ acct.days_silent }} days silent on a {{ "{:.0f}".format(acct.mean_order_gap_days) }}-day cadence, but the account is growing.** Confirm call, not a decline conversation.
+{%- endif -%}
+{%- endif -%}
+{%- elif sig.kind == "territory_cluster_decay" and c.rep -%}
+**{{ c.accounts }} of the at-risk accounts sit on one book — {{ c.rep }}, ${{ "{:,.0f}".format(c.total_at_risk / 1000) }}K.** A cluster on a single territory is a coverage signal the rep cannot see from the inside; walk the pattern before working the accounts one by one.
+{%- elif sig.kind == "rep_atrisk_book" and c.rep -%}
+**{{ c.rep }} carries ${{ "{:,.0f}".format(sig.dollar_impact / 1000) }}K at risk on their own book.** That concentration warrants a specific coverage review this week.
+{%- elif sig.kind == "rep_underperform" and c.rep -%}
+**{{ c.rep }}'s book is down {{ "{:.0f}".format(c.yoy | abs) }}% to ${{ "{:,.0f}".format(sig.dollar_impact / 1000) }}K.** A declining book on a named territory is a coverage conversation before it is a performance one.
+{%- endif -%}
+{%- endmacro %}
+
+
+{# ═══════════════════════════════════════════════════════════════════════════
    TALKING-POINT GENERATOR — for §2 Do-this-week rows
    One-line talking point in conversational form (what the rep says to the
    account on the phone). Voice: direct, named, dollar-grounded.

@@ -42,6 +42,12 @@ def env() -> Environment:
             trim_blocks=False,
             lstrip_blocks=False,
         )
+        # T1-1: the hero picks one finding per NARRATIVE ARC BAND so its three
+        # slots span momentum → intelligence → opportunity → risk. Exposed as a
+        # global so the band mapping stays defined once, in signals.py.
+        from .signals import SIGNAL_ARC_ORDER
+
+        _env.globals["signal_arc_band"] = lambda kind: SIGNAL_ARC_ORDER.get(kind, 99)
     return _env
 
 
@@ -86,10 +92,19 @@ def assemble_report(
     plays = plays or []
     play_framing_by_type = fb.index_play_framing(plays, play_framing)
     availability = build_availability(gather, posture, plays)
+    # T1-1: the arc-ordered summary set (momentum → intelligence → opportunity →
+    # risk, >=3 positive, finding #1 positive). The hero template used to build
+    # its own `top_signals` with `signals | sort(attribute='rank', reverse=True)`,
+    # which THREW THE ARC AWAY and re-imposed rank-descending — and since
+    # rank = surprise x dollar_impact x actionability, declines always won. That
+    # was the third and deepest of three layers defeating the arc.
+    from .signals import signal_summary_set
+
     context = {
         "posture": posture,
         "gather": gather,
         "signals": signals,
+        "top_signals": signal_summary_set(signals),
         "profile_text": profile_text,
         "hero_framing": sanitize_hero_framing(hero_framing),
         "talking_points": talking_points,

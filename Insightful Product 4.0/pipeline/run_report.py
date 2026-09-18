@@ -232,6 +232,7 @@ def main() -> int:
 
     from . import fact_bundles as fb
     from .slot_validator import (
+        align_talking_points,
         align_coaching_narratives,
         check_play_alignment,
         reorder_play_framing,
@@ -251,7 +252,15 @@ def main() -> int:
     if not args.no_narrative:
         # Always write bundles first (enables agent-driven prose generation)
         try:
-            top_signals = sorted(fired, key=lambda s: s.rank, reverse=True)[:7]
+            # T1-1: signal_summary_set applies the narrative arc
+            # (momentum → intelligence → opportunity → risk), the >=3-positive
+            # floor, finding-#1-positive and max-4-per-section diversity. It was
+            # implemented, correct, and had ZERO callers — both hero paths used
+            # raw rank-descending instead. Since rank = surprise x dollar_impact
+            # x actionability and declines carry the largest dollar impact, every
+            # 4.0 hero opened decline-first. That is the single biggest reason the
+            # reports read as an alarm board rather than intelligence.
+            top_signals = signals.signal_summary_set(fired)
             outreach_list = list(bundle.outreach_list)
 
             all_bundles = {
@@ -292,8 +301,6 @@ def main() -> int:
                 # Outreach list changed after house/DTC screen — old slot B/F
                 # bodies are zipped onto the wrong rows. Fall back to template.
                 if bundle.outreach_screened or bundle.outreach_reordered:
-                    prose_vars["talking_points"] = None
-                    prose_vars["outreach_framing"] = None
                     reasons = []
                     if bundle.outreach_screened:
                         reasons.append(
@@ -301,8 +308,21 @@ def main() -> int:
                         )
                     if bundle.outreach_reordered:
                         reasons.append("actionability ranking changed row order")
+                    # T1-2: re-key Slot B by account identity rather than
+                    # discarding it. Slot F is a single framing sentence about
+                    # the list as a whole, so a changed list genuinely
+                    # invalidates it — that one still drops.
+                    original_b = prose_vars.get("talking_points")
+                    aligned_b = align_talking_points(
+                        bundle.outreach_list, original_b
+                    )
+                    prose_vars["talking_points"] = aligned_b
+                    prose_vars["outreach_framing"] = None
+                    kept = sum(1 for b in (aligned_b or []) if b)
+                    total = len(bundle.outreach_list)
                     print(
-                        f"slots: dropped talking_points/outreach_framing "
+                        f"slots: re-keyed talking_points to the post-screen list "
+                        f"({kept}/{total} rows matched); dropped outreach_framing "
                         f"({'; '.join(reasons)})"
                     )
                 # Slot C must ship whenever coaching cards render. House-card
@@ -362,7 +382,7 @@ def main() -> int:
     else:
         # Legacy: deterministic-only mode with --no-narrative
         hero = narrative.generate_hero_framing(
-            posture=posture, top_signals=signals.top_n_by_rank(fired, 7),
+            posture=posture, top_signals=signals.signal_summary_set(fired),
             profile_text=profile_text,
             gather=bundle,
         )

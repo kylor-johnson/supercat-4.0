@@ -90,7 +90,15 @@ def test_clc_slot_c_keeps_envision_keep_pace_when_loaded():
     assert "Lighting & Locks" in card1
     assert "growing" in card1.lower()
     assert "Walk the top at-risk account" not in card1
-    assert "49%" in this_week
+    # T1-4 (Phase 4): "Lighting & Locks.com - BLS" is +49.4% — GROWING. It used
+    # to lead clc's "Do this week" because the call list ranked on
+    # actionability x dollars with a 0.3 floor for healthy accounts. A call list
+    # is a list of accounts where something is wrong, so a growing account is no
+    # longer on it. The Slot-C assertions above are the real subject of this
+    # test and still hold: a grow-row rep card must read keep-pace, not
+    # decline-walk.
+    assert "49%" not in this_week
+    assert "Lighting & Locks.com - BLS" not in this_week
     assert "keep-pace" in this_week.lower()
 
 

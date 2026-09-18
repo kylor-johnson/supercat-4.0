@@ -196,6 +196,48 @@ def _check_topline_parity(text: str, issues: list[str], cache_dir: Path | None =
         )
 
 
+
+# ─── T1-5: one named quantity, one value ──────────────────────────────────
+# hfg shipped "1,075 prior-year accounts went dark" in §1 and "1,080 dealers
+# who bought last year ordered nothing this year" in §9. Both numbers were
+# CORRECT for their own denominator (the NRR cohort vs the dealer-activity
+# base) and both traced to a fact bundle, so the number-parity gate passed
+# them — it checks traceability, never consistency. cci was 62 apart and bmc
+# 198 apart (36%). A CEO reads those as one claim.
+#
+# Each entry is one CLAIM a reader will treat as a single fact, with every
+# phrasing the report uses for it. Two distinct values under one claim is a
+# ship blocker regardless of which query each came from.
+_CONSISTENCY_CLAIMS: dict[str, tuple[str, ...]] = {
+    "accounts that went dark": (
+        r"\*{0,2}([\d,]+)\*{0,2}\s+prior-year accounts?\s+(?:that\s+)?went dark",
+        r"\*{0,2}([\d,]+)\s*dealers?\*{0,2}\s+who bought last year ordered nothing",
+    ),
+    "first-ever orders (new dealers)": (
+        r"\*{0,2}([\d,]+)\*{0,2}\s+(?:new\s+)?dealers?\s+placed a first[- ]ever order",
+        r"\*{0,2}([\d,]+)\s*new dealers?\*{0,2}\s+placed a first[- ]ever order",
+    ),
+}
+
+
+def _check_named_quantity_consistency(text: str, issues: list[str]) -> None:
+    """Fail when one claim carries two different numbers anywhere in the report."""
+    for claim, patterns in _CONSISTENCY_CLAIMS.items():
+        found: dict[str, list[str]] = {}
+        for pat in patterns:
+            for m in re.finditer(pat, text, re.IGNORECASE):
+                value = m.group(1).replace(",", "")
+                found.setdefault(value, []).append(m.group(0).strip()[:60])
+        if len(found) > 1:
+            shown = "; ".join(
+                f"{v} ({found[v][0]!r})" for v in sorted(found, key=lambda x: int(x))
+            )
+            issues.append(
+                f"NAMED-QUANTITY CONFLICT: '{claim}' rendered with "
+                f"{len(found)} different values — {shown}"
+            )
+
+
 def smoke(md_path: Path, *, confidence: str | None = None, cache_dir: Path | None = None) -> tuple[bool, list[str]]:
     """Return (pass, list of failure messages).
 
@@ -211,6 +253,8 @@ def smoke(md_path: Path, *, confidence: str | None = None, cache_dir: Path | Non
         return False, [f"MISSING: {md_path}"]
 
     text = md_path.read_text(encoding="utf-8")
+
+    _check_named_quantity_consistency(text, issues)
     lines = text.splitlines()
     gatestop = _is_gatestop(md_path, text)
 
