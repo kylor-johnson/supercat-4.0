@@ -50,7 +50,10 @@ def test_hfg_hero_cannot_leak_pre_screen_accounts_or_old_play_count():
     assert "Shop Hubbardton Forge" not in hero
     assert "3 plays" not in hero
     assert "four unrelated calls" not in hero
-    assert "**This month:** 1 play — Axis cross-sell." in hero
+    # S1: hfg's only play was a $7-12K, one-dealer cross-sell — 0.02% of a
+    # $41.2M year. Under the shipped profile it does not clear the materiality
+    # floor, so there is no month section to leak a stale play count into.
+    assert "**This month:**" not in hero
 
     live = _render(
         "hfg", "2026-07-02", hero=_hero("hfg", "2026-07-02")
@@ -115,7 +118,7 @@ def test_missing_cross_sell_gap_does_not_claim_buyer_profile_in_products():
 
 def test_code_like_hfg_anchor_uses_family_only_play_title():
     _, _, _, plays, _ = _run_state("hfg", "2026-07-02")
-    assert [play["title"] for play in plays] == ["Axis cross-sell"]
+    assert plays == []   # S1: the one candidate is immaterial on a $41.2M book
 
 
 def test_availability_hides_ali_prior_year_and_keeps_sca_floor():

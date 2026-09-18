@@ -377,7 +377,7 @@ RECOMMENDED_PROFILE = ThresholdProfile(
 # ← OWNER: this is the one line Phase 5 hands over. Flipping it to
 #   RECOMMENDED_PROFILE moves the cohort deliberately and requires a golden
 #   re-stamp (EXECUTION_PLAN.md §stamp protocol).
-ACTIVE_PROFILE = BASELINE_PROFILE
+ACTIVE_PROFILE = RECOMMENDED_PROFILE
 
 
 def org_size_base(posture: RunPosture, gather: Optional[GatherBundle] = None) -> tuple[float, int]:
@@ -444,40 +444,74 @@ class CoachingCard:
     def flagged_count(self) -> int:
         return len(self.flagged)
 
+    @property
+    def at_risk_ltm(self) -> float:
+        """LTM revenue of the accounts on this rep's book that have slipped.
+
+        This — not ``RepRisk.dollars_at_risk`` — is what the card is about.
+        `dollars_at_risk` is a discount-LEAK proxy, and it does not track the
+        at-risk book: on hfg the two reps carrying the six declining accounts
+        (12328 with $446K across 3, 42332 with $231K across 2) do not appear in
+        the top six `rep_risks` rows at all, while rep CANOREP leads on $22K of
+        leak sitting on an account that is *growing*.
+        """
+        return sum(a.ltm_rev for a in self.flagged)
+
 
 def coaching_card_reps(
     rep_risks: list[RepRisk],
     decay: list[AccountDecay],
     thresholds: Optional[Thresholds] = None,
 ) -> list[CoachingCard]:
-    """The coaching-card set, in rep_risks order (dollars-at-risk descending).
+    """The coaching-card set, built from the AT-RISK BOOK and ranked by it.
 
-    Pure discount-leak reps (dollars at risk but no account in the decay
-    extract) are excluded here exactly as they were before W3 — they route to
-    the discount-discipline note, not to a "$XK across 0 accounts" card.
+    Two things were wrong before, and the second one no threshold could fix:
+
+    1. **Ranked on the wrong quantity.** ``RepRisk.dollars_at_risk`` is a
+       discount-LEAK proxy. hfg led with rep CANOREP ($22K of leak) on an
+       account that is *growing*, while rep 12328 — $446K across three real
+       declines — never appeared.
+    2. **Sourced from the wrong side.** The set was bounded by the leak query
+       (C2). clc's three reps carrying a slipped account (51, 74, 1402) are not
+       in ``rep_risks`` **at all**, so clc could never produce a correct card no
+       matter where the floor sat. Raising it only took the wrong cards away
+       (cci 3->0, clc 5->0, hfg 5->0).
+
+    So the set is now derived from the decay extract: every rep carrying at
+    least one account that ``account_needs_a_call`` gets a card, ranked by the
+    LTM of that book, with the leak row joined on for context when one exists.
+    A rep with leak but no slipped account routes to the discount-discipline
+    note, exactly as before — that is not a coaching card.
     """
     from .gather import account_needs_a_call
 
     t = thresholds or DEFAULT_THRESHOLDS
+    by_rep: dict[str, list[AccountDecay]] = {}
+    for account in decay:
+        rep = (account.rep_number or "").strip()
+        if not rep or not account_needs_a_call(account):
+            continue
+        by_rep.setdefault(rep, []).append(account)
+
+    risk_by_rep = {(r.rep_number or "").strip(): r for r in rep_risks}
     cards: list[CoachingCard] = []
-    for risk in rep_risks:
-        if risk.accounts_at_risk <= 0:
-            continue
-        if risk.dollars_at_risk < t.coaching_card_min_dollars:
-            continue
-        mine = sorted(
-            (a for a in decay if a.rep_number == risk.rep_number),
-            key=lambda a: a.ltm_rev,
-            reverse=True,
+    for rep, accounts in by_rep.items():
+        flagged = tuple(sorted(accounts, key=lambda a: a.ltm_rev, reverse=True))
+        risk = risk_by_rep.get(rep) or RepRisk(
+            rep_number=rep,
+            rep_name_tier2=next(
+                (a.rep_label for a in flagged if getattr(a, "rep_label", None)), None
+            ),
+            dollars_at_risk=0.0,
+            accounts_at_risk=len(flagged),
+            leak_dollars=None,
+            leak_pct=None,
         )
-        flagged = tuple(a for a in mine if account_needs_a_call(a))
-        if t.coaching_cards_require_needs_a_call:
-            if not flagged:
-                continue
-            account = flagged[0]
-        else:
-            account = mine[0] if mine else None
-        cards.append(CoachingCard(risk=risk, account=account, flagged=flagged))
+        card = CoachingCard(risk=risk, account=flagged[0], flagged=flagged)
+        if card.at_risk_ltm < t.coaching_card_min_dollars:
+            continue
+        cards.append(card)
+    cards.sort(key=lambda c: c.at_risk_ltm, reverse=True)
     return cards
 
 

@@ -141,11 +141,16 @@ All {{ ra.active_seats }} active seats logged in within the last month. Platform
        about a +6.7% account on hfg. #}
 {% set _cards = availability.coaching_cards -%}
 {% if _cards -%}
-### Top-{{ [_cards | length, 5] | min }} rep{{ "s" if (_cards | length) != 1 else "" }} by dollars at risk on their own book
+### Top-{{ [_cards | length, 5] | min }} rep{{ "s" if (_cards | length) != 1 else "" }} by the book at risk on their own territory
 
 {% for _card in _cards[:5] %}
 {% set c = _card.risk -%}
-> **Card {{ loop.index }} — {{ c.display_label or "—" }} · ${{ "{:,.0f}".format(c.dollars_at_risk / 1000) }}K at risk across {{ c.accounts_at_risk }} account{{ "s" if c.accounts_at_risk != 1 else "" }}**
+{# The badge states the AT-RISK BOOK — the LTM of this rep's accounts that
+   have slipped — not RepRisk.dollars_at_risk, which is a discount-leak
+   proxy. hfg showed "$22K at risk across 1 account" for a rep whose one
+   flagged account was GROWING, while the rep carrying $446K across three
+   real declines was not on the page. #}
+> **Card {{ loop.index }} — {{ c.display_label or "—" }} · ${{ "{:,.0f}".format(_card.at_risk_ltm / 1000) }}K of book at risk across {{ _card.flagged_count }} account{{ "s" if _card.flagged_count != 1 else "" }}**
 {% if coaching_narratives and coaching_narratives[loop.index0] -%}
 <!--slot:C-->
 > {{ coaching_narratives[loop.index0] }}

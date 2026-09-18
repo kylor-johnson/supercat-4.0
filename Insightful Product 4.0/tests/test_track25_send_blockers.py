@@ -1,6 +1,8 @@
 """Track 2.5 send-blockers: Slot C slope, identity labels, same-dealer card, floor copy."""
 from __future__ import annotations
 
+import re
+
 import json
 
 from pipeline import assemble, config, fact_bundles, gather, preflight, signals
@@ -64,15 +66,22 @@ def test_display_rep_label_prefers_agency_name_over_positional_index():
     )
 
 
-def test_clc_grow_row_card_is_not_a_decline_walk_without_slot_c():
+def test_clc_cards_name_the_reps_carrying_the_at_risk_book():
+    """Phase-5 follow-up: there is no grow-row card to soften any more.
+
+    Track 2.5 fixed the COPY on a card about a growing account. The card should
+    never have existed: clc's five cards came from the leak query and not one
+    named a rep carrying a slipped account — reps 51, 74 and 1402 do, and none
+    of them were in `rep_risks` at all, so no threshold could surface them.
+    Cards are now built from the decay side, so clc leads with the real book.
+    """
     team = _render("clc", "2026-07-09").split("## The team", 1)[1].split(
         "## Full risk", 1
     )[0]
     card1 = team.split("Card 1", 1)[1].split("Card 2", 1)[0]
-    assert "Lighting & Locks" in card1
+    assert "of book at risk across" in card1
+    assert "Lighting & Locks" not in card1      # the +49.4% grow row is gone
     assert "Walk the top at-risk account" not in card1
-    assert "decline walk" not in card1.lower() or "not a decline walk" in card1.lower()
-    assert "keep-pace" in card1.lower() or "growing" in card1.lower()
 
 
 def test_clc_slot_c_keeps_envision_keep_pace_when_loaded():
@@ -85,7 +94,12 @@ def test_clc_slot_c_keeps_envision_keep_pace_when_loaded():
     )
     team = rendered.split("## The team", 1)[1].split("## Full risk", 1)[0]
     card1 = team.split("Card 1", 1)[1].split("Card 2", 1)[0]
-    this_week = rendered.split("## Do this week", 1)[1].split("## Do this month", 1)[0]
+    # Bound on the NEXT heading, not on "## Do this month" — under the shipped
+    # profile an org whose only play is immaterial has no month section at all,
+    # and splitting on a missing heading swallowed the rest of the document
+    # (including the coaching cards) into `this_week`.
+    _tail = rendered.split("## Do this week", 1)[1]
+    this_week = re.split(r"\n## ", _tail, maxsplit=1)[0]
     assert "Envision Lighting Sales" in card1
     assert "Lighting & Locks" in card1
     assert "growing" in card1.lower()

@@ -233,6 +233,7 @@ def main() -> int:
     from . import fact_bundles as fb
     from .slot_validator import (
         align_talking_points,
+        _narrative_contradicts_card,
         align_coaching_narratives,
         check_play_alignment,
         reorder_play_framing,
@@ -244,9 +245,8 @@ def main() -> int:
     # `align_coaching_narratives`; the template renders the same list through
     # `availability.coaching_cards`. Re-deriving it here is how the narratives
     # would end up attached to the wrong cards the moment the gate moves.
-    card_reps = [card.risk for card in signals.coaching_card_reps(
-        bundle.rep_risks, bundle.decay, thresholds
-    )][:5]
+    _cards = signals.coaching_card_reps(bundle.rep_risks, bundle.decay, thresholds)[:5]
+    card_reps = [card.risk for card in _cards]
     slot_d_fail = False
 
     # Multi-slot LLM prose generation
@@ -340,6 +340,32 @@ def main() -> int:
                 original_c = prose_vars.get("coaching_narratives")
                 if card_reps:
                     aligned_c = align_coaching_narratives(card_reps, original_c)
+                    # The card set is derived from the at-risk book now, so an
+                    # authored body can survive the rep re-key while describing
+                    # a DIFFERENT account on that rep. clc shipped "up 49%...
+                    # there is no decline to chase" on a card whose subject
+                    # account is down 63%. Blank a body that contradicts its own
+                    # card; the slope-aware template fallback fills that row.
+                    if aligned_c:
+                        checked = []
+                        dropped = 0
+                        for body, card in zip(aligned_c, _cards[: len(aligned_c)]):
+                            subject = getattr(card, "account", None)
+                            is_decline = bool(
+                                subject is not None
+                                and getattr(subject, "is_real_decline", False)
+                            )
+                            if body and _narrative_contradicts_card(body, is_decline):
+                                checked.append("")
+                                dropped += 1
+                            else:
+                                checked.append(body)
+                        if dropped:
+                            print(
+                                f"slots: dropped {dropped} coaching narrative(s) that "
+                                f"contradicted their card"
+                            )
+                        aligned_c = checked
                     if aligned_c != original_c:
                         prose_vars["coaching_narratives"] = aligned_c
                         print(
