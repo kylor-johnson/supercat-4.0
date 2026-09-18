@@ -97,7 +97,22 @@ Your existing accounts {% if posture.is_stale %}were{% else %}are{% endif %} spe
 {%- set _ = _findings.append(_body) -%}{%- set _ = _bands.append(_b) -%}
 {%- endif -%}
 {%- endfor -%}
-{#- backfill if fewer than three ARC BANDS produced a finding -#}
+{#- Backfill when fewer than three ARC BANDS produced a finding, preferring a
+    signal KIND not already used: two growth families or two new lines render
+    the SAME sentence twice ("Growth spread that wide is depth in the line" on
+    kal, "A new line reaching that many floors" on ali), which reads as padding.
+    A repeat kind is still allowed as a last resort rather than shipping two. -#}
+{%- set _kinds = [] -%}
+{%- for _sig in top_signals -%}
+{%- set _body = hero_finding(_sig, gather, posture) | trim -%}
+{%- if _body and _body in _findings -%}{%- set _ = _kinds.append(_sig.kind) -%}{%- endif -%}
+{%- endfor -%}
+{%- for _sig in top_signals -%}
+{%- set _body = hero_finding(_sig, gather, posture) | trim -%}
+{%- if _body and _body not in _findings and _sig.kind not in _kinds and _findings | length < 3 -%}
+{%- set _ = _findings.append(_body) -%}{%- set _ = _kinds.append(_sig.kind) -%}
+{%- endif -%}
+{%- endfor -%}
 {%- for _sig in top_signals -%}
 {%- set _body = hero_finding(_sig, gather, posture) | trim -%}
 {%- if _body and _body not in _findings and _findings | length < 3 -%}{%- set _ = _findings.append(_body) -%}{%- endif -%}
