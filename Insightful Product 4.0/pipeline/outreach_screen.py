@@ -12,7 +12,13 @@ import re
 from dataclasses import dataclass, field
 
 from . import cache, config
-from .gather import AccountDecay, GatherBundle, RepRisk, outreach_sort_key
+from .gather import (
+    AccountDecay,
+    GatherBundle,
+    RepRisk,
+    account_needs_a_call,
+    outreach_sort_key,
+)
 
 
 _HOUSE_PREFIX = re.compile(r"^house\b", re.I)
@@ -156,9 +162,13 @@ def apply(bundle: GatherBundle, profile_text: str | None = None) -> GatherBundle
     legacy_order = sorted(kept, key=lambda account: account.ltm_rev, reverse=True)[:7]
     ranked = sorted(kept, key=outreach_sort_key, reverse=True)
     bundle.decay = ranked
+    # T1-4: only accounts that have actually slipped belong on the call list.
+    # They stay in `decay` so the watchlist and the coaching cards still see
+    # them; this gates the seven rows a rep is told to phone this week.
+    callable_rows = [a for a in ranked if account_needs_a_call(a)]
     before_cards = len(bundle.rep_risks)
     bundle.rep_risks = screen_rep_risks(bundle.rep_risks, rules)
-    bundle.outreach_list = ranked[:7]
+    bundle.outreach_list = callable_rows[:7]
     bundle.outreach_screened = len(dropped)
     bundle.outreach_reordered = [
         account.bill_to_number for account in bundle.outreach_list

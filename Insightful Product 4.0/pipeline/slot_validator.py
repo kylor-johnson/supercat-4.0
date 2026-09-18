@@ -598,6 +598,92 @@ def reorder_play_framing(
     return reordered
 
 
+# Corporate suffixes an author drops when writing prose: the ERP row says
+# "The Swan's Nest Inc" and the body says "The Swan's Nest".
+_ACCOUNT_SUFFIXES = (
+    "inc", "inc.", "llc", "l.l.c.", "ltd", "ltd.", "co", "co.", "corp", "corp.",
+    "dba", "company", "group", "llp", "plc", "lp", "&", "and",
+)
+
+
+def _account_keys(account) -> list[str]:
+    """Identity tokens a Slot-B body might use to name this account.
+
+    Includes progressively shorter forms, because prose names an account the way
+    a person would ("OP Jenkins"), not the way the ERP stores it
+    ("OP JENKINS FURNITURE & DESIGN"). Longest first so the most specific match
+    is tried before a looser one.
+    """
+    keys: list[str] = []
+    name = (getattr(account, "bill_to_name", None) or "").strip()
+    number = (getattr(account, "bill_to_number", None) or "").strip()
+    if name:
+        keys.append(name)
+        words = name.split()
+        # drop trailing corporate suffixes
+        trimmed = list(words)
+        while trimmed and trimmed[-1].strip(".,").lower() in _ACCOUNT_SUFFIXES:
+            trimmed.pop()
+        if trimmed and len(trimmed) != len(words):
+            keys.append(" ".join(trimmed))
+        # a two-word head is usually the recognisable name
+        if len(trimmed) > 2:
+            keys.append(" ".join(trimmed[:2]))
+    if number:
+        keys.append(number)
+    # longest first, de-duplicated
+    seen: set[str] = set()
+    out: list[str] = []
+    for k in sorted(keys, key=len, reverse=True):
+        if k.lower() not in seen:
+            seen.add(k.lower())
+            out.append(k)
+    return out
+
+
+def _body_names_account(body: str, keys: list[str]) -> bool:
+    low = (body or "").lower()
+    return any(k.lower() in low for k in keys if k)
+
+
+def align_talking_points(outreach_list, talking_points):
+    """T1-2: re-key Slot B onto the post-screen call list instead of dropping it.
+
+    Slot B is an array zipped onto call-list rows BY INDEX. `outreach_screen`
+    re-ranks that list by actionability and drops house/DTC rows, so the old
+    code nulled the WHOLE array whenever either happened — and every row fell
+    back to the template. That is why Sarreid shipped five near-identical
+    "Pace has collapsed N% in six months" rows while
+    `outputs/sarreid_prose_2026-07-02.json` still held the authored,
+    account-specific bodies.
+
+    The fix is the one the same function already applies to Slot C and Slot D:
+    re-key by identity rather than position. Each remaining row takes the body
+    that names it; a row with no matching body gets "" so the deterministic
+    per-row template fills just that row.
+    """
+    if not outreach_list:
+        return None
+    if not talking_points:
+        return talking_points
+    remaining = list(enumerate(talking_points))
+    aligned: list[str] = []
+    used: set[int] = set()
+    for account in outreach_list:
+        keys = _account_keys(account)
+        hits = [
+            (i, body) for i, body in remaining
+            if i not in used and _body_names_account(body, keys)
+        ]
+        if len(hits) == 1:
+            i, body = hits[0]
+            used.add(i)
+            aligned.append(body)
+        else:
+            aligned.append("")
+    return aligned if any(aligned) else None
+
+
 def _coaching_rep_keys(rep) -> list[str]:
     keys: list[str] = []
     name = (getattr(rep, "rep_name_tier2", None) or "").strip()

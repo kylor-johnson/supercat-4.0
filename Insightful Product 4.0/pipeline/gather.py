@@ -132,6 +132,23 @@ class AccountDecay:
         return self.days_silent > 2 * self.mean_order_gap_days and self.recent_vs_prior_pct >= 0
 
 
+# T1-4: a "do this week" list is a list of accounts where something is WRONG.
+# Ranking was actionability x dollars with a 0.3 floor for healthy accounts, so a
+# big growing book outranked a small collapsing one: hfg row 1 was +6.7% (0.3 x
+# $602K) ahead of an account down 81.9% (0.9 x $130K), and kal row 1 was +20.0%.
+# Sarreid never exposed it because its largest accounts happened to be the
+# declining ones — the Sarreid overfit in miniature.
+CALL_LIST_SOFTENING_PCT = -10.0
+
+
+def account_needs_a_call(account: AccountDecay) -> bool:
+    """True when this account has actually slipped — not merely large."""
+    if account.is_real_decline or account.is_cadence_cliff:
+        return True
+    pct = account.recent_vs_prior_pct
+    return pct is not None and pct <= CALL_LIST_SOFTENING_PCT
+
+
 def outreach_sort_key(account: AccountDecay) -> float:
     """Sort key for the outreach list (report operator §5a.3).
 

@@ -348,6 +348,14 @@ _HEADER_SELECTORS = [
 ]
 
 
+# Deliberate repeats — provenance / staleness disclosures, not findings.
+_PROVENANCE_ECHO_OK = re.compile(
+    r"since the last invoice|as of \d{4}-\d{2}-\d{2}|"
+    r"billed,? not collected|invoiced business|refreshed feed",
+    re.IGNORECASE,
+)
+
+
 def _check_phrase_echo(soup: BeautifulSoup, min_words: int = 12) -> list[str]:
     """Item [9]. Find any 12+ word phrase that appears verbatim in 2+
     header/sub-header/callout sites across §1/§2/§3/§5 of the HTML."""
@@ -376,11 +384,22 @@ def _check_phrase_echo(soup: BeautifulSoup, min_words: int = 12) -> list[str]:
             window_counts.setdefault(window, []).append((sid, frag))
 
     for window, hits in window_counts.items():
-        # Hits in distinct fragments (not the same fragment counted twice)
-        distinct = {(sid, frag) for sid, frag in hits}
-        if len({frag for _, frag in distinct}) >= 2:
+        # A repeated PROVENANCE banner is deliberate, not an editorial echo.
+        # Check [9] exists to catch the same FINDING stated twice; a stale-feed
+        # disclosure is meant to appear wherever the reader might forget it.
+        if _PROVENANCE_ECHO_OK.search(window):
+            continue
+        # W2 finding F-3: this used to reduce to a set of DISTINCT fragment
+        # TEXTS and require >= 2 of them, so two byte-identical headings
+        # collapsed to a single entry and the check never fired — which is
+        # exactly the shape of P0-4 ("Priority actions, by cadence" rendered
+        # twice on 8 of 11 orgs) that this check was supposed to catch.
+        # Count SITES, not distinct strings; an exact duplicate is the worst
+        # case of an echoed phrase, not an exempt one.
+        distinct_sites = {(sid, frag) for sid, frag in hits}
+        if len(distinct_sites) >= 2 or len(hits) >= 2:
             violations.append(
-                f"[9] verbatim {min_words}-word echo across §{[sid for sid, _ in distinct]}: {window!r}"
+                f"[9] verbatim {min_words}-word echo across §{sorted({sid for sid, _ in distinct_sites})}: {window!r}"
             )
     return violations
 

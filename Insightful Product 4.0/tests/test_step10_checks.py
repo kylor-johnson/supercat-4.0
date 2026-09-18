@@ -97,26 +97,30 @@ def _two_site_doc(phrase_a: str, phrase_b: str) -> str:
 
 def test_a_twelve_word_phrase_shared_by_two_fragments_is_reported():
     """The two fragments must differ somewhere — see
-    `test_an_exact_duplicate_fragment_is_invisible_to_check_9`."""
+    `test_an_exact_duplicate_fragment_is_reported`."""
     out = _check_phrase_echo(_soup(_two_site_doc(f"{_PHRASE} one", f"{_PHRASE} two")))
     assert len(out) == 1
     assert _PHRASE in out[0]
 
 
-def test_an_exact_duplicate_fragment_is_invisible_to_check_9():
-    """`_check_phrase_echo` requires >= 2 DISTINCT fragment texts, so the most
-    obvious echo — the identical string in two places — reports nothing.
-    Pinned, not endorsed (W2 finding F-3)."""
-    assert _check_phrase_echo(_soup(_two_site_doc(_PHRASE, _PHRASE))) == []
+def test_an_exact_duplicate_fragment_is_reported():
+    """FIXED in Phase 4 (was W2 finding F-3).
 
-
-@pytest.mark.xfail(
-    reason="W2 finding F-3: check [9] de-dupes on fragment text, so a verbatim "
-           "duplicate header in two sections is never reported (Phase 8)",
-    strict=True,
-)
-def test_check_9_should_catch_a_verbatim_duplicate():
+    `_check_phrase_echo` used to reduce hits to a set of DISTINCT fragment
+    TEXTS and require >= 2 of them, so the most obvious echo — the identical
+    string in two places — reported nothing. That is precisely P0-4's shape
+    ("Priority actions, by cadence" rendered twice on 8 of 11 orgs) getting
+    past the check built to catch it. It now counts SITES.
+    """
     assert _check_phrase_echo(_soup(_two_site_doc(_PHRASE, _PHRASE))) != []
+
+
+def test_check_9_catches_a_verbatim_duplicate():
+    """The former strict xfail for F-3. It flipped to XPASS when Phase 4 landed
+    the fix, which is exactly the signal W2 designed it to give."""
+    out = _check_phrase_echo(_soup(_two_site_doc(_PHRASE, _PHRASE)))
+    assert out != []
+    assert _PHRASE in out[0]
 
 
 def test_eleven_words_is_below_the_window():
