@@ -30,7 +30,7 @@
 {% set _hero_activity = gather.rep_activity if (gather.rep_activity and gather.rep_activity.any_data) else none -%}
 {% set _hero_coverage = gather.rep_coverage if (gather.rep_coverage and gather.rep_coverage.any_data) else none -%}
 {% set _hero_stale = gather.data_freshness | selectattr("status", "equalto", "Stale") | list -%}
-{% if gather.outreach_list or gather.rep_risks or plays or _hero_activity or _hero_coverage or _hero_stale %}
+{% if gather.outreach_list or gather.rep_risks or availability.coaching_cards or plays or _hero_activity or _hero_coverage or _hero_stale %}
 
 **Priority actions, by cadence:**
 
@@ -38,8 +38,8 @@
 {% if gather.outreach_list -%}
 - **This week:** {{ gather.outreach_list | length }} call{{ "s" if gather.outreach_list | length != 1 else "" }} — {% for account in gather.outreach_list %}{{ account.bill_to_name or account.bill_to_number or "(unnamed)" }}{% if not loop.last %} · {% endif %}{% endfor %}.
 {%- endif %}
-{% if gather.rep_risks -%}
-- **This week:** Walk the top coaching cards{% if posture.rep_identity_tier == 2 %} with the named reps{% endif %} — **~${{ "{:,.2f}".format((gather.rep_risks[:5] | sum(attribute='dollars_at_risk')) / 1_000_000) }}M of at-risk dollars** to act on.
+{% if availability.coaching_cards -%}
+- **This week:** Walk the top coaching cards{% if posture.rep_identity_tier == 2 %} with the named reps{% endif %} — **~${{ "{:,.2f}".format((availability.coaching_cards[:5] | sum(attribute='at_risk_ltm')) / 1_000_000) }}M of at-risk dollars** to act on.
 {%- endif %}
 {% if plays -%}
 - **This month:** {{ plays | length }} play{{ "s" if plays | length != 1 else "" }} — {% for play in plays %}{{ play.title }}{% if not loop.last %} · {% endif %}{% endfor %}.
@@ -155,8 +155,8 @@ Your existing accounts {% if posture.is_stale %}were{% else %}are{% endif %} spe
 {% if gather.outreach_list -%}
 - **This week:** {{ gather.outreach_list | length }} call{{ "s" if gather.outreach_list | length != 1 else "" }} on the at-risk list — {% for a in gather.outreach_list %}{{ a.bill_to_name or a.bill_to_number or "(unnamed)" }}{% if not loop.last %} · {% endif %}{% endfor %}.
 {%- endif %}
-{% if gather.rep_risks -%}
-- **This week:** Walk the top coaching cards{% if posture.rep_identity_tier == 2 %} with the named reps{% endif %} — **~${{ "{:,.2f}".format((gather.rep_risks[:5] | sum(attribute='dollars_at_risk')) / 1_000_000) }}M of at-risk dollars** to act on.
+{% if availability.coaching_cards -%}
+- **This week:** Walk the top coaching cards{% if posture.rep_identity_tier == 2 %} with the named reps{% endif %} — **~${{ "{:,.2f}".format((availability.coaching_cards[:5] | sum(attribute='at_risk_ltm')) / 1_000_000) }}M of at-risk dollars** to act on.
 {%- endif %}
 {%- endif %}
 {% if plays -%}

@@ -152,3 +152,41 @@ def test_sca_and_da_floor_copy_matches_quiet_plus_dark():
     assert "15 of 41 seats are quiet or dark" in da_floor
     assert "15 of 41 seats have gone 90+" not in da_floor
     assert "14 — re-activation needed" in da_floor
+
+
+# ─── Hero "at-risk dollars" must agree with the coaching cards ──────────────
+# The hero once summed RepRisk.dollars_at_risk (the discount-leak proxy) while
+# section 6 rendered the at-risk BOOK. The two numbers were sourced from
+# different queries, so the hero understated the cards by 6-40x across the
+# cohort — hfg led with "~$0.04M to act on" above three cards totalling $841K.
+# Both surfaces now read availability.coaching_cards; this is the guard.
+_HERO_AT_RISK = re.compile(r"~\$([\d,]+\.\d\d)M of at-risk dollars")
+_CARD_BOOK = re.compile(r"\$([\d,]+)K of book at risk")
+
+
+def _hero_and_cards(org: str, date: str) -> tuple[float | None, list[float]]:
+    md = _render(org, date)
+    hero = _HERO_AT_RISK.search(md)
+    hero_dollars = float(hero.group(1).replace(",", "")) * 1_000_000 if hero else None
+    cards = [float(m.replace(",", "")) * 1_000 for m in _CARD_BOOK.findall(md)]
+    return hero_dollars, cards
+
+
+def test_hero_at_risk_figure_equals_the_rendered_coaching_cards():
+    for org, date in (("sarreid", "2026-07-02"), ("hfg", "2026-07-02"), ("clc", "2026-07-09")):
+        hero, cards = _hero_and_cards(org, date)
+        assert cards, f"{org}: expected coaching cards to render"
+        assert hero is not None, f"{org}: expected a hero at-risk figure"
+        # The hero prints 2dp in millions; compare at that resolution.
+        expected = round(sum(cards[:5]) / 1_000_000, 2)
+        assert round(hero / 1_000_000, 2) == expected, (
+            f"{org}: hero says ${hero/1_000_000:,.2f}M but its cards total ${expected:,.2f}M"
+        )
+
+
+def test_hero_at_risk_figure_is_absent_when_no_coaching_cards_render():
+    # The line is gated on availability.coaching_cards, not on rep_risks, so an
+    # org with leak rows but no slipped account must not advertise a figure.
+    hero, cards = _hero_and_cards("sca", "2026-07-02")
+    if not cards:
+        assert hero is None, "hero advertised at-risk dollars with no cards to walk"

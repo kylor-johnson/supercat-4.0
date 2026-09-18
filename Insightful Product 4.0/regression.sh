@@ -12,7 +12,10 @@
 # Usage:
 #   ./regression.sh              # run full golden set, verify both gates
 #   ./regression.sh --verify     # checksum only (skip re-run; use after manual runs)
-#   ./regression.sh --update     # re-run, update golden_set.json with new checksums
+#   ./regression.sh --update     # re-run and PRINT new checksums (does NOT write
+#                                 the manifest). To actually re-stamp, review
+#                                 ./tools/cohort_diff.sh --full first, then run
+#                                 ./tools/restamp_golden.py --note "..."
 #
 # Exit: 0 all pass, 1 any failure
 
@@ -228,7 +231,12 @@ done <<< "$ORGS"
 echo ""
 echo "══════════════════════════════════════════════════════════════"
 if [[ "$FAIL" -eq 0 ]]; then
-  echo "  GOLDEN SET: PASS ($PASS/$((PASS + FAIL)))"
+  if [[ "$MODE" == "update" ]]; then
+    echo "  GOLDEN SET: printed $PASS row(s) — MANIFEST NOT WRITTEN"
+    echo "  re-stamp with: ./tools/restamp_golden.py --note \"...\""
+  else
+    echo "  GOLDEN SET: PASS ($PASS/$((PASS + FAIL)))"
+  fi
   exit 0
 else
   echo "  GOLDEN SET: FAIL ($PASS passed, $FAIL failed)"
