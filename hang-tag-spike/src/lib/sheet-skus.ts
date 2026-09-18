@@ -15,6 +15,9 @@ export function resolvedItemNumbers(
     ),
   ];
   if (unique.length) return unique;
+  if ((template.itemNumbers ?? []).length) {
+    return catalog.slice(0, 10).map((sku) => sku.item_number);
+  }
   return catalog.map((sku) => sku.item_number);
 }
 

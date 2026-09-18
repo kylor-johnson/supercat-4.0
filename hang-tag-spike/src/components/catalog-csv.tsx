@@ -69,7 +69,7 @@ export function CatalogCsv() {
     });
   }
 
-  function applyPending() {
+  async function applyPending() {
     if (!pending) return;
     const result = rowsToCatalog(pending.rows, pending.map);
     if (!result.kept) {
@@ -79,7 +79,7 @@ export function CatalogCsv() {
       return;
     }
     writeStoredMap(pending.map);
-    writeStoredCatalog(result.skus);
+    await writeStoredCatalog(result.skus);
     setStatus(
       result.skipped
         ? `${result.kept} SKUs in this browser · skipped ${result.skipped} incomplete rows`
@@ -90,8 +90,8 @@ export function CatalogCsv() {
     if (inputRef.current) inputRef.current.value = "";
   }
 
-  function clearCsv() {
-    clearStoredCatalog();
+  async function clearCsv() {
+    await clearStoredCatalog();
     setPending(null);
     setError("");
     setStatus("Back to the 10-SKU fixture. Column map kept.");
@@ -105,7 +105,8 @@ export function CatalogCsv() {
         {imported
           ? `${skus.length} imported SKUs in this browser (all three stocks). Not the git fixture.`
           : "No CSV loaded. Sheet products use the 10-SKU Kuzco fixture."}{" "}
-        Sample:{" "}
+        ImageFileName values are FTP names — the first jpg is loaded from Kuzco’s
+        SuperCat CDN. Sample:{" "}
         <a href="/samples/kuzco-hang-tags.csv" download>
           kuzco-hang-tags.csv
         </a>
@@ -146,7 +147,7 @@ export function CatalogCsv() {
             <button
               className="kb kb-sm kb-primary"
               type="button"
-              onClick={applyPending}
+              onClick={() => void applyPending()}
             >
               Use this catalog
             </button>
@@ -155,7 +156,11 @@ export function CatalogCsv() {
       ) : null}
       {imported ? (
         <div className="hang-tag-actions">
-          <button className="kb kb-sm kb-secondary" type="button" onClick={clearCsv}>
+          <button
+            className="kb kb-sm kb-secondary"
+            type="button"
+            onClick={() => void clearCsv()}
+          >
             Clear CSV
           </button>
         </div>
