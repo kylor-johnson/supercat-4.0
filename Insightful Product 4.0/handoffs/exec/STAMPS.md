@@ -64,6 +64,10 @@ so known-defective output is never enshrined as the baseline.
 
 ---
 
+| 2026-09-18 | PHASE-3 characterization tests | `exec/W2` `b7a6063` | **STAMP** | 675 tests; sections.py 0→99%, step10 13→95%; 6 latent defects found as strict xfail |
+
+---
+
 ## Phase 2 — golden re-freeze (2026-09-17)
 
 `config/golden_set.json` **v11 (4 orgs) → v12 (11 orgs)**. First freeze since
@@ -89,3 +93,63 @@ cohort_diff                     no change vs baseline
 **The rule from here: red means red.** *"Expected-red is accepted"* — the
 2026-09-16 changelog line that let the harness rot for two months — is not
 written again.
+
+
+---
+
+## Reviewer note — W2 (2026-09-18)
+
+Verified by re-running. Coverage re-measured independently — **every figure in
+the evidence matched exactly**:
+
+```
+report_render/sections.py     798 stmts   11 missed   99%
+report_render/step10_check.py 209 stmts   10 missed   95%
+report_render/md_parse.py      96 stmts    0 missed  100%
+report_render/naming.py        26 stmts    0 missed  100%
+pipeline/smoke_check.py       145 stmts    4 missed   97%
+make check                    exit 0 · 825 passed / 6 skipped / 7 xfailed
+                              GOLDEN SET: PASS (11/11) · cohort no change
+```
+
+Zero production-code changes, confirmed structurally: the diff touches only
+`tests/**`, `requirements-pipeline.txt` and the evidence file.
+
+**I mis-verified the xfails and W2 was right.** My first check grepped for
+`strict=True` on the same line as `xfail` and found none. It sits on its own
+line in a multi-line decorator: **7 xfails, 7 `strict=True`**. Proved
+empirically by forcing F-4 to pass — `[XPASS(strict)] → FAILED`. A later
+phase's fix will redden the suite, which is the intended signal.
+
+**F-3 is the most valuable thing in this phase, and it is worse than reported.**
+`_check_phrase_echo` (check [9]) reduces hits to a set of distinct fragment
+*texts* and requires ≥2 distinct texts, so two byte-identical headings collapse
+to one entry and it never fires. `min_words=12` also excludes P0-4's four-word
+heading. **The check built to catch echoed phrases was blind to exact
+duplicates — the most obvious case — by two independent mechanisms.** That is
+why P0-4 shipped in 8 of 11 reports with a gate nominally watching for it.
+
+F-1 confirmed by inspection: `_yoy_allowed`'s proximity window is `[\d\.%]`,
+and `\.` matches a literal period, so nearly any sentence satisfies it. The
+YoY/MoM/QoQ prose rule is effectively unenforced.
+
+**The §P completeness guard is real:**
+`assert len(CASES) == len(_FORBIDDEN_PATTERNS) == 83`, with a fires-on and a
+does-not-fire-on case for each. Phase 8 cannot loosen the list quietly.
+
+### Reviewer calls
+
+**`html_renderer.py` at 0% — accepted.** It was not on the priority list, and
+the golden set already pins its output byte-for-byte across 11 orgs, which is
+integration-level characterization. **Condition:** T1-3 rewrites this module in
+Phase 4, so unit coverage is added *there*, as part of that change.
+
+**`.coverage` — fixed by the reviewer.** `.gitignore` was outside W2's scope and
+W2 correctly deleted the file rather than edit it. Coverage artifacts are now
+ignored.
+
+### Carried into Phase 4
+
+The six findings are Phase-4/8 work, not debt to forget. F-3 and F-5 are both
+P0-4's class and both sit in code T1-3 touches; fix them in that pass and the
+strict xfails will announce it.
