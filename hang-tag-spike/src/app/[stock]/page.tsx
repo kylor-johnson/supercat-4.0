@@ -1,11 +1,7 @@
 import { notFound } from "next/navigation";
-import data from "@/data/kuzco-fixture.json";
 import { SheetChrome } from "@/components/sheet-chrome";
 import { StockScreen } from "@/components/template-sheet";
 import { isSheetCode, SHEETS, SHEET_CODES } from "@/data/sheets";
-import type { HangTagSku } from "@/data/sku";
-
-const skus = data as HangTagSku[];
 
 export function generateStaticParams() {
   return SHEET_CODES.filter((code) => code !== "5371").map((stock) => ({
@@ -38,7 +34,7 @@ export default async function StockPage({
   return (
     <main className="hang-tag-page">
       <SheetChrome sheet={stock} />
-      <StockScreen stock={stock} skus={skus} />
+      <StockScreen stock={stock} />
     </main>
   );
 }

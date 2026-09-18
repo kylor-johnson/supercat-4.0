@@ -1,10 +1,6 @@
-import data from "@/data/kuzco-fixture.json";
 import { TagDesigner } from "@/components/tag-designer";
 import { SheetChrome } from "@/components/sheet-chrome";
 import { isSheetCode, type SheetCode } from "@/data/sheets";
-import type { HangTagSku } from "@/data/sku";
-
-const skus = data as HangTagSku[];
 
 export const metadata = {
   title: "Hang tags — designer",
@@ -26,7 +22,7 @@ export default async function DesignPage({
   return (
     <main className="hang-tag-page">
       <SheetChrome sheet={stock} designer />
-      <TagDesigner key={stock} skus={skus} stock={stock} />
+      <TagDesigner key={stock} stock={stock} />
     </main>
   );
 }

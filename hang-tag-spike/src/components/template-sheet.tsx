@@ -6,6 +6,7 @@ import { SHEETS, type SheetCode } from "@/data/sheets";
 import type { HangTagSku } from "@/data/sku";
 import type { HangTagTemplate } from "@/data/template";
 import { sheetSkusFor } from "@/lib/sheet-skus";
+import { useCatalog } from "@/lib/use-catalog";
 import { useStoredTemplate } from "@/lib/use-stored-template";
 
 export function TemplateSheet({
@@ -47,11 +48,10 @@ export function TemplateSheet({
 
 export function StockScreen({
   stock,
-  skus,
 }: {
   stock: SheetCode;
-  skus: HangTagSku[];
 }) {
+  const { skus } = useCatalog();
   const template = useStoredTemplate(stock);
   const sheet = SHEETS[stock];
   const tags = sheetSkusFor(template, skus, stock);

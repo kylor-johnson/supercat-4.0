@@ -50,10 +50,8 @@ export function boundImageSrc(sku: HangTagSku, binding: BindingKey): string {
       return sku.image;
     case "logo":
       return KUZCO_LOGO;
-    case "upc_image": {
-      const digits = sku.upc_value.replace(/\D/g, "");
-      return `/fixtures/barcodes/${digits}.svg`;
-    }
+    case "upc_image":
+      return "";
     default:
       return "";
   }
