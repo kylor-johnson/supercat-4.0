@@ -119,9 +119,10 @@ than five identical sentences.
 
 ## 2. Why non-Sarreid clients come out bare — five mechanisms
 
-### 2.1 Every signal threshold is an absolute dollar constant  *(→ Phase 5)*
+### 2.1 Every signal threshold was an absolute dollar constant  *(→ Phase 5 — MECHANISM LANDED, W3, 2026-09-18)*
 
-`pipeline/signals.py:140-155`:
+**The finding.** `pipeline/signals.py` gated every detector on absolute dollars
+and raw counts tuned on Sarreid ($15.8M / 1,399 dealers):
 
 ```python
 DECLINE_MIN_LTM_DOLLARS   = 50_000   # 0.12% of HFG; 1.7% of a $3M client
@@ -130,9 +131,68 @@ NEW_LINE_MIN_REVENUE      = 100_000  # 0.24% of HFG — noise
 GROWTH_POCKET_MIN_DEALERS = 10
 ```
 
-Tuned on Sarreid ($15.8M / 1,399 dealers). On HFG ($41.2M / 2,422 dealers) the
-watchlist is **10 accounts**, and the month's only play is a **one-dealer**
-cross-sell worth $7–12K. This is the literal mathematical overfit.
+$50,000 is **0.07%** of cci's year and **0.72%** of bmc's — a 10× spread in
+what counts as "material". Ten dealers is 0.13% of cci's active base and 1.75%
+of kal's. On HFG the watchlist was **10 accounts**, and the month's only play a
+**one-dealer** cross-sell worth $7–12K. The literal mathematical overfit.
+
+**What exists now.** Every gate is classified, in the code, as one of two kinds:
+
+- **size-neutral** — a ratio (`DECLINE_PACE_THRESHOLD = 0.6`,
+  `CADENCE_CLIFF_GAP_MULTIPLIER = 2.0`, the two rep-YoY gates,
+  `CHANNEL_CONC_THRESHOLD`, `SECOND_YEAR_RETURN_THRESHOLD`, …). Twelve of them.
+  They may be mis-tuned; they are not overfit to size, and none was changed.
+- **size-dependent** — a dollar floor or a raw count. Eleven of them, four of
+  which were unnamed inline literals (`100_000` twice in the rep detectors,
+  `50_000` in `detect_second_year_gap`, `< 5` in `detect_cross_sell_pocket`),
+  plus two gates that did not exist at all: a materiality floor on "Do this
+  month" plays and one on the coaching cards.
+
+Each size-dependent gate is now
+
+```python
+threshold = max(ABSOLUTE_FLOOR, PCT_OF_BASE × base)      # SizeScaledFloor.resolve
+```
+
+over one of two bases: `posture.inv_ltm_net` for dollars,
+`gather.dealers.active_ltm` for counts. `ThresholdProfile.resolve(inv, dealers)`
+turns a profile into a plain `Thresholds` for one org; `resolve_thresholds()` is
+the single entry point. A base that is missing, zero, negative, NaN or infinite
+degrades to the floor, so `commerce_confidence = NONE` orgs never divide.
+
+`availability.SectionAvailability` carries the resolved `Thresholds` — that is
+the only route a Jinja template has to a constant, and it is why the hero's
+hard-coded cross-sell floor of 3 could be deleted rather than moved.
+
+**The numbers are still Sarreid's.** W3 shipped `ACTIVE_PROFILE =
+BASELINE_PROFILE`: every percentage is `0.0`, every floor unchanged, golden
+`PASS (11/11)`, cohort no-change. `RECOMMENDED_PROFILE` sits beside it, unused,
+carrying W3's proposal. **What counts as material to a CEO is the owner's
+call** — the 11-org × 4-value calibration sweep behind every candidate is in
+`handoffs/exec/W3_evidence.md` §4, and §7 shows what flipping one line does to
+all eleven reports. This finding closes when the owner picks, and that move
+needs a golden re-stamp.
+
+**Three related defects W3 closed in passing** (`W3_evidence.md` §6):
+
+- the coaching cards were the **fourth** surface of "this account has slipped"
+  and never read `gather.account_needs_a_call`, so hfg shipped a *risk* card
+  about a **+6.7%** account and clc shipped five cards of which not one named a
+  slipping account. One gate now, `signals.coaching_card_reps`, read by the
+  template and by `run_report` alike;
+- the hero led on `same_base_lift_pct`, which excludes lapsed dealers by
+  construction, and so called hfg "roughly flat" (−1.8%) while §5 of the same
+  report said NRR was **$0.84** on the dollar. The measure is now a profile
+  choice; W3 recommends NRR;
+- `report_render` emitted CEO-callout jump anchors without checking whether the
+  target section rendered, so "no play qualified this month" was **not a
+  reachable state** — it produced a broken artifact (step10 check [12]).
+
+**Still open, and outside W3's scope list:** `RepRisk.accounts_at_risk`
+(`gather.py:1255`) counts a rep's *presence* in the top-N decay extract, not
+accounts at risk; and `AccountDecay.is_real_decline` (`gather.py:124`) carries
+its own `20_000` floor against `signals`' `50_000` — two floors for one concept,
+2.5× apart.
 
 ### 2.2 Rep identity is global and all-or-nothing  *(→ Phase 6)*
 

@@ -145,10 +145,26 @@ def assemble_mode1(report: ParsedReport, period_line: str) -> tuple[str, str, li
     rendered_ids: set[str] = set()
     toc_links: list[dict] = []
 
+    # Which sections this report will actually contain. Resolved BEFORE §1 so
+    # the hero's CEO-callout jump links cannot point at a section that a
+    # materiality floor legitimately emptied (W3: hfg's `#thismonth`).
+    available_ids = {
+        cid
+        for cid in (
+            "summary", "thisweek", "thismonth", "growth", "team",
+            "risk", "products", "base", "channels",
+        )
+        if report.chunk_by_id(cid)
+    }
+
     # §1 — summary (always-expanded)
     summary_chunk = report.chunk_by_id("summary")
     if summary_chunk:
-        summary_html = render_summary(summary_chunk, period_line=_eyebrow_text(report))
+        summary_html = render_summary(
+            summary_chunk,
+            period_line=_eyebrow_text(report),
+            available_ids=available_ids,
+        )
         rendered_ids.add("summary")
         toc_links.append({"id": "summary", "label": "60-sec read"})
 

@@ -97,6 +97,10 @@ written again.
 
 ---
 
+| 2026-09-18 | PHASE-5 size-relative thresholds | `exec/W3` `7c8d4f4` | **STAMP** | mechanism landed, shipped neutral; S1/S2/S3 verified under the recommendation |
+
+---
+
 ## Reviewer note — W2 (2026-09-18)
 
 Verified by re-running. Coverage re-measured independently — **every figure in
@@ -153,3 +157,54 @@ ignored.
 The six findings are Phase-4/8 work, not debt to forget. F-3 and F-5 are both
 P0-4's class and both sit in code T1-3 touches; fix them in that pass and the
 strict xfails will announce it.
+
+
+---
+
+## Reviewer note — W3 (2026-09-18)
+
+Verified by re-running, including flipping the profile and restoring it.
+
+| claim | how I checked | result |
+|---|---|---|
+| shipped neutral | `ACTIVE_PROFILE is BASELINE_PROFILE`, then `make check` | **True**; cohort no-change, golden 11/11, 880 tests |
+| S1 no $7–12K month | flipped to `RECOMMENDED`, grepped hfg | 0 mentions; §3 correctly absent |
+| S2 no `$1K` cards, none on a growing account | same | 0 and 0 |
+| S3 hero framing | same | *"spending less — $0.84 for every dollar"* (was "roughly flat") |
+| nothing breaks under the recommendation | full cohort at `RECOMMENDED` | **11/11 still ship** |
+| clc: 5 cards, none naming a slipping account | computed reps carrying a slipper vs the top-5 cards | **exactly right** — slippers are reps 1402/51/74; cards show 640/39/46/55/91 |
+| `available_ids=None` is backward-compatible | read the diff | default `None`, derived from chunks actually present |
+
+**The brief contradicted itself and W3 chose correctly.** "Cohort no-change" and
+"no risk card for a rep whose flagged accounts are all growing" cannot both
+hold — the S2 consistency rule alone moves 6 of 11 orgs. W3 built it, tested it
+in isolation, shipped it **off**, and documented the one-line flip. Given that
+"shipped neutral" was the hard constraint, that is the right reading, and
+surfacing the conflict rather than silently picking is exactly the behaviour the
+protocol is for.
+
+**Scope: four files outside the In list, not three** (the `report_render` edit is
+two files). Each is justified and flagged. The `run_report.py` one is the most
+important — it deleted a *parallel* derivation of the card list that keys slot-C
+prose by position, which would have become the sixth definition of "needs
+attention" the brief forbids.
+
+### One finding larger than the evidence characterises it
+
+`rep_risks` is ranked by `dollars_at_risk`, a **leak proxy** that does not track
+the at-risk book. On hfg the reps carrying the six declining accounts —
+**12328 (3 accounts, $446K)** and **42332 (2, $231K)** — are not in the top six
+rows at all. So:
+
+- at `BASELINE` the cards show the **wrong** reps (card 1 is CANOREP, on an
+  account that is *growing*);
+- at `RECOMMENDED` the floor removes them and the cards show **none**.
+
+The reps who actually carry the risk are invisible under **both** profiles.
+W3 identified the wrong field and correctly scoped it out as signal shape, but
+described the cost as *"cci one legitimate card"*. The real magnitude is
+**cci 3→0, clc 5→0, hfg 5→0**, with the right reps never appearing either way.
+
+**Not a reason to withhold the stamp** — the mechanism is sound and dormant, and
+this is pre-existing. It is the top candidate for the next phase, and it should
+be fixed *before* the profile is flipped, or §6 goes blank on three orgs.

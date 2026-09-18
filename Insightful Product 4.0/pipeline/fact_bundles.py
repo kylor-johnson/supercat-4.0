@@ -297,16 +297,54 @@ def build_coaching_bundle(
 
 # ─── Slot D: Play Framing ─────────────────────────────────────────────────
 
+def play_upside_ceiling(play: dict, gather: GatherBundle) -> float:
+    """The largest dollar figure this play is entitled to claim.
+
+    S1: "Do this month" had NO materiality floor at all, so hfg — a $41.2M
+    company — shipped a single play worth $7K-$12K off a ONE-dealer overlap:
+    0.02% of the year presented as the month's work. Each play type is scored
+    on the same basis the section itself renders, so the floor and the copy
+    cannot disagree.
+    """
+    ptype = play.get("type")
+    if ptype == "cross_sell":
+        if not play.get("gap_available") or not play.get("gap_count"):
+            return 0.0
+        _, high = estimate_cross_sell_upside(
+            int(play.get("gap_count") or 0),
+            float(play.get("target_ltm") or 0.0),
+            int(play.get("target_dealers") or 0),
+        )
+        return high
+    if ptype == "retention":
+        rate = play.get("second_year_return_rate")
+        if rate is None:
+            return 0.0
+        return float(play.get("one_time_rev") or 0.0) * (1.0 - float(rate))
+    if ptype == "pricing":
+        return float(play.get("total_leak_dollars") or 0.0)
+    return 0.0
+
+
 def build_plays_from_gather(
     gather: GatherBundle,
     posture: RunPosture,
     fired_signals: list[Signal] | None = None,
+    thresholds=None,
 ) -> list[dict]:
-    """Select up to three plays from fired signals, ranked by ``Signal.rank``."""
+    """Select up to three plays from fired signals, ranked by ``Signal.rank``.
+
+    A play that cannot clear the org's own materiality floor is DROPPED, not
+    padded — "no play qualified this month" is a legitimate output (the section
+    is optional in `_base.md.j2` and is not a smoke_check-required heading).
+    """
+    from .signals import resolve_thresholds
+
     if fired_signals is None:
         from .signals import detect_all
 
         fired_signals = detect_all(gather, posture)
+    t = thresholds or resolve_thresholds(posture, gather)
 
     eligible = {
         "cross_sell_pocket",
@@ -417,6 +455,10 @@ def build_plays_from_gather(
             }
             selected_types.add("pricing")
 
+        if play_upside_ceiling(play, gather) < t.play_min_upside:
+            # Dropped on materiality. `selected_types` still carries the type so
+            # a second, smaller play of the same kind cannot backfill the slot.
+            continue
         plays.append(play)
         if len(plays) == 3:
             break
