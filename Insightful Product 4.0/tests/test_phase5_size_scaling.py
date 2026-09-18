@@ -96,10 +96,16 @@ def _decline(ltm: float) -> _Acct:
 
 
 # ─── The mechanism ─────────────────────────────────────────────────────────
-def test_the_shipped_profile_is_baseline():
-    """W3 proposes, the owner decides. Flipping this is a separate, stamped act."""
-    assert ACTIVE_PROFILE is BASELINE_PROFILE
-    assert ACTIVE_PROFILE.name == "baseline"
+def test_the_shipped_profile_is_the_recommended_one():
+    """W3 proposed; the owner decided. Flipped 2026-09-18 as its own stamped act,
+    after the card-ranking fix — flipping first would have blanked §6 on three
+    orgs (cci 3->0, clc 5->0, hfg 5->0) because the floor was judged against a
+    discount-leak proxy rather than the at-risk book."""
+    # Flipped 2026-09-18 after the card-ranking fix. The guard stays: the
+    # shipped profile must be one of the two named profiles, never an
+    # ad-hoc literal, so a reader can see which numbers are live.
+    assert ACTIVE_PROFILE is RECOMMENDED_PROFILE
+    assert ACTIVE_PROFILE.name == "recommended"
 
 
 def test_baseline_reproduces_the_pre_w3_absolute_constants():
@@ -214,11 +220,19 @@ _ACCT_11936 = _Acct(bill_to_number="11936", rep_number="12328", ltm_rev=179_763,
                     days_silent=13)
 
 
-def test_baseline_keeps_todays_card_set_exactly():
+def test_cards_are_built_from_the_at_risk_book_not_the_leak_proxy():
+    """Phase-5 follow-up: the card set is derived from the DECAY side.
+
+    It used to be bounded by the leak query and ranked on `dollars_at_risk`, so
+    hfg led with rep CANOREP ($22K of leak) on a +6.7% account while rep 12328
+    ($446K across three real declines) never appeared. CANOREP carries no
+    slipped account, so it is not a coaching card at any threshold.
+    """
     cards = coaching_card_reps([_CANOREP, _REP_12328], [_ACCT_1489, _ACCT_11936],
                                BASELINE_PROFILE.resolve(41_170_115, 2_422))
-    assert [c.risk.rep_number for c in cards] == ["CANOREP", "12328"]
-    assert cards[0].account is _ACCT_1489        # the +6.7% account, as today
+    assert [c.risk.rep_number for c in cards] == ["12328"]
+    assert cards[0].account is _ACCT_11936
+    assert cards[0].at_risk_ltm == _ACCT_11936.ltm_rev
 
 
 def test_a_rep_whose_flagged_accounts_are_all_growing_gets_no_risk_card():
@@ -236,13 +250,20 @@ def test_a_rep_whose_flagged_accounts_are_all_growing_gets_no_risk_card():
     assert cards[0].account is _ACCT_11936
 
 
-def test_both_hfg_gates_drop_their_cards_for_their_own_reasons():
-    """CANOREP clears the dollars and fails consistency; 12328 the reverse."""
+def test_a_leak_only_rep_is_dropped_and_the_real_one_survives_the_floor():
+    """Raising the floor against the leak proxy removed the RIGHT cards too.
+
+    Under the old shape both of these dropped at RECOMMENDED — CANOREP on
+    consistency, 12328 because its leak figure is $804 on a $41.2M book. Judged
+    on the at-risk BOOK instead, 12328's $180K clears the floor comfortably and
+    CANOREP is gone for the only reason that matters: nothing on its book
+    slipped.
+    """
     t = RECOMMENDED_PROFILE.resolve(41_170_115, 2_422)
-    assert _CANOREP.dollars_at_risk > t.coaching_card_min_dollars   # material...
-    assert _ACCT_1489.recent_vs_prior_pct > 0                       # ...but growing
-    assert _REP_12328.dollars_at_risk < t.coaching_card_min_dollars  # $804 on $41.2M
-    assert coaching_card_reps([_CANOREP, _REP_12328], [_ACCT_1489, _ACCT_11936], t) == []
+    assert _REP_12328.dollars_at_risk < t.coaching_card_min_dollars   # the proxy fails
+    cards = coaching_card_reps([_CANOREP, _REP_12328], [_ACCT_1489, _ACCT_11936], t)
+    assert [c.risk.rep_number for c in cards] == ["12328"]
+    assert cards[0].at_risk_ltm > t.coaching_card_min_dollars          # the book clears
 
 
 def test_the_card_names_an_account_that_actually_slipped_not_the_biggest_one():
@@ -254,10 +275,13 @@ def test_the_card_names_an_account_that_actually_slipped_not_the_biggest_one():
                                recent_vs_prior_pct=-90.1, days_silent=111)
     risk = _Risk(rep_number="099", dollars_at_risk=36_424, accounts_at_risk=2)
     rows = [big_but_fine, small_and_slipping]
-    baseline = coaching_card_reps([risk], rows, BASELINE_PROFILE.resolve(15_767_336, 1_399))
-    assert baseline[0].account is big_but_fine          # today
-    fixed = coaching_card_reps([risk], rows, RECOMMENDED_PROFILE.resolve(15_767_336, 1_399))
-    assert fixed[0].account is small_and_slipping       # the one that slipped
+    # The card names the account that SLIPPED under either profile now — the
+    # -6.2% account is not at risk, so it is not what the card is about.
+    for profile in (BASELINE_PROFILE, RECOMMENDED_PROFILE):
+        cards = coaching_card_reps([risk], rows, profile.resolve(15_767_336, 1_399))
+        assert cards[0].account is small_and_slipping
+        assert cards[0].at_risk_ltm == small_and_slipping.ltm_rev
+        assert big_but_fine not in cards[0].flagged
 
 
 def test_a_pure_discount_leak_rep_never_becomes_a_card():
@@ -271,7 +295,10 @@ def test_the_card_floor_scales_with_the_org():
     tiny = _Risk(rep_number="41168", dollars_at_risk=1_414, accounts_at_risk=1)
     row = _Acct(bill_to_number="1531", rep_number="41168", ltm_rev=181_351,
                 recent_6mo=97_000, prior_6mo=83_900, recent_vs_prior_pct=15.6)
-    assert coaching_card_reps([tiny], [row], BASELINE_PROFILE.resolve(41_170_115, 2_422))
+    # The account is +15.6% — growing — so it is not a card under EITHER
+    # profile now. The floor still scales; it is just no longer what decides
+    # this case.
+    assert coaching_card_reps([tiny], [row], BASELINE_PROFILE.resolve(41_170_115, 2_422)) == []
     t = RECOMMENDED_PROFILE.resolve(41_170_115, 2_422)
     assert t.coaching_card_min_dollars == pytest.approx(8_234.023)
     assert coaching_card_reps([tiny], [row], t) == []

@@ -708,6 +708,25 @@ def _body_mentions_rep(body: str, keys: list[str]) -> bool:
     return False
 
 
+_CARD_NO_DECLINE = re.compile(
+    r"no decline to chase|not a rescue|keep-pace|keep pace|book is healthy|"
+    r"pacing up|actually growing|growing, not|coverage maintenance",
+    re.IGNORECASE,
+)
+
+
+def _narrative_contradicts_card(body: str, card_is_decline: bool) -> bool:
+    """True when an authored Slot-C body says 'nothing to chase' about a card
+    that IS about a slipped account.
+
+    The card set is derived from the at-risk book now, so a narrative authored
+    against the old leak-ranked set can survive the rep-identity re-key while
+    describing a different account on that rep. clc shipped "up 49%... there is
+    no decline to chase" on a card whose subject account is down 63%.
+    """
+    return bool(card_is_decline and _CARD_NO_DECLINE.search(body or ""))
+
+
 def align_coaching_narratives(
     card_reps: list, narratives: list[str] | None
 ) -> list[str] | None:
