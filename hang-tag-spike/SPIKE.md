@@ -19,7 +19,7 @@ is now the catalog. Live `GET /api/v1/kll/products` and physical Avery stay late
 | 5371 sheet | `/` — `TemplateTag` from JSON · official Avery letter 2×5 |
 | 5392 sheet | `/5392` — same · official Avery letter 2×3 (not iOS 3-col 3×4) |
 | Hang tag | `/hangtag` — 2×3.5 in portrait, one-up. Screen is photo+hole sizzle; print is the tag |
-| Designer | `/design`, `/design?stock=5392`, `/design?stock=hangtag` |
+| Designer | `/design`, `/design?stock=5392`, `/design?stock=hangtag` — canvas left, inspector card (Catalog · Selection · Type · Align · Sheet) right |
 | Catalog CSV | Designer upload. Parse + map in the browser. Shared across 5371 / 5392 / hangtag. Clear CSV restores the 10-SKU fixture; column map stays. Sample: `/samples/kuzco-hang-tags.csv` |
 | Formats | Registry in `src/data/sheets.ts`. Adding a format is data + a default template |
 | Git | `hang-tag-spike/` on `main`. GitHub is how this moves between Macs. |
@@ -163,4 +163,13 @@ Do not push this repo to `agentic_operations`. Do not commit `node_modules`.
 
 ## Design system
 
-Copied SuperCat tokens/primitives into `src/design-system/ds`. Do not import `tokens/index.css` or `type.css` (PostCSS `@import` order).
+Copied SuperCat tokens/primitives into `src/design-system/ds`. Do not import `tokens/index.css` or `type.css` (PostCSS `@import` order). Chrome is SuperCat **app**: format switcher, Catalog, designer, Print. Kuzco is catalog data. Type scale tokens needed by `.ktab` / `.kf-check` are copied into `globals.css` `:root` (no Google Fonts `@import`).
+
+### Sensibility critique (2026-09-18)
+
+- **Hierarchy.** Format switcher + Print sit in the topbar; canvas/preview left, one inspector card right. Catalog · Selection · Type · Align · Sheet are labeled groups, not twelve equal tools.
+- **One accent.** Crimson is Print (and the Catalog confirm while a CSV map is pending). Weight/align toggles use `.is-pressed` on secondary, not `.kb-primary`. Gold stays on the SVG mark.
+- **Anti-slop.** No marketing hero, no hover-lift cards, no typed “SuperCat”, no indigo mesh. Geist via `next/font`, not Inter. Hex stays in token files and in Avery/sizzle/Fabric print internals.
+- **Empty is composed.** No selection names Field and Show when. Add-from-catalog is a search box, not 6k chips. Fixture vs “N products from CSV” is the Catalog line.
+- **Print.** 5371/5392 remain 8.5×11 letter labels. Hole preview is the checkbox on the canvas, default-on for hang tag only, and it does not punch Avery.
+

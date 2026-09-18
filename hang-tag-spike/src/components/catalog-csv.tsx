@@ -69,7 +69,7 @@ export function CatalogCsv() {
     });
   }
 
-  async function applyPending() {
+  function applyPending() {
     if (!pending) return;
     const result = rowsToCatalog(pending.rows, pending.map);
     if (!result.kept) {
@@ -79,50 +79,66 @@ export function CatalogCsv() {
       return;
     }
     writeStoredMap(pending.map);
-    await writeStoredCatalog(result.skus);
+    writeStoredCatalog(result.skus);
     setStatus(
       result.skipped
-        ? `${result.kept} SKUs in this browser · skipped ${result.skipped} incomplete rows`
-        : `${result.kept} SKUs in this browser`,
+        ? `${result.kept.toLocaleString()} products from CSV · skipped ${result.skipped}`
+        : `${result.kept.toLocaleString()} products from CSV`,
     );
     setError("");
     setPending(null);
     if (inputRef.current) inputRef.current.value = "";
   }
 
-  async function clearCsv() {
-    await clearStoredCatalog();
+  function clearCsv() {
+    clearStoredCatalog();
     setPending(null);
     setError("");
-    setStatus("Back to the 10-SKU fixture. Column map kept.");
+    setStatus("Back to 10 fixture products. Column map kept.");
     if (inputRef.current) inputRef.current.value = "";
   }
 
   return (
     <div className="kf-field">
-      <span className="kf-field-label">Catalog CSV</span>
       <span className="kf-field-hint">
         {imported
-          ? `${skus.length} imported SKUs in this browser (all three stocks). Not the git fixture.`
-          : "No CSV loaded. Sheet products use the 10-SKU Kuzco fixture."}{" "}
-        ImageFileName values are FTP names — the first jpg is loaded from Kuzco’s
-        SuperCat CDN. Sample:{" "}
+          ? `${skus.length.toLocaleString()} products from CSV`
+          : "10 fixture products"}
+        {" · "}
         <a href="/samples/kuzco-hang-tags.csv" download>
-          kuzco-hang-tags.csv
+          Sample CSV
         </a>
       </span>
       <input
         ref={inputRef}
-        className="kf-input kf-md"
+        className="hang-tag-file"
         type="file"
         accept=".csv,text/csv"
         onChange={(event) => void onFile(event.target.files?.[0])}
       />
+      <div className="hang-tag-actions">
+        <button
+          className="kb kb-sm kb-secondary"
+          type="button"
+          onClick={() => inputRef.current?.click()}
+        >
+          Upload CSV
+        </button>
+        {imported ? (
+          <button
+            className="kb kb-sm kb-secondary"
+            type="button"
+            onClick={clearCsv}
+          >
+            Clear
+          </button>
+        ) : null}
+      </div>
       {pending ? (
         <>
           <span className="kf-field-hint">
-            {pending.name} · {pending.rows.length} rows. Guessed from headers;
-            fix the map, then use this catalog.
+            {pending.name} · {pending.rows.length.toLocaleString()} rows. Fix
+            the map, then use this catalog.
           </span>
           <div className="catalog-map">
             {SKU_FIELD_KEYS.map((field) => (
@@ -147,23 +163,12 @@ export function CatalogCsv() {
             <button
               className="kb kb-sm kb-primary"
               type="button"
-              onClick={() => void applyPending()}
+              onClick={applyPending}
             >
               Use this catalog
             </button>
           </div>
         </>
-      ) : null}
-      {imported ? (
-        <div className="hang-tag-actions">
-          <button
-            className="kb kb-sm kb-secondary"
-            type="button"
-            onClick={() => void clearCsv()}
-          >
-            Clear CSV
-          </button>
-        </div>
       ) : null}
       {error ? <span className="catalog-csv-error">{error}</span> : null}
       {status ? <span className="kf-field-hint">{status}</span> : null}

@@ -20,7 +20,7 @@ export default async function DesignPage({
   const stock = parseStock((await searchParams).stock);
 
   return (
-    <main className="hang-tag-page">
+    <main id="main" className="hang-tag-page">
       <SheetChrome sheet={stock} designer />
       <TagDesigner key={stock} stock={stock} />
     </main>

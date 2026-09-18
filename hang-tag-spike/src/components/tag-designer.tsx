@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { CatalogCsv } from "@/components/catalog-csv";
 import { MiniSheet } from "@/components/template-sheet";
 import { HangTagSizzle } from "@/components/hang-tag-sizzle";
@@ -187,7 +187,31 @@ function restoreSelection(
 }
 
 function toolbarClass(active: boolean): string {
-  return active ? "kb kb-sm kb-primary" : "kb kb-sm kb-secondary";
+  return active ? "kb kb-sm kb-secondary is-pressed" : "kb kb-sm kb-secondary";
+}
+
+function skuMatches(item: HangTagSku, query: string): boolean {
+  const q = query.trim().toLowerCase();
+  if (!q) return false;
+  return (
+    item.item_number.toLowerCase().includes(q) ||
+    item.collection_name.toLowerCase().includes(q)
+  );
+}
+
+function InspectorGroup({
+  title,
+  children,
+}: {
+  title: string;
+  children: ReactNode;
+}) {
+  return (
+    <section className="designer-inspector-group">
+      <h2 className="designer-inspector-label">{title}</h2>
+      {children}
+    </section>
+  );
 }
 
 function templatesEqual(a: HangTagTemplate, b: HangTagTemplate): boolean {
@@ -223,6 +247,8 @@ export function TagDesigner({
   const [ready, setReady] = useState(false);
   const sheet = SHEETS[stock];
   const [sizzle, setSizzle] = useState(sheet.preview === "sizzle");
+  const [catalogQuery, setCatalogQuery] = useState("");
+  const [sheetQuery, setSheetQuery] = useState("");
   const fallback = DEFAULT_TEMPLATES[stock];
   const sheetKey = (draft.itemNumbers ?? []).join("|");
 
@@ -700,271 +726,150 @@ export function TagDesigner({
     (item) => !sheetItemNumbers.includes(item.item_number),
   );
 
-  if (!sku) {
-    return (
-      <div className="designer-layout">
-        <aside className="designer-sidebar">
-          <CatalogCsv />
-        </aside>
-      </div>
+  const addMatches = unselectedSkus.filter((item) =>
+    skuMatches(item, catalogQuery),
+  );
+  const addShown = addMatches.slice(0, 20);
+  const sheetFilter = sheetQuery.trim().toLowerCase();
+  const sheetRows = sheetItemNumbers
+    .map((code) => skuCatalog.find((skuItem) => skuItem.item_number === code))
+    .filter((item): item is HangTagSku => Boolean(item))
+    .filter((item) =>
+      sheetFilter
+        ? item.item_number.toLowerCase().includes(sheetFilter) ||
+          item.collection_name.toLowerCase().includes(sheetFilter)
+        : true,
     );
-  }
+  const sheetShown = sheetRows.slice(0, 50);
 
-  return (
-    <div className="designer-layout">
-      <div className="designer-stages">
-        <div>
-          <p className="designer-stage-label">Edit</p>
-          <div className="designer-stage" style={{ width, height }}>
-            <canvas ref={hostRef} width={width} height={height} />
-          </div>
-        </div>
-        {sizzle ? (
-          <div>
-            <p className="designer-stage-label">Photo preview · hole</p>
-            <HangTagSizzle sku={sku} template={draft} />
-          </div>
-        ) : null}
-        {!sizzle || avery ? (
-          <div>
-            <p className="designer-stage-label">
-              {avery
-                ? `${sheet.name} sheet · this browser`
-                : `${sheet.name} · this browser`}
-            </p>
-            <MiniSheet stock={stock} skus={skuCatalog} template={draft} />
-          </div>
-        ) : null}
-      </div>
-      <aside className="designer-sidebar">
-        <p className="designer-hint">
-          {selectedIds.length === 0
-            ? `Click a line for type and Field. Sheet products below print on the ${avery ? "Avery page" : "print page"} in this browser.`
-            : selected?.type === "text"
-              ? "Type, weight, and tracking apply to this line and the print preview. Show when hides this object from Edit, mini, and print."
-              : selected?.type === "barcode"
-                ? "UPC-A is the Kuzco default. QR / Code 128 encode this SKU’s UPC digits."
-                : selectedIds.length > 1
-                  ? "Shift-click adds to the selection. Align to selection appears at 2+; distribute at 3+."
-                  : "Align to tag writes x / y inches into the JSON the print sheet reads."}
-        </p>
-        <p className="designer-meta">
-          Selected: <strong>{selectedLabel}</strong>
-          <br />
-          Previewing {sku.collection_name} / {sku.item_number}
-          {sku["c.QuickShip"] ? " · c.QuickShip" : ""}
-        </p>
+  const inspector = (
+    <aside className="designer-sidebar">
+      <article className="kc kc-sm">
+        <div className="kc-body designer-inspector">
+          <InspectorGroup title="Catalog">
+            <CatalogCsv />
+          </InspectorGroup>
 
-        <CatalogCsv />
-
-        <label className="kf-field">
-          <span className="kf-field-label">Edit preview</span>
-          <select
-            className="kf-input kf-md"
-            value={Math.min(skuIndex, Math.max(previewSkus.length - 1, 0))}
-            onChange={(event) => setSkuIndex(Number(event.target.value))}
-          >
-            {previewSkus.map((item, index) => (
-              <option key={item.item_number} value={index}>
-                {item.collection_name} · {item.item_number}
-                {item["c.QuickShip"] ? " · QS" : ""}
-              </option>
-            ))}
-          </select>
-          <span className="kf-field-hint">
-            Layout canvas only. Does not change who is on the sheet. Switch SKU
-            to prove Show when.
-          </span>
-        </label>
-
-        {selected ? (
-          <>
-            <label className="kf-field">
-              <span className="kf-field-label">Field</span>
-              <select
-                className="kf-input kf-md"
-                value={selected.binding ?? ""}
-                onChange={(event) => {
-                  const value = event.target.value;
-                  patchSelected(
-                    { binding: value ? (value as BindingKey) : null },
-                    true,
-                  );
-                }}
-              >
-                {selected.type === "text" ? (
-                  <option value="">Static text</option>
+          <InspectorGroup title="Selection">
+            {sku ? (
+              <p className="designer-meta">
+                {selectedIds.length === 0
+                  ? "Click a line on the tag to set type, field, and when it shows."
+                  : `Selected: ${selectedLabel}`}
+              </p>
+            ) : (
+              <p className="designer-meta">Load a catalog to design a tag.</p>
+            )}
+            {selected ? (
+              <>
+                <label className="kf-field">
+                  <span className="kf-field-label">Field</span>
+                  <select
+                    className="kf-input kf-md"
+                    value={selected.binding ?? ""}
+                    onChange={(event) => {
+                      const value = event.target.value;
+                      patchSelected(
+                        { binding: value ? (value as BindingKey) : null },
+                        true,
+                      );
+                    }}
+                  >
+                    {selected.type === "text" ? (
+                      <option value="">Static text</option>
+                    ) : null}
+                    {bindingsForType(selected.type).map((binding) => (
+                      <option key={binding} value={binding}>
+                        {BINDING_LABELS[binding]}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                {selected.type === "text" && !selected.binding ? (
+                  <label className="kf-field">
+                    <span className="kf-field-label">Static text</span>
+                    <input
+                      className="kf-input kf-md"
+                      type="text"
+                      value={selected.text ?? ""}
+                      onChange={(event) =>
+                        patchSelected({ text: event.target.value }, true)
+                      }
+                    />
+                  </label>
                 ) : null}
-                {bindingsForType(selected.type).map((binding) => (
-                  <option key={binding} value={binding}>
-                    {BINDING_LABELS[binding]}
-                  </option>
-                ))}
-              </select>
-            </label>
-            {selected.type === "text" && !selected.binding ? (
-              <label className="kf-field">
-                <span className="kf-field-label">Static text</span>
-                <input
-                  className="kf-input kf-md"
-                  type="text"
-                  value={selected.text ?? ""}
-                  onChange={(event) =>
-                    patchSelected({ text: event.target.value }, true)
-                  }
-                />
-              </label>
+                <label className="kf-field">
+                  <span className="kf-field-label">Show when</span>
+                  <select
+                    className="kf-input kf-md"
+                    value={showMode}
+                    onChange={(event) =>
+                      patchSelectedShowIf(
+                        event.target.value as "always" | "true" | "false",
+                        showBinding,
+                      )
+                    }
+                  >
+                    <option value="always">Always</option>
+                    <option value="true">Flag is true</option>
+                    <option value="false">Flag is false</option>
+                  </select>
+                </label>
+                {showMode !== "always" ? (
+                  <label className="kf-field">
+                    <span className="kf-field-label">Flag</span>
+                    <select
+                      className="kf-input kf-md"
+                      value={showBinding}
+                      onChange={(event) =>
+                        patchSelectedShowIf(
+                          showMode,
+                          event.target.value as BooleanBinding,
+                        )
+                      }
+                    >
+                      {BOOLEAN_BINDINGS.map((binding) => (
+                        <option key={binding} value={binding}>
+                          {BOOLEAN_LABELS[binding]}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                ) : null}
+              </>
             ) : null}
-            <label className="kf-field">
-              <span className="kf-field-label">Show when</span>
-              <select
-                className="kf-input kf-md"
-                value={showMode}
-                onChange={(event) =>
-                  patchSelectedShowIf(
-                    event.target.value as "always" | "true" | "false",
-                    showBinding,
-                  )
-                }
-              >
-                <option value="always">Always</option>
-                <option value="true">Flag is true</option>
-                <option value="false">Flag is false</option>
-              </select>
-            </label>
-            {showMode !== "always" ? (
+            {sku ? (
               <label className="kf-field">
-                <span className="kf-field-label">Flag</span>
+                <span className="kf-field-label">Preview SKU</span>
                 <select
                   className="kf-input kf-md"
-                  value={showBinding}
-                  onChange={(event) =>
-                    patchSelectedShowIf(
-                      showMode,
-                      event.target.value as BooleanBinding,
-                    )
-                  }
+                  value={Math.min(skuIndex, Math.max(previewSkus.length - 1, 0))}
+                  onChange={(event) => setSkuIndex(Number(event.target.value))}
                 >
-                  {BOOLEAN_BINDINGS.map((binding) => (
-                    <option key={binding} value={binding}>
-                      {BOOLEAN_LABELS[binding]}
+                  {previewSkus.map((item, index) => (
+                    <option key={item.item_number} value={index}>
+                      {item.collection_name} · {item.item_number}
+                      {item["c.QuickShip"] ? " · QS" : ""}
                     </option>
                   ))}
                 </select>
+                <span className="kf-field-hint">
+                  Canvas only. Switch SKU to prove Show when.
+                </span>
               </label>
             ) : null}
-          </>
-        ) : null}
+          </InspectorGroup>
 
-        <label className="designer-sizzle-toggle">
-          <input
-            type="checkbox"
-            checked={sizzle}
-            onChange={(event) => setSizzle(event.target.checked)}
-          />
-          <span>Photo preview with hole</span>
-        </label>
-        <span className="kf-field-hint">
-          On-screen sizzle only. Avery print stays a flat letter sheet of
-          labels. Hang-tag print is the 2×3.5 tag, not this photo.
-        </span>
-
-        <div className="kf-field">
-          <span className="kf-field-label">Sheet products</span>
-          <span className="kf-field-hint">
-            {avery
-              ? `${sheet.name} holds ${slots} tags. Print order below. A short list repeats to fill the sheet. Same list as the print page in this browser.`
-              : `${sheet.name} prints one tag per selected SKU (no repeat-to-fill). Same list as the print page in this browser.`}
-          </span>
-          <div className="designer-sku-list">
-            {sheetItemNumbers.map((code, index) => {
-              const item = skuCatalog.find((skuItem) => skuItem.item_number === code);
-              if (!item) return null;
-              return (
-                <div className="designer-sku-row" key={code}>
-                  <button
-                    className="kb kb-sm kb-secondary"
-                    type="button"
-                    disabled={index === 0}
-                    onClick={() => moveSheetItem(code, -1)}
-                  >
-                    Up
-                  </button>
-                  <button
-                    className="kb kb-sm kb-secondary"
-                    type="button"
-                    disabled={index === sheetItemNumbers.length - 1}
-                    onClick={() => moveSheetItem(code, 1)}
-                  >
-                    Down
-                  </button>
-                  <span>
-                    {item.collection_name} · {item.item_number}
-                  </span>
-                  <button
-                    className="kb kb-sm kb-secondary"
-                    type="button"
-                    disabled={sheetItemNumbers.length === 1}
-                    onClick={() => toggleSheetItem(code)}
-                  >
-                    Remove
-                  </button>
-                </div>
-              );
-            })}
-          </div>
-          {unselectedSkus.length ? (
-            <div className="designer-sku-add">
-              <span className="kf-field-label">Add from catalog</span>
-              {unselectedSkus.map((item) => (
-                <button
-                  key={item.item_number}
-                  className="kb kb-sm kb-secondary"
-                  type="button"
-                  onClick={() => toggleSheetItem(item.item_number)}
-                >
-                  {item.collection_name}
-                </button>
-              ))}
-            </div>
-          ) : (
-            <span className="kf-field-hint">
-              All {skuCatalog.length} catalog SKUs are on the sheet.
-            </span>
-          )}
-        </div>
-
-        <label className="kf-field">
-          <span className="kf-field-label">Template font</span>
-          <select
-            className="kf-input kf-md"
-            value={globalFont}
-            onChange={(event) =>
-              setGlobalFont(event.target.value as FontFamily)
-            }
-          >
-            {FONT_FAMILIES.map((family) => (
-              <option key={family} value={family}>
-                {FONT_LABELS[family]}
-              </option>
-            ))}
-          </select>
-        </label>
-
-        {selected?.type === "text" ? (
-          <>
+          <InspectorGroup title="Type">
             <label className="kf-field">
-              <span className="kf-field-label">Object font</span>
+              <span className="kf-field-label">Template font</span>
               <select
                 className="kf-input kf-md"
-                value={selected.fontFamily ?? ""}
-                onChange={(event) => {
-                  const value = event.target.value;
-                  if (!value) clearObjectFont();
-                  else patchSelected({ fontFamily: value as FontFamily });
-                }}
+                value={globalFont}
+                onChange={(event) =>
+                  setGlobalFont(event.target.value as FontFamily)
+                }
               >
-                <option value="">Template default</option>
                 {FONT_FAMILIES.map((family) => (
                   <option key={family} value={family}>
                     {FONT_LABELS[family]}
@@ -972,186 +877,319 @@ export function TagDesigner({
                 ))}
               </select>
             </label>
-            <label className="kf-field">
-              <span className="kf-field-label">Size (pt)</span>
-              <input
-                className="kf-input kf-md"
-                type="number"
-                min={6}
-                max={24}
-                step={0.5}
-                value={resolvedFontSize(selected)}
-                onChange={(event) =>
-                  patchSelected({
-                    fontSize: Number(event.target.value) || 8,
-                  })
-                }
-              />
-            </label>
-            <div className="kf-field">
-              <span className="kf-field-label">Weight</span>
-              <div className="designer-toolbar">
-                <button
-                  className={toolbarClass(resolvedFontWeight(selected) === 400)}
-                  type="button"
-                  onClick={() => patchSelected({ fontWeight: 400 })}
-                >
-                  Regular
-                </button>
-                <button
-                  className={toolbarClass(resolvedFontWeight(selected) >= 700)}
-                  type="button"
-                  onClick={() => patchSelected({ fontWeight: 700 })}
-                >
-                  Bold
-                </button>
-              </div>
-            </div>
-            <label className="kf-field">
-              <span className="kf-field-label">Tracking</span>
-              <select
-                className="kf-input kf-md"
-                value={selected.letterSpacing ?? ""}
-                onChange={(event) =>
-                  patchSelected({
-                    letterSpacing: event.target.value || undefined,
-                  })
-                }
-              >
-                {LETTER_SPACING_OPTIONS.map((option) => (
-                  <option key={option.label} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <div className="kf-field">
-              <span className="kf-field-label">Text align</span>
-              <div className="designer-toolbar">
-                {(["left", "center", "right"] as TextAlign[]).map((align) => (
-                  <button
-                    key={align}
-                    className={toolbarClass(textAlign === align)}
-                    type="button"
-                    onClick={() => patchSelected({ textAlign: align })}
+            {selected?.type === "text" ? (
+              <>
+                <label className="kf-field">
+                  <span className="kf-field-label">Object font</span>
+                  <select
+                    className="kf-input kf-md"
+                    value={selected.fontFamily ?? ""}
+                    onChange={(event) => {
+                      const value = event.target.value;
+                      if (!value) clearObjectFont();
+                      else patchSelected({ fontFamily: value as FontFamily });
+                    }}
                   >
-                    {align}
-                  </button>
-                ))}
+                    <option value="">Template default</option>
+                    {FONT_FAMILIES.map((family) => (
+                      <option key={family} value={family}>
+                        {FONT_LABELS[family]}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="kf-field">
+                  <span className="kf-field-label">Size (pt)</span>
+                  <input
+                    className="kf-input kf-md"
+                    type="number"
+                    min={6}
+                    max={24}
+                    step={0.5}
+                    value={resolvedFontSize(selected)}
+                    onChange={(event) =>
+                      patchSelected({
+                        fontSize: Number(event.target.value) || 8,
+                      })
+                    }
+                  />
+                </label>
+                <div className="kf-field">
+                  <span className="kf-field-label">Weight</span>
+                  <div className="designer-toolbar">
+                    <button
+                      className={toolbarClass(
+                        resolvedFontWeight(selected) === 400,
+                      )}
+                      type="button"
+                      aria-pressed={resolvedFontWeight(selected) === 400}
+                      onClick={() => patchSelected({ fontWeight: 400 })}
+                    >
+                      Regular
+                    </button>
+                    <button
+                      className={toolbarClass(
+                        resolvedFontWeight(selected) >= 700,
+                      )}
+                      type="button"
+                      aria-pressed={resolvedFontWeight(selected) >= 700}
+                      onClick={() => patchSelected({ fontWeight: 700 })}
+                    >
+                      Bold
+                    </button>
+                  </div>
+                </div>
+                <label className="kf-field">
+                  <span className="kf-field-label">Tracking</span>
+                  <select
+                    className="kf-input kf-md"
+                    value={selected.letterSpacing ?? ""}
+                    onChange={(event) =>
+                      patchSelected({
+                        letterSpacing: event.target.value || undefined,
+                      })
+                    }
+                  >
+                    {LETTER_SPACING_OPTIONS.map((option) => (
+                      <option key={option.label} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <div className="kf-field">
+                  <span className="kf-field-label">Text align</span>
+                  <div className="designer-toolbar">
+                    {(["left", "center", "right"] as TextAlign[]).map(
+                      (align) => (
+                        <button
+                          key={align}
+                          className={toolbarClass(textAlign === align)}
+                          type="button"
+                          aria-pressed={textAlign === align}
+                          onClick={() => patchSelected({ textAlign: align })}
+                        >
+                          {align}
+                        </button>
+                      ),
+                    )}
+                  </div>
+                </div>
+              </>
+            ) : null}
+            {selected?.type === "barcode" ? (
+              <label className="kf-field">
+                <span className="kf-field-label">Barcode type</span>
+                <select
+                  className="kf-input kf-md"
+                  value={resolvedBarcodeFormat(draft, selected)}
+                  onChange={(event) =>
+                    patchSelected(
+                      { barcodeFormat: event.target.value as BarcodeFormat },
+                      true,
+                    )
+                  }
+                >
+                  {BARCODE_FORMATS.map((format) => (
+                    <option key={format} value={format}>
+                      {BARCODE_FORMAT_LABELS[format]}
+                    </option>
+                  ))}
+                </select>
+                <span className="kf-field-hint">
+                  UPC-A is the Kuzco default. QR and Code 128 encode this SKU’s
+                  UPC digits.
+                </span>
+              </label>
+            ) : null}
+          </InspectorGroup>
+
+          <InspectorGroup title="Align">
+            {selectedIds.length === 0 ? (
+              <p className="kf-field-hint">
+                Select a line to align it on the tag.
+              </p>
+            ) : (
+              <div className="kf-field">
+                <span className="kf-field-label">Align to tag</span>
+                <div className="designer-toolbar">
+                  {(
+                    [
+                      ["left", "Left"],
+                      ["center", "Center"],
+                      ["right", "Right"],
+                      ["top", "Top"],
+                      ["middle", "Middle"],
+                      ["bottom", "Bottom"],
+                    ] as Array<[AlignEdge, string]>
+                  ).map(([edge, label]) => (
+                    <button
+                      key={`tag-${edge}`}
+                      className="kb kb-sm kb-secondary"
+                      type="button"
+                      onClick={() => alignObjects("tag", edge)}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
-          </>
-        ) : null}
+            )}
+            {selectedIds.length >= 2 ? (
+              <div className="kf-field">
+                <span className="kf-field-label">Align to selection</span>
+                <div className="designer-toolbar">
+                  {(
+                    [
+                      ["left", "Left"],
+                      ["center", "Center"],
+                      ["right", "Right"],
+                      ["top", "Top"],
+                      ["middle", "Middle"],
+                      ["bottom", "Bottom"],
+                    ] as Array<[AlignEdge, string]>
+                  ).map(([edge, label]) => (
+                    <button
+                      key={`sel-${edge}`}
+                      className="kb kb-sm kb-secondary"
+                      type="button"
+                      onClick={() => alignObjects("selection", edge)}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+            {selectedIds.length >= 3 ? (
+              <div className="kf-field">
+                <span className="kf-field-label">Distribute</span>
+                <div className="designer-toolbar">
+                  <button
+                    className="kb kb-sm kb-secondary"
+                    type="button"
+                    onClick={() => distributeObjects("horizontal")}
+                  >
+                    Horizontal
+                  </button>
+                  <button
+                    className="kb kb-sm kb-secondary"
+                    type="button"
+                    onClick={() => distributeObjects("vertical")}
+                  >
+                    Vertical
+                  </button>
+                </div>
+              </div>
+            ) : null}
+          </InspectorGroup>
 
-        {selected?.type === "barcode" ? (
-          <label className="kf-field">
-            <span className="kf-field-label">Barcode type</span>
-            <select
-              className="kf-input kf-md"
-              value={resolvedBarcodeFormat(draft, selected)}
-              onChange={(event) =>
-                patchSelected(
-                  { barcodeFormat: event.target.value as BarcodeFormat },
-                  true,
-                )
-              }
-            >
-              {BARCODE_FORMATS.map((format) => (
-                <option key={format} value={format}>
-                  {BARCODE_FORMAT_LABELS[format]}
-                </option>
-              ))}
-            </select>
+          <InspectorGroup title="Sheet">
             <span className="kf-field-hint">
-              UPC-A is the Kuzco default. QR and Code 128 encode the UPC digits
-              on this SKU. Resize the box square for a larger QR.
+              {avery
+                ? `${slots} labels. Short list repeats to fill.`
+                : "One printed tag per selected SKU."}{" "}
+              {sheetItemNumbers.length.toLocaleString()} on sheet.
             </span>
-          </label>
-        ) : null}
-
-        {selectedIds.length > 0 ? (
-          <div className="kf-field">
-            <span className="kf-field-label">Align to tag</span>
-            <div className="designer-toolbar">
-              {(
-                [
-                  ["left", "Left"],
-                  ["center", "Center"],
-                  ["right", "Right"],
-                  ["top", "Top"],
-                  ["middle", "Middle"],
-                  ["bottom", "Bottom"],
-                ] as Array<[AlignEdge, string]>
-              ).map(([edge, label]) => (
-                <button
-                  key={`tag-${edge}`}
-                  className="kb kb-sm kb-secondary"
-                  type="button"
-                  onClick={() => alignObjects("tag", edge)}
-                >
-                  {label}
-                </button>
-              ))}
+            {sheetItemNumbers.length > 20 ? (
+              <label className="kf-field">
+                <span className="kf-field-label">Find on sheet</span>
+                <input
+                  className="kf-input kf-md"
+                  type="search"
+                  value={sheetQuery}
+                  onChange={(event) => setSheetQuery(event.target.value)}
+                  placeholder="SKU or collection"
+                />
+              </label>
+            ) : null}
+            <div className="designer-sku-list">
+              {sheetShown.map((item) => {
+                const index = sheetItemNumbers.indexOf(item.item_number);
+                return (
+                  <div className="designer-sku-row" key={item.item_number}>
+                    <button
+                      className="kb kb-sm kb-secondary"
+                      type="button"
+                      disabled={index === 0}
+                      onClick={() => moveSheetItem(item.item_number, -1)}
+                    >
+                      Up
+                    </button>
+                    <button
+                      className="kb kb-sm kb-secondary"
+                      type="button"
+                      disabled={index === sheetItemNumbers.length - 1}
+                      onClick={() => moveSheetItem(item.item_number, 1)}
+                    >
+                      Down
+                    </button>
+                    <span>
+                      {item.collection_name} · {item.item_number}
+                    </span>
+                    <button
+                      className="kb kb-sm kb-secondary"
+                      type="button"
+                      disabled={sheetItemNumbers.length === 1}
+                      onClick={() => toggleSheetItem(item.item_number)}
+                    >
+                      Remove
+                    </button>
+                  </div>
+                );
+              })}
             </div>
-          </div>
-        ) : null}
-
-        {selectedIds.length >= 2 ? (
-          <div className="kf-field">
-            <span className="kf-field-label">Align to selection</span>
-            <div className="designer-toolbar">
-              {(
-                [
-                  ["left", "Left"],
-                  ["center", "Center"],
-                  ["right", "Right"],
-                  ["top", "Top"],
-                  ["middle", "Middle"],
-                  ["bottom", "Bottom"],
-                ] as Array<[AlignEdge, string]>
-              ).map(([edge, label]) => (
-                <button
-                  key={`sel-${edge}`}
-                  className="kb kb-sm kb-secondary"
-                  type="button"
-                  onClick={() => alignObjects("selection", edge)}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-          </div>
-        ) : null}
-
-        {selectedIds.length >= 3 ? (
-          <div className="kf-field">
-            <span className="kf-field-label">Distribute</span>
-            <div className="designer-toolbar">
-              <button
-                className="kb kb-sm kb-secondary"
-                type="button"
-                onClick={() => distributeObjects("horizontal")}
-              >
-                Horizontal
-              </button>
-              <button
-                className="kb kb-sm kb-secondary"
-                type="button"
-                onClick={() => distributeObjects("vertical")}
-              >
-                Vertical
-              </button>
-            </div>
-          </div>
-        ) : null}
-
-        <p className="designer-meta">
-          {sheet.name} · {fallback.tag.width}×{fallback.tag.height} in. Layout
-          saves in this browser. Print sheets read the same JSON.
-        </p>
-        <div className="hang-tag-actions">
+            {sheetRows.length > sheetShown.length ? (
+              <span className="kf-field-hint">
+                Showing {sheetShown.length} of{" "}
+                {sheetRows.length.toLocaleString()}. Search to find one.
+              </span>
+            ) : null}
+            {unselectedSkus.length ? (
+              <label className="kf-field">
+                <span className="kf-field-label">Add from catalog</span>
+                <input
+                  className="kf-input kf-md"
+                  type="search"
+                  value={catalogQuery}
+                  onChange={(event) => setCatalogQuery(event.target.value)}
+                  placeholder="Search SKU or collection"
+                />
+                <span className="kf-field-hint">
+                  {catalogQuery.trim()
+                    ? addMatches.length
+                      ? addMatches.length > addShown.length
+                        ? `${addShown.length} of ${addMatches.length.toLocaleString()} — refine search`
+                        : `${addMatches.length.toLocaleString()} matches`
+                      : "No matches"
+                    : `${unselectedSkus.length.toLocaleString()} not on the sheet. Search to add.`}
+                </span>
+                {addShown.length ? (
+                  <div className="designer-sku-add">
+                    {addShown.map((item) => (
+                      <button
+                        key={item.item_number}
+                        className="kb kb-sm kb-secondary"
+                        type="button"
+                        onClick={() => toggleSheetItem(item.item_number)}
+                      >
+                        {item.collection_name} · {item.item_number}
+                      </button>
+                    ))}
+                  </div>
+                ) : null}
+              </label>
+            ) : (
+              <span className="kf-field-hint">
+                All {skuCatalog.length.toLocaleString()} catalog products are on
+                the sheet.
+              </span>
+            )}
+          </InspectorGroup>
+        </div>
+        <footer className="kc-foot">
           <button
-            className="kb kb-md kb-secondary"
+            className="kb kb-sm kb-secondary"
             type="button"
             disabled={!canUndo}
             onClick={undo}
@@ -1159,21 +1197,76 @@ export function TagDesigner({
             Undo
           </button>
           <button
-            className="kb kb-md kb-secondary"
+            className="kb kb-sm kb-secondary"
             type="button"
             disabled={!canRedo}
             onClick={redo}
           >
             Redo
           </button>
-          <button className="kb kb-md kb-secondary" type="button" onClick={resetLayout}>
-            Reset layout
+          <span className="kc-foot-spacer" />
+          <button
+            className="kb kb-sm kb-secondary"
+            type="button"
+            onClick={resetLayout}
+          >
+            Reset
           </button>
-          <button className="kb kb-md kb-primary" type="button" onClick={downloadJson}>
+          <button
+            className="kb kb-sm kb-secondary"
+            type="button"
+            onClick={downloadJson}
+          >
             Download JSON
           </button>
+        </footer>
+      </article>
+    </aside>
+  );
+
+  if (!sku) {
+    return <div className="designer-layout">{inspector}</div>;
+  }
+
+  return (
+    <div className="designer-layout">
+      <div className="designer-stages">
+        <div>
+          <div className="designer-stage-head">
+            <p className="designer-stage-label">Edit</p>
+            <label
+              className="kf-check kf-sm"
+              title="On-screen only. Avery print stays a flat letter sheet."
+            >
+              <input
+                type="checkbox"
+                checked={sizzle}
+                onChange={(event) => setSizzle(event.target.checked)}
+              />
+              <span className="kf-check-box"></span>
+              <span className="kf-check-label">Preview on product (hole)</span>
+            </label>
+          </div>
+          <div className="designer-stage" style={{ width, height }}>
+            <canvas ref={hostRef} width={width} height={height} />
+          </div>
         </div>
-      </aside>
+        {sizzle ? (
+          <div>
+            <p className="designer-stage-label">Preview</p>
+            <HangTagSizzle sku={sku} template={draft} />
+          </div>
+        ) : null}
+        {!sizzle || avery ? (
+          <div>
+            <p className="designer-stage-label">
+              {avery ? `${sheet.navLabel} sheet` : sheet.navLabel}
+            </p>
+            <MiniSheet stock={stock} skus={skuCatalog} template={draft} />
+          </div>
+        ) : null}
+      </div>
+      {inspector}
     </div>
   );
 }
