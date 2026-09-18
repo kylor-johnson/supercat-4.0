@@ -16,14 +16,32 @@
 
    Omit-not-stub: each leg guarded individually; if all legs absent,
    the "### Rep activity floor" heading is suppressed too. Use Jinja comments only.
+
+   The heading dollar is availability.coaching_cards, NOT RepRisk.dollars_at_risk.
+   The latter is the discount-leak proxy, so the heading disagreed with the cards
+   directly beneath it (hfg: "$0.04M to coach against" above $446K/$231K/$164K).
+   Same handle as the hero band and the cards themselves.
+
+   Q-53 (unactivated accounts) renders after the coverage table: coverage says
+   how many accounts are untouched, Q-53 names the biggest of them. It is read
+   into the bundle BEFORE outreach_screen.apply — hfg's two largest are its own
+   DTC webstores, which the profile screens.
+
+   Two traps, both paid for: a comment placed between this block and a
+   heading emits a newline and shifts every byte after it, and a comment
+   whose TEXT contains a closing brace-hash ends the block early and dumps
+   the remainder into the report. Keep notes here, and keep them free of
+   Jinja delimiters.
 #}
 {% from '_macros.md.j2' import signal_rep_atrisk_book, action_rep_atrisk_book %}
-## The team{% if availability.team %} — leaderboard · ${{ "{:,.2f}".format((gather.rep_risks[:5] | sum(attribute='dollars_at_risk')) / 1_000_000) }}M to coach against{% else %} — activity floor{% endif %}
+## The team{% if availability.team %} — leaderboard · ${{ "{:,.2f}".format((availability.coaching_cards[:5] | sum(attribute='at_risk_ltm')) / 1_000_000) }}M to coach against{% else %} — activity floor{% endif %}
 
 {%- set _floor_r1 = gather.rep_activity and gather.rep_activity.any_data -%}
 {%- set _floor_r2 = gather.rep_coverage and gather.rep_coverage.any_data and posture.commerce_confidence != "NONE" -%}
 {%- set _floor_r4 = gather.rep_quote_discipline and gather.rep_quote_discipline.any_data -%}
-{%- set _any_floor = _floor_r1 or _floor_r2 or _floor_r4 -%}
+{#- Q-53: needs an invoiced feed to size the opportunity at all. -#}
+{%- set _floor_q53 = gather.unactivated_accounts and posture.commerce_confidence != "NONE" -%}
+{%- set _any_floor = _floor_r1 or _floor_r2 or _floor_r4 or _floor_q53 -%}
 {%- if _any_floor %}
 
 ### Rep activity floor
@@ -79,6 +97,26 @@ All {{ ra.active_seats }} active seats logged in within the last month. Platform
 **{{ "{:.0f}".format(rc.coverage_pct) }}% of the active account book is covered.** The remaining {{ "{:,}".format(rc.untouched_customers) }} accounts haven't received a platform order in 90 days — worth identifying whether those are new-activation opportunities or intentional offline accounts.
 {%- elif rc.coverage_pct is not none %}
 **{{ "{:.0f}".format(rc.coverage_pct) }}% platform coverage** against {{ "{:,}".format(rc.total_customers) }} active accounts. The {{ "{:,}".format(rc.untouched_customers) }} untouched accounts are your next coverage target.
+{%- endif %}
+
+{% endif -%}
+{% if _floor_q53 -%}
+{%- set _ua = gather.unactivated_accounts[:5] -%}
+{%- set _ua_total = gather.unactivated_accounts | sum(attribute='invoiced_ltm') -%}
+**The largest accounts with no platform order on record**
+
+These are buying — the total business below is invoiced, last twelve months — and the order is being written somewhere the platform cannot see it. Treat this as an activation list, not a verdict on the account.
+
+| Account | Total business (LTM) | Invoices |
+|---|---|---|
+{% for _a in _ua -%}
+| {{ _a.display_name }}{% if _a.state %} · {{ _a.state }}{% endif %} | **${{ "{:,.0f}".format(_a.invoiced_ltm / 1000) }}K** | {{ "{:,}".format(_a.invoiced_orders) }} |
+{% endfor %}
+{# P0-3: no backward chomp — keep the blank line. #}
+{% if gather.unactivated_accounts | length > 5 %}
+Top {{ gather.unactivated_accounts | length }} of these accounts carry **${{ "{:,.2f}".format(_ua_total / 1_000_000) }}M** of invoiced business between them. Start with the largest — one conversation about how they prefer to order is worth more than a broad push.
+{%- else %}
+Between them these accounts carry **${{ "{:,.2f}".format(_ua_total / 1_000_000) }}M** of invoiced business. Start with the largest — one conversation about how they prefer to order is worth more than a broad push.
 {%- endif %}
 
 {% endif -%}

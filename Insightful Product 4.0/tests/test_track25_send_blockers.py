@@ -190,3 +190,64 @@ def test_hero_at_risk_figure_is_absent_when_no_coaching_cards_render():
     hero, cards = _hero_and_cards("sca", "2026-07-02")
     if not cards:
         assert hero is None, "hero advertised at-risk dollars with no cards to walk"
+
+
+# ─── Template comments must never reach the client ─────────────────────────
+_TEMPLATE_COMMENT_MARKERS = (
+    "Omit-not-stub",
+    "Reference: Sarreid PASS3",
+    "Tier resolution (report_operator",
+    "P0-3: no backward chomp",
+    "catalog Domain 12",
+)
+
+
+def test_no_jinja_comment_text_reaches_the_rendered_report():
+    """A comment whose TEXT contains a closing brace-hash ends the block early
+    and dumps the remainder into the brief.
+
+    Writing "keep notes free of Jinja delimiters" INSIDE a Jinja comment did
+    exactly that, and section 6's header prose - tier tables, operator
+    references - began rendering into client reports. The visible-text diff
+    barely moved; only the byte count gave it away.
+    """
+    for org, date in (("sarreid", "2026-07-02"), ("hfg", "2026-07-02"), ("clc", "2026-07-09")):
+        md = _render(org, date)
+        leaked = [m for m in _TEMPLATE_COMMENT_MARKERS if m in md]
+        assert not leaked, f"{org}: template comment text in the report: {leaked}"
+        # The tell for an early close is the REAL delimiter arriving as text.
+        assert "#}" not in md, f"{org}: a Jinja comment closed early and leaked"
+        assert "{#" not in md, f"{org}: an unrendered Jinja comment reached the report"
+
+
+def test_every_template_comment_block_is_closed_exactly_once():
+    """The structural version of the same rule, across every template."""
+    import re
+    from pipeline import config
+
+    offenders = []
+    for path in sorted((config.WORKSPACE_ROOT / "pipeline" / "templates").glob("*.j2")):
+        text = path.read_text(encoding="utf-8")
+        # Walk comment blocks: each "{#" must reach its "#}" with no stray
+        # "#}" in between (which would have closed it early).
+        pos = 0
+        while True:
+            start = text.find("{#", pos)
+            if start == -1:
+                # No comment opens again — any remaining "#}" is a stray, which
+                # is what an early close leaves behind.
+                stray = text.find("#}", pos)
+                if stray != -1:
+                    line = text.count("\n", 0, stray) + 1
+                    offenders.append(f"{path.name}:{line} stray '#}}' outside a comment")
+                break
+            stray = text.find("#}", pos)
+            if stray != -1 and stray < start:
+                line = text.count("\n", 0, stray) + 1
+                offenders.append(f"{path.name}:{line} stray '#}}' outside a comment")
+            end = text.find("#}", start + 2)
+            if end == -1:
+                offenders.append(f"{path.name}: unterminated comment at {start}")
+                break
+            pos = end + 2
+    assert not offenders, "\n".join(offenders)

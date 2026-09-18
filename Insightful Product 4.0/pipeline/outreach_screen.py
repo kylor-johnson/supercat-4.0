@@ -16,6 +16,7 @@ from .gather import (
     AccountDecay,
     GatherBundle,
     RepRisk,
+    UnactivatedAccount,
     account_is_callable,
     rep_label_is_house,
     account_needs_a_call,
@@ -112,6 +113,38 @@ def _profile_text(org: str) -> str:
     return ""
 
 
+def bill_to_is_screened(code: str | None, name: str | None, rules: ScreenRules) -> bool:
+    """The bill-to half of the screen, in one place.
+
+    Both the call list and the Q-53 activation list have to apply it: hfg's
+    profile names 10505 (Handmade In Vermont.com) and 35639 (Shop Hubbardton
+    Forge) as its OWN direct-to-consumer sites, and they are the #5 and #10
+    rows of its unactivated list. Telling a CEO to go activate their own
+    webstore is the kind of thing that costs a report its credibility.
+    """
+    if rules.label_is_house(name):
+        return True
+    code_f = _fold(code or "")
+    if code_f and code_f in rules.bill_to_codes:
+        return True
+    name_f = _fold(name or "")
+    if not name_f:
+        return False
+    if name_f in rules.bill_to_names:
+        return True
+    return any(n and (n in name_f or name_f in n) for n in rules.bill_to_names)
+
+
+def screen_unactivated(
+    accounts: list[UnactivatedAccount], rules: ScreenRules
+) -> list[UnactivatedAccount]:
+    """Q-53 rows that survive the profile's house/internal bill-to screen."""
+    return [
+        a for a in accounts
+        if not bill_to_is_screened(a.customer_code, a.customer_name, rules)
+    ]
+
+
 def account_is_screened(account: AccountDecay, rules: ScreenRules) -> bool:
     # The house rule is a REP-level exclusion: profiles scope it to "excluded
     # from the rep leaderboard render" and from the leakage math, which is
@@ -122,20 +155,9 @@ def account_is_screened(account: AccountDecay, rules: ScreenRules) -> bool:
     # seven calls. This never fired before only because those orgs had no rep
     # labels to match — pulling S1 with the name bridge turned it on, and the
     # CEO stopped being told about accounts that are genuinely slipping.
-    if rules.label_is_house(account.bill_to_name):
-        return True
     if account.rep_number and _fold(account.rep_number) in rules.exclude_rep_numbers:
         return True
-    if account.bill_to_number and _fold(account.bill_to_number) in rules.bill_to_codes:
-        return True
-    name = _fold(account.bill_to_name or "")
-    if name and name in rules.bill_to_names:
-        return True
-    if name:
-        for n in rules.bill_to_names:
-            if n and (n in name or name in n):
-                return True
-    return False
+    return bill_to_is_screened(account.bill_to_number, account.bill_to_name, rules)
 
 
 def screen_accounts(
@@ -186,6 +208,7 @@ def apply(bundle: GatherBundle, profile_text: str | None = None) -> GatherBundle
     bundle.outreach_reordered = [
         account.bill_to_number for account in bundle.outreach_list
     ] != [account.bill_to_number for account in legacy_order]
+    bundle.unactivated_accounts = screen_unactivated(bundle.unactivated_accounts, rules)
     bundle.screened_rep_labels = frozenset(rules.exclude_labels)
     bundle.house_cards_screened = before_cards - len(bundle.rep_risks)
     return bundle

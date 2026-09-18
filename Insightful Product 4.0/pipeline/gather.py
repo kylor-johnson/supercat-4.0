@@ -594,6 +594,27 @@ class RepCoverageRow:
 
 
 @dataclass
+class UnactivatedAccount:
+    """Q-53 — an account with real invoiced business and no confirmed platform
+    order, ever. Quote-only accounts count as unactivated: a quote is interest,
+    not adoption.
+
+    Framing is fixed by the query's external claim rules: this is an activation
+    opportunity, never a failure, and never "they don't use your platform" —
+    they may be buying productively through another channel.
+    """
+    customer_code: str
+    customer_name: str
+    state: Optional[str]
+    invoiced_orders: int
+    invoiced_ltm: float
+
+    @property
+    def display_name(self) -> str:
+        return normalize_account_name(self.customer_name) or self.customer_code
+
+
+@dataclass
 class RepQuoteDisciplineRow:
     """Q-R4 — org-level quote→submit discipline summary (one row)."""
     total_orders: int
@@ -678,6 +699,8 @@ class GatherBundle:
     rep_activity: Optional[RepActivityRow] = None
     rep_coverage: Optional[RepCoverageRow] = None
     rep_quote_discipline: Optional[RepQuoteDisciplineRow] = None
+    # Q-53 — invoiced accounts with no confirmed platform order ever.
+    unactivated_accounts: list[UnactivatedAccount] = field(default_factory=list)
     # Set by outreach_screen.apply — count of decay / coaching rows dropped
     # by the house / DTC / org-self screen before the top-7 cut.
     outreach_screened: int = 0
@@ -1167,6 +1190,32 @@ def load_rep_activity(rows: list[dict]) -> Optional[RepActivityRow]:
     )
 
 
+def load_unactivated_accounts(rows: list[dict]) -> list[UnactivatedAccount]:
+    """Q-53 output: high-value accounts with no confirmed platform order.
+
+    A row with neither a code nor a name is dropped for the same reason the
+    call list drops one: S1 and Q-53 both group by bill-to, so every blank
+    bill-to collapses into a single nameless block (ali: $614K). It is not an
+    account, so it is not an activation target.
+    """
+    out: list[UnactivatedAccount] = []
+    for r in rows:
+        code = _s(r.get("customer_code") or "")
+        name = _s(r.get("customer_name") or "")
+        if not code and not name:
+            continue
+        out.append(
+            UnactivatedAccount(
+                customer_code=code,
+                customer_name=name,
+                state=_s(r.get("state") or "") or None,
+                invoiced_orders=_i(r.get("erp_orders")),
+                invoiced_ltm=_f(r.get("erp_gmv")) or 0.0,
+            )
+        )
+    return out
+
+
 def load_rep_coverage(rows: list[dict]) -> Optional[RepCoverageRow]:
     """Q-R2 output. Single org-level row: total_customers, touched_customers,
     coverage_pct, untouched_customers."""
@@ -1285,6 +1334,11 @@ def gather_all(org: str, date: str) -> GatherBundle:
     if not bundle.families and bundle.products:
         bundle.families = derive_description_families(bundle.products)
     bundle.dealers = load_dealer_cohort(_read_csv(paths.csv_for("Q-DEALER-COHORT")))
+
+    # Q-53 is read here, not with the platform block below, because it has to
+    # be in the bundle before the screen runs: hfg's two biggest "unactivated"
+    # accounts are its own DTC webstores.
+    bundle.unactivated_accounts = load_unactivated_accounts(_read_csv(paths.csv_for("Q-53")))
 
     # House / DTC / org-self screen BEFORE the top-7 cut. The auto-rule and
     # per-org EXCLUDE table lived on rep-grain SQL; the decay extract that
