@@ -377,6 +377,15 @@ class FamilyRollup:
     is_new: bool = False
 
     @property
+    def display_label(self) -> str:
+        """Client-facing family name. Several ERPs store collection_code ALL-CAPS
+        (cci ships `BUNNY WILLIAMS`), which reads as shouting in a CEO brief.
+        Derivation and grouping keep using ``family_label`` untouched — this is a
+        render-time label only, same split as ``ProductRow.display_description``.
+        """
+        return normalize_account_name(self.family_label)
+
+    @property
     def is_named(self) -> bool:
         """True only when family_label reads as a real product/collection name a CEO
         would recognize (e.g. "Bunny Williams", "Baker", "Winterthur") — not an internal

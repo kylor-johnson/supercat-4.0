@@ -251,7 +251,15 @@ def main() -> int:
     if not args.no_narrative:
         # Always write bundles first (enables agent-driven prose generation)
         try:
-            top_signals = sorted(fired, key=lambda s: s.rank, reverse=True)[:7]
+            # T1-1: signal_summary_set applies the narrative arc
+            # (momentum → intelligence → opportunity → risk), the >=3-positive
+            # floor, finding-#1-positive and max-4-per-section diversity. It was
+            # implemented, correct, and had ZERO callers — both hero paths used
+            # raw rank-descending instead. Since rank = surprise x dollar_impact
+            # x actionability and declines carry the largest dollar impact, every
+            # 4.0 hero opened decline-first. That is the single biggest reason the
+            # reports read as an alarm board rather than intelligence.
+            top_signals = signals.signal_summary_set(fired)
             outreach_list = list(bundle.outreach_list)
 
             all_bundles = {
@@ -362,7 +370,7 @@ def main() -> int:
     else:
         # Legacy: deterministic-only mode with --no-narrative
         hero = narrative.generate_hero_framing(
-            posture=posture, top_signals=signals.top_n_by_rank(fired, 7),
+            posture=posture, top_signals=signals.signal_summary_set(fired),
             profile_text=profile_text,
             gather=bundle,
         )
