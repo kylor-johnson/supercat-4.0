@@ -66,9 +66,25 @@
     by rank here is what discarded the narrative arc for the whole of 4.0. -#}
 {% set positive_signals = top_signals | selectattr("is_positive") | list -%}
 {% set negative_signals = top_signals | rejectattr("is_positive") | list -%}
-**${{ "{:,.2f}".format(posture.inv_ltm_net / 1_000_000) }}M invoiced ({% if posture.is_stale %}{{ posture.erp_asof_stamp }}{% else %}LTM{% endif %}).** {% if gather.dealers and gather.dealers.same_base_lift_pct is not none and gather.dealers.same_base_lift_pct > 5 -%}
-The same-dealer base {% if posture.is_stale %}had spent{% else %}spent{% endif %} **${{ "{:.2f}".format(1 + gather.dealers.same_base_lift_pct / 100) }} for every dollar** they spent last year{% if gather.dealers.returning %} — {{ "{:,}".format(gather.dealers.returning) }} dealers{% endif %}.{% elif gather.dealers and gather.dealers.same_base_lift_pct is not none -%}
-Your existing accounts {% if posture.is_stale %}were{% else %}are{% endif %} spending {% if gather.dealers.same_base_lift_pct < -5 %}less — {{ "{:+.0f}".format(gather.dealers.same_base_lift_pct) }}% vs. prior year{% else %}roughly flat vs. prior year{% endif %}{% if posture.is_stale %} as of that window{% endif %}. Topline growth {% if posture.is_stale %}was{% else %}is{% endif %} being carried by new-dealer intake, not reorder momentum.{% endif %}{% if gather.named_families and gather.named_families[0].yoy_pct is not none and gather.named_families[0].yoy_pct > 15 %} The **{{ gather.named_families[0].family_label }} family is up {{ "{:.0f}".format(gather.named_families[0].yoy_pct) }}% across {{ gather.named_families[0].dealer_count }} dealers**.{% endif %}{% if gather.reps | selectattr("yoy_pct", "ne", none) | rejectattr("is_house") | selectattr("yoy_pct", "gt", 50) | list | length > 0 %} {{ (gather.reps | selectattr("yoy_pct", "ne", none) | rejectattr("is_house") | selectattr("yoy_pct", "gt", 50) | list | length) }} field reps grew **50%+** on accounts they own outright — field-built growth, not a single account's windfall.{% endif %}
+{#- W3/S3: the hero used to lead on same_base_lift_pct alone, and hfg's -1.8%
+    landed in the "roughly flat" branch while §5 of the same report said
+    shrinking and lapsed accounts handed back $16.5M and NRR was $0.84 on the
+    dollar. Two measures of one concept, disagreeing by 14 points, with the
+    hero taking the gentler one. WHICH measure leads, and where it turns, is now
+    `thresholds.hero_same_base_measure` — resolved in signals.py, swept across
+    the cohort in handoffs/exec/W3_evidence.md §S3. `lift` reproduces 4.0.
+    `nrr` leads on retained dollars and states them in §5's own phrasing, so the
+    two surfaces cannot contradict each other (a T1-5 named-quantity risk). -#}
+{%- set _sb_lift = gather.dealers.same_base_lift_pct if (gather.dealers and gather.dealers.same_base_lift_pct is not none) else none -%}
+{%- set _sb_nrr = gather.nrr.nrr_pct if (gather.nrr and gather.nrr.nrr_pct is not none) else none -%}
+{%- set _sb_use_nrr = (availability.thresholds.hero_same_base_measure == "nrr" and _sb_nrr is not none) -%}
+{%- set _sb_value = _sb_nrr if _sb_use_nrr else _sb_lift -%}
+{%- set _sb_up_at = 105.0 if _sb_use_nrr else 5.0 -%}
+{%- set _sb_down_at = availability.thresholds.hero_nrr_spending_less_pct if _sb_use_nrr else availability.thresholds.hero_lift_spending_less_pct -%}
+{%- set _sb_per_dollar = (_sb_nrr / 100) if _sb_use_nrr else ((1 + _sb_lift / 100) if _sb_lift is not none else none) -%}
+**${{ "{:,.2f}".format(posture.inv_ltm_net / 1_000_000) }}M invoiced ({% if posture.is_stale %}{{ posture.erp_asof_stamp }}{% else %}LTM{% endif %}).** {% if _sb_value is not none and _sb_value > _sb_up_at -%}
+The same-dealer base {% if posture.is_stale %}had spent{% else %}spent{% endif %} **${{ "{:.2f}".format(_sb_per_dollar) }} for every dollar** they spent last year{% if gather.dealers and gather.dealers.returning %} — {{ "{:,}".format(gather.dealers.returning) }} dealers{% endif %}.{% elif _sb_value is not none -%}
+Your existing accounts {% if posture.is_stale %}were{% else %}are{% endif %} spending {% if _sb_value < _sb_down_at %}less — {% if _sb_use_nrr %}**${{ "{:.2f}".format(_sb_per_dollar) }} for every dollar** they spent last year{% else %}{{ "{:+.0f}".format(_sb_value) }}% vs. prior year{% endif %}{% else %}roughly flat vs. prior year{% endif %}{% if posture.is_stale %} as of that window{% endif %}. Topline growth {% if posture.is_stale %}was{% else %}is{% endif %} being carried by new-dealer intake, not reorder momentum.{% endif %}{% if gather.named_families and gather.named_families[0].yoy_pct is not none and gather.named_families[0].yoy_pct > 15 %} The **{{ gather.named_families[0].family_label }} family is up {{ "{:.0f}".format(gather.named_families[0].yoy_pct) }}% across {{ gather.named_families[0].dealer_count }} dealers**.{% endif %}{% if gather.reps | selectattr("yoy_pct", "ne", none) | rejectattr("is_house") | selectattr("yoy_pct", "gt", 50) | list | length > 0 %} {{ (gather.reps | selectattr("yoy_pct", "ne", none) | rejectattr("is_house") | selectattr("yoy_pct", "gt", 50) | list | length) }} field reps grew **50%+** on accounts they own outright — field-built growth, not a single account's windfall.{% endif %}
 
 {% if posture.commerce_confidence != "STRONG" and top_signals | length >= 3 -%}
 *(Figures below are directional — partial feed.)*
@@ -92,7 +108,7 @@ Your existing accounts {% if posture.is_stale %}were{% else %}are{% endif %} spe
 {%- set _bands = [] -%}
 {%- for _sig in top_signals -%}
 {%- set _b = signal_arc_band(_sig.kind) -%}
-{%- set _body = hero_finding(_sig, gather, posture) | trim -%}
+{%- set _body = hero_finding(_sig, gather, posture, availability.thresholds) | trim -%}
 {%- if _body and _b not in _bands and _findings | length < 3 -%}
 {%- set _ = _findings.append(_body) -%}{%- set _ = _bands.append(_b) -%}
 {%- endif -%}
@@ -104,17 +120,17 @@ Your existing accounts {% if posture.is_stale %}were{% else %}are{% endif %} spe
     A repeat kind is still allowed as a last resort rather than shipping two. -#}
 {%- set _kinds = [] -%}
 {%- for _sig in top_signals -%}
-{%- set _body = hero_finding(_sig, gather, posture) | trim -%}
+{%- set _body = hero_finding(_sig, gather, posture, availability.thresholds) | trim -%}
 {%- if _body and _body in _findings -%}{%- set _ = _kinds.append(_sig.kind) -%}{%- endif -%}
 {%- endfor -%}
 {%- for _sig in top_signals -%}
-{%- set _body = hero_finding(_sig, gather, posture) | trim -%}
+{%- set _body = hero_finding(_sig, gather, posture, availability.thresholds) | trim -%}
 {%- if _body and _body not in _findings and _sig.kind not in _kinds and _findings | length < 3 -%}
 {%- set _ = _findings.append(_body) -%}{%- set _ = _kinds.append(_sig.kind) -%}
 {%- endif -%}
 {%- endfor -%}
 {%- for _sig in top_signals -%}
-{%- set _body = hero_finding(_sig, gather, posture) | trim -%}
+{%- set _body = hero_finding(_sig, gather, posture, availability.thresholds) | trim -%}
 {%- if _body and _body not in _findings and _findings | length < 3 -%}{%- set _ = _findings.append(_body) -%}{%- endif -%}
 {%- endfor -%}
 {% if _findings | length < 3 and gather.watchlist | length > 0 -%}

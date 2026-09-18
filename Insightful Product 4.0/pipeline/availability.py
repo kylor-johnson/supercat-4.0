@@ -5,10 +5,11 @@ this map; they do not infer a Mode-1/Sarreid-shaped report from commerce mode.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from .gather import GatherBundle
 from .preflight import RunPosture
+from .signals import CoachingCard, Thresholds, coaching_card_reps, resolve_thresholds
 
 
 def outreach_mix(gather: GatherBundle) -> str:
@@ -43,6 +44,15 @@ class SectionAvailability:
     invoiced_dealers: bool
     channels: bool
     erp_unlock: bool
+    # W3/Phase 5: the org's size-dependent gates, resolved once. Templates read
+    # them from here — the Jinja environment has no other route to a constant,
+    # and a template that hardcodes one is how the hero ended up with a
+    # Sarreid-shaped floor of 3 in `_macros.md.j2`.
+    thresholds: Thresholds = field(default=None, repr=False)
+    # S2: the coaching-card set, gated and account-resolved in signals.py so the
+    # template renders what it is handed rather than re-deriving a fifth
+    # definition of "this account has slipped".
+    coaching_cards: tuple[CoachingCard, ...] = ()
 
     @property
     def layers(self) -> bool:
@@ -59,6 +69,7 @@ def build_availability(
     plays: list[dict],
 ) -> SectionAvailability:
     """Return the section menu supported by this org's actual data."""
+    thresholds = resolve_thresholds(posture, gather)
     has_invoiced = posture.inv_ltm_net > 0
     has_prior_same_dealer = bool(
         has_invoiced
@@ -118,4 +129,8 @@ def build_availability(
             or posture.ecat_ltm_confirmed_gmv > 0
         ),
         erp_unlock=posture.commerce_confidence == "NONE",
+        thresholds=thresholds,
+        coaching_cards=tuple(
+            coaching_card_reps(gather.rep_risks, gather.decay, thresholds)
+        ),
     )

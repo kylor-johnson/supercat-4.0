@@ -238,8 +238,15 @@ def main() -> int:
         reorder_play_framing,
     )
 
-    plays = fb.build_plays_from_gather(bundle, posture, fired)
-    card_reps = [r for r in bundle.rep_risks if r.accounts_at_risk > 0][:5]
+    thresholds = signals.resolve_thresholds(posture, bundle)
+    plays = fb.build_plays_from_gather(bundle, posture, fired, thresholds)
+    # W3/S2: ONE coaching-card definition. This list keys slot C's prose and
+    # `align_coaching_narratives`; the template renders the same list through
+    # `availability.coaching_cards`. Re-deriving it here is how the narratives
+    # would end up attached to the wrong cards the moment the gate moves.
+    card_reps = [card.risk for card in signals.coaching_card_reps(
+        bundle.rep_risks, bundle.decay, thresholds
+    )][:5]
     slot_d_fail = False
 
     # Multi-slot LLM prose generation

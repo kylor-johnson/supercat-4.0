@@ -201,8 +201,17 @@ def _classify_delta(delta_text: str) -> str:
 
 # ─── §1 — Summary (hero + metric cards + CEO callouts + priorities) ─────────
 
-def render_summary(chunk: Chunk, period_line: str = "") -> str:
-    """Render the always-expanded §1 60-second read."""
+def render_summary(
+    chunk: Chunk, period_line: str = "", available_ids: set[str] | None = None
+) -> str:
+    """Render the always-expanded §1 60-second read.
+
+    ``available_ids`` is the set of section ids that will actually render in
+    this report. A CEO callout's jump link is dropped when its target is not
+    among them — W3 found `#thismonth` dangling on hfg the moment a materiality
+    floor made "Do this month" legitimately empty. ``None`` keeps the old
+    behaviour (every jump link emitted unconditionally).
+    """
     paragraphs = _split_paragraphs(chunk.body_md)
     if not paragraphs:
         return _wrap_open_section("summary", chunk.heading, "")
@@ -270,12 +279,12 @@ def render_summary(chunk: Chunk, period_line: str = "") -> str:
             j = i + 1
             list_block = rest_paras[j] if j < len(rest_paras) else ""
             if _is_numbered_list(list_block):
-                callouts_html = _build_ceo_callouts(list_block)
+                callouts_html = _build_ceo_callouts(list_block, available_ids)
                 i = j + 1
                 continue
         # CEO callouts: alternate pattern where the lead and list share a block
         if not callouts_html and _is_numbered_list(block) and "wouldn'?t have known" in block.lower():
-            callouts_html = _build_ceo_callouts(block)
+            callouts_html = _build_ceo_callouts(block, available_ids)
             i += 1
             continue
         # Priorities: bullet list under "Priority actions" lead-in
@@ -288,14 +297,14 @@ def render_summary(chunk: Chunk, period_line: str = "") -> str:
                 continue
         # Standalone numbered list that looks like CEO callouts (no lead-in)
         if not callouts_html and _is_numbered_list(block) and _looks_like_ceo_callouts(block):
-            callouts_html = _build_ceo_callouts(block)
+            callouts_html = _build_ceo_callouts(block, available_ids)
             i += 1
             continue
         # A bold lead-in FUSED to its numbered list (no blank line between).
         if not callouts_html:
             split = _split_lead_and_numbered_list(block)
             if split and _looks_like_ceo_callouts(split[1]):
-                callouts_html = _build_ceo_callouts(split[1])
+                callouts_html = _build_ceo_callouts(split[1], available_ids)
                 i += 1
                 continue
         # Standalone priorities bullet list (no lead-in)
@@ -613,7 +622,7 @@ def _delta_note_class(value: str, note: str) -> str:
     return ""
 
 
-def _build_ceo_callouts(list_block: str) -> str:
+def _build_ceo_callouts(list_block: str, available_ids: set[str] | None = None) -> str:
     """Convert a numbered-list block into 3 `.ceo-callout` divs.
 
     Expected per-item shape:
@@ -640,7 +649,7 @@ def _build_ceo_callouts(list_block: str) -> str:
         # body's first delta/dollar
         big_num = _extract_callout_num(full)
         tone_class = _pick_callout_tone(full)
-        jump_href, jump_label = _callout_jump(full, tone_class)
+        jump_href, jump_label = _callout_jump(full, tone_class, available_ids)
         jump_html = (
             f'        <a class="ceo-jump" href="#{jump_href}">{jump_label} &rarr;</a>\n'
             if jump_href else ""
@@ -717,20 +726,34 @@ def _pick_callout_tone(text: str) -> str:
     return "info"
 
 
-def _callout_jump(text: str, tone: str) -> tuple[str, str]:
+def _callout_jump(
+    text: str, tone: str, available_ids: set[str] | None = None
+) -> tuple[str, str]:
     """Pick the (anchor, label) for a CEO-callout jump link — the north star
-    routes each callout to where the reader acts on it."""
+    routes each callout to where the reader acts on it.
+
+    Every candidate whose section did not render is skipped, and if none
+    survives the callout ships without a link rather than with a dead one.
+    """
     low = text.lower()
+    candidates: list[tuple[str, str]] = []
     if any(t in low for t in ["pattern", "cluster", "territory", "rep ", "coverage review"]):
-        return "team", "See the pattern"
+        candidates.append(("team", "See the pattern"))
     if any(t in low for t in ["coming back", "second-year", "second order", "reorder", "return rate", "one-time"]):
-        return "thismonth", "Build the push"
+        candidates.append(("thismonth", "Build the push"))
     if any(t in low for t in ["concentration", "concentrated", "% of ltm", "top customer", "top account"]):
-        return "risk", "See the exposure"
+        candidates.append(("risk", "See the exposure"))
     if tone == "danger":
-        return "thisweek", "Call this week"
+        candidates.append(("thisweek", "Call this week"))
     if tone == "warn":
-        return "thismonth", "Work the play"
+        candidates.append(("thismonth", "Work the play"))
+    if not candidates:
+        return "", ""
+    if available_ids is None:
+        return candidates[0]
+    for anchor, label in candidates:
+        if anchor in available_ids:
+            return anchor, label
     return "", ""
 
 

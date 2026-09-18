@@ -128,24 +128,31 @@ All {{ ra.active_seats }} active seats logged in within the last month. Platform
 {%- endif %}
 
 {% if gather.rep_risks -%}
-{# Coaching cards are book-decay cards: only reps with at least one at-risk account
-   belong here. Pure discount-leak reps (dollars_at_risk from leakage, accounts_at_risk==0)
-   are routed to the discount-discipline note below, not shown as a "$XK across 0 accounts"
-   card (audit_cci §coaching-cards). #}
-{% set _card_reps = gather.rep_risks | selectattr("accounts_at_risk", "gt", 0) | list -%}
-{% if _card_reps -%}
-### Top-{{ [_card_reps | length, 5] | min }} rep{{ "s" if (_card_reps | length) != 1 else "" }} by dollars at risk on their own book
+{# Coaching cards are book-decay cards. WHICH reps get one, and WHICH of their
+   accounts the card is about, is decided in signals.coaching_card_reps and
+   handed here through `availability.coaching_cards` — see W3/S2. Two rules it
+   carries that this template used to get wrong:
+     - pure discount-leak reps (dollars_at_risk from leakage, accounts_at_risk==0)
+       route to the discount-discipline note below, not to a "$XK across 0
+       accounts" card (audit_cci §coaching-cards);
+     - the account named on the card is one that `gather.account_needs_a_call`
+       agrees has slipped — the fifth surface of Phase 4's single definition,
+       not a sixth. Re-deriving either rule here is what produced a RISK card
+       about a +6.7% account on hfg. #}
+{% set _cards = availability.coaching_cards -%}
+{% if _cards -%}
+### Top-{{ [_cards | length, 5] | min }} rep{{ "s" if (_cards | length) != 1 else "" }} by dollars at risk on their own book
 
-{% for c in _card_reps[:5] %}
+{% for _card in _cards[:5] %}
+{% set c = _card.risk -%}
 > **Card {{ loop.index }} — {{ c.display_label or "—" }} · ${{ "{:,.0f}".format(c.dollars_at_risk / 1000) }}K at risk across {{ c.accounts_at_risk }} account{{ "s" if c.accounts_at_risk != 1 else "" }}**
 {% if coaching_narratives and coaching_narratives[loop.index0] -%}
 <!--slot:C-->
 > {{ coaching_narratives[loop.index0] }}
 <!--/slot:C-->
 {%- else -%}
-{% set matching_decay = gather.decay | selectattr("rep_number", "eq", c.rep_number) | sort(attribute="ltm_rev", reverse=True) | list -%}
-{% if matching_decay and (matching_decay[0].bill_to_name or matching_decay[0].bill_to_number) -%}
-{% set acct = matching_decay[0] -%}
+{% if _card.account and (_card.account.bill_to_name or _card.account.bill_to_number) -%}
+{% set acct = _card.account -%}
 {% if acct.is_real_decline -%}
 > {{ acct.bill_to_name or acct.bill_to_number }} is **${{ "{:,.0f}".format(acct.ltm_rev / 1000) }}K** LTM — down {{ "{:.0f}".format((1 - acct.recent_6mo / acct.prior_6mo) * 100) if acct.prior_6mo > 0 else "materially" }}% over six months, {{ acct.days_silent }} days silent. {{ action_rep_atrisk_book(c, acct) }}
 {%- elif acct.is_cadence_cliff or (acct.recent_vs_prior_pct is not none and acct.recent_vs_prior_pct > 0) -%}

@@ -149,23 +149,337 @@ class Signal:
         return self.surprise * max(self.dollar_impact, 1.0) * self.actionability
 
 
-# ─── Thresholds (named constants, not magic numbers) ──────────────────────
+# ─── Thresholds ───────────────────────────────────────────────────────────
+#
+# Phase 5 (W3) classified every gate in this module into TWO kinds. The
+# distinction is the whole point of the phase, so it is recorded in the code,
+# not only in the audit:
+#
+#   SIZE-NEUTRAL — a ratio, a multiplier, or a percentage. A $3M client and a
+#     $70M client mean the same thing by "recent is 60% of prior". These may
+#     still be mis-tuned, but they are NOT overfit to Sarreid's size, and they
+#     stay plain module constants below.
+#
+#   SIZE-DEPENDENT — an absolute dollar floor or a raw count. $50,000 is 0.07%
+#     of cci's year and 0.72% of bmc's: a 10x spread in what counts as
+#     "material". Ten dealers is 0.13% of cci's active base and 1.75% of kal's.
+#     These are expressed as max(absolute floor, share of the org's own size)
+#     through ThresholdProfile, below.
+#
+# ── SIZE-NEUTRAL: ratios. Leave them alone; they do not encode Sarreid's size.
 DECLINE_PACE_THRESHOLD = 0.6        # recent < 60% of prior = real decline
-DECLINE_MIN_LTM_DOLLARS = 50_000    # only fire for material accounts
 CADENCE_CLIFF_GAP_MULTIPLIER = 2.0  # silence > 2× mean gap
 GROWTH_POCKET_MIN_YOY_PCT = 20.0    # family must grow >20% YoY
-GROWTH_POCKET_MIN_DEALERS = 10      # on a broad dealer base
-NEW_LINE_MIN_REVENUE = 100_000      # year-1 must clear $100K
-NEW_LINE_MIN_DEALERS = 5            # sold to ≥5 dealers
 LIFT_CONC_TOP5_THRESHOLD = 60.0     # top-5 lifters hold >60% of lift = concentrated
 REP_OVERPERFORM_MIN_YOY = 30.0      # ≥30% YoY growth
 REP_UNDERPERFORM_MAX_YOY = -20.0    # ≤-20% YoY decline
-REP_ATRISK_MIN_DOLLARS = 20_000     # $20K+ at risk to fire
 CHANNEL_CONC_THRESHOLD = 70.0       # one channel >70% of total
 ECAT_MINORITY_THRESHOLD = 15.0      # eCat <15% of invoiced LTM
 LEAKAGE_LOW_THRESHOLD = 3.0         # org-wide leak rate <3% = disciplined
 SECOND_YEAR_RETURN_THRESHOLD = 0.50 # <50% of first-timers come back
+PRICING_PLAY_MIN_LEAK_SPREAD_PCT = 10.0  # top rep leak rate must clear 10%
 CROSS_SELL_ADDRESSABLE_FRACTION = 0.30  # editorial estimate of addressable cross-sell potential
+
+# ── SIZE-DEPENDENT: kept as module names so the OLD absolute value stays
+# readable and greppable, but nothing reads them directly any more — they are
+# the `floor` half of the BASELINE profile below. Changing one here changes
+# only the floor, never the size-relative half.
+DECLINE_MIN_LTM_DOLLARS = 50_000    # account LTM floor for a real-decline signal
+REP_ATRISK_MIN_DOLLARS = 20_000     # $ at risk on one rep's book
+NEW_LINE_MIN_REVENUE = 100_000      # a new family's year-1 invoiced
+NEW_LINE_MIN_DEALERS = 5            # ...on at least this many dealers
+GROWTH_POCKET_MIN_DEALERS = 10      # a growing family must span this many dealers
+REP_BOOK_MIN_DOLLARS = 100_000      # rep book floor for over/under-perform
+SECOND_YEAR_MIN_LAPSED_DOLLARS = 50_000  # $ left behind by non-returning first-timers
+CROSS_SELL_MIN_TARGET_DEALERS = 5   # target family must already span this many dealers
+CROSS_SELL_HERO_MIN_DEALERS = 3     # a gap this small is not a hero finding
+PLAY_MIN_UPSIDE_DOLLARS = 0         # "Do this month" materiality — none today (S1)
+COACHING_CARD_MIN_DOLLARS = 0       # coaching-card materiality — none today (S2)
+
+# ─── Size-relative threshold machinery (Phase 5 / W3) ─────────────────────
+#
+# Every size-dependent gate takes the form
+#
+#     threshold = max(ABSOLUTE_FLOOR, PCT_OF_BASE × <the org's own size>)
+#
+# The floor keeps a tiny org from firing on noise; the percentage keeps a large
+# org from drowning in it. Two size BASES are used, because two kinds of gate
+# are overfit in two different ways:
+#
+#   inv_ltm_net      — dollar floors ("material account", "$ at risk")
+#   active_dealers   — raw counts ("across 10 dealers", "5 dealers in year 1")
+#
+# `pct = 0.0` means the mechanism is present but dormant: the floor alone
+# decides, which is exactly 4.0's behaviour today. That is what BASELINE ships,
+# per the W3 brief's hard constraint — W3 proposes, the OWNER picks the
+# numbers. RECOMMENDED carries W3's proposal; the calibration sweep behind it
+# is in handoffs/exec/W3_evidence.md. Flipping ACTIVE_PROFILE is a deliberate
+# act that moves the cohort and needs a golden re-stamp.
+
+
+@dataclass(frozen=True)
+class SizeScaledFloor:
+    """One gate as ``max(floor, pct × base)``.
+
+    ``pct`` is a fraction (0.002 = 0.2%). A missing, zero, negative or
+    non-finite base degrades to the absolute floor — a `commerce_confidence =
+    NONE` org has `inv_ltm_net == 0` and must not divide, blow up, or silently
+    lose its floor.
+    """
+
+    floor: float
+    pct: float = 0.0
+
+    def resolve(self, base: float | int | None) -> float:
+        if base is None:
+            return float(self.floor)
+        base = float(base)
+        if base <= 0.0 or base != base or base in (float("inf"), float("-inf")):
+            return float(self.floor)
+        return max(float(self.floor), self.pct * base)
+
+
+@dataclass(frozen=True)
+class Thresholds:
+    """Size-dependent gates resolved against ONE org. Plain numbers from here on."""
+
+    decline_min_ltm: float
+    rep_atrisk_min: float
+    new_line_min_revenue: float
+    rep_book_min: float
+    second_year_min_lapsed: float
+    play_min_upside: float
+    coaching_card_min_dollars: float
+    growth_pocket_min_dealers: int
+    new_line_min_dealers: int
+    cross_sell_min_target_dealers: int
+    cross_sell_hero_min_dealers: int
+    # S2 — the coaching cards are the FIFTH surface of gather.account_needs_a_call.
+    coaching_cards_require_needs_a_call: bool
+    # S3 — which same-dealer measure the hero leads with, and where it turns.
+    hero_same_base_measure: str      # "lift" | "nrr"
+    hero_lift_spending_less_pct: float
+    hero_nrr_spending_less_pct: float
+
+
+@dataclass(frozen=True)
+class ThresholdProfile:
+    """A named set of (floor, pct) pairs. Resolve it against an org to get Thresholds."""
+
+    name: str
+    decline_min_ltm: SizeScaledFloor
+    rep_atrisk_min: SizeScaledFloor
+    new_line_min_revenue: SizeScaledFloor
+    rep_book_min: SizeScaledFloor
+    second_year_min_lapsed: SizeScaledFloor
+    play_min_upside: SizeScaledFloor
+    coaching_card_min_dollars: SizeScaledFloor
+    growth_pocket_min_dealers: SizeScaledFloor
+    new_line_min_dealers: SizeScaledFloor
+    cross_sell_min_target_dealers: SizeScaledFloor
+    cross_sell_hero_min_dealers: SizeScaledFloor
+    coaching_cards_require_needs_a_call: bool
+    hero_same_base_measure: str
+    hero_lift_spending_less_pct: float
+    hero_nrr_spending_less_pct: float
+
+    def resolve(self, inv_ltm_net: float, active_dealers: float | int = 0) -> Thresholds:
+        return Thresholds(
+            decline_min_ltm=self.decline_min_ltm.resolve(inv_ltm_net),
+            rep_atrisk_min=self.rep_atrisk_min.resolve(inv_ltm_net),
+            new_line_min_revenue=self.new_line_min_revenue.resolve(inv_ltm_net),
+            rep_book_min=self.rep_book_min.resolve(inv_ltm_net),
+            second_year_min_lapsed=self.second_year_min_lapsed.resolve(inv_ltm_net),
+            play_min_upside=self.play_min_upside.resolve(inv_ltm_net),
+            coaching_card_min_dollars=self.coaching_card_min_dollars.resolve(inv_ltm_net),
+            growth_pocket_min_dealers=int(
+                round(self.growth_pocket_min_dealers.resolve(active_dealers))
+            ),
+            new_line_min_dealers=int(
+                round(self.new_line_min_dealers.resolve(active_dealers))
+            ),
+            cross_sell_min_target_dealers=int(
+                round(self.cross_sell_min_target_dealers.resolve(active_dealers))
+            ),
+            cross_sell_hero_min_dealers=int(
+                round(self.cross_sell_hero_min_dealers.resolve(active_dealers))
+            ),
+            coaching_cards_require_needs_a_call=self.coaching_cards_require_needs_a_call,
+            hero_same_base_measure=self.hero_same_base_measure,
+            hero_lift_spending_less_pct=self.hero_lift_spending_less_pct,
+            hero_nrr_spending_less_pct=self.hero_nrr_spending_less_pct,
+        )
+
+
+# 4.0 exactly as it ships today: every pct dormant, every floor the Sarreid-era
+# absolute. `make check` is green against this and only this.
+BASELINE_PROFILE = ThresholdProfile(
+    name="baseline",
+    decline_min_ltm=SizeScaledFloor(DECLINE_MIN_LTM_DOLLARS, 0.0),
+    rep_atrisk_min=SizeScaledFloor(REP_ATRISK_MIN_DOLLARS, 0.0),
+    new_line_min_revenue=SizeScaledFloor(NEW_LINE_MIN_REVENUE, 0.0),
+    rep_book_min=SizeScaledFloor(REP_BOOK_MIN_DOLLARS, 0.0),
+    second_year_min_lapsed=SizeScaledFloor(SECOND_YEAR_MIN_LAPSED_DOLLARS, 0.0),
+    play_min_upside=SizeScaledFloor(PLAY_MIN_UPSIDE_DOLLARS, 0.0),
+    coaching_card_min_dollars=SizeScaledFloor(COACHING_CARD_MIN_DOLLARS, 0.0),
+    growth_pocket_min_dealers=SizeScaledFloor(GROWTH_POCKET_MIN_DEALERS, 0.0),
+    new_line_min_dealers=SizeScaledFloor(NEW_LINE_MIN_DEALERS, 0.0),
+    cross_sell_min_target_dealers=SizeScaledFloor(CROSS_SELL_MIN_TARGET_DEALERS, 0.0),
+    cross_sell_hero_min_dealers=SizeScaledFloor(CROSS_SELL_HERO_MIN_DEALERS, 0.0),
+    coaching_cards_require_needs_a_call=False,
+    hero_same_base_measure="lift",
+    hero_lift_spending_less_pct=-5.0,
+    hero_nrr_spending_less_pct=97.0,
+)
+
+# W3's PROPOSAL. NOT ACTIVE. Every number is the candidate the 11-org × 4-value
+# sweep in handoffs/exec/W3_evidence.md §Calibration selected, with the
+# one-line rationale beside it. Where the cohort did not discriminate between
+# candidates, the evidence file says so rather than implying it did.
+RECOMMENDED_PROFILE = ThresholdProfile(
+    name="recommended",
+    # sweep B: small orgs gain coverage (sarreid 5→9, kal 5→6, ali 3→4), large
+    # orgs unchanged (cci 2, clc 1, hfg 4). The 10× spread closes.
+    decline_min_ltm=SizeScaledFloor(25_000, 0.0010),          # 0.10% of invoiced LTM
+    # sweep A. 0.10% is too hard: it zeroes cci AND hfg, deleting a real $66K book.
+    rep_atrisk_min=SizeScaledFloor(10_000, 0.0005),           # 0.05% of invoiced LTM
+    # sweep A — S2. hfg 5→1 (the four `$1K at risk` cards go), cci 3→1, kal 4→1,
+    # ali 3→1; sarreid/clc/bri/bmc keep every card. 0.10% deletes cci, clc and
+    # hfg's card block outright, which is over-correction, not materiality.
+    coaching_card_min_dollars=SizeScaledFloor(5_000, 0.0002), # 0.02% of invoiced LTM
+    # sweep A — S1. hfg 1→0 ("no play qualified this month"), clc 1→0, ali 1→0;
+    # sarreid 3→2, cci/kal/bri/bmc unchanged.
+    play_min_upside=SizeScaledFloor(10_000, 0.0010),          # 0.10% of invoiced LTM
+    # sweep A. The cohort does not discriminate — only ali has new families, and
+    # all 13 clear every candidate. Size-relative on principle, not on evidence.
+    new_line_min_revenue=SizeScaledFloor(50_000, 0.0025),     # 0.25% of invoiced LTM
+    rep_book_min=SizeScaledFloor(50_000, 0.0025),             # 0.25% of invoiced LTM
+    second_year_min_lapsed=SizeScaledFloor(25_000, 0.0025),   # 0.25% of invoiced LTM
+    # Counts scale on the ACTIVE-DEALER base, not on dollars. No cohort org
+    # changes at any candidate; these keep a 200-dealer client reachable.
+    growth_pocket_min_dealers=SizeScaledFloor(5, 0.005),      # 0.5% of active dealers
+    new_line_min_dealers=SizeScaledFloor(5, 0.0025),
+    cross_sell_min_target_dealers=SizeScaledFloor(5, 0.0025),
+    # S1: replaces the hero-only stopgap of 3. 0.50% starts suppressing bri's
+    # legitimate 10-door gap; 0.25% suppresses only what 3 already suppressed.
+    cross_sell_hero_min_dealers=SizeScaledFloor(3, 0.0025),
+    # S2 consistency: one definition of "this account has slipped", five surfaces.
+    coaching_cards_require_needs_a_call=True,
+    # S3: the two measures disagree on 3 of 8 commerce orgs (cci, hfg, kal) and
+    # the lift measure is the gentler one every time. NRR is what §5 already
+    # reports, so leading on it removes the contradiction rather than papering
+    # over it.
+    hero_same_base_measure="nrr",
+    hero_lift_spending_less_pct=-5.0,
+    hero_nrr_spending_less_pct=97.0,
+)
+
+# ← OWNER: this is the one line Phase 5 hands over. Flipping it to
+#   RECOMMENDED_PROFILE moves the cohort deliberately and requires a golden
+#   re-stamp (EXECUTION_PLAN.md §stamp protocol).
+ACTIVE_PROFILE = BASELINE_PROFILE
+
+
+def org_size_base(posture: RunPosture, gather: Optional[GatherBundle] = None) -> tuple[float, int]:
+    """(invoiced-LTM base, active-dealer base) for threshold resolution.
+
+    Both degrade to 0 rather than raising, so a NONE-confidence org resolves to
+    the absolute floors instead of dividing by an absent topline.
+    """
+    inv = float(getattr(posture, "inv_ltm_net", 0.0) or 0.0)
+    dealers = 0
+    cohort = getattr(gather, "dealers", None) if gather is not None else None
+    if cohort is not None:
+        dealers = int(getattr(cohort, "active_ltm", 0) or 0)
+    return (inv if inv > 0 else 0.0), max(dealers, 0)
+
+
+def resolve_thresholds(
+    posture: RunPosture,
+    gather: Optional[GatherBundle] = None,
+    profile: Optional[ThresholdProfile] = None,
+) -> Thresholds:
+    """The ONE place an org's size-dependent gates are computed."""
+    inv, dealers = org_size_base(posture, gather)
+    return (profile or ACTIVE_PROFILE).resolve(inv, dealers)
+
+
+# Used only by detectors called without an explicit `thresholds=` (unit tests,
+# and any caller predating W3). Identical to today's absolute constants.
+DEFAULT_THRESHOLDS = BASELINE_PROFILE.resolve(0.0, 0)
+
+
+# ─── S2: the coaching cards are the FIFTH surface of ONE definition ───────
+#
+# Phase 4 established `gather.account_needs_a_call(account)` as the single
+# definition of "this account has actually slipped". The call list, the
+# watchlist, the hero at-risk card and the call-list footer all read it. The
+# coaching cards did not, and it shows:
+#
+#   hfg card 1 — "Rep CANOREP's flagged book is about $22K of near-term risk,
+#   and it sits on a $602K account that is actually pacing up (+$19K H/H)."
+#
+# A RISK card about a GROWING account. Two separate defects produce it:
+#
+#   1. `RepRisk.accounts_at_risk` is populated in gather.gather_all as
+#      `sum(1 for a in decay if a.rep_number == risk.rep_number)` — a PRESENCE
+#      count over the top-N decay extract, not a risk count. clc's five cards
+#      are five reps who each own one large account; not one of those accounts
+#      needs a call.
+#   2. The card renders the rep's HIGHEST-LTM decay row, which need not be a
+#      row that slipped. On hfg that is account 1489 at +6.7%.
+#
+# Both are decided here, once, so the template renders what it is handed.
+
+
+@dataclass(frozen=True)
+class CoachingCard:
+    """One rendered coaching card: the rep, the account it is about, the evidence."""
+
+    risk: RepRisk
+    account: Optional[AccountDecay]
+    flagged: tuple[AccountDecay, ...]
+
+    @property
+    def flagged_count(self) -> int:
+        return len(self.flagged)
+
+
+def coaching_card_reps(
+    rep_risks: list[RepRisk],
+    decay: list[AccountDecay],
+    thresholds: Optional[Thresholds] = None,
+) -> list[CoachingCard]:
+    """The coaching-card set, in rep_risks order (dollars-at-risk descending).
+
+    Pure discount-leak reps (dollars at risk but no account in the decay
+    extract) are excluded here exactly as they were before W3 — they route to
+    the discount-discipline note, not to a "$XK across 0 accounts" card.
+    """
+    from .gather import account_needs_a_call
+
+    t = thresholds or DEFAULT_THRESHOLDS
+    cards: list[CoachingCard] = []
+    for risk in rep_risks:
+        if risk.accounts_at_risk <= 0:
+            continue
+        if risk.dollars_at_risk < t.coaching_card_min_dollars:
+            continue
+        mine = sorted(
+            (a for a in decay if a.rep_number == risk.rep_number),
+            key=lambda a: a.ltm_rev,
+            reverse=True,
+        )
+        flagged = tuple(a for a in mine if account_needs_a_call(a))
+        if t.coaching_cards_require_needs_a_call:
+            if not flagged:
+                continue
+            account = flagged[0]
+        else:
+            account = mine[0] if mine else None
+        cards.append(CoachingCard(risk=risk, account=account, flagged=flagged))
+    return cards
+
 
 # ─── P0-7: single-door project concentration ──────────────────────────────
 # HFG's top-12 is 25% one-off custom SKUs, one dealer each, and the far more
@@ -250,11 +564,14 @@ INDUSTRY_CONTEXT_DOWNWEIGHT: dict[str, dict] = {
 
 # ─── Detection rules ───────────────────────────────────────────────────────
 
-def detect_real_decline(account: AccountDecay) -> Optional[Signal]:
+def detect_real_decline(
+    account: AccountDecay, thresholds: Optional[Thresholds] = None
+) -> Optional[Signal]:
+    t = thresholds or DEFAULT_THRESHOLDS
     if account.prior_6mo <= 0:
         return None
     pace = account.recent_6mo / account.prior_6mo
-    if pace >= DECLINE_PACE_THRESHOLD or account.ltm_rev < DECLINE_MIN_LTM_DOLLARS:
+    if pace >= DECLINE_PACE_THRESHOLD or account.ltm_rev < t.decline_min_ltm:
         return None
     severity = "CRITICAL" if pace < 0.4 else "WARNING"
     w = SIGNAL_WEIGHTS["real_decline"]
@@ -292,10 +609,13 @@ def detect_cadence_cliff(account: AccountDecay) -> Optional[Signal]:
     )
 
 
-def detect_growth_pocket(family: FamilyRollup) -> Optional[Signal]:
+def detect_growth_pocket(
+    family: FamilyRollup, thresholds: Optional[Thresholds] = None
+) -> Optional[Signal]:
+    t = thresholds or DEFAULT_THRESHOLDS
     if family.yoy_pct is None or family.yoy_pct < GROWTH_POCKET_MIN_YOY_PCT:
         return None
-    if family.dealer_count < GROWTH_POCKET_MIN_DEALERS:
+    if family.dealer_count < t.growth_pocket_min_dealers:
         return None
     w = SIGNAL_WEIGHTS["growth_pocket"]
     return Signal(
@@ -311,10 +631,13 @@ def detect_growth_pocket(family: FamilyRollup) -> Optional[Signal]:
     )
 
 
-def detect_new_line_takeoff(family: FamilyRollup) -> Optional[Signal]:
+def detect_new_line_takeoff(
+    family: FamilyRollup, thresholds: Optional[Thresholds] = None
+) -> Optional[Signal]:
+    t = thresholds or DEFAULT_THRESHOLDS
     if not family.is_new:
         return None
-    if family.ltm_revenue < NEW_LINE_MIN_REVENUE or family.dealer_count < NEW_LINE_MIN_DEALERS:
+    if family.ltm_revenue < t.new_line_min_revenue or family.dealer_count < t.new_line_min_dealers:
         return None
     w = SIGNAL_WEIGHTS["new_line_takeoff"]
     return Signal(
@@ -383,10 +706,13 @@ def detect_lift_concentration(
     )
 
 
-def detect_rep_overperform(rep: RepRow) -> Optional[Signal]:
+def detect_rep_overperform(
+    rep: RepRow, thresholds: Optional[Thresholds] = None
+) -> Optional[Signal]:
+    t = thresholds or DEFAULT_THRESHOLDS
     if rep.yoy_pct is None or rep.yoy_pct < REP_OVERPERFORM_MIN_YOY:
         return None
-    if rep.is_house or rep.ltm_invoiced < 100_000:
+    if rep.is_house or rep.ltm_invoiced < t.rep_book_min:
         return None
     w = SIGNAL_WEIGHTS["rep_overperform"]
     return Signal(
@@ -402,10 +728,13 @@ def detect_rep_overperform(rep: RepRow) -> Optional[Signal]:
     )
 
 
-def detect_rep_underperform(rep: RepRow) -> Optional[Signal]:
+def detect_rep_underperform(
+    rep: RepRow, thresholds: Optional[Thresholds] = None
+) -> Optional[Signal]:
+    t = thresholds or DEFAULT_THRESHOLDS
     if rep.yoy_pct is None or rep.yoy_pct > REP_UNDERPERFORM_MAX_YOY:
         return None
-    if rep.is_house or rep.ltm_invoiced < 100_000:
+    if rep.is_house or rep.ltm_invoiced < t.rep_book_min:
         return None
     w = SIGNAL_WEIGHTS["rep_underperform"]
     return Signal(
@@ -421,8 +750,11 @@ def detect_rep_underperform(rep: RepRow) -> Optional[Signal]:
     )
 
 
-def detect_rep_atrisk_book(risk: RepRisk) -> Optional[Signal]:
-    if risk.dollars_at_risk < REP_ATRISK_MIN_DOLLARS:
+def detect_rep_atrisk_book(
+    risk: RepRisk, thresholds: Optional[Thresholds] = None
+) -> Optional[Signal]:
+    t = thresholds or DEFAULT_THRESHOLDS
+    if risk.dollars_at_risk < t.rep_atrisk_min:
         return None
     w = SIGNAL_WEIGHTS["rep_atrisk_book"]
     return Signal(
@@ -438,10 +770,16 @@ def detect_rep_atrisk_book(risk: RepRisk) -> Optional[Signal]:
     )
 
 
-def detect_cross_sell_pocket(anchor: ProductRow, target_family: FamilyRollup, gather: GatherBundle) -> Optional[Signal]:
+def detect_cross_sell_pocket(
+    anchor: ProductRow,
+    target_family: FamilyRollup,
+    gather: GatherBundle,
+    thresholds: Optional[Thresholds] = None,
+) -> Optional[Signal]:
+    t = thresholds or DEFAULT_THRESHOLDS
     if gather.cross_sell_gap is None:
         return None
-    if target_family.dealer_count < 5:
+    if target_family.dealer_count < t.cross_sell_min_target_dealers:
         return None
     w = SIGNAL_WEIGHTS["cross_sell_pocket"]
     gap_count = gather.cross_sell_gap.count
@@ -466,13 +804,16 @@ def detect_cross_sell_pocket(anchor: ProductRow, target_family: FamilyRollup, ga
     )
 
 
-def detect_second_year_gap(cohort: DealerCohort) -> Optional[Signal]:
+def detect_second_year_gap(
+    cohort: DealerCohort, thresholds: Optional[Thresholds] = None
+) -> Optional[Signal]:
+    t = thresholds or DEFAULT_THRESHOLDS
     if cohort.second_year_return_rate is None:
         return None
     if cohort.second_year_return_rate >= SECOND_YEAR_RETURN_THRESHOLD:
         return None
     lapsed_value = cohort.one_time_rev * (1.0 - cohort.second_year_return_rate)
-    if lapsed_value < 50_000:
+    if lapsed_value < t.second_year_min_lapsed:
         return None
     w = SIGNAL_WEIGHTS["second_year_gap"]
     return Signal(
@@ -701,14 +1042,23 @@ def detect_single_door_project(
 
 
 # ─── Orchestration ─────────────────────────────────────────────────────────
-def detect_all(gather: GatherBundle, posture: RunPosture) -> list[Signal]:
+def detect_all(
+    gather: GatherBundle,
+    posture: RunPosture,
+    thresholds: Optional[Thresholds] = None,
+) -> list[Signal]:
     """Run every detection rule against the gather bundle. Returns all
     fired signals, unsorted. Caller ranks + selects the top N per section.
+
+    `thresholds` resolves the size-dependent gates against THIS org. Omitted,
+    it is derived from `posture`/`gather` through ACTIVE_PROFILE — so callers
+    that predate W3 get the org-correct thresholds rather than Sarreid's.
     """
+    t = thresholds or resolve_thresholds(posture, gather)
     signals: list[Signal] = []
 
     for account in gather.decay:
-        sig = detect_real_decline(account)
+        sig = detect_real_decline(account, t)
         if sig:
             signals.append(sig)
         sig = detect_cadence_cliff(account)
@@ -716,10 +1066,10 @@ def detect_all(gather: GatherBundle, posture: RunPosture) -> list[Signal]:
             signals.append(sig)
 
     for family in gather.families:
-        sig = detect_growth_pocket(family)
+        sig = detect_growth_pocket(family, t)
         if sig:
             signals.append(sig)
-        sig = detect_new_line_takeoff(family)
+        sig = detect_new_line_takeoff(family, t)
         if sig:
             signals.append(sig)
 
@@ -729,7 +1079,7 @@ def detect_all(gather: GatherBundle, posture: RunPosture) -> list[Signal]:
 
     if gather.products and gather.families:
         sig = detect_cross_sell_pocket(
-            gather.products[0], gather.families[0], gather
+            gather.products[0], gather.families[0], gather, t
         )
         if sig:
             signals.append(sig)
@@ -743,20 +1093,20 @@ def detect_all(gather: GatherBundle, posture: RunPosture) -> list[Signal]:
             signals.append(sig)
 
     for rep in gather.reps:
-        sig = detect_rep_overperform(rep)
+        sig = detect_rep_overperform(rep, t)
         if sig:
             signals.append(sig)
-        sig = detect_rep_underperform(rep)
+        sig = detect_rep_underperform(rep, t)
         if sig:
             signals.append(sig)
 
     for risk in gather.rep_risks:
-        sig = detect_rep_atrisk_book(risk)
+        sig = detect_rep_atrisk_book(risk, t)
         if sig:
             signals.append(sig)
 
     if gather.dealers:
-        sig = detect_second_year_gap(gather.dealers)
+        sig = detect_second_year_gap(gather.dealers, t)
         if sig:
             signals.append(sig)
 

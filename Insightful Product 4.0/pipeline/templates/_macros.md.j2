@@ -235,7 +235,7 @@ What would change this read: {{ subject }} {{ "is" if singular else "are" }} dir
    Every branch states a number and a consequence. No invented causation, no
    meta-commentary about the report's own value.
    ═══════════════════════════════════════════════════════════════════════════ #}
-{% macro hero_finding(sig, gather, posture) -%}
+{% macro hero_finding(sig, gather, posture, thresholds) -%}
 {%- set c = sig.context -%}
 {#- Resolved cross-sell anchor label. Computed HERE, not inside the if-chain: a
     {% set %} between elif branches belongs to the previous branch's body, so the
@@ -265,10 +265,12 @@ What would change this read: {{ subject }} {{ "is" if singular else "are" }} dir
 {%- elif sig.kind == "ecat_minority" and c.ecat_pct is not none -%}
 **Confirmed platform orders are ${{ "{:,.2f}".format(posture.ecat_ltm_confirmed_gmv / 1_000_000) }}M against ${{ "{:,.2f}".format(c.inv_ltm_net / 1_000_000) }}M invoiced.** Both are absolute counts from separate feeds — the point is not the ratio, it is how much is still written where you cannot see the order.
 {#- ── opportunity ──────────────────────────────────────────────────────── -#}
-{#- Hero floor of 3: a one-door overlap is not "a thing you wouldn't have known",
-    it is a rounding error dressed as a play. The properly SIZE-SCALED floor for
-    every section lands in Phase 7; this keeps a 1-dealer gap off the hero now. -#}
-{%- elif sig.kind == "cross_sell_pocket" and c.anchor and c.target and gather.cross_sell_gap and gather.cross_sell_gap.count >= 3
+{#- W3/S1: the stopgap floor of 3 that lived here is GONE. The gate is now
+    `thresholds.cross_sell_hero_min_dealers` — max(absolute floor, share of the
+    org's own active-dealer base), resolved in signals.py and handed in through
+    `availability.thresholds`. A one-door overlap is not "a thing you wouldn't
+    have known", and on a 2,422-dealer base neither is a three-door one. -#}
+{%- elif sig.kind == "cross_sell_pocket" and c.anchor and c.target and gather.cross_sell_gap and gather.cross_sell_gap.count >= thresholds.cross_sell_hero_min_dealers
       and (c.target | lower) not in (_xs_anchor | lower) -%}
 **{{ gather.cross_sell_gap.count }} dealers buy {{ _xs_anchor }} but have never bought from the {{ (gather.named_families | selectattr("family_label","eq",c.target) | map(attribute="display_label") | list | first) if (gather.named_families | selectattr("family_label","eq",c.target) | list) else c.target }} family.** Same buyer, same floor — that is a pre-qualified list, not a catalog theory.
 {%- elif sig.kind == "second_year_gap" and gather.dealers and gather.dealers.second_year_return_rate is not none -%}
