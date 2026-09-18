@@ -1,12 +1,13 @@
 """House / DTC / org-self screen — applied to decay BEFORE the top-7 cut."""
 from __future__ import annotations
 
-from pipeline.gather import AccountDecay
+from pipeline.gather import AccountDecay, RepRisk
 from pipeline.outreach_screen import (
     account_is_screened,
     looks_like_code,
     parse_profile_screens,
     screen_accounts,
+    screen_rep_risks,
 )
 
 
@@ -29,12 +30,41 @@ def _acct(**kwargs) -> AccountDecay:
     return AccountDecay(**defaults)
 
 
-def test_house_auto_rule_screens_house_account_label():
+def test_the_house_rep_does_not_screen_the_dealer_it_services():
+    """The house rule is a REP-level exclusion, not a reason to hide a dealer.
+
+    Lighting New York is a real kal account that happens to be serviced
+    in-house. Screening it here took it off the call list and out of the
+    at-risk total the moment S1 started carrying rep labels — the CEO
+    stopped hearing about an account that is genuinely slipping.
+    """
     rules = parse_profile_screens("")
-    house = _acct(rep_label="HOUSE ACCOUNT", bill_to_name="LIGHTING NEW YORK")
+    in_house = _acct(rep_label="HOUSE ACCOUNT", bill_to_name="LIGHTING NEW YORK")
     dealer = _acct(rep_label="JASON SCHLEICH", bill_to_name="LIGHTOLOGY")
-    assert account_is_screened(house, rules)
+    assert not account_is_screened(in_house, rules)
     assert not account_is_screened(dealer, rules)
+
+
+def test_a_bill_to_actually_named_house_is_still_screened():
+    """The bill-to side of the rule is untouched: a sample/house *account*
+    is not a dealer and never belonged on a call list."""
+    rules = parse_profile_screens("")
+    assert account_is_screened(_acct(bill_to_name="HOUSE ACCOUNT", rep_label="JASON SCHLEICH"), rules)
+    assert account_is_screened(_acct(bill_to_name="HOUSE SAMPLES", rep_label="JASON SCHLEICH"), rules)
+
+
+def test_the_house_rep_is_still_kept_off_the_rep_surfaces():
+    """screen_rep_risks is where the house exclusion belongs, and still is."""
+    kept = screen_rep_risks(
+        [
+            RepRisk(rep_number="0999", rep_name_tier2="House Account", dollars_at_risk=1.0,
+                    accounts_at_risk=1, leak_dollars=None, leak_pct=None),
+            RepRisk(rep_number="0011", rep_name_tier2="Kirk Marshall Sales", dollars_at_risk=1.0,
+                    accounts_at_risk=1, leak_dollars=None, leak_pct=None),
+        ],
+        parse_profile_screens(""),
+    )
+    assert [r.rep_number for r in kept] == ["0011"]
 
 
 def test_profile_dtc_codes_screen_hfg_webstores():

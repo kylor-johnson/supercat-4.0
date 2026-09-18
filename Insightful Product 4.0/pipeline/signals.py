@@ -17,6 +17,8 @@ signal (down-weight in rank, do not skip detection).
 """
 from __future__ import annotations
 
+import dataclasses
+
 from dataclasses import dataclass, field
 from typing import Literal, Optional, TypedDict
 
@@ -462,6 +464,7 @@ def coaching_card_reps(
     rep_risks: list[RepRisk],
     decay: list[AccountDecay],
     thresholds: Optional[Thresholds] = None,
+    exclude_rep_labels: Optional[frozenset[str]] = None,
 ) -> list[CoachingCard]:
     """The coaching-card set, built from the AT-RISK BOOK and ranked by it.
 
@@ -483,13 +486,13 @@ def coaching_card_reps(
     A rep with leak but no slipped account routes to the discount-discipline
     note, exactly as before — that is not a coaching card.
     """
-    from .gather import account_needs_a_call
+    from .gather import account_is_callable, rep_label_is_house
 
     t = thresholds or DEFAULT_THRESHOLDS
     by_rep: dict[str, list[AccountDecay]] = {}
     for account in decay:
         rep = (account.rep_number or "").strip()
-        if not rep or not account_needs_a_call(account):
+        if not rep or not account_is_callable(account):
             continue
         by_rep.setdefault(rep, []).append(account)
 
@@ -497,6 +500,19 @@ def coaching_card_reps(
     cards: list[CoachingCard] = []
     for rep, accounts in by_rep.items():
         flagged = tuple(sorted(accounts, key=lambda a: a.ltm_rev, reverse=True))
+        # A card is an instruction to coach a rep. The house desk is not a rep
+        # to coach, and profiles scope the house rule to exactly these surfaces
+        # — cci shipped "Card 3 - House Account" the moment rep labels arrived.
+        # Its accounts stay on the call list; only the card is suppressed.
+        rep_label = next((a.rep_label for a in flagged if getattr(a, "rep_label", None)), None)
+        if rep_label_is_house(rep_label):
+            continue
+        # ...and the per-org list from the profile's §4. clc names its own
+        # inside desk "Capital Lighting Fixture"; that desk carries a real
+        # $390K decline, so the ACCOUNT belongs on the call list while the
+        # card does not.
+        if exclude_rep_labels and (rep_label or "").strip().casefold() in exclude_rep_labels:
+            continue
         risk = risk_by_rep.get(rep) or RepRisk(
             rep_number=rep,
             rep_name_tier2=next(
@@ -507,6 +523,16 @@ def coaching_card_reps(
             leak_dollars=None,
             leak_pct=None,
         )
+        # The leak row (C2) carries no rep name; the decay extract does once
+        # S1 is pulled with the R11/§7.1 name bridge. Without this the call
+        # list said "Martha Graham & Assoc: Martha" while the card above it
+        # said "rep 12328" — same rep, same page, two identities.
+        if not risk.rep_name_tier2:
+            decay_name = next(
+                (a.rep_label for a in flagged if getattr(a, "rep_label", None)), None
+            )
+            if decay_name:
+                risk = dataclasses.replace(risk, rep_name_tier2=decay_name)
         card = CoachingCard(risk=risk, account=flagged[0], flagged=flagged)
         if card.at_risk_ltm < t.coaching_card_min_dollars:
             continue

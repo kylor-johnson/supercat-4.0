@@ -48,6 +48,15 @@ def env() -> Environment:
         from .signals import SIGNAL_ARC_ORDER
 
         _env.globals["signal_arc_band"] = lambda kind: SIGNAL_ARC_ORDER.get(kind, 99)
+
+        # A count of 1 was printing "1 accounts pulling back" / "1 dealers,
+        # $0.03M LTM at risk" wherever a noun was hardcoded plural. `plural`
+        # takes the count and the singular; `s` is the bare suffix for the
+        # `{{ n }} call{{ n | s }}` shape already used elsewhere.
+        _env.filters["s"] = lambda n, suffix="s": "" if n == 1 else suffix
+        _env.globals["plural"] = (
+            lambda n, singular, many=None: singular if n == 1 else (many or singular + "s")
+        )
     return _env
 
 

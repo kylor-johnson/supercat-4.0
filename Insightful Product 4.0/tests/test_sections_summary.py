@@ -159,7 +159,7 @@ def test_the_full_sarreid_shape_renders_every_band():
     assert '<h2 class="section-title">The 60-second read</h2>' in html
     assert 'class="hero-summary"' in html
     assert html.count('class="metric"') == 2
-    assert html.count('<div class="ceo-num">') == 3
+    assert html.count('<div class="ceo-callout ') == 3
     assert html.count('class="priority"') == 3
     assert "Three things you wouldn&rsquo;t have known without this report" in html
     assert "Priority actions, by cadence" in html
@@ -190,7 +190,7 @@ def test_a_three_things_lead_after_the_hero_is_not_glued_into_the_hero():
     html = _summary(_HERO, _THREE_LEAD, _CALLOUTS)
     assert html.count('class="hero-sub"') == 1
     assert html.count("have known without this report") == 1
-    assert html.count('<div class="ceo-num">') == 3
+    assert html.count('<div class="ceo-callout ') == 3
 
 
 def test_a_genuine_narrative_block_after_the_hero_still_attaches():
@@ -282,7 +282,7 @@ def test_looks_like_priorities_needs_every_item_to_carry_a_cadence():
 
 def test_a_standalone_callout_list_with_no_lead_in_is_still_detected():
     html = _summary(_HERO, _METRICS, _CALLOUTS)
-    assert html.count('<div class="ceo-num">') == 3
+    assert html.count('<div class="ceo-callout ') == 3
 
 
 def test_a_standalone_priorities_list_with_no_lead_in_is_still_detected():
@@ -300,19 +300,19 @@ def test_a_short_list_directly_after_the_hero_reaches_its_detector():
     "What stands out:" rather than the one string the branch knew about.
     """
     html = _summary(_HERO, _CALLOUTS)
-    assert html.count('<div class="ceo-num">') == 3
+    assert html.count('<div class="ceo-callout ') == 3
     assert _summary(_HERO, _BULLETS).count('class="priority"') == 3
 
 
 def test_a_list_directly_after_the_hero_still_reaches_its_detector():
     """The former strict xfail for F-5; it flipped to XPASS when T1-3 landed."""
-    assert _summary(_HERO, _CALLOUTS).count('<div class="ceo-num">') == 3
+    assert _summary(_HERO, _CALLOUTS).count('<div class="ceo-callout ') == 3
 
 
 def test_the_alternate_shape_where_the_lead_and_list_share_a_block():
     shared = "1. **Three things you wouldn't have known.** Body one.\n2. **B.** Body two.\n3. **C.** Body three."
     html = _summary(_HERO, _METRICS, shared)
-    assert html.count('<div class="ceo-num">') == 3
+    assert html.count('<div class="ceo-callout ') == 3
 
 
 # ─── Metric cards ──────────────────────────────────────────────────────────
@@ -369,7 +369,7 @@ def test_delta_note_class(value, note, expected):
 
 def test_callouts_split_the_bold_headline_from_the_body():
     html = _build_ceo_callouts(_CALLOUTS)
-    assert html.count('<div class="ceo-num">') == 3
+    assert html.count('<div class="ceo-callout ') == 3
     assert '<div class="ceo-num">57%</div>' in html
     assert "The slope is unambiguous." in html
 
@@ -391,7 +391,7 @@ def test_an_empty_list_block_renders_nothing():
         ("$2.18M at risk", "$2.18M"),
         ("7 of 12 accounts", "7 of 12"),
         ("18% of LTM", "18%"),
-        ("no numbers at all", "·"),
+        ("no numbers at all", ""),
     ],
 )
 def test_extract_callout_num(text, expected):
@@ -548,3 +548,24 @@ def test_a_non_metric_table_after_the_hero_stays_a_table():
     html = _summary(_HERO, labelled)
     assert "metric-label" not in html
     assert "<table>" in html
+
+
+def test_a_callout_with_no_figure_renders_no_stat_line():
+    """A lone "·" used to sit where every neighbouring card shows a number.
+
+    _CALLOUTS item 2 ("New dealers aren't coming back") carries no figure, so
+    its card renders title + body and simply omits the stat div.
+    """
+    html = _build_ceo_callouts(_CALLOUTS)
+    assert html.count('<div class="ceo-callout ') == 3
+    assert html.count('<div class="ceo-num">') == 2
+    assert '<div class="ceo-num">·</div>' not in html
+    assert "New dealers aren&rsquo;t coming back" in html or "New dealers aren't coming back" in html
+
+
+def test_a_headline_just_over_the_old_limit_keeps_its_clause():
+    """ali shipped "...invoices carry no bill-to…" — a 63-char headline cut
+    mid-phrase by a 60-char ceiling. Sentences up to 72 now render whole."""
+    headline = "$614K of trailing-twelve-month invoices carry no bill-to number"
+    assert _shorten_callout_title(headline) == headline.rstrip(".")
+    assert "…" not in _shorten_callout_title(headline)

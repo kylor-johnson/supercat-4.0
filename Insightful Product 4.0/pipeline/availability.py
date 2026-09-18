@@ -131,6 +131,11 @@ def build_availability(
         erp_unlock=posture.commerce_confidence == "NONE",
         thresholds=thresholds,
         coaching_cards=tuple(
-            coaching_card_reps(gather.rep_risks, gather.decay, thresholds)
+            coaching_card_reps(
+                gather.rep_risks,
+                gather.decay,
+                thresholds,
+                gather.screened_rep_labels,
+            )
         ),
     )

@@ -37,6 +37,7 @@ class _Acct:
     bill_to_number: str = "1"
     bill_to_name: str = "An Account"
     rep_number: Optional[str] = "R1"
+    rep_label: Optional[str] = None
     ltm_rev: float = 0.0
     recent_6mo: float = 0.0
     prior_6mo: float = 0.0
@@ -383,3 +384,63 @@ def test_an_empty_play_list_turns_the_whole_section_off():
     from pipeline.smoke_check import _STANDARD_REQUIRED_SECTIONS
 
     assert "## Do this month" not in _STANDARD_REQUIRED_SECTIONS
+
+
+# ─── Identity and the house desk ───────────────────────────────────────────
+# Three rules that only became reachable once S1 was pulled with the R11/§7.1
+# name bridge. Before that, S1 carried no bill_to_name and no rep_name for 8
+# of 11 orgs, so none of this could fire — and none of it was tested.
+def test_an_unidentified_row_is_not_a_call_and_not_a_card():
+    """S1 groups by bill-to, so every blank bill-to collapses into ONE row.
+
+    On ali that bucket was $614K of unattributed invoices and it LED the call
+    list as "(unnamed) - rep 75 - 81 days silent": the top instruction of the
+    week was to phone nobody. It is not one account, so its slope is not one
+    account's slope either.
+    """
+    from pipeline.gather import account_is_callable, account_is_identified
+
+    nameless = _Acct(bill_to_number="", bill_to_name="", rep_number="75",
+                     ltm_rev=614_299.0, recent_6mo=274_746.0, prior_6mo=339_553.0,
+                     recent_vs_prior_pct=-19.1, days_silent=81)
+    assert not account_is_identified(nameless)
+    assert not account_is_callable(nameless)
+    assert coaching_card_reps([], [nameless], BASELINE_PROFILE.resolve(7_341_307, 1_004)) == []
+
+    # A row with only a number is still dialable — the rep can look it up.
+    numbered = _Acct(bill_to_number="11359", bill_to_name="", rep_number="21",
+                     ltm_rev=29_998.0, recent_6mo=9_268.0, prior_6mo=20_730.0,
+                     recent_vs_prior_pct=-55.3, days_silent=103)
+    assert account_is_identified(numbered)
+    assert account_is_callable(numbered)
+
+
+def test_the_house_desk_gets_no_card_but_its_dealers_stay_callable():
+    """cci shipped "Card 3 - House Account" the moment rep labels arrived.
+
+    You do not coach the inside desk. Haverty's is still a real account that
+    is really slipping, so it stays on the call list.
+    """
+    from pipeline.gather import account_is_callable
+
+    havertys = _Acct(bill_to_number="383325", bill_to_name="Haverty's Furniture Companies",
+                     rep_number="99", rep_label="House Account", ltm_rev=174_000.0,
+                     recent_6mo=70_000.0, prior_6mo=86_700.0,
+                     recent_vs_prior_pct=-19.3, days_silent=4)
+    assert account_is_callable(havertys)
+    assert coaching_card_reps([], [havertys], BASELINE_PROFILE.resolve(41_170_115, 2_422)) == []
+
+
+def test_a_rep_label_the_profile_excludes_gets_no_card():
+    """clc names its own inside desk "Capital Lighting Fixture" (profile §4).
+
+    That desk carries a $390K account down 68% — the account is the point, the
+    card is not.
+    """
+    belami = _Acct(bill_to_number="9001", bill_to_name="1Stoplighting.com dba Belami Inc",
+                   rep_number="900", rep_label="Capital Lighting Fixture",
+                   ltm_rev=390_000.0, recent_6mo=95_000.0, prior_6mo=297_000.0,
+                   recent_vs_prior_pct=-68.0, days_silent=3)
+    t = BASELINE_PROFILE.resolve(26_000_000, 1_187)
+    assert [c.risk.rep_number for c in coaching_card_reps([], [belami], t)] == ["900"]
+    assert coaching_card_reps([], [belami], t, frozenset({"capital lighting fixture"})) == []

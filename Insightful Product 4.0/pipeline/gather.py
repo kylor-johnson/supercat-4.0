@@ -149,6 +149,45 @@ def account_needs_a_call(account: AccountDecay) -> bool:
     return pct is not None and pct <= CALL_LIST_SOFTENING_PCT
 
 
+_HOUSE_REP_PREFIX = re.compile(r"^house\b", re.I)
+# bmc labels its e-commerce desk "EC HOUSE ACCOUNTS" — plural, and not at
+# the start of the label, so it escaped both halves of the old rule.
+_HOUSE_REP_PHRASE = re.compile(r"\bhouse accounts?\b", re.I)
+
+
+def rep_label_is_house(label: Optional[str]) -> bool:
+    """The house-rep auto-rule, in one place.
+
+    A "house account" rep is the inside desk, not a person to coach. The
+    exclusion belongs on the REP surfaces (leaderboard, coaching cards) and
+    nowhere else — the dealers that desk services are ordinary accounts and
+    still belong on the call list. See `outreach_screen.account_is_screened`.
+    """
+    s = (label or "").strip()
+    if not s:
+        return False
+    return bool(_HOUSE_REP_PREFIX.search(s) or _HOUSE_REP_PHRASE.search(s))
+
+
+def account_is_identified(account: AccountDecay) -> bool:
+    """True when this row names an account a rep could actually dial.
+
+    S1 groups by `customer_bill_to_number`, so every invoice whose bill-to is
+    blank collapses into ONE pseudo-account. On ali that bucket was $614K of
+    unattributed invoices, and it led the call list as "(unnamed) - rep 75 -
+    81 days silent": the top instruction of the week was to phone nobody.
+    It is not one account, so it is not one call, and averaging its slope
+    means nothing. It stays in `decay` (the dollars are real and feed the
+    totals) and is kept off the surfaces that name a thing to do.
+    """
+    return bool((account.bill_to_number or "").strip() or (account.bill_to_name or "").strip())
+
+
+def account_is_callable(account: AccountDecay) -> bool:
+    """Has slipped AND can be dialed — the gate for every "call this" surface."""
+    return account_is_identified(account) and account_needs_a_call(account)
+
+
 def outreach_sort_key(account: AccountDecay) -> float:
     """Sort key for the outreach list (report operator §5a.3).
 
@@ -610,6 +649,10 @@ class GatherBundle:
     date: str
     decay: list[AccountDecay] = field(default_factory=list)
     watchlist: list[AccountDecay] = field(default_factory=list)
+    # Rep labels excluded by the org profile (§4), casefolded. The house
+    # auto-rule lives in rep_label_is_house; this is the per-org list —
+    # clc's own inside desk, "Capital Lighting Fixture", is one.
+    screened_rep_labels: frozenset[str] = frozenset()
     outreach_list: list[AccountDecay] = field(default_factory=list)
     reps: list[RepRow] = field(default_factory=list)
     rep_risks: list[RepRisk] = field(default_factory=list)

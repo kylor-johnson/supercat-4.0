@@ -16,6 +16,8 @@ from .gather import (
     AccountDecay,
     GatherBundle,
     RepRisk,
+    account_is_callable,
+    rep_label_is_house,
     account_needs_a_call,
     outreach_sort_key,
 )
@@ -49,7 +51,7 @@ class ScreenRules:
         s = (label or "").strip()
         if not s:
             return False
-        if _HOUSE_PREFIX.search(s) or _HOUSE_ACCOUNT.search(s):
+        if rep_label_is_house(s):
             return True
         return s.casefold() in self.exclude_labels
 
@@ -111,8 +113,15 @@ def _profile_text(org: str) -> str:
 
 
 def account_is_screened(account: AccountDecay, rules: ScreenRules) -> bool:
-    if rules.label_is_house(account.rep_label):
-        return True
+    # The house rule is a REP-level exclusion: profiles scope it to "excluded
+    # from the rep leaderboard render" and from the leakage math, which is
+    # what screen_rep_risks() below enforces. It is NOT a reason to hide the
+    # dealer. Lighting New York, Capitol Lighting and Rainbow Lighting are
+    # real kal accounts that happen to be serviced in-house; screening them
+    # here took $0.21M of live decay off the watchlist and dropped one of the
+    # seven calls. This never fired before only because those orgs had no rep
+    # labels to match — pulling S1 with the name bridge turned it on, and the
+    # CEO stopped being told about accounts that are genuinely slipping.
     if rules.label_is_house(account.bill_to_name):
         return True
     if account.rep_number and _fold(account.rep_number) in rules.exclude_rep_numbers:
@@ -165,7 +174,7 @@ def apply(bundle: GatherBundle, profile_text: str | None = None) -> GatherBundle
     # T1-4: only accounts that have actually slipped belong on the call list.
     # They stay in `decay` so the watchlist and the coaching cards still see
     # them; this gates the seven rows a rep is told to phone this week.
-    callable_rows = [a for a in ranked if account_needs_a_call(a)]
+    callable_rows = [a for a in ranked if account_is_callable(a)]
     before_cards = len(bundle.rep_risks)
     bundle.rep_risks = screen_rep_risks(bundle.rep_risks, rules)
     bundle.outreach_list = callable_rows[:7]
@@ -177,6 +186,7 @@ def apply(bundle: GatherBundle, profile_text: str | None = None) -> GatherBundle
     bundle.outreach_reordered = [
         account.bill_to_number for account in bundle.outreach_list
     ] != [account.bill_to_number for account in legacy_order]
+    bundle.screened_rep_labels = frozenset(rules.exclude_labels)
     bundle.house_cards_screened = before_cards - len(bundle.rep_risks)
     return bundle
 

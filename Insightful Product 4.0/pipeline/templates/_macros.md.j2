@@ -21,12 +21,12 @@
 
 {# ─── real_decline ─────────────────────────────────────────────────────── #}
 {% macro signal_real_decline(sig, account) -%}
-{{ account.bill_to_name or account.bill_to_number or "(unnamed)" }} — ${{ "{:,.0f}".format(account.ltm_rev / 1000) }}K invoiced (LTM) — is down {{ "{:.0f}".format((1 - account.recent_6mo / account.prior_6mo) * 100) if account.prior_6mo > 0 else "materially" }}% over the last six months and {% if account.days_silent > 30 %}has gone {{ account.days_silent }} days silent{% else %}is still ordering{% endif %}. The slope is unambiguous; the cause needs a phone call.
+{{ account.bill_to_name or account.bill_to_number or "(unnamed)" }} — ${{ "{:,.0f}".format(account.ltm_rev / 1000) }}K invoiced (LTM) — is down {{ "{:.0f}".format((1 - account.recent_6mo / account.prior_6mo) * 100) if account.prior_6mo > 0 else "materially" }}% over the last six months and {% if account.days_silent > 30 %}has gone {{ account.days_silent }} {{ plural(account.days_silent, 'day') }} silent{% else %}is still ordering{% endif %}. The slope is unambiguous; the cause needs a phone call.
 {%- endmacro %}
 
 {# ─── cadence_cliff ────────────────────────────────────────────────────── #}
 {% macro signal_cadence_cliff(sig, account) -%}
-{{ account.bill_to_name or account.bill_to_number or "(unnamed)" }} — ${{ "{:,.0f}".format(account.ltm_rev / 1000) }}K invoiced (LTM) — skipped a beat: {{ account.days_silent }} days silent against a {{ "{:.0f}".format(account.mean_order_gap_days) }}-day normal cadence, but the account {% if account.recent_vs_prior_pct is not none and account.recent_vs_prior_pct > 0 %}is up {{ "{:.0f}".format(account.recent_vs_prior_pct) }}% year-over-year{% else %}is not declining{% endif %}. Confirm the next order is still coming; do not open a decline conversation on a growing book.
+{{ account.bill_to_name or account.bill_to_number or "(unnamed)" }} — ${{ "{:,.0f}".format(account.ltm_rev / 1000) }}K invoiced (LTM) — skipped a beat: {{ account.days_silent }} {{ plural(account.days_silent, 'day') }} silent against a {{ "{:.0f}".format(account.mean_order_gap_days) }}-day normal cadence, but the account {% if account.recent_vs_prior_pct is not none and account.recent_vs_prior_pct > 0 %}is up {{ "{:.0f}".format(account.recent_vs_prior_pct) }}% year-over-year{% else %}is not declining{% endif %}. Confirm the next order is still coming; do not open a decline conversation on a growing book.
 {%- endmacro %}
 
 {# ─── growth_pocket ────────────────────────────────────────────────────── #}
@@ -282,7 +282,7 @@ What would change this read: {{ subject }} {{ "is" if singular else "are" }} dir
 {%- if sig.kind == "real_decline" -%}
 **{{ acct.bill_to_name or acct.bill_to_number }} — ${{ "{:,.0f}".format(acct.ltm_rev / 1000) }}K LTM — {{ "was" if posture.is_stale else "is" }} down {{ "{:.0f}".format((1 - acct.recent_6mo / acct.prior_6mo) * 100) if acct.prior_6mo > 0 else "materially" }}% in six months{% if acct.days_silent < 14 %} and {{ "was" if posture.is_stale else "is" }} still ordering{% endif %}.** {% if posture.is_stale %}That was the slope as of {{ posture.report_through_date }}; whether it held is exactly what a refreshed feed answers.{% else %}The slope is unambiguous; the cause needs a phone call this week, not a quarter from now.{% endif %}
 {%- else -%}
-**{{ acct.bill_to_name or acct.bill_to_number }} — ${{ "{:,.0f}".format(acct.ltm_rev / 1000) }}K LTM — skipped a beat: {{ acct.days_silent }} days silent on a {{ "{:.0f}".format(acct.mean_order_gap_days) }}-day cadence, but the account is growing.** Confirm call, not a decline conversation.
+**{{ acct.bill_to_name or acct.bill_to_number }} — ${{ "{:,.0f}".format(acct.ltm_rev / 1000) }}K LTM — skipped a beat: {{ acct.days_silent }} {{ plural(acct.days_silent, 'day') }} silent on a {{ "{:.0f}".format(acct.mean_order_gap_days) }}-day cadence, but the account is growing.** Confirm call, not a decline conversation.
 {%- endif -%}
 {%- endif -%}
 {%- elif sig.kind == "territory_cluster_decay" and c.rep -%}

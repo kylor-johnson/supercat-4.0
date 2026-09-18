@@ -656,11 +656,13 @@ def _build_ceo_callouts(list_block: str, available_ids: set[str] | None = None) 
         )
         cards.append(
             f'      <div class="ceo-callout {tone_class}">\n'
-            f'        <div class="ceo-num">{_esc(big_num)}</div>\n'
+            + (f'        <div class="ceo-num">{_esc(big_num)}</div>\n' if big_num else "")
+            + (
             f'        <div class="ceo-title">{md_inline_to_html(title)}</div>\n'
             f'        <div class="ceo-body">{md_inline_to_html(body_md)}</div>\n'
             f'{jump_html}'
             f'      </div>\n'
+            )
         )
     cards.append("    </div>\n")
     return "".join(cards)
@@ -672,12 +674,12 @@ def _shorten_callout_title(headline: str) -> str:
     sentence, keep the crisp lead: the segment before the first ` — `/` · `
     break (when that lead is substantial), else a word-boundary trim."""
     text = headline.strip().rstrip(".")
-    if len(text) <= 60:
+    if len(text) <= 72:
         return text
-    for sep in (" — ", " – ", " · "):
+    for sep in (" — ", " – ", " · ", ", "):
         if sep in text:
             lead = text.split(sep, 1)[0].strip()
-            if 12 <= len(lead) <= 70:
+            if 12 <= len(lead) <= 72:
                 return lead
     return _truncate_clean(text, 58)
 
@@ -697,7 +699,11 @@ def _extract_callout_num(text: str) -> str:
     m = re.search(r"\b\d{2,3}(?:\.\d+)?%\b", text)
     if m:
         return m.group(0).strip()
-    return "·"
+    # No figure in the copy. The card used to print a lone "·" here, which
+    # renders as a stray dot where every neighbouring card shows a number
+    # (ali: "· / Every booked dollar lands in one unmapped channel"). An
+    # absent stat is better than a placeholder for one.
+    return ""
 
 
 def _pick_callout_tone(text: str) -> str:

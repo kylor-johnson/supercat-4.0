@@ -245,7 +245,9 @@ def main() -> int:
     # `align_coaching_narratives`; the template renders the same list through
     # `availability.coaching_cards`. Re-deriving it here is how the narratives
     # would end up attached to the wrong cards the moment the gate moves.
-    _cards = signals.coaching_card_reps(bundle.rep_risks, bundle.decay, thresholds)[:5]
+    _cards = signals.coaching_card_reps(
+        bundle.rep_risks, bundle.decay, thresholds, bundle.screened_rep_labels
+    )[:5]
     card_reps = [card.risk for card in _cards]
     slot_d_fail = False
 
