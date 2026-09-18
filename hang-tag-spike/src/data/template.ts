@@ -1,4 +1,10 @@
-import type { SheetCode } from "@/data/sheets";
+import { isSheetCode, type SheetCode } from "@/data/sheets";
+import {
+  isBooleanBinding,
+  skuFlag,
+  type BooleanBinding,
+  type HangTagSku,
+} from "@/data/sku";
 
 export const TEMPLATE_VERSION = 1 as const;
 export const STORAGE_KEY = "hang-tag-template-v1";
@@ -15,7 +21,36 @@ export type BindingKey =
   | "logo"
   | "upc_image";
 
+export const TEXT_BINDINGS: BindingKey[] = [
+  "collection_name",
+  "item_number",
+  "finish",
+  "lamp_line",
+  "size_line",
+  "price_line",
+];
+
+export const IMAGE_BINDINGS: BindingKey[] = ["primary_image", "logo"];
+export const BARCODE_BINDINGS: BindingKey[] = ["upc_image"];
+
+export const BINDING_LABELS: Record<BindingKey, string> = {
+  collection_name: "collection_name",
+  item_number: "item_number",
+  finish: "c.FinishOptions",
+  lamp_line: "lamp line",
+  size_line: "size line",
+  price_line: "price line",
+  primary_image: "primary_image",
+  logo: "logo",
+  upc_image: "upc_value",
+};
+
 export type TemplateObjectType = "text" | "image" | "barcode";
+
+export type ShowIf = {
+  binding: BooleanBinding;
+  equals: boolean;
+};
 
 export const FONT_FAMILIES = [
   "geist",
@@ -82,6 +117,7 @@ export type TemplateObject = {
   textTransform?: "none" | "uppercase";
   textAlign?: TextAlign;
   barcodeFormat?: BarcodeFormat;
+  showIf?: ShowIf;
 };
 
 export type HangTagTemplate = {
@@ -114,6 +150,33 @@ function isBarcodeFormat(value: unknown): value is BarcodeFormat {
     typeof value === "string" &&
     (BARCODE_FORMATS as readonly string[]).includes(value)
   );
+}
+
+export function bindingsForType(type: TemplateObjectType): BindingKey[] {
+  switch (type) {
+    case "text":
+      return TEXT_BINDINGS;
+    case "image":
+      return IMAGE_BINDINGS;
+    case "barcode":
+      return BARCODE_BINDINGS;
+  }
+}
+
+function parseShowIf(value: unknown): ShowIf | undefined {
+  if (!value || typeof value !== "object") return undefined;
+  const record = value as { binding?: unknown; equals?: unknown };
+  if (!isBooleanBinding(record.binding)) return undefined;
+  if (typeof record.equals !== "boolean") return undefined;
+  return { binding: record.binding, equals: record.equals };
+}
+
+export function objectVisible(
+  spec: TemplateObject,
+  sku: HangTagSku,
+): boolean {
+  if (!spec.showIf) return true;
+  return skuFlag(sku, spec.showIf.binding) === spec.showIf.equals;
 }
 
 export function fontCssStack(family: FontFamily): string {
@@ -293,6 +356,21 @@ export const KUZCO_5371_TEMPLATE: HangTagTemplate = {
       fontWeight: 700,
     },
     {
+      id: "quick-ship",
+      type: "text",
+      binding: null,
+      text: "QUICK SHIP",
+      showIf: { binding: "c.QuickShip", equals: true },
+      x: 0.18,
+      y: 1.32,
+      width: 1.4,
+      height: 0.14,
+      fontSize: 6.5,
+      fontWeight: 700,
+      letterSpacing: "0.08em",
+      textTransform: "uppercase",
+    },
+    {
       id: "barcode",
       type: "barcode",
       binding: "upc_image",
@@ -396,6 +474,21 @@ export const KUZCO_5392_TEMPLATE: HangTagTemplate = {
       fontWeight: 700,
     },
     {
+      id: "quick-ship",
+      type: "text",
+      binding: null,
+      text: "QUICK SHIP",
+      showIf: { binding: "c.QuickShip", equals: true },
+      x: 0.24,
+      y: 2.22,
+      width: 1.6,
+      height: 0.16,
+      fontSize: 7.5,
+      fontWeight: 700,
+      letterSpacing: "0.08em",
+      textTransform: "uppercase",
+    },
+    {
       id: "barcode",
       type: "barcode",
       binding: "upc_image",
@@ -407,9 +500,130 @@ export const KUZCO_5392_TEMPLATE: HangTagTemplate = {
   ],
 };
 
+export const KUZCO_HANGTAG_TEMPLATE: HangTagTemplate = {
+  version: TEMPLATE_VERSION,
+  name: "Kuzco hang tag 2×3.5",
+  stock: "hangtag",
+  tag: { width: 2, height: 3.5 },
+  fontFamily: "geist",
+  barcodeFormat: "upc",
+  itemNumbers: ["401207BK-LED", "401214BG-LED", "FM47712-WH-5CCT"],
+  objects: [
+    {
+      id: "photo",
+      type: "image",
+      binding: "primary_image",
+      x: 0.15,
+      y: 0.45,
+      width: 1.7,
+      height: 1.05,
+    },
+    {
+      id: "logo",
+      type: "image",
+      binding: "logo",
+      x: 0.15,
+      y: 1.56,
+      width: 1.7,
+      height: 0.16,
+    },
+    {
+      id: "collection",
+      type: "text",
+      binding: "collection_name",
+      x: 0.15,
+      y: 1.76,
+      width: 1.7,
+      height: 0.18,
+      fontSize: 9,
+      fontWeight: 700,
+      letterSpacing: "0.04em",
+      textTransform: "uppercase",
+    },
+    {
+      id: "sku",
+      type: "text",
+      binding: "item_number",
+      x: 0.15,
+      y: 1.96,
+      width: 1.7,
+      height: 0.16,
+      fontSize: 7.5,
+      fontFamily: "geist-mono",
+    },
+    {
+      id: "finish",
+      type: "text",
+      binding: "finish",
+      x: 0.15,
+      y: 2.14,
+      width: 1.7,
+      height: 0.14,
+      fontSize: 7.5,
+    },
+    {
+      id: "lamp",
+      type: "text",
+      binding: "lamp_line",
+      x: 0.15,
+      y: 2.28,
+      width: 1.7,
+      height: 0.14,
+      fontSize: 7.5,
+    },
+    {
+      id: "size",
+      type: "text",
+      binding: "size_line",
+      x: 0.15,
+      y: 2.42,
+      width: 1.7,
+      height: 0.14,
+      fontSize: 7.5,
+    },
+    {
+      id: "price",
+      type: "text",
+      binding: "price_line",
+      x: 0.15,
+      y: 2.56,
+      width: 1.7,
+      height: 0.28,
+      fontSize: 8,
+      fontWeight: 700,
+    },
+    {
+      id: "quick-ship",
+      type: "text",
+      binding: null,
+      text: "QUICK SHIP",
+      showIf: { binding: "c.QuickShip", equals: true },
+      x: 0.15,
+      y: 2.86,
+      width: 1.7,
+      height: 0.14,
+      fontSize: 7,
+      fontWeight: 700,
+      letterSpacing: "0.08em",
+      textAlign: "center",
+      textTransform: "uppercase",
+    },
+    {
+      id: "barcode",
+      type: "barcode",
+      binding: "upc_image",
+      x: 0.1,
+      y: 3.04,
+      width: 1.8,
+      height: 0.38,
+    },
+  ],
+};
+
 export const DEFAULT_TEMPLATES: Record<SheetCode, HangTagTemplate> = {
   "5371": KUZCO_5371_TEMPLATE,
   "5392": KUZCO_5392_TEMPLATE,
+  hangtag: KUZCO_HANGTAG_TEMPLATE,
 };
 
 export function templateStorageKey(stock: SheetCode): string {
@@ -436,7 +650,7 @@ export function parseStoredTemplate(
   try {
     const parsed = JSON.parse(raw) as HangTagTemplate;
     if (parsed.version !== TEMPLATE_VERSION) return null;
-    if (parsed.stock !== "5371" && parsed.stock !== "5392") return null;
+    if (!isSheetCode(parsed.stock)) return null;
     if (stock && parsed.stock !== stock) return null;
     if (!Array.isArray(parsed.objects)) return null;
     return {
@@ -453,16 +667,22 @@ export function parseStoredTemplate(
               typeof code === "string" && code.trim().length > 0,
           )
         : undefined,
-      objects: parsed.objects.map((object) => ({
-        ...object,
-        fontFamily: isFontFamily(object.fontFamily)
-          ? object.fontFamily
-          : undefined,
-        textAlign: isTextAlign(object.textAlign) ? object.textAlign : undefined,
-        barcodeFormat: isBarcodeFormat(object.barcodeFormat)
-          ? object.barcodeFormat
-          : undefined,
-      })),
+      objects: parsed.objects.map((object) => {
+        const showIf = parseShowIf(object.showIf);
+        return {
+          ...object,
+          fontFamily: isFontFamily(object.fontFamily)
+            ? object.fontFamily
+            : undefined,
+          textAlign: isTextAlign(object.textAlign)
+            ? object.textAlign
+            : undefined,
+          barcodeFormat: isBarcodeFormat(object.barcodeFormat)
+            ? object.barcodeFormat
+            : undefined,
+          ...(showIf ? { showIf } : { showIf: undefined }),
+        };
+      }),
     };
   } catch {
     return null;

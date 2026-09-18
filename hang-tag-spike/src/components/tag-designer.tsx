@@ -2,15 +2,23 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { MiniSheet } from "@/components/template-sheet";
+import { HangTagSizzle } from "@/components/hang-tag-sizzle";
 import { boundImageSrc, boundText } from "@/data/bindings";
-import type { HangTagSku } from "@/data/sku";
-import { TAGS_PER_SHEET, type SheetCode } from "@/data/sheets";
+import {
+  BOOLEAN_BINDINGS,
+  BOOLEAN_LABELS,
+  type BooleanBinding,
+  type HangTagSku,
+} from "@/data/sku";
+import { SHEETS, TAGS_PER_SHEET, type SheetCode } from "@/data/sheets";
 import { codeImageSrc } from "@/lib/codes";
 import { snapMovingTarget } from "@/lib/designer-geom";
 import { resolvedItemNumbers } from "@/lib/sheet-skus";
 import {
   BARCODE_FORMAT_LABELS,
   BARCODE_FORMATS,
+  BINDING_LABELS,
+  bindingsForType,
   cloneTemplate,
   DEFAULT_TEMPLATES,
   EDITOR_DPI,
@@ -23,6 +31,7 @@ import {
   NUDGE_SHIFT_INCHES,
   emToCharSpacing,
   inchesToPx,
+  objectVisible,
   parseStoredTemplate,
   pxToInches,
   resolvedBarcodeFormat,
@@ -33,6 +42,7 @@ import {
   STORAGE_KEY,
   templateStorageKey,
   type BarcodeFormat,
+  type BindingKey,
   type FontFamily,
   type HangTagTemplate,
   type TemplateObject,
@@ -210,6 +220,8 @@ export function TagDesigner({
   );
   const [historyState, setHistoryState] = useState({ index: 0, length: 1 });
   const [ready, setReady] = useState(false);
+  const sheet = SHEETS[stock];
+  const [sizzle, setSizzle] = useState(sheet.preview === "sizzle");
   const fallback = DEFAULT_TEMPLATES[stock];
   const sheetKey = (draft.itemNumbers ?? []).join("|");
 
@@ -244,6 +256,7 @@ export function TagDesigner({
     canvas.backgroundColor = "#ffffff";
     if (document.fonts?.ready) await document.fonts.ready;
     for (const spec of templateRef.current.objects) {
+      if (!objectVisible(spec, skuRef.current)) continue;
       await addTemplateObject(
         fabric,
         canvas,
@@ -517,6 +530,21 @@ export function TagDesigner({
     }
   }
 
+  function patchSelectedShowIf(
+    mode: "always" | "true" | "false",
+    binding: BooleanBinding,
+  ) {
+    const id = selectedIds[0];
+    if (!id) return;
+    const next = cloneTemplate(templateRef.current);
+    const spec = next.objects.find((item) => item.id === id);
+    if (!spec) return;
+    if (mode === "always") delete spec.showIf;
+    else spec.showIf = { binding, equals: mode === "true" };
+    persist(next);
+    void rebuild();
+  }
+
   function alignObjects(mode: "tag" | "selection", edge: AlignEdge) {
     const fabric = fabricRef.current;
     const canvas = canvasRef.current;
@@ -647,6 +675,14 @@ export function TagDesigner({
   const canUndo = historyState.index > 0;
   const canRedo = historyState.index < historyState.length - 1;
   const slots = TAGS_PER_SHEET[stock];
+  const avery = sheet.kind === "avery-letter";
+  const showMode = selected?.showIf
+    ? selected.showIf.equals
+      ? "true"
+      : "false"
+    : "always";
+  const showBinding: BooleanBinding =
+    selected?.showIf?.binding ?? "c.QuickShip";
   const selectedLabel =
     selectedIds.length === 0
       ? "none"
@@ -666,19 +702,29 @@ export function TagDesigner({
             <canvas ref={hostRef} width={width} height={height} />
           </div>
         </div>
-        <div>
-          <p className="designer-stage-label">
-            Avery {stock} sheet · this browser
-          </p>
-          <MiniSheet stock={stock} skus={skuCatalog} template={draft} />
-        </div>
+        {sizzle ? (
+          <div>
+            <p className="designer-stage-label">Photo preview · hole</p>
+            <HangTagSizzle sku={sku} template={draft} />
+          </div>
+        ) : null}
+        {!sizzle || avery ? (
+          <div>
+            <p className="designer-stage-label">
+              {avery
+                ? `${sheet.name} sheet · this browser`
+                : `${sheet.name} · this browser`}
+            </p>
+            <MiniSheet stock={stock} skus={skuCatalog} template={draft} />
+          </div>
+        ) : null}
       </div>
       <aside className="designer-sidebar">
         <p className="designer-hint">
           {selectedIds.length === 0
-            ? "Click a line for type. Click the barcode for UPC / QR. Sheet products below print on the Avery page in this browser."
+            ? `Click a line for type and Field. Sheet products below print on the ${avery ? "Avery page" : "print page"} in this browser.`
             : selected?.type === "text"
-              ? "Type, weight, and tracking apply to this line and the print preview."
+              ? "Type, weight, and tracking apply to this line and the print preview. Show when hides this object from Edit, mini, and print."
               : selected?.type === "barcode"
                 ? "UPC-A is the Kuzco default. QR / Code 128 encode this SKU’s UPC digits."
                 : selectedIds.length > 1
@@ -689,6 +735,7 @@ export function TagDesigner({
           Selected: <strong>{selectedLabel}</strong>
           <br />
           Previewing {sku.collection_name} / {sku.item_number}
+          {sku["c.QuickShip"] ? " · c.QuickShip" : ""}
         </p>
 
         <label className="kf-field">
@@ -701,20 +748,114 @@ export function TagDesigner({
             {previewSkus.map((item, index) => (
               <option key={item.item_number} value={index}>
                 {item.collection_name} · {item.item_number}
+                {item["c.QuickShip"] ? " · QS" : ""}
               </option>
             ))}
           </select>
           <span className="kf-field-hint">
-            Layout canvas only. Does not change who is on the sheet.
+            Layout canvas only. Does not change who is on the sheet. Switch SKU
+            to prove Show when.
           </span>
         </label>
+
+        {selected ? (
+          <>
+            <label className="kf-field">
+              <span className="kf-field-label">Field</span>
+              <select
+                className="kf-input kf-md"
+                value={selected.binding ?? ""}
+                onChange={(event) => {
+                  const value = event.target.value;
+                  patchSelected(
+                    { binding: value ? (value as BindingKey) : null },
+                    true,
+                  );
+                }}
+              >
+                {selected.type === "text" ? (
+                  <option value="">Static text</option>
+                ) : null}
+                {bindingsForType(selected.type).map((binding) => (
+                  <option key={binding} value={binding}>
+                    {BINDING_LABELS[binding]}
+                  </option>
+                ))}
+              </select>
+            </label>
+            {selected.type === "text" && !selected.binding ? (
+              <label className="kf-field">
+                <span className="kf-field-label">Static text</span>
+                <input
+                  className="kf-input kf-md"
+                  type="text"
+                  value={selected.text ?? ""}
+                  onChange={(event) =>
+                    patchSelected({ text: event.target.value }, true)
+                  }
+                />
+              </label>
+            ) : null}
+            <label className="kf-field">
+              <span className="kf-field-label">Show when</span>
+              <select
+                className="kf-input kf-md"
+                value={showMode}
+                onChange={(event) =>
+                  patchSelectedShowIf(
+                    event.target.value as "always" | "true" | "false",
+                    showBinding,
+                  )
+                }
+              >
+                <option value="always">Always</option>
+                <option value="true">Flag is true</option>
+                <option value="false">Flag is false</option>
+              </select>
+            </label>
+            {showMode !== "always" ? (
+              <label className="kf-field">
+                <span className="kf-field-label">Flag</span>
+                <select
+                  className="kf-input kf-md"
+                  value={showBinding}
+                  onChange={(event) =>
+                    patchSelectedShowIf(
+                      showMode,
+                      event.target.value as BooleanBinding,
+                    )
+                  }
+                >
+                  {BOOLEAN_BINDINGS.map((binding) => (
+                    <option key={binding} value={binding}>
+                      {BOOLEAN_LABELS[binding]}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            ) : null}
+          </>
+        ) : null}
+
+        <label className="designer-sizzle-toggle">
+          <input
+            type="checkbox"
+            checked={sizzle}
+            onChange={(event) => setSizzle(event.target.checked)}
+          />
+          <span>Photo preview with hole</span>
+        </label>
+        <span className="kf-field-hint">
+          On-screen sizzle only. Avery print stays a flat letter sheet of
+          labels. Hang-tag print is the 2×3.5 tag, not this photo.
+        </span>
 
         <div className="kf-field">
           <span className="kf-field-label">Sheet products</span>
           <span className="kf-field-hint">
-            Avery {stock} holds {slots} tags. Print order below. A short list
-            repeats to fill the sheet. Same list as the print page in this
-            browser.
+            {avery
+              ? `${sheet.name} holds ${slots} tags. Print order below. A short list repeats to fill the sheet. Same list as the print page in this browser.`
+              : `${sheet.name} prints one tag per selected SKU (no repeat-to-fill). Same list as the print page in this browser.`}
           </span>
           <div className="designer-sku-list">
             {sheetItemNumbers.map((code, index) => {
@@ -984,7 +1125,7 @@ export function TagDesigner({
         ) : null}
 
         <p className="designer-meta">
-          Avery {stock} · {fallback.tag.width}×{fallback.tag.height} in. Layout
+          {sheet.name} · {fallback.tag.width}×{fallback.tag.height} in. Layout
           saves in this browser. Print sheets read the same JSON.
         </p>
         <div className="hang-tag-actions">

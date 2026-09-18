@@ -1,3 +1,17 @@
+export const BOOLEAN_BINDINGS = [
+  "c.MarketSpecial",
+  "c.QuickShip",
+  "c.ContainerDiscount",
+] as const;
+
+export type BooleanBinding = (typeof BOOLEAN_BINDINGS)[number];
+
+export const BOOLEAN_LABELS: Record<BooleanBinding, string> = {
+  "c.MarketSpecial": "c.MarketSpecial",
+  "c.QuickShip": "c.QuickShip",
+  "c.ContainerDiscount": "c.ContainerDiscount",
+};
+
 export type HangTagSku = {
   item_number: string;
   collection_name: string;
@@ -12,9 +26,23 @@ export type HangTagSku = {
   cad_imap: string;
   upc_value: string;
   image: string;
+  "c.MarketSpecial": boolean;
+  "c.QuickShip": boolean;
+  "c.ContainerDiscount": boolean;
 };
 
 export const KUZCO_LOGO = "/fixtures/kuzco-logo.png";
+
+export function isBooleanBinding(value: unknown): value is BooleanBinding {
+  return (
+    typeof value === "string" &&
+    (BOOLEAN_BINDINGS as readonly string[]).includes(value)
+  );
+}
+
+export function skuFlag(sku: HangTagSku, binding: BooleanBinding): boolean {
+  return sku[binding] === true;
+}
 
 function shortenFinishPart(part: string): string {
   const slash = part.indexOf("/");

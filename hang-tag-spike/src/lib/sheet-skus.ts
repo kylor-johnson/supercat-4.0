@@ -1,4 +1,4 @@
-import { TAGS_PER_SHEET, type SheetCode } from "@/data/sheets";
+import { SHEETS, TAGS_PER_SHEET, type SheetCode } from "@/data/sheets";
 import type { HangTagSku } from "@/data/sku";
 import type { HangTagTemplate } from "@/data/template";
 
@@ -40,9 +40,14 @@ export function sheetSkusFor(
   catalog: HangTagSku[],
   stock: SheetCode,
 ): HangTagSku[] {
-  return fillSheetSkus(
-    resolvedItemNumbers(template, catalog),
-    catalog,
-    TAGS_PER_SHEET[stock],
-  );
+  const spec = SHEETS[stock];
+  const numbers = resolvedItemNumbers(template, catalog);
+  if (spec.fill === "once") {
+    const byCode = new Map(catalog.map((sku) => [sku.item_number, sku]));
+    const selected = numbers
+      .map((code) => byCode.get(code))
+      .filter((sku): sku is HangTagSku => Boolean(sku));
+    return selected.length ? selected : catalog.slice(0, 1);
+  }
+  return fillSheetSkus(numbers, catalog, spec.tagsPerSheet);
 }
