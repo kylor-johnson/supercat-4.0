@@ -4,6 +4,314 @@ All notable changes to the Health V3 operator and surrounding artifacts. Newest 
 
 
 
+
+
+
+## 3.6.2 — 2026-09-21
+
+**2026-09-01 re-run and folded in. The series is now twelve continuous snapshots with no gap. Canonical unchanged: `2850025eb9de25926e4c633e3d0aed8f39a4010d874cc6e2935b4e176069896e`**
+
+- **2026-09-01 SHA:** `670d8774d097b7dfe6174f36daa402face9545a5719b32f399c3eb26019d8e6b`
+- 114 orgs, 0 skipped, bands 53 Thriving / 40 Healthy / 13 Watch / 4 At Risk / 4 Critical
+- Two-pass byte-identical. Anchor proven: `max(last_login_at)` = 2026-09-01 23:59:51,
+  `min(first_run_at)` = 2026-03-06 (exactly `(D+1) − 180d`), org 1 `logins_90d` = 4789.
+
+`trigger_reports/trigger_report_2026-09-21.csv` regenerated across **12 snapshots —
+155 triggers** (13 Immediate / 55 High / 87 Standard). The four-month gap that made
+the 3.6.0 report's "month-over-month" deltas misleading is closed.
+
+The run reused the five anchor-independent cache files from the quarantine folder
+(verified against their recorded md5s) and re-pulled the five windowed ones with
+the corrected anchors, each with a fresh server-side checksum.
+
+### What the anchor error actually cost
+
+Now measurable: **31 of 114 composites changed, mean |Δ| 0.42, max 7.8, and zero
+band changes.** Rejecting was right on principle — the offset was real, broad, and
+landed on the tightest seam in the series — but no published band or narrative
+would have been wrong had it shipped. Recorded in the quarantine README so the true
+cost of this class of error is known rather than assumed.
+
+The ghost block was identical across both runs: `today` is `score_date` in either
+case and none of the four ghosts had activity near the boundary, so the bug was
+confined to the windowed counts.
+
+### Fixed — the verify block passed on the bug it existed to catch
+
+3.6.1 added post-write assertions to `HISTORICAL_RUN_GUIDE.md`. They were
+**one-sided** (`max(last_login_at) <= D 23:59:59`), which cannot detect an anchor
+that is a day too *early* — the failure mode that actually occurred. The rejected
+cache maxed at `2026-08-31 23:59:50` and satisfies that assertion cleanly. Now
+two-sided: the value must land **on** `D`, and `min(first_run_at)` is stated as an
+exact equality rather than with a `~` that invites an eyeball.
+
+That is the third verification recipe in three releases that did not work as
+written — rule 8 twice, now this. Worth noting as a pattern: a check that has never
+been run against a known-bad input is not yet a check.
+
+### Fixed — four more defects the re-run surfaced
+
+- **The strongest control was buried as advice.** "Reproduce one already-committed
+  month" was the last sentence of the verify block. It is the only check that
+  catches a wrong anchor *before* an hour of cache population, and it costs one
+  query. Promoted to **Step 0.5**, before Step 1, with the 2026-04-30 org-1 query
+  inlined ready to paste and the three wrong answers (6048, 6112) named so the
+  failure is self-diagnosing.
+- **The upper-bound rule was scoped too broadly.** `WHERE created_at < DATE 'D' +
+  INTERVAL '1 day'` sat under the two-anchor table and read as universal, but
+  `load_pg_portal_orders` and `load_bq_mp_sharing` anchor at `DATE 'D'` — applying
+  it mechanically would widen them by a day and re-create a variant of this bug.
+  Now explicitly scoped to the `NOW()` family.
+- **`bq_helpscout_fires` was mis-classified as "no date filter".** It filters
+  `status IN ('active','pending')` — not an absent filter but one that *cannot be
+  back-dated*, so a historical run sees only conversations still open today. Four
+  consecutive backfill months produced `support_fire = 0` from a header-only file
+  and each agent independently worked out whether they had broken something. The
+  guide now states it: this dimension does not backfill, never read a trend off it.
+- **The reuse rule existed in two places and they contradicted.** The quarantine
+  README said to re-prove a reused file against a fresh server checksum; the re-run
+  brief said the opposite. The brief was right — the source drifts, so a re-proof
+  fails for legitimate reasons and trains the operator to ignore the check. The rule
+  now lives in **Step 1.5**: verify against the recorded md5, record the populate
+  window, and for a file that *has* drifted, compare per key bucket and transfer only
+  what differs (one agent moved 1 bucket of 32, leaving 4,684 of 4,979 rows
+  untouched).
+- The snapshot count in the guide is now self-describing — "one per directory under
+  `runs/historical/`, plus the live canonical" — after going stale twice.
+
+### Series
+
+| Date | n | Thr | Hea | Wat | Risk | Crit | ghosts |
+|---|---|---|---|---|---|---|---|
+| 2026-06-01 | 111 | 56 | 33 | 14 | 4 | 4 | 4 |
+| 2026-07-01 | 112 | 55 | 35 | 13 | 5 | 4 | 4 |
+| 2026-08-01 | 113 | 52 | 39 | 15 | 3 | 4 | 4 |
+| **2026-09-01** | 114 | 53 | 40 | 13 | 4 | 4 | 4 |
+| 2026-09-21 | 114 | 52 | 40 | 14 | 4 | 4 | 4 |
+
+The four-month-drift conclusion survives the correction intact: mean composite
+delta 09-01 → 09-21 is −0.94, median 0.00. The September distribution was already
+in place on 09-01, so the large deltas against 2026-05-13 are gradual drift rather
+than a final-three-weeks event.
+
+---
+## 3.6.1 — 2026-09-21
+
+**Backfill: Jun, Jul and Aug 2026 added. The series is now eleven continuous snapshots. Canonical unchanged: `2850025eb9de25926e4c633e3d0aed8f39a4010d874cc6e2935b4e176069896e`**
+
+The series jumped 2026-05-13 → 2026-09-21, so every "month-over-month" delta in
+the 3.6.0 trigger report actually spanned four months. Three backfill months close
+that gap. **A fourth, 2026-09-01, was run and rejected** — see below.
+
+| Date | n | Thr | Hea | Wat | Risk | Crit | ghosts | ARR |
+|---|---|---|---|---|---|---|---|---|
+| 2026-05-13 | 104 | 57 | 31 | 14 | 1 | 1 | 0 | $1,783,181 |
+| **2026-06-01** | 111 | 56 | 33 | 14 | 4 | 4 | 4 | $1,911,442 |
+| **2026-07-01** | 112 | 55 | 35 | 13 | 5 | 4 | 4 | $1,929,634 |
+| **2026-08-01** | 113 | 52 | 39 | 15 | 3 | 4 | 4 | $1,938,622 |
+| 2026-09-21 | 114 | 52 | 40 | 14 | 4 | 4 | 4 | $1,973,662 |
+
+All three scored with `--weights equal`, the September MAL, and the pinned
+interpreter; each two-pass byte-identical. `check_consistency.py` 9/9.
+`trigger_reports/trigger_report_2026-09-21.csv` regenerated across **11 snapshots
+— 153 triggers** (was 107 across 8): 14 Immediate / 54 High / 85 Standard.
+
+**The four ghosts were dark the whole time.** `aa`, `bmc`, `blh` and `pol` fire in
+every backfill month, so the $83,520 the September run surfaced was not a new
+event — it had been invisible since at least June because those orgs were missing
+from the April MAL. `days_dark` decreases by exactly the calendar distance in every
+month, which independently confirms window anchoring.
+
+### Rejected — 2026-09-01, wrong window anchor
+
+Quarantined at `_archive/rejected/2026-09-01_wrong_anchor/` with its proof and a
+list of which cache files are reusable. It used the **literal** reading of the
+substitution table below, bounding the window at the *start* of the score date.
+
+The offset is small per-org but broad, and it landed on the one comparison the run
+existed to make: 98 of 188 orgs differ on `logins_90d`, **15 on
+`active_users_90d`** (which feeds the ratio directly), **101 on `last_login_at`**
+(so `days_dark` and potentially `ghost_subtype`), and 3,947 login events on
+2026-09-01 itself were excluded. Removing spurious deltas was the entire point of
+the backfill, so a one-day-offset snapshot at the tightest seam was not acceptable.
+
+### Documented — the substitution rule, which was wrong and load-bearing
+
+`HISTORICAL_RUN_GUIDE.md` said `NOW()` → `'{score_date}'::date` and specified no
+upper bound. **Three of the four agents independently discovered that this does not
+reproduce the committed series, and derived the real rule from first principles.**
+That is a documentation failure paid for three times over. Now written down:
+
+- **Two anchors, not one.** `NOW()` loaders (`pg_engagement`, `pg_orders`,
+  `pg_imports`) anchor at **`DATE 'D' + INTERVAL '1 day'`** — the window includes
+  the whole score date. `CURRENT_DATE` loaders (`pg_portal_orders`,
+  `bq_mp_sharing`) anchor at `DATE 'D'`. The remaining five have no date filter.
+  That one-day disagreement between the two families is a real inconsistency in the
+  model, faithfully reproduced by every snapshot; it should be reconciled
+  deliberately, never mid-backfill.
+- **Proof**, org 1 at the committed 2026-04-30 (`logins_90d = 6028`): the literal
+  reading gives 6048, a 91-day window gives 6112, and `anchor = D+1` gives **6028**.
+  Re-confirmed on 2026-03-31, 2026-02-28, `pg_imports` run counts, and
+  `last_login_at` to the microsecond.
+- **An upper bound must be added that the SQL does not contain.**
+  `MAX(created_at) AS last_login_at` and `MIN(created_at) AS first_login_at` sit
+  *outside* the `FILTER` clauses in `load_pg_engagement`, as do `MAX/MIN` in
+  `load_pg_imports`. Substituting only the `FILTER` intervals leaves them
+  unwindowed, returning present-day values under a historical label — while
+  `logins_90d` still looks correct, so nothing flags it. `first_login_at` drives the
+  new-org gate and `last_login_at` drives `days_dark`.
+- Verified post-write assertions added, plus an instruction to reproduce one
+  committed month exactly before trusting a convention on a new one.
+
+### Fixed — README rule 8 was still incomplete
+
+Rule 8 was added in 3.5.1 after three silent transcription errors. All four
+backfill agents found further defects in it:
+
+- **`concat_ws` alone is not enough.** The rule correctly bans `||` (which makes
+  NULL-bearing rows vanish), but `concat_ws` *skips* NULL arguments rather than
+  emitting an empty field, so `('a', NULL, 'c')` renders `a|c` — indistinguishable
+  from a two-column row and never matching the local side. Every column now needs
+  `COALESCE(col::text,'')`. All three PG agents hit this and fixed it identically.
+- **`ORDER BY line` needs `COLLATE "C"`.** The default collation does not sort the
+  same way as Python's byte sort, so the two sides disagree for reasons unrelated to
+  the data — which trains the operator to ignore the check.
+- **An empty result set has no checksum.** `md5(string_agg(...))` over zero rows is
+  `NULL`, so the equality check cannot run. `bq_helpscout_fires.csv` is legitimately
+  header-only in most historical months; fall back to row count 0 on both sides and
+  separately confirm the source is live, so "no fires open" is distinguishable from
+  "broken feed".
+
+### Also observed
+
+- **`login_events` is subject to a rolling purge.** `min(first_login_at)` across all
+  258 orgs is now 2025-03-21; caches populated five days earlier show it back to
+  2024-11-13. No scoring impact on any current snapshot — every gate-relevant date
+  falls inside the retained range — but **`first_login_at` is not comparable across
+  snapshots populated at different times**, and a backfill reaching further back will
+  silently lose window coverage. Two agents found this independently.
+- **`support_fire` is 0 in all three backfill months** because the one open
+  fire-tagged conversation in the 09-21 canonical cache closed during the backfill
+  window. The signal is populate-time-sensitive to within hours. Five of seven prior
+  historical caches are also empty, so this is precedent, not breakage.
+- **The re-prove-by-checksum shortcut works.** Rather than re-transcribing the
+  4,979-row `pg_domain_map.csv`, agents copied it forward and proved equality against
+  a fresh server-side checksum — one did it per first-letter bucket and transferred
+  only the single bucket that had drifted. That removes the transcription channel for
+  the five anchor-independent files entirely and is worth making standard.
+- `ghost_subtype` for `pol` is `lapsed` in Jun/Jul and `dark_12m_plus` in Aug/Sep.
+  Correct: its last login (2025-07-16) sits inside the 365-day window until
+  2026-07-16. The backfill brief carried the September label backwards without
+  recomputing; the operator was right and the brief was wrong.
+- `HISTORICAL_RUN_GUIDE.md` stale text corrected — snapshot count, the demoted
+  2026-05-13, the April MAL in the worked example, and 8/8 → 9/9.
+
+### Still open
+
+- **2026-09-01 needs a re-run** with the corrected anchor before the series is
+  complete. Five cache files are reusable from the quarantine folder.
+- The `NOW()` / `CURRENT_DATE` one-day disagreement between loader families.
+- Cache population automation — still the largest remaining risk, now with a
+  cheap partial mitigation (copy-and-prove-by-checksum) worth writing into the guide.
+
+---
+## 3.6.0 — 2026-09-21
+
+**New canonical. The September run is promoted; the standing MAL moves to 114 orgs.**
+
+- **New canonical SHA:** `2850025eb9de25926e4c633e3d0aed8f39a4010d874cc6e2935b4e176069896e`
+- **Prior canonical (2026-05-13, V3.5.1):** `a797e95980f7a9dc5fa185dbba51857f9f1bef57074e2a534744376a40207ca8`
+- Score date `2026-09-21` · MAL `master_account_list_2026-09-16_canonical.csv` · 114 orgs, $1,973,662 ARR
+- `--weights equal`, new-org gate on. Two-pass byte-identical. `check_consistency.py` 9/9.
+
+No engine change. This entry promotes the run that was staged at
+`runs/_staged/2026-09-21/` after it cleared two independent verification passes —
+a fresh session that had not seen the folder, and a review by the session that ran
+the original test. Every finding from both is closed in V3.4.1 / V3.5.0 / V3.5.1.
+
+### Distribution
+
+| Band | 2026-05-13 | 2026-09-21 | Δ |
+|---|---|---|---|
+| Thriving | 57 | 52 | −5 |
+| Healthy | 31 | 40 | +9 |
+| Watch | 14 | 14 | 0 |
+| At Risk | 1 | 4 | +3 |
+| **Critical** | 1 | **4** | **+3** |
+
+Flags: behavioural floor 14 · **ghost 4** · support fire 1 · bundle/config mismatch 0.
+`scoring_status = complete` for all 114.
+
+**Read every delta as four months, not one.** The prior snapshot is 2026-05-13 and
+the trigger engine treats consecutive snapshots as adjacent regardless of calendar
+distance, so the 24 band changes and the ≥15-point moves below span May →
+September. They are not a one-month collapse.
+
+Across the 102 orgs common to both snapshots: mean composite −1.22, median −0.75;
+57 declined, 39 improved, 6 flat.
+
+### Composite shifts ≥ 15 points, with drivers
+
+| Org | ARR | May → Sep | Δ | Driver |
+|---|---|---|---|---|
+| `cf` | $7,830 | 40.0 → 75.3 | +35.3 | Value Delivery |
+| `kl` | $9,360 | 55.4 → 82.9 | +27.5 | Value Delivery |
+| `jc` | $24,029 | 89.6 → 62.4 | **−27.2** | Value Delivery |
+| `ol` | $13,380 | 63.8 → 40.0 | **−23.8** | Value Delivery |
+| `dccl` | $22,038 | 66.2 → 86.4 | +20.2 | Value Delivery |
+| `soi` | $8,700 | 71.7 → 52.9 | −18.8 | Value Delivery |
+| `bp` | $15,280 | 60.2 → 78.5 | +18.3 | Adoption |
+| `df` | $9,560 | 74.8 → 58.7 | −16.1 | Value Delivery |
+
+Seven of eight are Value-Delivery-driven over a four-month window, which is the
+dimension `MAINTENANCE.md` flags as substantially a segment proxy. Treat the
+direction as real and the magnitude as partly structural — `jc` and `ol` are the
+two worth a CS conversation on the evidence, not the arithmetic.
+
+### Population
+
+**+12** (`aa`, `blh`, `bmc`, `cl`, `cst`, `drf`, `libco`, `mali`, `pebl`, `pol`,
+`tcd`, `tcs`) — real paying accounts the April MAL omitted, sourced from live
+`subscriptions`. **−2** (`hmjc`, `tel`) — both churned, zero active plans.
+
+**Four of the twelve additions are ghosts**, carrying **$83,520 of at-risk ARR
+that nothing was watching**: `aa` $42,480 `never_activated` (no login event in its
+entire history against six months of billing), `bmc` $21,720 `lapsed` (dark 291d,
+live since 2011), `blh` $10,620 `lapsed` (dark 227d), `pol` $8,700 `dark_12m_plus`
+(dark 431d). The first ghost cohort in the program's history, and the single
+strongest argument for the MAL refresh.
+
+### Triggers
+
+`trigger_reports/trigger_report_2026-09-21.csv` — 107 triggers across 8 snapshots,
+10 Immediate / 34 High / 63 Standard. All five `new_ghost` rows band Critical
+(`prog` at 2025-11-30 plus the four September ghosts). Generated after promotion,
+so no `--production-csv` override is needed.
+
+### Archive and layout
+
+RUN_PROMPT step 5.3 said to move the prior canonical to `_archive/`. **That would
+have broken the series** — `_archive/` is excluded from the trigger engine, so
+retiring May there would have left a Nov→Apr + Sep sequence with the May snapshot
+invisible to month-over-month detection. The prior canonical is instead demoted
+into the historical series, which is what `runs/historical/` is for:
+
+- `runs/2026-05-13/` → `runs/historical/2026-05-13/`
+- `cache/2026-05-13/` → `cache/historical/2026-05-13/`
+- `trigger_reports/trigger_report_2026-05-13.*` → `trigger_reports/_archive/`
+- `dashboards/health_dashboard_2026-05-13.html` → `_archive/dashboards/…_v3.5.1.html`
+
+SHAs verified identical pre- and post-move. **RUN_PROMPT step 5.3 is corrected**
+so the next run demotes rather than archives. `runs/historical/` now holds eight
+months, Nov 2025 → May 2026.
+
+### Dashboard
+
+`dashboards/health_dashboard_2026-09-21.html` — 114 rows, 30 columns, footer
+`2850025e…`, V3.6.0. The May dashboard is archived rather than left beside it, so
+`check_consistency.py` Invariant 5 resolves against one live dashboard.
+
+---
 ## 3.5.1 — 2026-09-21
 
 **Closes everything found by an independent verification pass. Live canonical: `a797e95980f7a9dc5fa185dbba51857f9f1bef57074e2a534744376a40207ca8`**

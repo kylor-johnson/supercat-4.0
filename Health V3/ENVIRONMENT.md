@@ -15,8 +15,8 @@ Canonicals produced under this environment:
 
 | Run | Engine / weights | SHA-256 | Status |
 |---|---|---|---|
-| 2026-05-13 | V3.5.1, equal | `a797e959…` | **the live canonical** |
-| 2026-09-21 | V3.5.1, equal | `2850025e…` | staged, not promoted |
+| 2026-09-21 | V3.6.0, equal | `2850025e…` | **the live canonical** |
+| 2026-05-13 | V3.5.1, equal | `a797e959…` | prior canonical, demoted to `runs/historical/` |
 | 2026-05-13 | V3.5.0, equal | `a5d8cb28…` | superseded |
 | 2026-05-13 | V3.4.1, equal (28-col) | `6a2f1d9f…` | superseded. Also the output of `_archive/health_operator_v3.2.x_unweighted.py` on this interpreter — one SHA, two roles |
 | 2026-09-21 | V3.4.1 / V3.4.0 | `592c1bdb…` / `6dc304ea…` | superseded; `6dc304ea…` was never committed and is unrecoverable |

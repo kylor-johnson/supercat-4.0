@@ -177,6 +177,6 @@ The agent embeds all data inline — the HTML file has zero external dependencie
 - [ ] Record canonical SHA in `run_metadata.md`
 - [ ] Generate HTML dashboard
 - [ ] Verify (Step 4 above)
-- [ ] Run `python3 check_consistency.py` from `Health V3/` — must exit 0, 8/8 PASS
+- [ ] Run `python3 check_consistency.py` from `Health V3/` — must exit 0, 9/9 PASS
 - [ ] Send formatted CSV to CEO, HTML to CS team
 - [ ] Archive previous month's `runs/` and `cache/` folders to `_archive/` if desired

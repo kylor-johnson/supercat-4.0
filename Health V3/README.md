@@ -1,6 +1,6 @@
 # Health V3 — Scoring Specification
 
-**Version:** 3.5.1
+**Version:** 3.6.2
 **Date:** 2026-09-21
 **Status:** Production-ready. Scoring math is equal-weighted (25/25/25/25), selectable via `--weights` (see §9 and CHANGELOG 3.4.0). Cache-mode runs are deterministic — same cache + same `--score-date` + same interpreter produces byte-identical output (see §6.6 and `ENVIRONMENT.md`).
 
@@ -67,8 +67,8 @@ The operator does **not** open live Postgres or BigQuery connections during a ca
 
    ```sql
    -- append to each loader query
-   SELECT md5(string_agg(line, E'\n' ORDER BY line)) FROM (
-     SELECT concat_ws('|', col1::text, col2::text, ...) AS line
+   SELECT md5(string_agg(line, E'\n' ORDER BY line COLLATE "C")) FROM (
+     SELECT concat_ws('|', COALESCE(col1::text,''), COALESCE(col2::text,''), ...) AS line
      FROM ( <loader query> ) t
    ) s;
    ```
@@ -82,11 +82,28 @@ The operator does **not** open live Postgres or BigQuery connections during a ca
      `||` checksum, `aa` — the highest-ARR ghost in the portfolio — is invisible, and
      silent corruption in its row passes clean. Verified live: a three-row table with one
      NULL checksums only two rows under `||` and all three under `concat_ws`.
-   - **`ORDER BY line`, not `ORDER BY <key>`.** Order by the rendered row. A pure
+     **`concat_ws` alone is not enough.** It *skips* NULL arguments rather than
+     emitting an empty field, so `('a', NULL, 'c')` renders `a|c` —
+     indistinguishable from a genuinely two-column row, and never matching the
+     local side, which writes `a||c`. The row survives; its column alignment does
+     not. Wrap every column in `COALESCE(col::text,'')` inside `concat_ws`. All
+     three 2026-09-21 backfill agents hit this independently and fixed it the same
+     way.
+   - **`ORDER BY line COLLATE "C"`, not `ORDER BY <key>`.** Order by the rendered row. A pure
      row-position swap then changes nothing and a value swap *between* rows changes
      everything — which is correct, because the loaders build keyed lookups and row order
      carries no meaning. Ordering by key instead makes a position swap normalize away
      silently, and the rule is otherwise ambiguous at exactly the point that decides it.
+     `COLLATE "C"` is required, not cosmetic: this database's default collation does
+     not sort the same way as Python's byte sort, so without it the two sides
+     disagree for reasons that have nothing to do with the data — which trains the
+     operator to ignore the check.
+   - **An empty result set has no checksum.** `md5(string_agg(...))` over zero rows
+     returns `NULL`, so the equality check cannot run at all.
+     `bq_helpscout_fires.csv` is legitimately header-only in most historical months.
+     Fall back to asserting row count 0 on both sides, and separately confirm the
+     *source* is live by querying it without the severity filter — that is how you
+     tell "no fires open" from "broken feed".
    - **Normalize both sides before hashing.** Cast numerics at a fixed scale and
      timestamps with `to_char(…, 'YYYY-MM-DD HH24:MI:SS.US')`, and render the local side
      from `pandas.read_csv(dtype=str)` so nothing is re-typed on the round trip. Otherwise
