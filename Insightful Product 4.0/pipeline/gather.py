@@ -127,6 +127,20 @@ class AccountDecay:
 
     @property
     def is_cadence_cliff(self) -> bool:
+        """DORMANT BY DECISION (owner, 2026-09-21).
+
+        S1 does not select mean_order_gap_days, so every decay row carries 0.0
+        and this branch cannot fire — account_needs_a_call() reads as three
+        conditions and behaves as two. The gap IS computable (S1's severity
+        CASE derives it inline from first_d/last_d/n_inv); supplying it would
+        put new accounts on call lists across the cohort.
+
+        The owner declined that change: the cadence question is answered by
+        Q-ORG-DECAY in section 7 instead, on platform-order data, where it is
+        additive rather than a silent widening of who gets called. Leave this
+        dormant rather than half-enabling it. See
+        tests/test_phase5_size_scaling.py::test_is_cadence_cliff_is_unreachable_on_the_current_s1_columns
+        """
         if self.mean_order_gap_days <= 0 or self.recent_vs_prior_pct is None:
             return False
         return self.days_silent > 2 * self.mean_order_gap_days and self.recent_vs_prior_pct >= 0
