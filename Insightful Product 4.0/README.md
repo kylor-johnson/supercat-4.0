@@ -1,4 +1,28 @@
-# Insightful Product 4.0
+# Insightful Product 4.0 — SUPERSEDED
+
+> **Do not work in this directory.** On 2026-09-21 this tree was split in two
+> and everything here became the pre-extraction record.
+>
+> | Where | What |
+> |---|---|
+> | `~/repos/insightful` | the product. All development happens here. |
+> | `~/repos/insightful-client-data` | every client's cache, outputs, profiles and the programme's handoffs, behind `INSIGHTFUL_DATA_ROOT` |
+>
+> ```bash
+> cd ~/repos/insightful
+> export INSIGHTFUL_DATA_ROOT=~/repos/insightful-client-data
+> ./run.sh <org> --date <YYYY-MM-DD>
+> ```
+>
+> This copy is kept because it is the only place the pre-split history exists.
+> Edits made here go nowhere: the new repos do not read from it, and it has no
+> CI. The product repo enforces that no client name reaches it — a change made
+> here and copied across would bypass that check.
+
+---
+
+## Original README (pre-split)
+
 
 CEO intelligence reports for SuperCat's furniture/lighting wholesale clients.
 Takes a client shortname, reads cached query data, and produces a ship-ready HTML
