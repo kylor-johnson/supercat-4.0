@@ -360,6 +360,16 @@ def _build_ops_narrative(score, cat_pct, cat_score, contract_pricing,
                     f"reps are working with incomplete product data; flag for a catalog audit"
                 )
 
+    # No scoreable import type has run inside the 180-day window, so two of the
+    # three ops sub-signals are UNMEASURED, not healthy. Say so: the score below
+    # rests on catalog completeness alone, and reporting silence as health is how
+    # `clean_ops_dark` came to tell CS "the infrastructure isn't the problem"
+    # about orgs whose feeds have never run (V3.5.0).
+    if imp_score is None and fresh_score is None:
+        parts.append("no import feed has run in the trailing 180 days — import "
+                     "health and data freshness are unmeasured, so this score "
+                     "reflects catalog completeness only")
+
     # Import health sub-signal
     if imp_score is not None:
         n_total = len(scoreable_imports)
@@ -1287,7 +1297,12 @@ def score_operational_health(catalog_row, import_rows, contract_pricing_enabled,
         scoreable_imports, imp_score, fresh_score, stale_feeds, as_of,
     )
     return score, {"narrative": narrative, "catalog_pct": cat_pct,
-                   "import_score": imp_score, "freshness_score": fresh_score}
+                   "import_score": imp_score, "freshness_score": fresh_score,
+                   # "full" = all three sub-signals contributed. "catalog_only" =
+                   # no import feed ran in the window, so the score is one
+                   # sub-signal wide and must not be read as evidence that the
+                   # data infrastructure is sound.
+                   "ops_measurement": "full" if imp_score is not None else "catalog_only"}
 
 
 def composite(eng, ado, val, ops):
@@ -1400,16 +1415,30 @@ def main():
         org_id = cfg["organization_id"]
         eng_data = eng_pg.loc[org_id].to_dict() if org_id in eng_pg.index else {}
 
+        # §5.1 ghost condition, evaluated HERE rather than after scoring, because
+        # it has to outrank the new-org gate below. A paying account with zero
+        # logins is never merely "new" — and `aa` ($42,480 ARR, zero logins in its
+        # entire history, cohort_year = current year) is exactly the account that
+        # both rules claim. It is the same condition the override re-uses later.
+        ghost = bool(mal_row["arr"] >= GHOST_ARR_THRESHOLD
+                     and (eng_data.get("logins_90d") or 0) == 0)
+
         # New-org check. Monthly CS portfolio drops these; early-life
         # onboarding runs pass --include-new-orgs and score them as nascent.
+        #
+        # pd.notna, not `is not None`: load_pg_engagement LEFT JOINs organizations,
+        # so an org with no logins gets first_login_at = NULL -> NaT, and
+        # `NaT is not None` is True. That made the cohort_year branch dead code in
+        # cache mode and the subtraction yield nan, so `nan < 90` was False and no
+        # org was ever excluded for having zero logins (fixed V3.5.0).
         first_login = eng_data.get("first_login_at")
         in_onboarding_window = False
-        if first_login is not None:
+        if pd.notna(first_login):
             days_since_first = (today - first_login.replace(tzinfo=None)).days
             in_onboarding_window = days_since_first < NEW_ORG_DAYS
-        elif int(mal_row["cohort_year"]) == current_year:
+        elif pd.notna(mal_row.get("cohort_year")) and int(mal_row["cohort_year"]) == current_year:
             in_onboarding_window = True
-        if in_onboarding_window and not args.include_new_orgs:
+        if in_onboarding_window and not args.include_new_orgs and not ghost:
             skipped.append((org, "onboarding_window"))
             continue
 
@@ -1431,6 +1460,7 @@ def main():
         val_score, val_meta = score_value_delivery(cfg, ipad_orders_90d, mp_share_count, portal_orders_90d, import_types_active)
         cat_row = cat_pg.loc[org_id].to_dict() if org_id in cat_pg.index else None
         ops_score, ops_meta = score_operational_health(cat_row, list(org_imports.to_dict("records")), bool(cfg.get("contract_pricing_enabled")), as_of=score_date_dt)
+        ops_measurement = ops_meta.get("ops_measurement")
 
         composite_score, status, n_dims = composite(eng_score, ado_score, val_score, ops_score)
 
@@ -1442,11 +1472,21 @@ def main():
         if behavioral_floor_applied and composite_score is not None:
             composite_score = min(composite_score, BEHAVIORAL_FLOOR_CAP)
 
-        # §5.1 ghost account override
-        ghost = bool(mal_row["arr"] >= GHOST_ARR_THRESHOLD and (eng_data.get("logins_90d") or 0) == 0)
+        # §5.1 ghost account override — `ghost` was computed before the new-org
+        # gate above, which it outranks.
         ghost_note = None
+        ghost_subtype = None
         if ghost:
             ghost_note = f"ARR ${int(mal_row['arr']):,}, zero logins in 90d"
+            # §5.1 fires on ARR + zero 90-day logins, which is blind to history:
+            # an org that never activated and one that used the platform heavily
+            # for years and just stopped score identically and need opposite CS
+            # plays. Split them on the longest window the cache contract carries.
+            # (Lifetime login counts are not in pg_engagement, so 12 months is a
+            # proxy, not a claim about the account's whole history.)
+            ghost_subtype = ("no_activity_12m"
+                             if (eng_data.get("active_users_365d") or 0) == 0
+                             else "lapsed_this_quarter")
             if composite_score is not None:
                 composite_score = min(composite_score, GHOST_CAP)
             else:
@@ -1493,7 +1533,12 @@ def main():
                 and val_score is not None and val_score <= 10
             )
             full_adoption_dark = ado_score is not None and ado_score >= 80
-            clean_ops_dark = ops_score is not None and ops_score >= 75
+            # Requires FULLY measured ops (V3.5.0). This sub-shape exists to rule
+            # infrastructure out as the cause; it cannot do that from a score built
+            # on catalog completeness alone, which is exactly the shape every ghost
+            # account has.
+            clean_ops_dark = (ops_score is not None and ops_score >= 75
+                              and ops_measurement == "full")
 
             if critically_low:
                 # Sub-shape C
@@ -1584,12 +1629,14 @@ def main():
             "composite_score": composite_score, "health_band": band,
             "composite_narrative": composite_narrative,
             "ghost_account": ghost, "ghost_account_note": ghost_note,
+            "ghost_subtype": ghost_subtype,
             "behavioral_floor_applied": behavioral_floor_applied,
             "support_fire": support_fire, "support_fire_notes": support_note,
             "support_fire_days_open": support_fire_days_open,
             "support_data_available": support_data_available,
             "scoring_status": status, "dimensions_scored": n_dims,
             "denominator_quality": eng_meta.get("denominator_quality"),
+            "ops_measurement": ops_measurement,
             "bundle_config_mismatch": bundle_config_mismatch,
         })
 
@@ -1626,6 +1673,8 @@ def main():
         "value_delivery_narrative",
         "operational_health_score",
         "operational_health_narrative",
+        "ops_measurement",
+        "ghost_subtype",
         "support_fire_notes",
         "support_fire_days_open",
         "bundle_config_mismatch",

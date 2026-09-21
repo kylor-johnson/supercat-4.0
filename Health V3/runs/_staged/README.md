@@ -13,23 +13,24 @@ version in README and METHODOLOGY. `check_consistency.py` must return 8/8 after.
 
 | | |
 |---|---|
-| SHA-256 | `592c1bdbaf3cac1d19da9e74a2c6a3d945fe874a0c3382e9a0e8ca89154abf9d` |
-| Engine | V3.4.1, `--weights equal` |
+| SHA-256 | `9fc4b51925cbe39a49965410b9d2d950e737d1b4f05d50cb4499e1c4ccb71a09` |
+| Engine | V3.5.0, `--weights equal` |
 | MAL | `master_account_list_2026-09-16_canonical.csv` — 114 orgs, first use |
 | Rows | 114, `scoring_status = complete` for all |
 | Bands | 52 Thriving · 40 Healthy · 14 Watch · 4 At Risk · **4 Critical** |
 | Determinism | byte-identical on a second pass against the same cache |
 | Cache | `cache/2026-09-21/`, immutable since population |
 
-**Why it is staged and not promoted.** Two of the four V3.4.1 findings are fixed
-(ghost banding, `new_ghost` reachability); two remain open and both can move
-scores, so promoting now would mean promoting twice:
+**All three V3.5.0 blockers are now cleared** (ghost banding, `new_ghost`
+reachability, the new-org gate + ghost precedence, ops measurement honesty, and
+`ghost_subtype`). This run was rescored under V3.5.0 and remains staged only
+because promoting it is a decision — it changes the live canonical from a 104-org
+April-MAL snapshot to a 114-org September one, and the deltas against it span four
+months, not one.
 
-1. The NaT/`None` new-org gate bug, which has to ship together with giving the
-   ghost override precedence over the gate — see README §"New-Org Exclusion".
-2. `operational_health_score = 100` for orgs with zero import rows, which the
-   `clean_ops_dark` narrative then reports as "infrastructure is healthy". All
-   four ghosts have this shape, so it is concentrated in the worst accounts.
+Bands: 52 Thriving · 40 Healthy · 14 Watch · 4 At Risk · **4 Critical** (the four
+ghosts, sub-typed: `aa` and `pol` `no_activity_12m`, `bmc` and `blh`
+`lapsed_this_quarter`).
 
 Provenance for the run itself, including the three transcription errors caught by
 server-side checksums during cache population, is in `run_metadata.md`.

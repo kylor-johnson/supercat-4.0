@@ -2,6 +2,118 @@
 
 All notable changes to the Health V3 operator and surrounding artifacts. Newest entries first.
 
+
+## 3.5.0 — 2026-09-21
+
+**Closes the three open findings from the end-to-end test run. Schema grows by two columns, so every SHA in the series moves. No composite score and no band changed anywhere.**
+
+- **New canonical SHA:** `a5d8cb289f0ae945efc1636453bfd8f4f3ffe316417dde2011d7ab8f5bc5b73d`
+- **Old canonical SHA (V3.4.1):** `6a2f1d9fc6c86ae58a6888386f83b0a9122ecc98cb5ae6f2195e89a8d4dd1bff`
+- Canonical CSV 28 → 30 columns; formatted CSV 20 → 22.
+
+### New columns
+
+| Column | Values | Purpose |
+|---|---|---|
+| `ghost_subtype` | `no_activity_12m` / `lapsed_this_quarter` / null | Splits the two ghost populations §5.1 cannot distinguish |
+| `ops_measurement` | `full` / `catalog_only` | Whether all three ops sub-signals contributed |
+
+### Fixed — the new-org gate was inert, and repairing it alone would have been worse
+
+`load_pg_engagement` LEFT JOINs `organizations`, so an org with no logins gets
+`first_login_at = NULL` → `NaT`. The gate tested `if first_login is not None`,
+and **`NaT is not None` is `True`**, so the `cohort_year` fallback was dead code
+in cache mode, the subtraction yielded `nan`, and `nan < 90` is `False`. **No org
+had been excluded for having zero logins since V3.0.** Now `pd.notna()`.
+
+Fixing only that would have skipped `aa` — $42,480 ARR, zero logins in its entire
+history, current-year cohort — removing the worst account in the portfolio from
+the scorecard. So it ships with **§5.1 taking precedence over the gate**: the
+ghost condition is now evaluated *before* the gate and a ghost is never skipped as
+an onboarding-window org. A paying account with zero logins is never merely new.
+
+- `health_operator_v3.py`: `ghost` computed ahead of the gate and reused by the
+  override; `pd.notna(first_login)`; `cohort_year` comparison guarded against NaN.
+- `README.md` §"New-Org Exclusion" rewritten — both conditions stated, the bug and
+  its five-month reach recorded, and the pairing explained.
+
+### Fixed — ops reported silence as health
+
+With no import feed in the 180-day window, the import-health and freshness
+sub-signals are both `None` and the dimension rests on catalog completeness alone.
+The per-dimension narrative was honest, but the `clean_ops_dark` composite shape
+escalated it to *"data infrastructure is healthy… the infrastructure isn't the
+problem"* — about orgs whose feeds have **never run**. Absence of measurement
+reported as positive evidence, inside the one sub-shape whose job is to rule
+infrastructure out. 7 of 114 orgs have this shape in the September run, and **all
+four ghosts are among them**, so it was concentrated in the worst accounts.
+
+The score is deliberately **not** blanked — a poor catalog is a real ops finding
+(`dals` sits at ops 20 on the same shape) and blanking would flip those orgs to
+`scoring_status = partial` and move their composites. Instead:
+
+- `ops_measurement` records `full` vs `catalog_only`.
+- The ops narrative states that import health and freshness are unmeasured and
+  that the score reflects catalog completeness only.
+- `clean_ops_dark` now additionally requires `ops_measurement == "full"`.
+- Observed effect: `ol` and `hvl` drop out of `clean_ops_dark` into the standard
+  behavioural-floor narrative. The false infrastructure claim is gone; their
+  scores are unchanged.
+
+### Added — `ghost_subtype`, because §5.1 conflated two populations
+
+The condition is ARR + zero 90-day logins, blind to history. In the September run
+`aa` (zero logins ever) and `bmc` (live since 2011, thousands of logins behind it,
+now at zero) carried the same flag, the same 20.0 and the same band while needing
+opposite CS plays.
+
+| Subtype | Condition | September |
+|---|---|---|
+| `no_activity_12m` | `active_users_365d = 0` | `aa`, `pol` |
+| `lapsed_this_quarter` | active within 365d, none within 90d | `bmc`, `blh` |
+
+Routing signal, not severity — both still cap at 20 and band Critical. **Twelve
+months is a proxy for lifetime history**, which `pg_engagement` does not carry, so
+an org dark longer than a year reads as `no_activity_12m` even if once active
+(`pol`, 200 lifetime logins, dark 432 days). Adding lifetime counts would break
+the existing cache contract; deferred.
+
+### Regeneration and impact
+
+All seven canonical snapshots and the staged September run were rescored. Only two
+kinds of cell changed anywhere: the two new columns, and
+`operational_health_narrative` for `catalog_only` orgs.
+
+| Run | V3.4.1 | V3.5.0 |
+|---|---|---|
+| 2025-11-30 | `e818042b…` | `4954b41c…` |
+| 2025-12-31 | `9f4fb466…` | `f31ee3e2…` |
+| 2026-01-31 | `649c0275…` | `1c1a173a…` |
+| 2026-02-28 | `842c6289…` | `5d4abcf3…` |
+| 2026-03-31 | `c2e1ee64…` | `b688f7da…` |
+| 2026-04-30 | `f23d12aa…` | `969ab5c9…` |
+| **2026-05-13 (canonical)** | `6a2f1d9f…` | **`a5d8cb28…`** |
+| 2026-09-21 (staged) | `592c1bdb…` | `9fc4b519…` |
+
+- May distribution unchanged: 57 Thriving · 31 Healthy · 14 Watch · 1 At Risk · 1 Critical.
+- September staged: 52 · 40 · 14 · 4 At Risk · 4 Critical. 114 rows, `complete` for all.
+- Dashboard regenerated against `a5d8cb28…`; footer reads V3.5.0.
+- `--weights v330` no longer reproduces `e34552ab…` — that SHA predates the schema
+  change. The v330 *scheme* is still selectable and still produces the V3.3.x
+  composites; only the row format differs. Reproducing `e34552ab…` byte-for-byte
+  requires a V3.4.x checkout.
+
+### Still open
+
+- **§9 remains ungated** — 11 outcome labels against a 30-outcome threshold.
+- **Cache population has no automation.** ~215 KB round-trips through an agent as
+  text and produced three silent transcription errors in the September run, caught
+  only by the rule-8 checksum. A populate script would remove the risk class.
+- **agent-factory mirror** is still on V3.3.0 weights and now also lacks both new
+  columns and all three fixes.
+- The staged September run is still **staged**, not promoted.
+
+---
 ## 3.4.1 — 2026-09-21
 
 **Two defects found by the first end-to-end test run. Live canonical unchanged: `6a2f1d9fc6c86ae58a6888386f83b0a9122ecc98cb5ae6f2195e89a8d4dd1bff`**

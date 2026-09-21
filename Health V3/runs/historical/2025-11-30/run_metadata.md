@@ -17,14 +17,13 @@ Behavioral floor applied: 10
 Support fire flags: 0
 Bundle/config mismatches: 3
 
-### V3.4.1 correction (2026-09-21)
+### V3.5.0 rescore (2026-09-21)
 
-Rescored under V3.4.1. `prog` ($25,200 ARR, zero logins in the trailing 90 days)
-was correctly flagged `ghost_account = true` but banded **At Risk**, because
-`GHOST_CAP` is 20 and 20 is the At Risk floor. §5.1 requires Critical. The band
-is now assigned directly, so `prog` reads Critical here.
+Schema change: `ghost_subtype` and `ops_measurement` added (28 → 30 columns), so
+every SHA in the series moved. No composite score and no band changed anywhere in
+this month; the only value edits are `operational_health_narrative` for orgs with
+no import feed, which now disclose that import health and freshness are unmeasured.
 
-- Prior SHA: `e0931bf5664c89f6d2b84414629e8147f1c1fe5136a52b6b5d44db19132ce029`
-- V3.4.1 SHA: `e818042bccf0613b2449dd51d352f3d6a6f3f3639bf06888d4833912e0930a39`
-- One cell changed. No composite score moved; no other org affected.
+- V3.5.0 SHA: `4954b41cde4b10e4a7c7bf877b5c7837d896d8e54f42979c1def89516e5bf70e`
+- Interpreter unchanged (Python 3.9.6 / pandas 2.3.3 / numpy 2.0.2)
 

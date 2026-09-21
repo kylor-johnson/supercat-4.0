@@ -1,6 +1,6 @@
 # Health V3 — Scoring Specification
 
-**Version:** 3.4.1
+**Version:** 3.5.0
 **Date:** 2026-09-21
 **Status:** Production-ready. Scoring math is equal-weighted (25/25/25/25), selectable via `--weights` (see §9 and CHANGELOG 3.4.0). Cache-mode runs are deterministic — same cache + same `--score-date` + same interpreter produces byte-identical output (see §6.6 and `ENVIRONMENT.md`).
 
@@ -384,6 +384,14 @@ V1 simplification: treat any import with only `:warning` entries (not `:error`) 
 
 `data_freshness_score = run_count_180d-weighted average staleness score across all measurable import types`
 
+**When no import feed has run in the window**, both the import-health and
+freshness sub-signals are `None` and the dimension score rests on catalog
+completeness alone. That is recorded as `ops_measurement = "catalog_only"`, the
+per-dimension narrative says the two sub-signals are unmeasured, and the
+`clean_ops_dark` composite shape is suppressed (§6.5). The score is **not**
+blanked — a poor catalog is still a real ops finding, as `dals` shows at ops 20 —
+but it must not be read as evidence that the data infrastructure is sound.
+
 Per-type staleness scores are aggregated via a **frequency-weighted average** — each type's score is weighted by its `run_count_180d`. A daily inventory feed (≈ 180 runs) drives the freshness signal far more than a quarterly catalog re-load (≈ 2 runs), which matches operator intuition that a stalled daily feed is a much bigger problem than a stalled quarterly one. If `total_weight = 0` (defensive fallback only), the average degrades to a simple mean.
 
 **Minimum history required:** At least 3 import events of this type in 180d to calculate a meaningful median. If fewer than 3 events exist, treat this import type as unscored and omit from the freshness average.
@@ -449,6 +457,20 @@ A ghost account is an org that is **paying meaningfully** but **not using the pr
 - `composite_score` is capped at `min(computed_composite_score, 20)` regardless of dimension scores
 - `health_band = "Critical"` — **assigned directly, not derived from the cap.** 20 is the *At Risk* floor in `HEALTH_BANDS`, so `band_for_score(20)` returns `"At Risk"`; the band is set explicitly in the override. Before V3.4.1 it was not, and every ghost silently banded At Risk — undetected until 2026-09-21, the first run that produced any ghosts, which reported `Critical: 0` while carrying four.
 - A ghost is the most severe state the model expresses. A paying account with zero logins outranks an account limping along at 15 with some activity.
+- **The ghost condition outranks the §6 new-org gate.** It is evaluated before that gate, and a ghost is never skipped as an onboarding-window org. Without this, `aa` — $42,480 ARR, zero logins in its entire history, first subscription this year — was claimed by both rules and would have vanished from the scorecard entirely once the gate was repaired.
+- `ghost_subtype` splits the two populations the ARR-plus-zero-logins condition cannot distinguish on its own:
+
+  | Subtype | Condition | The CS conversation |
+  |---|---|---|
+  | `no_activity_12m` | `active_users_365d = 0` | Never activated, or dark for over a year. "Did onboarding ever happen?" |
+  | `lapsed_this_quarter` | someone was active within 365d, nobody within 90d | Was using it and stopped. "What changed?" |
+
+  Both land at the same capped score and the same Critical band — the subtype is
+  the routing signal, not a severity signal. `bmc` illustrates why it matters: an
+  org live since 2011 with thousands of logins behind it, now at zero, is a very
+  different call from an account that never started. **Twelve months is a proxy for
+  lifetime history**, which `pg_engagement` does not carry; an org dark for longer
+  than a year reads as `no_activity_12m` even if it was once active.
 - All four dimension scores still compute and are still shown (do not blank them — CSMs need to see why the org isn't using each surface)
 - `ghost_account_note: "ARR $X, zero logins in 90d"` is added to the output
 
@@ -517,6 +539,7 @@ composite_narrative           # 2–3 sentence plain-English explanation of why 
 
 ghost_account                 # true / false (§5.1)
 ghost_account_note            # text if true, null if false
+ghost_subtype                 # no_activity_12m / lapsed_this_quarter; null when not a ghost (§5.1)
 behavioral_floor_applied      # true / false (§5.2)
 
 support_fire                  # true / false
@@ -527,6 +550,8 @@ support_data_available        # true / false
 scoring_status                # complete / partial / blocked
 dimensions_scored             # integer 0–4 — count of dimensions with a non-null score
 denominator_quality           # null or "stale" — set when raw active_user_ratio > 100% before cap
+ops_measurement               # "full" (all three ops sub-signals contributed) or "catalog_only"
+                              #   (no import feed ran in the window — see §4)
 bundle_config_mismatch        # true / false — set when MAL bundle disagrees with mobile_sites flags
 ```
 
@@ -569,23 +594,24 @@ not health. The `subscriptions.start_date` field is *not* used for this check �
 the table appears to have been backfilled in mid-2025, so it is unreliable for
 older cohorts.
 
-> **KNOWN BUG (open as of 2026-09-21) — the zero-login branch is unreachable.**
-> The spec intends a second condition: an org with *no* login events at all and a
-> MAL `cohort_year` equal to the current year is also excluded. In cache mode that
-> branch is dead code. `load_pg_engagement` LEFT JOINs `organizations`, so an org
-> with no logins gets `first_login_at = NULL`, which `parse_dates` turns into
-> `NaT` — and `NaT is not None` evaluates **True**, so the `elif` on `cohort_year`
-> never runs. The subtraction then yields `nan`, and `nan < 90` is `False`, so the
-> org is scored rather than skipped.
+The gate has two conditions. Either excludes an org:
+
+1. Its oldest observed login event is less than `NEW_ORG_DAYS` (90) old, **or**
+2. It has no login events at all and its MAL `cohort_year` is the current year.
+
+> **Fixed in V3.5.0 — condition 2 was unreachable for five months.**
+> `load_pg_engagement` LEFT JOINs `organizations`, so an org with no logins gets
+> `first_login_at = NULL`, which `parse_dates` turns into `NaT`. The check was
+> `if first_login is not None`, and **`NaT is not None` is `True`** — so the
+> `elif` on `cohort_year` was dead code in cache mode, the subtraction produced
+> `nan`, and `nan < 90` is `False`. No org was ever excluded for having zero
+> logins. Now `pd.notna(first_login)`.
 >
-> Net effect today: **no org is ever excluded for having zero logins.** In the
-> 2026-09-21 run this scored `aa` — $42,480 ARR, zero logins in its entire history
-> — which the §5.1 ghost override then correctly flagged as the worst account in
-> the portfolio. That is the more useful outcome, which is why the bug is not
-> being fixed in isolation: a one-line `pd.isna()` correction would *remove* that
-> account from the scorecard. The fix has to be paired with giving the ghost
-> override precedence over this gate, so a paying account with zero logins is
-> never treated as merely new. Tracked in `MAINTENANCE.md`.
+> Repairing it alone would have made things worse: it would have skipped `aa`
+> ($42,480 ARR, zero logins ever, current-year cohort) and removed the worst
+> account in the portfolio from the scorecard. So it shipped together with
+> **§5.1 taking precedence over this gate** — a paying account with zero logins
+> is a ghost, never merely new.
 
 **`--include-new-orgs` overrides the gate.** Passing it scores those orgs instead
 of skipping them, and no `skipped_new_orgs.csv` is written.
@@ -626,7 +652,7 @@ The composite narrative is built by `_build_composite_narrative()` in `health_op
   |---|---|---|
   | Critically low | `engagement_score < 25 AND value_delivery_score <= 10` | Essentially no active usage — platform is running but not used. Tied to ARR as an urgent recovery situation. |
   | Full adoption, users dark | `adoption_score >= 80` | Full platform configured and adopted, but rep logins have dropped off sharply. Outreach to understand whether reps have gone dark on a coverage issue or whether a more fundamental re-engagement effort is required. |
-  | Clean infrastructure, users dark | `operational_health_score >= 75` | Data infrastructure is healthy; reps aren't using the platform. Rules out infrastructure; frames as a rep adoption and activation conversation. |
+  | Clean infrastructure, users dark | `operational_health_score >= 75` **and `ops_measurement = "full"`** | Data infrastructure is healthy; reps aren't using the platform. Rules out infrastructure; frames as a rep adoption and activation conversation. The measurement condition was added in V3.5.0 — this shape cannot rule infrastructure out from a score built on catalog completeness alone, which is the shape every org with no import feed has (and every ghost). |
   | Standard floor | none of the above | Both rep activity and platform outcomes are too low to support a healthy relationship. Re-establish contact to determine whether the gap is coverage, product fit, or something else. |
 
   These thresholds are implemented in `health_operator_v3.py` `main()` lines ~1414–1463. Changes to the conditions or framings must update both files together.

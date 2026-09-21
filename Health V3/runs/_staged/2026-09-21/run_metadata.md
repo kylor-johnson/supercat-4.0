@@ -1,10 +1,10 @@
 # Health V3 run metadata — 2026-09-21
 
-- Command: `python health_operator_v3.py --mal "inputs/master_account_list_2026-09-16_canonical.csv" --score-date 2026-09-21 --cache --cache-dir "cache/2026-09-21" --weights equal --output-dir "runs"`
+- Command: `python health_operator_v3.py --mal "inputs/master_account_list_2026-09-16_canonical.csv" --score-date 2026-09-21 --cache --cache-dir "cache/2026-09-21" --weights equal --output-dir "runs/_staged"`
 - MAL: `inputs/master_account_list_2026-09-16_canonical.csv`
 - Weighting scheme: `equal` — ENG 0.25 / ADO 0.25 / VAL 0.25 / OPS 0.25
 - New-org window: excluded (90-day gate)
-- Output CSV: `runs/2026-09-21/client_health_scores_2026-09-21.csv`
+- Output CSV: `runs/_staged/2026-09-21/client_health_scores_2026-09-21.csv`
 - Rows scored: 114
 - Rows skipped (new-org exclusion or not in Postgres): 0
 
