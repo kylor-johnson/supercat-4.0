@@ -17,6 +17,15 @@ contains several unrelated projects (`hang-tag-spike`, `onboarding-models`).
 You are NOT doing history surgery on 8,008 files. You are creating a fresh
 repo that never contained client data.
 
+**And the problem is growing, not static.** On 2026-09-21, while this
+programme was running, another session pushed ~200 files of client
+health-score data into this same repo (`Health V3/`, `Health V3 Backfill/` —
+per-client scores, Postgres and BigQuery cache extracts, dashboards). The
+repo is a shared personal workspace that several agents commit to, so client
+data arrives from projects that have nothing to do with Insightful. Waiting
+makes the extraction harder, never easier. That is the argument for doing
+this phase before the remaining report work, not after.
+
 ## Read first
 
 1. `handoffs/exec/TRAPS.md` — especially #12 (prose files are inputs) and #13
