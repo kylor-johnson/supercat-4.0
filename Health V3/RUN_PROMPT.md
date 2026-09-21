@@ -8,7 +8,7 @@ The prompt orchestrates a doc-driven workflow rather than restating logic, so th
 
 **Prerequisites:**
 
-- Cursor with the `user-supercat-postgres-vpn` and `user-bigquery-vpn` MCPs enabled.
+- Postgres and BigQuery MCP servers enabled (`supercat-postgres-vpn`, `bigquery-admin`).
 - VPN active (both MCPs require it).
 - Empty target directory at `cache/$SCORE_DATE/` ready to receive 10 CSVs.
 
@@ -67,7 +67,7 @@ Why UTC: PG `NOW()` in the queries is UTC-anchored; aligning the cache name pres
 
 ## Step 2 — Populate `cache/$SCORE_DATE/`
 
-Follow README §"How to populate the cache" exactly. All 10 CSVs. MCPs are `user-supercat-postgres-vpn` and `user-bigquery-vpn`.
+Follow README §"How to populate the cache" exactly. All 10 CSVs. MCPs are `supercat-postgres-vpn` and `bigquery-admin`.
 
 After population, run the sanity checks listed in that section: 10 files present, all readable by `pandas.read_csv`, row counts within ±50% of the prior cache (compare against the most recent `cache/` directory or the deltas in the latest CHANGELOG entry).
 

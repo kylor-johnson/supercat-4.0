@@ -1453,6 +1453,16 @@ def main():
                 composite_score = GHOST_CAP
 
         band = band_for_score(composite_score)
+        # §5.1 requires a ghost to read Critical. GHOST_CAP is 20, which is the
+        # At Risk *floor*, so band_for_score(20) returns "At Risk" and the spec
+        # was silently unmet — invisible until 2026-09-21, the first run with any
+        # ghosts, which reported "Critical: 0" while carrying four of them.
+        # Assign the band directly rather than tuning GHOST_CAP to 19: the cap is
+        # the documented score ceiling, and a paying account with zero logins is
+        # the most severe state the model can express regardless of where the cap
+        # happens to sit relative to a band boundary.
+        if ghost:
+            band = "Critical"
 
         # Composite-level override narratives (§5.1 / §5.2)
         _org_name = cfg.get("org_name") or mal_row["company"]

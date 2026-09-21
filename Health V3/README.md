@@ -1,7 +1,7 @@
 # Health V3 — Scoring Specification
 
-**Version:** 3.4.0
-**Date:** 2026-09-16
+**Version:** 3.4.1
+**Date:** 2026-09-21
 **Status:** Production-ready. Scoring math is equal-weighted (25/25/25/25), selectable via `--weights` (see §9 and CHANGELOG 3.4.0). Cache-mode runs are deterministic — same cache + same `--score-date` + same interpreter produces byte-identical output (see §6.6 and `ENVIRONMENT.md`).
 
 > **Producing the next monthly canonical?** Use `RUN_PROMPT.md` in this folder — copy-paste prompt that orchestrates the full Path B workflow (cache populate → operator → cold-read → CHANGELOG → archive).
@@ -22,7 +22,7 @@ The operator does **not** open live Postgres or BigQuery connections during a ca
 
 **Prerequisites:**
 
-- Cursor with the `user-supercat-postgres-vpn` and `user-bigquery-vpn` MCP servers enabled.
+- Postgres and BigQuery MCP servers enabled — `supercat-postgres-vpn` and `bigquery-admin` in Claude Code. Any client works; the server names above are what this workspace exposes, and `supercat-data-routing` is the routing authority if they change.
 - VPN connection active (both MCPs require it).
 - An empty target directory at `cache/{YYYY-MM-DD}/` ready to receive 10 CSVs.
 
@@ -32,16 +32,16 @@ The operator does **not** open live Postgres or BigQuery connections during a ca
 
 | File                    | Source loader function       | MCP                            |
 |-------------------------|------------------------------|--------------------------------|
-| `pg_org_config.csv`     | `load_pg_org_config`         | `user-supercat-postgres-vpn`   |
-| `pg_engagement.csv`     | `load_pg_engagement`         | `user-supercat-postgres-vpn`   |
-| `pg_smart_stacks.csv`   | `load_pg_smart_stacks`       | `user-supercat-postgres-vpn`   |
-| `pg_orders.csv`         | `load_pg_orders`             | `user-supercat-postgres-vpn`   |
-| `pg_portal_orders.csv`  | `load_pg_portal_orders`      | `user-supercat-postgres-vpn`   |
-| `pg_catalog.csv`        | `load_pg_catalog`            | `user-supercat-postgres-vpn`   |
-| `pg_imports.csv`        | `load_pg_imports`            | `user-supercat-postgres-vpn`   |
-| `pg_domain_map.csv`     | `build_domain_map`           | `user-supercat-postgres-vpn`   |
-| `bq_mp_sharing.csv`     | `load_bq_mp_sharing`         | `user-bigquery-vpn`            |
-| `bq_helpscout_fires.csv`| `load_bq_helpscout_fires`    | `user-bigquery-vpn`            |
+| `pg_org_config.csv`     | `load_pg_org_config`         | `supercat-postgres-vpn`   |
+| `pg_engagement.csv`     | `load_pg_engagement`         | `supercat-postgres-vpn`   |
+| `pg_smart_stacks.csv`   | `load_pg_smart_stacks`       | `supercat-postgres-vpn`   |
+| `pg_orders.csv`         | `load_pg_orders`             | `supercat-postgres-vpn`   |
+| `pg_portal_orders.csv`  | `load_pg_portal_orders`      | `supercat-postgres-vpn`   |
+| `pg_catalog.csv`        | `load_pg_catalog`            | `supercat-postgres-vpn`   |
+| `pg_imports.csv`        | `load_pg_imports`            | `supercat-postgres-vpn`   |
+| `pg_domain_map.csv`     | `build_domain_map`           | `supercat-postgres-vpn`   |
+| `bq_mp_sharing.csv`     | `load_bq_mp_sharing`         | `bigquery-admin`            |
+| `bq_helpscout_fires.csv`| `load_bq_helpscout_fires`    | `bigquery-admin`            |
 
 **Execution rules:**
 
@@ -53,14 +53,32 @@ The operator does **not** open live Postgres or BigQuery connections during a ca
    - Bool columns: `True`/`False` strings are fine; the operator coerces.
    - Timestamp columns (`last_login_at`, `first_login_at`, `last_run_at`, `first_run_at`, `most_recent_open_at`): ISO 8601 strings.
    - `bq_helpscout_fires.csv` `sample_tags` column: write as Python `str(list)` repr (e.g., `"['s1 - critical', 'l4 - p2']"`).
-6. **After writing each file, read it back with `pandas.read_csv()`** and verify (a) row count matches what the MCP query returned, (b) column names match the SQL output, (c) dtypes look reasonable.
-7. **Do not modify the cache after the run.** Per §6.6, each `cache/{date}/` directory is immutable once populated. To rerun for the same date, point at the same cache. To use fresher data, populate a new dated directory.
+6. **Use the right converter.** `scripts/to_csv.py` is the default — it is the only one that emits
+   `sample_tags` in the required Python-list-repr form. `scripts/mcp_to_csv.py` joins lists with `|`
+   and lowercases booleans, so it must **not** be used for `bq_helpscout_fires.csv`.
+   `scripts/bq_to_csv.py` is for raw BigQuery JSON (`{"data": [...]}`) output.
+7. **After writing each file, read it back with `pandas.read_csv()`** and verify (a) row count matches what the MCP query returned, (b) column names match the SQL output, (c) dtypes look reasonable.
+8. **Verify content, not just shape — this is the step that catches real corruption.**
+   Rules 6–7 pass on a file whose *values* are wrong. Cache data round-trips through an agent as
+   text, and the 2026-09-21 run produced three silent transcription errors in `pg_domain_map.csv`
+   alone (a swapped adjacent pair and two mangled domains) — every one preserved row count and
+   column names. Compute a checksum server-side and compare it against the written file:
+
+   ```sql
+   -- append to each loader query, over the same ORDER BY the CSV is written in
+   SELECT md5(string_agg(col1 || '|' || col2 || '|' || ..., E'\n' ORDER BY <key>)) FROM ( <loader query> ) t;
+   ```
+
+   Then hash the same concatenation locally from the CSV and require an exact match. A corrupted
+   `pg_domain_map.csv` degrades `support_data_available` for **every** org, not just the mangled
+   row, so this is not a per-row risk.
+9. **Do not modify the cache after the run.** Per §6.6, each `cache/{date}/` directory is immutable once populated. To rerun for the same date, point at the same cache. To use fresher data, populate a new dated directory.
 
 **Sanity checks before running the operator:**
 
 - Exactly 10 files in `cache/{YYYY-MM-DD}/`.
 - Each readable by `pandas.read_csv` without exceptions.
-- Row counts within ±50% of the prior cache for `pg_org_config` (~248), `pg_engagement` (~248), `pg_imports` (~759), `pg_catalog` (~233). A drastic delta indicates an upstream data issue and should be investigated before running the operator.
+- Row counts within ±50% of the prior cache for `pg_org_config` (~250), `pg_engagement` (~250), `pg_imports` (~760), `pg_catalog` (~235). A drastic delta indicates an upstream data issue and should be investigated before running the operator.
 
 ### How to run
 
@@ -428,8 +446,9 @@ A ghost account is an org that is **paying meaningfully** but **not using the pr
 
 **Effect when triggered:**
 - `ghost_account = true`
-- `composite_score` is capped at `min(computed_composite_score, 20)` — they cannot land above the Critical band regardless of dimension scores
-- `health_band = "Critical"`
+- `composite_score` is capped at `min(computed_composite_score, 20)` regardless of dimension scores
+- `health_band = "Critical"` — **assigned directly, not derived from the cap.** 20 is the *At Risk* floor in `HEALTH_BANDS`, so `band_for_score(20)` returns `"At Risk"`; the band is set explicitly in the override. Before V3.4.1 it was not, and every ghost silently banded At Risk — undetected until 2026-09-21, the first run that produced any ghosts, which reported `Critical: 0` while carrying four.
+- A ghost is the most severe state the model expresses. A paying account with zero logins outranks an account limping along at 15 with some activity.
 - All four dimension scores still compute and are still shown (do not blank them — CSMs need to see why the org isn't using each surface)
 - `ghost_account_note: "ARR $X, zero logins in 90d"` is added to the output
 
@@ -543,7 +562,30 @@ Each monthly run writes its CSV to `Health V3/runs/{YYYY-MM-DD}/client_health_sc
 
 ### New-Org Exclusion
 
-Orgs whose oldest observed login event is less than 90 days old (or who have zero login events and a MAL `cohort_year` equal to the current year) are written to `Health V3/runs/{date}/skipped_new_orgs.csv` with reason `onboarding_window` and excluded from scoring. They are in the onboarding phase where TTFV is the right metric, not health. The `subscriptions.start_date` field is *not* used for this check — the table appears to have been backfilled in mid-2025, so it is unreliable for older cohorts.
+Orgs whose oldest observed login event is less than 90 days old are written to
+`runs/{date}/skipped_new_orgs.csv` with reason `onboarding_window` and excluded
+from scoring. They are in the onboarding phase where TTFV is the right metric,
+not health. The `subscriptions.start_date` field is *not* used for this check —
+the table appears to have been backfilled in mid-2025, so it is unreliable for
+older cohorts.
+
+> **KNOWN BUG (open as of 2026-09-21) — the zero-login branch is unreachable.**
+> The spec intends a second condition: an org with *no* login events at all and a
+> MAL `cohort_year` equal to the current year is also excluded. In cache mode that
+> branch is dead code. `load_pg_engagement` LEFT JOINs `organizations`, so an org
+> with no logins gets `first_login_at = NULL`, which `parse_dates` turns into
+> `NaT` — and `NaT is not None` evaluates **True**, so the `elif` on `cohort_year`
+> never runs. The subtraction then yields `nan`, and `nan < 90` is `False`, so the
+> org is scored rather than skipped.
+>
+> Net effect today: **no org is ever excluded for having zero logins.** In the
+> 2026-09-21 run this scored `aa` — $42,480 ARR, zero logins in its entire history
+> — which the §5.1 ghost override then correctly flagged as the worst account in
+> the portfolio. That is the more useful outcome, which is why the bug is not
+> being fixed in isolation: a one-line `pd.isna()` correction would *remove* that
+> account from the scorecard. The fix has to be paired with giving the ghost
+> override precedence over this gate, so a paying account with zero logins is
+> never treated as merely new. Tracked in `MAINTENANCE.md`.
 
 **`--include-new-orgs` overrides the gate.** Passing it scores those orgs instead
 of skipping them, and no `skipped_new_orgs.csv` is written.
@@ -666,18 +708,18 @@ These are intentional shortcuts to keep V1 lean. They are candidates for V3.1 re
 | Source | Connection | What It Provides |
 |--------|------------|------------------|
 | MAL CSV | Local file | **Authoritative** for `bundle` (MAL `stack` column), `arr`, `cohort_year`, `org_shortname` (MAL `ord_id` column) |
-| Postgres `login_events` | MCP `user-supercat-postgres-vpn` | Login counts, unique active users, last login, earliest login (used for new-org detection) |
-| Postgres `org_users` + `users` | MCP `user-supercat-postgres-vpn` | Enabled internal users per org. `users.email` domain is filtered against the SuperCat-internal exclusion list (see below). Fallback: distinct `user_id` from `login_events` in trailing 365d. |
-| Postgres `organizations` | MCP `user-supercat-postgres-vpn` | Org config: `id`, `shortname`, `name`, `contract_pricing_enabled`, `enable_sales_data` |
-| Postgres `mobile_sites` | MCP `user-supercat-postgres-vpn` | Feature flags: `enable_online_catalog`, `enable_online_ordering`, `enable_sales_portal` (authoritative for applicability gating in §2/§3) |
-| Postgres `subscriptions` | MCP `user-supercat-postgres-vpn` | Reference only — not used for bundle (MAL is authoritative). Unreliable for new-org detection per §6. |
-| Postgres `smart_stacks` | MCP `user-supercat-postgres-vpn` | Smart stack count per org |
-| Postgres `orders` | MCP `user-supercat-postgres-vpn` | iPad order volume — filtered to `LOWER(order_source) = 'ipad' AND is_submitted = true AND order_state = 'active' AND submit_date >= NOW() - 90d` |
-| Postgres `portal_orders` | MCP `user-supercat-postgres-vpn` | Portal/B2B cart order activity — filtered to `order_date >= NOW() - 90d` |
-| Postgres `import_events` | MCP `user-supercat-postgres-vpn` | Import history. Type is extracted from the YAML `data` field (first entry). Status (success/warning/error) is parsed from the same field. |
-| Postgres `products` | MCP `user-supercat-postgres-vpn` | Catalog completeness — `deleted`, `long_description`, `net_price`, `prices_json`, `image_exists` |
-| BigQuery `mixpanel.events` | MCP `user-bigquery-vpn` | Sharing/quoting events (`item_email_drafted`, `document_email_drafted`). Org attribution via `COALESCE(NULLIF(organization_shortname, ''), NULLIF(current_organization_shortname, ''))`. |
-| BigQuery `helpscout.conversations` | MCP `user-bigquery-vpn` | Support conversations and escalation/severity tags. Open conversations have `status IN ('active', 'pending')`. |
+| Postgres `login_events` | MCP `supercat-postgres-vpn` | Login counts, unique active users, last login, earliest login (used for new-org detection) |
+| Postgres `org_users` + `users` | MCP `supercat-postgres-vpn` | Enabled internal users per org. `users.email` domain is filtered against the SuperCat-internal exclusion list (see below). Fallback: distinct `user_id` from `login_events` in trailing 365d. |
+| Postgres `organizations` | MCP `supercat-postgres-vpn` | Org config: `id`, `shortname`, `name`, `contract_pricing_enabled`, `enable_sales_data` |
+| Postgres `mobile_sites` | MCP `supercat-postgres-vpn` | Feature flags: `enable_online_catalog`, `enable_online_ordering`, `enable_sales_portal` (authoritative for applicability gating in §2/§3) |
+| Postgres `subscriptions` | MCP `supercat-postgres-vpn` | Reference only — not used for bundle (MAL is authoritative). Unreliable for new-org detection per §6. |
+| Postgres `smart_stacks` | MCP `supercat-postgres-vpn` | Smart stack count per org |
+| Postgres `orders` | MCP `supercat-postgres-vpn` | iPad order volume — filtered to `LOWER(order_source) = 'ipad' AND is_submitted = true AND order_state = 'active' AND submit_date >= NOW() - 90d` |
+| Postgres `portal_orders` | MCP `supercat-postgres-vpn` | Portal/B2B cart order activity — filtered to `order_date >= NOW() - 90d` |
+| Postgres `import_events` | MCP `supercat-postgres-vpn` | Import history. Type is extracted from the YAML `data` field (first entry). Status (success/warning/error) is parsed from the same field. |
+| Postgres `products` | MCP `supercat-postgres-vpn` | Catalog completeness — `deleted`, `long_description`, `net_price`, `prices_json`, `image_exists` |
+| BigQuery `mixpanel.events` | MCP `bigquery-admin` | Sharing/quoting events (`item_email_drafted`, `document_email_drafted`). Org attribution via `COALESCE(NULLIF(organization_shortname, ''), NULLIF(current_organization_shortname, ''))`. |
+| BigQuery `helpscout.conversations` | MCP `bigquery-admin` | Support conversations and escalation/severity tags. Open conversations have `status IN ('active', 'pending')`. |
 
 ### SuperCat-Internal Domain Exclusion List
 

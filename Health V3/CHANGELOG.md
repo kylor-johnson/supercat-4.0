@@ -2,6 +2,126 @@
 
 All notable changes to the Health V3 operator and surrounding artifacts. Newest entries first.
 
+## 3.4.1 — 2026-09-21
+
+**Two defects found by the first end-to-end test run. Live canonical unchanged: `6a2f1d9fc6c86ae58a6888386f83b0a9122ecc98cb5ae6f2195e89a8d4dd1bff`**
+
+A full pipeline test was run against the September MAL (`master_account_list_2026-09-16_canonical.csv`,
+114 orgs, first use) on a freshly populated `cache/2026-09-21/`. The pipeline ran
+end to end without a single code change being needed, the May canonical
+reproduced bit-for-bit beforehand, and the new run was byte-identical across two
+passes. But it was the **first run in the program's history to produce any ghost
+accounts**, and that exposed two defects that had been latent since V3.0.
+
+The staged run is at `runs/_staged/2026-09-21/` — verified, deliberately not
+promoted. See that folder's `README.md` for why.
+
+### Fixed — ghosts banded At Risk instead of Critical
+
+§5.1 requires `health_band = "Critical"`. `GHOST_CAP` is 20, and 20 is the *At
+Risk* floor in `HEALTH_BANDS`, so `band_for_score(20)` returned `"At Risk"` and
+the band was never assigned explicitly. The spec has been unmet since V3.0 and
+was invisible because no run had ever produced a ghost.
+
+Impact: the test run reported **`Critical: 0` while carrying four ghosts**,
+including `aa` at $42,480 ARR with zero logins in its entire history. Any exec
+reading the band distribution got a materially false picture.
+
+- `health_operator_v3.py`: the §5.1 override now assigns `band = "Critical"`
+  directly. Chosen over lowering `GHOST_CAP` to 19 — the cap is the documented
+  score ceiling and shouldn't be tuned to land on a band boundary.
+- `README.md` §5.1 now states that the band is assigned directly, not derived
+  from the cap, and why a ghost outranks a low-scoring active account.
+- Historical impact: exactly one prior snapshot contained a ghost. `prog`
+  ($25,200, zero logins) in `runs/historical/2025-11-30/` moves At Risk →
+  Critical. That month was rescored; one cell changed, no composite moved.
+  - Prior SHA: `e0931bf5664c89f6d2b84414…`
+  - V3.4.1 SHA: `e818042bccf0613b2449dd51…`
+- The live 2026-05-13 canonical contains no ghosts, so `6a2f1d9f…` is unchanged.
+
+### Fixed — `new_ghost` could never fire for a single-snapshot org
+
+`detect_triggers` opened with `if len(runs) < 2: continue`, and both state-flag
+triggers (`new_ghost`, `fire_duration`) sat inside the month-over-month pair
+loop. An org whose *first* appearance is already a ghost therefore produced no
+trigger at all.
+
+Impact: all four ghosts in the test run arrived with their org and had exactly
+one snapshot, so **none of them appeared anywhere in the trigger report** — the
+artifact CS actually works from. The single highest-ARR at-risk account in the
+portfolio was absent from its own worklist.
+
+- `trigger_engine_v1.py`: state-flag triggers now evaluate per *snapshot*
+  rather than per pair, and no longer require an adjacent prior. A state flag is
+  not a delta, so "was this org a ghost at its previous observation" stays
+  meaningful across a calendar gap. With no prior observation, the flag being
+  set *is* the first firing, and the detail line says "on first appearance in
+  the series" rather than "fired" so the two cases are distinguishable.
+- Month-over-month delta triggers are untouched and still require adjacency.
+- Verified additive: the canonical series goes 77 → 78 triggers, the single
+  addition being `prog` at 2025-11-30 — a ghost that had been invisible for ten
+  months. On the staged September series, 102 → 107 (+5 `new_ghost`). No existing
+  trigger changed type, urgency, driver, detail or action.
+
+### Documentation
+
+- `ENVIRONMENT.md`: the environment-of-record line named `e34552ab… --weights v330`
+  as the canonical for this interpreter. Written before the V3.4.0 flip and never
+  updated — reproducible here, but not the live canonical, which is the exact
+  confusion the file exists to prevent. Replaced with a table covering all three.
+- `README.md` §"New-Org Exclusion": documents that the zero-login branch is
+  **unreachable**. `load_pg_engagement` LEFT JOINs `organizations`, so an org with
+  no logins gets `first_login_at = NaT`, and `NaT is not None` is `True` — the
+  `cohort_year` fallback is dead code in cache mode, `nan < 90` is `False`, and no
+  org is ever excluded for having zero logins. **Not fixed in isolation**: a
+  `pd.isna()` correction would remove `aa` from the scorecard, so it must ship with
+  giving the ghost override precedence over the gate. Tracked in `MAINTENANCE.md`.
+- `README.md` §"How to populate the cache": rules renumbered 6–9. New rule 6 says
+  which converter to use — `scripts/to_csv.py` is the only one that emits
+  `sample_tags` in the required list-repr form; `mcp_to_csv.py` joins lists with
+  `|` and must not be used for `bq_helpscout_fires.csv`. **New rule 8 requires a
+  server-side content checksum.** The test run produced three silent transcription
+  errors in `pg_domain_map.csv` (a swapped adjacent pair and two mangled domains);
+  all three preserved row count and column names, so the existing read-back check
+  could not see them, and all three were caught only by checksum. A corrupted
+  domain map degrades `support_data_available` for every org, not just its own row.
+- MCP server names corrected throughout — `supercat-postgres-vpn` /
+  `bigquery-admin`, and no longer "Cursor with…". Sanity-check row counts refreshed
+  against the September cache.
+- `runs/_staged/README.md` added, describing the staging convention and the
+  promotion checklist.
+
+### Known, unfixed — both can move scores, both need a decision
+
+1. **NaT/`None` new-org gate**, paired with ghost-over-gate precedence, per above.
+2. **`operational_health_score = 100` for orgs with no import rows.** Ops is then
+   computed from catalog completeness alone. The per-dimension narrative is honest
+   ("Catalog 100% complete") but the `clean_ops_dark` composite shape escalates it
+   to "data infrastructure is healthy… the infrastructure isn't the problem" — for
+   an org whose feeds have *never run*. Absence of measurement is being reported as
+   positive evidence, inside the sub-shape whose whole job is to rule infrastructure
+   out. Seen on `ol` and `hvl`; **all four ghosts share the shape**, so it is
+   concentrated in the accounts that matter most.
+3. **§5.1 conflates two populations.** The condition is ARR + zero 90-day logins,
+   which is blind to lifetime history. In the test run `aa` (0 logins ever) and
+   `bmc` (**6,751** logins ever, an org since 2011 that just stopped) carry the
+   same flag, same 20.0, same band — and need opposite CS plays. A `ghost_subtype`
+   keyed off `active_users_365d` / lifetime logins would separate
+   never-activated from went-dark. Spec gap, not a bug.
+
+### Also observed, not defects
+
+- The September MAL surfaced **$83,520 of at-risk ARR that nothing was watching** —
+  all four ghosts are orgs the April MAL omitted.
+- `pg_orders.csv` schema drift: `cache/2026-05-13/` carries a third column
+  `all_orders_90d` that `load_pg_orders` does not emit and no code reads. The
+  reference cache and the source of truth disagree; harmless, zero score impact.
+- `dccl` bands Thriving at 6% rep activation (10 of 157), on VD and Adoption both
+  at 100. Internally consistent, and a clean live example of the
+  Value-Delivery-as-segment-proxy effect `MAINTENANCE.md` warns about.
+
+---
+
 ## 3.4.0 — 2026-09-16
 
 **Dimension weights reverted to equal (25/25/25/25). Folders consolidated. Canonical SHA changes.**

@@ -11,7 +11,18 @@ deterministic across interpreters. Both must be recorded with every canonical.
 | pandas | 2.3.3 | |
 | numpy | 2.0.2 | |
 
-Canonical produced under this environment: `e34552ab…` (2026-05-13, `--weights v330`).
+Canonicals produced under this environment:
+
+| Run | Weights | SHA-256 |
+|---|---|---|
+| 2026-05-13 | equal (default) | `6a2f1d9f…` — **the live canonical** |
+| 2026-09-21 | equal (default) | `6dc304ea…` (V3.4.0) / see CHANGELOG for the V3.4.1 rescore |
+| 2026-05-13 | `--weights v330` | `e34552ab…` — the retired V3.3.x canonical, still reproducible here |
+
+> Corrected 2026-09-21. This line previously named `e34552ab… --weights v330`
+> as *the* canonical for this environment. That was written before the V3.4.0
+> weight flip and never updated — it is reproducible here, but it is not the
+> live canonical, which is exactly the confusion this file exists to prevent.
 
 ## Setup
 

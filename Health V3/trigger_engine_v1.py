@@ -135,7 +135,7 @@ CS_ACTIONS = {
 
 # Subtrees under runs/ that are not part of the canonical monthly series.
 NON_CANONICAL_SUBTREES = {"_archive", "_weighting_study", "_engine_baseline_v3.2.13",
-                          "cohort", "cohort_v330"}
+                          "cohort", "cohort_v330", "_staged"}
 
 OUTPUT_COLS = ["urgency", "trigger_type", "org_shortname", "org_name", "run_date",
                "prior_date", "arr", "arr_tier", "bundle", "score_now", "score_prior",
@@ -308,6 +308,49 @@ def detect_triggers(series, current_only=False):
 
     for org, g in series.groupby("org_shortname"):
         runs = g.sort_values("run_date").to_dict("records")
+
+        # ── State-flag triggers (V3.4.1): evaluated per SNAPSHOT, not per pair.
+        #
+        # new_ghost and fire_duration describe a condition that is either true
+        # or false at a point in time. They do not need a prior run, and gating
+        # them on one hid real accounts: in the 2026-09-21 run all four ghosts
+        # (aa $42,480 with zero logins ever, bmc, pol, blh) arrived with their
+        # org, had exactly one snapshot, were dropped by `len(runs) < 2`, and so
+        # produced no trigger at all — leaving the portfolio's worst account
+        # absent from the worklist CS actually reads.
+        #
+        # Adjacency is deliberately NOT required here either. A state flag is
+        # not a delta, so "was this org a ghost at its previous observation" is
+        # meaningful across a calendar gap in a way a score delta is not.
+        state_ix = [len(runs) - 1] if current_only else range(len(runs))
+        for i in state_ix:
+            curr = runs[i]
+            prev = runs[i - 1] if i > 0 else None
+
+            # --- new_ghost: ghost now, and not a ghost at the previous
+            #     observation. No previous observation means this IS the first.
+            if _truthy(curr.get("ghost_account")) and not _truthy(
+                    prev.get("ghost_account") if prev else False):
+                r = base_row(curr, prev["run_date"] if prev else "", "new_ghost")
+                note = curr.get("ghost_account_note") or "paying account with no logins"
+                if prev is None:
+                    r["detail"] = f"Ghost account on first appearance in the series: {note}"
+                else:
+                    r.update(score_prior=prev.get("composite_score"),
+                             band_prior=prev.get("health_band"))
+                    r["detail"] = f"Ghost-account flag fired: {note}"
+                triggers.append(r)
+
+            # --- fire_duration: a point-in-time state, no prior needed.
+            days = curr.get("support_fire_days_open")
+            if _truthy(curr.get("support_fire")) and pd.notna(days) and float(days) > FIRE_DURATION_DAYS:
+                r = base_row(curr, prev["run_date"] if prev else "", "fire_duration")
+                if prev is not None:
+                    r.update(score_prior=prev.get("composite_score"),
+                             band_prior=prev.get("health_band"))
+                r["detail"] = f"Support fire open {int(days)} days (> {FIRE_DURATION_DAYS})"
+                triggers.append(r)
+
         if len(runs) < 2:
             continue
 
@@ -325,21 +368,6 @@ def detect_triggers(series, current_only=False):
                 continue
             sp, sn = prior.get("composite_score"), curr.get("composite_score")
             bp, bn = prior.get("health_band"), curr.get("health_band")
-
-            # --- new_ghost
-            if _truthy(curr.get("ghost_account")) and not _truthy(prior.get("ghost_account")):
-                r = base_row(curr, prior["run_date"], "new_ghost")
-                r.update(score_prior=sp, band_prior=bp,
-                         detail=f"Ghost-account flag fired: {curr.get('ghost_account_note') or 'paying account with no logins'}")
-                triggers.append(r)
-
-            # --- fire_duration
-            days = curr.get("support_fire_days_open")
-            if _truthy(curr.get("support_fire")) and pd.notna(days) and float(days) > FIRE_DURATION_DAYS:
-                r = base_row(curr, prior["run_date"], "fire_duration")
-                r.update(score_prior=sp, band_prior=bp,
-                         detail=f"Support fire open {int(days)} days (> {FIRE_DURATION_DAYS})")
-                triggers.append(r)
 
             if pd.isna(sp) or pd.isna(sn) or bp is None or bn is None:
                 continue
