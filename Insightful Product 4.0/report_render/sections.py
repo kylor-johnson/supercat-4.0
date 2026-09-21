@@ -373,6 +373,15 @@ def _drop_leading_echo(body: str, sub_blurb: str) -> str:
     first = _plain(m.group(0))
     if not (first == teaser or first.startswith(teaser)):
         return body
+    # The teaser is only the paragraph's FIRST SENTENCE (_default_sub_blurb).
+    # Dropping a longer paragraph as an "echo" therefore throws away every
+    # sentence after the first. §7 lost "A short S1 list on a material book is
+    # a good sign: the decay is not broad-based." the moment the section gained
+    # a second block — before that, the never-empty guard below had been hiding
+    # it. Only drop when the paragraph really is just the teaser.
+    extra = first[len(teaser):].strip(" .\u2026")
+    if extra:
+        return body
     remainder = body[: m.start()] + body[m.end():]
     # Never empty a section. When the echoed paragraph is the ONLY content, the
     # teaser is all the reader would get — keep the body and accept the repeat.

@@ -16,6 +16,7 @@ from .gather import (
     AccountDecay,
     GatherBundle,
     RepRisk,
+    CadenceDecay,
     UnactivatedAccount,
     account_is_callable,
     rep_label_is_house,
@@ -145,6 +146,16 @@ def screen_unactivated(
     ]
 
 
+def screen_cadence_decay(
+    rows: list[CadenceDecay], rules: ScreenRules
+) -> list[CadenceDecay]:
+    """Q-ORG-DECAY rows that survive the profile's house/internal screen."""
+    return [
+        r for r in rows
+        if not bill_to_is_screened(r.customer_num, r.customer_name, rules)
+    ]
+
+
 def account_is_screened(account: AccountDecay, rules: ScreenRules) -> bool:
     # The house rule is a REP-level exclusion: profiles scope it to "excluded
     # from the rep leaderboard render" and from the leakage math, which is
@@ -209,6 +220,7 @@ def apply(bundle: GatherBundle, profile_text: str | None = None) -> GatherBundle
         account.bill_to_number for account in bundle.outreach_list
     ] != [account.bill_to_number for account in legacy_order]
     bundle.unactivated_accounts = screen_unactivated(bundle.unactivated_accounts, rules)
+    bundle.cadence_decay = screen_cadence_decay(bundle.cadence_decay, rules)
     bundle.screened_rep_labels = frozenset(rules.exclude_labels)
     bundle.house_cards_screened = before_cards - len(bundle.rep_risks)
     return bundle

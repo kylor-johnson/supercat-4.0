@@ -42,3 +42,19 @@ The watchlist is short — {{ gather.watchlist|length }} {{ plural(gather.watchl
 *This section requires invoiced ERP data. Connect the feed to unlock the at-risk account watchlist.*
 {%- endif %}
 {%- endif %}
+
+{% if gather.cadence_decay %}
+### Accounts off their own ordering rhythm
+
+*Platform-order cadence — a different question from the revenue decline above. These accounts are measured against the pace they set for themselves, not against last year.*
+
+| Account | Normal pace | Silent | Off by | Platform orders (LTM) |
+|---|---|---|---|---|
+{% for _c in gather.cadence_decay[:8] -%}
+| {{ _c.display_name }}{% if _c.state %} · {{ _c.state }}{% endif %} | {{ _c.cadence_phrase }} | **{{ _c.days_since_last }} {{ plural(_c.days_since_last, 'day') }}** | **{{ "{:.1f}".format(_c.decay_ratio) }}x** | ${{ "{:,.0f}".format(_c.ltm_gmv / 1000) }}K |
+{% endfor %}
+{% set _top = gather.cadence_decay[0] -%}
+{{ _top.display_name }} ordered {{ _top.cadence_phrase }} and has now been quiet {{ _top.days_since_last }} {{ plural(_top.days_since_last, 'day') }} — {{ "{:.1f}".format(_top.decay_ratio) }} times its own gap. A broken rhythm is not the same as a bad year: the account may be fine on revenue and still have stopped reordering. Ask what changed in how they order, not how much.
+
+*Dollars above are platform order volume, not invoiced revenue.*
+{% endif %}

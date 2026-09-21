@@ -594,6 +594,42 @@ class RepCoverageRow:
 
 
 @dataclass
+class CadenceDecay:
+    """Q-ORG-DECAY step 1 — an account whose PLATFORM ordering rhythm broke.
+
+    This is the cadence read, and it is a different question from S1. S1 asks
+    "is invoiced revenue down against the prior six months"; this asks "has
+    this account stopped ordering at the pace it set for itself". An account
+    can be flat on revenue and 5x past its own gap, which is why hfg's
+    largest broken rhythm (The Parker Company, $3.35M, every 18 days, silent
+    97) is nowhere on its decline list.
+
+    Source is `orders` — platform orders, not invoices — so the dollars are
+    platform GMV and must never be presented as invoiced revenue.
+    """
+    customer_num: str
+    customer_name: str
+    state: Optional[str]
+    ltm_orders: int
+    ltm_gmv: float
+    days_since_last: int
+    avg_days_between: float
+    decay_ratio: float
+
+    @property
+    def display_name(self) -> str:
+        return normalize_account_name(self.customer_name) or self.customer_num
+
+    @property
+    def cadence_phrase(self) -> str:
+        """"every 18 days" — the rhythm the account set for itself."""
+        d = self.avg_days_between
+        if d < 1:
+            return "daily"
+        return f"every {d:.0f} day{'s' if round(d) != 1 else ''}"
+
+
+@dataclass
 class UnactivatedAccount:
     """Q-53 — an account with real invoiced business and no confirmed platform
     order, ever. Quote-only accounts count as unactivated: a quote is interest,
@@ -701,6 +737,8 @@ class GatherBundle:
     rep_quote_discipline: Optional[RepQuoteDisciplineRow] = None
     # Q-53 — invoiced accounts with no confirmed platform order ever.
     unactivated_accounts: list[UnactivatedAccount] = field(default_factory=list)
+    # Q-ORG-DECAY — accounts off their own platform-order rhythm.
+    cadence_decay: list[CadenceDecay] = field(default_factory=list)
     # Set by outreach_screen.apply — count of decay / coaching rows dropped
     # by the house / DTC / org-self screen before the top-7 cut.
     outreach_screened: int = 0
@@ -1190,6 +1228,35 @@ def load_rep_activity(rows: list[dict]) -> Optional[RepActivityRow]:
     )
 
 
+def load_cadence_decay(rows: list[dict]) -> list[CadenceDecay]:
+    """Q-ORG-DECAY step 1 output. Ordered by the query (gmv x ratio, desc)."""
+    out: list[CadenceDecay] = []
+    for r in rows:
+        num = _s(r.get("customer_num") or "")
+        name = _s(r.get("customer_name") or "")
+        if not num and not name:
+            continue
+        gap = _f(r.get("avg_days_between")) or 0.0
+        ratio = _f(r.get("decay_ratio"))
+        if gap <= 0 or ratio is None:
+            # Without a mean gap there is no rhythm to be off, which is the
+            # same reason is_cadence_cliff never fires on the S1 rows.
+            continue
+        out.append(
+            CadenceDecay(
+                customer_num=num,
+                customer_name=name,
+                state=_s(r.get("state") or "") or None,
+                ltm_orders=_i(r.get("ltm_orders")),
+                ltm_gmv=_f(r.get("ltm_gmv")) or 0.0,
+                days_since_last=_i(r.get("days_since_last")),
+                avg_days_between=gap,
+                decay_ratio=ratio,
+            )
+        )
+    return out
+
+
 def load_unactivated_accounts(rows: list[dict]) -> list[UnactivatedAccount]:
     """Q-53 output: high-value accounts with no confirmed platform order.
 
@@ -1339,6 +1406,7 @@ def gather_all(org: str, date: str) -> GatherBundle:
     # be in the bundle before the screen runs: hfg's two biggest "unactivated"
     # accounts are its own DTC webstores.
     bundle.unactivated_accounts = load_unactivated_accounts(_read_csv(paths.csv_for("Q-53")))
+    bundle.cadence_decay = load_cadence_decay(_read_csv(paths.csv_for("Q-ORG-DECAY")))
 
     # House / DTC / org-self screen BEFORE the top-7 cut. The auto-rule and
     # per-org EXCLUDE table lived on rep-grain SQL; the decay extract that

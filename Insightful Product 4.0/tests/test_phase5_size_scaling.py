@@ -444,3 +444,45 @@ def test_a_rep_label_the_profile_excludes_gets_no_card():
     t = BASELINE_PROFILE.resolve(26_000_000, 1_187)
     assert [c.risk.rep_number for c in coaching_card_reps([], [belami], t)] == ["900"]
     assert coaching_card_reps([], [belami], t, frozenset({"capital lighting fixture"})) == []
+
+
+def test_cadence_decay_needs_a_rhythm_to_be_off():
+    """Q-ORG-DECAY rows without a mean gap carry no cadence signal.
+
+    This is the same hole that makes AccountDecay.is_cadence_cliff dead across
+    the cohort: S1 never selects mean_order_gap_days, so all 88 decay rows
+    carry 0.0 and the cliff branch can never fire. Q-ORG-DECAY supplies the
+    gap from the platform-order side, and a row missing it is dropped rather
+    than treated as "0 days between orders".
+    """
+    from pipeline.gather import load_cadence_decay
+
+    rows = [
+        {"customer_num": "2465", "customer_name": "The Parker Company LLC", "state": "FL",
+         "ltm_orders": "25", "ltm_gmv": "3353051.28", "days_since_last": "97",
+         "avg_days_between": "18.2", "decay_ratio": "5.3"},
+        {"customer_num": "9", "customer_name": "No Rhythm Co", "state": "TX",
+         "ltm_orders": "5", "ltm_gmv": "50000", "days_since_last": "40",
+         "avg_days_between": "0", "decay_ratio": ""},
+        {"customer_num": "", "customer_name": "", "state": "", "ltm_orders": "6",
+         "ltm_gmv": "99999", "days_since_last": "80", "avg_days_between": "10",
+         "decay_ratio": "8.0"},
+    ]
+    out = load_cadence_decay(rows)
+    assert [c.customer_num for c in out] == ["2465"]
+    assert out[0].cadence_phrase == "every 18 days"
+    assert out[0].decay_ratio == 5.3
+
+
+def test_is_cadence_cliff_is_unreachable_on_the_current_s1_columns():
+    """Pins the defect so the fix is visible when S1 starts supplying the gap.
+
+    account_needs_a_call() reads as `is_real_decline OR is_cadence_cliff OR
+    pct <= -10`, but the middle term has never been able to fire.
+    """
+    a = _Acct(ltm_rev=100_000.0, recent_6mo=60_000.0, prior_6mo=50_000.0,
+              recent_vs_prior_pct=20.0, days_silent=90, mean_order_gap_days=0.0)
+    assert not a.is_cadence_cliff          # no gap -> no rhythm -> no cliff
+    a_with_gap = _Acct(ltm_rev=100_000.0, recent_6mo=60_000.0, prior_6mo=50_000.0,
+                       recent_vs_prior_pct=20.0, days_silent=90, mean_order_gap_days=10.0)
+    assert a_with_gap.is_cadence_cliff     # supply the gap and it fires

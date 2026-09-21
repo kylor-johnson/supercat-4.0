@@ -38,6 +38,7 @@ from report_render.sections import (
     _looks_like_metric_table,
     _looks_like_priorities,
     _pick_callout_tone,
+    _drop_leading_echo,
     _shorten_callout_title,
     _split_priority_text,
     render_summary,
@@ -569,3 +570,33 @@ def test_a_headline_just_over_the_old_limit_keeps_its_clause():
     headline = "$614K of trailing-twelve-month invoices carry no bill-to number"
     assert _shorten_callout_title(headline) == headline.rstrip(".")
     assert "…" not in _shorten_callout_title(headline)
+
+
+def test_a_multi_sentence_paragraph_is_not_dropped_as_a_teaser_echo():
+    """The teaser is only the paragraph's FIRST sentence, so dropping the whole
+    paragraph as an "echo" silently deleted every sentence after it.
+
+    Dainolite lost "No eCat share or attribution rate is claimed." this way — a
+    provenance disclaimer, not decoration. It had been masked by the
+    never-empty-a-section guard until the section gained a second block.
+    """
+    body = (
+        '<p class="prose">These are separate absolute measures. '
+        "No eCat share or attribution rate is claimed.</p>\n"
+        '<p class="prose">Something else entirely.</p>'
+    )
+    teaser = "These are separate absolute measures."
+    kept = _drop_leading_echo(body, teaser)
+    assert "No eCat share or attribution rate is claimed." in kept
+
+
+def test_a_paragraph_that_is_only_the_teaser_is_still_dropped():
+    """The echo rule still earns its keep when nothing would be lost."""
+    body = (
+        '<p class="prose">These are separate absolute measures.</p>\n'
+        '<p class="prose">Something else entirely.</p>'
+    )
+    teaser = "These are separate absolute measures."
+    kept = _drop_leading_echo(body, teaser)
+    assert "These are separate absolute measures." not in kept
+    assert "Something else entirely." in kept

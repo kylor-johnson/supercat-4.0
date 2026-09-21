@@ -113,6 +113,7 @@ QUERIES_GATHER = [
     "Q-CROSS-SELL",   # anchor-SKU dealers who have NOT bought target family
     "Q-DEALER-COHORT",  # dealer cohort flow + cadence + same-base lift
     "Q-53",            # high-value accounts with no confirmed platform order ever
+    "Q-ORG-DECAY",     # platform-order reorder cadence: days silent / own mean gap
 ]
 
 QUERIES_PLATFORM = [
