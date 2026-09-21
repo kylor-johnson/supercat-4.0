@@ -1,6 +1,6 @@
 # Health V3 — Scoring Specification
 
-**Version:** 3.6.1
+**Version:** 3.6.2
 **Date:** 2026-09-21
 **Status:** Production-ready. Scoring math is equal-weighted (25/25/25/25), selectable via `--weights` (see §9 and CHANGELOG 3.4.0). Cache-mode runs are deterministic — same cache + same `--score-date` + same interpreter produces byte-identical output (see §6.6 and `ENVIRONMENT.md`).
 

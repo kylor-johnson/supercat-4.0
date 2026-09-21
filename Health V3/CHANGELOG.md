@@ -6,6 +6,95 @@ All notable changes to the Health V3 operator and surrounding artifacts. Newest 
 
 
 
+
+## 3.6.2 — 2026-09-21
+
+**2026-09-01 re-run and folded in. The series is now twelve continuous snapshots with no gap. Canonical unchanged: `2850025eb9de25926e4c633e3d0aed8f39a4010d874cc6e2935b4e176069896e`**
+
+- **2026-09-01 SHA:** `670d8774d097b7dfe6174f36daa402face9545a5719b32f399c3eb26019d8e6b`
+- 114 orgs, 0 skipped, bands 53 Thriving / 40 Healthy / 13 Watch / 4 At Risk / 4 Critical
+- Two-pass byte-identical. Anchor proven: `max(last_login_at)` = 2026-09-01 23:59:51,
+  `min(first_run_at)` = 2026-03-06 (exactly `(D+1) − 180d`), org 1 `logins_90d` = 4789.
+
+`trigger_reports/trigger_report_2026-09-21.csv` regenerated across **12 snapshots —
+155 triggers** (13 Immediate / 55 High / 87 Standard). The four-month gap that made
+the 3.6.0 report's "month-over-month" deltas misleading is closed.
+
+The run reused the five anchor-independent cache files from the quarantine folder
+(verified against their recorded md5s) and re-pulled the five windowed ones with
+the corrected anchors, each with a fresh server-side checksum.
+
+### What the anchor error actually cost
+
+Now measurable: **31 of 114 composites changed, mean |Δ| 0.42, max 7.8, and zero
+band changes.** Rejecting was right on principle — the offset was real, broad, and
+landed on the tightest seam in the series — but no published band or narrative
+would have been wrong had it shipped. Recorded in the quarantine README so the true
+cost of this class of error is known rather than assumed.
+
+The ghost block was identical across both runs: `today` is `score_date` in either
+case and none of the four ghosts had activity near the boundary, so the bug was
+confined to the windowed counts.
+
+### Fixed — the verify block passed on the bug it existed to catch
+
+3.6.1 added post-write assertions to `HISTORICAL_RUN_GUIDE.md`. They were
+**one-sided** (`max(last_login_at) <= D 23:59:59`), which cannot detect an anchor
+that is a day too *early* — the failure mode that actually occurred. The rejected
+cache maxed at `2026-08-31 23:59:50` and satisfies that assertion cleanly. Now
+two-sided: the value must land **on** `D`, and `min(first_run_at)` is stated as an
+exact equality rather than with a `~` that invites an eyeball.
+
+That is the third verification recipe in three releases that did not work as
+written — rule 8 twice, now this. Worth noting as a pattern: a check that has never
+been run against a known-bad input is not yet a check.
+
+### Fixed — four more defects the re-run surfaced
+
+- **The strongest control was buried as advice.** "Reproduce one already-committed
+  month" was the last sentence of the verify block. It is the only check that
+  catches a wrong anchor *before* an hour of cache population, and it costs one
+  query. Promoted to **Step 0.5**, before Step 1, with the 2026-04-30 org-1 query
+  inlined ready to paste and the three wrong answers (6048, 6112) named so the
+  failure is self-diagnosing.
+- **The upper-bound rule was scoped too broadly.** `WHERE created_at < DATE 'D' +
+  INTERVAL '1 day'` sat under the two-anchor table and read as universal, but
+  `load_pg_portal_orders` and `load_bq_mp_sharing` anchor at `DATE 'D'` — applying
+  it mechanically would widen them by a day and re-create a variant of this bug.
+  Now explicitly scoped to the `NOW()` family.
+- **`bq_helpscout_fires` was mis-classified as "no date filter".** It filters
+  `status IN ('active','pending')` — not an absent filter but one that *cannot be
+  back-dated*, so a historical run sees only conversations still open today. Four
+  consecutive backfill months produced `support_fire = 0` from a header-only file
+  and each agent independently worked out whether they had broken something. The
+  guide now states it: this dimension does not backfill, never read a trend off it.
+- **The reuse rule existed in two places and they contradicted.** The quarantine
+  README said to re-prove a reused file against a fresh server checksum; the re-run
+  brief said the opposite. The brief was right — the source drifts, so a re-proof
+  fails for legitimate reasons and trains the operator to ignore the check. The rule
+  now lives in **Step 1.5**: verify against the recorded md5, record the populate
+  window, and for a file that *has* drifted, compare per key bucket and transfer only
+  what differs (one agent moved 1 bucket of 32, leaving 4,684 of 4,979 rows
+  untouched).
+- The snapshot count in the guide is now self-describing — "one per directory under
+  `runs/historical/`, plus the live canonical" — after going stale twice.
+
+### Series
+
+| Date | n | Thr | Hea | Wat | Risk | Crit | ghosts |
+|---|---|---|---|---|---|---|---|
+| 2026-06-01 | 111 | 56 | 33 | 14 | 4 | 4 | 4 |
+| 2026-07-01 | 112 | 55 | 35 | 13 | 5 | 4 | 4 |
+| 2026-08-01 | 113 | 52 | 39 | 15 | 3 | 4 | 4 |
+| **2026-09-01** | 114 | 53 | 40 | 13 | 4 | 4 | 4 |
+| 2026-09-21 | 114 | 52 | 40 | 14 | 4 | 4 | 4 |
+
+The four-month-drift conclusion survives the correction intact: mean composite
+delta 09-01 → 09-21 is −0.94, median 0.00. The September distribution was already
+in place on 09-01, so the large deltas against 2026-05-13 are gradual drift rather
+than a final-three-weeks event.
+
+---
 ## 3.6.1 — 2026-09-21
 
 **Backfill: Jun, Jul and Aug 2026 added. The series is now eleven continuous snapshots. Canonical unchanged: `2850025eb9de25926e4c633e3d0aed8f39a4010d874cc6e2935b4e176069896e`**

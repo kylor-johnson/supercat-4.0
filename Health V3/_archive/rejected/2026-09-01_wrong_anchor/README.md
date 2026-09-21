@@ -43,9 +43,14 @@ Rejected SHA: `304f413ffb6131e49532a11813a0f61653c619fbad63aa6e4d6ab29478e2894f`
 ## Reusable on re-run
 
 Five loaders carry no date filter and are therefore anchor-independent. These
-files were checksum-verified by the original agent and can be copied forward
-rather than re-pulled, provided a fresh server-side checksum is re-proven at the
-time of reuse:
+files were checksum-verified at populate time and can be copied forward rather
+than re-pulled.
+
+> **Verify them against their recorded md5, not against a fresh server
+> checksum.** The source drifts continuously, so re-proving a file populated
+> hours or days earlier fails for legitimate reasons and teaches the operator to
+> ignore the check. This README originally said the opposite; the rule now lives
+> in `HISTORICAL_RUN_GUIDE.md` Step 1.5.
 
 - `cache/pg_org_config.csv` · `pg_smart_stacks.csv` · `pg_domain_map.csv`
   (4,979 rows — the expensive one) · `pg_catalog.csv` · `bq_helpscout_fires.csv` (empty)
@@ -59,3 +64,18 @@ These five must be re-pulled with the corrected anchor:
 | `pg_imports.csv` | `D+1`, **and** bound `MIN/MAX(created_at)` |
 | `pg_portal_orders.csv` | `D` — this loader uses `CURRENT_DATE`, not `NOW()` |
 | `bq_mp_sharing.csv` | `D` — BigQuery `CURRENT_DATE()` |
+
+---
+
+## Resolved 2026-09-21
+
+The corrected run landed at SHA
+`670d8774d097b7dfe6174f36daa402face9545a5719b32f399c3eb26019d8e6b` and is in the
+series at `runs/historical/2026-09-01/`. It reused all five files listed above and
+re-pulled the other five with the corrected anchors.
+
+**What the anchor fix actually moved:** 31 of 114 composites changed, mean |Δ| 0.42,
+max 7.8, and **zero band changes**. So rejecting was right on principle — the offset
+was real, broad, and landed on the tightest seam in the series — but no published
+band or narrative would have been wrong had it shipped. Worth knowing the true cost
+of this class of error rather than assuming it.
