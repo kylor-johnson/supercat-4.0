@@ -40,8 +40,7 @@ Keep these folder names here. Map on copy; do not reshape this ops tree into L0�
 |---|---|
 | `Insightful Product 4.0/` source (no `outputs/`, no `.venv-renderer/`) | **Hold** — do not copy until Kylor says the 4.0 pipeline is ready (factory #344 reverted) |
 | `.cursor/skills/insightful-report-4/SKILL.md` | same hold |
-| `Health V3/health_operator_v3.py` (V3.3.0) | `agents/ceo_system/onboarding_reality/health_v3/health_operator_v3.py` |
-| `Health V3 Backfill/{README,METHODOLOGY,RUN_PROMPT,FRESH_RUN_GUIDE,CHANGELOG}` | same `health_v3/` folder |
+| `Health V3/health_operator_v3.py` (V3.4.0, equal weights) + `{README,METHODOLOGY,RUN_PROMPT,FRESH_RUN_GUIDE,CHANGELOG,MAINTENANCE,ENVIRONMENT}` | `agents/ceo_system/onboarding_reality/health_v3/` — **factory copy is stale on V3.3.0 weights; port before relying on it** |
 | Persona / JTBD (`personas/` — `00-PERSONA-GROUPS.md`) + splices in `foundation/00`–`02` and `CEO_SYSTEM_CONTEXT.md` | **Hold** — do not splice into factory `context/` (factory #347 closed) |
 | `ttfv/` methodology + prompt (no result CSVs) | `agents/ceo_system/ttfv/` (factory PR #348, still open) |
 | `_museums/Insightful Product 2.0/` / `3.0/`, `_museums/Health V2/`, Implementation CSVs, `eCat_Onboarding/` | **Do not copy** — onboarding agent is unfinished local work |
@@ -76,7 +75,7 @@ Skills, rules, foundation, onboarding-models, PM, reports, design-system,
 Customer Segmentation, Peer Benchmark, Pricing Migration V2,
 EBR/HPMKT 2026, eCat_Onboarding pointers, kb-articles, documentation, prompts,
 scripts (the tracked files), ttfv, validation-reports,
-`Health V3/` / `Health V3 Backfill/` (source + runs, no venv),
+`Health V3/` (source + runs, no venv),
 `Insightful Product 4.0/` (active pipeline),
 `_museums/` (Insightful 2.0/3.0, Health V2, Customer Intelligence, Pricing Migration v1, HPMKT 2.0),
 `Migration-Health Artifacts/`, `hang-tag-spike/` (Next prototype; no `node_modules`).
@@ -140,7 +139,7 @@ Live MCP is `~/.cursor/mcp.json`. Credentials live in `~/.supercat/`.
 | `EBR 2.0/`, `HPMKT 2026/` | Business-review and High Point Market material (HPMKT 2.0 is in `_museums/`). |
 | `ttfv/`, `Data Scoping/`, `validation-reports/` | Time-to-first-value, scoping, and validation datasets. |
 | `scripts/` | Tracked analysis scripts only. Untracked dumps and Notion helpers stay local. |
-| `Health V3/`, `Health V3 Backfill/` | Account-health scoring source + runs (venvs gitignored). Health V2 is in `_museums/`. |
+| `Health V3/` | Account-health scoring — the single source of truth. Source + runs + 7-month backfill (venv gitignored). Read `MAINTENANCE.md` first. Health V2 is in `_museums/`. |
 | `Insightful Product 4.0/` | Active CEO-intelligence pipeline (`CANON.md`, `run.sh`, `pipeline/`). |
 | `_museums/` | Frozen Insightful 2.0/3.0, Health V2, Customer Intelligence, Pricing Migration v1, HPMKT 2.0. |
 | `Migration-Health Artifacts/` | Pricing-migration health brief templates. |
@@ -176,8 +175,9 @@ Also treat as low-trust rather than frozen: `_archive/`, `scratch/`, `files 2/`,
 not sources of truth. Finder ` 2` / ` 3` copies are gitignored (`* 2.*`, `* 2/`,
 `* 3/`); versioned trees (`EBR 2.0`, `Health V2`, `HPMKT 2026`, `* 2.0`) are not.
 
-Health V3 / V3 Backfill are current scoring. Health V2 is in `_museums/`. Do not
-treat health scoring as the Insightful 4.0 pipeline.
+`Health V3/` is current scoring — one folder, no companion clone (the old
+`Health V3 Backfill/` was merged into it on 2026-09-16). Health V2 is in
+`_museums/`. Do not treat health scoring as the Insightful 4.0 pipeline.
 
 ---
 

@@ -37,6 +37,25 @@ Before doing anything, read:
 
 The operator code at `Health V3/health_operator_v3.py` is the source of truth for SQL. Do not paraphrase queries — read each loader function verbatim.
 
+## Step 0 — Environment (once per machine)
+
+The determinism contract is interpreter-scoped: the same cache and `--score-date`
+reproduce byte-identically only under the same Python. Build the pinned venv
+before the first run — see `ENVIRONMENT.md` for why and for the environment of
+record.
+
+```bash
+cd "Health V3"
+/usr/bin/python3 -m venv .venv --system-site-packages
+.venv/bin/pip install -r requirements.txt
+.venv/bin/python3 -c "import sys,pandas,numpy; print(sys.version.split()[0], pandas.__version__, numpy.__version__)"
+# expect: 3.9.6 2.3.3 2.0.2
+```
+
+`.venv/` is gitignored. Every command below assumes `.venv/bin/python3`.
+
+---
+
 ## Step 1 — Determine the score date
 
 Run `date -u +%F` and use that value for both:
@@ -75,7 +94,7 @@ The reviewer must work from the CSV alone, without access to your run report.
 Once the cold-read clears:
 
 1. Add a new entry to `CHANGELOG.md` at the top, following the V3.2.2 entry's structure (the canonical-refresh exemplar — V3.2.3 and V3.2.4 are narrative-only patches and not the right template): canonical SHA, distribution table with delta vs prior, band changes with drivers, composite shifts ≥5pts with drivers, cache deltas, validation summary.
-2. Bump `README.md` "Version" and "Date" to match.
+2. Bump the "Version" and "Date" in **both** `README.md` and `METHODOLOGY.md` to match — Invariant 1 checks the two against the top CHANGELOG heading.
 3. Archive the prior canonical:
    - `mv runs/{prior-date}/ _archive/runs/v{prior-version}_{prior-date}/`
    - `mv cache/{prior-date}/ _archive/cache/v{prior-version}_{prior-date}/`
