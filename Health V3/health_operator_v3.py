@@ -1299,10 +1299,19 @@ def score_operational_health(catalog_row, import_rows, contract_pricing_enabled,
     return score, {"narrative": narrative, "catalog_pct": cat_pct,
                    "import_score": imp_score, "freshness_score": fresh_score,
                    # "full" = all three sub-signals contributed. "catalog_only" =
-                   # no import feed ran in the window, so the score is one
-                   # sub-signal wide and must not be read as evidence that the
-                   # data infrastructure is sound.
-                   "ops_measurement": "full" if imp_score is not None else "catalog_only"}
+                   # at least one is unmeasured, so the score is narrower than it
+                   # looks and must not be read as evidence that the data
+                   # infrastructure is sound.
+                   #
+                   # V3.5.1: this tested `imp_score is not None` only, ignoring
+                   # freshness, so 3 orgs (cl, ihm, tl) were labelled "full" with
+                   # no cadence signal at all — and because clean_ops_dark gates on
+                   # this flag, `cl` published "the infrastructure isn't the
+                   # problem" at ops 80 with freshness unmeasured. The flag now
+                   # requires both.
+                   "ops_measurement": ("full" if (imp_score is not None
+                                                  and fresh_score is not None)
+                                       else "catalog_only")}
 
 
 def composite(eng, ado, val, ops):
@@ -1477,16 +1486,31 @@ def main():
         ghost_note = None
         ghost_subtype = None
         if ghost:
-            ghost_note = f"ARR ${int(mal_row['arr']):,}, zero logins in 90d"
             # §5.1 fires on ARR + zero 90-day logins, which is blind to history:
-            # an org that never activated and one that used the platform heavily
-            # for years and just stopped score identically and need opposite CS
-            # plays. Split them on the longest window the cache contract carries.
-            # (Lifetime login counts are not in pg_engagement, so 12 months is a
-            # proxy, not a claim about the account's whole history.)
-            ghost_subtype = ("no_activity_12m"
-                             if (eng_data.get("active_users_365d") or 0) == 0
-                             else "lapsed_this_quarter")
+            # an org that never activated and one that used the platform for years
+            # and just stopped score identically and need opposite CS plays.
+            #
+            # V3.5.1 renamed these. The old pair was `no_activity_12m` /
+            # `lapsed_this_quarter`, and both labels misled: `lapsed_this_quarter`
+            # was attached to orgs dark 291 and 227 days (nine and seven months),
+            # and `no_activity_12m` invited "never activated" for an org with 200
+            # logins behind it. Three of four labels read wrong. The discriminator
+            # for never-activated was already in the cache — a NULL
+            # first_login_at — so no new column and no cache-contract change was
+            # needed, contrary to what V3.5.0 assumed.
+            _last = eng_data.get("last_login_at")
+            days_dark = None if pd.isna(_last) else (today - _last.replace(tzinfo=None)).days
+            if pd.isna(eng_data.get("first_login_at")):
+                ghost_subtype = "never_activated"        # no login event, ever
+            elif (eng_data.get("active_users_365d") or 0) == 0:
+                ghost_subtype = "dark_12m_plus"          # was active, dark > 1 year
+            else:
+                ghost_subtype = "lapsed"                 # active within 1y, not within 90d
+
+            # days_dark rides in the note so a CSM sees 291 vs 431 rather than
+            # inferring urgency from a bucket label.
+            _dark = "never logged in" if days_dark is None else f"dark {days_dark}d"
+            ghost_note = f"ARR ${int(mal_row['arr']):,}, zero logins in 90d, {_dark}"
             if composite_score is not None:
                 composite_score = min(composite_score, GHOST_CAP)
             else:
@@ -1513,11 +1537,26 @@ def main():
         _arr_str = f"${int(mal_row['arr']):,}" if mal_row['arr'] else "the contract value involved"
 
         if ghost:
-            composite_narrative = (
-                f"No one at {_org_name} has logged into the platform in the last 90 days despite "
-                f"{_arr_str} in annual contract value. This is an urgent churn risk that needs an "
-                f"immediate conversation with the client."
-            )
+            if ghost_subtype == "never_activated":
+                # §5.1 now outranks the new-org gate, so a genuinely new account
+                # above the ARR threshold lands here before it has had a chance to
+                # log in. Calling that "urgent churn risk" to a client who signed
+                # six weeks ago is the false positive the gate used to prevent, so
+                # the framing asks about go-live first (V3.5.1).
+                composite_narrative = (
+                    f"No one at {_org_name} has ever logged into the platform, against "
+                    f"{_arr_str} in annual contract value. Confirm whether this account has "
+                    f"actually gone live before treating it as churn — if go-live is complete, "
+                    f"this is an urgent activation failure and needs an immediate conversation."
+                )
+            else:
+                _dark_phrase = ("in over a year" if ghost_subtype == "dark_12m_plus"
+                                else "in the last 90 days")
+                composite_narrative = (
+                    f"No one at {_org_name} has logged into the platform {_dark_phrase} despite "
+                    f"{_arr_str} in annual contract value. This is an urgent churn risk that needs an "
+                    f"immediate conversation with the client."
+                )
         elif behavioral_floor_applied:
             # Profile-aware sub-shapes per V3.2.4 narrative rewrite:
             #   C — critically low across the board (eng < 25 AND val <= 10)
@@ -1691,6 +1730,13 @@ def main():
         print(f"[OK] Wrote {skip_csv} ({len(skipped)} rows)")
 
     # run_metadata.md
+    if df.empty:
+        # Every org was skipped. skipped_new_orgs.csv is already written above, so
+        # nothing is lost — but value_counts on an absent column raises KeyError
+        # and buries that in a traceback (V3.5.1).
+        print(f"[WARN] No orgs scored — all {len(skipped)} were skipped. "
+              f"See skipped_new_orgs.csv; no canonical CSV or metadata written.")
+        return
     band_counts = df["health_band"].value_counts().to_dict()
     status_counts = df["scoring_status"].value_counts().to_dict()
     _cache_flags = f' --cache --cache-dir "{cache_dir}"' if cache_dir else ''

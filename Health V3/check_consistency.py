@@ -682,6 +682,40 @@ def check_floor_subshapes(root: Path) -> Result:
 # Driver
 # ---------------------------------------------------------------------------
 
+
+# ---------------------------------------------------------------------------
+# Invariant 9 — ENVIRONMENT.md names the live canonical
+# ---------------------------------------------------------------------------
+
+def check_environment_canonical(root: Path) -> Result:
+    name = "Invariant 9 — ENVIRONMENT.md names the live canonical SHA"
+    # This table has gone stale twice. At V3.5.0 all three of its rows were wrong,
+    # in the one file whose stated purpose is preventing SHA confusion, and nothing
+    # caught it — Invariant 2 only checks the top CHANGELOG entry.
+    latest_run = _latest_run_dir(root)
+    if latest_run is None:
+        return Result(False, name, detail="No run directory under runs/ found.")
+    date = latest_run.name
+    canonical_csv = latest_run / f"client_health_scores_{date}.csv"
+    if not canonical_csv.exists():
+        return Result(False, name, detail=f"Canonical CSV missing: {canonical_csv}")
+    sha = hashlib.sha256(canonical_csv.read_bytes()).hexdigest()
+    try:
+        env = _read_text(root / "ENVIRONMENT.md")
+    except OSError as exc:
+        return Result(False, name, detail=f"Could not read ENVIRONMENT.md: {exc}")
+
+    # Accept either the full SHA or the 8-char truncation the table uses.
+    if sha in env or sha[:8] in env:
+        return Result(True, name)
+    return Result(
+        False, name,
+        detail=(f"Live canonical SHA {sha} (from {canonical_csv}) does not appear in "
+                f"ENVIRONMENT.md. Its environment-of-record table must name the current "
+                f"canonical, or it will mislead exactly when someone checks it."),
+    )
+
+
 def main() -> int:
     root = find_root()
     checks = [
@@ -693,6 +727,7 @@ def main() -> int:
         check_formatted_header,
         check_score_date_required,
         check_floor_subshapes,
+        check_environment_canonical,
     ]
     print("Health V3 Consistency Check")
     print("=" * 30)

@@ -17,13 +17,9 @@ Behavioral floor applied: 9
 Support fire flags: 0
 Bundle/config mismatches: 3
 
-### V3.5.0 rescore (2026-09-21)
+### V3.5.1 rescore (2026-09-21)
 
-Schema change: `ghost_subtype` and `ops_measurement` added (28 → 30 columns), so
-every SHA in the series moved. No composite score and no band changed anywhere in
-this month; the only value edits are `operational_health_narrative` for orgs with
-no import feed, which now disclose that import health and freshness are unmeasured.
-
-- V3.5.0 SHA: `b688f7da038f4c9b621d331f3e783ec56e543b830aceed4edee09fad11368c42`
-- Interpreter unchanged (Python 3.9.6 / pandas 2.3.3 / numpy 2.0.2)
+SHA: `d2f7b545ee871f918d9c199e0bbf87794eb28a5828a60e7ec3f75ded792d163e`. `ops_measurement` now requires both import health *and* freshness
+(it previously ignored freshness), and `ghost_subtype` labels were renamed. No
+composite score and no band changed.
 

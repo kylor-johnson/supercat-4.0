@@ -101,7 +101,7 @@ Once the cold-read clears:
 4. Verify SHA pre/post archive move (no corruption).
 5. Sweep for stale path references in live (non-archive) docs:
    ```
-   grep -rn "runs/{prior-date}\|cache/{prior-date}" --exclude-dir=_archive Health\ V3/
+   grep -rn "runs/{prior-date}\|cache/{prior-date}" --exclude-dir=_archive .
    ```
    Any hits in live docs (CHANGELOG entries describing the archive move are expected and fine) should be patched to point at the new archive location.
 6. Run `.venv/bin/python3 check_consistency.py` from `Health V3/`. All 8 invariants must pass. If any fail, stop and resolve before declaring the canonical shipped — typical fix is updating the top CHANGELOG entry with the new SHA or regenerating the dashboard against the new canonical.

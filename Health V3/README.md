@@ -1,6 +1,6 @@
 # Health V3 — Scoring Specification
 
-**Version:** 3.5.0
+**Version:** 3.5.1
 **Date:** 2026-09-21
 **Status:** Production-ready. Scoring math is equal-weighted (25/25/25/25), selectable via `--weights` (see §9 and CHANGELOG 3.4.0). Cache-mode runs are deterministic — same cache + same `--score-date` + same interpreter produces byte-identical output (see §6.6 and `ENVIRONMENT.md`).
 
@@ -59,19 +59,42 @@ The operator does **not** open live Postgres or BigQuery connections during a ca
    `scripts/bq_to_csv.py` is for raw BigQuery JSON (`{"data": [...]}`) output.
 7. **After writing each file, read it back with `pandas.read_csv()`** and verify (a) row count matches what the MCP query returned, (b) column names match the SQL output, (c) dtypes look reasonable.
 8. **Verify content, not just shape — this is the step that catches real corruption.**
-   Rules 6–7 pass on a file whose *values* are wrong. Cache data round-trips through an agent as
-   text, and the 2026-09-21 run produced three silent transcription errors in `pg_domain_map.csv`
-   alone (a swapped adjacent pair and two mangled domains) — every one preserved row count and
-   column names. Compute a checksum server-side and compare it against the written file:
+   Rules 6–7 pass on a file whose *values* are wrong. Cache data round-trips through an
+   agent as text, and the 2026-09-21 run produced three silent transcription errors in
+   `pg_domain_map.csv` alone (a swapped adjacent pair and two mangled domains) — every one
+   preserved row count and column names. Compute a checksum on both sides and require an
+   exact match:
 
    ```sql
-   -- append to each loader query, over the same ORDER BY the CSV is written in
-   SELECT md5(string_agg(col1 || '|' || col2 || '|' || ..., E'\n' ORDER BY <key>)) FROM ( <loader query> ) t;
+   -- append to each loader query
+   SELECT md5(string_agg(line, E'\n' ORDER BY line)) FROM (
+     SELECT concat_ws('|', col1::text, col2::text, ...) AS line
+     FROM ( <loader query> ) t
+   ) s;
    ```
 
-   Then hash the same concatenation locally from the CSV and require an exact match. A corrupted
-   `pg_domain_map.csv` degrades `support_data_available` for **every** org, not just the mangled
-   row, so this is not a per-row risk.
+   Four details decide whether this works. The first two are not optional:
+
+   - **`concat_ws`, never `||`.** In Postgres `a || NULL` is `NULL`, and `string_agg`
+     skips NULL inputs — so **any row with a single NULL column vanishes from the
+     checksum entirely.** 70 of 258 `pg_engagement` rows carry a NULL, and
+     `first_login_at`/`last_login_at` are NULL for exactly the zero-login orgs. Under a
+     `||` checksum, `aa` — the highest-ARR ghost in the portfolio — is invisible, and
+     silent corruption in its row passes clean. Verified live: a three-row table with one
+     NULL checksums only two rows under `||` and all three under `concat_ws`.
+   - **`ORDER BY line`, not `ORDER BY <key>`.** Order by the rendered row. A pure
+     row-position swap then changes nothing and a value swap *between* rows changes
+     everything — which is correct, because the loaders build keyed lookups and row order
+     carries no meaning. Ordering by key instead makes a position swap normalize away
+     silently, and the rule is otherwise ambiguous at exactly the point that decides it.
+   - **Normalize both sides before hashing.** Cast numerics at a fixed scale and
+     timestamps with `to_char(…, 'YYYY-MM-DD HH24:MI:SS.US')`, and render the local side
+     from `pandas.read_csv(dtype=str)` so nothing is re-typed on the round trip. Otherwise
+     PG's `42480` vs pandas' `42480.0` produces spurious mismatches, which trains the
+     operator to ignore the check.
+   - **Record each file's md5 in `run_metadata.md`.** Otherwise the only record of a
+     caught corruption is a CHANGELOG entry someone has to remember to write.
+
 9. **Do not modify the cache after the run.** Per §6.6, each `cache/{date}/` directory is immutable once populated. To rerun for the same date, point at the same cache. To use fresher data, populate a new dated directory.
 
 **Sanity checks before running the operator:**
@@ -314,7 +337,7 @@ Low example: *"Delivering value through 2 of 5 applicable channels. Online catal
 2. **Import Health** — are active data feeds running successfully?
 3. **Data Freshness** — are active data feeds running on their expected cadence?
 
-Each sub-signal scores 0–100. `operational_health_score = average of three sub-signal scores`.
+Each sub-signal scores 0–100. `operational_health_score = average of the sub-signal scores that could be measured (see Sub-Signal 3 / ops_measurement)`.
 
 ---
 
@@ -392,6 +415,23 @@ per-dimension narrative says the two sub-signals are unmeasured, and the
 blanked — a poor catalog is still a real ops finding, as `dals` shows at ops 20 —
 but it must not be read as evidence that the data infrastructure is sound.
 
+**`catalog_only` is an asymmetric warning — do not discount the score uniformly.**
+`catalog_only` with a *high* ops score means "the one thing we measured looks
+fine", which is weak evidence. `catalog_only` with a *low* ops score is fully
+trustworthy: `dals` at ops 20 on a 33%-complete catalog is a blocker whether or
+not its feeds are running. A consumer that suppresses ops wherever
+`ops_measurement = "catalog_only"` would discard that genuine finding.
+
+**Known, deferred:** a `catalog_only` org can still carry ops 100 into the
+composite at full weight — `ops_measurement` makes that detectable but does not
+correct it. Today every `catalog_only` org is ghost- or floor-capped, so no
+composite is actually carrying an unearned 100; the exposure is an org that is
+`catalog_only` with healthy engagement and no override, and nothing has that
+shape. The candidate fix is capping `catalog_only` ops at the top of Healthy
+(~75–79) rather than blanking it, which moves composites only where the current
+number overstates. That is a scoring change needing its own version bump and a
+delta study — see `MAINTENANCE.md`.
+
 Per-type staleness scores are aggregated via a **frequency-weighted average** — each type's score is weighted by its `run_count_180d`. A daily inventory feed (≈ 180 runs) drives the freshness signal far more than a quarterly catalog re-load (≈ 2 runs), which matches operator intuition that a stalled daily feed is a much bigger problem than a stalled quarterly one. If `total_weight = 0` (defensive fallback only), the average degrades to a simple mean.
 
 **Minimum history required:** At least 3 import events of this type in 180d to calculate a meaningful median. If fewer than 3 events exist, treat this import type as unscored and omit from the freshness average.
@@ -462,8 +502,18 @@ A ghost account is an org that is **paying meaningfully** but **not using the pr
 
   | Subtype | Condition | The CS conversation |
   |---|---|---|
-  | `no_activity_12m` | `active_users_365d = 0` | Never activated, or dark for over a year. "Did onboarding ever happen?" |
-  | `lapsed_this_quarter` | someone was active within 365d, nobody within 90d | Was using it and stopped. "What changed?" |
+  | `never_activated` | `first_login_at` is NULL — no login event, ever | "Has this account actually gone live?" A go-live failure, not churn. |
+  | `dark_12m_plus` | has logged in, but `active_users_365d = 0` | Win-back. It worked once; it has been dark over a year. |
+  | `lapsed` | active within 365d, nobody within 90d | "What changed?" Recent stop, best save odds. |
+
+  `ghost_account_note` carries the exact days-dark (`dark 291d`) so urgency comes
+  from the number, not from the bucket. **Renamed in V3.5.1.** The original pair
+  (`no_activity_12m` / `lapsed_this_quarter`) mislabelled three of four ghosts:
+  `lapsed_this_quarter` was attached to orgs dark 291 and 227 days, and
+  `no_activity_12m` invited "never activated" for `pol`, which has 200 logins
+  behind it. The never-activated discriminator was already in the cache as a NULL
+  `first_login_at`, so the rename needed no new column — contrary to the V3.5.0
+  note claiming a cache-contract change was required.
 
   Both land at the same capped score and the same Critical band — the subtype is
   the routing signal, not a severity signal. `bmc` illustrates why it matters: an

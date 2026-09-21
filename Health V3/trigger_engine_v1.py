@@ -205,6 +205,19 @@ def load_series(history_dirs, production_csv=None):
         pp = Path(production_csv)
         if pp not in paths:
             paths.append(pp)
+    # D6 (V3.5.1): a --history-dir the caller named explicitly can contribute
+    # zero paths — NON_CANONICAL_SUBTREES is applied to named directories too, so
+    # `--history-dir runs/_staged` is a silent no-op. That produced a confidently
+    # wrong answer during verification: the run reported 7 snapshots and 78
+    # triggers with the staged month simply absent. Say so.
+    for d in history_dirs:
+        if not any(str(Path(d)) in str(pp) or Path(d) in pp.parents for pp in paths):
+            excluded = sorted(set(Path(d).parts) & NON_CANONICAL_SUBTREES)
+            hint = (f" It sits under a non-canonical subtree ({', '.join(excluded)}), "
+                    f"which is excluded unconditionally — pass it as --production-csv "
+                    f"instead.") if excluded else ""
+            print(f"[WARN] --history-dir {d} contributed no snapshots.{hint}")
+
     if not paths:
         sys.exit("[ERROR] No canonical scorecards found. Pass --history-dir / --production-csv.")
 
@@ -540,7 +553,10 @@ def main():
     p = argparse.ArgumentParser(description="Health V3 trigger engine")
     p.add_argument("--history-dir", action="append", default=None,
                    help="Directory tree of canonical scorecards (repeatable). "
-                        "Default: runs/historical and runs/")
+                        "Default: runs/historical and runs/. Non-canonical subtrees "
+                        "(_staged, _archive, _weighting_study, _engine_baseline*, "
+                        "cohort*) are excluded UNCONDITIONALLY, even when named here "
+                        "— to include a staged run, pass it as --production-csv.")
     p.add_argument("--production-csv", default=None,
                    help="The latest canonical CSV, if it lives outside --history-dir")
     p.add_argument("--output-dir", default="trigger_reports")
