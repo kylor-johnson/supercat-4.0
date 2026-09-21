@@ -95,16 +95,28 @@ Once the cold-read clears:
 
 1. Add a new entry to `CHANGELOG.md` at the top, following the V3.2.2 entry's structure (the canonical-refresh exemplar — V3.2.3 and V3.2.4 are narrative-only patches and not the right template): canonical SHA, distribution table with delta vs prior, band changes with drivers, composite shifts ≥5pts with drivers, cache deltas, validation summary.
 2. Bump the "Version" and "Date" in **both** `README.md` and `METHODOLOGY.md` to match — Invariant 1 checks the two against the top CHANGELOG heading.
-3. Archive the prior canonical:
-   - `mv runs/{prior-date}/ _archive/runs/v{prior-version}_{prior-date}/`
-   - `mv cache/{prior-date}/ _archive/cache/v{prior-version}_{prior-date}/`
+3. **Demote** the prior canonical into the historical series — do **not** archive it:
+   - `mv runs/{prior-date}/ runs/historical/{prior-date}/`
+   - `mv cache/{prior-date}/ cache/historical/{prior-date}/`
+   - `mv trigger_reports/trigger_report_{prior-date}.* trigger_reports/_archive/`
+   - `mv dashboards/health_dashboard_{prior-date}.html _archive/dashboards/health_dashboard_{prior-date}_v{prior-version}.html`
+
+   This step used to say `_archive/runs/` and `_archive/cache/`. **That breaks the
+   series.** `_archive/` is in `NON_CANONICAL_SUBTREES`, so the trigger engine
+   would stop seeing the retired month and every month-over-month delta spanning
+   it would silently vanish — at the 2026-09-21 promotion that would have left a
+   Nov→Apr + Sep sequence with May invisible. The trigger series is the product;
+   `runs/historical/` is where prior canonicals belong.
+
+   The dashboard **is** archived rather than demoted, so `_latest_dashboard()`
+   resolves against exactly one live file (Invariant 5).
 4. Verify SHA pre/post archive move (no corruption).
 5. Sweep for stale path references in live (non-archive) docs:
    ```
    grep -rn "runs/{prior-date}\|cache/{prior-date}" --exclude-dir=_archive .
    ```
    Any hits in live docs (CHANGELOG entries describing the archive move are expected and fine) should be patched to point at the new archive location.
-6. Run `.venv/bin/python3 check_consistency.py` from `Health V3/`. All 8 invariants must pass. If any fail, stop and resolve before declaring the canonical shipped — typical fix is updating the top CHANGELOG entry with the new SHA or regenerating the dashboard against the new canonical.
+6. Run `.venv/bin/python3 check_consistency.py` from `Health V3/`. All 9 invariants must pass. If any fail, stop and resolve before declaring the canonical shipped — typical fix is updating the top CHANGELOG entry with the new SHA or regenerating the dashboard against the new canonical.
 
 ## Hard constraints
 

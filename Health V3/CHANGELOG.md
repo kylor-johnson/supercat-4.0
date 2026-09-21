@@ -4,6 +4,104 @@ All notable changes to the Health V3 operator and surrounding artifacts. Newest 
 
 
 
+
+## 3.6.0 — 2026-09-21
+
+**New canonical. The September run is promoted; the standing MAL moves to 114 orgs.**
+
+- **New canonical SHA:** `2850025eb9de25926e4c633e3d0aed8f39a4010d874cc6e2935b4e176069896e`
+- **Prior canonical (2026-05-13, V3.5.1):** `a797e95980f7a9dc5fa185dbba51857f9f1bef57074e2a534744376a40207ca8`
+- Score date `2026-09-21` · MAL `master_account_list_2026-09-16_canonical.csv` · 114 orgs, $1,973,662 ARR
+- `--weights equal`, new-org gate on. Two-pass byte-identical. `check_consistency.py` 9/9.
+
+No engine change. This entry promotes the run that was staged at
+`runs/_staged/2026-09-21/` after it cleared two independent verification passes —
+a fresh session that had not seen the folder, and a review by the session that ran
+the original test. Every finding from both is closed in V3.4.1 / V3.5.0 / V3.5.1.
+
+### Distribution
+
+| Band | 2026-05-13 | 2026-09-21 | Δ |
+|---|---|---|---|
+| Thriving | 57 | 52 | −5 |
+| Healthy | 31 | 40 | +9 |
+| Watch | 14 | 14 | 0 |
+| At Risk | 1 | 4 | +3 |
+| **Critical** | 1 | **4** | **+3** |
+
+Flags: behavioural floor 14 · **ghost 4** · support fire 1 · bundle/config mismatch 0.
+`scoring_status = complete` for all 114.
+
+**Read every delta as four months, not one.** The prior snapshot is 2026-05-13 and
+the trigger engine treats consecutive snapshots as adjacent regardless of calendar
+distance, so the 24 band changes and the ≥15-point moves below span May →
+September. They are not a one-month collapse.
+
+Across the 102 orgs common to both snapshots: mean composite −1.22, median −0.75;
+57 declined, 39 improved, 6 flat.
+
+### Composite shifts ≥ 15 points, with drivers
+
+| Org | ARR | May → Sep | Δ | Driver |
+|---|---|---|---|---|
+| `cf` | $7,830 | 40.0 → 75.3 | +35.3 | Value Delivery |
+| `kl` | $9,360 | 55.4 → 82.9 | +27.5 | Value Delivery |
+| `jc` | $24,029 | 89.6 → 62.4 | **−27.2** | Value Delivery |
+| `ol` | $13,380 | 63.8 → 40.0 | **−23.8** | Value Delivery |
+| `dccl` | $22,038 | 66.2 → 86.4 | +20.2 | Value Delivery |
+| `soi` | $8,700 | 71.7 → 52.9 | −18.8 | Value Delivery |
+| `bp` | $15,280 | 60.2 → 78.5 | +18.3 | Adoption |
+| `df` | $9,560 | 74.8 → 58.7 | −16.1 | Value Delivery |
+
+Seven of eight are Value-Delivery-driven over a four-month window, which is the
+dimension `MAINTENANCE.md` flags as substantially a segment proxy. Treat the
+direction as real and the magnitude as partly structural — `jc` and `ol` are the
+two worth a CS conversation on the evidence, not the arithmetic.
+
+### Population
+
+**+12** (`aa`, `blh`, `bmc`, `cl`, `cst`, `drf`, `libco`, `mali`, `pebl`, `pol`,
+`tcd`, `tcs`) — real paying accounts the April MAL omitted, sourced from live
+`subscriptions`. **−2** (`hmjc`, `tel`) — both churned, zero active plans.
+
+**Four of the twelve additions are ghosts**, carrying **$83,520 of at-risk ARR
+that nothing was watching**: `aa` $42,480 `never_activated` (no login event in its
+entire history against six months of billing), `bmc` $21,720 `lapsed` (dark 291d,
+live since 2011), `blh` $10,620 `lapsed` (dark 227d), `pol` $8,700 `dark_12m_plus`
+(dark 431d). The first ghost cohort in the program's history, and the single
+strongest argument for the MAL refresh.
+
+### Triggers
+
+`trigger_reports/trigger_report_2026-09-21.csv` — 107 triggers across 8 snapshots,
+10 Immediate / 34 High / 63 Standard. All five `new_ghost` rows band Critical
+(`prog` at 2025-11-30 plus the four September ghosts). Generated after promotion,
+so no `--production-csv` override is needed.
+
+### Archive and layout
+
+RUN_PROMPT step 5.3 said to move the prior canonical to `_archive/`. **That would
+have broken the series** — `_archive/` is excluded from the trigger engine, so
+retiring May there would have left a Nov→Apr + Sep sequence with the May snapshot
+invisible to month-over-month detection. The prior canonical is instead demoted
+into the historical series, which is what `runs/historical/` is for:
+
+- `runs/2026-05-13/` → `runs/historical/2026-05-13/`
+- `cache/2026-05-13/` → `cache/historical/2026-05-13/`
+- `trigger_reports/trigger_report_2026-05-13.*` → `trigger_reports/_archive/`
+- `dashboards/health_dashboard_2026-05-13.html` → `_archive/dashboards/…_v3.5.1.html`
+
+SHAs verified identical pre- and post-move. **RUN_PROMPT step 5.3 is corrected**
+so the next run demotes rather than archives. `runs/historical/` now holds eight
+months, Nov 2025 → May 2026.
+
+### Dashboard
+
+`dashboards/health_dashboard_2026-09-21.html` — 114 rows, 30 columns, footer
+`2850025e…`, V3.6.0. The May dashboard is archived rather than left beside it, so
+`check_consistency.py` Invariant 5 resolves against one live dashboard.
+
+---
 ## 3.5.1 — 2026-09-21
 
 **Closes everything found by an independent verification pass. Live canonical: `a797e95980f7a9dc5fa185dbba51857f9f1bef57074e2a534744376a40207ca8`**

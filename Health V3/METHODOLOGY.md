@@ -1,6 +1,6 @@
 # Client Health Score — Methodology Overview
 
-**Version:** 3.5.1 | **Last Updated:** 2026-09-21
+**Version:** 3.6.0 | **Last Updated:** 2026-09-21
 
 > This document is the executive-facing explainer. It describes *what* the score measures and *why* it is built this way. The operational spec — exact thresholds, SQL, field names, score formulas — lives in `README.md`. Anywhere this document would otherwise pin a specific number, it points at the README. That keeps a single source of truth for current operating values and prevents the two docs from drifting.
 
