@@ -83,11 +83,11 @@ See `01_routing/routing_notes.md` for full detail.
 | Source | Path | What We Use |
 |---|---|---|
 | Health V3 (current) | `SuperCat 4.0/Health V3/runs/2026-05-13/` | `client_health_scores_2026-05-13.csv` |
-| Health V3 Backfill | `SuperCat 4.0/Health V3 Backfill/runs/historical/` | 6-month band history per org |
+| Health V3 backfill | `SuperCat 4.0/Health V3/runs/historical/` | 6-month band history per org |
 | Migration table | `Downloads/2026-05-13__migration_table__v6.csv` | MRR delta, drivers, risk labels |
 | Pricing authority | `Downloads/PRICING_CONSTITUTION (1).md` | Tier definitions, rate cards |
 
 ---
 
 *Last updated: May 18, 2026*
-*Health data scored: May 13, 2026 (V3.3.0, 104 orgs)*
+*Health data scored: May 13, 2026 (V3.4.0, equal weights, 104 orgs, SHA `6a2f1d9f…`)*

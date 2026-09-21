@@ -1,136 +1,156 @@
-# Health V3 Backfill — Historical Run Guide
+# Health V3 — Historical Run Guide
 
-**This folder is an isolated clone of `Health V3/` for historical backfill work only.**
+How to score a **past** date. Use this when you need to extend the month-over-month
+series backwards, or reconstruct a snapshot that was never run.
 
-The production folder (`Health V3/`) must never be touched during this work. The production canonical SHA is `b48e3a5f7354ee8d769b764e24ca6195a2424ec5f1416891da9877d6011efcb8`. If you ever need to verify production is intact, run:
+For the normal monthly run, use `RUN_PROMPT.md`. For the mechanics of a single
+run, `FRESH_RUN_GUIDE.md`. This guide only covers what is *different* about a
+historical date.
 
-    shasum -a 256 "../Health V3/runs/2026-05-13/client_health_scores_2026-05-13.csv"
+> **Historical runs are approximate.** They are fit for trend and trigger
+> detection, not for a client-facing number. The limitations below are real and
+> must be restated in every `run_metadata.md` you produce.
 
-It must always return `b48e3a5f…`. If it doesn't, stop everything.
+## State of the existing series
 
----
+Seven snapshots exist, all scored under **V3.4.0 equal weights** and the pinned
+interpreter (see `ENVIRONMENT.md`):
 
-## Purpose
+| Score date | Location |
+|---|---|
+| 2025-11-30 → 2026-04-30 | `runs/historical/{date}/` |
+| 2026-05-13 | `runs/2026-05-13/` (the live canonical, `6a2f1d9f…`) |
 
-Produce approximate historical scorecards for Nov 2025 – Apr 2026 to enable:
+The six historical months were regenerated on 2026-09-16 when the default
+weighting reverted to equal, so the whole series is internally consistent. Each
+carries its original limitations note plus its V3.4.0 SHA.
 
-1. Month-over-month trigger detection (V3.3) from day one of the June 2026 run
-2. A directional look-back study on dimension weighting (§9 of README.md)
-
-All outputs from this work live under `runs/historical/` and `cache/historical/` in **this folder only**. Nothing here gets written back to the production `Health V3/` folder except the final historical canonical CSVs, which are copied (not moved) after analysis.
+**`trigger_engine_v1.py` will refuse a series that mixes weighting schemes.** It
+infers each snapshot's scheme from the data and exits rather than emit
+month-over-month deltas that reflect an engine change instead of client
+behaviour. If you add a snapshot, score it with the same `--weights` as the
+rest (default `equal`) or the trigger run will stop.
 
 ---
 
 ## Known limitations of historical runs
 
-These runs are approximate. Document these limitations in every `run_metadata.md` produced here:
+Restate these in every `run_metadata.md` produced from a historical cache:
 
 | Dimension | Limitation |
 |-----------|------------|
-| Engagement | Accurate — login_events are timestamped, trailing windows are correctly anchored |
-| Adoption | Approximately accurate — feature flags (`mobile_sites`) reflect current config, not historical. An org that disabled a feature since November will show it as currently disabled, potentially understating their historical adoption. |
-| Value Delivery | Accurate — orders and portal_orders are timestamped |
-| Ops Health (imports) | Accurate — import_events are timestamped |
-| Ops Health (catalog) | **Not historical** — catalog completeness reflects today's catalog, not the historical state. Treat ops scores as approximate for catalog-heavy orgs. |
-| Support Fire | Approximately accurate — queries only open conversations; conversations opened before the window and still open appear; conversations that were open then but closed since do not. |
-| MAL | **Current MAL only** — orgs that churned and were removed from the MAL won't appear in historical runs. New orgs added to the MAL after the historical date will appear (but are likely gated by new-org exclusion if their first login is after the score date). |
+| Engagement | Accurate — `login_events` are timestamped, trailing windows correctly anchored |
+| Adoption | Approximately accurate — feature flags (`mobile_sites`) reflect **current** config, not historical. An org that has since disabled a feature will show it disabled, understating its historical adoption. |
+| Value Delivery | Accurate — `orders` and `portal_orders` are timestamped |
+| Ops Health (imports) | Accurate — `import_events` are timestamped |
+| Ops Health (catalog) | **Not historical** — catalog completeness reflects today's catalog. Treat ops scores as approximate for catalog-heavy orgs. |
+| Support Fire | Approximately accurate — the query sees only conversations still open. Ones open then but closed since do not appear. |
+| MAL | **Whichever MAL you pass** — orgs that churned and were dropped from it will not appear at all. Orgs added after the score date will appear but are usually caught by the 90-day new-org gate. |
 
 ---
 
-## Directory structure
+## Directory layout
 
 ```
-Health V3 Backfill/
+Health V3/
 ├── cache/
-│   ├── 2026-05-13/          ← Copy of production cache (reference only — do not modify)
+│   ├── {YYYY-MM-DD}/          ← current-month canonical caches
 │   └── historical/
-│       ├── 2025-11-30/      ← 10 cache CSVs for November 2025 run
-│       ├── 2025-12-31/      ← etc.
-│       ├── 2026-01-31/
-│       ├── 2026-02-28/
-│       ├── 2026-03-31/
-│       └── 2026-04-30/
-├── runs/
-│   ├── 2026-05-13/          ← Copy of production run (reference only — do not modify)
-│   └── historical/
-│       ├── 2025-11-30/      ← canonical + formatted CSV + run_metadata.md
-│       └── ...
+│       └── {YYYY-MM-DD}/      ← 10 cache CSVs per historical score date
+└── runs/
+    ├── {YYYY-MM-DD}/          ← current-month canonical output
+    └── historical/
+        └── {YYYY-MM-DD}/      ← canonical + formatted CSV + run_metadata.md
 ```
 
----
-
-## How to populate a historical cache
-
-For each historical score date, use the Cursor MCP tools (`user-supercat-postgres-vpn`, `user-bigquery-vpn`) to query the data with historical date bounds. Run these queries via MCP and save results as CSVs to `cache/historical/{date}/`.
-
-**The historical cutoff date substitution rule:**
-
-In every query, replace trailing-window anchors with explicit date bounds:
-- `NOW() - INTERVAL '90 days'` → `'{score_date}'::date - INTERVAL '90 days'`
-- `NOW()` → `'{score_date}'::date`
-- `CURRENT_DATE - INTERVAL '90 days'` → `'{score_date}'::date - INTERVAL '90 days'`
-- BigQuery `CURRENT_DATE()` → `DATE('{score_date}')`
-
-The 10 cache files required and their source queries are in `health_operator_v3.py`. Read each loader function verbatim for the SQL. Apply the date substitution above to every trailing-window filter.
-
-**Score dates to target (last day of each month):**
-
-| Score date | Cache directory |
-|------------|----------------|
-| 2025-11-30 | cache/historical/2025-11-30/ |
-| 2025-12-31 | cache/historical/2025-12-31/ |
-| 2026-01-31 | cache/historical/2026-01-31/ |
-| 2026-02-28 | cache/historical/2026-02-28/ |
-| 2026-03-31 | cache/historical/2026-03-31/ |
-| 2026-04-30 | cache/historical/2026-04-30/ |
+Each `cache/historical/{date}/` is **immutable once populated**, exactly like a
+current-month cache (README §6.6). To rescore a date, point at the same cache.
 
 ---
 
-## How to run the operator for a historical date
+## Step 0 — Environment
 
-Once the cache for a date is populated (all 10 files present):
+Same as every other run: `.venv/bin/python3`, built per `ENVIRONMENT.md`. A
+historical snapshot scored under a different interpreter will drift by ~0.1 on a
+handful of composites, which is enough to manufacture a spurious `score_drop`
+against its neighbours.
 
-    cd "Health V3 Backfill"
+## Step 1 — Populate the historical cache
 
-    .venv/bin/python3 health_operator_v3.py \
-      --mal "../Health V2/inputs/master_account_list_2026-04-14_canonical.csv" \
-      --score-date {score_date} \
-      --cache --cache-dir "cache/historical/{score_date}" \
-      --output-dir "runs/historical/{score_date}"
+Use the Postgres and BigQuery MCP servers (VPN required). Read each loader
+function in `health_operator_v3.py` verbatim for its SQL — do not paraphrase —
+then apply the date substitution below to **every** trailing-window filter, and
+write the 10 CSVs to `cache/historical/{score_date}/`.
 
-Run it twice and SHA both outputs — they must be byte-identical (determinism check).
+**The historical cutoff substitution rule:**
 
-Each `runs/historical/{date}/` directory should contain:
+| Live form | Historical form |
+|---|---|
+| `NOW() - INTERVAL '90 days'` | `'{score_date}'::date - INTERVAL '90 days'` |
+| `NOW()` | `'{score_date}'::date` |
+| `CURRENT_DATE - INTERVAL '90 days'` | `'{score_date}'::date - INTERVAL '90 days'` |
+| BigQuery `CURRENT_DATE()` | `DATE('{score_date}')` |
+
+Missing one of these silently scores a *current* window under a historical
+label — the single most damaging error in this workflow. The file list, column
+requirements, and format rules are in README §"How to populate the cache".
+
+## Step 2 — Run the operator
+
+```bash
+cd "Health V3"
+.venv/bin/python3 health_operator_v3.py \
+  --mal "inputs/master_account_list_2026-04-14_canonical.csv" \
+  --score-date {score_date} \
+  --cache --cache-dir "cache/historical/{score_date}" \
+  --output-dir "runs/historical"
+```
+
+Run it twice and SHA both outputs — they must be byte-identical.
+
+Pass the MAL that was closest to the score date. Note which one you used in
+`run_metadata.md`; it changes the population, not just the metadata.
+
+Each `runs/historical/{date}/` should end up with:
+
 - `client_health_scores_{date}.csv`
 - `client_health_scores_{date}_formatted.csv`
-- `run_metadata.md` — record the SHA, row count, distribution, and the limitations note above
+- `run_metadata.md` — SHA, row count, distribution, **the limitations table
+  above**, the MAL used, and the interpreter
 
----
+## Step 3 — Fold into the series
 
-## What to do when all 6 historical runs are complete
-
-1. Verify the production canonical is still untouched: `shasum -a 256 "../Health V3/runs/2026-05-13/client_health_scores_2026-05-13.csv"` must return `b48e3a5f…`
-2. Copy (do not move) the 6 historical canonical CSVs to `../Health V3/runs/historical/{date}/` in the production folder — these become the reference data for V3.3 trigger detection
-3. Run the look-back validation study (see below)
-4. Report findings back to the orchestrator before any production operator changes
-
----
-
-## Look-back validation study (dimension weighting)
-
-Once all 6 historical runs exist, if you have labeled churn/retention outcomes for Nov 2025–Apr 2026:
-
-1. For each labeled org, record: `org_shortname`, `outcome` (churned / retained / expanded), `outcome_date`
-2. Join to the historical canonical closest to 90 days before the outcome date
-3. Compute correlation of each dimension score with the binary churn outcome, stratified by bundle (iPad-only, Catalog, Cart/Full) — see README §9 for the full protocol
-4. Report: does any weighting scheme improve AUC by ≥ 0.05 vs 25/25/25/25, AND does it hold across ≥ 2 bundle strata?
-5. Treat result as directional only (§9) — cannot trigger a production weight change without the full prospective validation
+1. `.venv/bin/python3 check_consistency.py` — 8/8. It evaluates the latest
+   `YYYY-MM-DD` run under `runs/`, so a new historical date should not move it.
+2. `.venv/bin/python3 trigger_engine_v1.py` — confirm it reports your new
+   snapshot at the same weighting scheme as the rest, then check the
+   month-over-month triggers around the date you added.
+3. Add a CHANGELOG note if the new snapshot changes any published trend.
 
 ---
 
 ## Hard constraints
 
-- **Never write to `../Health V3/`** during historical work. Every output goes to this clone.
-- **Never modify** `cache/2026-05-13/` or `runs/2026-05-13/` in this clone — those are the production reference copies.
-- **Document limitations** in every `run_metadata.md` — these are approximate runs, not canonical.
-- If anything behaves unexpectedly, stop and report to the orchestrator before continuing.
+- **Never modify a populated cache.** Immutable once written, per §6.6.
+- **Never mix weighting schemes within a series.** The trigger engine enforces
+  this; do not reach for `--allow-mixed-weights` to get past it.
+- **Restate the limitations** in every `run_metadata.md`. A historical run that
+  looks canonical but omits them is worse than no run.
+- **Do not present historical scores to a client.** Catalog completeness and
+  adoption flags are present-day; trend and triggers only.
+
+---
+
+## History
+
+This folder was previously a separate clone (`Health V3 Backfill/`) created in
+June 2026 so backfill work could not touch production. That clone was merged
+back in on 2026-09-16 — the guide you are reading now describes the merged
+folder, and the "never write to production" rules it used to carry no longer
+apply.
+
+The dimension-weighting look-back study that motivated the original backfill is
+**complete**. It ran on 2026-09-16 against 11 real outcome labels and rejected
+weighting; see `CHANGELOG.md` 3.4.0, `runs/_weighting_study/2026-09-16/`, and
+README §9. Do not re-run it as though it were open — §9 remains ungated on the
+30-outcome threshold, which is a different question.

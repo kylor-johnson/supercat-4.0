@@ -2,6 +2,401 @@
 
 All notable changes to the Health V3 operator and surrounding artifacts. Newest entries first.
 
+
+
+## 3.5.1 — 2026-09-21
+
+**Closes everything found by an independent verification pass. Live canonical: `a797e95980f7a9dc5fa185dbba51857f9f1bef57074e2a534744376a40207ca8`**
+
+V3.5.0 was verified by a fresh session that had not seen the folder, and separately
+reviewed by the session that ran the original test. Both passes confirmed all five
+earlier fixes. Between them they found three real defects — one of them in the
+column V3.5.0 added to prevent exactly that class of problem — plus six
+documentation errors. All are fixed here. No composite score and no band moved.
+
+### Fixed — `ops_measurement` did not mean what it said
+
+The flag was `"full" if imp_score is not None`, ignoring freshness entirely, while
+README §6 and the code's own comment both claimed "all three ops sub-signals
+contributed." Three orgs were labelled `full` with `freshness_score = None`:
+`cl` (ops 80), `ihm` (ops 100), `tl` (ops 60).
+
+Because `clean_ops_dark` gates on this flag, the suppression V3.5.0 shipped leaked:
+`cl` published *"Corbett Lighting's data infrastructure is healthy… The
+infrastructure isn't the problem"* at ops 80 with the cadence signal unmeasured and
+an ops narrative that disclosed nothing. **The mechanism added to stop the false
+infrastructure claim was itself making a smaller version of it.**
+
+Now requires `imp_score is not None and fresh_score is not None`. `catalog_only`
+goes 7 → 10 orgs (adds `cl`, `ihm`, `tl`); `cl` drops into the standard
+behavioural-floor narrative. Also verified that `pw` at 2026-02-28 keeps
+`clean_ops_dark` legitimately — 4 healthy feeds with freshness present.
+
+### Fixed — the staged trigger report contradicted the run it described
+
+`runs/_staged/2026-09-21/trigger_report_2026-09-21.csv` was a V3.4.0-era artifact,
+timestamped nine minutes before the scores CSV it described. All five `new_ghost`
+rows read `band_now = At Risk` and `ol` still carried the healthy-infrastructure
+claim — **both defects V3.4.1 and V3.5.0 closed were still live in the artifact CS
+actually works from**, inside the folder proposed for promotion. Regenerated: 107
+triggers across all 8 snapshots, ghosts Critical, narrative corrected.
+
+### Fixed — `--history-dir runs/_staged` was a silent no-op
+
+`NON_CANONICAL_SUBTREES` is applied to explicitly-named directories too, so naming
+a staged directory contributed nothing and the engine said nothing — it reported 7
+snapshots and 78 triggers with the staged month simply absent. That produced a
+confidently wrong answer during verification. The engine now warns when a named
+`--history-dir` yields zero snapshots and names the remedy; `--history-dir` help
+text and `runs/_staged/README.md` both say it is unconditional.
+
+### Renamed — `ghost_subtype` labels misled on three of four ghosts
+
+`lapsed_this_quarter` was attached to orgs dark **291 and 227 days** — nine and
+seven months. `no_activity_12m` invited "never activated" for `pol`, which has 200
+logins behind it and is a win-back, not a go-live problem. On the only populated
+bucket the routing was wrong half the time.
+
+The never-activated discriminator was **already in the cache** as a NULL
+`first_login_at`, so this needed no new column and no cache-contract change —
+contrary to V3.5.0's note claiming otherwise.
+
+| Old | New | Condition | September |
+|---|---|---|---|
+| `no_activity_12m` | `never_activated` | `first_login_at` is NULL | `aa` |
+| `no_activity_12m` | `dark_12m_plus` | has logged in, `active_users_365d = 0` | `pol` (431d) |
+| `lapsed_this_quarter` | `lapsed` | active within 365d, none within 90d | `bmc` (291d), `blh` (227d) |
+
+`ghost_account_note` now carries exact days-dark (`dark 291d`), so urgency comes
+from the number rather than the bucket.
+
+### Fixed — a genuinely new account would have been called churn
+
+§5.1 outranking the new-org gate (V3.5.0) is right, but the rule is blind to *why*
+there are no logins. An account signed six weeks ago, above the $5k threshold, with
+reps not yet invited, matches the ghost condition exactly — and got *"urgent churn
+risk that needs an immediate conversation with the client."* That is the false
+positive the gate existed to prevent, now unreachable for any account above $5k.
+Nothing has that shape today; it fires the first time a T1/T2 account onboards
+across a run boundary.
+
+The ghost narrative is now subtype-aware: `never_activated` reads *"Confirm whether
+this account has actually gone live before treating it as churn"*, and
+`dark_12m_plus` says "in over a year" rather than "in the last 90 days". The
+thorough fix — exempting orgs whose earliest `pg_imports.first_run_at` is under 90
+days old — is deferred; it changes no current row.
+
+### Fixed — operator crashed when every org was skipped
+
+`KeyError: 'health_band'` on the empty frame. `skipped_new_orgs.csv` is written
+first so nothing was lost, and it cannot happen in a real run, but it buried the
+cause in a traceback. Now warns and returns cleanly.
+
+### Documentation
+
+- **`ENVIRONMENT.md` — all three rows of the environment-of-record table were
+  wrong**, in the file whose purpose is preventing SHA confusion, directly above
+  its own note boasting of having just fixed that class of error. It named
+  `6a2f1d9f…` as live (that was V3.4.1, and is *also* the archived unweighted
+  operator's output on this interpreter — one SHA, two roles), `6dc304ea…` for
+  September (two versions stale), and claimed `e34552ab…` was "still reproducible
+  here" (V3.5.0 broke that; the actual v330 output is `e98f11a4…`). Rebuilt as a
+  six-row table with an explicit status column.
+- **New Invariant 9** pins `ENVIRONMENT.md` against the live canonical SHA. That
+  table had gone stale twice with nothing to catch it — Invariant 2 only checks the
+  top CHANGELOG entry. `check_consistency.py` is now 9 invariants.
+- **README rule 8 rewritten — the checksum recipe had a flaw that hid corruption
+  in the rows that matter most.** It used `col1 || '|' || col2`, and in Postgres
+  `a || NULL` is `NULL` while `string_agg` skips NULLs, so **any row with a single
+  NULL column vanishes from the checksum entirely**. 70 of 258 `pg_engagement` rows
+  carry a NULL, and `first_login_at`/`last_login_at` are NULL for exactly the
+  zero-login orgs — so `aa`, the highest-ARR ghost in the book, was the one row the
+  check could not see. Verified live: a three-row table with one NULL checksums two
+  rows under `||`, three under `concat_ws`. The rule now mandates `concat_ws`,
+  `ORDER BY line` (so a row-position swap is a no-op and a value swap between rows
+  is caught — the original `ORDER BY <key>` was ambiguous at exactly that point),
+  explicit numeric/timestamp normalization, and recording per-file md5s in
+  `run_metadata.md`.
+- `README.md` §4 headline said ops is the "average of three sub-signal scores"; the
+  code averages only those that could be measured. Corrected, with the
+  `catalog_only` case named at the headline rather than 80 lines later.
+- `README.md` §4 now states that **`catalog_only` is an asymmetric warning**:
+  `catalog_only` + high ops is weak evidence, but `catalog_only` + low ops is fully
+  trustworthy (`dals` at ops 20 on a 33% catalog is a blocker either way). A
+  consumer that discounts ops wherever the flag is set would discard a real finding.
+- `RUN_PROMPT.md` Step 5.5's stale-path sweep grepped `Health\ V3/` while every
+  other command runs from inside `Health V3` — it errored and exited 0, silently
+  passing having checked nothing.
+- `runs/_staged/README.md`: pointed at `run_metadata.md` for the transcription-error
+  provenance, which never contained it (only CHANGELOG 3.4.1 does); listed five
+  items under "three blockers"; and did not say the `_staged` exclusion is
+  unconditional. All corrected, with the working trigger-engine invocation.
+
+### Known, deferred
+
+- **A `catalog_only` org can still carry ops 100 into the composite at full
+  weight.** `ops_measurement` makes it detectable, not corrected. Every
+  `catalog_only` org today is ghost- or floor-capped, so no composite carries an
+  unearned 100; the exposure is a `catalog_only` org with healthy engagement and no
+  override, which nothing currently is. Candidate fix is capping `catalog_only` ops
+  at the top of Healthy (~75–79) rather than blanking — it moves composites only
+  where the number overstates. Needs its own version bump and a delta study.
+- **Lifetime login counts.** One unwindowed `COUNT(*)` in `load_pg_engagement`
+  would make `dark_12m_plus` exact rather than windowed. Deferred until the cache
+  contract changes for another reason.
+- **§9 remains ungated** — 11 outcome labels against a 30-outcome threshold.
+- **Cache population has no automation**, and is the source of the only silent
+  corruption this program has seen.
+
+### Regeneration
+
+| Run | V3.5.0 | V3.5.1 |
+|---|---|---|
+| 2025-11-30 | `4954b41c…` | `4d55f899…` |
+| 2025-12-31 | `f31ee3e2…` | `2f25ff38…` |
+| 2026-01-31 | `1c1a173a…` | `c490040c…` |
+| 2026-02-28 | `5d4abcf3…` | `fbb84877…` |
+| 2026-03-31 | `b688f7da…` | `d2f7b545…` |
+| 2026-04-30 | `969ab5c9…` | `5365fc34…` |
+| **2026-05-13 (canonical)** | `a5d8cb28…` | **`a797e959…`** |
+| 2026-09-21 (staged) | `9fc4b519…` | `2850025e…` |
+
+May distribution unchanged: 57 Thriving · 31 Healthy · 14 Watch · 1 At Risk · 1
+Critical. September staged unchanged: 52 · 40 · 14 · 4 At Risk · 4 Critical.
+Dashboard regenerated. `check_consistency.py` 9 pass / 0 fail.
+
+---
+## 3.5.0 — 2026-09-21
+
+**Closes the three open findings from the end-to-end test run. Schema grows by two columns, so every SHA in the series moves. No composite score and no band changed anywhere.**
+
+- **New canonical SHA:** `a5d8cb289f0ae945efc1636453bfd8f4f3ffe316417dde2011d7ab8f5bc5b73d`
+- **Old canonical SHA (V3.4.1):** `6a2f1d9fc6c86ae58a6888386f83b0a9122ecc98cb5ae6f2195e89a8d4dd1bff`
+- Canonical CSV 28 → 30 columns; formatted CSV 20 → 22.
+
+### New columns
+
+| Column | Values | Purpose |
+|---|---|---|
+| `ghost_subtype` | `no_activity_12m` / `lapsed_this_quarter` / null | Splits the two ghost populations §5.1 cannot distinguish |
+| `ops_measurement` | `full` / `catalog_only` | Whether all three ops sub-signals contributed |
+
+### Fixed — the new-org gate was inert, and repairing it alone would have been worse
+
+`load_pg_engagement` LEFT JOINs `organizations`, so an org with no logins gets
+`first_login_at = NULL` → `NaT`. The gate tested `if first_login is not None`,
+and **`NaT is not None` is `True`**, so the `cohort_year` fallback was dead code
+in cache mode, the subtraction yielded `nan`, and `nan < 90` is `False`. **No org
+had been excluded for having zero logins since V3.0.** Now `pd.notna()`.
+
+Fixing only that would have skipped `aa` — $42,480 ARR, zero logins in its entire
+history, current-year cohort — removing the worst account in the portfolio from
+the scorecard. So it ships with **§5.1 taking precedence over the gate**: the
+ghost condition is now evaluated *before* the gate and a ghost is never skipped as
+an onboarding-window org. A paying account with zero logins is never merely new.
+
+- `health_operator_v3.py`: `ghost` computed ahead of the gate and reused by the
+  override; `pd.notna(first_login)`; `cohort_year` comparison guarded against NaN.
+- `README.md` §"New-Org Exclusion" rewritten — both conditions stated, the bug and
+  its five-month reach recorded, and the pairing explained.
+
+### Fixed — ops reported silence as health
+
+With no import feed in the 180-day window, the import-health and freshness
+sub-signals are both `None` and the dimension rests on catalog completeness alone.
+The per-dimension narrative was honest, but the `clean_ops_dark` composite shape
+escalated it to *"data infrastructure is healthy… the infrastructure isn't the
+problem"* — about orgs whose feeds have **never run**. Absence of measurement
+reported as positive evidence, inside the one sub-shape whose job is to rule
+infrastructure out. 7 of 114 orgs have this shape in the September run, and **all
+four ghosts are among them**, so it was concentrated in the worst accounts.
+
+The score is deliberately **not** blanked — a poor catalog is a real ops finding
+(`dals` sits at ops 20 on the same shape) and blanking would flip those orgs to
+`scoring_status = partial` and move their composites. Instead:
+
+- `ops_measurement` records `full` vs `catalog_only`.
+- The ops narrative states that import health and freshness are unmeasured and
+  that the score reflects catalog completeness only.
+- `clean_ops_dark` now additionally requires `ops_measurement == "full"`.
+- Observed effect: `ol` and `hvl` drop out of `clean_ops_dark` into the standard
+  behavioural-floor narrative. The false infrastructure claim is gone; their
+  scores are unchanged.
+
+### Added — `ghost_subtype`, because §5.1 conflated two populations
+
+The condition is ARR + zero 90-day logins, blind to history. In the September run
+`aa` (zero logins ever) and `bmc` (live since 2011, thousands of logins behind it,
+now at zero) carried the same flag, the same 20.0 and the same band while needing
+opposite CS plays.
+
+| Subtype | Condition | September |
+|---|---|---|
+| `no_activity_12m` | `active_users_365d = 0` | `aa`, `pol` |
+| `lapsed_this_quarter` | active within 365d, none within 90d | `bmc`, `blh` |
+
+Routing signal, not severity — both still cap at 20 and band Critical. **Twelve
+months is a proxy for lifetime history**, which `pg_engagement` does not carry, so
+an org dark longer than a year reads as `no_activity_12m` even if once active
+(`pol`, 200 lifetime logins, dark 432 days). Adding lifetime counts would break
+the existing cache contract; deferred.
+
+### Regeneration and impact
+
+All seven canonical snapshots and the staged September run were rescored. Only two
+kinds of cell changed anywhere: the two new columns, and
+`operational_health_narrative` for `catalog_only` orgs.
+
+| Run | V3.4.1 | V3.5.0 |
+|---|---|---|
+| 2025-11-30 | `e818042b…` | `4954b41c…` |
+| 2025-12-31 | `9f4fb466…` | `f31ee3e2…` |
+| 2026-01-31 | `649c0275…` | `1c1a173a…` |
+| 2026-02-28 | `842c6289…` | `5d4abcf3…` |
+| 2026-03-31 | `c2e1ee64…` | `b688f7da…` |
+| 2026-04-30 | `f23d12aa…` | `969ab5c9…` |
+| **2026-05-13 (canonical)** | `6a2f1d9f…` | **`a5d8cb28…`** |
+| 2026-09-21 (staged) | `592c1bdb…` | `9fc4b519…` |
+
+- May distribution unchanged: 57 Thriving · 31 Healthy · 14 Watch · 1 At Risk · 1 Critical.
+- September staged: 52 · 40 · 14 · 4 At Risk · 4 Critical. 114 rows, `complete` for all.
+- Dashboard regenerated against `a5d8cb28…`; footer reads V3.5.0.
+- `--weights v330` no longer reproduces `e34552ab…` — that SHA predates the schema
+  change. The v330 *scheme* is still selectable and still produces the V3.3.x
+  composites; only the row format differs. Reproducing `e34552ab…` byte-for-byte
+  requires a V3.4.x checkout.
+
+### Still open
+
+- **§9 remains ungated** — 11 outcome labels against a 30-outcome threshold.
+- **Cache population has no automation.** ~215 KB round-trips through an agent as
+  text and produced three silent transcription errors in the September run, caught
+  only by the rule-8 checksum. A populate script would remove the risk class.
+- **agent-factory mirror** is still on V3.3.0 weights and now also lacks both new
+  columns and all three fixes.
+- The staged September run is still **staged**, not promoted.
+
+---
+## 3.4.1 — 2026-09-21
+
+**Two defects found by the first end-to-end test run. Live canonical unchanged: `6a2f1d9fc6c86ae58a6888386f83b0a9122ecc98cb5ae6f2195e89a8d4dd1bff`**
+
+A full pipeline test was run against the September MAL (`master_account_list_2026-09-16_canonical.csv`,
+114 orgs, first use) on a freshly populated `cache/2026-09-21/`. The pipeline ran
+end to end without a single code change being needed, the May canonical
+reproduced bit-for-bit beforehand, and the new run was byte-identical across two
+passes. But it was the **first run in the program's history to produce any ghost
+accounts**, and that exposed two defects that had been latent since V3.0.
+
+The staged run is at `runs/_staged/2026-09-21/` — verified, deliberately not
+promoted. See that folder's `README.md` for why.
+
+### Fixed — ghosts banded At Risk instead of Critical
+
+§5.1 requires `health_band = "Critical"`. `GHOST_CAP` is 20, and 20 is the *At
+Risk* floor in `HEALTH_BANDS`, so `band_for_score(20)` returned `"At Risk"` and
+the band was never assigned explicitly. The spec has been unmet since V3.0 and
+was invisible because no run had ever produced a ghost.
+
+Impact: the test run reported **`Critical: 0` while carrying four ghosts**,
+including `aa` at $42,480 ARR with zero logins in its entire history. Any exec
+reading the band distribution got a materially false picture.
+
+- `health_operator_v3.py`: the §5.1 override now assigns `band = "Critical"`
+  directly. Chosen over lowering `GHOST_CAP` to 19 — the cap is the documented
+  score ceiling and shouldn't be tuned to land on a band boundary.
+- `README.md` §5.1 now states that the band is assigned directly, not derived
+  from the cap, and why a ghost outranks a low-scoring active account.
+- Historical impact: exactly one prior snapshot contained a ghost. `prog`
+  ($25,200, zero logins) in `runs/historical/2025-11-30/` moves At Risk →
+  Critical. That month was rescored; one cell changed, no composite moved.
+  - Prior SHA: `e0931bf5664c89f6d2b84414…`
+  - V3.4.1 SHA: `e818042bccf0613b2449dd51…`
+- The live 2026-05-13 canonical contains no ghosts, so `6a2f1d9f…` is unchanged.
+
+### Fixed — `new_ghost` could never fire for a single-snapshot org
+
+`detect_triggers` opened with `if len(runs) < 2: continue`, and both state-flag
+triggers (`new_ghost`, `fire_duration`) sat inside the month-over-month pair
+loop. An org whose *first* appearance is already a ghost therefore produced no
+trigger at all.
+
+Impact: all four ghosts in the test run arrived with their org and had exactly
+one snapshot, so **none of them appeared anywhere in the trigger report** — the
+artifact CS actually works from. The single highest-ARR at-risk account in the
+portfolio was absent from its own worklist.
+
+- `trigger_engine_v1.py`: state-flag triggers now evaluate per *snapshot*
+  rather than per pair, and no longer require an adjacent prior. A state flag is
+  not a delta, so "was this org a ghost at its previous observation" stays
+  meaningful across a calendar gap. With no prior observation, the flag being
+  set *is* the first firing, and the detail line says "on first appearance in
+  the series" rather than "fired" so the two cases are distinguishable.
+- Month-over-month delta triggers are untouched and still require adjacency.
+- Verified additive: the canonical series goes 77 → 78 triggers, the single
+  addition being `prog` at 2025-11-30 — a ghost that had been invisible for ten
+  months. On the staged September series, 102 → 107 (+5 `new_ghost`). No existing
+  trigger changed type, urgency, driver, detail or action.
+
+### Documentation
+
+- `ENVIRONMENT.md`: the environment-of-record line named `e34552ab… --weights v330`
+  as the canonical for this interpreter. Written before the V3.4.0 flip and never
+  updated — reproducible here, but not the live canonical, which is the exact
+  confusion the file exists to prevent. Replaced with a table covering all three.
+- `README.md` §"New-Org Exclusion": documents that the zero-login branch is
+  **unreachable**. `load_pg_engagement` LEFT JOINs `organizations`, so an org with
+  no logins gets `first_login_at = NaT`, and `NaT is not None` is `True` — the
+  `cohort_year` fallback is dead code in cache mode, `nan < 90` is `False`, and no
+  org is ever excluded for having zero logins. **Not fixed in isolation**: a
+  `pd.isna()` correction would remove `aa` from the scorecard, so it must ship with
+  giving the ghost override precedence over the gate. Tracked in `MAINTENANCE.md`.
+- `README.md` §"How to populate the cache": rules renumbered 6–9. New rule 6 says
+  which converter to use — `scripts/to_csv.py` is the only one that emits
+  `sample_tags` in the required list-repr form; `mcp_to_csv.py` joins lists with
+  `|` and must not be used for `bq_helpscout_fires.csv`. **New rule 8 requires a
+  server-side content checksum.** The test run produced three silent transcription
+  errors in `pg_domain_map.csv` (a swapped adjacent pair and two mangled domains);
+  all three preserved row count and column names, so the existing read-back check
+  could not see them, and all three were caught only by checksum. A corrupted
+  domain map degrades `support_data_available` for every org, not just its own row.
+- MCP server names corrected throughout — `supercat-postgres-vpn` /
+  `bigquery-admin`, and no longer "Cursor with…". Sanity-check row counts refreshed
+  against the September cache.
+- `runs/_staged/README.md` added, describing the staging convention and the
+  promotion checklist.
+
+### Known, unfixed — both can move scores, both need a decision
+
+1. **NaT/`None` new-org gate**, paired with ghost-over-gate precedence, per above.
+2. **`operational_health_score = 100` for orgs with no import rows.** Ops is then
+   computed from catalog completeness alone. The per-dimension narrative is honest
+   ("Catalog 100% complete") but the `clean_ops_dark` composite shape escalates it
+   to "data infrastructure is healthy… the infrastructure isn't the problem" — for
+   an org whose feeds have *never run*. Absence of measurement is being reported as
+   positive evidence, inside the sub-shape whose whole job is to rule infrastructure
+   out. Seen on `ol` and `hvl`; **all four ghosts share the shape**, so it is
+   concentrated in the accounts that matter most.
+3. **§5.1 conflates two populations.** The condition is ARR + zero 90-day logins,
+   which is blind to lifetime history. In the test run `aa` (0 logins ever) and
+   `bmc` (**6,751** logins ever, an org since 2011 that just stopped) carry the
+   same flag, same 20.0, same band — and need opposite CS plays. A `ghost_subtype`
+   keyed off `active_users_365d` / lifetime logins would separate
+   never-activated from went-dark. Spec gap, not a bug.
+
+### Also observed, not defects
+
+- The September MAL surfaced **$83,520 of at-risk ARR that nothing was watching** —
+  all four ghosts are orgs the April MAL omitted.
+- `pg_orders.csv` schema drift: `cache/2026-05-13/` carries a third column
+  `all_orders_90d` that `load_pg_orders` does not emit and no code reads. The
+  reference cache and the source of truth disagree; harmless, zero score impact.
+- `dccl` bands Thriving at 6% rep activation (10 of 157), on VD and Adoption both
+  at 100. Internally consistent, and a clean live example of the
+  Value-Delivery-as-segment-proxy effect `MAINTENANCE.md` warns about.
+
+---
+
 ## 3.4.0 — 2026-09-16
 
 **Dimension weights reverted to equal (25/25/25/25). Folders consolidated. Canonical SHA changes.**

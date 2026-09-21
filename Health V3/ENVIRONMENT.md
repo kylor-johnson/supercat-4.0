@@ -11,7 +11,21 @@ deterministic across interpreters. Both must be recorded with every canonical.
 | pandas | 2.3.3 | |
 | numpy | 2.0.2 | |
 
-Canonical produced under this environment: `e34552ab…` (2026-05-13, `--weights v330`).
+Canonicals produced under this environment:
+
+| Run | Engine / weights | SHA-256 | Status |
+|---|---|---|---|
+| 2026-05-13 | V3.5.1, equal | `a797e959…` | **the live canonical** |
+| 2026-09-21 | V3.5.1, equal | `2850025e…` | staged, not promoted |
+| 2026-05-13 | V3.5.0, equal | `a5d8cb28…` | superseded |
+| 2026-05-13 | V3.4.1, equal (28-col) | `6a2f1d9f…` | superseded. Also the output of `_archive/health_operator_v3.2.x_unweighted.py` on this interpreter — one SHA, two roles |
+| 2026-09-21 | V3.4.1 / V3.4.0 | `592c1bdb…` / `6dc304ea…` | superseded; `6dc304ea…` was never committed and is unrecoverable |
+| 2026-05-13 | `--weights v330` | `e98f11a4…` | the v330 *scheme* still reproduces all 104 V3.3.2 composites and bands. **`e34552ab…` is NOT reproducible here** — it predates the 30-column schema and needs a V3.4.x checkout |
+
+> **This table goes stale on every version bump and has done so twice.** At V3.5.0
+> all three of its rows were wrong, in the one file whose purpose is preventing SHA
+> confusion. `check_consistency.py` Invariant 9 now pins the live-canonical row
+> against the actual file, so the failure mode is caught rather than discovered.
 
 ## Setup
 

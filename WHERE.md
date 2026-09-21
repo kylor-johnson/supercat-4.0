@@ -52,7 +52,7 @@ Stale / do not treat as current: `agentic_operations`, old `insightful_product`,
 | Product | Path |
 |---|---|
 | Insightful 4.0 (active) | `Insightful Product 4.0/` |
-| Health V3.3.0 | `Health V3/` + `Health V3 Backfill/` |
+| Health V3.4.0 (canonical `6a2f1d9f…`) | `Health V3/` |
 | TTFV | `ttfv/` |
 | Hang-tag spike | `hang-tag-spike/` |
 

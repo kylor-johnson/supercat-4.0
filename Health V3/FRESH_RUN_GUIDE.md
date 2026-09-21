@@ -44,12 +44,32 @@ Health V3/
 │   └── health_dashboard_{date}.html
 │
 ├── inputs/                     ← Static input files that don't change run-to-run.
-│   └── (master_account_list lives in Health V2/inputs/ — see README §2)
+│   ├── master_account_list_{date}_canonical.csv  ← the MAL the run scores against
+│   └── master_account_list_{date}_provenance.csv ← per-field source for the above
 │
 ├── outcomes.csv                ← For future use: labeled business outcomes for model calibration.
 │
 └── _archive/                   ← Old run outputs and cache files that have been superseded.
 ```
+
+---
+
+## Step 0 — Environment (once per machine)
+
+The determinism contract is interpreter-scoped: the same cache and `--score-date`
+reproduce byte-identically only under the same Python. Build the pinned venv
+before the first run — see `ENVIRONMENT.md` for why and for the environment of
+record.
+
+```bash
+cd "Health V3"
+/usr/bin/python3 -m venv .venv --system-site-packages
+.venv/bin/pip install -r requirements.txt
+.venv/bin/python3 -c "import sys,pandas,numpy; print(sys.version.split()[0], pandas.__version__, numpy.__version__)"
+# expect: 3.9.6 2.3.3 2.0.2
+```
+
+`.venv/` is gitignored. Every command below assumes `.venv/bin/python3`.
 
 ---
 
@@ -77,7 +97,7 @@ Once all 10 cache files exist, run the operator from inside the `Health V3/` dir
 cd "Health V3"
 
 .venv/bin/python3 health_operator_v3.py \
-  --mal "../Health V2/inputs/master_account_list_2026-04-14_canonical.csv" \
+  --mal "inputs/master_account_list_2026-04-14_canonical.csv" \
   --score-date {YYYY-MM-DD} \
   --cache \
   --cache-dir "cache/{YYYY-MM-DD}" \

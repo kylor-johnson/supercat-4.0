@@ -360,6 +360,16 @@ def _build_ops_narrative(score, cat_pct, cat_score, contract_pricing,
                     f"reps are working with incomplete product data; flag for a catalog audit"
                 )
 
+    # No scoreable import type has run inside the 180-day window, so two of the
+    # three ops sub-signals are UNMEASURED, not healthy. Say so: the score below
+    # rests on catalog completeness alone, and reporting silence as health is how
+    # `clean_ops_dark` came to tell CS "the infrastructure isn't the problem"
+    # about orgs whose feeds have never run (V3.5.0).
+    if imp_score is None and fresh_score is None:
+        parts.append("no import feed has run in the trailing 180 days — import "
+                     "health and data freshness are unmeasured, so this score "
+                     "reflects catalog completeness only")
+
     # Import health sub-signal
     if imp_score is not None:
         n_total = len(scoreable_imports)
@@ -669,6 +679,15 @@ def parse_args():
     p.add_argument("--weights", choices=sorted(WEIGHT_SCHEMES), default=DEFAULT_WEIGHTS,
                    help="Dimension weighting scheme (default: %(default)s). "
                         "'equal' = 25/25/25/25; 'v330' = 25/20/35/20.")
+    p.add_argument(
+        "--include-new-orgs",
+        action="store_true",
+        help=(
+            "Score orgs inside the 90-day first-login window instead of writing "
+            "them to skipped_new_orgs.csv. Used by onboarding early-life runs; "
+            "the monthly CS portfolio scorecard should omit this flag."
+        ),
+    )
     p.add_argument("--dry-run", action="store_true",
                    help="Compute scores and print to stdout; do not write CSV")
     p.add_argument(
@@ -1278,7 +1297,21 @@ def score_operational_health(catalog_row, import_rows, contract_pricing_enabled,
         scoreable_imports, imp_score, fresh_score, stale_feeds, as_of,
     )
     return score, {"narrative": narrative, "catalog_pct": cat_pct,
-                   "import_score": imp_score, "freshness_score": fresh_score}
+                   "import_score": imp_score, "freshness_score": fresh_score,
+                   # "full" = all three sub-signals contributed. "catalog_only" =
+                   # at least one is unmeasured, so the score is narrower than it
+                   # looks and must not be read as evidence that the data
+                   # infrastructure is sound.
+                   #
+                   # V3.5.1: this tested `imp_score is not None` only, ignoring
+                   # freshness, so 3 orgs (cl, ihm, tl) were labelled "full" with
+                   # no cadence signal at all — and because clean_ops_dark gates on
+                   # this flag, `cl` published "the infrastructure isn't the
+                   # problem" at ops 80 with freshness unmeasured. The flag now
+                   # requires both.
+                   "ops_measurement": ("full" if (imp_score is not None
+                                                  and fresh_score is not None)
+                                       else "catalog_only")}
 
 
 def composite(eng, ado, val, ops):
@@ -1391,14 +1424,30 @@ def main():
         org_id = cfg["organization_id"]
         eng_data = eng_pg.loc[org_id].to_dict() if org_id in eng_pg.index else {}
 
-        # New-org check
+        # §5.1 ghost condition, evaluated HERE rather than after scoring, because
+        # it has to outrank the new-org gate below. A paying account with zero
+        # logins is never merely "new" — and `aa` ($42,480 ARR, zero logins in its
+        # entire history, cohort_year = current year) is exactly the account that
+        # both rules claim. It is the same condition the override re-uses later.
+        ghost = bool(mal_row["arr"] >= GHOST_ARR_THRESHOLD
+                     and (eng_data.get("logins_90d") or 0) == 0)
+
+        # New-org check. Monthly CS portfolio drops these; early-life
+        # onboarding runs pass --include-new-orgs and score them as nascent.
+        #
+        # pd.notna, not `is not None`: load_pg_engagement LEFT JOINs organizations,
+        # so an org with no logins gets first_login_at = NULL -> NaT, and
+        # `NaT is not None` is True. That made the cohort_year branch dead code in
+        # cache mode and the subtraction yield nan, so `nan < 90` was False and no
+        # org was ever excluded for having zero logins (fixed V3.5.0).
         first_login = eng_data.get("first_login_at")
-        if first_login is not None:
+        in_onboarding_window = False
+        if pd.notna(first_login):
             days_since_first = (today - first_login.replace(tzinfo=None)).days
-            if days_since_first < NEW_ORG_DAYS:
-                skipped.append((org, "onboarding_window"))
-                continue
-        elif int(mal_row["cohort_year"]) == current_year:
+            in_onboarding_window = days_since_first < NEW_ORG_DAYS
+        elif pd.notna(mal_row.get("cohort_year")) and int(mal_row["cohort_year"]) == current_year:
+            in_onboarding_window = True
+        if in_onboarding_window and not args.include_new_orgs and not ghost:
             skipped.append((org, "onboarding_window"))
             continue
 
@@ -1420,6 +1469,7 @@ def main():
         val_score, val_meta = score_value_delivery(cfg, ipad_orders_90d, mp_share_count, portal_orders_90d, import_types_active)
         cat_row = cat_pg.loc[org_id].to_dict() if org_id in cat_pg.index else None
         ops_score, ops_meta = score_operational_health(cat_row, list(org_imports.to_dict("records")), bool(cfg.get("contract_pricing_enabled")), as_of=score_date_dt)
+        ops_measurement = ops_meta.get("ops_measurement")
 
         composite_score, status, n_dims = composite(eng_score, ado_score, val_score, ops_score)
 
@@ -1431,17 +1481,52 @@ def main():
         if behavioral_floor_applied and composite_score is not None:
             composite_score = min(composite_score, BEHAVIORAL_FLOOR_CAP)
 
-        # §5.1 ghost account override
-        ghost = bool(mal_row["arr"] >= GHOST_ARR_THRESHOLD and (eng_data.get("logins_90d") or 0) == 0)
+        # §5.1 ghost account override — `ghost` was computed before the new-org
+        # gate above, which it outranks.
         ghost_note = None
+        ghost_subtype = None
         if ghost:
-            ghost_note = f"ARR ${int(mal_row['arr']):,}, zero logins in 90d"
+            # §5.1 fires on ARR + zero 90-day logins, which is blind to history:
+            # an org that never activated and one that used the platform for years
+            # and just stopped score identically and need opposite CS plays.
+            #
+            # V3.5.1 renamed these. The old pair was `no_activity_12m` /
+            # `lapsed_this_quarter`, and both labels misled: `lapsed_this_quarter`
+            # was attached to orgs dark 291 and 227 days (nine and seven months),
+            # and `no_activity_12m` invited "never activated" for an org with 200
+            # logins behind it. Three of four labels read wrong. The discriminator
+            # for never-activated was already in the cache — a NULL
+            # first_login_at — so no new column and no cache-contract change was
+            # needed, contrary to what V3.5.0 assumed.
+            _last = eng_data.get("last_login_at")
+            days_dark = None if pd.isna(_last) else (today - _last.replace(tzinfo=None)).days
+            if pd.isna(eng_data.get("first_login_at")):
+                ghost_subtype = "never_activated"        # no login event, ever
+            elif (eng_data.get("active_users_365d") or 0) == 0:
+                ghost_subtype = "dark_12m_plus"          # was active, dark > 1 year
+            else:
+                ghost_subtype = "lapsed"                 # active within 1y, not within 90d
+
+            # days_dark rides in the note so a CSM sees 291 vs 431 rather than
+            # inferring urgency from a bucket label.
+            _dark = "never logged in" if days_dark is None else f"dark {days_dark}d"
+            ghost_note = f"ARR ${int(mal_row['arr']):,}, zero logins in 90d, {_dark}"
             if composite_score is not None:
                 composite_score = min(composite_score, GHOST_CAP)
             else:
                 composite_score = GHOST_CAP
 
         band = band_for_score(composite_score)
+        # §5.1 requires a ghost to read Critical. GHOST_CAP is 20, which is the
+        # At Risk *floor*, so band_for_score(20) returns "At Risk" and the spec
+        # was silently unmet — invisible until 2026-09-21, the first run with any
+        # ghosts, which reported "Critical: 0" while carrying four of them.
+        # Assign the band directly rather than tuning GHOST_CAP to 19: the cap is
+        # the documented score ceiling, and a paying account with zero logins is
+        # the most severe state the model can express regardless of where the cap
+        # happens to sit relative to a band boundary.
+        if ghost:
+            band = "Critical"
 
         # Composite-level override narratives (§5.1 / §5.2)
         _org_name = cfg.get("org_name") or mal_row["company"]
@@ -1452,11 +1537,26 @@ def main():
         _arr_str = f"${int(mal_row['arr']):,}" if mal_row['arr'] else "the contract value involved"
 
         if ghost:
-            composite_narrative = (
-                f"No one at {_org_name} has logged into the platform in the last 90 days despite "
-                f"{_arr_str} in annual contract value. This is an urgent churn risk that needs an "
-                f"immediate conversation with the client."
-            )
+            if ghost_subtype == "never_activated":
+                # §5.1 now outranks the new-org gate, so a genuinely new account
+                # above the ARR threshold lands here before it has had a chance to
+                # log in. Calling that "urgent churn risk" to a client who signed
+                # six weeks ago is the false positive the gate used to prevent, so
+                # the framing asks about go-live first (V3.5.1).
+                composite_narrative = (
+                    f"No one at {_org_name} has ever logged into the platform, against "
+                    f"{_arr_str} in annual contract value. Confirm whether this account has "
+                    f"actually gone live before treating it as churn — if go-live is complete, "
+                    f"this is an urgent activation failure and needs an immediate conversation."
+                )
+            else:
+                _dark_phrase = ("in over a year" if ghost_subtype == "dark_12m_plus"
+                                else "in the last 90 days")
+                composite_narrative = (
+                    f"No one at {_org_name} has logged into the platform {_dark_phrase} despite "
+                    f"{_arr_str} in annual contract value. This is an urgent churn risk that needs an "
+                    f"immediate conversation with the client."
+                )
         elif behavioral_floor_applied:
             # Profile-aware sub-shapes per V3.2.4 narrative rewrite:
             #   C — critically low across the board (eng < 25 AND val <= 10)
@@ -1472,7 +1572,12 @@ def main():
                 and val_score is not None and val_score <= 10
             )
             full_adoption_dark = ado_score is not None and ado_score >= 80
-            clean_ops_dark = ops_score is not None and ops_score >= 75
+            # Requires FULLY measured ops (V3.5.0). This sub-shape exists to rule
+            # infrastructure out as the cause; it cannot do that from a score built
+            # on catalog completeness alone, which is exactly the shape every ghost
+            # account has.
+            clean_ops_dark = (ops_score is not None and ops_score >= 75
+                              and ops_measurement == "full")
 
             if critically_low:
                 # Sub-shape C
@@ -1563,12 +1668,14 @@ def main():
             "composite_score": composite_score, "health_band": band,
             "composite_narrative": composite_narrative,
             "ghost_account": ghost, "ghost_account_note": ghost_note,
+            "ghost_subtype": ghost_subtype,
             "behavioral_floor_applied": behavioral_floor_applied,
             "support_fire": support_fire, "support_fire_notes": support_note,
             "support_fire_days_open": support_fire_days_open,
             "support_data_available": support_data_available,
             "scoring_status": status, "dimensions_scored": n_dims,
             "denominator_quality": eng_meta.get("denominator_quality"),
+            "ops_measurement": ops_measurement,
             "bundle_config_mismatch": bundle_config_mismatch,
         })
 
@@ -1605,6 +1712,8 @@ def main():
         "value_delivery_narrative",
         "operational_health_score",
         "operational_health_narrative",
+        "ops_measurement",
+        "ghost_subtype",
         "support_fire_notes",
         "support_fire_days_open",
         "bundle_config_mismatch",
@@ -1621,6 +1730,13 @@ def main():
         print(f"[OK] Wrote {skip_csv} ({len(skipped)} rows)")
 
     # run_metadata.md
+    if df.empty:
+        # Every org was skipped. skipped_new_orgs.csv is already written above, so
+        # nothing is lost — but value_counts on an absent column raises KeyError
+        # and buries that in a traceback (V3.5.1).
+        print(f"[WARN] No orgs scored — all {len(skipped)} were skipped. "
+              f"See skipped_new_orgs.csv; no canonical CSV or metadata written.")
+        return
     band_counts = df["health_band"].value_counts().to_dict()
     status_counts = df["scoring_status"].value_counts().to_dict()
     _cache_flags = f' --cache --cache-dir "{cache_dir}"' if cache_dir else ''
@@ -1629,6 +1745,7 @@ def main():
 - Command: `python health_operator_v3.py --mal "{args.mal}" --score-date {score_date}{_cache_flags} --weights {args.weights} --output-dir "{args.output_dir}"`
 - MAL: `{args.mal}`
 - Weighting scheme: `{args.weights}` — ENG {ENG_WEIGHT} / ADO {ADO_WEIGHT} / VAL {VAL_WEIGHT} / OPS {OPS_WEIGHT}
+- New-org window: {'INCLUDED (--include-new-orgs)' if args.include_new_orgs else 'excluded (90-day gate)'}
 - Output CSV: `{out_csv}`
 - Rows scored: {len(df)}
 - Rows skipped (new-org exclusion or not in Postgres): {len(skipped)}

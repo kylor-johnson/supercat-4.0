@@ -1,7 +1,7 @@
 # Health V3 — Scoring Specification
 
-**Version:** 3.4.0
-**Date:** 2026-09-16
+**Version:** 3.5.1
+**Date:** 2026-09-21
 **Status:** Production-ready. Scoring math is equal-weighted (25/25/25/25), selectable via `--weights` (see §9 and CHANGELOG 3.4.0). Cache-mode runs are deterministic — same cache + same `--score-date` + same interpreter produces byte-identical output (see §6.6 and `ENVIRONMENT.md`).
 
 > **Producing the next monthly canonical?** Use `RUN_PROMPT.md` in this folder — copy-paste prompt that orchestrates the full Path B workflow (cache populate → operator → cold-read → CHANGELOG → archive).
@@ -22,7 +22,7 @@ The operator does **not** open live Postgres or BigQuery connections during a ca
 
 **Prerequisites:**
 
-- Cursor with the `user-supercat-postgres-vpn` and `user-bigquery-vpn` MCP servers enabled.
+- Postgres and BigQuery MCP servers enabled — `supercat-postgres-vpn` and `bigquery-admin` in Claude Code. Any client works; the server names above are what this workspace exposes, and `supercat-data-routing` is the routing authority if they change.
 - VPN connection active (both MCPs require it).
 - An empty target directory at `cache/{YYYY-MM-DD}/` ready to receive 10 CSVs.
 
@@ -32,16 +32,16 @@ The operator does **not** open live Postgres or BigQuery connections during a ca
 
 | File                    | Source loader function       | MCP                            |
 |-------------------------|------------------------------|--------------------------------|
-| `pg_org_config.csv`     | `load_pg_org_config`         | `user-supercat-postgres-vpn`   |
-| `pg_engagement.csv`     | `load_pg_engagement`         | `user-supercat-postgres-vpn`   |
-| `pg_smart_stacks.csv`   | `load_pg_smart_stacks`       | `user-supercat-postgres-vpn`   |
-| `pg_orders.csv`         | `load_pg_orders`             | `user-supercat-postgres-vpn`   |
-| `pg_portal_orders.csv`  | `load_pg_portal_orders`      | `user-supercat-postgres-vpn`   |
-| `pg_catalog.csv`        | `load_pg_catalog`            | `user-supercat-postgres-vpn`   |
-| `pg_imports.csv`        | `load_pg_imports`            | `user-supercat-postgres-vpn`   |
-| `pg_domain_map.csv`     | `build_domain_map`           | `user-supercat-postgres-vpn`   |
-| `bq_mp_sharing.csv`     | `load_bq_mp_sharing`         | `user-bigquery-vpn`            |
-| `bq_helpscout_fires.csv`| `load_bq_helpscout_fires`    | `user-bigquery-vpn`            |
+| `pg_org_config.csv`     | `load_pg_org_config`         | `supercat-postgres-vpn`   |
+| `pg_engagement.csv`     | `load_pg_engagement`         | `supercat-postgres-vpn`   |
+| `pg_smart_stacks.csv`   | `load_pg_smart_stacks`       | `supercat-postgres-vpn`   |
+| `pg_orders.csv`         | `load_pg_orders`             | `supercat-postgres-vpn`   |
+| `pg_portal_orders.csv`  | `load_pg_portal_orders`      | `supercat-postgres-vpn`   |
+| `pg_catalog.csv`        | `load_pg_catalog`            | `supercat-postgres-vpn`   |
+| `pg_imports.csv`        | `load_pg_imports`            | `supercat-postgres-vpn`   |
+| `pg_domain_map.csv`     | `build_domain_map`           | `supercat-postgres-vpn`   |
+| `bq_mp_sharing.csv`     | `load_bq_mp_sharing`         | `bigquery-admin`            |
+| `bq_helpscout_fires.csv`| `load_bq_helpscout_fires`    | `bigquery-admin`            |
 
 **Execution rules:**
 
@@ -53,14 +53,55 @@ The operator does **not** open live Postgres or BigQuery connections during a ca
    - Bool columns: `True`/`False` strings are fine; the operator coerces.
    - Timestamp columns (`last_login_at`, `first_login_at`, `last_run_at`, `first_run_at`, `most_recent_open_at`): ISO 8601 strings.
    - `bq_helpscout_fires.csv` `sample_tags` column: write as Python `str(list)` repr (e.g., `"['s1 - critical', 'l4 - p2']"`).
-6. **After writing each file, read it back with `pandas.read_csv()`** and verify (a) row count matches what the MCP query returned, (b) column names match the SQL output, (c) dtypes look reasonable.
-7. **Do not modify the cache after the run.** Per §6.6, each `cache/{date}/` directory is immutable once populated. To rerun for the same date, point at the same cache. To use fresher data, populate a new dated directory.
+6. **Use the right converter.** `scripts/to_csv.py` is the default — it is the only one that emits
+   `sample_tags` in the required Python-list-repr form. `scripts/mcp_to_csv.py` joins lists with `|`
+   and lowercases booleans, so it must **not** be used for `bq_helpscout_fires.csv`.
+   `scripts/bq_to_csv.py` is for raw BigQuery JSON (`{"data": [...]}`) output.
+7. **After writing each file, read it back with `pandas.read_csv()`** and verify (a) row count matches what the MCP query returned, (b) column names match the SQL output, (c) dtypes look reasonable.
+8. **Verify content, not just shape — this is the step that catches real corruption.**
+   Rules 6–7 pass on a file whose *values* are wrong. Cache data round-trips through an
+   agent as text, and the 2026-09-21 run produced three silent transcription errors in
+   `pg_domain_map.csv` alone (a swapped adjacent pair and two mangled domains) — every one
+   preserved row count and column names. Compute a checksum on both sides and require an
+   exact match:
+
+   ```sql
+   -- append to each loader query
+   SELECT md5(string_agg(line, E'\n' ORDER BY line)) FROM (
+     SELECT concat_ws('|', col1::text, col2::text, ...) AS line
+     FROM ( <loader query> ) t
+   ) s;
+   ```
+
+   Four details decide whether this works. The first two are not optional:
+
+   - **`concat_ws`, never `||`.** In Postgres `a || NULL` is `NULL`, and `string_agg`
+     skips NULL inputs — so **any row with a single NULL column vanishes from the
+     checksum entirely.** 70 of 258 `pg_engagement` rows carry a NULL, and
+     `first_login_at`/`last_login_at` are NULL for exactly the zero-login orgs. Under a
+     `||` checksum, `aa` — the highest-ARR ghost in the portfolio — is invisible, and
+     silent corruption in its row passes clean. Verified live: a three-row table with one
+     NULL checksums only two rows under `||` and all three under `concat_ws`.
+   - **`ORDER BY line`, not `ORDER BY <key>`.** Order by the rendered row. A pure
+     row-position swap then changes nothing and a value swap *between* rows changes
+     everything — which is correct, because the loaders build keyed lookups and row order
+     carries no meaning. Ordering by key instead makes a position swap normalize away
+     silently, and the rule is otherwise ambiguous at exactly the point that decides it.
+   - **Normalize both sides before hashing.** Cast numerics at a fixed scale and
+     timestamps with `to_char(…, 'YYYY-MM-DD HH24:MI:SS.US')`, and render the local side
+     from `pandas.read_csv(dtype=str)` so nothing is re-typed on the round trip. Otherwise
+     PG's `42480` vs pandas' `42480.0` produces spurious mismatches, which trains the
+     operator to ignore the check.
+   - **Record each file's md5 in `run_metadata.md`.** Otherwise the only record of a
+     caught corruption is a CHANGELOG entry someone has to remember to write.
+
+9. **Do not modify the cache after the run.** Per §6.6, each `cache/{date}/` directory is immutable once populated. To rerun for the same date, point at the same cache. To use fresher data, populate a new dated directory.
 
 **Sanity checks before running the operator:**
 
 - Exactly 10 files in `cache/{YYYY-MM-DD}/`.
 - Each readable by `pandas.read_csv` without exceptions.
-- Row counts within ±50% of the prior cache for `pg_org_config` (~248), `pg_engagement` (~248), `pg_imports` (~759), `pg_catalog` (~233). A drastic delta indicates an upstream data issue and should be investigated before running the operator.
+- Row counts within ±50% of the prior cache for `pg_org_config` (~250), `pg_engagement` (~250), `pg_imports` (~760), `pg_catalog` (~235). A drastic delta indicates an upstream data issue and should be investigated before running the operator.
 
 ### How to run
 
@@ -69,7 +110,7 @@ Once `cache/{YYYY-MM-DD}/` is populated:
 ```bash
 cd "Health V3"
 .venv/bin/python3 health_operator_v3.py \
-  --mal "../Health V2/inputs/master_account_list_{YYYY-MM-DD}_canonical.csv" \
+  --mal "inputs/master_account_list_{YYYY-MM-DD}_canonical.csv" \
   --score-date {YYYY-MM-DD} \
   --cache --cache-dir "cache/{YYYY-MM-DD}" \
   --output-dir "runs/{YYYY-MM-DD}"
@@ -296,7 +337,7 @@ Low example: *"Delivering value through 2 of 5 applicable channels. Online catal
 2. **Import Health** — are active data feeds running successfully?
 3. **Data Freshness** — are active data feeds running on their expected cadence?
 
-Each sub-signal scores 0–100. `operational_health_score = average of three sub-signal scores`.
+Each sub-signal scores 0–100. `operational_health_score = average of the sub-signal scores that could be measured (see Sub-Signal 3 / ops_measurement)`.
 
 ---
 
@@ -366,6 +407,31 @@ V1 simplification: treat any import with only `:warning` entries (not `:error`) 
 
 `data_freshness_score = run_count_180d-weighted average staleness score across all measurable import types`
 
+**When no import feed has run in the window**, both the import-health and
+freshness sub-signals are `None` and the dimension score rests on catalog
+completeness alone. That is recorded as `ops_measurement = "catalog_only"`, the
+per-dimension narrative says the two sub-signals are unmeasured, and the
+`clean_ops_dark` composite shape is suppressed (§6.5). The score is **not**
+blanked — a poor catalog is still a real ops finding, as `dals` shows at ops 20 —
+but it must not be read as evidence that the data infrastructure is sound.
+
+**`catalog_only` is an asymmetric warning — do not discount the score uniformly.**
+`catalog_only` with a *high* ops score means "the one thing we measured looks
+fine", which is weak evidence. `catalog_only` with a *low* ops score is fully
+trustworthy: `dals` at ops 20 on a 33%-complete catalog is a blocker whether or
+not its feeds are running. A consumer that suppresses ops wherever
+`ops_measurement = "catalog_only"` would discard that genuine finding.
+
+**Known, deferred:** a `catalog_only` org can still carry ops 100 into the
+composite at full weight — `ops_measurement` makes that detectable but does not
+correct it. Today every `catalog_only` org is ghost- or floor-capped, so no
+composite is actually carrying an unearned 100; the exposure is an org that is
+`catalog_only` with healthy engagement and no override, and nothing has that
+shape. The candidate fix is capping `catalog_only` ops at the top of Healthy
+(~75–79) rather than blanking it, which moves composites only where the current
+number overstates. That is a scoring change needing its own version bump and a
+delta study — see `MAINTENANCE.md`.
+
 Per-type staleness scores are aggregated via a **frequency-weighted average** — each type's score is weighted by its `run_count_180d`. A daily inventory feed (≈ 180 runs) drives the freshness signal far more than a quarterly catalog re-load (≈ 2 runs), which matches operator intuition that a stalled daily feed is a much bigger problem than a stalled quarterly one. If `total_weight = 0` (defensive fallback only), the average degrades to a simple mean.
 
 **Minimum history required:** At least 3 import events of this type in 180d to calculate a meaningful median. If fewer than 3 events exist, treat this import type as unscored and omit from the freshness average.
@@ -428,8 +494,33 @@ A ghost account is an org that is **paying meaningfully** but **not using the pr
 
 **Effect when triggered:**
 - `ghost_account = true`
-- `composite_score` is capped at `min(computed_composite_score, 20)` — they cannot land above the Critical band regardless of dimension scores
-- `health_band = "Critical"`
+- `composite_score` is capped at `min(computed_composite_score, 20)` regardless of dimension scores
+- `health_band = "Critical"` — **assigned directly, not derived from the cap.** 20 is the *At Risk* floor in `HEALTH_BANDS`, so `band_for_score(20)` returns `"At Risk"`; the band is set explicitly in the override. Before V3.4.1 it was not, and every ghost silently banded At Risk — undetected until 2026-09-21, the first run that produced any ghosts, which reported `Critical: 0` while carrying four.
+- A ghost is the most severe state the model expresses. A paying account with zero logins outranks an account limping along at 15 with some activity.
+- **The ghost condition outranks the §6 new-org gate.** It is evaluated before that gate, and a ghost is never skipped as an onboarding-window org. Without this, `aa` — $42,480 ARR, zero logins in its entire history, first subscription this year — was claimed by both rules and would have vanished from the scorecard entirely once the gate was repaired.
+- `ghost_subtype` splits the two populations the ARR-plus-zero-logins condition cannot distinguish on its own:
+
+  | Subtype | Condition | The CS conversation |
+  |---|---|---|
+  | `never_activated` | `first_login_at` is NULL — no login event, ever | "Has this account actually gone live?" A go-live failure, not churn. |
+  | `dark_12m_plus` | has logged in, but `active_users_365d = 0` | Win-back. It worked once; it has been dark over a year. |
+  | `lapsed` | active within 365d, nobody within 90d | "What changed?" Recent stop, best save odds. |
+
+  `ghost_account_note` carries the exact days-dark (`dark 291d`) so urgency comes
+  from the number, not from the bucket. **Renamed in V3.5.1.** The original pair
+  (`no_activity_12m` / `lapsed_this_quarter`) mislabelled three of four ghosts:
+  `lapsed_this_quarter` was attached to orgs dark 291 and 227 days, and
+  `no_activity_12m` invited "never activated" for `pol`, which has 200 logins
+  behind it. The never-activated discriminator was already in the cache as a NULL
+  `first_login_at`, so the rename needed no new column — contrary to the V3.5.0
+  note claiming a cache-contract change was required.
+
+  Both land at the same capped score and the same Critical band — the subtype is
+  the routing signal, not a severity signal. `bmc` illustrates why it matters: an
+  org live since 2011 with thousands of logins behind it, now at zero, is a very
+  different call from an account that never started. **Twelve months is a proxy for
+  lifetime history**, which `pg_engagement` does not carry; an org dark for longer
+  than a year reads as `no_activity_12m` even if it was once active.
 - All four dimension scores still compute and are still shown (do not blank them — CSMs need to see why the org isn't using each surface)
 - `ghost_account_note: "ARR $X, zero logins in 90d"` is added to the output
 
@@ -498,6 +589,7 @@ composite_narrative           # 2–3 sentence plain-English explanation of why 
 
 ghost_account                 # true / false (§5.1)
 ghost_account_note            # text if true, null if false
+ghost_subtype                 # no_activity_12m / lapsed_this_quarter; null when not a ghost (§5.1)
 behavioral_floor_applied      # true / false (§5.2)
 
 support_fire                  # true / false
@@ -508,6 +600,8 @@ support_data_available        # true / false
 scoring_status                # complete / partial / blocked
 dimensions_scored             # integer 0–4 — count of dimensions with a non-null score
 denominator_quality           # null or "stale" — set when raw active_user_ratio > 100% before cap
+ops_measurement               # "full" (all three ops sub-signals contributed) or "catalog_only"
+                              #   (no import feed ran in the window — see §4)
 bundle_config_mismatch        # true / false — set when MAL bundle disagrees with mobile_sites flags
 ```
 
@@ -543,7 +637,43 @@ Each monthly run writes its CSV to `Health V3/runs/{YYYY-MM-DD}/client_health_sc
 
 ### New-Org Exclusion
 
-Orgs whose oldest observed login event is less than 90 days old (or who have zero login events and a MAL `cohort_year` equal to the current year) are written to `Health V3/runs/{date}/skipped_new_orgs.csv` with reason `onboarding_window` and excluded from scoring. They are in the onboarding phase where TTFV is the right metric, not health. The `subscriptions.start_date` field is *not* used for this check — the table appears to have been backfilled in mid-2025, so it is unreliable for older cohorts.
+Orgs whose oldest observed login event is less than 90 days old are written to
+`runs/{date}/skipped_new_orgs.csv` with reason `onboarding_window` and excluded
+from scoring. They are in the onboarding phase where TTFV is the right metric,
+not health. The `subscriptions.start_date` field is *not* used for this check —
+the table appears to have been backfilled in mid-2025, so it is unreliable for
+older cohorts.
+
+The gate has two conditions. Either excludes an org:
+
+1. Its oldest observed login event is less than `NEW_ORG_DAYS` (90) old, **or**
+2. It has no login events at all and its MAL `cohort_year` is the current year.
+
+> **Fixed in V3.5.0 — condition 2 was unreachable for five months.**
+> `load_pg_engagement` LEFT JOINs `organizations`, so an org with no logins gets
+> `first_login_at = NULL`, which `parse_dates` turns into `NaT`. The check was
+> `if first_login is not None`, and **`NaT is not None` is `True`** — so the
+> `elif` on `cohort_year` was dead code in cache mode, the subtraction produced
+> `nan`, and `nan < 90` is `False`. No org was ever excluded for having zero
+> logins. Now `pd.notna(first_login)`.
+>
+> Repairing it alone would have made things worse: it would have skipped `aa`
+> ($42,480 ARR, zero logins ever, current-year cohort) and removed the worst
+> account in the portfolio from the scorecard. So it shipped together with
+> **§5.1 taking precedence over this gate** — a paying account with zero logins
+> is a ghost, never merely new.
+
+**`--include-new-orgs` overrides the gate.** Passing it scores those orgs instead
+of skipping them, and no `skipped_new_orgs.csv` is written.
+
+| Run | Flag | Why |
+|---|---|---|
+| Monthly CS portfolio canonical | **omit** | An account 6 weeks in has no 90-day history; a health band would be noise, and TTFV is the right metric. |
+| Onboarding early-life review | **pass** | The question there is "is this launch going well", so a nascent score is the point. Read it as directional. |
+
+The flag changes the population, never the math. It is recorded in
+`run_metadata.md` so a run's scope is never ambiguous — a canonical accidentally
+produced with it would otherwise be silently non-comparable to its neighbours.
 
 ---
 
@@ -572,7 +702,7 @@ The composite narrative is built by `_build_composite_narrative()` in `health_op
   |---|---|---|
   | Critically low | `engagement_score < 25 AND value_delivery_score <= 10` | Essentially no active usage — platform is running but not used. Tied to ARR as an urgent recovery situation. |
   | Full adoption, users dark | `adoption_score >= 80` | Full platform configured and adopted, but rep logins have dropped off sharply. Outreach to understand whether reps have gone dark on a coverage issue or whether a more fundamental re-engagement effort is required. |
-  | Clean infrastructure, users dark | `operational_health_score >= 75` | Data infrastructure is healthy; reps aren't using the platform. Rules out infrastructure; frames as a rep adoption and activation conversation. |
+  | Clean infrastructure, users dark | `operational_health_score >= 75` **and `ops_measurement = "full"`** | Data infrastructure is healthy; reps aren't using the platform. Rules out infrastructure; frames as a rep adoption and activation conversation. The measurement condition was added in V3.5.0 — this shape cannot rule infrastructure out from a score built on catalog completeness alone, which is the shape every org with no import feed has (and every ghost). |
   | Standard floor | none of the above | Both rep activity and platform outcomes are too low to support a healthy relationship. Re-establish contact to determine whether the gap is coverage, product fit, or something else. |
 
   These thresholds are implemented in `health_operator_v3.py` `main()` lines ~1414–1463. Changes to the conditions or framings must update both files together.
@@ -654,18 +784,18 @@ These are intentional shortcuts to keep V1 lean. They are candidates for V3.1 re
 | Source | Connection | What It Provides |
 |--------|------------|------------------|
 | MAL CSV | Local file | **Authoritative** for `bundle` (MAL `stack` column), `arr`, `cohort_year`, `org_shortname` (MAL `ord_id` column) |
-| Postgres `login_events` | MCP `user-supercat-postgres-vpn` | Login counts, unique active users, last login, earliest login (used for new-org detection) |
-| Postgres `org_users` + `users` | MCP `user-supercat-postgres-vpn` | Enabled internal users per org. `users.email` domain is filtered against the SuperCat-internal exclusion list (see below). Fallback: distinct `user_id` from `login_events` in trailing 365d. |
-| Postgres `organizations` | MCP `user-supercat-postgres-vpn` | Org config: `id`, `shortname`, `name`, `contract_pricing_enabled`, `enable_sales_data` |
-| Postgres `mobile_sites` | MCP `user-supercat-postgres-vpn` | Feature flags: `enable_online_catalog`, `enable_online_ordering`, `enable_sales_portal` (authoritative for applicability gating in §2/§3) |
-| Postgres `subscriptions` | MCP `user-supercat-postgres-vpn` | Reference only — not used for bundle (MAL is authoritative). Unreliable for new-org detection per §6. |
-| Postgres `smart_stacks` | MCP `user-supercat-postgres-vpn` | Smart stack count per org |
-| Postgres `orders` | MCP `user-supercat-postgres-vpn` | iPad order volume — filtered to `LOWER(order_source) = 'ipad' AND is_submitted = true AND order_state = 'active' AND submit_date >= NOW() - 90d` |
-| Postgres `portal_orders` | MCP `user-supercat-postgres-vpn` | Portal/B2B cart order activity — filtered to `order_date >= NOW() - 90d` |
-| Postgres `import_events` | MCP `user-supercat-postgres-vpn` | Import history. Type is extracted from the YAML `data` field (first entry). Status (success/warning/error) is parsed from the same field. |
-| Postgres `products` | MCP `user-supercat-postgres-vpn` | Catalog completeness — `deleted`, `long_description`, `net_price`, `prices_json`, `image_exists` |
-| BigQuery `mixpanel.events` | MCP `user-bigquery-vpn` | Sharing/quoting events (`item_email_drafted`, `document_email_drafted`). Org attribution via `COALESCE(NULLIF(organization_shortname, ''), NULLIF(current_organization_shortname, ''))`. |
-| BigQuery `helpscout.conversations` | MCP `user-bigquery-vpn` | Support conversations and escalation/severity tags. Open conversations have `status IN ('active', 'pending')`. |
+| Postgres `login_events` | MCP `supercat-postgres-vpn` | Login counts, unique active users, last login, earliest login (used for new-org detection) |
+| Postgres `org_users` + `users` | MCP `supercat-postgres-vpn` | Enabled internal users per org. `users.email` domain is filtered against the SuperCat-internal exclusion list (see below). Fallback: distinct `user_id` from `login_events` in trailing 365d. |
+| Postgres `organizations` | MCP `supercat-postgres-vpn` | Org config: `id`, `shortname`, `name`, `contract_pricing_enabled`, `enable_sales_data` |
+| Postgres `mobile_sites` | MCP `supercat-postgres-vpn` | Feature flags: `enable_online_catalog`, `enable_online_ordering`, `enable_sales_portal` (authoritative for applicability gating in §2/§3) |
+| Postgres `subscriptions` | MCP `supercat-postgres-vpn` | Reference only — not used for bundle (MAL is authoritative). Unreliable for new-org detection per §6. |
+| Postgres `smart_stacks` | MCP `supercat-postgres-vpn` | Smart stack count per org |
+| Postgres `orders` | MCP `supercat-postgres-vpn` | iPad order volume — filtered to `LOWER(order_source) = 'ipad' AND is_submitted = true AND order_state = 'active' AND submit_date >= NOW() - 90d` |
+| Postgres `portal_orders` | MCP `supercat-postgres-vpn` | Portal/B2B cart order activity — filtered to `order_date >= NOW() - 90d` |
+| Postgres `import_events` | MCP `supercat-postgres-vpn` | Import history. Type is extracted from the YAML `data` field (first entry). Status (success/warning/error) is parsed from the same field. |
+| Postgres `products` | MCP `supercat-postgres-vpn` | Catalog completeness — `deleted`, `long_description`, `net_price`, `prices_json`, `image_exists` |
+| BigQuery `mixpanel.events` | MCP `bigquery-admin` | Sharing/quoting events (`item_email_drafted`, `document_email_drafted`). Org attribution via `COALESCE(NULLIF(organization_shortname, ''), NULLIF(current_organization_shortname, ''))`. |
+| BigQuery `helpscout.conversations` | MCP `bigquery-admin` | Support conversations and escalation/severity tags. Open conversations have `status IN ('active', 'pending')`. |
 
 ### SuperCat-Internal Domain Exclusion List
 
