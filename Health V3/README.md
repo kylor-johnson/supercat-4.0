@@ -69,7 +69,7 @@ Once `cache/{YYYY-MM-DD}/` is populated:
 ```bash
 cd "Health V3"
 .venv/bin/python3 health_operator_v3.py \
-  --mal "../Health V2/inputs/master_account_list_{YYYY-MM-DD}_canonical.csv" \
+  --mal "inputs/master_account_list_{YYYY-MM-DD}_canonical.csv" \
   --score-date {YYYY-MM-DD} \
   --cache --cache-dir "cache/{YYYY-MM-DD}" \
   --output-dir "runs/{YYYY-MM-DD}"
@@ -544,6 +544,18 @@ Each monthly run writes its CSV to `Health V3/runs/{YYYY-MM-DD}/client_health_sc
 ### New-Org Exclusion
 
 Orgs whose oldest observed login event is less than 90 days old (or who have zero login events and a MAL `cohort_year` equal to the current year) are written to `Health V3/runs/{date}/skipped_new_orgs.csv` with reason `onboarding_window` and excluded from scoring. They are in the onboarding phase where TTFV is the right metric, not health. The `subscriptions.start_date` field is *not* used for this check — the table appears to have been backfilled in mid-2025, so it is unreliable for older cohorts.
+
+**`--include-new-orgs` overrides the gate.** Passing it scores those orgs instead
+of skipping them, and no `skipped_new_orgs.csv` is written.
+
+| Run | Flag | Why |
+|---|---|---|
+| Monthly CS portfolio canonical | **omit** | An account 6 weeks in has no 90-day history; a health band would be noise, and TTFV is the right metric. |
+| Onboarding early-life review | **pass** | The question there is "is this launch going well", so a nascent score is the point. Read it as directional. |
+
+The flag changes the population, never the math. It is recorded in
+`run_metadata.md` so a run's scope is never ambiguous — a canonical accidentally
+produced with it would otherwise be silently non-comparable to its neighbours.
 
 ---
 

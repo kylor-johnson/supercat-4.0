@@ -669,6 +669,15 @@ def parse_args():
     p.add_argument("--weights", choices=sorted(WEIGHT_SCHEMES), default=DEFAULT_WEIGHTS,
                    help="Dimension weighting scheme (default: %(default)s). "
                         "'equal' = 25/25/25/25; 'v330' = 25/20/35/20.")
+    p.add_argument(
+        "--include-new-orgs",
+        action="store_true",
+        help=(
+            "Score orgs inside the 90-day first-login window instead of writing "
+            "them to skipped_new_orgs.csv. Used by onboarding early-life runs; "
+            "the monthly CS portfolio scorecard should omit this flag."
+        ),
+    )
     p.add_argument("--dry-run", action="store_true",
                    help="Compute scores and print to stdout; do not write CSV")
     p.add_argument(
@@ -1391,14 +1400,16 @@ def main():
         org_id = cfg["organization_id"]
         eng_data = eng_pg.loc[org_id].to_dict() if org_id in eng_pg.index else {}
 
-        # New-org check
+        # New-org check. Monthly CS portfolio drops these; early-life
+        # onboarding runs pass --include-new-orgs and score them as nascent.
         first_login = eng_data.get("first_login_at")
+        in_onboarding_window = False
         if first_login is not None:
             days_since_first = (today - first_login.replace(tzinfo=None)).days
-            if days_since_first < NEW_ORG_DAYS:
-                skipped.append((org, "onboarding_window"))
-                continue
+            in_onboarding_window = days_since_first < NEW_ORG_DAYS
         elif int(mal_row["cohort_year"]) == current_year:
+            in_onboarding_window = True
+        if in_onboarding_window and not args.include_new_orgs:
             skipped.append((org, "onboarding_window"))
             continue
 
@@ -1629,6 +1640,7 @@ def main():
 - Command: `python health_operator_v3.py --mal "{args.mal}" --score-date {score_date}{_cache_flags} --weights {args.weights} --output-dir "{args.output_dir}"`
 - MAL: `{args.mal}`
 - Weighting scheme: `{args.weights}` — ENG {ENG_WEIGHT} / ADO {ADO_WEIGHT} / VAL {VAL_WEIGHT} / OPS {OPS_WEIGHT}
+- New-org window: {'INCLUDED (--include-new-orgs)' if args.include_new_orgs else 'excluded (90-day gate)'}
 - Output CSV: `{out_csv}`
 - Rows scored: {len(df)}
 - Rows skipped (new-org exclusion or not in Postgres): {len(skipped)}
