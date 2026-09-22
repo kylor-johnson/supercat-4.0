@@ -57,6 +57,24 @@ float summation order at a `.x5` rounding boundary, not a code change.
 *same cache + same `--score-date` + same interpreter* → byte-identical.
 A SHA without its interpreter is not a reproducibility claim.
 
+## The cross-machine match, confirmed
+
+Confirmed 2026-09-22 on a second macOS machine — fresh `git clone`, fresh
+`.venv`, same interpreter triple (`3.9.6 / 2.3.3 / 2.0.2`):
+
+| Check | Result |
+|---|---|
+| `runs/2026-09-21/` rescored from `cache/2026-09-21/` | `2850025e…` — byte-identical |
+| `check_consistency.py` | 9 pass / 0 fail |
+| `trigger_engine_v1.py` | 155 triggers, byte-identical to `trigger_reports/` |
+
+This is the other half of the contract stated above. The drift section records a
+*different* interpreter producing a *different* SHA; this records the *same*
+interpreter on different hardware producing the *same* one. Until now the
+determinism claim had only ever been exercised by re-running on the machine that
+produced the canonical — which cannot distinguish "deterministic" from "stable on
+one box."
+
 ## Prior environment (broken, do not restore)
 
 The `.venv` that produced the V3.2.x and V3.3.x canonicals targeted a Homebrew
