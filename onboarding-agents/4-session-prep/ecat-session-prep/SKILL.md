@@ -48,7 +48,7 @@ six recorded errors are that same shape. The label is the whole defence.
 
 **Also binding here:**
 
-- **Cite the harness, never re-derive it.** If `onboarding-models/acceptance/` or an
+- **Cite the harness, never re-derive it.** If `onboarding-agents/1-ingestion/acceptance/` or an
   `ecat-config-check` run has a finding, name it and link it. Do not re-run the SQL and
   do not form a second opinion. If neither has run, say the section is unchecked — do not
   fill the gap with your own analysis.

@@ -217,7 +217,7 @@ def render_client(client_fragment, c):
 
 def adjust_paths(htmltext, out_dir):
     """Rewrite the template's relative asset paths for the artifact's location."""
-    ds_dir = os.path.normpath(os.path.join(HERE, "..", "design-system"))
+    ds_dir = os.path.normpath(os.path.join(HERE, "..", "..", "design-system"))
     css_file = os.path.join(HERE, "phase-assessment.css")
     ds_rel = os.path.relpath(ds_dir, out_dir).replace(os.sep, "/")
     css_rel = os.path.relpath(css_file, out_dir).replace(os.sep, "/")

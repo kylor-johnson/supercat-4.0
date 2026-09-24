@@ -30,7 +30,7 @@ specifically the config layer.
 
 Weight the output accordingly: a contradiction outranks any prevalence line.
 
-**Before reporting anything, read `onboarding-models/config_intent.toml`** — § 4. Declared
+**Before reporting anything, read `onboarding-agents/1-ingestion/config_intent.toml`** — § 4. Declared
 configuration prints as `DECLARED` and never as a finding.
 
 ## 0. Resolve the org first
@@ -465,7 +465,7 @@ Four rules on the output:
   territory codes".
 - **Silence on a clean org.** If nothing is wrong, say so in one line. Do not pad.
 
-## 4. Declared intent — `onboarding-models/config_intent.toml`
+## 4. Declared intent — `onboarding-agents/1-ingestion/config_intent.toml`
 
 **The database shows structure. It cannot show intent.** Two findings in the source
 documents were wrong for exactly this reason, and both reached a human as fact
@@ -510,7 +510,7 @@ The file was YAML until 2026-09-05. It is **TOML** now, and the format is not co
 
 ```python
 import tomllib
-with open('onboarding-models/config_intent.toml', 'rb') as fh:
+with open('onboarding-agents/1-ingestion/config_intent.toml', 'rb') as fh:
     intent = tomllib.load(fh)          # note: binary mode
 org_intent = dict(intent.get(shortname) or {})
 ```
@@ -535,7 +535,7 @@ the result:
 ```
 ecat-config-check — leg (Legrand US, org 273)          REFUSED TO RUN
 
-  declared-intent file unreadable: onboarding-models/config_intent.toml
+  declared-intent file unreadable: onboarding-agents/1-ingestion/config_intent.toml
   <missing | parsed as empty | not valid TOML: line N, col M>
 
   Refusing to audit without it. An absent declaration file reads identically to

@@ -52,10 +52,10 @@ reconciling them needs knowing which batches actually reached FTP:
 
 The onboarding **assessment** work — not implementation:
 
-- `onboarding-models/` — the Phase Progression framework (v3.6)
-- `onboarding-models/collector/` — corpus, rawstate and collector tooling
-- `onboarding-models/ground-truth/` — SCORECARD, BUILD_SPEC, SESSION_HANDOFF, blind-read handoffs
-- `onboarding-models/ground-truth/clients/<sn>/` — the per-client blind reads
+- `onboarding-agents/1-ingestion/` — the Phase Progression framework (v3.6)
+- `onboarding-agents/1-ingestion/collector/` — corpus, rawstate and collector tooling
+- `onboarding-agents/1-ingestion/ground-truth/` — SCORECARD, BUILD_SPEC, SESSION_HANDOFF, blind-read handoffs
+- `onboarding-agents/1-ingestion/ground-truth/clients/<sn>/` — the per-client blind reads
   (CORPUS / JOURNEY / GAPS / RAWSTATE), moved here 2026-09-03
 - `eCat_Onboarding/REGISTRY.yaml` — machine-readable client registry
 - `eCat_Onboarding/00_KICKOFF_PROMPT.md` — session starter

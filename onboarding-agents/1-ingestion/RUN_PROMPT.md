@@ -21,22 +21,22 @@ You were chosen for this because the prior agent has 5 hours of accumulated cont
 
    The framework lives in 4 coordinated files. Together they are the SOURCE OF TRUTH. Read all four end-to-end before running a single query.
 
-   1. `SuperCat 4.0/onboarding-models/Phase_Progression_Framework.md` (current version) — thin index: version header, "what this is," "what changed," file layout, change log. Treat its version header as the source of truth for which version you're running.
-   2. `SuperCat 4.0/onboarding-models/Phase_Anchors.md` — auto-cohort SQL, `client_domains[]` resolution, Sources table, the 7 phase definitions (Anchor + Done-when + per-phase health + Common ambiguity), and the Integration Workstream (parallel).
-   3. `SuperCat 4.0/onboarding-models/Flags_and_Signals.md` — Hard rules (no metric without a tool call, verifiable-quote rule, etc.) and the 6-section ambiguity flag taxonomy (Sections A–F).
-   4. `SuperCat 4.0/onboarding-models/Output_Contract.md` — phase-assignment algorithm, per-client output structure, cohort-level output, deliberate non-goals, and run-mechanics summary.
+   1. `SuperCat 4.0/onboarding-agents/1-ingestion/Phase_Progression_Framework.md` (current version) — thin index: version header, "what this is," "what changed," file layout, change log. Treat its version header as the source of truth for which version you're running.
+   2. `SuperCat 4.0/onboarding-agents/1-ingestion/Phase_Anchors.md` — auto-cohort SQL, `client_domains[]` resolution, Sources table, the 7 phase definitions (Anchor + Done-when + per-phase health + Common ambiguity), and the Integration Workstream (parallel).
+   3. `SuperCat 4.0/onboarding-agents/1-ingestion/Flags_and_Signals.md` — Hard rules (no metric without a tool call, verifiable-quote rule, etc.) and the 6-section ambiguity flag taxonomy (Sections A–F).
+   4. `SuperCat 4.0/onboarding-agents/1-ingestion/Output_Contract.md` — phase-assignment algorithm, per-client output structure, cohort-level output, deliberate non-goals, and run-mechanics summary.
 
 2. **eCat ground truth (so you understand what the import files mean):**
    `~/Downloads/llms.txt` — the data spec for products / customers / inventory / stories / options / matrix_options. Required reading to interpret import_events YAML correctly.
 
 3. **Audit rationale (skim only — context for why v3.1 looks the way it does):**
-   `SuperCat 4.0/onboarding-models/Phase_Progression_Framework_AUDIT.md`
+   `SuperCat 4.0/onboarding-agents/1-ingestion/Phase_Progression_Framework_AUDIT.md`
 
    You do not need to verify the audit's claims — they're already applied to v3.1. Skim Section 2 (per-phase findings) only if a phase anchor in the framework looks surprising; the audit explains why each one is shaped the way it is.
 
 ## What is OUT of scope — DO NOT read or invoke
 
-- **`SuperCat 4.0/onboarding-models/_archive/`** — everything in here is superseded. Includes:
+- **`SuperCat 4.0/onboarding-agents/1-ingestion/_archive/`** — everything in here is superseded. Includes:
   - `_archive/Phase_Progression_Framework_v3.0_baseline.md` — the pre-audit baseline; v3.1 is canonical and v3.0 has anchor clauses that have been corrected.
   - `_archive/v2_stage_gated_2026-06-05/` — the OLD 11-stage system (`Stage_Gated_Data_Collection.md`, `Validation_Layer_Fathom_HelpScout.md`, `Output_Format.md`, old `RUN_PROMPT.md`, old `README.md`). Different framework entirely. Do not read.
   - `_archive/baseline_pre-bq-migration_2026-06-03/`, `_archive/superseded_versions/` — older snapshots, ignore.
@@ -68,14 +68,14 @@ Both require VPN active. The Sources table in `Phase_Anchors.md` lists the exact
 1. Run `date -u +%F` to set `$RUN_DATE` (used in the output filename).
 2. Execute the **auto-cohort query** verbatim from `Phase_Anchors.md § The cohort — auto-detected`. Confirm it returns exactly 4 onboarding clients (as of 2026-06-05 these were `tcs`, `drf`, `libco`, `pebl` — but check today's result; new clients may have entered the cohort).
 3. For each cohort member, resolve `client_domains[]` per `Phase_Anchors.md § Resolving \`client_domains[]\``. The resolution order is:
-   1. Manual override in `onboarding-models/overrides.toml` under `client_domains:` (a committed map of shortname → domain list). If the shortname is listed there, use that list verbatim and stop — it is authoritative and overrides every step below.
+   1. Manual override in `onboarding-agents/1-ingestion/overrides.toml` under `client_domains:` (a committed map of shortname → domain list). If the shortname is listed there, use that list verbatim and stop — it is authoritative and overrides every step below.
    2. `organizations.order_email_recipient` domain (when set and not a placeholder)
    3. ~~HubSpot company primary domain~~ — **REMOVED 2026-08-18** (resolves only 3 of 7 clients; Postgres alone resolves 7 of 7). Skip to step 4.
    4. **Fallback:** admin `org_users.users.email` domains, EXCLUDING the personal-email-providers list in `Phase_Anchors.md § Resolving \`client_domains[]\``
 
    **Within a single chosen source, include all of that source's distinct non-personal domains; do NOT merge across sources.** The first non-empty source wins outright. When the chosen source is the step-4 admin-email fallback and it yields ≥2 distinct domains, raise `MULTI_DOMAIN_FALLBACK_UNVERIFIED` (and, if a second legit parent/DBA domain is real, fold it into `overrides.toml § client_domains` so it stops needing verification). Record each client's resolved `client_domains[]` — every Fathom / HelpScout / rep query downstream matches on these.
 
-4. Read `onboarding-models/overrides.toml`. It is a small committed config of human-confirmed facts the live data can't express. It carries:
+4. Read `onboarding-agents/1-ingestion/overrides.toml`. It is a small committed config of human-confirmed facts the live data can't express. It carries:
    - `net_price_only_confirmed:` — shortnames that run single Net-Price-only pricing by design. Any org listed there satisfies the Phase 3 price requirement and must NOT raise `SINGLE_PRICE_LEVEL_UNCONFIRMED` (see `Phase_Anchors.md § Phase 3` Done-when).
    - `integration_status:` — for clients SuperCat owns the integration on (a `Managed Integration` deal line item, per Step 2), the recorded approach/status. A shortname present here suppresses `INTEGRATION_OWNER_UNCLEAR` (it is now tracked); absent → the flag fires for managed clients.
    - `client_domains:` — manual domain overrides consumed in Step 0.3 above.
@@ -250,13 +250,13 @@ Follow `Output_Contract.md § Per-client output structure` and `Output_Contract.
 
 **`Output_Contract.md § Voice & readability (every run)` is binding.** This is a standup read, not an internal doc. Write plain English; obey the banned-words list; expand acronyms; lead each client with "Phase N of 7" (no readiness %). **Never print an internal flag code anywhere in the client-facing body — not as a title and not in parentheses.** Each flag gets a plain-English title; the title↔code mapping goes in the bottom appendix's flag-reference map (the only place a code may appear). Put run metadata and framework feedback in the bottom appendix per `Output_Contract.md § Appendix`, never at the top. Show the Integration row/block only when SuperCat owns the integration (Step 2).
 
-**Write the result to `SuperCat 4.0/onboarding-models/output/{YYYY-MM-DD}-phase-assessment.md`.** Use the dated filename. This is the canonical output location.
+**Write the result to `SuperCat 4.0/onboarding-agents/1-ingestion/output/{YYYY-MM-DD}-phase-assessment.md`.** Use the dated filename. This is the canonical output location.
 
 ### Step 4b — Emit JSON + render the HTML
 
 The run produces three siblings from the **same computed state**: the `.md` (Step 4, human-readable record), a `.json` (structured data), and a `.html` (rendered report). **HTML is rendered from the JSON by a deterministic generator — the markdown is never parsed to produce HTML.** You author the JSON; the generator does everything mechanical (escaping, asset paths, region cloning) and refuses to write if anything is unresolved.
 
-New Phase-1 surface (all live in `onboarding-models/`; you did NOT see these before). Read only these two — they are the contract; do not re-read the four framework files:
+New Phase-1 surface (all live in `onboarding-agents/1-ingestion/`; you did NOT see these before). Read only these two — they are the contract; do not re-read the four framework files:
 
 - `phase-assessment.schema.json` — the JSON contract (draft-07): every field, type, enum, required rule. **Authoritative field list.**
 - `HTML_Artifact_Contract.md` — the rendering contract (escaping rule, fixed vocabulary, run-wiring section).
@@ -279,7 +279,7 @@ Do NOT open or edit `phase-assessment.template.html`, `phase-assessment.css`, `r
 
 See `HTML_Artifact_Contract.md § Authoring the data`.
 
-**2. Render the HTML** from `onboarding-models/`:
+**2. Render the HTML** from `onboarding-agents/1-ingestion/`:
 
 ```bash
 python3 render_phase_assessment.py output/{$RUN_DATE}-phase-assessment.json
@@ -299,7 +299,7 @@ A **clean exit means the JSON was complete** — the generator's unresolved-toke
 - **One bucket per client:** in the standup agenda, each client appears under exactly one bucket (Resolve / Discuss / On track) — no client is listed twice; an informational/by-design note alone does not put an on-track client into Discuss.
 - **Integration shown only when we own it:** clients with no `Managed Integration` / `Certified Pipeline` line item have NO Integration row or block; `Certified Pipeline` clients get one informational line and no integration flag.
 - **Overrides honored:** any org in `overrides.toml § net_price_only_confirmed` does not carry `SINGLE_PRICE_LEVEL_UNCONFIRMED`; any managed-integration org in `overrides.toml § integration_status` does not carry `INTEGRATION_OWNER_UNCLEAR`; any org in `overrides.toml § client_domains` uses that domain list verbatim.
-- File written at `SuperCat 4.0/onboarding-models/output/{$RUN_DATE}-phase-assessment.md`.
+- File written at `SuperCat 4.0/onboarding-agents/1-ingestion/output/{$RUN_DATE}-phase-assessment.md`.
 - **JSON + HTML emitted (Step 4b):** `output/{$RUN_DATE}-phase-assessment.json` validates against the schema and the generator exited clean (wrote the `.html`); the rendered `.html` opens with styling intact. The cohort and per-client cards in the JSON match the md 1:1, sorted phase-ascending, and at most one agenda item is `urgent`.
 - **Pipeline not broken:** if you touched anything that affects rendering, `python3 render_phase_assessment.py EXAMPLE-2026-06-09-phase-assessment.json --check EXAMPLE-2026-06-09-phase-assessment.html` still prints `MATCH`. (You should NOT have touched the generator/template/CSS — this is a safety net.)
 - If you applied the framework to a non-cohort org (TCD/MALI) for cross-validation, that's optional — only do it if you have time and clearly mark those classifications as outside the cohort.
@@ -325,7 +325,7 @@ TCD and MALI carry `status='active'` and are correctly excluded from the auto-co
 
 ## Output expected from your run
 
-1. **The dated assessment files:** `SuperCat 4.0/onboarding-models/output/{YYYY-MM-DD}-phase-assessment.md` (human-readable record, the content source of truth) plus its two siblings from Step 4b — `.json` (structured data) and `.html` (rendered report). The `.md` is the primary deliverable; the `.json`/`.html` are produced from the same computed state.
+1. **The dated assessment files:** `SuperCat 4.0/onboarding-agents/1-ingestion/output/{YYYY-MM-DD}-phase-assessment.md` (human-readable record, the content source of truth) plus its two siblings from Step 4b — `.json` (structured data) and `.html` (rendered report). The `.md` is the primary deliverable; the `.json`/`.html` are produced from the same computed state.
 
 2. **A short chat report after writing the file:**
    - The cohort returned by the auto-cohort query.

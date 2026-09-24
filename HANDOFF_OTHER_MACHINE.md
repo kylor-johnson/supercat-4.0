@@ -148,7 +148,7 @@ also `~/repos/supercat-4.0`; its Implementation root is iCloud
 
 | Work | Repo |
 |---|---|
-| Skills, rules, onboarding-models, PM, foundation, reports | `~/repos/supercat-4.0` |
+| Skills, rules, onboarding-agents, PM, foundation, reports | `~/repos/supercat-4.0` |
 | Hang-tag Next spike (Kuzco / Avery) | `~/repos/supercat-4.0/hang-tag-spike` — pull, then `npm install` |
 | Live client onboarding (Legrand, jcusa, Fine Art, …) | `~/repos/ecat-onboarding-workspace` → `02_Implementation/` |
 | Company weekly agents / PRs | `~/repos/agent-factory` (branch `kjael/<topic>`) |

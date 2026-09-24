@@ -25,7 +25,7 @@ This is a **presentation contract only**. It does not change what the run comput
 The run agent **emits the JSON** (per `phase-assessment.schema.json`), then runs the generator:
 
 ```bash
-# from onboarding-models/
+# from onboarding-agents/1-ingestion/
 python3 render_phase_assessment.py output/{date}-phase-assessment.json
 # → writes output/{date}-phase-assessment.html
 ```
@@ -182,4 +182,4 @@ What the weekly run agent does, end to end:
 
 Notes for the handoff agent wiring `RUN_PROMPT.md`:
 - The JSON is the contract surface — point the run at `phase-assessment.schema.json` and the `_html`-vs-text escaping rule above. The agent should never edit the template, CSS, or generator.
-- The generator is dependency-free (Python 3 stdlib only). `--check` is the regression guard; keep the golden pair together in `onboarding-models/` (`EXAMPLE-2026-06-09-phase-assessment.html` + `EXAMPLE-2026-06-09-phase-assessment.json`) — they are committed test assets, deliberately NOT under the gitignored `output/`.
+- The generator is dependency-free (Python 3 stdlib only). `--check` is the regression guard; keep the golden pair together in `onboarding-agents/1-ingestion/` (`EXAMPLE-2026-06-09-phase-assessment.html` + `EXAMPLE-2026-06-09-phase-assessment.json`) — they are committed test assets, deliberately NOT under the gitignored `output/`.

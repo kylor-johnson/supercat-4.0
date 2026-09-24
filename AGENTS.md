@@ -71,7 +71,7 @@ nested company `agent-factory/` clone stay gitignored. Health and Insightful
 
 ### Tracked in `kylor-johnson/supercat-4.0`
 
-Skills, rules, foundation, onboarding-models, PM, reports, design-system,
+Skills, rules, foundation, onboarding-agents, PM, reports, design-system,
 Customer Segmentation, Peer Benchmark, Pricing Migration V2,
 EBR/HPMKT 2026, eCat_Onboarding pointers, kb-articles, documentation, prompts,
 scripts (the tracked files), ttfv, validation-reports,
@@ -127,7 +127,7 @@ Live MCP is `~/.cursor/mcp.json`. Credentials live in `~/.supercat/`.
 | Path | Purpose |
 |---|---|
 | `eCat_Onboarding/` | **Pointers only** — kickoff, registry, `jcusa.md`. Live client folders are in iCloud `SuperCat_Simple_Final/02_Implementation/`. **Never recreate client folders here.** |
-| `onboarding-models/` | Phase framework, output contracts, HTML artifact contract, questionnaire, rendering pipeline. |
+| `onboarding-agents/` | The four onboarding agents. `1-ingestion/` is the former `onboarding-models/` (pipeline, phase framework, assessment, ground-truth). The five skills live here and are symlinked from `.cursor/skills/`. See `onboarding-agents/README.md`. |
 | `kb-articles/`, `KB - Net New/`, `documentation/` | Knowledge-base source and drafts. |
 
 ### Analysis & reporting (tracked)

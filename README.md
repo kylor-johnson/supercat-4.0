@@ -43,7 +43,7 @@ locally in `~/repos/supercat-4.0/hang-tag-spike` if you use it.
 
 | Work | Where |
 |---|---|
-| Skills, rules, onboarding-models, PM, foundation, reports | This working tree (`~/repos/supercat-4.0` on this Mac) |
+| Skills, rules, onboarding-agents, PM, foundation, reports | This working tree (`~/repos/supercat-4.0` on this Mac) |
 | Live client onboarding (Legrand, jcusa, Fine Art, …) | iCloud `SuperCat_Simple_Final` → `02_Implementation/<Client>/` |
 | Company weekly agents / PRs | `~/repos/agent-factory` |
 | Active Insightful 4.0 pipeline (runtime + outputs) | local `Insightful Product 4.0/` (gitignored); source also in `agent-factory/agents/insightful_product` |
@@ -75,7 +75,7 @@ iCloud `SuperCat_Simple_Final`). This ops repo does not hold those payloads.
 | Path | Description |
 |---|---|
 | `.cursor/skills/`, `.cursor/rules/` | Agent skills and always-on import/data-model rules |
-| `onboarding-models/` | Phase framework, acceptance checks, ground-truth, collector |
+| `onboarding-agents/` | The four onboarding agents in one folder (ingestion, config check, HelpScout triage, session prep); see its README |
 | `eCat_Onboarding/` | Kickoff prompt, registry, pointers to Implementation |
 | `foundation/` | Company context (figures live in `foundation/sources/`) |
 | `personas/` | Five consumption roles — `00-PERSONA-GROUPS.md` (Phase 2) |

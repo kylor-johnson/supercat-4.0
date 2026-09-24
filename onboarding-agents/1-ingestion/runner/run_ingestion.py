@@ -79,7 +79,7 @@ import traceback
 import contextlib
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-ROOT = os.path.dirname(HERE)               # onboarding-models/
+ROOT = os.path.dirname(HERE)               # onboarding-agents/1-ingestion/
 sys.path.insert(0, ROOT)
 sys.path.insert(0, os.path.join(ROOT, 'profiler'))
 sys.path.insert(0, os.path.join(ROOT, 'mapping'))

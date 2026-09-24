@@ -2,7 +2,7 @@
 
 **Version:** 3.6 (first ground-truth validation: at-risk state + thread-count floor/dedup + schema fixes)
 **Date drafted:** 2026-06-05 (v3.0) · Audit-applied: 2026-06-05 (v3.1) · Refactored: 2026-06-05 (Phase B split into focused files) · v3.2: 2026-06-08 (two live-run feedback passes) · v3.3: 2026-06-08 (operator readability + output-shape pass) · v3.4: 2026-06-08 (third operator review of the 2026-06-09 run) · v3.5: 2026-07-01 (post-run fixes from 2026-07-01 cohort run) · **v3.6: 2026-08-18 (first validation against an independent blind reconstruction — TCD)**
-**Status:** Canonical. Lives at `SuperCat 4.0/onboarding-models/Phase_Progression_Framework.md`. Migrated 2026-06-05 (v2 stage-gated framework archived to `_archive/v2_stage_gated_2026-06-05/`).
+**Status:** Canonical. Lives at `SuperCat 4.0/onboarding-agents/1-ingestion/Phase_Progression_Framework.md`. Migrated 2026-06-05 (v2 stage-gated framework archived to `_archive/v2_stage_gated_2026-06-05/`).
 **Supersedes:** `_archive/v2_stage_gated_2026-06-05/Stage_Gated_Data_Collection.md` (the old 11-stage ladder), plus `_archive/v2_stage_gated_2026-06-05/Validation_Layer_Fathom_HelpScout.md` and `_archive/v2_stage_gated_2026-06-05/Output_Format.md`, whose content is now distributed across `Flags_and_Signals.md` and `Output_Contract.md`.
 **Companion docs:** `Phase_Anchors.md`, `Flags_and_Signals.md`, `Output_Contract.md`, `RUN_PROMPT.md` (the orchestrator a fresh agent runs end-to-end).
 **Audit:** Rationale for every change in this revision is in `Phase_Progression_Framework_AUDIT.md` (side-by-side). The verbatim v3.0 baseline is preserved at `_archive/Phase_Progression_Framework_v3.0_baseline.md`.

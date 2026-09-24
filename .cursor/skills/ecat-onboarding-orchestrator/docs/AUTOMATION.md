@@ -8,11 +8,11 @@ onboarding Phase Progression assessment as a Cursor Automation.
 
 ## What this automation does
 
-Runs the Track B framework (`onboarding-models/RUN_PROMPT.md`) end-to-end:
+Runs the Track B framework (`onboarding-agents/1-ingestion/RUN_PROMPT.md`) end-to-end:
 
 1. Detects the active onboarding cohort from `REGISTRY.yaml` and the live Postgres.
 2. Queries Postgres and BigQuery for per-client phase metrics and flags.
-3. Writes three sibling output files to `onboarding-models/output/`:
+3. Writes three sibling output files to `onboarding-agents/1-ingestion/output/`:
    - `{YYYY-MM-DD}-phase-assessment.md` — human-readable standup record
    - `{YYYY-MM-DD}-phase-assessment.json` — structured data
    - `{YYYY-MM-DD}-phase-assessment.html` — rendered HTML (via `render_phase_assessment.py`)
@@ -31,12 +31,12 @@ before the automation will succeed.**
 
 | Prerequisite | Status | How to verify |
 |---|---|---|
-| Repo contains the four framework files | Required | `git ls-files onboarding-models/*.md` — must return `Phase_Progression_Framework.md`, `Phase_Anchors.md`, `Flags_and_Signals.md`, `Output_Contract.md` |
-| `RUN_PROMPT.md` is committed | Required | `git ls-files onboarding-models/RUN_PROMPT.md` |
+| Repo contains the four framework files | Required | `git ls-files onboarding-agents/1-ingestion/*.md` — must return `Phase_Progression_Framework.md`, `Phase_Anchors.md`, `Flags_and_Signals.md`, `Output_Contract.md` |
+| `RUN_PROMPT.md` is committed | Required | `git ls-files onboarding-agents/1-ingestion/RUN_PROMPT.md` |
 | `REGISTRY.yaml` is committed | Required | `git ls-files eCat_Onboarding/REGISTRY.yaml` |
-| `render_phase_assessment.py` is committed | Required | `git ls-files onboarding-models/render_phase_assessment.py` |
+| `render_phase_assessment.py` is committed | Required | `git ls-files onboarding-agents/1-ingestion/render_phase_assessment.py` |
 | VPN active during the run | Required | The automation queries `supercat-postgres-vpn` (Postgres) and `bigquery-admin` (Fathom/HelpScout).  Both require VPN. |
-| `overrides.yml` committed (if any overrides exist) | Conditional | `git ls-files onboarding-models/overrides.yml` |
+| `overrides.yml` committed (if any overrides exist) | Conditional | `git ls-files onboarding-agents/1-ingestion/overrides.yml` |
 
 > **Rule from `IMPLEMENTATION_PLAN.md §6.1`:**
 > Cursor Automations can only reference committed files in the automation's own repo.
@@ -83,7 +83,7 @@ Enable the following tools for the automation agent:
 You are running this week's onboarding Phase Progression assessment.
 
 Read and follow the run instructions in:
-  onboarding-models/RUN_PROMPT.md
+  onboarding-agents/1-ingestion/RUN_PROMPT.md
 
 That file is the complete execution guide.  Follow every step in order.
 Do not skip the sanity check (Step 5) or the JSON + HTML render (Step 4b).
@@ -100,7 +100,7 @@ Append a brief scan summary to the bottom of the markdown output under an
 "## Cross-tenant fingerprint scan" heading.
 
 Do not commit, push, or send any email.  Write only to
-  onboarding-models/output/{YYYY-MM-DD}-phase-assessment.{md,json,html}
+  onboarding-agents/1-ingestion/output/{YYYY-MM-DD}-phase-assessment.{md,json,html}
 ```
 
 > **Why `RUN_PROMPT.md` and not inline instructions?**
@@ -114,11 +114,11 @@ Do not commit, push, or send any email.  Write only to
 
 After the automation completes, verify:
 
-1. Three files exist in `onboarding-models/output/` with today's date:
+1. Three files exist in `onboarding-agents/1-ingestion/output/` with today's date:
    ```
-   onboarding-models/output/2026-07-28-phase-assessment.md
-   onboarding-models/output/2026-07-28-phase-assessment.json
-   onboarding-models/output/2026-07-28-phase-assessment.html
+   onboarding-agents/1-ingestion/output/2026-07-28-phase-assessment.md
+   onboarding-agents/1-ingestion/output/2026-07-28-phase-assessment.json
+   onboarding-agents/1-ingestion/output/2026-07-28-phase-assessment.html
    ```
 
 2. Every cohort member from `REGISTRY.yaml` (lifecycle: onboarding) appears in
@@ -134,9 +134,9 @@ After the automation completes, verify:
 
 Run this golden-file test to confirm the renderer is intact (output should be `MATCH`):
 ```bash
-python onboarding-models/render_phase_assessment.py \
-    onboarding-models/EXAMPLE-2026-06-09-phase-assessment.json \
-    --check onboarding-models/EXAMPLE-2026-06-09-phase-assessment.html
+python onboarding-agents/1-ingestion/render_phase_assessment.py \
+    onboarding-agents/1-ingestion/EXAMPLE-2026-06-09-phase-assessment.json \
+    --check onboarding-agents/1-ingestion/EXAMPLE-2026-06-09-phase-assessment.html
 ```
 
 ---
@@ -174,9 +174,9 @@ python ${CLAUDE_SKILL_DIR}/scripts/reconcile/fingerprint_scan.py \
 #    in a fresh Cursor agent session and follow its instructions).
 
 # 3. Render the HTML from the JSON the agent wrote:
-python onboarding-models/render_phase_assessment.py \
-    onboarding-models/output/{YYYY-MM-DD}-phase-assessment.json
-# → writes onboarding-models/output/{YYYY-MM-DD}-phase-assessment.html
+python onboarding-agents/1-ingestion/render_phase_assessment.py \
+    onboarding-agents/1-ingestion/output/{YYYY-MM-DD}-phase-assessment.json
+# → writes onboarding-agents/1-ingestion/output/{YYYY-MM-DD}-phase-assessment.html
 
 # 4. Run the fingerprint scan:
 python ${CLAUDE_SKILL_DIR}/scripts/reconcile/fingerprint_scan.py \
@@ -186,9 +186,9 @@ python ${CLAUDE_SKILL_DIR}/scripts/reconcile/fingerprint_scan.py \
     --check missing_images
 
 # 5. Verify the golden file is still intact:
-python onboarding-models/render_phase_assessment.py \
-    onboarding-models/EXAMPLE-2026-06-09-phase-assessment.json \
-    --check onboarding-models/EXAMPLE-2026-06-09-phase-assessment.html
+python onboarding-agents/1-ingestion/render_phase_assessment.py \
+    onboarding-agents/1-ingestion/EXAMPLE-2026-06-09-phase-assessment.json \
+    --check onboarding-agents/1-ingestion/EXAMPLE-2026-06-09-phase-assessment.html
 ```
 
 ---
@@ -225,7 +225,7 @@ Check whether the framework files are all committed to the branch the automation
 out.  Run:
 ```bash
 git log --oneline -5
-git ls-files onboarding-models/RUN_PROMPT.md
+git ls-files onboarding-agents/1-ingestion/RUN_PROMPT.md
 git ls-files eCat_Onboarding/REGISTRY.yaml
 ```
 Any file missing from `git ls-files` was not committed and was invisible to the agent.
@@ -236,12 +236,12 @@ Any file missing from `git ls-files` was not committed and was invisible to the 
 
 | File | Purpose |
 |---|---|
-| `onboarding-models/RUN_PROMPT.md` | Execution guide — the canonical spec for each run |
-| `onboarding-models/Phase_Anchors.md` | Phase 1–7 definitions, auto-cohort SQL, flag taxonomy |
-| `onboarding-models/Flags_and_Signals.md` | Hard rules (no metric without a tool call) + ambiguity flags A–F |
-| `onboarding-models/Output_Contract.md` | Phase assignment algorithm, per-client output structure |
-| `onboarding-models/overrides.yml` | Human-confirmed facts (client domains, confirmed net-price orgs, integration status) |
+| `onboarding-agents/1-ingestion/RUN_PROMPT.md` | Execution guide — the canonical spec for each run |
+| `onboarding-agents/1-ingestion/Phase_Anchors.md` | Phase 1–7 definitions, auto-cohort SQL, flag taxonomy |
+| `onboarding-agents/1-ingestion/Flags_and_Signals.md` | Hard rules (no metric without a tool call) + ambiguity flags A–F |
+| `onboarding-agents/1-ingestion/Output_Contract.md` | Phase assignment algorithm, per-client output structure |
+| `onboarding-agents/1-ingestion/overrides.yml` | Human-confirmed facts (client domains, confirmed net-price orgs, integration status) |
 | `eCat_Onboarding/REGISTRY.yaml` | Cohort enumeration — archetype, flags, cutover date per client |
-| `onboarding-models/render_phase_assessment.py` | HTML renderer — reads JSON, writes `.html`; do not edit |
+| `onboarding-agents/1-ingestion/render_phase_assessment.py` | HTML renderer — reads JSON, writes `.html`; do not edit |
 | `scripts/reconcile/fingerprint_scan.py` | Cross-tenant check runner — sweep all orgs for a root-cause signature |
-| `onboarding-models/output/` | Assessment output directory (`{date}-phase-assessment.{md,json,html}`) |
+| `onboarding-agents/1-ingestion/output/` | Assessment output directory (`{date}-phase-assessment.{md,json,html}`) |
