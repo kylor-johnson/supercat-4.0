@@ -1,0 +1,495 @@
+
+==============================================================================
+RUN 2026-09-16 — mer customers ingestion-layer test
+==============================================================================
+Org pinned: 111Mercer / shortname mer / org_id 302 (Postgres: id=302, shortname=mer, name=111Mercer, properties.status=onboarding)
+Interpreter: /opt/homebrew/bin/python3  (3.14.2)
+Tools: onboarding-agents/1-ingestion/profiler/folder_mode.py then file_mode.py
+Registry: runner/clients.toml [clients.mer] targets = ["products"] only. mapping_dir=mercer. No customers mapping exists (mappings/mercer/{products.toml,tables.toml,custom.py,UNMAPPED.md}).
+This session did not write customers.csv, did not add customers to clients.toml, did not write mappings/mercer/customers.toml, did not upload, did not write Admin or Postgres.
+
+------------------------------------------------------------------------------
+CHAT SUMMARY
+------------------------------------------------------------------------------
+Target:            customers.csv  (tool: low-inference; this pass agrees on target, not on mapping)
+Input class:       raw ERP-shaped export. 0 of 9 headers are customers.csv field names. The tool's "1 recognised eCat field" is Price Level matching the products patterned header price[a-z0-9]+, not an eCat customers header. Not pre-mapped. Not a hybrid. Not an industry template.
+Row count:         39 data rows kept. Excluded: 1 header row (row 1) + 17 trailing rows (rows 41-57). Partition 1+39+17 = 57 = sheet max_row.
+                   Specimen kept: row 2 Customer ID C63857 / Company Name 'Kate Healy Interiors, Inc. - 111 Mercer'
+                   Specimen excluded trailing: row 41 values (None, None, None, None, None, '\xa0', '\xa0', '\xa0', None) — not None; NBSP in Price Level, Account Type, Net Terms
+Required-field gaps (importer-fatal customers.csv):
+                   BillToAddress1  MISSING  no address column in the file
+                   BillToCity      MISSING  no city column
+                   BillToState     MISSING  no state column
+                   BillToPostCode  MISSING  no postal column
+                   BillToName      TOOL SAID MISSING; this pass maps Company Name -> BillToName [high] (tool sent it to LongDesc)
+                   DefaultPriceCode TOOL SAID MISSING; this pass maps Price Level -> DefaultPriceCode [high] after checking live codes
+                   BillToCode      mapped Customer ID -> BillToCode [high] (tool agrees)
+Live customers:    0  (organization_id=302). shipping_locations joined through customers: 0.
+Live price levels: code=trade name=Trade; code=wholesale name=Wholesale; code=dropship name=Dropship. All pl_type=ad-hoc.
+Customers import_events: 0 of 9 import_events for org 302. Types present: Products (8), Inventory (1). No Customers key in any event data.
+Verdict:           MAP, BUT NOT YET
+HARD-delete:       A clean customers.csv import HARD-deletes every customer and every ship-to for org 302, then reloads only what is in that file. Live count is 0 today, so there is nothing to destroy yet; emitting a partial file is still the incident. mer has no customers mapping; an absent mapping means an absent file.
+
+B6/B7:             First-ever customer file against zero live customers. B6 has no previous file to diff. B7 exists for this case. B7 was not run in this session. "No previous file" is not clearance to build.
+
+==============================================================================
+0. PREFLIGHT
+==============================================================================
+Path: .../02_Implementation/111Mercer/Source Data/111 Mercer Customer List(Sheet1).xlsx
+On disk: yes. size 17247 bytes. SF_DATALESS=False (st_flags=64 = UF_TRACKED, data present).
+Magic: 50 4B 03 04 (ZIP/XLSX). Extension .xlsx agrees. Opened with openpyxl.
+iCloud placeholder path: not taken.
+
+Registry read before assuming the runner would ingest this file:
+  [clients.mer] mode=new_client targets=["products"] build_dir="Import Files"
+  primary products input is Source Data/111Mercer-ItemExport .csv (leading space before .csv is real).
+  Running run_ingestion.py --client mer is a products build. Not run. PROFILE noticing this workbook would not make BUILD emit customers.csv.
+
+==============================================================================
+1. FOLDER MODE STDOUT (captured)
+==============================================================================
+
+==============================================================================
+FOLDER: /Users/kylorjohnson/Library/Mobile Documents/com~apple~CloudDocs/SuperCat_Simple_Final/02_Implementation/111Mercer/Source Data
+==============================================================================
+7 files, 229.0 KB total
+  tabular    5 files    215.0 KB
+  noise      2 files     14.0 KB
+
+-- CATALOG SOURCE CANDIDATES ------------------------------------------------
+
+  111 Mercer Customer List(Sheet1).xlsx
+    16.8 KB | n/a (xlsx) | modified 2026-09-16
+    39 rows x 9 cols | delimiter 'n/a (xlsx)' | header on row 1 (9 non-empty cells, 9 distinct, 1 recognised eCat field names)
+    NOTE: 17 trailing row(s) with no values excluded from the row count (export terminator, not a record)
+    input class : raw (with incidental eCat-shaped names) - 1 of 9 headers match eCat names (11%) - too few to be a mapping
+    trying to be: customers.csv [low - inference]
+                  basis: SEMANTIC GUESS from client-domain header words (6 keyword families), NOT eCat header evidence
+    key candidate: 'Customer ID' (uniqueness 100%, fill 100%)
+    headers: Customer ID, Company Name, First & Last Name, Email Address, Phone Number, Price Level, Account Type, Net Terms, Setup Date
+
+  111Mercer-ItemExport .csv
+    39.2 KB | utf-8-sig | modified 2026-08-10
+    102 rows x 56 cols | delimiter ',' | header on row 1 (55 non-empty cells, 55 distinct, 1 recognised eCat field names)
+    input class : raw (with incidental eCat-shaped names) - 1 of 55 headers match eCat names (2%) - too few to be a mapping
+    trying to be: products.csv [low - inference]
+                  basis: SEMANTIC GUESS from client-domain header words (5 keyword families), NOT eCat header evidence
+    key candidate: 'Internal ID' (uniqueness 100%, fill 100%)
+    headers: Internal ID, Name, Display Name, Description, , Purchase Description, Vendor Name, Primary Units Type, Primary Stock Unit, Primary Purchase Unit, Primary Sale Unit, Display in Web Site ...
+
+  111Mercer-ItemExport .xlsx
+    130.2 KB | n/a (xlsx) | modified 2026-08-10
+    102 rows x 56 cols | delimiter 'n/a (xlsx)' | header on row 1 (55 non-empty cells, 55 distinct, 1 recognised eCat field names)
+    NOTE: 897 trailing row(s) with no values excluded from the row count (export terminator, not a record)
+    input class : raw (with incidental eCat-shaped names) - 1 of 55 headers match eCat names (2%) - too few to be a mapping
+    trying to be: products.csv [low - inference]
+                  basis: SEMANTIC GUESS from client-domain header words (5 keyword families), NOT eCat header evidence
+    key candidate: 'Internal ID' (uniqueness 100%, fill 100%)
+    headers: Internal ID, Name, Display Name, Description, , Purchase Description, Vendor Name, Primary Units Type, Primary Stock Unit, Primary Purchase Unit, Primary Sale Unit, Display in Web Site ...
+
+  eCat Template Tabs/inventory_template.csv
+    2.3 KB | utf-8-sig | modified 2026-08-10
+    102 rows x 12 cols | delimiter ',' | header on row 1 (12 non-empty cells, 12 distinct, 12 recognised eCat field names)
+    input class : pre-mapped - 12 of 12 headers are eCat field names (100%) - VALIDATE, do not re-map
+    trying to be: inventory.csv [high]
+                  basis: eCat header match (score 12.0, 10 distinctive fields, key baseitemcode present)
+    key candidate: 'BaseItemCode' (uniqueness 100%, fill 100%)
+    headers: DistributionCenter, BaseItemCode, QtyAvailable, QtyOnHand, QtyIntransit, NextReceiptQty, NextReceiptDate, QtyOverseas, QtyReserved, QtyOnBackorder, QtyOnPorder, QtyInShowroom
+
+  eCat Template Tabs/products_template.csv
+    26.4 KB | utf-8-sig | modified 2026-08-10
+    104 rows x 24 cols | delimiter ',' | header on row 1 (24 non-empty cells, 24 distinct, 21 recognised eCat field names)
+    input class : pre-mapped - 21 of 24 headers are eCat field names (88%) - VALIDATE, do not re-map
+    trying to be: products.csv [high]
+                  basis: eCat header match (score 19.5, 15 distinctive fields, key baseitemcode present)
+    key candidate: 'BaseItemCode' (uniqueness 100%, fill 99%)
+    headers: InternalId, BaseItemCode, LongDesc, Dimensions, ImageFileName, PackedVolume, PackQuantity, MinimumQuantity, TradeNameCode, CollectionCodes, CategoryCodes, NewItem ...
+
+-- NOISE --------------------------------------------------------------------
+  .DS_Store - OS/editor artifact, not client content
+  eCat Template Tabs/.DS_Store - OS/editor artifact, not client content
+
+-- FORMAT TWINS (same content, different declared format) --------------------
+  111Mercer-ItemExport .csv
+  111Mercer-ItemExport .xlsx
+    evidence: same 102 data rows, header overlap 100%, different declared format; contents differ, so this is a real conversion
+    which came first: UNDETERMINED - no evidence in the folder says which was produced from which
+
+-- MAPPING PAIRS  -> keep both, one is the source of the other ---------------
+  111Mercer-ItemExport .csv (102 rows)
+  eCat Template Tabs/products_template.csv (104 rows)
+    key overlap 99% with header overlap only 4% - the same records expressed twice, one raw and one mapped. Keep both; reconcile the mapping against the raw file.
+  111Mercer-ItemExport .xlsx (102 rows)
+  eCat Template Tabs/products_template.csv (104 rows)
+    key overlap 99% with header overlap only 4% - the same records expressed twice, one raw and one mapped. Keep both; reconcile the mapping against the raw file.
+
+-- KEY-LINKED  -> expected cross-file join, not a duplicate ------------------
+  eCat Template Tabs/inventory_template.csv (102 rows)
+  eCat Template Tabs/products_template.csv (104 rows)
+    different eCat targets (inventory.csv / products.csv) sharing 99% of their keys - this is the expected products<->inventory<->stories join, not a duplicate.
+  111Mercer-ItemExport .csv (102 rows)
+  eCat Template Tabs/inventory_template.csv (102 rows)
+    different eCat targets (products.csv / inventory.csv) sharing 100% of their keys - this is the expected products<->inventory<->stories join, not a duplicate.
+  111Mercer-ItemExport .xlsx (102 rows)
+  eCat Template Tabs/inventory_template.csv (102 rows)
+    different eCat targets (products.csv / inventory.csv) sharing 100% of their keys - this is the expected products<->inventory<->stories join, not a duplicate.
+
+-- eCAT TARGET COVERAGE -----------------------------------------------------
+  products.csv       CANDIDATE  111Mercer-ItemExport .csv [low - inference]
+  products.csv       CANDIDATE  111Mercer-ItemExport .xlsx [low - inference]
+  products.csv       CANDIDATE  eCat Template Tabs/products_template.csv [high]
+  inventory.csv      CANDIDATE  eCat Template Tabs/inventory_template.csv [high]
+  options.csv        MISSING    no file in this folder resolves to it
+  option_groups.csv  MISSING    no file in this folder resolves to it
+  customers.csv      CANDIDATE  111 Mercer Customer List(Sheet1).xlsx [low - inference]
+  stories.csv        MISSING    no file in this folder resolves to it
+
+  COVERAGE — evaluated 5 of 7 files for a target (5 parsed a header row; 2 were binary, noise or unparseable). Transposed-stack detection ran on those same 5 and fired on 0.
+
+
+==============================================================================
+1b. FOLDER MODE INTERPRETATION
+==============================================================================
+Catalog source vs template/derived vs noise
+  Catalog source (raw):
+    111 Mercer Customer List(Sheet1).xlsx     -> customers.csv candidate (this test)
+    111Mercer-ItemExport .csv                 -> products.csv candidate (existing mer products mapping)
+    111Mercer-ItemExport .xlsx                -> same products export, other format
+  Derived / pre-mapped templates (still tabular, not noise):
+    eCat Template Tabs/products_template.csv  -> products.csv [high], input class pre-mapped
+    eCat Template Tabs/inventory_template.csv -> inventory.csv [high], input class pre-mapped
+  Noise:
+    .DS_Store
+    eCat Template Tabs/.DS_Store
+  Library/PDF: none in this folder.
+
+How the new workbook relates to the item export already in the folder
+  UNRELATED.
+  Different eCat targets (customers.csv vs products.csv). No shared key (Customer ID C63857 vs item Name GL9190-S / Internal ID 6796). Folder mode correctly did not emit rival / superseded / complementary-partition / mapping-pair / key-linked / format-twins for this pair. Silence here is the right relation, not a missed duplicate.
+  Do not call them duplicates. They are two source files for two eCat files.
+
+Other relations the tool did emit (checked, agreed):
+  format twins: ItemExport .csv and .xlsx — same 102 data rows, header overlap 100%, contents differ so not byte-identical. Direction UNDETERMINED. Agreed. mer products.toml already pins the csv (with the leading space in the filename).
+  mapping-pair: ItemExport <-> products_template.csv (102 vs 104 rows, key overlap 99%, header overlap 4%). Keep both. The 104 vs 102 gap is a products question, not this file.
+  key-linked: products_template <-> inventory_template, and ItemExport <-> inventory_template. Expected products<->inventory join. Not duplicates.
+
+eCat file types missing from the folder entirely
+  options.csv         MISSING
+  option_groups.csv   MISSING
+  stories.csv         MISSING
+  customers.csv       now has a candidate (this workbook), not a mapping, not a buildable file
+  products.csv / inventory.csv already have candidates (and mer already builds products)
+
+mtime: tool printed customer list modified 2026-09-16 and item export 2026-08-10. SKILL rule: mtime in this tree is worthless as recency/authority. Not used to order files.
+
+Folder-mode silence worth naming: it has no "unrelated" line. The customer workbook simply does not appear in any relation block. That is correct; a reader scanning only the relation blocks can miss that a new eCat target arrived.
+
+==============================================================================
+2. FILE MODE STDOUT (captured)
+==============================================================================
+
+==============================================================================
+FILE: /Users/kylorjohnson/Library/Mobile Documents/com~apple~CloudDocs/SuperCat_Simple_Final/02_Implementation/111Mercer/Source Data/111 Mercer Customer List(Sheet1).xlsx
+==============================================================================
+
+1. WHAT IS THIS
+   16.8 KB on disk
+   format      : .xlsx (content agrees with the extension)
+   encoding    : n/a (xlsx)
+   delimiter   : 'n/a (xlsx)'
+   sheet       : 111 Mercer Customer List(Sheet1
+   header row  : 1 (9 non-empty cells, 9 distinct, 1 recognised eCat field names)
+   17 trailing valueless row(s) excluded from the count
+   39 data rows x 9 columns
+   input class : raw (with incidental eCat-shaped names) - 1 of 9 headers match eCat names (11%) - too few to be a mapping
+   trying to be: customers.csv [low - inference] - client-domain keyword families only (6), NOT eCat header evidence
+
+2. WHAT'S POPULATED
+   9 columns: 8 populated >=5%, 1 sparse (<5%), 0 entirely empty
+   column                               fill distinct  sample
+   Customer ID                          100%       39  C63857, C63290, C63477
+   Company Name                         100%       39  Kate Healy Interio, Studio Ajo LLC - 1, Kath
+   Email Address                        100%       36  kate@katehealyinte, triehm@studioajo.c, kath
+   Price Level                          100%        2  Trade, Wholesale
+   Account Type                         100%        2  Designer, Builder/General Co
+   First & Last Name                     87%       34  Kate Healy, Timothy Riehm, Katherine McCulle
+   Phone Number                          79%       31  (954) 483-6365, (239) 328-7579, (919) 413-17
+   Net Terms                             13%        1  Net 30
+   SPARSE (<5%, not fields): Setup Date 2.6%
+
+3. WHAT LOOKS LIKE A KEY
+   'Customer ID' - 39 values, 39 distinct, 100% filled, max length 6
+   39 rows over 39 distinct 'Customer ID' - expected for customers.csv (bill-to row plus one row per ship-to; BillToCode REPEATS by design), NOT a key defect
+   also unique: 'Company Name' (39 distinct, e.g. Kate Healy Interiors, Inc. - 111 Mercer, Studio Ajo LLC - 111 Mercer)
+   -> more than one column is unique. Which one the CLIENT calls the
+      item/customer code is not decidable from the file; ask.
+
+4. WHAT MAPS TO eCAT
+   Customer ID                      -> BillToCode                 [high]
+       customer identifier
+   Email Address                    -> BuyerEmail                 [high]
+   Price Level                      -> Price Level                [moderate]
+       is an eCat field name, but for another file - not for customers.csv. In this file it may hold something else entirely; check the values before trusting the name
+   Company Name                     -> LongDesc                   [low]
+       keyword in the header only - confirm with the client before mapping
+   First & Last Name                -> LongDesc                   [low]
+       keyword in the header only - confirm with the client before mapping
+   Net Terms                        -> NetPrice or Price_<code>   [low]
+       keyword in the header only - confirm with the client before mapping
+
+   UNMAPPED SOURCE COLUMNS (3) - client-domain data with no eCat home:
+     Phone Number                       79% populated, e.g. (954) 483-6365, (239) 328-7579, (919) 
+     Account Type                       100% populated, e.g. Designer, Builder/General 
+     Setup Date                         3% populated, e.g. 2026-09-15 00:00
+     -> these become custom fields, option sets, or are dropped. That is a
+        decision for the client, not a default.
+
+5. WHAT'S MISSING
+   billtoaddress1       no source column maps to it; nothing in this file resembles it
+   billtocity           no source column maps to it; nothing in this file resembles it
+   billtoname           no source column maps to it; nothing in this file resembles it
+   billtopostcode       no source column maps to it; nothing in this file resembles it
+   billtostate          no source column maps to it; nothing in this file resembles it
+   defaultpricecode     no source column maps to it; nothing in this file resembles it
+
+6. WHAT DOESN'T ADD UP
+   - column 'Setup Date' is 2.6% populated (1 of 39) - too sparse to treat as a field
+
+
+==============================================================================
+2b. FILE MODE — SIX QUESTIONS, WITH TOOL CHECK
+==============================================================================
+Sheet: 1 worksheet. Name in the workbook is '111 Mercer Customer List(Sheet1' (closing paren missing). Filename has the closing paren. Tool printed the sheet name as stored. Sheets not profiled: none.
+
+Partition (must sum):
+  header rows          1   specimen: row 1 'Customer ID'
+  data rows           39   specimen: row 2 C63857
+  trailing NBSP rows  17   specimen: row 41 Price Level/Account Type/Net Terms = '\xa0'
+  max_row             57   1+39+17=57
+Tool: "17 trailing valueless row(s) excluded" / "39 data rows". Count agrees. "Valueless" is wrong as a description — those 17 rows are not empty cells; they hold NBSP. Fill math still treated them as empty (Python str.strip() strips '\xa0'). Measurement of 39 is usable. The NBSP fact was silent.
+
+1. What is this
+   Format vs extension: xlsx bytes, .xlsx name. Agreed.
+   Header on row 1, 9 columns. Agreed.
+   Input class: raw. Agreed. Not class 2 (headers are not BillToCode/BillToName).
+   Target customers.csv [low - inference] from 6 keyword families. Agreed on target. The "1 recognised eCat field" is a tool false positive (see defects).
+
+2. What's populated  (tool fill vs this pass; every rate has a specimen)
+   Customer ID         tool 100%/39  this pass 39/39 real ids. Specimen C63857. One value is 'C66140\xa0' (trailing NBSP, row 20, Sondra Howell Design). Tool max length 6; raw length of that cell is 7.
+   Company Name        100%/39. Specimen 'Kate Healy Interiors, Inc. - 111 Mercer'. 36 of 39 end with exact suffix ' - 111 Mercer'. Three do not: 'Apartment 48 - 111 Mercer (Rayman Boozer)', 'Joyful Designs Studio - 111 Mercer (Joy  Williams )', 'Barclay Butera Interior Design'.
+   Email Address       tool 100%/36 distinct. 35 cells contain '@'. 4 cells are the placeholder phrase 'Need to get from Jen' (C65845 Coco Designs, C66306 Jaimee Rose Interiors, C66307 Barry Dixon, C66498 Alice Lane Home Collection). Distinct 36 = 35 unique emails + 1 placeholder string. Tool called this 100% populated. A placeholder is not an email.
+   Price Level         100%/2. Trade=36 (specimen C63857), Wholesale=3 (C63784 Atelier of Modern Procurement DBA AMP, C65830 Joyful Designs Studio, C36594 Barclay Butera Interior Design).
+   Account Type        100%/2. Designer=38. Builder/General Contracter=1 (C63435 Wood Development) — source spelling Contracter.
+   First & Last Name   87% = 34/39. Empty 5: C66488 Arabella Interiors, C66489 Jose Investments LLC, C64582 CAI Designs, C66893 SobreMesa Strategy & Design, C66337 Villa & House. Filled specimens: 'Kate Healy'; 'Jennifer' (first name only, C63784); 'Natasha and Natalie' (two people, C64583); 'Ellen Wilson ' (trailing space, C66894).
+   Phone Number        79% = 31/39. Empty specimen: C66489 Jose Investments, LLC (row 10). 26 strings, 5 Excel integers (C65054=8433021448, C66483=5106849103, C66484=9177473253, C66485=2034349035, C66893=8437371969), 8 None.
+   Net Terms           tool 13% = 5/39 'Net 30'. The other 34 data cells are '\xa0', not blank-None. Specimen empty-as-NBSP: C63857. Specimen value: C65830 'Net 30'. Tool fill rate treated NBSP as empty (correct). Tool did not say the 34 were NBSP.
+   Setup Date          2.6% = 1/39. Specimen C67387 Mead and Kelly datetime(2026, 9, 15, 0, 0). Agreed sparse.
+
+3. What looks like a key
+   Customer ID is unique 39/39 (still unique after stripping the NBSP on C66140).
+   customers.csv key semantics: BillToCode may repeat (bill-to + ship-to continuation). Tool printed that uniqueness is "NOT a key defect". That sentence is true and incomplete. This file has zero repeating codes and zero ship-to rows and zero address columns. It is a bill-to contact list, not the customers.csv shape (bill-to plus at least one ship-to per customer).
+   Company Name is also unique. That does not make it a rival for BillToCode. Customer ID is C#####; Company Name is a display string, 36 of 39 carrying a ' - 111 Mercer' suffix. The products-export trap (Internal ID vs Name) does not recur here. Asking the client which is the code is not required to propose Customer ID -> BillToCode.
+
+4. What maps to eCat — tool vs this pass
+   See mapping table in section 4. Tool defects that changed the missing-required list:
+     Price Level: patterned_match(norm('Price Level'))='pricelevel' matches products Price_<code> (^price[a-z0-9]+$). file_mode then treats it as an eCat name for another file and NEVER calls propose(). propose('Price Level') returns DefaultPriceCode [high]. Tool reported DefaultPriceCode missing.
+     Company Name: token \\bname\\b -> LongDesc [low] (products). Tool reported BillToName missing.
+     Phone Number: alias is ^(telephone#?|phone(\\s*1)?|tel)$ — 'Phone Number' does not match. Unmapped. Field is BuyerPhone.
+     Net Terms: token \\bnet\\b -> NetPrice. Field is Terms.
+     First & Last Name: token \\bname\\b -> LongDesc. Adjacent field: BuyerFirstName/BuyerLastName (split is a transform).
+
+5. What's missing — importer-required, each with a reason
+   BillToCode          NOT missing. Customer ID. Specimen C63857.
+   BillToName          NOT missing as a source column. Company Name. Tool listed it missing because it mapped the column to LongDesc.
+   BillToAddress1      missing. No street/address column. Nothing resembles it.
+   BillToCity          missing. No city column.
+   BillToState         missing. No state/province column.
+   BillToPostCode      missing. No zip/postal column.
+   DefaultPriceCode    source column exists (Price Level). Tool listed it missing because patterned Price_<code> swallowed the alias. Values are display names Trade/Wholesale; live codes are trade/wholesale (see live org). Not identity; a case/name->code step.
+   ShipToAddress1 / ShipToCity  not in REQUIRED_HEADERS list the tool prints, but a customer with zero ship-to rows is destroyed with an error. This file has no ship-to columns and no address to copy. Every one of the 39 would fail that rule.
+
+6. What doesn't add up — file, with specimens
+   Email 100% fill includes 4 placeholder strings 'Need to get from Jen'.
+   Net Terms 13% fill; 34/39 cells are NBSP.
+   Customer ID 'C66140\xa0' is not a clean code.
+   Phone column mixes strings and integers.
+   Company Name 36/39 carry ' - 111 Mercer'; mapping raw would keep the suffix. One raw value exceeds BillToName 60: 'Meghan Elizabeth Designs DBA M. Elizabeth Interior - 111 Mercer' (63 chars, C65054). After stripping the exact suffix it is 50.
+   Account Type has a source typo Contracter.
+   No address anywhere; cannot produce a legal customers.csv from this sheet.
+   Unique Customer IDs + no ship-to rows ≠ customers.csv shape.
+
+Tool's only "doesn't add up" line was Setup Date 2.6%. That measurement is true. The contradictions above were silent.
+
+==============================================================================
+3. LIVE ORG (read-only Postgres, 2026-09-16)
+==============================================================================
+select id, shortname, name, properties->>'status' from organizations where shortname='mer' or id=302;
+  -> id=302 shortname=mer name=111Mercer status=onboarding
+Two orgs named legrand are not this org: lna id=93 name=legrand; leg id=273 name=Legrand US.
+
+customers where organization_id=302: 0
+shipping_locations sl join customers c on c.id=sl.customer_id where c.organization_id=302: 0
+  (shipping_locations has customer_id, not organization_id; join used)
+
+price_levels where organization_id=302:
+  id=6231 code=trade     name=Trade     pl_type=ad-hoc factor=None
+  id=6232 code=wholesale name=Wholesale pl_type=ad-hoc factor=None
+  id=6233 code=dropship  name=Dropship  pl_type=ad-hoc factor=None
+Source Price Level 'Trade' equals price_levels.name 'Trade' and is not equal to price_levels.code 'trade'.
+Source 'Wholesale' equals name 'Wholesale' and is not equal to code 'wholesale'.
+Source has 0 Dropship. Live has a dropship level with no matching source value.
+Importer (customer_importer.rb) downcases DefaultPriceCode before comparing to stored codes. That is code-read, not an import test. Mapping Trade->trade is still a transform.
+
+import_events where organization_id=302: 9 rows, newest 2026-08-27.
+  2026-08-12 Products []
+  2026-08-12 Inventory []
+  2026-08-13 Products []
+  2026-08-17 Products []
+  2026-08-18 Products (warnings: unknown field Finish / CountryOfOrigin — the Legrand file imported into this org)
+  2026-08-25 Products []
+  2026-08-26 Products []
+  2026-08-27 Products [] (two events)
+  Zero events contain a Customers key.
+No previous customers.csv exists in live for B6 to diff. B7 not run.
+
+==============================================================================
+4. MAPPING PROPOSAL (data, not code)
+==============================================================================
+Input class: raw ERP export (class 1). Map it. Do not validate-as-eCat. Do not write transform code this session.
+
+source column          fill     eCat field              conf      why / transform (proposed, not implemented)
+Customer ID            39/39    BillToCode              high      C##### identifier. Strip trailing NBSP on C66140. Specimen C63857. Length 6 after strip (limit 15).
+Company Name           39/39    BillToName              high      Company, not the person. Specimen 'Kate Healy Interiors, Inc. - 111 Mercer'. Transform: strip ' - 111 Mercer' (36/39 exact suffix; 2 more have the phrase plus a parenthetical; 1 has no suffix — Barclay Butera Interior Design). Do not pick between Company Name and First & Last Name for this field; they are adjacent, not rivals.
+First & Last Name      34/39    BuyerFirstName + BuyerLastName  moderate  Split on first space. Not a required field. Specimens that break a naive split: 'Jennifer'; 'Natasha and Natalie'; 'Ellen Wilson '. Empty 5 named above.
+Email Address          35/39 real BuyerEmail            high      4 rows are 'Need to get from Jen' — not an email; leave blank or hold for client. Specimen real: kate@katehealyinteriors.com (C63857). Specimen placeholder: C65845.
+Phone Number           31/39    BuyerPhone              high      Alias miss in the tool. Transform: stringify the 5 Excel integers. Specimen '(954) 483-6365'. Specimen int 8433021448 (C65054).
+Price Level            39/39    DefaultPriceCode        high      Alias exists and propose() returns this; file_mode never called it. Values Trade/Wholesale match live NAMES. Codes are trade/wholesale. Importer downcases. Live dropship unused. Do not map a display name without that comparison — comparison is done.
+Account Type           39/39    unmapped                —         No customers.csv field. Custom BillTo_* only if pre-registered. Specimen Designer; Builder/General Contracter (C63435). Client decision.
+Net Terms               5/39    Terms                   moderate  5 rows 'Net 30' (C65830, C36594, C64582, C64583, C63650). 34 rows NBSP = empty, not a term. Token-match to NetPrice is wrong.
+Setup Date              1/39    unmapped                —         Sparse. Specimen 2026-09-15 on C67387. Not a customers.csv field.
+
+Two columns that could look like they answer the same question:
+  Company Name vs First & Last Name — company vs buyer person. Named both. Did not pick one for BillToName.
+  Price Level vs Net Terms — price level vs payment terms. Named both. Did not pick.
+
+==============================================================================
+4b. REQUIRED-FIELD GAP TABLE
+==============================================================================
+field              source in this file                         reason if missing
+BillToCode         Customer ID                                 mapped
+BillToName         Company Name                                mapped on this pass; tool listed missing
+BillToAddress1     none                                        no address column; request an address-enriched export
+BillToCity         none                                        no city column
+BillToState        none                                        no state column
+BillToPostCode     none                                        no postal column
+DefaultPriceCode   Price Level (name, not code)                mapped on this pass after live compare; tool listed missing
+ShipToAddress1     none                                        every customer needs at least its own address as first ship-to
+ShipToCity         none                                        same
+TerritoryCodes     none                                        not importer-fatal; required for reps in a "show only associated customers" group. Empty stores as the literal "[]".
+
+==============================================================================
+4c. QUESTIONS ONLY THE CLIENT CAN ANSWER
+==============================================================================
+1. Address export: bill-to street, city, state, postal (and country if country validation is on). Without this, customers.csv cannot be produced.
+2. Ship-to: is the bill-to address also the first ship-to, and are there additional ship-tos not in this list?
+3. Is this 39-row list the full customer universe, or a subset? A later fuller file HARD-deletes anyone omitted.
+4. Confirm DefaultPriceCode: Trade -> trade, Wholesale -> wholesale. What should happen to the live dropship level (no source rows use it)?
+5. Strip ' - 111 Mercer' from BillToName? Keep parentheticals on Apartment 48 / Joyful Designs?
+6. Four emails are 'Need to get from Jen' (C65845, C66306, C66307, C66498). Real addresses, or blank?
+7. TerritoryCodes / salesperson? Not in the file.
+8. Account Type as a registered custom field, or drop?
+9. Include the 5 Net 30 terms; treat NBSP as blank?
+
+Ryan / Jen were not asked this session.
+
+==============================================================================
+5. VERDICT
+==============================================================================
+MAP, BUT NOT YET
+
+Mapping is proposable for BillToCode, BillToName, DefaultPriceCode, BuyerEmail, BuyerPhone, Terms, and a buyer-name split. Four importer-fatal address fields have no source. Ship-to is absent. mer has no customers mapping and clients.toml does not list customers.
+
+Minimum client ask that would unblock a customers.csv:
+  an address-enriched customer export (BillToAddress1, BillToCity, BillToState, BillToPostCode, plus ship-to or permission to copy bill-to to ship-to), plus confirmation that Price Level names map to the live codes trade / wholesale.
+
+A clean customers.csv import HARD-deletes every customer and every ship-to for org 302 and reloads only the rows in that file. Do not generate the file from this workbook.
+
+REFUSE TO BUILD would also have been honest if the bar is "required address source is absent." MAP, BUT NOT YET is used because the non-address columns are proposable and the refusal-to-emit still holds.
+
+VALIDATE ONLY does not apply: headers are not eCat customers headers.
+
+==============================================================================
+TOOL DEFECTS (separate from file findings)
+==============================================================================
+T1  patterned Price_<code> (^price[a-z0-9]+$) matches norm('Price Level')='pricelevel'.
+    file_mode then classifies it as an eCat field for another file (owner lookup misses PATTERNED, so owner prints as "another file") and skips propose().
+    propose('Price Level') is DefaultPriceCode [high].
+    Consequence: DefaultPriceCode listed missing; "1 recognised eCat field" is this false positive; input-class line overstates eCat-shaped headers.
+    Specimen: header 'Price Level', values Trade / Wholesale.
+
+T2  Company Name -> LongDesc [low] via TOKEN_HINTS \\bname\\b. BillToName alias does not include 'company name'. PREFIXES strip customer/bill to, not company.
+    Consequence: billtoname listed missing. False mapping into a products field on a customers target.
+    Specimen: 'Kate Healy Interiors, Inc. - 111 Mercer'
+
+T3  First & Last Name -> LongDesc [low], same token. Should not land on LongDesc once target is customers.csv.
+    Specimen: 'Kate Healy'
+
+T4  Phone Number unmapped. Alias requires phone or phone 1, not 'phone number'.
+    Specimen: '(954) 483-6365'
+
+T5  Net Terms -> NetPrice or Price_<code> [low] via token \\bnet\\b. Terms alias is only ^(terms|payment\\s*terms)$.
+    Specimen: 'Net 30' on C65830; '\xa0' on C63857
+
+T6  "Valueless" trailing rows: 17 rows excluded that contain NBSP, not empty. Count of 39 is still right.
+    Specimen: row 41 ('\xa0','\xa0','\xa0') in cols F-H
+
+T7  Placeholder / NBSP / mixed types not raised in section 6.
+    'Need to get from Jen' counted as Email Address populated (4 rows).
+    Net Terms NBSP not named (fill rate luckily excluded them).
+    Customer ID max length reported 6; 'C66140\xa0' is 7.
+    Phone integers not named.
+
+T8  Key note treats 39 unique IDs as "expected for customers.csv" because repeats are allowed. It does not test for the missing ship-to continuation shape.
+    Specimen: 39 rows, 39 distinct Customer ID, 0 address columns.
+
+T9  "Which one the CLIENT calls the item/customer code" between Customer ID and Company Name. Company Name is not code-shaped. Over-ask leftover from the Internal ID vs Name products case.
+
+T10 Folder mode has no explicit UNRELATED relation, so the new workbook's relationship to the item export is visible only as absence from the relation blocks.
+
+None of T1-T10 is a reason to emit customers.csv. They are reasons the tool's missing-required list cannot be copied into a client report without this pass.
+
+==============================================================================
+FILE FINDINGS (not tool bugs)
+==============================================================================
+F1  No address columns. Importer-fatal BillToAddress1/City/State/PostCode absent.
+F2  No ship-to columns. A customer with zero ship-to rows errors.
+F3  39 unique Customer IDs; one-row-per-account; not bill-to+ship-to.
+F4  36/39 Company Name values end with ' - 111 Mercer'; 1 raw value 63 chars (BillToName 60).
+F5  4 email placeholders 'Need to get from Jen'.
+F6  Price Level names Trade/Wholesale vs live codes trade/wholesale; live dropship unused.
+F7  Net Terms 5 'Net 30' + 34 NBSP.
+F8  Phone stored as int on 5 rows.
+F9  Account Type typo Contracter; 38 Designer / 1 Builder.
+F10 Setup Date 1/39 — not a field.
+F11 Sheet name missing closing paren; filename has it. Profiled as it arrived.
+F12 Live mer/302 has 0 customers, 0 shipping_locations, 0 Customers import_events.
+F13 mer registry builds products only. This file is not that input.
+
+==============================================================================
+WHAT THIS SESSION DID NOT DO
+==============================================================================
+No customers.csv anywhere a human might upload.
+No mappings/mercer/customers.toml.
+No change to runner/clients.toml.
+No run_ingestion.py --client mer.
+No B7.
+No Admin write, FTP, Jira write, Postgres write.
+No edits under 02_Implementation/111Mercer/.
+
+==============================================================================
+TREE CHECK
+==============================================================================
+Before SHA256 of the customer workbook:
+  71f3ea2476c1bedc1c5eec3ba9eabb8b14197947455ac04f660e3c609d9beca4  111 Mercer Customer List(Sheet1).xlsx
+After: same (verified after this report was written). Report lives only at:
+  onboarding-agents/1-ingestion/profiler/RUN_2026-09-16_mer_customers.txt

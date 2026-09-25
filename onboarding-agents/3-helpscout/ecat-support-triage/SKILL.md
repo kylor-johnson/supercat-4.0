@@ -42,7 +42,7 @@ docs can lag. Capture: subject, body, customer email/company, and the thread so 
 |---|---|---|
 | Images missing / wrong hero / won't show on iPad | image pipeline / FTP | `ecat-images-ftp` |
 | Price wrong, blank, $0.00, or wrong per customer | pricing / price levels | `ecat-pricing-levels` |
-| Customers or ship-tos missing after an upload | **HARD-delete on omission** | `ecat-ground-truth` → `ecat-customers-build` |
+| Customers or ship-tos missing after an upload | omitted from a **clean** file → hard-delete on omission; if that `customers.csv` logged any `Error`, the deletes were skipped and the error row does not prove the named account is gone | `ecat-ground-truth` → `ecat-customers-build`, and prove identity per the section below |
 | Inventory/options wiped after a partial file | **HARD-delete on omission** | `ecat-ground-truth` → `ecat-core-files` / `ecat-options-and-mapping` |
 | Expected deletes didn't happen | an `Error` row blocked deletes | `ecat-import-ops` |
 | New/updated product file to load | core files build | `ecat-core-files` |
