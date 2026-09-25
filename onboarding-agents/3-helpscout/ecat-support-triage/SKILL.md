@@ -18,11 +18,12 @@ dangerous delete semantics in `ecat-ground-truth` are the most common root cause
 1. INGEST    → take the pasted ticket/email (or pull it from BigQuery HelpScout tables)
 2. IDENTIFY  → which client/org? known onboarding client or net-new?
 3. CLASSIFY  → map the problem to a domain (table below)
-4. GROUND    → read eCat_Onboarding/<Client>/CLIENT_PROFILE.md; if unknown or unsure,
+4. GROUND    → read ~/repos/ecat-onboarding-workspace/02_Implementation/<Client Name>/CLIENT_PROFILE.md
+               (eCat_Onboarding/ in this repo is pointers only); if unknown or unsure,
                run ecat-postgres-audit by org shortname to get REAL state, not a guess
 5. DIAGNOSE  → route to the domain skill, confirm root cause against ground truth
 6. REPLY     → draft the response with ecat-client-email (draft only — never auto-send)
-7. LOG       → append a dated line to eCat_Onboarding/<Client>/HANDOFF.md
+7. LOG       → append a dated line to that same client folder's HANDOFF.md
 ```
 
 Do not answer from assumption. If the fix depends on current state (counts, what
