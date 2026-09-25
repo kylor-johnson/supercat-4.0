@@ -150,6 +150,26 @@ not caution, it is the definition.
 
 ## 4. What needs a reply
 
+### 4-0. Scope by inbox and assignee — before anything else (measured 2026-09-25)
+
+The first run drafted eight tickets; four were Kyla's. Kylor's rule, verbatim:
+
+> "i should get all open tickets in the onboarding inbox that are unassigned and
+> assigned to me and ONLY support inbox ones that i am assigned to."
+
+| inbox | `mailbox_id` | in scope when |
+|---|---|---|
+| SuperCat Onboarding | 312855 | `assignee_id` IS NULL or = 889305 (Kylor) |
+| SuperCat Support | 65829 | `assignee_id` = 889305 only |
+
+`assignee_id` and `assignee_email` are columns on `helpscout_tickets` as of
+2026-09-25 (from `conversations._links.assignee.href`; names in `helpscout.users`,
+Kyla = 846447). **Dedupe duplicate captures across inboxes first (§ 4b), then
+apply the rule to the group:** a client email captured in both inboxes (#15378
+support, #15379 onboarding) is in scope through the onboarding copy. Out-of-scope
+candidates are still classified and counted in coverage; they are not drafted.
+When this skill runs for Kyla, swap the id.
+
 ### 4a. Clean the stream first — and `note` is not the only exclusion
 
 ```
@@ -206,6 +226,15 @@ ticket 15195's last client message is "Please call me", and the resolution is
 an internal note reading *"Called. Advised to update the app."* Structurally
 open, actually handled, by phone. Surface those as **`possibly handled
 out-of-band`** rather than as open.
+
+**Attachments are deliverables, and they are not in the mirror.** The view now
+carries `thread_attachment_count`. A client thread with an attachment is flagged
+`has-attachment`; if the answer depends on the file (a customer list, an item
+list, a cut-sheet list), the draft header says so and the owner action is
+"download it from HelpScout into the client folder". Measured 2026-09-25: Jonathan
+Charles' user report with emails sat on a closed ticket (#15280) for two weeks
+because the CS-admin sentence in the same email had been answered elsewhere and
+the run treated the ticket as handled.
 
 ### 4d. Automated senders
 
@@ -397,18 +426,60 @@ need client-specific state or be wrong. The hand-classified rate is **10–20%**
 
 ## 7. Building each draft
 
+**Step 0, consolidate per client before drafting (added 2026-09-25).** Three of
+the first run's four in-scope drafts were stale or wrong for one reason: the
+context lived in other threads, calls, and attachments. For each client with a
+needs-reply thread, gather first:
+
+- every conversation with that client in the last 30 days, **any status** — the
+  answered ones carry open asks too;
+- every Fathom meeting with the client's domain in the last 14 days (summary;
+  transcript when a commitment is going into copy);
+- every Google Calendar event with an attendee on the client's domain in the last
+  7 days. **When an event exists and Fathom has no matching recording, the draft
+  header says "You met them on <date> at <time>; this run cannot see that
+  meeting; give me three lines before this goes", the copy carries an
+  `[ITEMS]` block, and the category stays DRAFT-AND-PING.** Measured: the
+  Legrand launch training, 2026-09-25 10:00 MDT, 120+ attendees, no recording,
+  after a draft to them had been marked SEND-SAFE;
+- the client folder under `02_Implementation/`;
+- any thread flagged `has-attachment` (§ 4c).
+
+Then decide the form: a reply in-thread, or **one recap note in a new thread**
+that lists done / in progress / what the client owes / which threads to close.
+Onboarding clients mid-build default to the recap. Name the threads to close.
+
 For every `needs-reply` conversation, in order:
 
 1. **Attribute the org** (§ 5), or mark `unattributed`.
 2. **Diagnose with `ecat-support-triage`.** It classifies the symptom, routes
    to the right `ecat-*` skill, and grounds in live state. Do not duplicate it.
-3. **Ground, if state is claimed.** No Postgres → nothing is send-safe.
+3. **VERIFY, and show it.** Every draft carries this table; each row is cited
+   or reads `NOT CHECKED`; a blank row fails § 10.
+
+   | evidence | what counts |
+   |---|---|
+   | thread | the quotes, dated and attributed; last client and last staff timestamps from `helpscout_tickets` |
+   | live state | every noun in the copy that is a state (a flag, a count, a price, a login, a phone number) read from Postgres with table and timestamp; **every commitment taken from a meeting summary is checked here before it is written as done** (measured: four of nine 111 Mercer call commitments were not in the database) |
+   | code | any claim about how the product behaves cited to `supercat_server` on GitHub, shallow clone, commit SHA and `file:line`; never memory, never the local checkout |
+   | KB | the article URL, or "none exists", which is a KB backlog item |
+   | meetings | Fathom recording id or calendar event id, or "none" |
+
+   Names in copy come from `users.first_name` / `last_name`, never from a
+   username (measured: `millert` became "Mike"; she is Tracy Miller).
+   No Postgres → nothing is send-safe.
 4. **Draft with `ecat-client-email`.** Its rules bind: mirror their structure,
    no em-dashes, no AI slop, honest about limits, exact next action and owner,
    **"Best, Kylor"**.
-5. **Categorise** (§ 6) and record *which clause* decided it.
-6. **Record what it WOULD have sent** under the gate, whether or not the
+5. **Owner actions.** The numbered steps Kylor performs before the copy is
+   true, per `ecat-client-email` § Owner actions. If the copy promises the
+   client something, this section says how it gets made.
+6. **Categorise** (§ 6) and record *which clause* decided it.
+7. **Record what it WOULD have sent** under the gate, whether or not the
    category is SEND-SAFE. That record is the fortnight experiment in § 9.
+8. **"Also found."** Anything true that the live read surfaced and the reply
+   does not need goes in a separate list at the end of the draft file, never
+   into another revision of the email.
 
 Carry `ecat-support-triage`'s discipline: check for an existing Jira ticket
 before drafting a "logged with engineering" reply, and never claim something is
@@ -520,6 +591,15 @@ evidence either way — say so rather than concluding.
 - [ ] No consequence stated as a measurement (`§F1`)
 - [ ] Postgres unavailable → nothing marked SEND-SAFE
 - [ ] Every drafted ticket carries its `conversation_id` deep link
+- [ ] Scope rule (§ 4-0) applied after cross-inbox dedupe; out-of-scope
+      candidates counted, not drafted
+- [ ] Per-client consolidation done (§ 7 step 0); recap-vs-reply decided;
+      threads to close named
+- [ ] VERIFY table on every draft, no blank rows; names from `users`, not
+      usernames; meeting commitments checked against live state
+- [ ] Calendar checked for unrecorded meetings; `[ITEMS]` block where one exists
+- [ ] Owner actions section on every draft
+- [ ] `has-attachment` threads flagged; file-dependent answers say so
 - [ ] Nothing sent. Drafts only.
 
 **The test is whether Kylor sends the draft unedited.** Iterate on that answer,

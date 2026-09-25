@@ -20,7 +20,11 @@ dangerous delete semantics in `ecat-ground-truth` are the most common root cause
 3. CLASSIFY  → map the problem to a domain (table below)
 4. GROUND    → read ~/repos/ecat-onboarding-workspace/02_Implementation/<Client Name>/CLIENT_PROFILE.md
                (eCat_Onboarding/ in this repo is pointers only); if unknown or unsure,
-               run ecat-postgres-audit by org shortname to get REAL state, not a guess
+               run ecat-postgres-audit by org shortname to get REAL state, not a guess.
+               Any claim about how the product BEHAVES (what an importer does with an
+               absent column, what a flag gates, what a link looks like) is read from
+               supercat_server on GitHub (shallow clone, cite commit + file:line), never
+               from memory. Check the KB for an article; "none exists" is a finding.
 5. DIAGNOSE  → route to the domain skill, confirm root cause against ground truth
 6. REPLY     → draft the response with ecat-client-email (draft only — never auto-send)
 7. LOG       → append a dated line to that same client folder's HANDOFF.md

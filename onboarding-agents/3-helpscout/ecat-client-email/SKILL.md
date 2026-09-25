@@ -63,7 +63,27 @@ Always include: **download the current file from FTP `/data` before editing.**
 - [ ] /images vs /option_images vs /data stated where relevant
 - [ ] Clear next action + who does it
 - [ ] Internal-only context (China CDN, support tickets, health scores, `*.html.erb` paths) NOT in client copy
+- [ ] Every person named in the copy checked against `users.first_name` / `last_name`, never inferred from a username
+- [ ] Every commitment lifted from a meeting summary checked against live state before it is written as done
+- [ ] Owner actions section present (below)
 ```
+
+## Owner actions (required on every onboarding and support draft)
+
+The draft is not finished until Kylor knows exactly what he does before the copy
+is true. A numbered list, one step per line, each naming:
+
+- the Admin Console path, or the file and column, or the script (dry-run first,
+  per `supercat-mcp-access`), or the query;
+- the check that proves it landed (File Import Status `- []`, the Postgres row
+  and its `updated_at`, the Admin field);
+- who owns it if not Kylor (Kyla, the client, engineering with the Jira key).
+
+If the copy promises the client something ("I will send screenshots", "the
+links come by Friday"), this section says how that thing gets made. Measured
+2026-09-25: a COM draft told the client "I will put COM on two of your SKUs"
+and the packet contained no steps; the org had no Option Type label, so the
+first step was one nobody would have guessed.
 
 The High Point Market follow-up email skill (`hpmkt-follow-up-email`) covers
 post-market recaps in the same voice family.
