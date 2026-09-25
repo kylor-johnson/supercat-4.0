@@ -1,0 +1,30 @@
+-- Replay packet, threads cut at T. Parameters: @conv (INT64), @t (TIMESTAMP), @domains (ARRAY<STRING>)
+WITH base AS (
+  SELECT h.*
+  FROM `onboarding_assessment.helpscout_tickets` h
+  WHERE h.thread_type NOT IN ('lineitem')
+    AND h.thread_created_at <= @t
+    AND (h.conversation_id = @conv
+         OR (LOWER(h.thread_author_domain) IN UNNEST(@domains)
+             AND h.thread_created_at >= TIMESTAMP_SUB(@t, INTERVAL 30 DAY)))
+),
+convs AS (SELECT DISTINCT conversation_id FROM base),
+all_threads AS (
+  SELECT h.* FROM `onboarding_assessment.helpscout_tickets` h JOIN convs USING (conversation_id)
+  WHERE h.thread_type NOT IN ('lineitem') AND h.thread_created_at <= @t
+),
+dd AS (
+  SELECT * EXCEPT(rn) FROM (
+    SELECT *, ROW_NUMBER() OVER (
+      PARTITION BY LOWER(thread_author_email), LEFT(LOWER(REGEXP_REPLACE(thread_body, r'\s+', ' ')), 200)
+      ORDER BY thread_created_at, conversation_id) rn
+    FROM all_threads) WHERE rn = 1
+)
+SELECT conversation_id, ticket_number, ticket_subject, mailbox_id, assignee_id, assignee_email, tags,
+       thread_type, thread_created_at, thread_author_email, LOWER(thread_author_domain) AS dom,
+       thread_attachment_count, thread_body
+FROM dd ORDER BY conversation_id, thread_created_at;
+
+-- Leak check: anything on these conversations after T (metadata only, never shown to the agent)
+-- SELECT conversation_id, thread_type, thread_created_at, LOWER(thread_author_domain) FROM `onboarding_assessment.helpscout_tickets`
+-- WHERE conversation_id IN (SELECT conversation_id FROM convs) AND thread_created_at > @t ORDER BY thread_created_at;
