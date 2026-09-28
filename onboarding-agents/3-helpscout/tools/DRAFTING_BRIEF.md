@@ -10,9 +10,9 @@ Inputs you are given: a ticket folder `runs/replay/<TICKET>/` and an output file
 - Fathom and Google Calendar: only meetings/events dated on or before T. Jira: read-only; cite issues created on or before T; do not rely on status changes or comments after T.
 - Nothing is sent or written anywhere except your output file. Postgres: read-only SELECTs via `mcp__supercat-postgres-vpn__execute_sql` (load with ToolSearch `select:mcp__supercat-postgres-vpn__execute_sql`). Postgres is live NOW, not at T: show `updated_at` on rows you rely on and mark values that could have changed after T.
 - Code, cite commit + file:line; behaviour claims come from code or a KB article, never memory:
-  - server: `/private/tmp/claude-501/-Users-kylorjohnson/c4cb84e8-ab42-401b-8bc9-f7d6a333f3c3/scratchpad/scs_repo` (supercat_server @183d8e1)
-  - iPad, current: `.../scratchpad/ios_3.1` (sarreid_ios `release/2026.3.1` @f2e9877, build 20260909)
-  - iPad, August builds: `.../scratchpad/ios_2.10` (sarreid_ios `release/2026.2.10` @4ca0696, plist 20260818; approximate for 20260822)
+  - server: `~/repos/_replay_src/scs` (supercat_server @183d8e1, full history for `git log`)
+  - iPad, current: `~/repos/_replay_src/ios_3.1` (sarreid_ios `release/2026.3.1` @f2e9877, build 20260909)
+  - iPad, August builds: `~/repos/_replay_src/ios_2.10` (sarreid_ios `release/2026.2.10` @4ca0696, plist 20260818; approximate for 20260822)
   Match the iPad branch to the rep's `orders.app_version` at T.
 - KB: https://supercatsolutions.com/knowledgebase (WebFetch). If no article exists, say "none exists".
 
