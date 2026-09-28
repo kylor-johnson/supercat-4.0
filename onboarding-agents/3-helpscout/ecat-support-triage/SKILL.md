@@ -99,6 +99,19 @@ state usually disambiguates.
   iPad on the same login is the same group and the same data. Another login may be a
   different group. If the test used a different group from the one in the complaint,
   the copy says so and explains what their result does and doesn't show.
+- **"Fewer items than expected" is a count, not a sync question.** When a filter,
+  search, collection or list shows fewer products than the client expects, first
+  count in Postgres the active products that should match, then subtract each gate
+  with its own count: `deleted`, `hideable` when the mobile site has
+  `hide_products_marked_hideable` on (`app/models/mobile_site.rb:229`; eOL drops them in
+  `app/services/products/query_for_catalog.rb:57`, iPad in `ProductQuery.m:603,1389,1486`),
+  and the group's trade-name / collection authorisation. Only when the gates don't
+  account for the gap do stale device data, sync or a cache become the explanation.
+  Measured: a filter showed 1 of 25 because 24 were Hideable = Y; two replies blamed
+  sync first, and the client refreshed and still saw one.
+- **Scoping content to some reps or customers has a rep-side answer too.** Admin can
+  scope SmartLists only by user group. The covering reps can also build a MyList on
+  their own iPads for that account, and it stays on those devices. Offer both.
 - **An org-setting change on the iPad is picked up at login, not by sync.** The iPad
   reads org settings (the organization hash, e.g. `allow_double_discounting`) from
   the organizations download, which runs at sign-in (`LoginViewController.m:654`)

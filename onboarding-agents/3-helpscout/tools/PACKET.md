@@ -12,6 +12,8 @@ live runs (where `T` is now).
 
 ## 1. Threads, cut at T (BigQuery)
 
+Query through the `bigquery-admin` MCP tool only. Do not load a service-account key into a script or client library. If a result is too big to handle, page it (LIMIT/OFFSET, or one conversation at a time).
+
 `replay_threads.sql` with `@conv`, `@t`, `@domains`. It returns, for the ticket and
 for every other conversation whose client-side author is on the client's domains in
 the 30 days before `T`:
