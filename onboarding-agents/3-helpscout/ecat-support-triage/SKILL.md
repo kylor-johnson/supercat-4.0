@@ -99,6 +99,12 @@ state usually disambiguates.
   iPad on the same login is the same group and the same data. Another login may be a
   different group. If the test used a different group from the one in the complaint,
   the copy says so and explains what their result does and doesn't show.
+- **An org-setting change on the iPad is picked up at login, not by sync.** The iPad
+  reads org settings (the organization hash, e.g. `allow_double_discounting`) from
+  the organizations download, which runs at sign-in (`LoginViewController.m:654`)
+  and when the catalogs screen opens (`MainViewController.m:483-491`), sarreid_ios
+  `release/2026.3.1` @f2e9877. Copy that turns one on says "log out and back in, or
+  switch catalogs"; a sync alone does not pick it up.
 - **eOL shows old taxonomy or old names.** The left nav is cached for a week
   (`app/models/eol_left_nav_dataflow.rb:366-367`); rule that out before the data.
 - **An order won't post to the ERP.** Read `orders.local_customer_code` (set from the

@@ -28,8 +28,12 @@ def main():
         out.append(f"\n### #{h['ticket_number']} ({cid}){tag} — {h['ticket_subject']}\nmailbox {h['mailbox_id']} · assignee {h.get('assignee_email') or 'unassigned'} · tags: {h.get('tags') or '-'}")
         for r in th:
             body = re.sub(r"\n{3,}", "\n\n", (r.get("thread_body") or "").strip())
-            m = re.search(r"\n(On .{5,120}wrote:|From: |-----Original Message-----)", body)
-            if m: body = body[:m.start()] + "\n[quoted history trimmed]"
+            # Never trim this ticket's own threads, and never trim a forward: the complaint in a
+            # "FW:" message sits below its From: line (a trimmed forward hid the whole issue once).
+            fwd = re.match(r"\s*(re:\s*)*(fw|fwd):", (h.get('ticket_subject') or ''), re.I)
+            if not tag and not fwd:
+                m = re.search(r"\n(On .{5,120}wrote:|-----Original Message-----)", body)
+                if m: body = body[:m.start()] + "\n[quoted history trimmed]"
             att = f" · attachments: {r['thread_attachment_count']}" if r.get("thread_attachment_count") else ""
             out.append(f"\n--- {ts(r['thread_created_at']).strftime('%Y-%m-%d %H:%M')} UTC · {r['thread_type']} · {r['thread_author_email']}{att}\n{body}")
     for name, title in [("meetings.md", "## 2. Meetings (cut at T)"), ("calendar.json", "## 2b. Calendar (T-7d → T)"),

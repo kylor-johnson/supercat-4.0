@@ -236,6 +236,18 @@ client's user report with emails sat on a closed ticket for two weeks
 because the CS-admin sentence in the same email had been answered elsewhere and
 the run treated the ticket as handled.
 
+**An unseen screenshot is answered for every surface that shows the thing.** When
+the question points at an attachment you can't open ("see attached", "this
+field"), list each place that field or message appears (Admin Console, Sales
+Portal, iPad, eCat Online), answer for each in a line, and ask which one they
+were on. A draft that guessed Admin for a field shown on the Sales Portal's
+customer list answered the wrong screen and left the client's real follow-up
+("can we hide it there?") for a second round.
+
+**A forward carries the complaint below its From: line.** On a `FW:` thread, or
+a short internal note like "see below", read the forwarded message in full and
+quote the original sender, not the forwarder.
+
 ### 4d. Automated senders
 
 Measured over three months, only three role local-parts appear at all, and
@@ -505,7 +517,10 @@ Two copy rules from replay batch 1 (2026-09-27):
 
 Carry `ecat-support-triage`'s discipline: check for an existing Jira ticket
 before drafting a "logged with engineering" reply, and never claim something is
-fixed or uploaded until it is.
+fixed or uploaded until it is. The same goes for any past-tense action in the
+copy ("I've passed that to product", "I've raised it", "I've enabled"): if it
+hasn't happened, write it as future ("I'll pass it to product") and put the
+step in Owner actions.
 
 **Separate what was said from what you concluded**, exactly as
 `ecat-session-prep` does:
