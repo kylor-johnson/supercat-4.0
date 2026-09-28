@@ -391,14 +391,14 @@ item we already owe them, and any repeat of a previously-reported defect.
 > this as it has been a while. Any movement on your end?"* (`ESCALATE` — a
 > chase on something we owe) · *"Can we set something up for Thursday
 > afternoon the 15th, around 4/4:30pm?"* (`DRAFT-AND-PING` — a date) ·
-> *"I thought that any order that was submitted could be reopened and
-> edited?"* (`SEND-SAFE` candidate — documented product behaviour).
+> a question about how a documented product behaviour works (`SEND-SAFE`
+> candidate, once the behaviour is confirmed in code).
 
 ### What fraction is genuinely send-safe? Measured: well under 20%
 
 Of the 5 genuinely-open tickets in the test window, **none is send-safe**.
-Across the wider 10-candidate set, **1, arguably 2** — the "can a submitted
-order be reopened" question, which is documented product behaviour.
+Across the wider 10-candidate set, **1, arguably 2** — a question about documented product
+behaviour.
 
 Corroborated across a far larger sample. Of **490 staff first-replies** since
 2026-05-01 (median length 537 characters — these are substantive, not
@@ -467,7 +467,7 @@ For every `needs-reply` conversation, in order:
    | evidence | what counts |
    |---|---|
    | thread | the quotes, dated and attributed; last client and last staff timestamps from `helpscout_tickets` |
-   | live state | every noun in the copy that is a state (a flag, a count, a price, a login, a phone number) read from Postgres with table and timestamp; **every commitment taken from a meeting summary is checked here before it is written as done** (measured: four of nine commitments from one onboarding call were not in the database). **A clean import is not correct data:** for any "did the file land / is it working" question, read the values a rep will see after the import (e.g. share of `inventories.qty_available` non-null, the custom-field columns populated), not only the import event (measured: an inventory import with a clean log delivered zero quantities reps could see, because the file carried only prefixed custom columns). **Nested settings:** a Rails `property` / `flags` value lives in JSON (e.g. `mobile_sites.properties->'flags'->'<name>'`); read the model's getter for the storage path before querying, or a set flag reads as unset |
+   | live state | every noun in the copy that is a state (a flag, a count, a price, a login, a phone number) read from Postgres with table and timestamp; **every commitment taken from a meeting summary is checked here before it is written as done** (measured: four of nine commitments from one onboarding call were not in the database). **A clean import is not correct data:** for any "did the file land / is it working" question, read the values a rep will see after the import (e.g. share of `inventories.qty_available` non-null, the custom-field columns populated), not only the import event (measured: an inventory import with a clean log delivered zero quantities reps could see, because the file carried only prefixed custom columns). **When those values can't be read** (the table was reloaded after the client's message), the copy asks the client to confirm the columns that drive them; it never says "no action needed". **Nested settings:** a Rails `property` / `flags` value lives in JSON (e.g. `mobile_sites.properties->'flags'->'<name>'`); read the model's getter for the storage path before querying, or a set flag reads as unset. **Views fall back:** a user group's Quick View / order-preview lines that are all blank inherit the org's (`user_type.rb:418-432`, `ipad_custom_views_for_rendering`); judge what a group sees from the rendered view, not the group column |
    | code | any claim about how the product behaves cited to source on GitHub, shallow clone, commit SHA and `file:line`; never memory, never the local checkout. **Server:** `SuperCatSolutionsLLC/supercat_server` (master). **iPad:** `SuperCatSolutionsLLC/sarreid_ios` — master lags; clone the newest `release/*` branch (2026-09-28: `release/2026.3.1` = build 20260909; August builds ≈ `release/2026.2.10`, plist 20260818) and match it to the rep's `orders.app_version`. Search, option-set handling, order state and presentation building run on the device; four of ten batch-1 replays needed this. **Recent changes:** `git log` the files on the code path for the 30 days before the client's message; a merged fix is often the answer. **Pages:** a claim about what a page shows needs a logged-in fetch of that page, or is labelled "code path only, no populated row rendered" |
    | KB | the article URL, or "none exists", which is a KB backlog item |
    | meetings | Fathom recording id or calendar event id, or "none" |

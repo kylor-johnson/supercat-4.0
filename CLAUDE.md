@@ -165,9 +165,12 @@ differs per file — verified in `supercat_server` importer code:
 | `option_groups.csv` | **HARD-deletes ALL groups**, then reloads |
 | `matrix_options.csv` / `contract_prices.csv` | **HARD-deletes ALL**, then reloads |
 
-**Deletes only happen on a clean import.** If the file has any `Error` rows,
-obsolete records are left in place (file imports the good rows but skips deletes).
-Only `Warning`-only imports remove omitted records.
+**Only products skip deletes when a file has `Error` rows.** `products.csv`
+soft-deletes omitted items only on an error-free import. Every other file
+(`customers.csv`, `inventory.csv`, `options.csv`, `option_groups.csv`,
+`contract_prices.csv`) deletes before or while loading, so any import that is not
+`Fatal` removes omitted records even when some rows errored; only a `Fatal`
+rolls it back (supercat_server 183d8e1: `product_importer_orig.rb:101-102`; `customer_importer.rb:169-175`; `active_record_importer.rb:46-77,196-198`; `option_group_importer.rb:11`).
 
 ## Mandatory import order
 
@@ -235,10 +238,10 @@ link**, there were problems — click it for line numbers.
 | Tier | Effect |
 |------|--------|
 | **Fatal** | Whole file rejected, nothing changes |
-| **Error** | File imports good rows, skips error rows, AND skips all deletes of omitted records |
+| **Error** | Imports good rows and skips error rows. Products: also skips deletes of omitted records. Every other file: omitted records are still deleted |
 | **Warning** | Imports including warning rows; omitted records ARE removed |
 
-So if expected deletes didn't happen, look for an `Error` row.
+So if expected product deletes didn't happen, look for an `Error` row. For any other file an `Error` row does not protect omitted records.
 
 ## Multi-file product import
 

@@ -51,9 +51,9 @@ docs can lag. Capture: subject, body, customer email/company, and the thread so 
 |---|---|---|
 | Images missing / wrong hero / won't show on iPad | image pipeline / FTP | `ecat-images-ftp` |
 | Price wrong, blank, $0.00, or wrong per customer | pricing / price levels | `ecat-pricing-levels` |
-| Customers or ship-tos missing after an upload | omitted from a **clean** file → hard-delete on omission; if that `customers.csv` logged any `Error`, the deletes were skipped and the error row does not prove the named account is gone | `ecat-ground-truth` → `ecat-customers-build`, and prove identity per the section below |
+| Customers or ship-tos missing after an upload | `customers.csv` replaces the whole list on any non-fatal import, `Error` rows included (`customer_importer.rb:169-175`): the account was omitted from, or rejected in, the file that ran, and the error row does not prove it is the named account | `ecat-ground-truth` → `ecat-customers-build`, and prove identity per the section below |
 | Inventory/options wiped after a partial file | **HARD-delete on omission** | `ecat-ground-truth` → `ecat-core-files` / `ecat-options-and-mapping` |
-| Expected deletes didn't happen | an `Error` row blocked deletes | `ecat-import-ops` |
+| Expected product deletes didn't happen | an `Error` row in `products.csv` blocks the soft-delete (products only) | `ecat-import-ops` |
 | New/updated product file to load | core files build | `ecat-core-files` |
 | Option swatches / cascading filters wrong | options + mapping | `ecat-options-and-mapping` |
 | SmartList not appearing / wrong items | smartlists | `ecat-smartlists` |
@@ -102,7 +102,7 @@ state usually disambiguates.
 The record the client **named** and the record an **error log** named are different
 until you prove they are the same code/name in the **file that actually imported**.
 
-This is the miss that sends a confident wrong email (cci ANTMAR vs line-24999 `'o'`):
+This is the miss that sends a confident wrong email (a named missing customer blamed on an unrelated error row):
 
 1. Look up the named record in Postgres (name **and** code).
 2. Look up the error record separately (that run's line, or `Customer # =` from an
@@ -111,9 +111,9 @@ This is the miss that sends a confident wrong email (cci ANTMAR vs line-24999 `'
    **that** row; other rows still load (`ecat-ground-truth`).
 4. A client who regenerates the CSV and jumps to line N is on a different file.
    Match by `BillToCode` / `BaseItemCode`, never by line number in a new export.
-5. Neighbors are evidence: if `0008616` and `0008618` imported and `0008617` did
-   not, `0008617` was omitted or that specific row failed. It is not "the file's
-   one error at line 24999."
+5. Neighbors are evidence: if the codes on either side of the missing one imported
+   and it did not, it was omitted or that specific row failed. It is not "the file's
+   one error row." Run this check before offering any theory.
 
 Do not write "that error is exactly why X is missing" unless step 1 and step 2
 return the same record.

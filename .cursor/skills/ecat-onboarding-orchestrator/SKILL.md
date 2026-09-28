@@ -112,7 +112,7 @@ Sub-task overrides (use even mid-phase when the user asks for one thing):
 `options.csv → option_groups.csv → products.csv → stories.csv → inventory.csv → customers.csv`
 
 Re-send `option_groups.csv` after `options.csv` (importing options nulls group membership).
-Deletes only run on a clean (warnings-only) import; an `Error` row skips all deletes. Send
+Only products skip deletes when the file has an `Error` row; every other file deletes omitted records on any non-fatal import. Send
 full files — customers/inventory/options HARD-delete omitted records.
 
 ## The pre-import gate (run before every upload)
