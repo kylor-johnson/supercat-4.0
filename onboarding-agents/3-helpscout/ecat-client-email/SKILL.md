@@ -12,7 +12,7 @@ the rules in `Pricing Migration/_root/04_communication_posture.md` instead.
 
 - Warm, professional, declarative. Peer-to-principal, not service-rep cheerful.
 - **Mirror the client's structure** — if they sent 6 numbered questions, answer
-  `**1.**`–`**6.**` in order.
+  1. to 6. in order, as plain numbered lines.
 - **Own genuine mistakes briefly and specifically**, then state the fix. ("My
   apologies for the confusion — I had prepared the updated file but hadn't uploaded
   it yet. It's live now.") Do not over-apologize and never apologize for the product.
@@ -28,6 +28,7 @@ the rules in `Pricing Migration/_root/04_communication_posture.md` instead.
 
 **Tone rules (hard):**
 - **No em-dashes.** Use a comma, period, or parentheses instead.
+- **Plain text that pastes into Gmail.** No markdown tables, no bold, no headers; lists are plain lines.
 - **Do not force in irrelevant numbered points.** Mirror the client's structure only
   where it's genuinely responsive — don't manufacture a point just to match their count.
 - **Do not re-explain something already fixed.** If it's done, say it's done and move on;
@@ -63,7 +64,9 @@ Always include: **download the current file from FTP `/data` before editing.**
 - [ ] /images vs /option_images vs /data stated where relevant
 - [ ] Clear next action + who does it
 - [ ] Internal-only context (China CDN, support tickets, health scores, `*.html.erb` paths) NOT in client copy
-- [ ] Every person named in the copy checked against `users.first_name` / `last_name`, never inferred from a username
+- [ ] Every person named in the copy checked against `users.first_name` / `last_name`, never inferred from a username; a first name shared by a SuperCat person and a client contact is written in full
+- [ ] Every "shows" or "displays" claim names the surface: Admin Console page, Admin CSV export, eOL order page, eOL invoice page, Orders/Invoices list, or iPad
+- [ ] Anyone the draft invites, merges or resets is looked up in `users` across all orgs by email, domain and name first; use an existing login, and put any spelling mismatch with the client's address in the reply
 - [ ] Every commitment lifted from a meeting summary checked against live state before it is written as done
 - [ ] Owner actions section present (below)
 ```

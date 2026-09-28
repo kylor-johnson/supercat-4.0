@@ -81,7 +81,7 @@ First row of each order/invoice carries header fields **and** the first line ite
 | **CSV only** | Importer pipeline expects `.csv`. Convert `.xls`/`.xlsx` before upload — no auto-conversion. |
 | **Sort contiguously** | All lines for the same `OrderNumber` (or `InvoiceNumber`) must be grouped. Non-contiguous re-appearance of the same key is a **fatal** import error. |
 | **Date-only dates** | `OrderDate`, `InvoiceDate`, etc. must be date-only (`4-16-2026`). Datetime strings like `4-16-2026 12:00:00 AM` are rejected. |
-| **`LastModifiedAt`** | Unix epoch integer (typically ms since 1970-01-01 UTC) on the **first row of each order/invoice only** — omit on continuation line rows. Required by KB for incremental import behavior. |
+| **`LastModifiedAt`** | Unix epoch integer (typically ms since 1970-01-01 UTC) on the **first row of each order/invoice only** — omit on continuation line rows. Parsed but not stored; it does not make imports incremental. |
 | **No stray columns** | Remove ERP-only columns (e.g. `FISCAL_MONTH`). Allowed custom prefixes: `header_`, `footer_`, `item_`. |
 | **Credit memos** | Negative `NetAmount` and negative `QuantityInvoiced` on invoice lines. |
 | **`ItemTrackingCarrier`** | Max **5 chars** — a carrier *code* (`fedex`), not a display name (`FedEx Freight`). Validated against `Tracking.valid_code?`. Same for header `TrackingCarrier`. |

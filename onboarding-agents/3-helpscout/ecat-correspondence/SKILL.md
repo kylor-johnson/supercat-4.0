@@ -165,8 +165,8 @@ The first run drafted eight tickets; four were Kyla's. Kylor's rule, verbatim:
 `assignee_id` and `assignee_email` are columns on `helpscout_tickets` as of
 2026-09-25 (from `conversations._links.assignee.href`; names in `helpscout.users`,
 Kyla = 846447). **Dedupe duplicate captures across inboxes first (§ 4b), then
-apply the rule to the group:** a client email captured in both inboxes (#15378
-support, #15379 onboarding) is in scope through the onboarding copy. Out-of-scope
+apply the rule to the group:** a client email captured in both inboxes (one
+support copy, one onboarding copy) is in scope through the onboarding copy. Out-of-scope
 candidates are still classified and counted in coverage; they are not drafted.
 When this skill runs for Kyla, swap the id.
 
@@ -231,8 +231,8 @@ out-of-band`** rather than as open.
 carries `thread_attachment_count`. A client thread with an attachment is flagged
 `has-attachment`; if the answer depends on the file (a customer list, an item
 list, a cut-sheet list), the draft header says so and the owner action is
-"download it from HelpScout into the client folder". Measured 2026-09-25: Jonathan
-Charles' user report with emails sat on a closed ticket (#15280) for two weeks
+"download it from HelpScout into the client folder". Measured 2026-09-25: a
+client's user report with emails sat on a closed ticket for two weeks
 because the CS-admin sentence in the same email had been answered elsewhere and
 the run treated the ticket as handled.
 
@@ -439,11 +439,18 @@ needs-reply thread, gather first:
   7 days. **When an event exists and Fathom has no matching recording, the draft
   header says "You met them on <date> at <time>; this run cannot see that
   meeting; give me three lines before this goes", the copy carries an
-  `[ITEMS]` block, and the category stays DRAFT-AND-PING.** Measured: the
-  Legrand launch training, 2026-09-25 10:00 MDT, 120+ attendees, no recording,
-  after a draft to them had been marked SEND-SAFE;
+  `[ITEMS]` block, and the category stays DRAFT-AND-PING.** Measured: an
+  unrecorded launch training with 120+ attendees happened after a draft to
+  that client had been marked SEND-SAFE;
 - the client folder under `02_Implementation/`;
-- any thread flagged `has-attachment` (§ 4c).
+- any thread flagged `has-attachment` (§ 4c);
+- every factual claim in our earlier replies on those threads, checked against
+  live state and code; a wrong one is corrected by name in this reply (that
+  makes it ESCALATE);
+- any dated decision on the thing the client calls wrong
+  (`onboarding-agents/1-ingestion/config_intent.toml`, the client folder,
+  earlier threads, meetings); if one exists, the reply restates what was agreed
+  and what changing it takes.
 
 Then decide the form: a reply in-thread, or **one recap note in a new thread**
 that lists done / in progress / what the client owes / which threads to close.
@@ -460,13 +467,13 @@ For every `needs-reply` conversation, in order:
    | evidence | what counts |
    |---|---|
    | thread | the quotes, dated and attributed; last client and last staff timestamps from `helpscout_tickets` |
-   | live state | every noun in the copy that is a state (a flag, a count, a price, a login, a phone number) read from Postgres with table and timestamp; **every commitment taken from a meeting summary is checked here before it is written as done** (measured: four of nine 111 Mercer call commitments were not in the database). **A clean import is not correct data:** for any "did the file land / is it working" question, read the values a rep will see after the import (e.g. share of `inventories.qty_available` non-null, the custom-field columns populated), not only the import event (measured: an inventory import with a clean log delivered zero quantities reps could see, because the file carried only prefixed custom columns) |
-   | code | any claim about how the product behaves cited to source on GitHub, shallow clone, commit SHA and `file:line`; never memory, never the local checkout. **Server:** `SuperCatSolutionsLLC/supercat_server` (master). **iPad:** `SuperCatSolutionsLLC/sarreid_ios` — master lags; clone the newest `release/*` branch (2026-09-28: `release/2026.3.1` = build 20260909; August builds ≈ `release/2026.2.10`, plist 20260818) and match it to the rep's `orders.app_version`. Search, option-set handling, order state and presentation building run on the device; four of ten batch-1 replays needed this |
+   | live state | every noun in the copy that is a state (a flag, a count, a price, a login, a phone number) read from Postgres with table and timestamp; **every commitment taken from a meeting summary is checked here before it is written as done** (measured: four of nine commitments from one onboarding call were not in the database). **A clean import is not correct data:** for any "did the file land / is it working" question, read the values a rep will see after the import (e.g. share of `inventories.qty_available` non-null, the custom-field columns populated), not only the import event (measured: an inventory import with a clean log delivered zero quantities reps could see, because the file carried only prefixed custom columns). **Nested settings:** a Rails `property` / `flags` value lives in JSON (e.g. `mobile_sites.properties->'flags'->'<name>'`); read the model's getter for the storage path before querying, or a set flag reads as unset |
+   | code | any claim about how the product behaves cited to source on GitHub, shallow clone, commit SHA and `file:line`; never memory, never the local checkout. **Server:** `SuperCatSolutionsLLC/supercat_server` (master). **iPad:** `SuperCatSolutionsLLC/sarreid_ios` — master lags; clone the newest `release/*` branch (2026-09-28: `release/2026.3.1` = build 20260909; August builds ≈ `release/2026.2.10`, plist 20260818) and match it to the rep's `orders.app_version`. Search, option-set handling, order state and presentation building run on the device; four of ten batch-1 replays needed this. **Recent changes:** `git log` the files on the code path for the 30 days before the client's message; a merged fix is often the answer. **Pages:** a claim about what a page shows needs a logged-in fetch of that page, or is labelled "code path only, no populated row rendered" |
    | KB | the article URL, or "none exists", which is a KB backlog item |
    | meetings | Fathom recording id or calendar event id, or "none" |
 
    Names in copy come from `users.first_name` / `last_name`, never from a
-   username (measured: `millert` became "Mike"; she is Tracy Miller).
+   username (measured: a username was rendered as the wrong first name).
    No Postgres → nothing is send-safe.
 4. **Draft with `ecat-client-email`.** Its rules bind: mirror their structure,
    no em-dashes, no AI slop, honest about limits, exact next action and owner,
@@ -487,9 +494,14 @@ Two copy rules from replay batch 1 (2026-09-27):
   option, an access model), list every route the code allows before
   recommending one. A draft offered "register a new domain" and missed a
   subdomain of a domain the client already owns, which was the fastest path.
+  When two paths exist and one changes the client's data or what their users
+  see, offer both and ask; do not pick for them.
 - **Something to try before something to send.** When a permission or setting
   is proven correct and the symptom is on one device, lead with the cheap client
   action (full sync, update the app) and ask for evidence only if it persists.
+  On eOL, when the code, config and data behind the symptom are all unchanged,
+  the cheap action is hard refresh, then an incognito window, then clearing
+  cookies for the site.
 
 Carry `ecat-support-triage`'s discipline: check for an existing Jira ticket
 before drafting a "logged with engineering" reply, and never claim something is

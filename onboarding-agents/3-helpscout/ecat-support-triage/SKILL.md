@@ -69,6 +69,34 @@ docs can lag. Capture: subject, body, customer email/company, and the thread so 
 When in doubt between two domains, GROUND with `ecat-postgres-audit` first — the real
 state usually disambiguates.
 
+**Symptom checks verified in code** (supercat_server @183d8e1, sarreid_ios `release/2026.3.1`):
+
+- **Sales Portal re-upload.** A portal `order_data.csv` / `invoice_data.csv` upload
+  deletes the org's whole set and reloads it, unless the org has
+  `enable_portal_delta_imports` on and the model has a delta column
+  (`app/models/importer/import_strategy.rb:54-63`). `LastModifiedAt` is parsed and not
+  stored (`portal_order_importer.rb:65`, `portal_invoice_importer.rb:62`); it gates
+  nothing. Advice to re-upload says "the complete file".
+- **Scheduled drops.** Check `import_events` for a scheduled drop of the same file; the
+  next drop replaces a hand upload.
+- **List vs detail.** The Orders and Invoices list pages read the warehouse snapshot named
+  by `app_settings.warehouse_timestamp` (timestamped `*_dimension_<ts>` tables,
+  `app/models/ecat_reporting/query_support/invoices.rb:85-88`); the order and invoice
+  detail pages read the live `portal_orders` / `portal_invoices` tables
+  (`ecat_orders_controller.rb:60`, `ecat_invoices_controller.rb:35`). An "after you
+  upload" line says which, with the warehouse timestamp. The refresh schedule is not in
+  the repo; state a time only from the timestamp.
+- **Portal access.** A portal access claim names the user group.
+  `access_all_customer_sales_totals` returns before the login's customer-number filter on
+  the list pages (`app/models/warehouse_access.rb:425-427`). The detail pages check only
+  Sales Portal access (`require_sales_portal_access`, `ecat_online_controller.rb:85-90`),
+  not customer or territory.
+- **eOL shows old taxonomy or old names.** The left nav is cached for a week
+  (`app/models/eol_left_nav_dataflow.rb:366-367`); rule that out before the data.
+- **An order won't post to the ERP.** Read `orders.local_customer_code` (set from the
+  iPad, `app/services/orders/build.rb:29`) and ask for the exact error text; a reused
+  local customer code is a common ERP-side rejection.
+
 ## Prove identity before causal claims (hard)
 
 The record the client **named** and the record an **error log** named are different
