@@ -91,6 +91,14 @@ state usually disambiguates.
   the list pages (`app/models/warehouse_access.rb:425-427`). The detail pages check only
   Sales Portal access (`require_sales_portal_access`, `ecat_online_controller.rb:85-90`),
   not customer or territory.
+- **A test the client ran is evidence only once you know what it tests.** Before the
+  draft leans on "I tried it in Incognito / on another iPad / with another login",
+  say what that test actually used. An Incognito window on eOL is logged out, so it
+  shows the mobile site's public login and that user group's authorisations
+  (`app/controllers/eol_controller.rb:57-67`), not the client's own group. Another
+  iPad on the same login is the same group and the same data. Another login may be a
+  different group. If the test used a different group from the one in the complaint,
+  the copy says so and explains what their result does and doesn't show.
 - **eOL shows old taxonomy or old names.** The left nav is cached for a week
   (`app/models/eol_left_nav_dataflow.rb:366-367`); rule that out before the data.
 - **An order won't post to the ERP.** Read `orders.local_customer_code` (set from the

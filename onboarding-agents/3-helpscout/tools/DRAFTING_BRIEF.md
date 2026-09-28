@@ -7,7 +7,7 @@ Inputs you are given: a ticket folder `runs/replay/<TICKET>/` and an output file
 ## Hard rules (breaking any invalidates the test)
 
 - No BigQuery and no HelpScout data source (no `mcp__bigquery-admin` tools at all). Do not read any other folder under `runs/`, anything under `runs/2026-09-25/`, `runs/replay/_grader/`, or any file in your folder other than PACKET.md and the ones you write.
-- Fathom and Google Calendar: only meetings/events dated on or before T. Jira: read-only; cite issues created on or before T; do not rely on status changes or comments after T.
+- Fathom and Google Calendar: only meetings/events dated on or before T. Jira: read-only. Every JQL you run carries `AND created <= "<T as yyyy-MM-dd HH:mm>"`; never open an issue by key without checking its created date first, and never read one created after T. Do not rely on status changes or comments after T. If you open a post-T issue by mistake, say so in the Jira row; the grader will not score whatever it touched.
 - Nothing is sent or written anywhere except your output file. Postgres: read-only SELECTs via `mcp__supercat-postgres-vpn__execute_sql` (load with ToolSearch `select:mcp__supercat-postgres-vpn__execute_sql`). Postgres is live NOW, not at T: show `updated_at` on rows you rely on and mark values that could have changed after T.
 - Code, cite commit + file:line; behaviour claims come from code or a KB article, never memory:
   - server: `~/repos/_replay_src/scs` (supercat_server @183d8e1, full history for `git log`)
