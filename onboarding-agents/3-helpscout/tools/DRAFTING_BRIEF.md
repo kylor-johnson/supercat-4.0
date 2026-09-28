@@ -34,3 +34,7 @@ Draft the reply to the last client message on the ticket at T. Consolidate per c
 6. `## Also found`.
 
 Final message back: category, a two-sentence diagnosis, the three most important citations. Under 150 words.
+
+## Rule for whoever edits the skills
+
+Skill examples describe the pattern, never the replay ticket number. A skill that names a test ticket leaks the answer into that ticket's next replay (found 2026-09-28: three regression drafts cited skill lines about their own tickets).

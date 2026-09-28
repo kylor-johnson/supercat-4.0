@@ -460,7 +460,7 @@ For every `needs-reply` conversation, in order:
    | evidence | what counts |
    |---|---|
    | thread | the quotes, dated and attributed; last client and last staff timestamps from `helpscout_tickets` |
-   | live state | every noun in the copy that is a state (a flag, a count, a price, a login, a phone number) read from Postgres with table and timestamp; **every commitment taken from a meeting summary is checked here before it is written as done** (measured: four of nine 111 Mercer call commitments were not in the database). **A clean import is not correct data:** for any "did the file land / is it working" question, read the values a rep will see after the import (e.g. share of `inventories.qty_available` non-null, the custom-field columns populated), not only the import event (replay 15291: clean log, zero usable quantities) |
+   | live state | every noun in the copy that is a state (a flag, a count, a price, a login, a phone number) read from Postgres with table and timestamp; **every commitment taken from a meeting summary is checked here before it is written as done** (measured: four of nine 111 Mercer call commitments were not in the database). **A clean import is not correct data:** for any "did the file land / is it working" question, read the values a rep will see after the import (e.g. share of `inventories.qty_available` non-null, the custom-field columns populated), not only the import event (measured: an inventory import with a clean log delivered zero quantities reps could see, because the file carried only prefixed custom columns) |
    | code | any claim about how the product behaves cited to source on GitHub, shallow clone, commit SHA and `file:line`; never memory, never the local checkout. **Server:** `SuperCatSolutionsLLC/supercat_server` (master). **iPad:** `SuperCatSolutionsLLC/sarreid_ios` — master lags; clone the newest `release/*` branch (2026-09-28: `release/2026.3.1` = build 20260909; August builds ≈ `release/2026.2.10`, plist 20260818) and match it to the rep's `orders.app_version`. Search, option-set handling, order state and presentation building run on the device; four of ten batch-1 replays needed this |
    | KB | the article URL, or "none exists", which is a KB backlog item |
    | meetings | Fathom recording id or calendar event id, or "none" |
@@ -485,12 +485,11 @@ Two copy rules from replay batch 1 (2026-09-27):
 
 - **Every path, then a recommendation.** For a setup question (a domain, an
   option, an access model), list every route the code allows before
-  recommending one. Replay 15228 offered "register a new domain" and missed the
+  recommending one. A draft offered "register a new domain" and missed a
   subdomain of a domain the client already owns, which was the fastest path.
 - **Something to try before something to send.** When a permission or setting
   is proven correct and the symptom is on one device, lead with the cheap client
-  action (full sync, update the app) and ask for evidence only if it persists
-  (replay 15143).
+  action (full sync, update the app) and ask for evidence only if it persists.
 
 Carry `ecat-support-triage`'s discipline: check for an existing Jira ticket
 before drafting a "logged with engineering" reply, and never claim something is
