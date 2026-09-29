@@ -154,6 +154,20 @@ state usually disambiguates.
   while online, or switch catalogs"; a sync alone does not pick it up.
 - **eOL shows old taxonomy or old names.** The left nav is cached for a week
   (`app/models/eol_left_nav_dataflow.rb:366-367`); rule that out before the data.
+- **Two devices on one login.** Saving a user group sets `full_synch` on every login
+  in that group (`app/controllers/user_types_controller.rb:77`), and the first device
+  to sync clears it (`app/controllers/api_controller.rb:27-28`), so a second iPad on
+  the same login never gets that full re-download. Incremental sync sends an entity,
+  price levels included, only when its data version is newer than the device's
+  (`app/models/data_version.rb:159-166`). `device_id` is stored once when blank
+  (`app/models/org_user.rb:395-396`) and is not the sync key. The cheap fix is Refresh
+  Data on the stale device; a reinstall works too because it forces a full download,
+  so "the reinstall fixed it" doesn't prove a device-id cause.
+- **A missing "order submission" audit row doesn't prove the server was never
+  contacted.** `Orders::Create` writes that row only after `user_allowed_to_send_orders?`
+  passes (`app/services/orders/create.rb:45-46,74-75`); a permission rejection writes
+  none, and an on-device validation never POSTs. Say which of those the evidence
+  supports.
 - **An order won't post to the ERP.** Read `orders.local_customer_code` (set from the
   iPad, `app/services/orders/build.rb:29`), `orders.export_errors`, and ask for the
   exact ERP error text before naming a cause. A reused local customer code has been

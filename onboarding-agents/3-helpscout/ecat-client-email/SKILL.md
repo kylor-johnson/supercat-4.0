@@ -67,6 +67,7 @@ This checklist is the one home of the copy-truth rules; `ecat-support-triage` an
 - [ ] Relative time words ("today", "yesterday", "this morning") match the send date in the client's time zone; otherwise write the date
 - [ ] Named record and import-error record are the same code, or the email treats them as two problems
 - [ ] Draft has no truncated/garbled sentences and no duplicated paragraphs
+- [ ] No placeholder in the client text (`[N]`, `<name>`, `TBD`, `XX`); a value you can't fill means the sentence comes out, and the lookup goes in Owner actions
 - [ ] Stated UI limits honestly (grid item code, etc.)
 - [ ] /images vs /option_images vs /data stated where relevant
 - [ ] Clear next action + who does it
