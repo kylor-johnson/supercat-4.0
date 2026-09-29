@@ -7,18 +7,24 @@ Inputs you are given: a ticket folder `runs/replay/<TICKET>/` and an output file
 ## Hard rules (breaking any invalidates the test)
 
 - No BigQuery and no HelpScout data source (no `mcp__bigquery-admin` tools at all). Do not read any other folder under `runs/`, anything under `runs/2026-09-25/`, `runs/replay/_grader/`, or any file in your folder other than PACKET.md and the ones you write.
-- Fathom and Google Calendar: only meetings/events dated on or before T. Jira: read-only. Every JQL you run carries `AND created <= "<T as yyyy-MM-dd HH:mm>"`, with T converted to the Jira site's time zone (America/New_York, so UTC minus 4 in summer); when unsure, bound a day earlier; never open an issue by key without checking its created date first, and never read one created after T. Do not rely on status changes or comments after T. If you open a post-T issue by mistake, say so in the Jira row; the grader will not score whatever it touched.
+- Fathom and Google Calendar: only meetings/events dated on or before T. Jira: read-only. Every JQL you run carries `AND created <= "<T as yyyy-MM-dd HH:mm>"`, with T converted to Eastern time (JQL dates are read in America/New_York for this account, checked 2026-09-29: an issue created 16:22 UTC matches `created >= "12:22"`; UTC minus 4 in summer, minus 5 from November to March); when unsure, bound a day earlier; never open an issue by key without checking its created date first, and never read one created after T. Do not rely on status changes or comments after T. If you open a post-T issue by mistake, say so in the Jira row; the grader will not score whatever it touched.
 - Nothing is sent or written anywhere except your output file. Postgres: read-only SELECTs via `mcp__supercat-postgres-vpn__execute_sql` (load with ToolSearch `select:mcp__supercat-postgres-vpn__execute_sql`). Postgres is live NOW, not at T: show `updated_at` on rows you rely on and mark values that could have changed after T.
 - Code, cite commit + file:line; behaviour claims come from code or a KB article, never memory:
   - server: `~/repos/_replay_src/scs` (supercat_server @183d8e1, full history for `git log`)
   - iPad, current: `~/repos/_replay_src/ios_3.1` (sarreid_ios `release/2026.3.1` @f2e9877, build 20260909)
   - iPad, August builds: `~/repos/_replay_src/ios_2.10` (sarreid_ios `release/2026.2.10` @4ca0696, plist 20260818; approximate for 20260822)
   Match the iPad branch to the rep's `orders.app_version` at T.
+- Code is not cut at T, so cut it yourself: before citing a file, `git log -1 --before=<T> -- <path>`; if the file changed after T, read it at that commit (`git show <sha>:<path>`) and say so. The iPad clones are shallow; if the history before T is missing, the row says NOT CHECKED for "code at T".
+- A Postgres value with `updated_at` after T, or from a table that reloads daily (customers, inventory, options), cannot prove the state at T. Label it "changed after T" in VERIFY and don't put it in the copy as fact; use events that are dated (orders, import_events, audit_log_entries, login_events) for state at T.
 - KB: https://supercatsolutions.com/knowledgebase (WebFetch). If no article exists, say "none exists".
 
 ## Read first
 
 `/Users/kylorjohnson/repos/supercat-4.0/CLAUDE.md`; then in `/Users/kylorjohnson/repos/supercat-4.0/onboarding-agents/3-helpscout/`: `ecat-correspondence/SKILL.md` (§ 4-0, § 6, § 7 with step 0, the VERIFY table and the two copy rules), `ecat-support-triage/SKILL.md`, `ecat-client-email/SKILL.md`. Route to domain skills under `~/.claude/skills/ecat-*` as triage directs. Client folders: `~/repos/ecat-onboarding-workspace/02_Implementation/` (files modified after T unavailable). Org registry: `organizations` (column `shortname`); some domains span several orgs, attribute from the thread.
+
+## How this brief and the skills fit
+
+The brief overrides `ecat-correspondence` in the three places its § 0 lists (draft whatever the scope, reply in-thread, these sources and cuts). Everything else in the skills binds, including the gate: an out-of-scope ticket gets a category marked "if in scope".
 
 ## Task
 

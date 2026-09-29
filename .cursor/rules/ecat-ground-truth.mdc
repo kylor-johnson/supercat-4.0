@@ -16,7 +16,7 @@ differs per file — verified in `supercat_server` importer code:
 
 | File | Omitted record |
 |------|----------------|
-| `products.csv` | **Soft-delete** (`deleted=true`) — only on an error-free import |
+| `products.csv` | **Soft-delete** (`deleted=true`). Original importer: only on an error-free import. New importer (`enable_new_product_importer` on): on any non-fatal import |
 | `products_1.csv` (supplement) | No delete; updates existing by BaseItemCode |
 | `stories.csv` | Sets `story=null` (does NOT delete the product) |
 | `customers.csv` | **HARD-deletes ALL customers + ship-tos**, then reloads |
@@ -25,12 +25,21 @@ differs per file — verified in `supercat_server` importer code:
 | `option_groups.csv` | **HARD-deletes ALL groups**, then reloads |
 | `matrix_options.csv` / `contract_prices.csv` | **HARD-deletes ALL**, then reloads |
 
-**Only products skip deletes when a file has `Error` rows.** `products.csv`
-soft-deletes omitted items only on an error-free import. Every other file
+**`Error` rows protect omitted records in one case only: `products.csv` on the
+original product importer.** Which importer runs is the org flag
+`enable_new_product_importer` (`organizations.properties->'flags'`; code default
+true, but 226 of 258 orgs have it set false, 2026-09-29). Original importer: omitted
+products are soft-deleted only on an error-free import. New importer: omitted
+products are soft-deleted in `after_import` on any non-fatal import. Every other file
 (`customers.csv`, `inventory.csv`, `options.csv`, `option_groups.csv`,
 `contract_prices.csv`) deletes before or while loading, so any import that is not
-`Fatal` removes omitted records even when some rows errored; only a `Fatal`
-rolls it back (supercat_server 183d8e1: `product_importer_orig.rb:101-102`; `customer_importer.rb:169-175`; `active_record_importer.rb:46-77,196-198`; `option_group_importer.rb:11`).
+`Fatal` removes omitted records even when some rows errored; only a `Fatal` rolls it
+back. Read the flag before telling a client what an error did (supercat_server
+183d8e1: `app/models/importer/product_importer_orig.rb:101-102`;
+`app/services/importer/product_importer.rb:81,101-112`,
+`product_importer_lib/helpers.rb:62-66`; `customer_importer.rb:169-175`;
+`app/services/importer/active_record_importer.rb:46-77,196-198`;
+`option_group_importer.rb:11`).
 
 ## Mandatory import order
 

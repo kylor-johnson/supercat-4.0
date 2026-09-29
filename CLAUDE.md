@@ -156,7 +156,7 @@ differs per file — verified in `supercat_server` importer code:
 
 | File | Omitted record |
 |------|----------------|
-| `products.csv` | **Soft-delete** (`deleted=true`) — only on an error-free import |
+| `products.csv` | **Soft-delete** (`deleted=true`). Original importer: only on an error-free import. New importer (`enable_new_product_importer` on): on any non-fatal import |
 | `products_1.csv` (supplement) | No delete; updates existing by BaseItemCode |
 | `stories.csv` | Sets `story=null` (does NOT delete the product) |
 | `customers.csv` | **HARD-deletes ALL customers + ship-tos**, then reloads |
@@ -165,12 +165,21 @@ differs per file — verified in `supercat_server` importer code:
 | `option_groups.csv` | **HARD-deletes ALL groups**, then reloads |
 | `matrix_options.csv` / `contract_prices.csv` | **HARD-deletes ALL**, then reloads |
 
-**Only products skip deletes when a file has `Error` rows.** `products.csv`
-soft-deletes omitted items only on an error-free import. Every other file
+**`Error` rows protect omitted records in one case only: `products.csv` on the
+original product importer.** Which importer runs is the org flag
+`enable_new_product_importer` (`organizations.properties->'flags'`; code default
+true, but 226 of 258 orgs have it set false, 2026-09-29). Original importer: omitted
+products are soft-deleted only on an error-free import. New importer: omitted
+products are soft-deleted in `after_import` on any non-fatal import. Every other file
 (`customers.csv`, `inventory.csv`, `options.csv`, `option_groups.csv`,
 `contract_prices.csv`) deletes before or while loading, so any import that is not
-`Fatal` removes omitted records even when some rows errored; only a `Fatal`
-rolls it back (supercat_server 183d8e1: `product_importer_orig.rb:101-102`; `customer_importer.rb:169-175`; `active_record_importer.rb:46-77,196-198`; `option_group_importer.rb:11`).
+`Fatal` removes omitted records even when some rows errored; only a `Fatal` rolls it
+back. Read the flag before telling a client what an error did (supercat_server
+183d8e1: `app/models/importer/product_importer_orig.rb:101-102`;
+`app/services/importer/product_importer.rb:81,101-112`,
+`product_importer_lib/helpers.rb:62-66`; `customer_importer.rb:169-175`;
+`app/services/importer/active_record_importer.rb:46-77,196-198`;
+`option_group_importer.rb:11`).
 
 ## Mandatory import order
 
@@ -238,10 +247,10 @@ link**, there were problems — click it for line numbers.
 | Tier | Effect |
 |------|--------|
 | **Fatal** | Whole file rejected, nothing changes |
-| **Error** | Imports good rows and skips error rows. Products: also skips deletes of omitted records. Every other file: omitted records are still deleted |
+| **Error** | Imports good rows and skips error rows. Products on the original importer: also skips deletes of omitted records. New product importer and every other file: omitted records are still deleted |
 | **Warning** | Imports including warning rows; omitted records ARE removed |
 
-So if expected product deletes didn't happen, look for an `Error` row. For any other file an `Error` row does not protect omitted records.
+So if expected product deletes didn't happen, look for an `Error` row and check the org is on the original importer (`enable_new_product_importer` false). Otherwise an `Error` row does not protect omitted records.
 
 ## Multi-file product import
 
@@ -249,6 +258,44 @@ So if expected product deletes didn't happen, look for an `Error` row. For any o
 `CategoryCodes`) + `products_1.csv`, `products_2.csv`… + a final `sentinel.csv`
 to trigger the merge. Supplemental rows keyed by `BaseItemCode`; their columns
 must be valid standard or pre-registered custom fields.
+
+## Additional files (full file list)
+
+| File | Delete behavior | When to use |
+|------|-----------------|-------------|
+| `options.csv` | **Hard-delete all options** (nulls group membership) | Any org with options; always re-send `option_groups.csv` immediately after |
+| `option_groups.csv` | **Hard-delete all groups** | Immediately after `options.csv` |
+| `products.csv` | Soft-delete omitted rows (original importer: clean import only; new importer: any non-fatal import) | Every build |
+| `stories.csv` | Sets `story=null` for omitted rows (no product delete) | When product descriptions exist |
+| `inventory.csv` | **Hard-delete all inventory** | Every inventory update |
+| `customers.csv` | **Hard-delete ALL customers** | Every customer update |
+| `matrix_options.csv` | **Hard-delete all matrix pricing** | Orgs using matrix option pricing |
+| `contract_prices.csv` | **Hard-delete all contract prices** | Org-specific pricing overrides |
+| `riser_prices.csv` | **Hard-delete all riser prices** | Regional surcharge pricing |
+
+**Mandatory import order:** `options.csv` → `option_groups.csv` → `products.csv`
+→ `stories.csv` → `inventory.csv` → `customers.csv` → `matrix_options.csv`
+
+Always re-send `option_groups.csv` after `options.csv` — importing options
+**nulls group membership**. Skip files for subsystems the org doesn't use
+(declare in `CLIENT_PROFILE.md`).
+
+## Sales Portal files
+
+`order_data.csv` and `invoice_data.csv` are imported via Tools → Import Data
+(separate from the iPad file family). Four deterministic rules:
+
+1. **Date fields must be date-only.** `4-16-2026 12:00:00 AM` is rejected;
+   use `4-16-2026`. Applies to Order Date, Ship Date, Invoice Date.
+2. **No extra columns.** A stray `fiscal month` column fails the entire file.
+3. **Line items must be contiguous by order number.** The importer reads
+   top-to-bottom and treats any order-number change as end-of-order; a reappearing
+   order number is a new (broken) order. ERPs that log changes as new transactions
+   scatter lines by default — **sort by order number before exporting**.
+4. **Exact filenames, lowercase.** `order_data.csv` and `invoice_data.csv`; over
+   FTP the match is case-sensitive (`sync_files_v2.rb:405-447`, `find -path`;
+   `tools_controller.rb:352`), so `Order_Data.csv`, a `TBL_` prefix or any
+   variation is never picked up.
 
 ## Custom fields
 

@@ -27,10 +27,10 @@ link**, there were problems — click it for line numbers.
 | Tier | Effect |
 |------|--------|
 | **Fatal** | Whole file rejected, nothing changes |
-| **Error** | Imports good rows and skips error rows. Products: also skips deletes of omitted records. Every other file: omitted records are still deleted |
+| **Error** | Imports good rows and skips error rows. Products on the original importer: also skips deletes of omitted records. New product importer and every other file: omitted records are still deleted |
 | **Warning** | Imports including warning rows; omitted records ARE removed |
 
-So if expected product deletes didn't happen, look for an `Error` row. For any other file an `Error` row does not protect omitted records.
+So if expected product deletes didn't happen, look for an `Error` row and check the org is on the original importer (`enable_new_product_importer` false). Otherwise an `Error` row does not protect omitted records.
 
 ## Multi-file product import
 
@@ -45,7 +45,7 @@ must be valid standard or pre-registered custom fields.
 |------|-----------------|-------------|
 | `options.csv` | **Hard-delete all options** (nulls group membership) | Any org with options; always re-send `option_groups.csv` immediately after |
 | `option_groups.csv` | **Hard-delete all groups** | Immediately after `options.csv` |
-| `products.csv` | Soft-delete omitted rows (on clean import only) | Every build |
+| `products.csv` | Soft-delete omitted rows (original importer: clean import only; new importer: any non-fatal import) | Every build |
 | `stories.csv` | Sets `story=null` for omitted rows (no product delete) | When product descriptions exist |
 | `inventory.csv` | **Hard-delete all inventory** | Every inventory update |
 | `customers.csv` | **Hard-delete ALL customers** | Every customer update |
@@ -72,8 +72,10 @@ Always re-send `option_groups.csv` after `options.csv` — importing options
    top-to-bottom and treats any order-number change as end-of-order; a reappearing
    order number is a new (broken) order. ERPs that log changes as new transactions
    scatter lines by default — **sort by order number before exporting**.
-4. **Exact filenames.** `Order_Data.csv` and `Invoice_Data.csv`; a `TBL_`
-   prefix or any variation fails.
+4. **Exact filenames, lowercase.** `order_data.csv` and `invoice_data.csv`; over
+   FTP the match is case-sensitive (`sync_files_v2.rb:405-447`, `find -path`;
+   `tools_controller.rb:352`), so `Order_Data.csv`, a `TBL_` prefix or any
+   variation is never picked up.
 
 ## Custom fields
 

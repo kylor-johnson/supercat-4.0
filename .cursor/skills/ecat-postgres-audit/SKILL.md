@@ -49,7 +49,7 @@ where organization_id = :org_id order by created_at desc limit 20;
 ```
 
 Read the latest event per type: `- []` under a type means a clean import; `:warning`
-lines import and delete normally; `:error` rows are skipped (and block deletes for products only); `:fatal` rejects the file. A client may have
+lines import and delete normally; `:error` rows are skipped (and block deletes only for products on the original importer, `enable_new_product_importer` false); `:fatal` rejects the file. A client may have
 run a NEWER import than the file we last sent — always check recency here before assuming
 the local CSV reflects the live catalog.
 

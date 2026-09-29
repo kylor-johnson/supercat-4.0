@@ -23,16 +23,27 @@ dangerous delete semantics in `ecat-ground-truth` are the most common root cause
                run ecat-postgres-audit by org shortname to get REAL state, not a guess.
                Any claim about how the product BEHAVES (what an importer does with an
                absent column, what a flag gates, what a link looks like) is read from
-               supercat_server on GitHub (shallow clone, cite commit + file:line), never
-               from memory. iPad behaviour is read from sarreid_ios, newest release/*
-               branch matched to the rep's orders.app_version. Check the KB for an
+               source, never from memory (sources below). Check the KB for an
                article; "none exists" is a finding. Before asking the client "which
                user / which surface", check eOL logins in audit_log_entries and
-               orders.app_version for the client's domain in the hour before the email.
+               orders.app_version / login_events for the client's domain in the hour
+               before the email.
 5. DIAGNOSE  → route to the domain skill, confirm root cause against ground truth
 6. REPLY     → draft the response with ecat-client-email (draft only — never auto-send)
-7. LOG       → append a dated line to that same client folder's HANDOFF.md
+7. LOG       → standalone use only: append a dated line to that client folder's
+               HANDOFF.md. Under ecat-correspondence or a replay, write nothing
+               outside the draft file.
 ```
+
+**Code sources (GROUND).**
+
+- **Server:** `SuperCatSolutionsLLC/supercat_server` master (a fresh clone or GitHub),
+  cite the commit SHA and `file:line`. Never the local `~/supercat-code` checkout.
+- **iPad:** `SuperCatSolutionsLLC/sarreid_ios`. Master lags; use the newest `release/*`
+  branch (2026-09-28: `release/2026.3.1` = build 20260909; August builds ≈
+  `release/2026.2.10`, plist 20260818) and match it to the rep's `orders.app_version`.
+  Search, option-set handling, order state, pricing and presentation building run on
+  the device; measured, four of the first ten replays turned on iPad code.
 
 Do not answer from assumption. If the fix depends on current state (counts, what
 imported, what's visible), GROUND first — step 4 is not optional for state-dependent
@@ -53,7 +64,7 @@ docs can lag. Capture: subject, body, customer email/company, and the thread so 
 | Price wrong, blank, $0.00, or wrong per customer | pricing / price levels | `ecat-pricing-levels` |
 | Customers or ship-tos missing after an upload | `customers.csv` replaces the whole list on any non-fatal import, `Error` rows included (`customer_importer.rb:169-175`): the account was omitted from, or rejected in, the file that ran, and the error row does not prove it is the named account | `ecat-ground-truth` → `ecat-customers-build`, and prove identity per the section below |
 | Inventory/options wiped after a partial file | **HARD-delete on omission** | `ecat-ground-truth` → `ecat-core-files` / `ecat-options-and-mapping` |
-| Expected product deletes didn't happen | an `Error` row in `products.csv` blocks the soft-delete (products only) | `ecat-import-ops` |
+| Expected product deletes didn't happen, or products vanished after a file with errors | depends on the org's product importer: with `enable_new_product_importer` off (the original importer) an `Error` row blocks the soft-delete; with it on, omitted products are soft-deleted on any non-fatal import (`product_importer.rb:101-112`, `product_importer_lib/helpers.rb:62-66`). Read the flag first | `ecat-import-ops` |
 | New/updated product file to load | core files build | `ecat-core-files` |
 | Option swatches / cascading filters wrong | options + mapping | `ecat-options-and-mapping` |
 | SmartList not appearing / wrong items | smartlists | `ecat-smartlists` |
@@ -91,38 +102,62 @@ state usually disambiguates.
   the list pages (`app/models/warehouse_access.rb:425-427`). The detail pages check only
   Sales Portal access (`require_sales_portal_access`, `ecat_online_controller.rb:85-90`),
   not customer or territory.
+- **Check the fleet before blaming one client's browser, device or file.** For "slow",
+  "down", "won't log in", or an import that failed, compare the same signal across
+  all orgs for the hour around the message (login/session counts in
+  `audit_log_entries` or `login_events`, `import_events` fatals by org) and look for
+  other clients' tickets in `helpscout_tickets` in the same hour. A fleet-wide dip or
+  a cluster of the same failure is ours, and the copy says so. Measured twice: a
+  draft told a client his browser was the cause while fleet logins had fallen ~78%
+  and another client had reported the same thing five minutes earlier; a sent reply
+  blamed a client's file while 15 orgs hit the same fatal that morning.
 - **A test the client ran is evidence only once you know what it tests.** Before the
   draft leans on "I tried it in Incognito / on another iPad / with another login",
-  say what that test actually used. An Incognito window on eOL is logged out, so it
-  shows the mobile site's public login and that user group's authorisations
-  (`app/controllers/eol_controller.rb:57-67`), not the client's own group. Another
+  say what that test actually used. An Incognito window on eOL is logged out. On a site
+  that allows unauthenticated visitors it browses as the mobile site's own org_user and
+  that user group's authorisations, not the client's; on a login-only site it shows the
+  login page, and once they sign in it is their own group again
+  (`app/controllers/eol_controller.rb:57-67`: `allows_unauthenticated_users` decides).
+  Read the site's setting before saying which. Another
   iPad on the same login is the same group and the same data. Another login may be a
   different group. If the test used a different group from the one in the complaint,
-  the copy says so and explains what their result does and doesn't show.
+  the copy says so and explains what their result does and doesn't show. **Timing
+  matters too:** if the two tries were minutes apart, the problem may simply have
+  ended in between; check the fleet signal (above) before concluding "browser".
 - **"Fewer items than expected" is a count, not a sync question.** When a filter,
   search, collection or list shows fewer products than the client expects, first
   count in Postgres the active products that should match, then subtract each gate
-  with its own count: `deleted`, `hideable` when the mobile site has
-  `hide_products_marked_hideable` on (`app/models/mobile_site.rb:229`; eOL drops them in
-  `app/services/products/query_for_catalog.rb:57`, iPad in `ProductQuery.m:603,1389,1486`),
-  and the group's trade-name / collection authorisation. Only when the gates don't
+  with its own count: `deleted`; `hideable`, which has a different switch per surface
+  (eOL drops Hideable products only when the mobile site has
+  `hide_products_marked_hideable` on, `app/services/products/query_for_catalog.rb:57`
+  via `ecat_products_controller.rb:328`; the iPad drops them unless the rep turns on
+  "Show <hidden-products name>" in the app's Settings, a per-device switch that is off
+  by default, `ProductQuery.m:601-603,1387-1389,1484-1486`, `DataStore.m:1365-1372`,
+  `SettingsPopoverController.m:274-280`, sarreid_ios f2e9877); and the group's
+  trade-name / collection authorisation. Only when the gates don't
   account for the gap do stale device data, sync or a cache become the explanation.
   Measured: a filter showed 1 of 25 because 24 were Hideable = Y; two replies blamed
   sync first, and the client refreshed and still saw one.
 - **Scoping content to some reps or customers has a rep-side answer too.** Admin can
-  scope SmartLists only by user group. The covering reps can also build a MyList on
-  their own iPads for that account, and it stays on those devices. Offer both.
+  scope SmartLists only by user group (`user_type.rb:286-292`). Each covering rep can
+  also build a My List on the iPad ("New My List…", `SelectListViewController.m:150`).
+  A My List belongs to that rep's login: it is backed up to the server as
+  `user_stacks` on the org_user (`org_user.rb:57`, `user_stack.rb`) and restored on
+  sync (`Synchronizer.m:364-374`), and other reps don't see it. Offer both.
 - **An org-setting change on the iPad is picked up at login, not by sync.** The iPad
   reads org settings (the organization hash, e.g. `allow_double_discounting`) from
-  the organizations download, which runs at sign-in (`LoginViewController.m:654`)
-  and when the catalogs screen opens (`MainViewController.m:483-491`), sarreid_ios
-  `release/2026.3.1` @f2e9877. Copy that turns one on says "log out and back in, or
-  switch catalogs"; a sync alone does not pick it up.
+  the organizations download, which runs at an online sign-in
+  (`LoginViewController.m:654`) and when the catalogs screen opens
+  (`MainViewController.m:483-491`), sarreid_ios `release/2026.3.1` @f2e9877; the sync
+  never fetches it (`ORGANIZATIONS_URL`, `Synchronizer.m:74`, is unused), and an offline
+  sign-in reuses the stored settings. Copy that turns one on says "log out and back in
+  while online, or switch catalogs"; a sync alone does not pick it up.
 - **eOL shows old taxonomy or old names.** The left nav is cached for a week
   (`app/models/eol_left_nav_dataflow.rb:366-367`); rule that out before the data.
 - **An order won't post to the ERP.** Read `orders.local_customer_code` (set from the
-  iPad, `app/services/orders/build.rb:29`) and ask for the exact error text; a reused
-  local customer code is a common ERP-side rejection.
+  iPad, `app/services/orders/build.rb:29`), `orders.export_errors`, and ask for the
+  exact ERP error text before naming a cause. A reused local customer code has been
+  one ERP-side rejection; don't assume it is the one.
 
 ## Prove identity before causal claims (hard)
 
@@ -147,19 +182,10 @@ return the same record.
 
 ## Reply posture
 
-Draft with `ecat-client-email` (warm, declarative, point-by-point, **"Best, Kylor"**).
-Carry its discipline:
-- Don't claim something is fixed/uploaded until it actually is.
-- State UI limits honestly rather than overpromising.
-- Give the exact next action and who owns it (FTP folder, Admin path, "sync on Wi-Fi").
-- Keep internal context (health scores, support history, CDN) out of client copy.
-
-Drafts only. This skill never sends; you paste/approve.
-
-Before presenting the draft: re-read it for broken/truncated sentences. If the
-draft says a config or file change is already done, **re-query that field now**.
-If it is still the old value, do not claim it is done — tell Kylor the Admin/FTP
-step and keep the email in "I will / I have not yet" form.
+Draft with `ecat-client-email` (warm, declarative, point-by-point, **"Best, Kylor"**)
+and run its pre-send checklist, which is the one home of the copy-truth rules
+(nothing claimed done until it is and has been re-queried, names from `users`, the
+surface named, internal context kept out). Drafts only. This skill never sends.
 
 **Before drafting a "logged with engineering" reply:** check for an existing Jira ticket
 bucket for this issue first (read-only — see the `jira-read-only` rule). Don't promise a

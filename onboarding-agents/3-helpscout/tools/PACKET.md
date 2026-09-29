@@ -56,6 +56,10 @@ can check when it matters.
 
 ## Assembly
 
+Packets assembled before commit 66607f1 (2026-09-28) trimmed every thread, this ticket's own included, at the first `From:` / `On … wrote:` line, which cut forwarded complaints. Rebuild any such packet before reusing it; grep an old packet for `[quoted history trimmed]` under the `← THIS TICKET` heading or a `FW:` subject.
+
+The Meetings, Calendar and Live-state sections are supplied as files and are not checked by the script; the builder asserts their cut by hand (dates ≤ T) and must be a session that has not read the sent reply.
+
 `packet_assemble.py <dir>` reads `threads.json`, `meetings.md`, `calendar.json`,
 `state.md` from `<dir>` and writes `PACKET.md` with the sections above in order, the
 cut time in the header, and a `LEAK CHECK` block listing anything found after `T`

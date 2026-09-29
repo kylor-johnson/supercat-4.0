@@ -54,10 +54,17 @@ Always include: **download the current file from FTP `/data` before editing.**
 
 ## Pre-send checklist
 
+This checklist is the one home of the copy-truth rules; `ecat-support-triage` and
+`ecat-correspondence` point here rather than restating them.
+
 ```
-- [ ] Files actually uploaded (not "Done!" before upload confirmed)
-- [ ] If the draft says "I've already changed X", re-query X live. Old value → do not send that sentence
+- [ ] No past-tense action that hasn't happened ("uploaded", "fixed", "enabled", "I've passed that to product", "I've raised it"). Re-query anything claimed changed; old value → future tense ("I'll…") plus an Owner action
 - [ ] Anything I claimed "configured" is verified on the device (or Admin field, for price-level / group auth)
+- [ ] Every exclusive or comparative claim ("the only one", "the rest of your team", "all", "never") is backed by a count over the whole population, shown in VERIFY
+- [ ] Every example the client is told to try (an item, a customer, a login, a URL) is one the person trying it can actually see: check it against their user group's trade-name / collection / price authorisations
+- [ ] No release or date promised for a fix unless the fix commit is on the branch that ships in that build (check the release/* branch, not the ticket status)
+- [ ] No promise to edit a value the client's own import file controls (it comes back on their next upload); name the file and column they change instead, or say we change it and they must change their export too
+- [ ] Relative time words ("today", "yesterday", "this morning") match the send date in the client's time zone; otherwise write the date
 - [ ] Named record and import-error record are the same code, or the email treats them as two problems
 - [ ] Draft has no truncated/garbled sentences and no duplicated paragraphs
 - [ ] Stated UI limits honestly (grid item code, etc.)
@@ -73,20 +80,21 @@ Always include: **download the current file from FTP `/data` before editing.**
 
 ## Owner actions (required on every onboarding and support draft)
 
-The draft is not finished until Kylor knows exactly what he does before the copy
+The draft is not finished until the owner knows exactly what he does before the copy
 is true. A numbered list, one step per line, each naming:
 
 - the Admin Console path, or the file and column, or the script (dry-run first,
   per `supercat-mcp-access`), or the query;
 - the check that proves it landed (File Import Status `- []`, the Postgres row
   and its `updated_at`, the Admin field);
-- who owns it if not Kylor (Kyla, the client, engineering with the Jira key).
+- who owns it if not the owner (the support lead, the client, engineering with the Jira key).
 
 If the copy promises the client something ("I will send screenshots", "the
 links come by Friday"), this section says how that thing gets made. Measured
-2026-09-25: a COM draft told the client "I will put COM on two of your SKUs"
-and the packet contained no steps; the org had no Option Type label, so the
-first step was one nobody would have guessed.
+2026-09-25: a draft promised a configuration change on two SKUs with no steps
+behind it, and the first step turned out to be an org-level prerequisite nobody
+would have guessed. Read the org's setup for the thing you promise before
+writing the steps.
 
 The High Point Market follow-up email skill (`hpmkt-follow-up-email`) covers
 post-market recaps in the same voice family.
