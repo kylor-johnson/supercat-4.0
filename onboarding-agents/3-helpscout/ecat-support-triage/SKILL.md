@@ -146,6 +146,19 @@ state usually disambiguates.
   A My List belongs to that rep's login: it is backed up to the server as
   `user_stacks` on the org_user (`org_user.rb:57`, `user_stack.rb`) and restored on
   sync (`Synchronizer.m:364-374`), and other reps don't see it. Offer both.
+- **"Prices don't show" or "wrong price": find the level that renders first.** Before
+  any switch or refresh hypothesis, name the price level this login actually renders
+  and check the product has a price at it (`products.prices_json`). eCat Online
+  renders: the session choice from My Account (retail → the site's retail level,
+  "Hide prices" → none), otherwise the login's first price level. That is the
+  group's `default_price_level_id` if set; otherwise, when the login is linked to a
+  customer, that customer's DefaultPriceCode level; otherwise the group's first
+  authorised level (`app/models/renders_product_details.rb:266-290`,
+  `app/models/org_user.rb:452-487`). On the iPad it is the level picked in Settings,
+  shown only while Show Prices is on. Say which level the complaining login renders,
+  and whether it has prices, before reassuring about another login. Measured twice:
+  the fix was the Admin group's default price level while the drafts offered surface
+  switches.
 - **An org-setting change on the iPad is picked up at login, not by sync.** The iPad
   reads org settings (the organization hash, e.g. `allow_double_discounting`) from
   the organizations download, which runs at an online sign-in

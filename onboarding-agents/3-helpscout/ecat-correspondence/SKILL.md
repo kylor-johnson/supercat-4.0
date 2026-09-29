@@ -392,6 +392,13 @@ For every `needs-reply` conversation, in order:
   Measured: a draft offered "register a new domain" and missed a subdomain of a domain
   the client already owned. When two paths exist and one changes the client's data or
   what their users see, offer both and ask; do not pick for them.
+  **Lead with the no-code route.** When the ask is "make X show / work", list the
+  Admin-only routes (view fields and Quick View lines, user-group settings, custom
+  fields, site settings) before any code change or file rebuild, and lead with the
+  one that needs no engineering and no client decision if it meets what the client
+  asked for. Measured twice: a draft led with a parser change needing engineering
+  while the same-day fix was an Admin view-field change; another offered the client a
+  yes/no menu where two plain columns and a display setting were the fix.
 - **Something to try before something to send.** When a permission or setting is
   proven correct and the symptom is on one device, lead with the cheap client action
   (full sync, update the app) and ask for evidence only if it persists. On eOL, when
