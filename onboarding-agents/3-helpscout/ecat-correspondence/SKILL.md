@@ -31,7 +31,8 @@ rule's reason matters, not on every run.
 2. **Clean, dedupe, derive openness, acknowledgment pass** (§ 3b–3f).
 3. **Attribute** each candidate (§ 4).
 4. **Per client: consolidate** (§ 6 step 0). Then per ticket: triage GROUND →
-   VERIFY → draft → owner actions → category (§ 5) → also found.
+   VERIFY → draft → owner actions → **verify pass by a separate agent, revise,
+   verify again** → category (§ 5) → also found.
 5. **Output** (§ 7) and **checklist** (§ 9).
 
 When rules meet:
@@ -235,6 +236,7 @@ state or state that is unambiguous and was actually read:
 - **and** the org is confidently attributed (§ 4)
 - **and** Postgres was available if any state is claimed
 - **and** every behaviour claim in the copy is cited to code or a KB article
+- **and** the last verify pass (§ 6 step 6) is CLEAN
 - **and** the reply contains no commitment, no date, no price, no apology
 
 ### DRAFT-AND-PING
@@ -361,10 +363,24 @@ For every `needs-reply` conversation, in order:
    Kylor"**).
 5. **Owner actions.** The numbered steps the owner performs before the copy is true,
    per `ecat-client-email` § Owner actions.
-6. **Categorise** (§ 5) and record *which clause* decided it.
-7. **Record what it WOULD have sent** under the gate, whatever the category (the
+6. **Verify pass, by a separate agent. Mandatory, every draft, live and replay.**
+   Launch a sub-agent with a fresh context on `tools/VERIFY_PASS_BRIEF.md` and the
+   draft file path. It never sees your reasoning, only the draft, the packet (replay)
+   and the sources. It lints the client text and rules on every factual sentence.
+   Then:
+   - fix each false or unsupported row with evidence, or delete the sentence, or turn
+     it into an owner action; take unverifiable-at-T sentences out of the copy;
+   - run a **second** verify pass (a new sub-agent) on the revision;
+   - at most two revise rounds. If the second pass is still FAILED, the header reads
+     **`VERIFY FAILED`** with the open rows, and the draft goes to the owner as such.
+   Measured: 16 of 39 replay drafts had a false sentence in the client text while
+   their diagnosis was right; separate checkers with this one job found them with the
+   same tools. You can't be your own verifier: the errors are the sentences you were
+   sure of.
+7. **Categorise** (§ 5) and record *which clause* decided it.
+8. **Record what it WOULD have sent** under the gate, whatever the category (the
    fortnight experiment, § 8).
-8. **"Also found."** Anything true the live read surfaced that the reply does not
+9. **"Also found."** Anything true the live read surfaced that the reply does not
    need goes in a separate list at the end of the draft file, never into another
    revision of the email.
 
@@ -472,6 +488,7 @@ SEND-SAFE calls is evidence; fewer than ~20 is not enough either way, so say so.
 - [ ] Calendar checked for unrecorded meetings; `[ITEMS]` block where one exists
 - [ ] `has-attachment` threads flagged; file-dependent answers say so; unseen screenshots answered per surface
 - [ ] VERIFY table on every draft, no blank rows
+- [ ] Verify pass run by a separate agent on every draft; final pass CLEAN, or the header says `VERIFY FAILED` with the open rows
 - [ ] Every quote dated and attributed; every count names its table; every judgement prefixed `Conclusion:`; no consequence stated as a measurement (`§F1`)
 - [ ] `ecat-client-email` pre-send checklist run on every draft; Owner actions present
 - [ ] Postgres unavailable → nothing marked SEND-SAFE

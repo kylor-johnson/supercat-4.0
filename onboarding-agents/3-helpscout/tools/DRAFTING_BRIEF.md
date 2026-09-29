@@ -2,7 +2,7 @@
 
 You are drafting ONE blind replay of a SuperCat HelpScout ticket. A human reply was already sent and will be compared with yours later. You must never see it.
 
-Inputs you are given: a ticket folder `runs/replay/<TICKET>/` and an output file name (DRAFT.md or DRAFT_v2.md). Read `PACKET.md` in that folder. It is everything that existed at the cut time T in its header. If it is long, read the ticket marked "← THIS TICKET" in full and skim the rest.
+Inputs you are given: a ticket folder `runs/replay/<TICKET>/` and an output file name (DRAFT.md or DRAFT_v2.md). Read `PACKET.md` in that folder. It is everything that existed at the cut time T in its header. Its section 1b (fleet at T) is the only view you get of other clients; if it says NOT BUILT, say so before blaming one client's browser, device or file. If it is long, read the ticket marked "← THIS TICKET" in full and skim the rest.
 
 ## Hard rules (breaking any invalidates the test)
 
@@ -14,7 +14,7 @@ Inputs you are given: a ticket folder `runs/replay/<TICKET>/` and an output file
   - iPad, current: `~/repos/_replay_src/ios_3.1` (sarreid_ios `release/2026.3.1` @f2e9877, build 20260909)
   - iPad, August builds: `~/repos/_replay_src/ios_2.10` (sarreid_ios `release/2026.2.10` @4ca0696, plist 20260818; approximate for 20260822)
   Match the iPad branch to the rep's `orders.app_version` at T.
-- Code is not cut at T, so cut it yourself: before citing a file, `git log -1 --before=<T> -- <path>`; if the file changed after T, read it at that commit (`git show <sha>:<path>`) and say so. The iPad clones are shallow; if the history before T is missing, the row says NOT CHECKED for "code at T".
+- Code is not cut at T, so cut it yourself: before citing a file, `git log -1 --before=<T> -- <path>`; if the file changed after T, read it at that commit (`git show <sha>:<path>`) and say so. Both iPad clones have full history (unshallowed 2026-09-29), so the same applies to iPad code; a release branch HEAD dated after T is not evidence of what shipped at T.
 - A Postgres value with `updated_at` after T, or from a table that reloads daily (customers, inventory, options), cannot prove the state at T. Label it "changed after T" in VERIFY and don't put it in the copy as fact; use events that are dated (orders, import_events, audit_log_entries, login_events) for state at T.
 - KB: https://supercatsolutions.com/knowledgebase (WebFetch). If no article exists, say "none exists".
 
@@ -40,6 +40,16 @@ Draft the reply to the last client message on the ticket at T. Consolidate per c
 6. `## Also found`.
 
 Final message back: category, a two-sentence diagnosis, the three most important citations. Under 150 words.
+
+## Verify pass and revision (replay)
+
+The session that launched you runs `ecat-correspondence` § 6 step 6 for you: after you finish, a **separate** verifier agent runs `tools/VERIFY_PASS_BRIEF.md` on your file and appends `## Verify pass 1`. If it is FAILED, you get the file back with one instruction: revise. Then:
+
+- fix each false, unsupported or unverifiable-at-T row with evidence, delete the sentence, or turn it into an owner action. Don't argue with a row in the copy; if you think the verifier is wrong, say why in one line under the table, with the evidence;
+- rewrite `## Draft` in place and add `## Revision 1` listing each row and what you did;
+- the launcher runs pass 2 with a new verifier. After two rounds, a draft still FAILED gets `VERIFY FAILED` in its header.
+
+You never run the verify pass on your own draft.
 
 ## Rule for whoever edits the skills
 

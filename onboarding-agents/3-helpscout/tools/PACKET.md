@@ -26,6 +26,14 @@ the 30 days before `T`:
 - `thread_attachment_count`, `mailbox_id`, `assignee_id`;
 - duplicate captures across inboxes collapsed on `(author, LEFT(body,200))`.
 
+## 1b. Fleet at T (BigQuery + Postgres)
+
+`replay_fleet_at_t.sql`: other clients' ticket subjects in T−2h → T, admin/app sessions in 15-minute buckets for T−3h → T, sessions / iPad sign-ins / eOL logins hourly for T−24h → T, and import fatals by org for T−24h → T. Every window ends at T. Save as `fleet.md` (no build date inside it; the assembler refuses any timestamp after T). The drafter has no BigQuery, so without this block a fleet incident can't be seen (measured: a draft blamed a browser during a fleet session collapse).
+
+## 1c. Scope at T (BigQuery)
+
+`replay_scope_at_t.sql` gives the assignee and inbox as they were at T; the view's `assignee_id` / `mailbox_id` are today's. Save the reading as `scope.json`: `{"mailbox_at_t", "assignee_at_t", "basis"}`, and put the build date in `basis`.
+
 ## 2. Meetings, cut at T
 
 - Fathom: `search_meetings` on the client name, `recorded_by = anyone`,
@@ -34,6 +42,8 @@ the 30 days before `T`:
 - Google Calendar: `list_events` for `[T - 7d, T]`; keep events with an attendee on
   the client's domains. An event with no matching Fathom recording is flagged
   `unrecorded-meeting`.
+
+Calendar must be pre-fetched as JSON (`{"window": [T-7d, T], "events": [...]}`); 35 of the first 50 packets said "not pre-fetched" and left the cut to the drafter. The assembler now prints a BUILD WARNING when it is not JSON.
 
 ## 3. Client folder
 
@@ -44,7 +54,7 @@ unavailable.
 ## 4. Live state (Postgres, read-only)
 
 Whatever `ecat-support-triage` GROUND needs for the diagnosis, with `updated_at` on
-every row read. Rows with `updated_at > T` are shown but marked `changed-after-T`;
+every row read. **Snapshot:** the builder saves every row it read into `state.md` with the query, so a re-run reads the same state and not today's. Rows with `updated_at > T` are shown but marked `changed-after-T`;
 the grader treats claims that depend on them as "method graded, value not graded".
 For tickets older than ~60 days, skip value grading entirely.
 
@@ -60,7 +70,7 @@ Packets assembled before commit 66607f1 (2026-09-28) trimmed every thread, this 
 
 The Meetings, Calendar and Live-state sections are supplied as files and are not checked by the script; the builder asserts their cut by hand (dates ≤ T) and must be a session that has not read the sent reply.
 
-`packet_assemble.py <dir>` reads `threads.json`, `meetings.md`, `calendar.json`,
+`packet_assemble.py <dir> [--out PACKET_rebuilt.md]` reads `threads.json`, `fleet.md`, `scope.json`, `meetings.md`, `calendar.json`,
 `state.md` from `<dir>` and writes `PACKET.md` with the sections above in order, the
 cut time in the header, and a `LEAK CHECK` block listing anything found after `T`
 and excluded. The agent is given `PACKET.md` and nothing else from HelpScout.

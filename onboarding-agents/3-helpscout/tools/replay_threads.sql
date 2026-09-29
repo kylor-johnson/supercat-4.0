@@ -16,7 +16,10 @@ all_threads AS (
 dd AS (
   SELECT * EXCEPT(rn) FROM (
     SELECT *, ROW_NUMBER() OVER (
-      PARTITION BY LOWER(thread_author_email), LEFT(LOWER(REGEXP_REPLACE(thread_body, r'\s+', ' ')), 200)
+      -- Dedupe inside one conversation group (same subject minus Re:/Fw:), not across the
+      -- client's conversations: a client who re-sends an ask on a new ticket keeps both.
+      PARTITION BY REGEXP_REPLACE(LOWER(ticket_subject), r'^\s*((re|fw|fwd)\s*:\s*)+', ''),
+                   LOWER(thread_author_email), LEFT(LOWER(REGEXP_REPLACE(thread_body, r'\s+', ' ')), 200)
       ORDER BY thread_created_at, conversation_id) rn
     FROM all_threads) WHERE rn = 1
 )
