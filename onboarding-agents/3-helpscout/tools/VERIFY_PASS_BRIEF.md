@@ -42,6 +42,8 @@ re-read the line yourself for every claim you rule on.
 
 ## Step 1: lint (mechanical, before any checking)
 
+The drafter wrote to `ecat-client-email/CLAIMS_STANDARD.md`. Its "don't write" table and § 5 checklist are the same rules seen from the writer's side; a sentence that matches a "don't write" row is a lint hit.
+
 Scan the client text and list every hit. Each hit becomes a claim row you must rule on.
 
 | pattern | what to check |

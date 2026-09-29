@@ -357,7 +357,7 @@ For every `needs-reply` conversation, in order:
    - **Pages:** a claim about what a page shows needs a logged-in fetch of that page,
      or is labelled "code path only, no populated row rendered".
 
-4. **Draft with `ecat-client-email`.** Its voice rules and pre-send checklist bind
+4. **Draft with `ecat-client-email`.** Its claims standard (`CLAIMS_STANDARD.md`: what a sentence may claim), voice rules and pre-send checklist bind
    (plain text, no em-dashes, no slop, honest about limits, exact next action and
    owner, no past-tense action that hasn't happened, names from `users`, **"Best,
    Kylor"**).

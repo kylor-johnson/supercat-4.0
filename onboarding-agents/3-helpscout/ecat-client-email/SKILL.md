@@ -54,27 +54,19 @@ Always include: **download the current file from FTP `/data` before editing.**
 
 ## Pre-send checklist
 
-This checklist is the one home of the copy-truth rules; `ecat-support-triage` and
-`ecat-correspondence` point here rather than restating them.
+The copy-truth rules (what a sentence may claim) live in `CLAIMS_STANDARD.md` next to
+this file; read it before writing the client text. This checklist holds the rest.
+`ecat-support-triage` and `ecat-correspondence` point here rather than restating them.
 
 ```
-- [ ] No past-tense action that hasn't happened ("uploaded", "fixed", "enabled", "I've passed that to product", "I've raised it"). Re-query anything claimed changed; old value → future tense ("I'll…") plus an Owner action
+- [ ] Every sentence in the client text passes `CLAIMS_STANDARD.md` (its § 5 checklist): scope, cause, past tense, labels, counts, visibility of examples, dates, placeholders, names
 - [ ] Anything I claimed "configured" is verified on the device (or Admin field, for price-level / group auth)
-- [ ] Every exclusive or comparative claim ("the only one", "the rest of your team", "all", "never") is backed by a count over the whole population, shown in VERIFY
-- [ ] Every example the client is told to try (an item, a customer, a login, a URL) is one the person trying it can actually see: find their login and group, then check every gate (trade-name and collection authorisation, the group's custom-field filters (`user_types.custom_field_filters`, `app/services/products/get_for_user_type.rb:46-58`), Hideable on that surface, `deleted`) and price authorisation
-- [ ] No release or date promised for a fix unless the fix commit is on the branch that ships in that build (check the release/* branch, not the ticket status)
-- [ ] No promise to edit a value the client's own import file controls (it comes back on their next upload); name the file and column they change instead, or say we change it and they must change their export too
-- [ ] Relative time words ("today", "yesterday", "this morning") match the send date in the client's time zone; otherwise write the date
 - [ ] Named record and import-error record are the same code, or the email treats them as two problems
 - [ ] Draft has no truncated/garbled sentences and no duplicated paragraphs
-- [ ] No placeholder in the client text (`[N]`, `<name>`, `TBD`, `XX`); a value you can't fill means the sentence comes out, and the lookup goes in Owner actions
 - [ ] Stated UI limits honestly (grid item code, etc.)
 - [ ] /images vs /option_images vs /data stated where relevant
 - [ ] Clear next action + who does it
 - [ ] Internal-only context (China CDN, support tickets, health scores, `*.html.erb` paths) NOT in client copy
-- [ ] Every person named in the copy checked against `users.first_name` / `last_name`, never inferred from a username; a first name shared by a SuperCat person and a client contact is written in full
-- [ ] Every menu path, button, radio or field label is quoted from the screen that person sees: Admin Console modern vs classic per their `org_users.ui_preference` (`ui_switchable.rb:35-48`; modern sidebar "Settings & Tools" in `app/components/sc/sidebar_component.rb`, classic "Tools" in `layouts/_navigation.html.erb`), eOL from `app/views/ecat/`, iPad at their build. Never a paraphrase
-- [ ] Every "shows" or "displays" claim names the surface: Admin Console page, Admin CSV export, eOL order page, eOL invoice page, Orders/Invoices list, or iPad
 - [ ] Anyone the draft invites, merges or resets is looked up in `users` across all orgs by email, domain and name first; use an existing login, and put any spelling mismatch with the client's address in the reply
 - [ ] Every commitment lifted from a meeting summary checked against live state before it is written as done
 - [ ] Owner actions section present (below)

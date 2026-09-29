@@ -20,7 +20,7 @@ Inputs you are given: a ticket folder `runs/replay/<TICKET>/` and an output file
 
 ## Read first
 
-`/Users/kylorjohnson/repos/supercat-4.0/CLAUDE.md`; then in `/Users/kylorjohnson/repos/supercat-4.0/onboarding-agents/3-helpscout/`: `ecat-correspondence/SKILL.md` (§ 4-0, § 6, § 7 with step 0, the VERIFY table and the two copy rules), `ecat-support-triage/SKILL.md`, `ecat-client-email/SKILL.md`. Route to domain skills under `~/.claude/skills/ecat-*` as triage directs. Client folders: `~/repos/ecat-onboarding-workspace/02_Implementation/` (files modified after T unavailable). Org registry: `organizations` (column `shortname`); some domains span several orgs, attribute from the thread.
+`/Users/kylorjohnson/repos/supercat-4.0/CLAUDE.md`; then in `/Users/kylorjohnson/repos/supercat-4.0/onboarding-agents/3-helpscout/`: `ecat-correspondence/SKILL.md` (§ 4-0, § 6, § 7 with step 0, the VERIFY table and the two copy rules), `ecat-support-triage/SKILL.md`, `ecat-client-email/SKILL.md` and `ecat-client-email/CLAIMS_STANDARD.md` (read it before writing the client text; it is what the verifiers check). Route to domain skills under `~/.claude/skills/ecat-*` as triage directs. Client folders: `~/repos/ecat-onboarding-workspace/02_Implementation/` (files modified after T unavailable). Org registry: `organizations` (column `shortname`); some domains span several orgs, attribute from the thread.
 
 ## How this brief and the skills fit
 
