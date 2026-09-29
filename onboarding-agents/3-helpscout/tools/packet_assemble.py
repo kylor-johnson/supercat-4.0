@@ -46,6 +46,10 @@ def check_sections(d, T):
             errs += [f"calendar event {x}" for x in after_t(json.dumps(ev.get("start", ev)), T)]
         w = cal.get("window") or []
         if len(w) == 2: errs += [f"calendar window end {x}" for x in after_t(str(w[1]), T)]
+    fo = d / "folder.md"
+    if fo.exists():
+        # Post-T files are listed as a count only: their names carry later dates and topics.
+        errs += [f"folder.md {x}" for x in after_t(fo.read_text(), T)]
     f = d / "fleet.md"
     if f.exists():
         errs += [f"fleet.md {x}" for x in after_t(f.read_text(), T)]

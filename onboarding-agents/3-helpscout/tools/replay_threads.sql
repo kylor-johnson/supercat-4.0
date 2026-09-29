@@ -20,7 +20,10 @@ dd AS (
       -- client's conversations: a client who re-sends an ask on a new ticket keeps both.
       PARTITION BY REGEXP_REPLACE(LOWER(ticket_subject), r'^\s*((re|fw|fwd)\s*:\s*)+', ''),
                    LOWER(thread_author_email), LEFT(LOWER(REGEXP_REPLACE(thread_body, r'\s+', ' ')), 200)
-      ORDER BY thread_created_at, conversation_id) rn
+      -- A twin capture (same email in both inboxes) keeps THIS ticket's copy, not the lower
+      -- conversation_id; otherwise the T message leaves the "← THIS TICKET" section
+      -- (measured: 8 of 20 packets in one batch).
+      ORDER BY IF(conversation_id = @conv, 0, 1), thread_created_at, conversation_id) rn
     FROM all_threads) WHERE rn = 1
 )
 SELECT conversation_id, ticket_number, ticket_subject, mailbox_id, assignee_id, assignee_email, tags,

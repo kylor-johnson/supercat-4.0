@@ -40,16 +40,21 @@ the 30 days before `T`:
   `created_after = T - 14d`; keep only recordings whose date `<= T`. Summary only;
   transcript when a commitment goes into copy.
 - Google Calendar: `list_events` for `[T - 7d, T]`; keep events with an attendee on
-  the client's domains. An event with no matching Fathom recording is flagged
-  `unrecorded-meeting`.
+  the client's domains. For each event, run Fathom `list_meetings` for that date and
+  match on invitee emails or the client's domain, **not the title**. Only an event with
+  no such match is flagged `unrecorded-meeting`; a matched recording goes into
+  meetings.md. Measured: a title-only match flagged a recorded call as unrecorded, and
+  the draft asked the owner for notes that were already on record.
 
 Calendar must be pre-fetched as JSON (`{"window": [T-7d, T], "events": [...]}`); 35 of the first 50 packets said "not pre-fetched" and left the cut to the drafter. The assembler now prints a BUILD WARNING when it is not JSON.
 
 ## 3. Client folder
 
-`~/repos/ecat-onboarding-workspace/02_Implementation/<Client>/` as it is now. The
-packet notes which files postdate `T` (by mtime); the agent treats those as
-unavailable.
+`~/repos/ecat-onboarding-workspace/02_Implementation/<Client>/` as it is now. List only
+files whose mtime is at or before T; files that postdate T appear as a **count only**
+("4 files modified after T, withheld"), never by name, since names carry later dates and
+topics. Put the check date in `scope.json` `basis`, not in `folder.md`: the assembler
+refuses any date after T in `folder.md`.
 
 ## 4. Live state (Postgres, read-only)
 
