@@ -45,7 +45,7 @@ Final message back: category, a two-sentence diagnosis, the three most important
 
 The session that launched you runs `ecat-correspondence` § 6 step 6 for you: after you finish, a **separate** verifier agent runs `tools/VERIFY_PASS_BRIEF.md` on your file and appends `## Verify pass 1`. If it is FAILED, you get the file back with one instruction: revise. Then:
 
-- fix each false, unsupported or unverifiable-at-T row with evidence, delete the sentence, or turn it into an owner action. Don't argue with a row in the copy; if you think the verifier is wrong, say why in one line under the table, with the evidence;
+- fix each false, unsupported or NOT CHECKED row with evidence (unverifiable-at-T rows are caveats, not failures; leave them unless you can prove them from dated evidence), delete the sentence, or turn it into an owner action. Don't argue with a row in the copy; if you think the verifier is wrong, say why in one line under the table, with the evidence;
 - rewrite `## Draft` in place and add `## Revision 1` listing each row and what you did;
 - the launcher runs pass 2 with a new verifier. After two rounds, a draft still FAILED gets `VERIFY FAILED` in its header.
 

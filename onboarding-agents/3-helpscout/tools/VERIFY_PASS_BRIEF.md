@@ -43,7 +43,7 @@ Scan the client text and list every hit. Each hit becomes a claim row you must r
 | past-tense action by us: I've / we've sent, attached, passed, raised, enabled, fixed, updated, uploaded, changed, logged | the thing exists now (the attachment, the ticket, the changed value re-queried) |
 | a cause stated as likely: most likely, probably, looks like, seems to be, appears | the evidence reaches the cause; if the error text is unseen, the sentence fails |
 | a promise about a release or time: next update, this week, by Friday, shortly | the fix commit is on the branch that ships in that build; the date has an owner |
-| something the client is told to try: an item, customer, login, URL, menu path, button label | it exists and the person trying it can see it (their user group's trade-name / collection / price authorisation); menu and button labels match the code at their build |
+| something the client is told to try: an item, customer, login, URL, menu path, button label | it exists and the person trying it can see it: find *their* login and group first, then check every gate (trade-name and collection authorisation, the group's custom-field filters (`user_types.custom_field_filters`, `app/services/products/get_for_user_type.rb:46-58`), Hideable on that surface, `deleted`); menu and button labels match the code at their build |
 | "resolved", "working now", "fixed" | evidence from before the report shows it was broken, and evidence after shows it works |
 | "never", "no record", "didn't reach" | the query covers every table and message format that could hold it |
 | a number | re-count it with your own query |
@@ -89,10 +89,11 @@ Lint hits: <count>
 Client text: <T> true · <F> false · <U> unsupported · <V> unverifiable-at-T · <X> not checked
 Category: <right / wrong: why>
 Diagnosis doubt: <none | one line>
-Result: CLEAN | FAILED (<list the row numbers that are false, unsupported, unverifiable-at-T or not checked>)
+Result: CLEAN | FAILED (<row numbers that are false, unsupported or not checked>)
+At-T caveats: <row numbers, replay only, or none>
 ```
 
-CLEAN means every client-text row is true. Anything else is FAILED.
+CLEAN means no client-text row is false, unsupported or NOT CHECKED. Unverifiable-at-T rows (replay only) don't fail the pass. They are an artefact of reading live data after T, not a draft error, so list them after the Result line as `At-T caveats: <rows>`; the grader rules on them. A request or offer ("tell me if…", "I'll look at that login") is not a fact: rule only on any fact inside it (a threshold with no source is unsupported).
 
 Write nothing anywhere else. Final message back: the Result line and the worst row, in
 under 60 words.

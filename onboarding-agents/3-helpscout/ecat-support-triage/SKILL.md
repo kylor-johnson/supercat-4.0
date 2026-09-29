@@ -133,8 +133,10 @@ state usually disambiguates.
   via `ecat_products_controller.rb:328`; the iPad drops them unless the rep turns on
   "Show <hidden-products name>" in the app's Settings, a per-device switch that is off
   by default, `ProductQuery.m:601-603,1387-1389,1484-1486`, `DataStore.m:1365-1372`,
-  `SettingsPopoverController.m:274-280`, sarreid_ios f2e9877); and the group's
-  trade-name / collection authorisation. Only when the gates don't
+  `SettingsPopoverController.m:274-280`, sarreid_ios f2e9877); the group's
+  trade-name / collection authorisation; and the group's custom-field filters
+  (`user_types.custom_field_filters`, `app/services/products/get_for_user_type.rb:46-58`),
+  which can hide whole value ranges of a field from one group. Only when the gates don't
   account for the gap do stale device data, sync or a cache become the explanation.
   Measured: a filter showed 1 of 25 because 24 were Hideable = Y; two replies blamed
   sync first, and the client refreshed and still saw one.

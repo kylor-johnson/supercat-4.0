@@ -61,7 +61,7 @@ This checklist is the one home of the copy-truth rules; `ecat-support-triage` an
 - [ ] No past-tense action that hasn't happened ("uploaded", "fixed", "enabled", "I've passed that to product", "I've raised it"). Re-query anything claimed changed; old value → future tense ("I'll…") plus an Owner action
 - [ ] Anything I claimed "configured" is verified on the device (or Admin field, for price-level / group auth)
 - [ ] Every exclusive or comparative claim ("the only one", "the rest of your team", "all", "never") is backed by a count over the whole population, shown in VERIFY
-- [ ] Every example the client is told to try (an item, a customer, a login, a URL) is one the person trying it can actually see: check it against their user group's trade-name / collection / price authorisations
+- [ ] Every example the client is told to try (an item, a customer, a login, a URL) is one the person trying it can actually see: find their login and group, then check every gate (trade-name and collection authorisation, the group's custom-field filters (`user_types.custom_field_filters`, `app/services/products/get_for_user_type.rb:46-58`), Hideable on that surface, `deleted`) and price authorisation
 - [ ] No release or date promised for a fix unless the fix commit is on the branch that ships in that build (check the release/* branch, not the ticket status)
 - [ ] No promise to edit a value the client's own import file controls (it comes back on their next upload); name the file and column they change instead, or say we change it and they must change their export too
 - [ ] Relative time words ("today", "yesterday", "this morning") match the send date in the client's time zone; otherwise write the date

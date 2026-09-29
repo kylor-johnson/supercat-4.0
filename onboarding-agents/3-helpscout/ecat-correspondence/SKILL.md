@@ -369,7 +369,8 @@ For every `needs-reply` conversation, in order:
    and the sources. It lints the client text and rules on every factual sentence.
    Then:
    - fix each false or unsupported row with evidence, or delete the sentence, or turn
-     it into an owner action; take unverifiable-at-T sentences out of the copy;
+     it into an owner action (replay: unverifiable-at-T rows are caveats for the
+     grader, not failures, and stay in the copy);
    - run a **second** verify pass (a new sub-agent) on the revision;
    - at most two revise rounds. If the second pass is still FAILED, the header reads
      **`VERIFY FAILED`** with the open rows, and the draft goes to the owner as such.
