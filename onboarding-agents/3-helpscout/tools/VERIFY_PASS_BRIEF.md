@@ -125,7 +125,9 @@ Then check the header:
 Do not re-diagnose the ticket. If you think the diagnosis is wrong, one line under
 `Diagnosis doubt:` with the evidence, and stop there.
 
-## Output: append to the draft file, exactly
+## Output, exactly
+
+Write it to the file your task names (`VERIFY_<round><a|b>.md` next to the draft when two verifiers run in the same round, so neither overwrites the other; the launcher then appends both to the draft file in order). If your task names no file, append to the draft file.
 
 ```
 ## Verify pass <n> (<ISO timestamp>, verifier: separate session)

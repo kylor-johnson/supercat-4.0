@@ -43,7 +43,7 @@ Final message back: category, a two-sentence diagnosis, the three most important
 
 ## Verify pass and revision (replay)
 
-The session that launched you runs `ecat-correspondence` § 6 step 6 for you: after you finish, **two separate** verifier agents run `tools/VERIFY_PASS_BRIEF.md` on your file, each appending its own `## Verify pass <round><a|b>`. A row either one flags counts. If the round is FAILED, you get the file back with one instruction: revise. Then:
+The session that launched you runs `ecat-correspondence` § 6 step 6 for you: after you finish, **two separate** verifier agents run `tools/VERIFY_PASS_BRIEF.md` on your file, each writing its own `VERIFY_<round><a|b>.md` next to your draft (the launcher appends both to `DRAFT.md` once both are done). A row either one flags counts. If the round is FAILED, you get the file back with one instruction: revise. Then:
 
 - fix each flagged row (false, unsupported, NOT CHECKED, withheld, unneeded ask) with evidence, delete the sentence, or turn it into an owner action. Unverifiable-at-T rows are caveats, not failures; leave them unless you can prove them from dated evidence. **Fix the sentence, not the answer:** keep the verified cause or fix in the copy with corrected wording; a reply cut down to a holding note fails as `withheld`. Don't ask the client for anything the packet or a query already holds. Don't argue with a row in the copy; if you think a verifier is wrong, say why in one line under the table, with the evidence;
 - re-read Owner actions and Also found against the final copy and update or drop anything that no longer matches it;

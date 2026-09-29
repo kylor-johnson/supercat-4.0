@@ -366,8 +366,10 @@ For every `needs-reply` conversation, in order:
 6. **Verify pass, by two separate agents. Mandatory, every draft, live and replay.**
    Each round, launch **two** sub-agents, each with a fresh context, each on
    `tools/VERIFY_PASS_BRIEF.md` and the draft file path, neither seeing the other's
-   output. They never see your reasoning, only the draft, the packet (replay) and the
-   sources. A row either one flags counts. Then:
+   output, each writing its own file (`VERIFY_<round><a|b>.md`) so neither overwrites
+   the other; append both to the draft once both finish. They never see your
+   reasoning, only the draft, the packet (replay) and the sources. A row either one
+   flags counts. Then:
    - fix each flagged row with evidence, or delete the sentence, or turn it into an
      owner action (replay: unverifiable-at-T rows are caveats for the grader, not
      failures, and stay in the copy). **Fix the sentence, not the answer:** a
