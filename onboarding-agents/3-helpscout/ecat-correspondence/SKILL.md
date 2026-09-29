@@ -236,7 +236,7 @@ state or state that is unambiguous and was actually read:
 - **and** the org is confidently attributed (§ 4)
 - **and** Postgres was available if any state is claimed
 - **and** every behaviour claim in the copy is cited to code or a KB article
-- **and** the last verify pass (§ 6 step 6) is CLEAN
+- **and** the last verify round (§ 6 step 6) is CLEAN from both verifiers
 - **and** the reply contains no commitment, no date, no price, no apology
 
 ### DRAFT-AND-PING
@@ -363,21 +363,27 @@ For every `needs-reply` conversation, in order:
    Kylor"**).
 5. **Owner actions.** The numbered steps the owner performs before the copy is true,
    per `ecat-client-email` § Owner actions.
-6. **Verify pass, by a separate agent. Mandatory, every draft, live and replay.**
-   Launch a sub-agent with a fresh context on `tools/VERIFY_PASS_BRIEF.md` and the
-   draft file path. It never sees your reasoning, only the draft, the packet (replay)
-   and the sources. It lints the client text and rules on every factual sentence.
-   Then:
-   - fix each false or unsupported row with evidence, or delete the sentence, or turn
-     it into an owner action (replay: unverifiable-at-T rows are caveats for the
-     grader, not failures, and stay in the copy);
-   - run a **second** verify pass (a new sub-agent) on the revision;
-   - at most two revise rounds. If the second pass is still FAILED, the header reads
-     **`VERIFY FAILED`** with the open rows, and the draft goes to the owner as such.
+6. **Verify pass, by two separate agents. Mandatory, every draft, live and replay.**
+   Each round, launch **two** sub-agents, each with a fresh context, each on
+   `tools/VERIFY_PASS_BRIEF.md` and the draft file path, neither seeing the other's
+   output. They never see your reasoning, only the draft, the packet (replay) and the
+   sources. A row either one flags counts. Then:
+   - fix each flagged row with evidence, or delete the sentence, or turn it into an
+     owner action (replay: unverifiable-at-T rows are caveats for the grader, not
+     failures, and stay in the copy). **Fix the sentence, not the answer:** a
+     verified cause or fix stays in the copy with its wording corrected. Cutting the
+     reply down to a holding note is itself a failure (`withheld`);
+   - re-read Owner actions and Also found against the final copy, and drop or update
+     any that no longer match it;
+   - run the next round with two new verifiers; at most three rounds. If the last
+     round is still FAILED, the header reads **`VERIFY FAILED`** with the open rows,
+     and the draft goes to the owner as such.
    Measured: 16 of 39 replay drafts had a false sentence in the client text while
    their diagnosis was right; separate checkers with this one job found them with the
-   same tools. You can't be your own verifier: the errors are the sentences you were
-   sure of.
+   same tools. With one verifier per round, held-out batches 7 and 8 still ended with
+   an error in about 45% of drafts, most of them after a CLEAN pass, and two
+   independent graders each found errors the other missed. You can't be your own
+   verifier: the errors are the sentences you were sure of.
 7. **Categorise** (§ 5) and record *which clause* decided it.
 8. **Record what it WOULD have sent** under the gate, whatever the category (the
    fortnight experiment, § 8).
@@ -496,7 +502,7 @@ SEND-SAFE calls is evidence; fewer than ~20 is not enough either way, so say so.
 - [ ] Calendar checked for unrecorded meetings; `[ITEMS]` block where one exists
 - [ ] `has-attachment` threads flagged; file-dependent answers say so; unseen screenshots answered per surface
 - [ ] VERIFY table on every draft, no blank rows
-- [ ] Verify pass run by a separate agent on every draft; final pass CLEAN, or the header says `VERIFY FAILED` with the open rows
+- [ ] Verify pass run by two separate agents per round on every draft; final round CLEAN from both, or the header says `VERIFY FAILED` with the open rows
 - [ ] Every quote dated and attributed; every count names its table; every judgement prefixed `Conclusion:`; no consequence stated as a measurement (`§F1`)
 - [ ] `ecat-client-email` pre-send checklist run on every draft; Owner actions present
 - [ ] Postgres unavailable → nothing marked SEND-SAFE

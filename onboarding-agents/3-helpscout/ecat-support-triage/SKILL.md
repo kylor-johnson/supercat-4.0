@@ -27,7 +27,11 @@ dangerous delete semantics in `ecat-ground-truth` are the most common root cause
                article; "none exists" is a finding. Before asking the client "which
                user / which surface", check eOL logins in audit_log_entries and
                orders.app_version / login_events for the client's domain in the hour
-               before the email.
+               before the email. An iPad sign-in writes its login_events row with
+               organization_id NULL (users_controller.rb:168-174); the org-scoped
+               row is the later sync check (api/modified_entities). Query by
+               user_id for sign-ins, or an org-scoped query reports the sync check
+               as the sign-in.
 5. DIAGNOSE  → route to the domain skill, confirm root cause against ground truth
 6. REPLY     → draft the response with ecat-client-email (draft only — never auto-send)
 7. LOG       → standalone use only: append a dated line to that client folder's
@@ -136,7 +140,9 @@ state usually disambiguates.
   `SettingsPopoverController.m:274-280`, sarreid_ios f2e9877); the group's
   trade-name / collection authorisation; and the group's custom-field filters
   (`user_types.custom_field_filters`, `app/services/products/get_for_user_type.rb:46-58`),
-  which can hide whole value ranges of a field from one group. Only when the gates don't
+  which can hide whole value ranges of a field from one group.; and on the iPad the org's
+  `product_synch_requires_photo`, which keeps products with no image out of sync
+  (`app/services/products/query_for_api.rb:30`). Only when the gates don't
   account for the gap do stale device data, sync or a cache become the explanation.
   Measured: a filter showed 1 of 25 because 24 were Hideable = Y; two replies blamed
   sync first, and the client refreshed and still saw one.

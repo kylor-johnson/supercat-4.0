@@ -43,11 +43,12 @@ Final message back: category, a two-sentence diagnosis, the three most important
 
 ## Verify pass and revision (replay)
 
-The session that launched you runs `ecat-correspondence` § 6 step 6 for you: after you finish, a **separate** verifier agent runs `tools/VERIFY_PASS_BRIEF.md` on your file and appends `## Verify pass 1`. If it is FAILED, you get the file back with one instruction: revise. Then:
+The session that launched you runs `ecat-correspondence` § 6 step 6 for you: after you finish, **two separate** verifier agents run `tools/VERIFY_PASS_BRIEF.md` on your file, each appending its own `## Verify pass <round><a|b>`. A row either one flags counts. If the round is FAILED, you get the file back with one instruction: revise. Then:
 
-- fix each false, unsupported or NOT CHECKED row with evidence (unverifiable-at-T rows are caveats, not failures; leave them unless you can prove them from dated evidence), delete the sentence, or turn it into an owner action. Don't argue with a row in the copy; if you think the verifier is wrong, say why in one line under the table, with the evidence;
-- rewrite `## Draft` in place and add `## Revision 1` listing each row and what you did;
-- the launcher runs pass 2 with a new verifier. After two rounds, a draft still FAILED gets `VERIFY FAILED` in its header.
+- fix each flagged row (false, unsupported, NOT CHECKED, withheld, unneeded ask) with evidence, delete the sentence, or turn it into an owner action. Unverifiable-at-T rows are caveats, not failures; leave them unless you can prove them from dated evidence. **Fix the sentence, not the answer:** keep the verified cause or fix in the copy with corrected wording; a reply cut down to a holding note fails as `withheld`. Don't ask the client for anything the packet or a query already holds. Don't argue with a row in the copy; if you think a verifier is wrong, say why in one line under the table, with the evidence;
+- re-read Owner actions and Also found against the final copy and update or drop anything that no longer matches it;
+- rewrite `## Draft` in place and add `## Revision <n>` listing each row and what you did;
+- the launcher runs the next round with two new verifiers, at most three rounds. A draft still FAILED after the third gets `VERIFY FAILED` in its header.
 
 You never run the verify pass on your own draft.
 
