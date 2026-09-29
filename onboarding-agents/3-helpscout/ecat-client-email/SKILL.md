@@ -73,6 +73,7 @@ This checklist is the one home of the copy-truth rules; `ecat-support-triage` an
 - [ ] Clear next action + who does it
 - [ ] Internal-only context (China CDN, support tickets, health scores, `*.html.erb` paths) NOT in client copy
 - [ ] Every person named in the copy checked against `users.first_name` / `last_name`, never inferred from a username; a first name shared by a SuperCat person and a client contact is written in full
+- [ ] Every menu path, button, radio or field label is quoted from the screen that person sees: Admin Console modern vs classic per their `org_users.ui_preference` (`ui_switchable.rb:35-48`; modern sidebar "Settings & Tools" in `app/components/sc/sidebar_component.rb`, classic "Tools" in `layouts/_navigation.html.erb`), eOL from `app/views/ecat/`, iPad at their build. Never a paraphrase
 - [ ] Every "shows" or "displays" claim names the surface: Admin Console page, Admin CSV export, eOL order page, eOL invoice page, Orders/Invoices list, or iPad
 - [ ] Anyone the draft invites, merges or resets is looked up in `users` across all orgs by email, domain and name first; use an existing login, and put any spelling mismatch with the client's address in the reply
 - [ ] Every commitment lifted from a meeting summary checked against live state before it is written as done
