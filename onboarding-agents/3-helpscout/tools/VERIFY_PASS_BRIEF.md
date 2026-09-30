@@ -14,8 +14,13 @@ contradicted. The checks below marked (b7) close those. Batch 8, with those chec
 place: still at least 8 of 18, and 5 of the 7 found by the grader had passed CLEAN.
 The misses were rationalised passes ("true once the owner action is done", "restates
 the thread", "a concession is opinion"), so the rulings below marked (b8) are not
-optional. Two separate verifiers now run each round (`ecat-correspondence` § 6 step 6):
-graders who each missed errors the other found is the measured reason.
+optional. A mechanical lint (`tools/lint_client_text.py`) now runs before you and its
+hits are in `LINT_<round>.md` next to the draft: rule on every one of them. **Scope: the
+client text only** (the `## Draft` block), plus any VERIFY row a copy sentence depends
+on. Don't audit the rest of the VERIFY table. The re-draft check found one error shape
+still passing: **a premise repeated from an earlier message** ("the customer data from
+the files we've imported", "every order, open and complete"). Re-check each such
+premise against the data yourself (the (rd) row below).
 
 ## Inputs
 
@@ -54,6 +59,7 @@ Scan the client text and list every hit. Each hit becomes a claim row you must r
 | a cause joined by because / so / which is why / that's why / since (b8) | rule on the evidence for the *inference*, not for the effect. A log that shows non-matching headers does not show they were "shortened" |
 | a concession or apology: fair point, you're right, that's on me, we should have, sorry that (b8) | it states what we did or failed to do; it needs the thread or the meeting transcript that shows it. Measured: "fair point" conceded something the call transcript shows was covered |
 | a sentence about the run's own limits: I can't open / I can't see / I don't have access (b8) | never client copy: it is false in a live run or a replay artefact. It becomes an owner action |
+| a premise carried from an earlier message or our own earlier reply: what was loaded, imported, set up, fixed, what a file holds (rd) | re-query it yourself at T. "We imported your customers" needs the import event and the row count; "the file has every order" needs the file's own rows. Our earlier reply saying so is not evidence |
 | absence: doesn't store / doesn't exist / isn't finished / not in / didn't come up / left out of (b7) | the draft (or you) searched every place it could be: JSON `properties` / `additional_fields` on the model, importer aliases and strategies, every code path that fills the join, an existing partial route. If only the UI, one table's columns or Jira was searched, the sentence must be narrowed to what was searched ("isn't in the download file"), or it is unsupported |
 | past-tense action by us: I've / we've sent, attached, passed, raised, enabled, fixed, updated, uploaded, changed, logged | the thing exists now (the attachment, the ticket, the changed value re-queried) |
 | a cause stated as likely: most likely, probably, looks like, seems to be, appears | the evidence reaches the cause; if the error text is unseen, the sentence fails |
@@ -127,7 +133,7 @@ Do not re-diagnose the ticket. If you think the diagnosis is wrong, one line und
 
 ## Output, exactly
 
-Write it to the file your task names (`VERIFY_<round><a|b>.md` next to the draft when two verifiers run in the same round, so neither overwrites the other; the launcher then appends both to the draft file in order). If your task names no file, append to the draft file.
+Write it to the file your task names (`VERIFY_<round>.md` next to the draft; the launcher appends it to the draft). If your task names no file, append to the draft file.
 
 ```
 ## Verify pass <n> (<ISO timestamp>, verifier: separate session)

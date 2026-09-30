@@ -45,6 +45,7 @@ Each row is a sentence shape that passed review and was wrong.
 | "I've attached …" before the file exists | attach it first, or "I'll send … by [owner action]" |
 | "fair point" / "you're right" on something the record contradicts | state what happened, with its date, then the next step |
 | "once the [X] correction is finished" (our own earlier framing, unchecked) | check the framing at T first; if it holds, cite it; if not, drop it |
+| "the customer data from the files we've imported" (an earlier message said so) | query the import at T: if the rows were rejected, say what the log shows |
 | "Tools > Admin Reports" for a user on the modern menu | the label from their screen: "Settings & Tools → Admin Reports → File Import Status" |
 | "set it to your price, retail, or no price" | the words on the page: "My Account → Select price level to display: My Cost / [retail level name] / Custom / Hide prices" |
 | "we need [KB-listed fields]" | "the importer requires [code-enforced fields]; the KB also lists [others]" |
@@ -61,7 +62,9 @@ Every factual sentence in an email is a chance to be wrong, and the longest draf
 carried the most errors. So:
 
 - **The client text carries only the facts the client needs in order to act**, plus
-  the one or two facts that answer their question. Diagnostic detail, counts that
+  the one or two facts that answer their question. Aim for under 200 words unless the
+  client asked several numbered questions; each sentence past that is a sentence to
+  justify. Diagnostic detail, counts that
   don't change what they do, and anything you're less than sure of go in VERIFY or
   Also found.
 - **The answer stays.** A verified cause or fix that answers the question is in the

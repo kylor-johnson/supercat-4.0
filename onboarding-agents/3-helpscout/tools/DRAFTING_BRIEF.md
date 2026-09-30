@@ -43,12 +43,12 @@ Final message back: category, a two-sentence diagnosis, the three most important
 
 ## Verify pass and revision (replay)
 
-The session that launched you runs `ecat-correspondence` § 6 step 6 for you: after you finish, **two separate** verifier agents run `tools/VERIFY_PASS_BRIEF.md` on your file, each writing its own `VERIFY_<round><a|b>.md` next to your draft (the launcher appends both to `DRAFT.md` once both are done). A row either one flags counts. If the round is FAILED, you get the file back with one instruction: revise. Then:
+The session that launched you runs `ecat-correspondence` § 6 step 6 for you: after you finish, it runs `tools/lint_client_text.py` on your draft and then **one separate** verifier agent (sonnet) on `tools/VERIFY_PASS_BRIEF.md`, which writes `VERIFY_<round>.md` next to your draft; the launcher appends it to `DRAFT.md`. If the round is FAILED, you get the file back with one instruction: revise. Then:
 
 - fix each flagged row (false, unsupported, NOT CHECKED, withheld, unneeded ask) with evidence, delete the sentence, or turn it into an owner action. Unverifiable-at-T rows are caveats, not failures; leave them unless you can prove them from dated evidence. **Fix the sentence, not the answer:** keep the verified cause or fix in the copy with corrected wording; a reply cut down to a holding note fails as `withheld`. Don't ask the client for anything the packet or a query already holds. Don't argue with a row in the copy; if you think a verifier is wrong, say why in one line under the table, with the evidence;
 - re-read Owner actions and Also found against the final copy and update or drop anything that no longer matches it;
 - rewrite `## Draft` in place and add `## Revision <n>` listing each row and what you did;
-- the launcher runs the next round with two new verifiers, at most three rounds. A draft still FAILED after the third gets `VERIFY FAILED` in its header.
+- the launcher runs round 2 with a new verifier; there are at most two rounds. A draft still FAILED after round 2 gets `VERIFY FAILED` in its header.
 
 You never run the verify pass on your own draft.
 
