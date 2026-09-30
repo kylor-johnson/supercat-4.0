@@ -2,6 +2,17 @@
 
 For a Cursor agent. Read the whole file before touching anything. Written 2026-09-30.
 
+## STOP: read this before touching any repo
+
+**`~/repos/agent-factory` is SuperCat's shared company repo** (`SuperCatSolutionsLLC/agent-factory`). Other people's live agents, schedules and docs are in it. On 2026-09-30 an earlier version of this handoff led an agent to write the port straight onto its `main`, including edits to `AGENTS.md`, `README.md` and `docs/helpscout_warehouse.md`. That was wrong, and it was undone.
+
+1. **Phase 1 is a plan only. Write nothing in agent-factory.** Read what you need there, read-only. Put your plan in `~/repos/supercat-4.0/onboarding-agents/3-helpscout/PORT_PLAN.md`: the file list you'd create, the shared files you'd touch and why, the Windmill resources needed, and the blockers below with evidence. Then **stop and ask the owner**.
+2. **Only after the owner says yes, in writing, in this conversation:** work in a separate git worktree on a new branch, named per agent-factory's own `AGENTS.md` convention (confirm the prefix with the owner). Never on `main`; never in the owner's main checkout.
+3. **Never push, never open a PR, never run `wmill sync` or any deploy** without a separate, explicit yes for that step.
+4. **Don't edit shared files** (`AGENTS.md`, `README.md`, `docs/`, `standards/`, `platform/`, `windmill/`) unless the owner approves that specific edit. Keep the agent self-contained under its own folder.
+5. When unsure whether something touches the company repo, it does: ask first.
+
+
 ## The goal
 
 Make the HelpScout drafting agent ("agent 3": `ecat-correspondence` + `ecat-support-triage` + `ecat-client-email`) ready to **test and deploy as a factory agent in `~/repos/agent-factory`, running on Windmill**, drafts only. "Ready" means:
@@ -54,7 +65,7 @@ Batches 7 and 8 are held-out replays with outcome grading.
 
 ## Blockers to resolve first (each one is a real gap, verified 2026-09-30)
 
-1. **HelpScout data source mismatch.** The agent reads BigQuery `onboarding_assessment.helpscout_tickets` (Hevo), which has `assignee_id`. Assignment history comes from lineitems in `helpscout.conversation_threads` (see `replay_scope_at_t.sql`). Windmill's `bigquery_query` defaults to `WELD_RAW`, and `agent-factory/docs/helpscout_warehouse.md` says `assignee_id` is **always NULL** there. The scope rule (§ 3a) depends on the assignee. Decide which source the Windmill agent reads, and prove scope works on it.
+1. **HelpScout data source mismatch.** The agent reads BigQuery `onboarding_assessment.helpscout_tickets` (Hevo), which has `assignee_id`. Assignment history comes from lineitems in `helpscout.conversation_threads` (see `replay_scope_at_t.sql`). Windmill's `bigquery_query` defaults to `WELD_RAW`, and `agent-factory/docs/helpscout_warehouse.md` says `assignee_id` is **always NULL** there. The scope rule (§ 3a) depends on the assignee. Decide which source the Windmill agent reads, and prove scope works on it. (A read-only check on 2026-09-30 found the opposite: `WELD_RAW.helpscout__conversation` has `assignee_id` filled on 5,789 of 5,790 rows, with unassigned tickets as id 1. Hevo stores those as NULL. Treat both as unassigned, and re-verify before relying on either.) Fathom's warehouse table was stale (latest meeting 2026-02-04).
 2. **Postgres from Windmill.** Every draft depends on live read-only Postgres (the org's state, `import_events`, `audit_log_entries`, `login_events`). In Claude Code that's the `supercat-postgres-vpn` MCP behind the VPN. Find or provision a read-only Postgres path for Windmill; check `docs/DATA_SOURCE_REFERENCE.md` and `platform/`. No credential in a script, and SELECT only.
 3. **Code reads.** The agent cites supercat_server and sarreid_ios file:line. Windmill needs clones (supercat_server master; sarreid_ios's newest `release/*` branch, full history), or a read path like `code_index`. Cite the SHA in every claim.
 4. **Fathom, Google Calendar, Jira (read-only), KB fetch.** The consolidation step needs them. Map each to a Windmill resource or mark the step degraded, loudly, in every draft header.
@@ -62,7 +73,7 @@ Batches 7 and 8 are held-out replays with outcome grading.
 6. **Execution constraint.** agent-factory runs tests, gates and deploys in Windmill, **never GitHub Actions** (`docs/WINDMILL_ONLY.md`).
 7. **A live client secret sits in HelpScout and BigQuery:** an Azure client secret that a client pasted into an email on 2026-06-10 15:35 UTC. Packets must redact it, and the owner or client should rotate it.
 
-## Steps
+## Steps (step 2 onward only after the owner approves the plan; see STOP above)
 
 1. **Read** agent-factory's `AGENTS.md`, `README.md`, `standards/adr/001-craft-placement-and-compile.md`, `standards/topologies/` and `standards/evals/gold_sets.md`. Pick the topology with the owner (likely `operator_skill` or a human-approve scheduled job) and add the agent to the § 3 table.
 2. **Port the agent:** `agents/helpscout_correspondence/`.
