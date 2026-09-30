@@ -1,3 +1,5 @@
+> **Superseded as the entry point by [`HANDOFF_windmill_build.md`](HANDOFF_windmill_build.md) (2026-09-30).** Start there. This file is kept only for its evidence summary and blocker detail.
+
 # Handoff: take the HelpScout drafting agent into agent-factory and Windmill
 
 For a Cursor agent. Read the whole file before touching anything. Written 2026-09-30.
