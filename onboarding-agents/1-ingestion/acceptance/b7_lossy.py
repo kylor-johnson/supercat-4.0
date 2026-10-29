@@ -81,12 +81,15 @@ SHORTNAME_RE = re.compile(r'^[a-z0-9_-]{1,32}$')
 #   pair   - filled if EITHER sibling carries a value. products.images is empty
 #            on all 915 libco rows while images_json holds the data.
 # ---------------------------------------------------------------------------
-#   taxo   - the live column stores an internal taxonomy CODE while the FILE
-#            carries the taxonomy NAME. products.trade_name_code holds `TN2`;
-#            products.csv holds `adorne`. Compared raw they disagree on 100%
-#            of rows -- on a file byte-identical to the one that produced the
-#            live state. Resolved through taxonomies(organization_id, code,
-#            type) instead. Spelled `column@Type`.
+#   taxo   - the live column stores a taxonomy CODE; the FILE carries either
+#            that code or the taxonomy NAME, depending on the org's import
+#            method. A FurnishWeb-method org's importer auto-creates codes, so
+#            leg's file says `adorne` where products.trade_name_code holds
+#            `TN2`. A standard org's file carries the code itself: krb's file
+#            says `KAL` and products.trade_name_code holds `KAL` (verified live
+#            2026-10-29). Live therefore returns BOTH, `code<SEP>name`, and the
+#            file value agrees if it matches either (values_agree). Spelled
+#            `column@Type`.
 TEXT, NUM, JSONISH, PAIR, TAXO = 'text', 'num', 'jsonish', 'pair', 'taxo'
 
 # The importer AUTO-CREATES taxonomy from whatever string the file carries, and
@@ -100,6 +103,11 @@ TEXT, NUM, JSONISH, PAIR, TAXO = 'text', 'num', 'jsonish', 'pair', 'taxo'
 TAXONOMY_TYPES = {'trade_name_code': 'TradeName',
                   'collection_code': 'Collection',
                   'category_code': 'Category'}
+
+# Joins a taxonomy code to its resolved name in a stage-2 value. Printable, so
+# it survives the --from-results path (MCP output pasted back as JSON), and not
+# found in any code or name.
+TAXO_SEP = '|||'
 
 CUSTOMERS_BILLTO = {
     'BillToName':         ('name', TEXT),
@@ -145,8 +153,8 @@ PRODUCTS = {
     'PlistDesc':           ('plist_description', TEXT),
     'MaterialsDesc':       ('materials_description', TEXT),
     'Features':            ('features', TEXT),
-    'CategoryCode':        ('category_code', TEXT),
-    'CollectionCode':      ('collection_code', TEXT),
+    'CategoryCode':        ('category_code@Category', TAXO),
+    'CollectionCode':      ('collection_code@Collection', TAXO),
     'TradeNameCode':       ('trade_name_code@TradeName', TAXO),
     'ProductStory':        ('story', TEXT),
     'Story':               ('story', TEXT),
@@ -307,19 +315,20 @@ def value_expr(col, kind):
         return ("COALESCE(NULLIF(btrim(COALESCE(%s,'')),''), btrim(COALESCE(%s,'')))"
                 % (_t(a), _t(b)))
     if kind == TAXO:
-        # Resolve the stored code to the NAME the file carries. Qualified with
-        # `t.` because stage 2 aliases the product table `t` and an
-        # unqualified organization_id inside this subquery would bind to
-        # taxonomies instead -- which would silently compare every product
-        # against every org's taxonomy and return whatever came first.
-        # Falls back to the raw code when nothing resolves, so an orphaned
-        # code shows up as a disagreement rather than as a blank.
+        # Return the stored CODE and its resolved NAME, joined by TAXO_SEP, so
+        # the file agrees whether it carries the code (standard orgs) or the
+        # name (FurnishWeb-method orgs). Qualified with `t.` because stage 2
+        # aliases the product table `t` and an unqualified organization_id
+        # inside this subquery would bind to taxonomies instead -- which would
+        # silently compare every product against every org's taxonomy and
+        # return whatever came first. An orphaned code returns the code with
+        # an empty name, so it still agrees only with a file carrying that code.
         column, taxo_type = col.split('@')
-        return ("COALESCE((SELECT btrim(tx.name) FROM taxonomies tx "
+        return ("btrim(COALESCE(t.%s::text,'')) || '|||' || "
+                "COALESCE((SELECT btrim(tx.name) FROM taxonomies tx "
                 "WHERE tx.organization_id = t.organization_id "
-                "AND tx.code = t.%s AND tx.type = '%s' LIMIT 1), "
-                "btrim(COALESCE(t.%s::text,'')))"
-                % (column, taxo_type, column))
+                "AND tx.code = t.%s AND tx.type = '%s' LIMIT 1), '')"
+                % (column, column, taxo_type))
     return "btrim(COALESCE(%s::text,''))" % col
 
 
@@ -502,6 +511,19 @@ def norm(v, kind=TEXT):
     return re.sub(r'\s+', ' ', s).strip().casefold()
 
 
+def values_agree(file_value, live_value, kind=TEXT):
+    """True when a file value and a live value state the same fact.
+
+    TAXO live values are `code<TAXO_SEP>name`; the file agrees with either
+    part. Every other kind compares the normalised strings.
+    """
+    fv = norm(file_value, kind)
+    if kind == TAXO:
+        parts = {norm(p, kind) for p in str(live_value or '').split(TAXO_SEP)}
+        return fv in (parts - {''})
+    return fv == norm(live_value, kind)
+
+
 def report(meta, results, drop_points, disagree_pct):
     """results = {"density": {table: {...}}, "spotcheck": [rows]}"""
     out, blocking, warn, notchecked = [], [], [], []
@@ -583,14 +605,14 @@ def report(meta, results, drop_points, disagree_pct):
                 if a not in lrow or k not in fileby:
                     continue
                 fv, lvv = norm(fileby[k].get(h), kind), norm(lrow.get(a), kind)
-                if fv and lvv:
+                if fv and lvv.replace(TAXO_SEP, ''):
                     both += 1
-                    if fv != lvv:
+                    if not values_agree(fileby[k].get(h), lrow.get(a), kind):
                         diff += 1
                         if len(ex) < 3:
                             ex.append('%s: file=%r live=%r'
                                       % (k, (fileby[k].get(h) or '')[:28],
-                                         (lrow.get(a) or '')[:28]))
+                                         (lrow.get(a) or '').replace(TAXO_SEP, ' / ')[:28]))
             if both:
                 compared_any = True
                 pct = 100.0 * diff / both

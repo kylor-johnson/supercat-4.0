@@ -15,6 +15,7 @@ supercat-postgres-vpn MCP, never connects and never writes.
 | B4 | feeds overwriting | **SHIPPED** — `import_log.py --mode feed_pairs` + `a4_b4.py` (alternation test added 2026-09-04) |
 | B5 | inventory config vs data | **SHIPPED** — `state_checks.py` |
 | B6 | carry-forward diff | **done** — `ecatlib.carryforward.diff_against_previous` |
+| B7 | file poorer than live | **SHIPPED** — `b7_lossy.py`; taxonomy columns agree on code *or* name (`test_b7_taxonomy.py`) |
 
 ---
 
@@ -138,6 +139,20 @@ fresh full-key query.
   *correct*. See "What §3 does NOT close".
 
 ---
+
+## B7: taxonomy columns agree on code or name (2026-10-29)
+
+`TradeNameCode`, `CollectionCode` and `CategoryCode` are compared against the stored code **and** its
+taxonomy name, and agree if the file matches either. A standard org's file carries the code; a
+FurnishWeb-method org's file carries the name and the importer generates the code. Before this, B7
+resolved every stored code to its name, so on a standard org a correct products file showed 100%
+disagreement on brand: measured on krb's 27 Oct file, 0 of 20 sampled brand values agreed before and 20
+of 20 after; collection 20 of 20 both ways. Collection and category had no resolution at all, so a
+FurnishWeb-method org would cry wolf there. Run `python3 -I test_b7_taxonomy.py` (no database). Group has
+no products.csv column in B7's map, so it is not compared.
+
+Used by the data ops agent's DO-14 check (a file that shrinks the catalog), which pins this file:
+`kylor-johnson/supercat-data-ops`, `agents/data_ops/releases/data-ops-v0.yaml` (`upstreams`).
 
 ## The `import_events` parser
 
