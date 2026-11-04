@@ -21,6 +21,15 @@ TTFV only counts activity from non-admin users because admin activity during onb
 
 ## How to Run TTFV Analysis
 
+There are two runs. They are not interchangeable.
+
+| Run | When | Clock | Instructions |
+|---|---|---|---|
+| Monthly trailing 90 days | First week of the month, for the prior month | HubSpot close date | `TTFV_MONTHLY_UPDATE_README.md` |
+| Full-book snapshot | When someone asks for every client at once | Subscription start date, when a row exists | `TTFV_Analysis_Prompt.md` |
+
+Both start from the same org list: Organization Status `active` or `onboarding`, refreshed from Postgres each run. The query is Step 0 of the monthly readme. A missing subscription or a blank HubSpot org id does not remove an org.
+
 ### Standard Analysis (All Active Clients)
 
 ```

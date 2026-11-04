@@ -1,6 +1,8 @@
 # TTFV Analysis Report - All Active Clients
 **Generated:** November 4, 2026
 
+This file is the full-book snapshot. It is not the monthly trailing series. Membership in this run was "has an active subscription," which leaves out orgs that are Active in the admin console and have no subscription row. The November 1 monthly run (October window) is `TTFV_Analysis_Report_Oct_2026.md`.
+
 ---
 
 ## Executive Summary

@@ -27,35 +27,19 @@ TTFV = Days from Start Date to the first time a NON-ADMIN sales rep performed ei
 2. `document_email_drafted` OR `item_email_drafted` - Drafted an email (Email Draft)
 
 ### Start Date
-- **Source of truth**: `subscriptions.start_date` from Postgres — the date the org's subscription became active
-- This replaces HubSpot deal close date and `organizations.created_at` as the TTFV clock start
-- Use `MIN(start_date)` per org in case multiple subscription rows exist
+Two clocks exist. Do not mix them in one average.
+
+- **Monthly trailing series:** HubSpot `properties_closedate`. This is the series in the two CSVs. Instructions are `TTFV_MONTHLY_UPDATE_README.md`.
+- **This prompt, full-book snapshot only:** `MIN(subscriptions.start_date)` where the subscription is active. An org with no subscription stays in the output with a blank clock. `organizations.created_at` is not a clock.
 
 ### Required Steps (MUST FOLLOW IN ORDER)
 
-**Step 1: Get Active Org List and Start Dates**
-Query Postgres to get all active, non-demo/test orgs and their subscription start dates:
-```sql
-SELECT
-  o.shortname AS org_shortname,
-  o.name AS org_name,
-  MIN(s.start_date) AS start_date
-FROM organizations o
-JOIN subscriptions s ON s.organization_id = o.id
-WHERE s.status = 'active'
-  AND LOWER(o.shortname) NOT SIMILAR TO '%(test|demo|staging|sandbox|template)%'
-  AND o.shortname NOT IN (
-    'bmc2','bmc3','temp','tmpl','tmpo','tech','tle','vc','wmo',
-    'demo','demo1','demo2','demo3','demolighting','ei','hl','kylademo',
-    'emerydemo','waledemo',
-    'ahtest','bc2','bri_test','clctest','pf_test','wwtest','ufitest',
-    'ufistaging','mhstage','fmsstaging','tlastaging','vcgstaging',
-    'fccstaging','bpstaging','tam-staging','cfsd','slusa',
-    'gww','sc_test','sic','ctest','test1','omc'
-  )
-GROUP BY o.shortname, o.name
-ORDER BY start_date
-```
+**Step 1: Get the org universe, then the clock**
+The org list is Organization Status, not a subscription. Use the same query as Step 0 in `ttfv/TTFV_MONTHLY_UPDATE_README.md`: status `active` or `onboarding`, `sandbox_of_id` null, shortname not matching test/demo/staging/sandbox/template, plus the hard-coded junk list.
+
+For this full-book snapshot, left-join `subscriptions` and use `MIN(start_date)` where `s.status = 'active'` as the clock. An org in the universe with no active subscription stays in the output with start date blank and TTFV blank. Do not drop it.
+
+The monthly trailing series does not use this clock. It uses the HubSpot close date. Run that from `TTFV_MONTHLY_UPDATE_README.md`.
 
 If analyzing a **specific cohort year** (e.g., 2025 new clients), add a date filter:
 ```sql
@@ -116,8 +100,8 @@ TTFV (Days) = First Action Date - Start Date (from Step 1)
 - MUST exclude both SuperCat admins AND client admins (use `is_admin` flag from Postgres)
 - MUST validate each TTFV user exists in org_users with is_admin = FALSE
 - If a user has Mixpanel events but no org_users record, they are INVALID - use next user
-- Orgs with no subscription row or no `active` subscription are NOT eligible — do not include them
-- Use `MIN(start_date)` per org if multiple active subscription rows exist
+- Membership is Organization Status `active` or `onboarding`, after the junk filters in Step 1. A missing subscription does not remove the org
+- Use `MIN(start_date)` per org if multiple active subscription rows exist. If none exist, leave the full-book clock blank
 
 ### Output Format
 Format the report using `ttfv/TTFV_Report_Format_Template.md`
@@ -129,7 +113,8 @@ Format the report using `ttfv/TTFV_Report_Format_Template.md`
 
 | Source | Table | Purpose |
 |--------|-------|---------|
-| Postgres | `organizations` + `subscriptions` | Active client list and TTFV Start Date (`start_date`) |
+| Postgres | `organizations` | Who is in the run (`properties->>'status'`) |
+| Postgres | `subscriptions` | Full-book clock only (`start_date`), when a row exists |
 | Postgres | `org_users` + `users` | Get admin users, validate TTFV users |
 | BigQuery | `supercat-data-pipeline.mixpanel.events` | Get TTFV events |
 
@@ -137,9 +122,10 @@ Format the report using `ttfv/TTFV_Report_Format_Template.md`
 
 ## Notes
 
-- `subscriptions.start_date` is the authoritative TTFV clock start — it reflects when the org actually went live as a paying customer
-- HubSpot deal close dates and `organizations.created_at` are no longer used as start dates
+- The monthly trailing series uses the HubSpot close date as the clock. See `TTFV_MONTHLY_UPDATE_README.md`
+- This prompt's full-book clock is `subscriptions.start_date` when an active row exists. It is not the membership test
+- `organizations.created_at` is not a clock
 - The `is_admin` flag in Postgres `org_users` table is the source of truth for admin status
 - Users without an `org_users` record should be excluded (may be deleted users)
 - Run this monthly to track TTFV for new clients
-- Orgs that appear "active" in the admin console but have no `subscriptions` row with `status = 'active'` are not yet billable and should be excluded until their subscription is provisioned
+- Orgs that are Active or Onboarding and have no subscription row stay in the run. 111Mercer (`mer`), Wind River (`wr`), and Legrand US (`leg`) were dropped by the old subscription filter. That filter is retired

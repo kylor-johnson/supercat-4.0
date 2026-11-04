@@ -38,9 +38,39 @@ Only non-admin users count. Admin activity (setup, training, testing) does not q
 
 ## Monthly Update Process
 
-### Step 0: Get Recent Closed-Won Clients from HubSpot (Do This First)
+### Step 0: Build the org universe from Postgres, then attach HubSpot close dates
 
-The TTFV cohort is defined by **HubSpot closed-won deals**, not Postgres subscriptions. Postgres `subscriptions.start_date` reflects when a subscription was provisioned or renewed — it is not the TTFV clock. Use HubSpot close date as the TTFV start.
+Do this every run. Do not start from a saved CSV, from `subscriptions`, or from HubSpot alone.
+
+**Membership** is Organization Status in the admin console (`organizations.properties->>'status'`). **The clock** is still the HubSpot closed-won date. A subscription row is not required, and a missing `properties_existing_client_org_id` must not drop the org.
+
+```sql
+SELECT
+  o.shortname,
+  btrim(o.name) AS name,
+  o.properties->>'status' AS org_status,
+  o.created_at::date AS created_at
+FROM organizations o
+WHERE o.properties->>'status' IN ('active', 'onboarding')
+  AND o.sandbox_of_id IS NULL
+  AND o.shortname !~* '(test|demo|staging|sandbox|template)'
+  AND o.shortname NOT IN (
+    'bmc2','bmc3','temp','tmpl','tmpo','tech','tle','vc','wmo',
+    'demo','demo1','demo2','demo3','demolighting','ei','hl','kylademo',
+    'emerydemo','waledemo',
+    'ahtest','bc2','bri_test','clctest','pf_test','wwtest','ufitest',
+    'ufistaging','mhstage','fmsstaging','tlastaging','vcgstaging',
+    'fccstaging','bpstaging','tam-staging','cfsd','slusa',
+    'gww','sc_test','sic','ctest','test1','omc'
+  )
+ORDER BY o.created_at
+```
+
+Why both statuses: `active` is the rule. `onboarding` stays in because a real new client can sit there before anyone flips the status. As of 2026-11-04 the only real Onboarding org after the junk filter is Legrand US (`leg`). `tmpl`, `tmpo`, and `hl` are templates or a demo and the filters above remove them.
+
+Status values that stay out: `demo`, `test`, `inactive`, `sync_suspended`, `fully_suspended`. The shortname filter is still required, because some staging orgs are marked Active (`ihw_staging`, `ufistaging`, `tam-staging`, `demo1`).
+
+Then get HubSpot close dates for that universe. Use the earliest closed-won deal that is the initial go-live, not an upsell.
 
 Query BigQuery for closed-won deals with an org ID in the last 18 months:
 
@@ -71,7 +101,7 @@ WHERE properties_hs_is_closed_won = true
 ORDER BY close_date DESC
 ```
 
-For each orphan, map the deal name to a Postgres `organizations.shortname` (search by `name`) and add it to the master list manually. Examples that bit us in past runs: `drf` (Dorell Fabrics), `tcs` (The Coppersmith), `libco` (Lib and Co.), `mali` (Magic Lite | NSL). Flag these to HubSpot ops so the org_id gets populated upstream.
+For each orphan, map the deal name to a Postgres `organizations.shortname` (search by `name`) and use that close date as the clock. The org is already in the universe from Step 0 if its status is Active or Onboarding. Examples that bit us: `drf`, `libco`, `mali`, and `mer` (111Mercer, closed won 2026-08-04, org id still blank). Flag these to HubSpot ops so the org id gets populated. An Active org with no closed-won deal (Wind River, `wr`, as of 2026-11-04) stays in the "no clock / no TTFV yet" list. It does not enter the average.
 
 **Watch for parent/sub-org mismatches.** When a deal's `properties_existing_client_org_id` points at the parent (e.g. `ta` Theodore Alexander) but a separate Postgres org exists for the location/subsidiary (e.g. `tam` Theodore Alexander Manhasset), use the Postgres shortname that actually matches the deal name and was provisioned for that engagement.
 
@@ -170,8 +200,9 @@ Add the new month column across all four rows:
 
 | Data | Source | Field |
 |------|--------|-------|
+| Who is in the run | SuperCat Postgres `organizations` | `properties->>'status'` in (`active`, `onboarding`), junk shortnames out |
 | TTFV start date (close date) | `supercat-data-pipeline.hubspot.deal` | `properties_closedate` |
-| Org shortname | `supercat-data-pipeline.hubspot.deal` | `properties_existing_client_org_id` |
+| Org shortname on the deal | `supercat-data-pipeline.hubspot.deal` | `properties_existing_client_org_id` (blank does not drop the org) |
 | First value events | `supercat-data-pipeline.mixpanel.events` | `event_name`, `username`, `time` |
 | Admin exclusions | SuperCat Postgres `org_users` | `is_admin = true` |
 
@@ -194,9 +225,10 @@ Add the new month column across all four rows:
 - Verify `properties_closedate` is the original deal close, not a renewal
 
 ### "Client expected to appear but doesn't"
-- Check if they have qualifying Mixpanel events after their close date by a non-admin user
+- Re-run the Step 0 status query. An Active or Onboarding org belongs in the universe even with no subscription and a blank HubSpot org id
+- Check if they have qualifying Mixpanel events after their close date by a non-admin user who has an `org_users` row
 - Confirm their first value date is within the trailing 90-day window for this month
-- Check that their HubSpot deal has `properties_existing_client_org_id` populated
+- If the HubSpot org id is blank, match the deal name to the shortname and use that close date anyway
 
 ### "TTFV seems too high (>150 days)"
 - Client may have had onboarding delays or training gaps
@@ -230,9 +262,10 @@ Read @ttfv/TTFV_MONTHLY_UPDATE_README.md
 
 Run the monthly TTFV update for [MONTH YEAR]:
 
-Step 0: Query `supercat-data-pipeline.hubspot.deal` for closed-won deals with a non-null
-properties_existing_client_org_id, closed in the last 18 months. Use properties_closedate
-as the TTFV start date for each org.
+Step 0: Query Postgres for the org universe (Organization Status active or onboarding,
+excluding demo/test/staging/sandbox shortnames and sandboxes). That query is in this
+file. Then attach HubSpot closed-won dates, including deals whose org id is still blank.
+Use properties_closedate as the TTFV start. Do not require a subscriptions row.
 
 Step 1: Query Postgres org_users to get admin usernames for each org from Step 0.
 
@@ -251,4 +284,4 @@ Step 5: Show the calculation and flag any clients with TTFV > 150 days or still 
 
 ---
 
-Last updated: June 2, 2026
+Last updated: November 4, 2026

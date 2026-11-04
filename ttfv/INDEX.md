@@ -11,7 +11,7 @@ Quick reference guide to all files in this folder.
 |------|---------|-------------|
 | **README.md** | Main documentation and overview | First time setup, understanding TTFV |
 | **QUICKSTART.md** | Step-by-step guide for new users | Running your first analysis |
-| **PROMPT_TEMPLATES.md** | Copy-paste prompts for common tasks | Monthly reviews, specific analyses |
+| **TTFV_MONTHLY_UPDATE_README.md** | The monthly trailing-90-day run, including the org-universe query | First week of each month |
 
 ### Reference
 | File | Purpose | When to Use |
@@ -19,6 +19,7 @@ Quick reference guide to all files in this folder.
 | **TTFV_Methodology_Overview.md** | Detailed explanation of TTFV metric | Understanding why/how TTFV works |
 | **TTFV_Analysis_Prompt.md** | Core calculation logic (reference in Cursor) | Every analysis - this is the engine |
 | **TTFV_Report_Format_Template.md** | Report formatting guidelines | Customizing output format |
+| **PROMPT_TEMPLATES.md** | Older copy-paste prompts | One-off named-client checks |
 
 ---
 
@@ -60,8 +61,8 @@ Quick reference guide to all files in this folder.
 **Understand what TTFV means**
 → Read `TTFV_Methodology_Overview.md`
 
-**Run a monthly review**
-→ Copy prompt from `PROMPT_TEMPLATES.md` (Template 1)
+**Run the monthly trailing-90-day update**
+→ Follow `TTFV_MONTHLY_UPDATE_README.md`
 
 **Create a new client cohort**
 → Copy `2025_clients.csv` format, update with new clients
