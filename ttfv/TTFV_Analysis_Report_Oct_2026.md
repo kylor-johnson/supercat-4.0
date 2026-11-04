@@ -1,7 +1,9 @@
 # TTFV Monthly Report — October 2026
 **Generated:** November 4, 2026
 **Run:** November 1 monthly update, for the October window
-**Confidence:** STRONG on the October cell. Every figure below is [from-live] as of 2026-11-04.
+**Universe:** every org with Organization Status Active as of 2026-11-04, after demo, test, staging, sandbox, and template shortnames are removed. That is 120 orgs. `leg` was set to Active for this run. Finance still has to add the subscription rows for `leg` and `mer`. A missing subscription did not keep either org out of this run.
+
+**Confidence:** STRONG on the October cell. [from-live] as of 2026-11-04. The other 119 Active orgs do not have a first valid non-admin value inside this window, so they are not in the average.
 
 ## Result
 
@@ -31,7 +33,7 @@ That first-value date was already inside the September window, so Legrand carrie
 |---|---|---|
 | Lib and Co. (`libco`) | active, start 2026-05-20 | Already counted in Jul-26 and Aug-26. First value 2026-06-26 is outside this window. |
 | Dorell Fabrics (`drf`) | active, start 2026-06-01 | Already counted in Aug-26. First value 2026-07-01 is outside this window. |
-| Legrand US (`leg`) | none yet. Status is onboarding. | They are the October average. |
+| Legrand US (`leg`) | none yet. Status is Active as of 2026-11-04. Finance still needs to add the subscription. | They are the October average. |
 | 111Mercer (`mer`) | none yet. Status is active, created 2026-08-10. | Closed won 2026-08-04, deal "111 Mercer- TIER 1", HubSpot org id still blank. The only qualifying users through 2026-10-31 are admins: `kylor_johnson` (2026-08-27) and `jonv` (2026-10-15). No valid TTFV yet, so they are not in the average. |
 
 ## Who was checked and left out

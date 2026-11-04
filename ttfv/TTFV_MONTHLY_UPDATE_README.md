@@ -46,7 +46,7 @@ Do this every run. Do not start from a saved CSV.
 
 Some new clients are already Active or Onboarding in admin and do not have a subscription row yet. Add those too, but only when they have a closed-won deal. Organization Status by itself is not membership. An Active shell with no won deal is not a client.
 
-As of 2026-11-04 the gap is `mer` (111Mercer, Active, closed won 2026-08-04) and `leg` (Legrand US, Onboarding, closed won 2026-06-11). `libco` and `drf` already have active subscriptions, so they are on the MAL. Wind River (`wr`) is Active and has no subscription, and it is not part of this gap: no org users, and neither HubSpot deal is closed-won.
+As of 2026-11-04 the subscription gap on Active orgs is `mer` (111Mercer, closed won 2026-08-04) and `leg` (Legrand US, set to Active, closed won 2026-06-11). `libco` and `drf` already have active subscriptions, so they are on the MAL. Wind River (`wr`) is Active and has no subscription, and it is not a client in this run: no org users, and neither HubSpot deal is closed-won.
 
 Candidate orgs to check for that gap:
 

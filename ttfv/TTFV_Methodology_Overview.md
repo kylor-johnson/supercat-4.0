@@ -29,7 +29,7 @@ If a client has multiple HubSpot deals (expansions, add-ons), use the deal repre
 
 The MAL is every org with an active subscription. Also include an Active or Onboarding org that has a closed-won deal and no subscription row yet. That is the new-client gap, before anyone adds the subscription in admin. As of 2026-11-04 that gap is `mer` and `leg`. `libco` and `drf` are already on the MAL.
 
-Status Active by itself does not add an org. Drop demo, test, staging, sandbox, and template shortnames, and anything with `sandbox_of_id` set.
+The November 1, 2026 run checked every org with Organization Status Active (120 after the junk filter), because `leg` and `mer` did not have subscription rows yet. `leg` was set to Active that day. The average still only includes an org whose first valid non-admin value date falls in the window.
 
 A blank HubSpot org id does not remove a closed-won client. Match the deal name to the shortname and use that close date. A deal that is not closed-won does not add an org.
 
