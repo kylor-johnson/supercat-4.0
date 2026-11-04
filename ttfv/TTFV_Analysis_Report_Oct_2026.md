@@ -3,25 +3,23 @@
 **Run:** November 1 monthly update, for the October window
 **Universe:** every org with Organization Status Active as of 2026-11-04, after demo, test, staging, sandbox, and template shortnames are removed. That is 120 orgs. `leg` was set to Active for this run. Finance still has to add the subscription rows for `leg` and `mer`. A missing subscription did not keep either org out of this run.
 
-**Confidence:** STRONG on the October cell. [from-live] as of 2026-11-04. The other 119 Active orgs do not have a first valid non-admin value inside this window, so they are not in the average.
+**Confidence:** STRONG on the October cell. [from-live] as of 2026-11-04. Qualifying events are a non-admin presentation, email draft, or `order_submitted`, whichever comes first. Columns through Sep-26 do not include orders.
 
 ## Result
 
-October trailing 90-day TTFV is **86 days**, from one client.
+October trailing 90-day TTFV is **80 days**, from two clients.
 
-`=86/1`
+`=(86+74)/2`
 
 | | |
 |---|---|
 | Window | 2026-08-02 through 2026-10-31 |
-| Client | Legrand US (`leg`) |
-| Clock | HubSpot close 2026-06-11, deal "Legrand - Showroom TIER 1" |
-| First value | `sschwartz1`, `document_email_drafted`, 2026-09-05, `is_admin` false |
-| Days | 86 |
+| Legrand US (`leg`) | 86 days. HubSpot close 2026-06-11. First value `sschwartz1`, `document_email_drafted`, 2026-09-05, not an admin. No non-admin has submitted an order on `leg`. |
+| 111Mercer (`mer`) | 74 days. HubSpot close 2026-08-04, deal "111 Mercer- TIER 1", org id still blank. First value `rmcollected`, `order_submitted`, 2026-10-17. `is_admin` false, user group Sales Reps. Postgres has the submitted iPad orders `161700-101726-17` and `161700-101726-1` that same day. |
 
 `sschwartz1` is the earliest valid user. Earlier events on `leg` are admins (`jonv`, `kjael`, `kylor_johnson`, `abriggs`) or `swt`, who has no `org_users` row.
 
-That first-value date was already inside the September window, so Legrand carries into October. Pebble (`pebl`, 2026-06-12), Lib & Co (`libco`, 2026-06-26), and Dorell (`drf`, 2026-07-01) are already outside it. The October cell matches September because the same one client is still inside the window and nobody new qualified.
+Legrand's email draft was already inside the September window, so they carry into October at 86 days. Their only order submissions are from admins (`jonv` on 2025-12-12, `kylor_johnson` on 2026-09-03), so the order rule does not move Legrand's date. Pebble, Lib & Co, and Dorell already had a first value before August 2. Other Active orgs that submitted an order in this window already had an earlier non-admin presentation or email, so the new order does not pull them in. 111Mercer is the one that enters because of the order.
 
 ## Newly onboarded clients
 
@@ -34,13 +32,11 @@ That first-value date was already inside the September window, so Legrand carrie
 | Lib and Co. (`libco`) | active, start 2026-05-20 | Already counted in Jul-26 and Aug-26. First value 2026-06-26 is outside this window. |
 | Dorell Fabrics (`drf`) | active, start 2026-06-01 | Already counted in Aug-26. First value 2026-07-01 is outside this window. |
 | Legrand US (`leg`) | none yet. Status is Active as of 2026-11-04. Finance still needs to add the subscription. | They are the October average. |
-| 111Mercer (`mer`) | none yet. Status is active, created 2026-08-10. | Closed won 2026-08-04, deal "111 Mercer- TIER 1", HubSpot org id still blank. The only qualifying users through 2026-10-31 are admins: `kylor_johnson` (2026-08-27) and `jonv` (2026-10-15). No valid TTFV yet, so they are not in the average. |
+| 111Mercer (`mer`) | none yet. Status is Active, created 2026-08-10. | In the October average at 74 days, from `rmcollected` submitting an order on 2026-10-17. `jendolan` submitted more orders starting 2026-10-16 and is flagged admin, so those do not count. |
 
 ## Who was checked and left out
 
 Demos whose first qualifying event falls inside the window stay out: Kurt S. Adler (`ksa`, 2026-08-18), `pf_test` (2026-08-25), ADRIANA HOYOS (`adho`, 2026-08-28), Transformer Table (`ttb`, 2026-10-28).
-
-`mer` is the only real client whose first qualifying event is inside the window, and both of its users are admins, so it stays out of the average.
 
 Older Active orgs that the subscription list also missed (`cff`, `hmi`, `gf`, `gg`, `bscc`, `hvusa`, `khi`, `opame`) have first values well before August 2, or no qualifying events. They do not enter October.
 
@@ -48,4 +44,4 @@ Older Active orgs that the subscription list also missed (`cff`, `hmi`, `gf`, `g
 
 ## Series
 
-Oct-26 is now on both CSVs. Detail row: 86.0 days, 1 client, 86.0 total days, client `leg`.
+Oct-26 on both CSVs: 80.0 days, 2 clients, 160.0 total days, clients `leg+mer`. Formula `=(86+74)/2`.

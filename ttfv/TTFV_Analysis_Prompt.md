@@ -22,9 +22,12 @@ Calculate the TTFV (Time to First Value) for the following clients: [LIST CLIENT
 To run for ALL active clients, use: "Calculate the TTFV for all active clients" and follow Step 1 below to query Postgres directly.
 
 ### TTFV Definition
-TTFV = Days from Start Date to the first time a NON-ADMIN sales rep performed either:
-1. `item_added_via_magic_button` - Added a product to a list (Presentation/Stack)
-2. `document_email_drafted` OR `item_email_drafted` - Drafted an email (Email Draft)
+TTFV = Days from Start Date to the first time a NON-ADMIN sales rep performed any of:
+1. `order_submitted` - Submitted an order
+2. `item_added_via_magic_button` - Added a product to a list (Presentation/Stack)
+3. `document_email_drafted` OR `item_email_drafted` - Drafted an email (Email Draft)
+
+The first of these wins. An order counts even when the rep never built a presentation.
 
 ### Start Date
 Two clocks exist. Do not mix them in one average.
@@ -74,7 +77,7 @@ For each org, get the specific username whose event is being used:
 ```sql
 SELECT username, event_name, DATE(TIMESTAMP_SECONDS(CAST(time AS INT64))) as event_date
 FROM supercat-data-pipeline.mixpanel.events
-WHERE event_name IN ('item_added_via_magic_button', 'document_email_drafted', 'item_email_drafted')
+WHERE event_name IN ('order_submitted', 'item_added_via_magic_button', 'document_email_drafted', 'item_email_drafted')
   AND LOWER(current_organization_shortname) = '[ORG]'
   AND LOWER(username) NOT IN ([ADMIN_LIST_FOR_ORG])
 ORDER BY time ASC

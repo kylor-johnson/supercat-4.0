@@ -45,9 +45,12 @@ The first date a **non-admin** user performs a qualifying value action after the
 
 | Event | What It Means |
 |-------|---------------|
+| `order_submitted` | Rep submitted an order in eCat |
 | `item_added_via_magic_button` | Rep added a product to a presentation |
 | `document_email_drafted` | Rep drafted a customer-facing email |
 | `item_email_drafted` | Rep drafted a customer-facing email (item-level) |
+
+The first of these wins. An order is a qualifying event because a client who sells through eCat has already reached value, even if they never built a presentation. A presentation or an email draft still counts when the client does not place orders in eCat. Columns through Sep-26 were calculated without `order_submitted`.
 
 Admin users (identified via Postgres `org_users.is_admin = true`) are excluded. Admin activity during setup, training, or testing does not represent real sales adoption.
 

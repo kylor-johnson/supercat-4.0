@@ -28,11 +28,14 @@ Two CSV files track the trailing 90-day TTFV metric:
 - Client exits the window once their first value date is more than 90 days before the end of the month
 - Clients with no qualifying Mixpanel events yet are excluded (still onboarding)
 
-**Value Actions (Mixpanel Events):**
+**Value Actions (Mixpanel Events), whichever comes first:**
 - `item_added_via_magic_button` — rep added a product to a presentation
 - `document_email_drafted` or `item_email_drafted` — rep drafted a customer email
+- `order_submitted` — rep submitted an order in eCat
 
-Only non-admin users count. Admin activity (setup, training, testing) does not qualify.
+An order counts as first value. Most clients never place an order in eCat, so a presentation or an email draft still counts when it comes first. Only non-admin users count. Admin activity during setup does not qualify.
+
+Columns through Sep-26 were calculated before `order_submitted` was added. Oct-26 includes it. Do not compare Oct-26 to Sep-26 as if the event list were the same.
 
 ---
 
@@ -143,7 +146,7 @@ FROM (
     )) AS org_shortname,
     DATE(TIMESTAMP_SECONDS(CAST(time AS INT64))) AS event_date
   FROM `supercat-data-pipeline.mixpanel.events`
-  WHERE event_name IN ('item_added_via_magic_button', 'document_email_drafted', 'item_email_drafted')
+  WHERE event_name IN ('order_submitted', 'item_added_via_magic_button', 'document_email_drafted', 'item_email_drafted')
     AND LOWER(username) NOT IN ([ADMIN_LIST_FROM_STEP_1])
     AND LOWER(COALESCE(
       NULLIF(organization_shortname, ''),
@@ -291,4 +294,4 @@ Step 5: Show the calculation and flag any clients with TTFV > 150 days or still 
 
 ---
 
-Last updated: November 4, 2026
+Last updated: November 4, 2026. Oct-26 adds `order_submitted`. Earlier columns were not rebuilt.
