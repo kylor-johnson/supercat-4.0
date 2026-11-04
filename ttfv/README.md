@@ -28,7 +28,7 @@ There are two runs. They are not interchangeable.
 | Monthly trailing 90 days | First week of the month, for the prior month | HubSpot close date | `TTFV_MONTHLY_UPDATE_README.md` |
 | Full-book snapshot | When someone asks for every client at once | Subscription start date, when a row exists | `TTFV_Analysis_Prompt.md` |
 
-Both start from the same org list: Organization Status `active` or `onboarding`, refreshed from Postgres each run. The query is Step 0 of the monthly readme. A missing subscription or a blank HubSpot org id does not remove an org.
+Both start from the MAL: orgs with an active subscription. Also include an Active or Onboarding org that has a closed-won deal and no subscription row yet. The rule is Step 0 of the monthly readme. A blank HubSpot org id does not remove a closed-won client. Status Active by itself does not add an org.
 
 ### Standard Analysis (All Active Clients)
 

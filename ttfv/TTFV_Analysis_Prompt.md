@@ -35,7 +35,7 @@ Two clocks exist. Do not mix them in one average.
 ### Required Steps (MUST FOLLOW IN ORDER)
 
 **Step 1: Get the org universe, then the clock**
-The org list is Organization Status, not a subscription. Use the same query as Step 0 in `ttfv/TTFV_MONTHLY_UPDATE_README.md`: status `active` or `onboarding`, `sandbox_of_id` null, shortname not matching test/demo/staging/sandbox/template, plus the hard-coded junk list.
+The MAL is orgs with an active subscription. Also include an Active or Onboarding org that has a closed-won deal and no subscription row yet. The rule and the junk-shortname filter are Step 0 of `ttfv/TTFV_MONTHLY_UPDATE_README.md`. Status Active with no closed-won deal does not add an org.
 
 For this full-book snapshot, left-join `subscriptions` and use `MIN(start_date)` where `s.status = 'active'` as the clock. An org in the universe with no active subscription stays in the output with start date blank and TTFV blank. Do not drop it.
 
@@ -100,7 +100,7 @@ TTFV (Days) = First Action Date - Start Date (from Step 1)
 - MUST exclude both SuperCat admins AND client admins (use `is_admin` flag from Postgres)
 - MUST validate each TTFV user exists in org_users with is_admin = FALSE
 - If a user has Mixpanel events but no org_users record, they are INVALID - use next user
-- Membership is Organization Status `active` or `onboarding`, after the junk filters in Step 1. A missing subscription does not remove the org
+- Membership is the MAL (active subscription), plus a closed-won Active or Onboarding org that has no subscription row yet. Status Active with no closed-won deal does not add an org
 - Use `MIN(start_date)` per org if multiple active subscription rows exist. If none exist, leave the full-book clock blank
 
 ### Output Format
@@ -128,4 +128,4 @@ Format the report using `ttfv/TTFV_Report_Format_Template.md`
 - The `is_admin` flag in Postgres `org_users` table is the source of truth for admin status
 - Users without an `org_users` record should be excluded (may be deleted users)
 - Run this monthly to track TTFV for new clients
-- Orgs that are Active or Onboarding and have no subscription row stay in the run. 111Mercer (`mer`), Wind River (`wr`), and Legrand US (`leg`) were dropped by the old subscription filter. That filter is retired
+- The MAL is orgs with an active subscription. Also keep a closed-won Active or Onboarding org that has no subscription row yet. As of 2026-11-04 that is 111Mercer (`mer`) and Legrand US (`leg`). `libco` and `drf` already have subscriptions. Status Active with no closed-won deal does not add an org.

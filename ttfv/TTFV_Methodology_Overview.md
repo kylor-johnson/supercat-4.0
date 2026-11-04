@@ -27,11 +27,11 @@ If a client has multiple HubSpot deals (expansions, add-ons), use the deal repre
 
 ## Who Is in the Run
 
-Membership is Postgres Organization Status, refreshed every run. It is not a saved list and it does not require a subscription.
+The MAL is every org with an active subscription. Also include an Active or Onboarding org that has a closed-won deal and no subscription row yet. That is the new-client gap, before anyone adds the subscription in admin. As of 2026-11-04 that gap is `mer` and `leg`. `libco` and `drf` are already on the MAL.
 
-Include `properties->>'status'` of `active` or `onboarding`, with `sandbox_of_id` null, and drop shortnames that match test, demo, staging, sandbox, or template. `onboarding` stays in because a real new client can sit there. As of 2026-11-04 that is Legrand US (`leg`). Demo, test, inactive, sync suspended, and fully suspended stay out. The shortname filter still matters: some staging orgs are marked Active.
+Status Active by itself does not add an org. Drop demo, test, staging, sandbox, and template shortnames, and anything with `sandbox_of_id` set.
 
-A blank HubSpot org id does not remove the org. Match the deal name to the shortname and use that close date. An Active org with no closed-won deal is listed as having no clock and is not averaged.
+A blank HubSpot org id does not remove a closed-won client. Match the deal name to the shortname and use that close date. A deal that is not closed-won does not add an org.
 
 The query lives in `TTFV_MONTHLY_UPDATE_README.md`, Step 0.
 
@@ -84,7 +84,7 @@ Example — April 2026 (window: Feb 1 – Apr 30, 2026):
 
 | Data | Source | Field |
 |------|--------|-------|
-| Who is in the run | SuperCat Postgres `organizations` | `properties->>'status'` |
+| Who is in the run | SuperCat Postgres `subscriptions` | `status = 'active'`, plus closed-won orgs with no subscription yet |
 | TTFV start (close date) | `supercat-data-pipeline.hubspot.deal` | `properties_closedate` |
 | Org shortname | `supercat-data-pipeline.hubspot.deal` | `properties_existing_client_org_id` |
 | First value events | `supercat-data-pipeline.mixpanel.events` | `event_name`, `username`, `time` |

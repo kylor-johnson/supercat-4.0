@@ -38,11 +38,17 @@ Only non-admin users count. Admin activity (setup, training, testing) does not q
 
 ## Monthly Update Process
 
-### Step 0: Build the org universe from Postgres, then attach HubSpot close dates
+### Step 0: Start from the subscription list, then add new clients who have no subscription yet
 
-Do this every run. Do not start from a saved CSV, from `subscriptions`, or from HubSpot alone.
+Do this every run. Do not start from a saved CSV.
 
-**Membership** is Organization Status in the admin console (`organizations.properties->>'status'`). **The clock** is still the HubSpot closed-won date. A subscription row is not required, and a missing `properties_existing_client_org_id` must not drop the org.
+**The MAL** is every org with `subscriptions.status = 'active'`. That is the client book. **The clock** is still the HubSpot closed-won date.
+
+Some new clients are already Active or Onboarding in admin and do not have a subscription row yet. Add those too, but only when they have a closed-won deal. Organization Status by itself is not membership. An Active shell with no won deal is not a client.
+
+As of 2026-11-04 the gap is `mer` (111Mercer, Active, closed won 2026-08-04) and `leg` (Legrand US, Onboarding, closed won 2026-06-11). `libco` and `drf` already have active subscriptions, so they are on the MAL. Wind River (`wr`) is Active and has no subscription, and it is not part of this gap: no org users, and neither HubSpot deal is closed-won.
+
+Candidate orgs to check for that gap:
 
 ```sql
 SELECT
@@ -101,7 +107,7 @@ WHERE properties_hs_is_closed_won = true
 ORDER BY close_date DESC
 ```
 
-For each orphan, map the deal name to a Postgres `organizations.shortname` (search by `name`) and use that close date as the clock. The org is already in the universe from Step 0 if its status is Active or Onboarding. Examples that bit us: `drf`, `libco`, `mali`, and `mer` (111Mercer, closed won 2026-08-04, org id still blank). Flag these to HubSpot ops so the org id gets populated. An Active org with no closed-won deal (Wind River, `wr`, as of 2026-11-04) stays in the "no clock / no TTFV yet" list. It does not enter the average.
+For each orphan, map the deal name to a Postgres `organizations.shortname` (search by `name`) and use that close date as the clock. If that org has no subscription row and its status is Active or Onboarding, add it. Examples: `mer` (111Mercer, closed won 2026-08-04, org id still blank), and earlier `drf`, `libco`, and `mali`. Flag these to HubSpot ops so the org id gets populated. A deal that is not closed-won does not add an org.
 
 **Watch for parent/sub-org mismatches.** When a deal's `properties_existing_client_org_id` points at the parent (e.g. `ta` Theodore Alexander) but a separate Postgres org exists for the location/subsidiary (e.g. `tam` Theodore Alexander Manhasset), use the Postgres shortname that actually matches the deal name and was provisioned for that engagement.
 
@@ -200,7 +206,7 @@ Add the new month column across all four rows:
 
 | Data | Source | Field |
 |------|--------|-------|
-| Who is in the run | SuperCat Postgres `organizations` | `properties->>'status'` in (`active`, `onboarding`), junk shortnames out |
+| Who is in the run | SuperCat Postgres `subscriptions` | `status = 'active'`, plus a closed-won Active or Onboarding org that has no subscription yet |
 | TTFV start date (close date) | `supercat-data-pipeline.hubspot.deal` | `properties_closedate` |
 | Org shortname on the deal | `supercat-data-pipeline.hubspot.deal` | `properties_existing_client_org_id` (blank does not drop the org) |
 | First value events | `supercat-data-pipeline.mixpanel.events` | `event_name`, `username`, `time` |
@@ -225,7 +231,7 @@ Add the new month column across all four rows:
 - Verify `properties_closedate` is the original deal close, not a renewal
 
 ### "Client expected to appear but doesn't"
-- Re-run the Step 0 status query. An Active or Onboarding org belongs in the universe even with no subscription and a blank HubSpot org id
+- Re-run Step 0. The MAL is orgs with an active subscription. Also add an Active or Onboarding org that has a closed-won deal and no subscription row yet
 - Check if they have qualifying Mixpanel events after their close date by a non-admin user who has an `org_users` row
 - Confirm their first value date is within the trailing 90-day window for this month
 - If the HubSpot org id is blank, match the deal name to the shortname and use that close date anyway
@@ -262,10 +268,11 @@ Read @ttfv/TTFV_MONTHLY_UPDATE_README.md
 
 Run the monthly TTFV update for [MONTH YEAR]:
 
-Step 0: Query Postgres for the org universe (Organization Status active or onboarding,
-excluding demo/test/staging/sandbox shortnames and sandboxes). That query is in this
-file. Then attach HubSpot closed-won dates, including deals whose org id is still blank.
-Use properties_closedate as the TTFV start. Do not require a subscriptions row.
+Step 0: Start from orgs with an active subscription (the MAL). Then add Active or
+Onboarding orgs that have a closed-won deal and no subscription row yet. That query
+is in this file. Attach HubSpot closed-won dates, including deals whose org id is
+still blank. Use properties_closedate as the TTFV start. Do not add an Active org
+that has no closed-won deal.
 
 Step 1: Query Postgres org_users to get admin usernames for each org from Step 0.
 
