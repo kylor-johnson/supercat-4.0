@@ -40,7 +40,8 @@ would pollute routing. Use exactly this mapping:
 
 | Question domain | Data source | Location |
 |---|---|---|
-| Org config, users, groups, sites, products, imports, inventory | **supercat-postgres-vpn** | Postgres (VPN) |
+| Org config, users, groups, sites, products, imports, inventory | **supercat-postgres-vpn** | Postgres (VPN) — the app database |
+| Sales Portal order/invoice facts the portal displays and tabulates | **supercat-postgres-warehouse** | Warehouse Postgres (`https://mcp-postgres-tools-warehouse.tools.supercatsolutions.com/sse`). Tables are timestamp-suffixed (`sales_fact_%{ts}`, `*_dimension_%{ts}`, `*_bridge_%{ts}`, `sales_fact_product_rollup_%{ts}`). Decoder: `~/supercat-code/supercat_server/app/models/warehouse_access.rb` and `app/services/warehouse/query.rb`. Do not query these facts from the app Postgres. |
 | **Changing** org config/content (not reading it) | **`ecat-admin-write`** | Admin Console Rails endpoints |
 | Support tickets & customer conversations | **bigquery-admin** | `helpscout.conversations` / `helpscout.conversation_threads` |
 | eOL / portal web analytics | **bigquery-admin** | `google_analytics_ecat_online` |

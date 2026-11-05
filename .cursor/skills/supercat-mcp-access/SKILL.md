@@ -42,6 +42,21 @@ A thin `mcp-remote` proxy to a **remote** MCP server. Tools are defined server-s
 Read-only is the **remote server's** contract. No local config edit changes it.
 Cursor used the identical endpoint — this never behaved differently there.
 
+### `supercat-postgres-warehouse` — Sales Portal warehouse, read-only
+
+```json
+"supercat-postgres-warehouse": {
+  "url": "https://mcp-postgres-tools-warehouse.tools.supercatsolutions.com/sse"
+}
+```
+
+Same tool family as the app Postgres server, pointed at the ETL warehouse the
+Sales Portal reads. Tables are timestamp-suffixed (`sales_fact_%{ts}`,
+`*_dimension_%{ts}`, bridges, rollups). Decode names and joins from
+`~/supercat-code/supercat_server/app/models/warehouse_access.rb` and
+`app/services/warehouse/query.rb` before writing SQL. This is not the app
+database — org config, users, and products stay on `supercat-postgres-vpn`.
+
 ### `supercat-cs-tools` — RETIRED, and was also read-only
 
 ```json
@@ -137,7 +152,9 @@ Independent of permissions — direct SQL bypasses Rails and corrupts state:
 | User-group Library or price-level auth | Admin Console → User Groups |
 | Territory codes on users | Admin Console → Users |
 | Product/taxonomy changes | Regenerate the CSV → import → verify in Tools → Admin Reports → File Import Status |
-| Anything read-only | `supercat-postgres-vpn` (or `bigquery-admin` for warehouse data) |
+| Anything read-only in the app database | `supercat-postgres-vpn` |
+| Sales Portal warehouse facts (orders, invoices, dimensions) | `supercat-postgres-warehouse` — decode table names from `app/models/warehouse_access.rb` |
+| Analytics, tickets, billing rollups | `bigquery-admin` |
 
 Blue-link timestamp in File Import Status = the import had problems; click it for
 line numbers.
